@@ -29,6 +29,7 @@ function App() {
   const [textSize, setTextSize] = useState<TextSize>('medium');
   const [fontFamily, setFontFamily] = useState<FontFamily>('IBM Plex Mono');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [showGrid, setShowGrid] = useState(true);
   const [showPresentations, setShowPresentations] = useState(false);
   const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
   
@@ -227,6 +228,10 @@ function App() {
     localStorage.setItem('canvas-theme', newTheme);
   }, [theme]);
 
+  const handleGridToggle = useCallback(() => {
+    setShowGrid((prev) => !prev);
+  }, []);
+
   const handleAddSubject = useCallback(
     (name: string) => {
       if (subjects.includes(name)) {
@@ -350,6 +355,8 @@ function App() {
         onFontFamilyChange={setFontFamily}
         theme={theme}
         onThemeToggle={handleThemeToggle}
+        showGrid={showGrid}
+        onGridToggle={handleGridToggle}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onSave={handleSave}
@@ -378,6 +385,7 @@ function App() {
           fontSize={TEXT_SIZES[textSize]}
           fontFamily={fontFamily}
           theme={theme}
+          showGrid={showGrid}
         />
       </div>
 

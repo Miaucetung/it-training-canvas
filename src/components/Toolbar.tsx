@@ -17,6 +17,7 @@ import {
   Sun,
   Moon,
   List,
+  GridFour,
 } from '@phosphor-icons/react';
 import { Tool, PenWidth, TextSize, FontFamily, PRESET_COLORS } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -36,6 +37,8 @@ interface ToolbarProps {
   onFontFamilyChange: (font: FontFamily) => void;
   theme: 'light' | 'dark';
   onThemeToggle: () => void;
+  showGrid: boolean;
+  onGridToggle: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -59,6 +62,8 @@ export function Toolbar({
   onFontFamilyChange,
   theme,
   onThemeToggle,
+  showGrid,
+  onGridToggle,
   onUndo,
   onRedo,
   onSave,
@@ -325,6 +330,27 @@ export function Toolbar({
             </TooltipContent>
           </Tooltip>
         </div>
+
+        <Separator orientation="vertical" className="h-12" />
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onGridToggle}
+              className={cn(
+                'h-12 w-12',
+                showGrid && 'bg-accent text-accent-foreground hover:bg-accent/90'
+              )}
+            >
+              <GridFour size={24} weight={showGrid ? 'fill' : 'regular'} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Toggle Grid</p>
+          </TooltipContent>
+        </Tooltip>
 
         <Separator orientation="vertical" className="h-12" />
 

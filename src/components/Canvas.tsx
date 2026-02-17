@@ -11,6 +11,7 @@ interface CanvasProps {
   fontSize: number;
   fontFamily: FontFamily;
   theme: 'light' | 'dark';
+  showGrid: boolean;
 }
 
 export function Canvas({
@@ -22,6 +23,7 @@ export function Canvas({
   fontSize,
   fontFamily,
   theme,
+  showGrid,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -49,7 +51,7 @@ export function Canvas({
 
   useEffect(() => {
     redraw();
-  }, [objects, theme]);
+  }, [objects, theme, showGrid]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const gridSize = 20;
@@ -101,7 +103,9 @@ export function Canvas({
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    drawGrid(ctx, canvas.width, canvas.height);
+    if (showGrid) {
+      drawGrid(ctx, canvas.width, canvas.height);
+    }
 
     objects.forEach((obj) => {
       if (tool === 'eraser' && obj.type === 'eraser') {
