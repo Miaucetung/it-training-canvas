@@ -37,6 +37,7 @@ function App() {
   const [gridPattern, setGridPattern] = useState<GridPattern>('lines');
   const [gridColor, setGridColor] = useState<string>('');
   const [gridAccentColor, setGridAccentColor] = useState<string>('');
+  const [gridOpacity, setGridOpacity] = useState<number>(1);
   const [showPresentations, setShowPresentations] = useState(false);
   const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
   
@@ -72,8 +73,10 @@ function App() {
 
     const savedGridColor = localStorage.getItem('canvas-grid-color');
     const savedGridAccentColor = localStorage.getItem('canvas-grid-accent-color');
+    const savedGridOpacity = localStorage.getItem('canvas-grid-opacity');
     if (savedGridColor) setGridColor(savedGridColor);
     if (savedGridAccentColor) setGridAccentColor(savedGridAccentColor);
+    if (savedGridOpacity) setGridOpacity(parseFloat(savedGridOpacity));
   }, []);
 
   const getCurrentCanvasState = (): CanvasState => {
@@ -251,6 +254,11 @@ function App() {
     localStorage.setItem('canvas-grid-accent-color', accentColor);
   }, []);
 
+  const handleGridOpacityChange = useCallback((opacity: number) => {
+    setGridOpacity(opacity);
+    localStorage.setItem('canvas-grid-opacity', opacity.toString());
+  }, []);
+
   const handleAddSubject = useCallback(
     (name: string) => {
       if (subjects.includes(name)) {
@@ -383,6 +391,8 @@ function App() {
         gridColor={gridColor}
         gridAccentColor={gridAccentColor}
         onGridColorChange={handleGridColorChange}
+        gridOpacity={gridOpacity}
+        onGridOpacityChange={handleGridOpacityChange}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onSave={handleSave}
@@ -416,6 +426,7 @@ function App() {
           gridPattern={gridPattern}
           gridColor={gridColor}
           gridAccentColor={gridAccentColor}
+          gridOpacity={gridOpacity}
         />
       </div>
 

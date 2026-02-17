@@ -16,6 +16,7 @@ interface CanvasProps {
   gridPattern: 'lines' | 'dots' | 'dashed';
   gridColor?: string;
   gridAccentColor?: string;
+  gridOpacity?: number;
 }
 
 export function Canvas({
@@ -32,6 +33,7 @@ export function Canvas({
   gridPattern,
   gridColor,
   gridAccentColor,
+  gridOpacity = 1,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -59,7 +61,7 @@ export function Canvas({
 
   useEffect(() => {
     redraw();
-  }, [objects, theme, showGrid, gridSize, gridPattern, gridColor, gridAccentColor]);
+  }, [objects, theme, showGrid, gridSize, gridPattern, gridColor, gridAccentColor, gridOpacity]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const defaultGridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
@@ -67,6 +69,8 @@ export function Canvas({
     
     const finalGridColor = gridColor || defaultGridColor;
     const finalAccentColor = gridAccentColor || defaultAccentGridColor;
+
+    ctx.globalAlpha = gridOpacity;
 
     if (gridPattern === 'dots') {
       ctx.fillStyle = finalGridColor;
@@ -149,6 +153,8 @@ export function Canvas({
         ctx.stroke();
       }
     }
+
+    ctx.globalAlpha = 1;
   };
 
   const redraw = () => {

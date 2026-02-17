@@ -23,6 +23,7 @@ import { Tool, PenWidth, TextSize, FontFamily, GridSize, GridPattern, PRESET_COL
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 interface ToolbarProps {
   tool: Tool;
@@ -46,6 +47,8 @@ interface ToolbarProps {
   gridColor: string;
   gridAccentColor: string;
   onGridColorChange: (color: string, accentColor: string) => void;
+  gridOpacity: number;
+  onGridOpacityChange: (opacity: number) => void;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -78,6 +81,8 @@ export function Toolbar({
   gridColor,
   gridAccentColor,
   onGridColorChange,
+  gridOpacity,
+  onGridOpacityChange,
   onUndo,
   onRedo,
   onSave,
@@ -372,7 +377,7 @@ export function Toolbar({
               Grid: {gridSize}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-48">
+          <PopoverContent className="w-64">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Grid Pattern</Label>
@@ -400,6 +405,21 @@ export function Toolbar({
                     {s}
                   </Button>
                 ))}
+              </div>
+              <Separator />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Grid Opacity</Label>
+                  <span className="text-sm text-muted-foreground">{Math.round(gridOpacity * 100)}%</span>
+                </div>
+                <Slider
+                  value={[gridOpacity * 100]}
+                  onValueChange={(values) => onGridOpacityChange(values[0] / 100)}
+                  min={0}
+                  max={100}
+                  step={1}
+                  className="w-full"
+                />
               </div>
             </div>
           </PopoverContent>
