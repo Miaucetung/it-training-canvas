@@ -16,6 +16,8 @@ export type FontFamily = 'IBM Plex Sans' | 'IBM Plex Mono' | 'Arial';
 
 export type GridSize = 'small' | 'medium' | 'large' | 'xlarge';
 
+export type GridPattern = 'lines' | 'dots' | 'dashed';
+
 export interface Point {
   x: number;
   y: number;

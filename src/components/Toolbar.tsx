@@ -19,7 +19,7 @@ import {
   List,
   GridFour,
 } from '@phosphor-icons/react';
-import { Tool, PenWidth, TextSize, FontFamily, GridSize, PRESET_COLORS, GRID_COLOR_PRESETS, GRID_COLOR_PRESETS_DARK } from '@/lib/types';
+import { Tool, PenWidth, TextSize, FontFamily, GridSize, GridPattern, PRESET_COLORS, GRID_COLOR_PRESETS, GRID_COLOR_PRESETS_DARK } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,8 @@ interface ToolbarProps {
   onGridToggle: () => void;
   gridSize: GridSize;
   onGridSizeChange: (size: GridSize) => void;
+  gridPattern: GridPattern;
+  onGridPatternChange: (pattern: GridPattern) => void;
   gridColor: string;
   gridAccentColor: string;
   onGridColorChange: (color: string, accentColor: string) => void;
@@ -71,6 +73,8 @@ export function Toolbar({
   onGridToggle,
   gridSize,
   onGridSizeChange,
+  gridPattern,
+  onGridPatternChange,
   gridColor,
   gridAccentColor,
   onGridColorChange,
@@ -369,18 +373,34 @@ export function Toolbar({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48">
-            <div className="space-y-2">
-              <Label>Grid Spacing</Label>
-              {(['small', 'medium', 'large', 'xlarge'] as GridSize[]).map((s) => (
-                <Button
-                  key={s}
-                  variant={gridSize === s ? 'default' : 'ghost'}
-                  className="w-full justify-start capitalize"
-                  onClick={() => onGridSizeChange(s)}
-                >
-                  {s}
-                </Button>
-              ))}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Grid Pattern</Label>
+                {(['lines', 'dots', 'dashed'] as GridPattern[]).map((p) => (
+                  <Button
+                    key={p}
+                    variant={gridPattern === p ? 'default' : 'ghost'}
+                    className="w-full justify-start capitalize"
+                    onClick={() => onGridPatternChange(p)}
+                  >
+                    {p}
+                  </Button>
+                ))}
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <Label>Grid Spacing</Label>
+                {(['small', 'medium', 'large', 'xlarge'] as GridSize[]).map((s) => (
+                  <Button
+                    key={s}
+                    variant={gridSize === s ? 'default' : 'ghost'}
+                    className="w-full justify-start capitalize"
+                    onClick={() => onGridSizeChange(s)}
+                  >
+                    {s}
+                  </Button>
+                ))}
+              </div>
             </div>
           </PopoverContent>
         </Popover>

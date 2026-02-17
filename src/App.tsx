@@ -15,6 +15,7 @@ import {
   TextSize,
   FontFamily,
   GridSize,
+  GridPattern,
   PEN_WIDTHS,
   TEXT_SIZES,
   GRID_SIZES,
@@ -33,6 +34,7 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState<GridSize>('medium');
+  const [gridPattern, setGridPattern] = useState<GridPattern>('lines');
   const [gridColor, setGridColor] = useState<string>('');
   const [gridAccentColor, setGridAccentColor] = useState<string>('');
   const [showPresentations, setShowPresentations] = useState(false);
@@ -376,6 +378,8 @@ function App() {
         onGridToggle={handleGridToggle}
         gridSize={gridSize}
         onGridSizeChange={setGridSize}
+        gridPattern={gridPattern}
+        onGridPatternChange={setGridPattern}
         gridColor={gridColor}
         gridAccentColor={gridAccentColor}
         onGridColorChange={handleGridColorChange}
@@ -409,6 +413,7 @@ function App() {
           theme={theme}
           showGrid={showGrid}
           gridSize={GRID_SIZES[gridSize]}
+          gridPattern={gridPattern}
           gridColor={gridColor}
           gridAccentColor={gridAccentColor}
         />

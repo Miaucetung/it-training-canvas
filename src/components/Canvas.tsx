@@ -13,6 +13,7 @@ interface CanvasProps {
   theme: 'light' | 'dark';
   showGrid: boolean;
   gridSize: number;
+  gridPattern: 'lines' | 'dots' | 'dashed';
   gridColor?: string;
   gridAccentColor?: string;
 }
@@ -28,6 +29,7 @@ export function Canvas({
   theme,
   showGrid,
   gridSize,
+  gridPattern,
   gridColor,
   gridAccentColor,
 }: CanvasProps) {
@@ -57,7 +59,7 @@ export function Canvas({
 
   useEffect(() => {
     redraw();
-  }, [objects, theme, showGrid, gridSize, gridColor, gridAccentColor]);
+  }, [objects, theme, showGrid, gridSize, gridPattern, gridColor, gridAccentColor]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const defaultGridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
@@ -66,35 +68,86 @@ export function Canvas({
     const finalGridColor = gridColor || defaultGridColor;
     const finalAccentColor = gridAccentColor || defaultAccentGridColor;
 
-    ctx.strokeStyle = finalGridColor;
-    ctx.lineWidth = 0.5;
-
-    for (let x = 0; x <= width; x += gridSize) {
-      if (x % (gridSize * 5) === 0) {
-        ctx.strokeStyle = finalAccentColor;
-        ctx.lineWidth = 1;
-      } else {
-        ctx.strokeStyle = finalGridColor;
-        ctx.lineWidth = 0.5;
+    if (gridPattern === 'dots') {
+      ctx.fillStyle = finalGridColor;
+      for (let x = 0; x <= width; x += gridSize) {
+        for (let y = 0; y <= height; y += gridSize) {
+          const isAccent = x % (gridSize * 5) === 0 && y % (gridSize * 5) === 0;
+          ctx.fillStyle = isAccent ? finalAccentColor : finalGridColor;
+          const radius = isAccent ? 2 : 1;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
+    } else if (gridPattern === 'dashed') {
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([4, 4]);
 
-    for (let y = 0; y <= height; y += gridSize) {
-      if (y % (gridSize * 5) === 0) {
-        ctx.strokeStyle = finalAccentColor;
-        ctx.lineWidth = 1;
-      } else {
-        ctx.strokeStyle = finalGridColor;
-        ctx.lineWidth = 0.5;
+      for (let x = 0; x <= width; x += gridSize) {
+        if (x % (gridSize * 5) === 0) {
+          ctx.strokeStyle = finalAccentColor;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = finalGridColor;
+          ctx.lineWidth = 0.5;
+          ctx.setLineDash([4, 4]);
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
       }
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
+
+      for (let y = 0; y <= height; y += gridSize) {
+        if (y % (gridSize * 5) === 0) {
+          ctx.strokeStyle = finalAccentColor;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = finalGridColor;
+          ctx.lineWidth = 0.5;
+          ctx.setLineDash([4, 4]);
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = finalGridColor;
+      ctx.lineWidth = 0.5;
+
+      for (let x = 0; x <= width; x += gridSize) {
+        if (x % (gridSize * 5) === 0) {
+          ctx.strokeStyle = finalAccentColor;
+          ctx.lineWidth = 1;
+        } else {
+          ctx.strokeStyle = finalGridColor;
+          ctx.lineWidth = 0.5;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= height; y += gridSize) {
+        if (y % (gridSize * 5) === 0) {
+          ctx.strokeStyle = finalAccentColor;
+          ctx.lineWidth = 1;
+        } else {
+          ctx.strokeStyle = finalGridColor;
+          ctx.lineWidth = 0.5;
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
     }
   };
 
