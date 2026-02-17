@@ -51,6 +51,43 @@ export function Canvas({
     redraw();
   }, [objects, theme]);
 
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const gridSize = 20;
+    const gridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
+    const accentGridColor = theme === 'dark' ? 'oklch(0.3 0 0)' : 'oklch(0.88 0 0)';
+
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 0.5;
+
+    for (let x = 0; x <= width; x += gridSize) {
+      if (x % (gridSize * 5) === 0) {
+        ctx.strokeStyle = accentGridColor;
+        ctx.lineWidth = 1;
+      } else {
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 0.5;
+      }
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    for (let y = 0; y <= height; y += gridSize) {
+      if (y % (gridSize * 5) === 0) {
+        ctx.strokeStyle = accentGridColor;
+        ctx.lineWidth = 1;
+      } else {
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 0.5;
+      }
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+  };
+
   const redraw = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -63,6 +100,8 @@ export function Canvas({
     const bgColor = theme === 'dark' ? 'oklch(0.18 0 0)' : 'oklch(0.98 0 0)';
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawGrid(ctx, canvas.width, canvas.height);
 
     objects.forEach((obj) => {
       if (tool === 'eraser' && obj.type === 'eraser') {
