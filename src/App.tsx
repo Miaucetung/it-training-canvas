@@ -33,6 +33,8 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState<GridSize>('medium');
+  const [gridColor, setGridColor] = useState<string>('');
+  const [gridAccentColor, setGridAccentColor] = useState<string>('');
   const [showPresentations, setShowPresentations] = useState(false);
   const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
   
@@ -65,6 +67,11 @@ function App() {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     }
+
+    const savedGridColor = localStorage.getItem('canvas-grid-color');
+    const savedGridAccentColor = localStorage.getItem('canvas-grid-accent-color');
+    if (savedGridColor) setGridColor(savedGridColor);
+    if (savedGridAccentColor) setGridAccentColor(savedGridAccentColor);
   }, []);
 
   const getCurrentCanvasState = (): CanvasState => {
@@ -235,6 +242,13 @@ function App() {
     setShowGrid((prev) => !prev);
   }, []);
 
+  const handleGridColorChange = useCallback((color: string, accentColor: string) => {
+    setGridColor(color);
+    setGridAccentColor(accentColor);
+    localStorage.setItem('canvas-grid-color', color);
+    localStorage.setItem('canvas-grid-accent-color', accentColor);
+  }, []);
+
   const handleAddSubject = useCallback(
     (name: string) => {
       if (subjects.includes(name)) {
@@ -362,6 +376,9 @@ function App() {
         onGridToggle={handleGridToggle}
         gridSize={gridSize}
         onGridSizeChange={setGridSize}
+        gridColor={gridColor}
+        gridAccentColor={gridAccentColor}
+        onGridColorChange={handleGridColorChange}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onSave={handleSave}
@@ -392,6 +409,8 @@ function App() {
           theme={theme}
           showGrid={showGrid}
           gridSize={GRID_SIZES[gridSize]}
+          gridColor={gridColor}
+          gridAccentColor={gridAccentColor}
         />
       </div>
 

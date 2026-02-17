@@ -13,6 +13,8 @@ interface CanvasProps {
   theme: 'light' | 'dark';
   showGrid: boolean;
   gridSize: number;
+  gridColor?: string;
+  gridAccentColor?: string;
 }
 
 export function Canvas({
@@ -26,6 +28,8 @@ export function Canvas({
   theme,
   showGrid,
   gridSize,
+  gridColor,
+  gridAccentColor,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -53,21 +57,24 @@ export function Canvas({
 
   useEffect(() => {
     redraw();
-  }, [objects, theme, showGrid, gridSize]);
+  }, [objects, theme, showGrid, gridSize, gridColor, gridAccentColor]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const gridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
-    const accentGridColor = theme === 'dark' ? 'oklch(0.3 0 0)' : 'oklch(0.88 0 0)';
+    const defaultGridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
+    const defaultAccentGridColor = theme === 'dark' ? 'oklch(0.3 0 0)' : 'oklch(0.88 0 0)';
+    
+    const finalGridColor = gridColor || defaultGridColor;
+    const finalAccentColor = gridAccentColor || defaultAccentGridColor;
 
-    ctx.strokeStyle = gridColor;
+    ctx.strokeStyle = finalGridColor;
     ctx.lineWidth = 0.5;
 
     for (let x = 0; x <= width; x += gridSize) {
       if (x % (gridSize * 5) === 0) {
-        ctx.strokeStyle = accentGridColor;
+        ctx.strokeStyle = finalAccentColor;
         ctx.lineWidth = 1;
       } else {
-        ctx.strokeStyle = gridColor;
+        ctx.strokeStyle = finalGridColor;
         ctx.lineWidth = 0.5;
       }
       ctx.beginPath();
@@ -78,10 +85,10 @@ export function Canvas({
 
     for (let y = 0; y <= height; y += gridSize) {
       if (y % (gridSize * 5) === 0) {
-        ctx.strokeStyle = accentGridColor;
+        ctx.strokeStyle = finalAccentColor;
         ctx.lineWidth = 1;
       } else {
-        ctx.strokeStyle = gridColor;
+        ctx.strokeStyle = finalGridColor;
         ctx.lineWidth = 0.5;
       }
       ctx.beginPath();

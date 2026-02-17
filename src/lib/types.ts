@@ -89,4 +89,22 @@ export const PRESET_COLORS = [
   '#EC4899',
 ];
 
+export const GRID_COLOR_PRESETS = [
+  { name: 'Light Gray', color: 'oklch(0.92 0 0)', accent: 'oklch(0.88 0 0)' },
+  { name: 'Medium Gray', color: 'oklch(0.8 0 0)', accent: 'oklch(0.7 0 0)' },
+  { name: 'Blue', color: 'oklch(0.85 0.05 250)', accent: 'oklch(0.75 0.08 250)' },
+  { name: 'Green', color: 'oklch(0.85 0.05 150)', accent: 'oklch(0.75 0.08 150)' },
+  { name: 'Purple', color: 'oklch(0.85 0.05 300)', accent: 'oklch(0.75 0.08 300)' },
+  { name: 'Orange', color: 'oklch(0.85 0.05 50)', accent: 'oklch(0.75 0.08 50)' },
+];
+
+export const GRID_COLOR_PRESETS_DARK = [
+  { name: 'Dark Gray', color: 'oklch(0.25 0 0)', accent: 'oklch(0.3 0 0)' },
+  { name: 'Medium Gray', color: 'oklch(0.35 0 0)', accent: 'oklch(0.45 0 0)' },
+  { name: 'Blue', color: 'oklch(0.3 0.05 250)', accent: 'oklch(0.4 0.08 250)' },
+  { name: 'Green', color: 'oklch(0.3 0.05 150)', accent: 'oklch(0.4 0.08 150)' },
+  { name: 'Purple', color: 'oklch(0.3 0.05 300)', accent: 'oklch(0.4 0.08 300)' },
+  { name: 'Orange', color: 'oklch(0.3 0.05 50)', accent: 'oklch(0.4 0.08 50)' },
+];
+
 export const DEFAULT_SUBJECTS = ['FISI', 'Azure', 'AWS', 'Linux'];

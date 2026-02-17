@@ -19,7 +19,7 @@ import {
   List,
   GridFour,
 } from '@phosphor-icons/react';
-import { Tool, PenWidth, TextSize, FontFamily, GridSize, PRESET_COLORS } from '@/lib/types';
+import { Tool, PenWidth, TextSize, FontFamily, GridSize, PRESET_COLORS, GRID_COLOR_PRESETS, GRID_COLOR_PRESETS_DARK } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,9 @@ interface ToolbarProps {
   onGridToggle: () => void;
   gridSize: GridSize;
   onGridSizeChange: (size: GridSize) => void;
+  gridColor: string;
+  gridAccentColor: string;
+  onGridColorChange: (color: string, accentColor: string) => void;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -68,6 +71,9 @@ export function Toolbar({
   onGridToggle,
   gridSize,
   onGridSizeChange,
+  gridColor,
+  gridAccentColor,
+  onGridColorChange,
   onUndo,
   onRedo,
   onSave,
@@ -375,6 +381,39 @@ export function Toolbar({
                   {s}
                 </Button>
               ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="h-12 px-4">
+              Grid Color
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64">
+            <div className="space-y-4">
+              <div>
+                <Label>Grid Color Presets</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {(theme === 'dark' ? GRID_COLOR_PRESETS_DARK : GRID_COLOR_PRESETS).map((preset) => (
+                    <Button
+                      key={preset.name}
+                      variant="outline"
+                      className="h-auto py-2 px-3 flex flex-col items-start gap-1"
+                      onClick={() => onGridColorChange(preset.color, preset.accent)}
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        <div
+                          className="w-4 h-4 rounded border border-border"
+                          style={{ backgroundColor: preset.color }}
+                        />
+                        <span className="text-xs">{preset.name}</span>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
