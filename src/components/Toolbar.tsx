@@ -19,7 +19,7 @@ import {
   List,
   GridFour,
 } from '@phosphor-icons/react';
-import { Tool, PenWidth, TextSize, FontFamily, PRESET_COLORS } from '@/lib/types';
+import { Tool, PenWidth, TextSize, FontFamily, GridSize, PRESET_COLORS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
@@ -39,6 +39,8 @@ interface ToolbarProps {
   onThemeToggle: () => void;
   showGrid: boolean;
   onGridToggle: () => void;
+  gridSize: GridSize;
+  onGridSizeChange: (size: GridSize) => void;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -64,6 +66,8 @@ export function Toolbar({
   onThemeToggle,
   showGrid,
   onGridToggle,
+  gridSize,
+  onGridSizeChange,
   onUndo,
   onRedo,
   onSave,
@@ -351,6 +355,29 @@ export function Toolbar({
             <p>Toggle Grid</p>
           </TooltipContent>
         </Tooltip>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="h-12 px-4 capitalize">
+              Grid: {gridSize}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48">
+            <div className="space-y-2">
+              <Label>Grid Spacing</Label>
+              {(['small', 'medium', 'large', 'xlarge'] as GridSize[]).map((s) => (
+                <Button
+                  key={s}
+                  variant={gridSize === s ? 'default' : 'ghost'}
+                  className="w-full justify-start capitalize"
+                  onClick={() => onGridSizeChange(s)}
+                >
+                  {s}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <Separator orientation="vertical" className="h-12" />
 

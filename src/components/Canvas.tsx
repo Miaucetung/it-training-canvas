@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DrawingObject, Point, Tool, PEN_WIDTHS, FontFamily } from '@/lib/types';
+import { DrawingObject, Point, Tool, PEN_WIDTHS, FontFamily, GridSize } from '@/lib/types';
 import { drawObject, generateId, isPointInBounds } from '@/lib/canvas-utils';
 
 interface CanvasProps {
@@ -12,6 +12,7 @@ interface CanvasProps {
   fontFamily: FontFamily;
   theme: 'light' | 'dark';
   showGrid: boolean;
+  gridSize: number;
 }
 
 export function Canvas({
@@ -24,6 +25,7 @@ export function Canvas({
   fontFamily,
   theme,
   showGrid,
+  gridSize,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -51,10 +53,9 @@ export function Canvas({
 
   useEffect(() => {
     redraw();
-  }, [objects, theme, showGrid]);
+  }, [objects, theme, showGrid, gridSize]);
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const gridSize = 20;
     const gridColor = theme === 'dark' ? 'oklch(0.25 0 0)' : 'oklch(0.92 0 0)';
     const accentGridColor = theme === 'dark' ? 'oklch(0.3 0 0)' : 'oklch(0.88 0 0)';
 

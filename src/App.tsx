@@ -14,8 +14,10 @@ import {
   PenWidth,
   TextSize,
   FontFamily,
+  GridSize,
   PEN_WIDTHS,
   TEXT_SIZES,
+  GRID_SIZES,
   DEFAULT_SUBJECTS,
 } from '@/lib/types';
 import { downloadJSON, importFromJSON } from '@/lib/canvas-utils';
@@ -30,6 +32,7 @@ function App() {
   const [fontFamily, setFontFamily] = useState<FontFamily>('IBM Plex Mono');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showGrid, setShowGrid] = useState(true);
+  const [gridSize, setGridSize] = useState<GridSize>('medium');
   const [showPresentations, setShowPresentations] = useState(false);
   const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
   
@@ -357,6 +360,8 @@ function App() {
         onThemeToggle={handleThemeToggle}
         showGrid={showGrid}
         onGridToggle={handleGridToggle}
+        gridSize={gridSize}
+        onGridSizeChange={setGridSize}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onSave={handleSave}
@@ -386,6 +391,7 @@ function App() {
           fontFamily={fontFamily}
           theme={theme}
           showGrid={showGrid}
+          gridSize={GRID_SIZES[gridSize]}
         />
       </div>
 
