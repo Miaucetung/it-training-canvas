@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: it-training-canvas
+  namespace: apps
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: training.ajti.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: it-training-canvas
+                port:
+                  number: 80
