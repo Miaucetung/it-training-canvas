@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @layer base {
@@ -9,51 +9,51 @@
 
 :root {
   --background: oklch(0.98 0 0);
-  --foreground: oklch(0.2 0 0);
+  --foreground: oklch(0.15 0.02 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0 0);
-  --primary: oklch(0.45 0.15 250);
+  --popover-foreground: oklch(0.15 0.02 250);
+  --primary: oklch(0.55 0.2 260);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.25 0.02 250);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.7 0.2 200);
-  --accent-foreground: oklch(0.2 0 0);
+  --secondary: oklch(0.96 0.01 250);
+  --secondary-foreground: oklch(0.25 0.02 250);
+  --muted: oklch(0.96 0.01 250);
+  --muted-foreground: oklch(0.45 0.02 250);
+  --accent: oklch(0.55 0.2 260);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.7 0.2 200);
-  --radius: 0.5rem;
+  --border: oklch(0.91 0.01 250);
+  --input: oklch(0.91 0.01 250);
+  --ring: oklch(0.55 0.2 260);
+  --radius: 0.625rem;
   --canvas-bg: oklch(0.98 0 0);
-  --canvas-fg: oklch(0.2 0 0);
+  --canvas-fg: oklch(0.15 0.02 250);
 }
 
 .dark {
-  --background: oklch(0.18 0 0);
-  --foreground: oklch(1 0 0);
-  --card: oklch(0.22 0 0);
-  --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.45 0.15 250);
+  --background: oklch(0.13 0.02 260);
+  --foreground: oklch(0.95 0.01 250);
+  --card: oklch(0.16 0.02 260);
+  --card-foreground: oklch(0.95 0.01 250);
+  --popover: oklch(0.16 0.02 260);
+  --popover-foreground: oklch(0.95 0.01 250);
+  --primary: oklch(0.65 0.2 260);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.25 0.02 250);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.7 0.2 200);
-  --accent-foreground: oklch(0.2 0 0);
-  --destructive: oklch(0.6 0.22 25);
+  --secondary: oklch(0.22 0.02 260);
+  --secondary-foreground: oklch(0.95 0.01 250);
+  --muted: oklch(0.22 0.02 260);
+  --muted-foreground: oklch(0.6 0.02 250);
+  --accent: oklch(0.65 0.2 260);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.3 0 0);
-  --input: oklch(0.3 0 0);
-  --ring: oklch(0.7 0.2 200);
-  --canvas-bg: oklch(0.18 0 0);
-  --canvas-fg: oklch(1 0 0);
+  --border: oklch(0.26 0.02 260);
+  --input: oklch(0.26 0.02 260);
+  --ring: oklch(0.65 0.2 260);
+  --canvas-bg: oklch(0.13 0.02 260);
+  --canvas-fg: oklch(0.95 0.01 250);
 }
 
 @theme {
@@ -85,10 +85,162 @@
 }
 
 body {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family:
+    "IBM Plex Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-mono {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: "IBM Plex Mono", "Fira Code", "JetBrains Mono", monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0 0 / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.4 0 0 / 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.6 0 0 / 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0 0 / 0.5);
+}
+
+/* Smooth transitions */
+* {
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* IT Subject Colors */
+.subject-fisi {
+  --subject-color: #6366f1;
+}
+.subject-azure {
+  --subject-color: #0078d4;
+}
+.subject-aws {
+  --subject-color: #ff9900;
+}
+.subject-linux {
+  --subject-color: #fcc624;
+}
+.subject-docker {
+  --subject-color: #2496ed;
+}
+.subject-kubernetes {
+  --subject-color: #326ce5;
+}
+.subject-networking {
+  --subject-color: #10b981;
+}
+.subject-security {
+  --subject-color: #ef4444;
+}
+.subject-python {
+  --subject-color: #3776ab;
+}
+.subject-devops {
+  --subject-color: #7c3aed;
+}
+.subject-windows {
+  --subject-color: #00a4ef;
+}
+.subject-database {
+  --subject-color: #f59e0b;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--subject-color, #6366f1);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px var(--subject-color, #6366f1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: oklch(1 0 0 / 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(1 0 0 / 0.1);
+}
+
+.dark .glass {
+  background: oklch(0.15 0.02 260 / 0.8);
+  border: 1px solid oklch(1 0 0 / 0.1);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background: oklch(0.55 0.2 260 / 0.3);
+}
+
+.dark ::selection {
+  background: oklch(0.65 0.2 260 / 0.3);
 }

@@ -1,4 +1,94 @@
-import { DrawingObject, Point } from './types';
+import { DrawingObject, Point, ShapeDefinition } from "./types";
+
+// SVG Image Cache for shapes
+const svgImageCache = new Map<string, HTMLImageElement>();
+let onImageLoadCallback: (() => void) | null = null;
+let preloadComplete = false;
+
+// Set callback for when images load (for redrawing canvas)
+export function setImageLoadCallback(callback: () => void): void {
+  onImageLoadCallback = callback;
+}
+
+// Pre-load all shapes for instant rendering
+export function preloadShapes(shapes: ShapeDefinition[]): Promise<void> {
+  if (preloadComplete) return Promise.resolve();
+
+  const promises = shapes.map((shape) => {
+    return new Promise<void>((resolve) => {
+      const cacheKey = `${shape.svgPath.substring(0, 50)}-${shape.color}-${shape.width}-${shape.height}`;
+
+      if (svgImageCache.has(cacheKey)) {
+        resolve();
+        return;
+      }
+
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${shape.width} ${shape.height}" width="${shape.width}" height="${shape.height}">
+          ${shape.svgPath.replace(/currentColor/g, shape.color)}
+        </svg>
+      `;
+
+      const blob = new Blob([svgContent], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      img.onerror = () => {
+        resolve(); // Don't fail on error
+      };
+      img.src = url;
+      svgImageCache.set(cacheKey, img);
+    });
+  });
+
+  return Promise.all(promises).then(() => {
+    preloadComplete = true;
+  });
+}
+
+// Pre-create SVG image from path
+function getSvgImage(
+  svgPath: string,
+  color: string,
+  width: number,
+  height: number,
+): HTMLImageElement | null {
+  const cacheKey = `${svgPath.substring(0, 50)}-${color}-${width}-${height}`;
+
+  if (svgImageCache.has(cacheKey)) {
+    const img = svgImageCache.get(cacheKey)!;
+    if (img.complete) return img;
+    return null; // Still loading
+  }
+
+  // Create SVG with the path and color - preserve original viewBox
+  const svgContent = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+      ${svgPath.replace(/currentColor/g, color)}
+    </svg>
+  `;
+
+  const blob = new Blob([svgContent], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
+  const img = new Image();
+  img.src = url;
+  svgImageCache.set(cacheKey, img);
+
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    // Trigger redraw when image loads
+    if (onImageLoadCallback) {
+      onImageLoadCallback();
+    }
+  };
+
+  return null; // Image is loading
+}
 
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -8,12 +98,16 @@ export function distance(p1: Point, p2: Point): number {
   return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
 }
 
-export function isPointInBounds(point: Point, object: DrawingObject, threshold = 10): boolean {
-  if (object.type === 'text' && object.startPoint && object.text) {
+export function isPointInBounds(
+  point: Point,
+  object: DrawingObject,
+  threshold = 10,
+): boolean {
+  if (object.type === "text" && object.startPoint && object.text) {
     const fontSize = object.fontSize || 20;
     const width = object.text.length * fontSize * 0.6;
     const height = fontSize * 1.2;
-    
+
     return (
       point.x >= object.startPoint.x - threshold &&
       point.x <= object.startPoint.x + width + threshold &&
@@ -22,8 +116,8 @@ export function isPointInBounds(point: Point, object: DrawingObject, threshold =
     );
   }
 
-  if (object.type === 'pen' && object.points) {
-    return object.points.some(p => distance(point, p) < threshold);
+  if (object.type === "pen" && object.points) {
+    return object.points.some((p) => distance(point, p) < threshold);
   }
 
   if (object.startPoint && object.endPoint) {
@@ -33,34 +127,46 @@ export function isPointInBounds(point: Point, object: DrawingObject, threshold =
     const maxY = Math.max(object.startPoint.y, object.endPoint.y) + threshold;
 
     return (
-      point.x >= minX &&
-      point.x <= maxX &&
-      point.y >= minY &&
-      point.y <= maxY
+      point.x >= minX && point.x <= maxX && point.y >= minY && point.y <= maxY
     );
   }
 
   return false;
 }
 
-export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): void {
+export function drawObject(
+  ctx: CanvasRenderingContext2D,
+  obj: DrawingObject,
+  isHovered = false,
+): void {
+  ctx.save();
+
   ctx.strokeStyle = obj.color;
   ctx.fillStyle = obj.color;
   ctx.lineWidth = obj.width;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 
-  if (obj.selected) {
-    ctx.shadowColor = 'rgba(0, 200, 255, 0.8)';
+  // Apply shadow if enabled
+  if (obj.shadow) {
+    ctx.shadowColor = obj.shadowColor || "rgba(0, 0, 0, 0.3)";
+    ctx.shadowBlur = obj.shadowBlur || 8;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 4;
+  } else if (obj.selected) {
+    ctx.shadowColor = "rgba(99, 102, 241, 0.8)";
+    ctx.shadowBlur = 15;
+  } else if (isHovered) {
+    ctx.shadowColor = "rgba(99, 102, 241, 0.5)";
     ctx.shadowBlur = 10;
   } else {
-    ctx.shadowColor = 'transparent';
+    ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
   }
 
   switch (obj.type) {
-    case 'pen':
-    case 'eraser':
+    case "pen":
+    case "eraser":
       if (obj.points && obj.points.length > 1) {
         ctx.beginPath();
         ctx.moveTo(obj.points[0].x, obj.points[0].y);
@@ -71,7 +177,7 @@ export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): v
       }
       break;
 
-    case 'line':
+    case "line":
       if (obj.startPoint && obj.endPoint) {
         ctx.beginPath();
         ctx.moveTo(obj.startPoint.x, obj.startPoint.y);
@@ -80,12 +186,12 @@ export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): v
       }
       break;
 
-    case 'arrow':
+    case "arrow":
       if (obj.startPoint && obj.endPoint) {
         const headLength = 15;
         const angle = Math.atan2(
           obj.endPoint.y - obj.startPoint.y,
-          obj.endPoint.x - obj.startPoint.x
+          obj.endPoint.x - obj.startPoint.x,
         );
 
         ctx.beginPath();
@@ -97,18 +203,18 @@ export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): v
         ctx.moveTo(obj.endPoint.x, obj.endPoint.y);
         ctx.lineTo(
           obj.endPoint.x - headLength * Math.cos(angle - Math.PI / 6),
-          obj.endPoint.y - headLength * Math.sin(angle - Math.PI / 6)
+          obj.endPoint.y - headLength * Math.sin(angle - Math.PI / 6),
         );
         ctx.moveTo(obj.endPoint.x, obj.endPoint.y);
         ctx.lineTo(
           obj.endPoint.x - headLength * Math.cos(angle + Math.PI / 6),
-          obj.endPoint.y - headLength * Math.sin(angle + Math.PI / 6)
+          obj.endPoint.y - headLength * Math.sin(angle + Math.PI / 6),
         );
         ctx.stroke();
       }
       break;
 
-    case 'rectangle':
+    case "rectangle":
       if (obj.startPoint && obj.endPoint) {
         const width = obj.endPoint.x - obj.startPoint.x;
         const height = obj.endPoint.y - obj.startPoint.y;
@@ -116,7 +222,7 @@ export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): v
       }
       break;
 
-    case 'circle':
+    case "circle":
       if (obj.startPoint && obj.endPoint) {
         const radius = distance(obj.startPoint, obj.endPoint);
         ctx.beginPath();
@@ -125,16 +231,231 @@ export function drawObject(ctx: CanvasRenderingContext2D, obj: DrawingObject): v
       }
       break;
 
-    case 'text':
+    case "text":
       if (obj.startPoint && obj.text) {
-        ctx.font = `${obj.fontSize || 20}px ${obj.fontFamily || 'IBM Plex Mono'}`;
+        ctx.font = `${obj.fontSize || 20}px ${obj.fontFamily || "IBM Plex Mono"}`;
         ctx.fillText(obj.text, obj.startPoint.x, obj.startPoint.y);
+      }
+      break;
+
+    case "shape":
+      if (obj.startPoint && obj.svgPath && obj.shapeWidth && obj.shapeHeight) {
+        const x = obj.startPoint.x;
+        const y = obj.startPoint.y;
+        const width = obj.shapeWidth;
+        const height = obj.shapeHeight;
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+
+        // Apply rotation if set
+        if (obj.rotation) {
+          ctx.translate(centerX, centerY);
+          ctx.rotate((obj.rotation * Math.PI) / 180);
+          ctx.translate(-centerX, -centerY);
+        }
+
+        // Try to get cached SVG image
+        const svgImg = getSvgImage(obj.svgPath, obj.color, width, height);
+
+        if (svgImg && svgImg.complete) {
+          // Draw the SVG image
+          ctx.drawImage(svgImg, x, y, width, height);
+        } else {
+          // Fallback: draw a placeholder while loading
+          ctx.fillStyle = obj.color + "20";
+          ctx.strokeStyle = obj.color;
+          ctx.lineWidth = 2;
+
+          const radius = 8;
+          ctx.beginPath();
+          ctx.roundRect(x, y, width, height, radius);
+          ctx.fill();
+          ctx.stroke();
+
+          // Draw loading indicator
+          ctx.fillStyle = obj.color;
+          ctx.font = "10px IBM Plex Mono";
+          ctx.textAlign = "center";
+          ctx.fillText("...", centerX, centerY + 4);
+        }
+
+        // Draw label below the shape
+        if (obj.label) {
+          ctx.fillStyle = obj.color;
+          ctx.font = "bold 11px IBM Plex Mono";
+          ctx.textAlign = "center";
+          const labelX = centerX;
+          const labelY = y + height + 14;
+          ctx.fillText(obj.label, labelX, labelY);
+        }
+
+        // Draw status indicator (top-right corner)
+        if (obj.status) {
+          drawStatusIndicator(ctx, x + width - 6, y + 6, obj.status);
+        }
+
+        ctx.textAlign = "left";
       }
       break;
   }
 
-  ctx.shadowColor = 'transparent';
-  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// Draw status indicator on canvas
+function drawStatusIndicator(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  status: DrawingObject["status"],
+): void {
+  const colors: Record<NonNullable<DrawingObject["status"]>, string> = {
+    running: "#22C55E",
+    stopped: "#64748B",
+    error: "#EF4444",
+    pending: "#F59E0B",
+    warning: "#F97316",
+  };
+
+  const color = colors[status || "stopped"];
+  const radius = 5;
+
+  // Draw glow for running/error
+  if (status === "running" || status === "error") {
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+    ctx.fillStyle = color + "40";
+    ctx.fill();
+  }
+
+  // Draw main indicator
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // Draw border
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// Draw connection points for a shape
+export function drawConnectionPoints(
+  ctx: CanvasRenderingContext2D,
+  obj: DrawingObject,
+  isHovered = false,
+): void {
+  if (
+    obj.type !== "shape" ||
+    !obj.startPoint ||
+    !obj.shapeWidth ||
+    !obj.shapeHeight
+  )
+    return;
+  if (!obj.selected && !isHovered) return;
+
+  const x = obj.startPoint.x;
+  const y = obj.startPoint.y;
+  const width = obj.shapeWidth;
+  const height = obj.shapeHeight;
+
+  ctx.save();
+
+  // Apply rotation if set
+  if (obj.rotation) {
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    ctx.translate(centerX, centerY);
+    ctx.rotate((obj.rotation * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+  }
+
+  // Default connection points: top, right, bottom, left
+  const points = [
+    { x: x + width / 2, y: y, position: "top" },
+    { x: x + width, y: y + height / 2, position: "right" },
+    { x: x + width / 2, y: y + height, position: "bottom" },
+    { x: x, y: y + height / 2, position: "left" },
+  ];
+
+  ctx.fillStyle = "#6366f1";
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+
+  points.forEach((point) => {
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
+// Get the nearest connection point to a position
+export function getNearestConnectionPoint(
+  obj: DrawingObject,
+  pos: Point,
+  threshold = 20,
+): { point: Point; position: string } | null {
+  if (
+    obj.type !== "shape" ||
+    !obj.startPoint ||
+    !obj.shapeWidth ||
+    !obj.shapeHeight
+  )
+    return null;
+
+  const x = obj.startPoint.x;
+  const y = obj.startPoint.y;
+  const width = obj.shapeWidth;
+  const height = obj.shapeHeight;
+
+  const points = [
+    { x: x + width / 2, y: y, position: "top" },
+    { x: x + width, y: y + height / 2, position: "right" },
+    { x: x + width / 2, y: y + height, position: "bottom" },
+    { x: x, y: y + height / 2, position: "left" },
+  ];
+
+  let nearest: { point: Point; position: string; dist: number } | null = null;
+
+  for (const p of points) {
+    const dist = distance(pos, { x: p.x, y: p.y });
+    if (dist < threshold && (!nearest || dist < nearest.dist)) {
+      nearest = { point: { x: p.x, y: p.y }, position: p.position, dist };
+    }
+  }
+
+  return nearest ? { point: nearest.point, position: nearest.position } : null;
+}
+
+// Get bounds of shape considering rotation
+export function getShapeBounds(
+  obj: DrawingObject,
+): { x: number; y: number; width: number; height: number } | null {
+  if (!obj.startPoint) return null;
+
+  if (obj.type === "shape" && obj.shapeWidth && obj.shapeHeight) {
+    return {
+      x: obj.startPoint.x,
+      y: obj.startPoint.y,
+      width: obj.shapeWidth,
+      height: obj.shapeHeight,
+    };
+  }
+
+  if (obj.endPoint) {
+    return {
+      x: Math.min(obj.startPoint.x, obj.endPoint.x),
+      y: Math.min(obj.startPoint.y, obj.endPoint.y),
+      width: Math.abs(obj.endPoint.x - obj.startPoint.x),
+      height: Math.abs(obj.endPoint.y - obj.startPoint.y),
+    };
+  }
+
+  return null;
 }
 
 export function exportToJSON(data: any): string {
@@ -143,9 +464,9 @@ export function exportToJSON(data: any): string {
 
 export function downloadJSON(data: any, filename: string): void {
   const json = exportToJSON(data);
-  const blob = new Blob([json], { type: 'application/json' });
+  const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);
@@ -162,10 +483,90 @@ export function importFromJSON(file: File): Promise<any> {
         const data = JSON.parse(e.target?.result as string);
         resolve(data);
       } catch (error) {
-        reject(new Error('Invalid JSON file'));
+        reject(new Error("Invalid JSON file"));
       }
     };
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error("Failed to read file"));
     reader.readAsText(file);
   });
+}
+
+// Export canvas as PNG
+export function exportCanvasAsPNG(
+  canvas: HTMLCanvasElement,
+  filename: string,
+  backgroundColor?: string,
+): void {
+  // Create a temporary canvas with white/custom background
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext("2d");
+
+  if (tempCtx) {
+    // Fill background
+    tempCtx.fillStyle = backgroundColor || "#ffffff";
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Draw the original canvas content
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Download
+    const link = document.createElement("a");
+    link.download = filename;
+    link.href = tempCanvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+// Export canvas as SVG
+export function exportCanvasAsSVG(
+  objects: DrawingObject[],
+  width: number,
+  height: number,
+  filename: string,
+  backgroundColor?: string,
+): void {
+  let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <rect width="100%" height="100%" fill="${backgroundColor || "#ffffff"}"/>
+  <g>`;
+
+  objects.forEach((obj) => {
+    if (obj.type === "pen" && obj.points && obj.points.length > 1) {
+      const pathData = obj.points
+        .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+        .join(" ");
+      svgContent += `\n    <path d="${pathData}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    } else if (obj.type === "line" && obj.startPoint && obj.endPoint) {
+      svgContent += `\n    <line x1="${obj.startPoint.x}" y1="${obj.startPoint.y}" x2="${obj.endPoint.x}" y2="${obj.endPoint.y}" stroke="${obj.color}" stroke-width="${obj.width}"/>`;
+    } else if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
+      const x = Math.min(obj.startPoint.x, obj.endPoint.x);
+      const y = Math.min(obj.startPoint.y, obj.endPoint.y);
+      const w = Math.abs(obj.endPoint.x - obj.startPoint.x);
+      const h = Math.abs(obj.endPoint.y - obj.startPoint.y);
+      svgContent += `\n    <rect x="${x}" y="${y}" width="${w}" height="${h}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none"/>`;
+    } else if (obj.type === "circle" && obj.startPoint && obj.endPoint) {
+      const r = distance(obj.startPoint, obj.endPoint);
+      svgContent += `\n    <circle cx="${obj.startPoint.x}" cy="${obj.startPoint.y}" r="${r}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none"/>`;
+    } else if (obj.type === "text" && obj.startPoint && obj.text) {
+      svgContent += `\n    <text x="${obj.startPoint.x}" y="${obj.startPoint.y}" fill="${obj.color}" font-size="${obj.fontSize || 20}px" font-family="${obj.fontFamily || "IBM Plex Mono"}">${obj.text}</text>`;
+    } else if (obj.type === "shape" && obj.startPoint && obj.svgPath) {
+      svgContent += `\n    <g transform="translate(${obj.startPoint.x}, ${obj.startPoint.y})" style="color: ${obj.color}">${obj.svgPath}</g>`;
+    }
+  });
+
+  svgContent += `\n  </g>\n</svg>`;
+
+  const blob = new Blob([svgContent], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
