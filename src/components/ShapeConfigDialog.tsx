@@ -69,7 +69,17 @@ function getShapeType(
     id.includes("router") ||
     id.includes("switch") ||
     id.includes("firewall") ||
-    id.includes("network")
+    id.includes("network") ||
+    id.includes("access-point") ||
+    id.includes("hub") ||
+    id.includes("modem") ||
+    id.includes("loadbalancer") ||
+    id === "computer" ||
+    id === "laptop" ||
+    id === "smartphone" ||
+    id === "tablet" ||
+    id === "ip-phone" ||
+    id === "printer"
   ) {
     return "network";
   }
@@ -84,7 +94,11 @@ function getShapeType(
   if (
     id.includes("server") ||
     id.includes("database") ||
-    id.includes("storage")
+    id.includes("storage") ||
+    id.includes("proxy") ||
+    id.includes("nas") ||
+    id.includes("san") ||
+    id === "rack"
   ) {
     return "server";
   }
@@ -106,6 +120,7 @@ export function ShapeConfigDialog({
   onSave,
   theme,
 }: ShapeConfigDialogProps) {
+  // ALL hooks MUST be called before any conditional return
   const [config, setConfig] = useState<ShapeConfig>(shape?.config || {});
   const [status, setStatus] = useState<DrawingObject["status"]>(
     shape?.status || "stopped",
@@ -115,12 +130,41 @@ export function ShapeConfigDialog({
     protocol: "TCP",
     service: "HTTP",
   });
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [newRoute, setNewRoute] = useState<{
+    dest: string;
+    mask: string;
+    nh: string;
+  }>({
+    dest: "",
+    mask: "255.255.255.0",
+    nh: "",
+  });
+  const [newVlan, setNewVlan] = useState<{ id: number; name: string }>({
+    id: 10,
+    name: "",
+  });
+  const [newAclRule, setNewAclRule] = useState<Partial<ACLRule>>({
+    action: "permit",
+    protocol: "ip",
+    sourceIp: "any",
+    destinationIp: "any",
+  });
+  const [newNatRule, setNewNatRule] = useState<Partial<NATRule>>({
+    type: "static",
+    insideLocal: "",
+    insideGlobal: "",
+  });
+  const [newDnsRecord, setNewDnsRecord] = useState<Partial<DNSRecord>>({
+    name: "",
+    type: "A",
+    value: "",
+    ttl: 3600,
+  });
 
   if (!shape) return null;
 
   const shapeType = getShapeType(shape.shapeId);
-
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const isValidIp = (ip: string) =>
     !ip || /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/.test(ip);
@@ -187,41 +231,6 @@ export function ShapeConfigDialog({
       });
     }
   };
-
-  const [newRoute, setNewRoute] = useState<{
-    dest: string;
-    mask: string;
-    nh: string;
-  }>({
-    dest: "",
-    mask: "255.255.255.0",
-    nh: "",
-  });
-
-  const [newVlan, setNewVlan] = useState<{ id: number; name: string }>({
-    id: 10,
-    name: "",
-  });
-
-  const [newAclRule, setNewAclRule] = useState<Partial<ACLRule>>({
-    action: "permit",
-    protocol: "ip",
-    sourceIp: "any",
-    destinationIp: "any",
-  });
-
-  const [newNatRule, setNewNatRule] = useState<Partial<NATRule>>({
-    type: "static",
-    insideLocal: "",
-    insideGlobal: "",
-  });
-
-  const [newDnsRecord, setNewDnsRecord] = useState<Partial<DNSRecord>>({
-    name: "",
-    type: "A",
-    value: "",
-    ttl: 3600,
-  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

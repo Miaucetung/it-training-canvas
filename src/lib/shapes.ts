@@ -146,6 +146,116 @@ export const IT_SHAPES: ShapeDefinition[] = [
     label: "Mobile",
   },
 
+  // ========== NETZWERK (Zusätzlich) ==========
+  {
+    id: "access-point",
+    name: "Access Point",
+    category: "network",
+    icon: "accesspoint",
+    color: "#10B981",
+    width: 60,
+    height: 55,
+    svgPath: `
+      <ellipse cx="30" cy="35" rx="10" ry="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="2"/>
+      <rect x="28" y="15" width="4" height="20" fill="currentColor" opacity="0.5"/>
+      <path d="M15 15 Q30 0 45 15" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M20 18 Q30 8 40 18" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M25 21 Q30 14 35 21" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="15" y1="45" x2="45" y2="45" stroke="currentColor" stroke-width="2"/>
+    `,
+    label: "AP",
+  },
+  {
+    id: "hub",
+    name: "Hub",
+    category: "network",
+    icon: "hub",
+    color: "#94A3B8",
+    width: 90,
+    height: 40,
+    svgPath: `
+      <rect x="5" y="5" width="80" height="30" rx="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
+      <circle cx="20" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="45" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="70" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="25" y1="20" x2="40" y2="20" stroke="currentColor" stroke-width="2"/>
+      <line x1="50" y1="20" x2="65" y2="20" stroke="currentColor" stroke-width="2"/>
+    `,
+    label: "Hub",
+  },
+  {
+    id: "modem",
+    name: "Modem",
+    category: "network",
+    icon: "modem",
+    color: "#64748B",
+    width: 60,
+    height: 45,
+    svgPath: `
+      <rect x="5" y="10" width="50" height="30" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <circle cx="15" cy="25" r="4" fill="currentColor" opacity="0.5"/>
+      <circle cx="30" cy="25" r="4" fill="currentColor" opacity="0.5"/>
+      <circle cx="45" cy="25" r="4" fill="currentColor" opacity="0.5"/>
+      <line x1="15" y1="5" x2="15" y2="10" stroke="currentColor" stroke-width="2"/>
+      <line x1="45" y1="5" x2="45" y2="10" stroke="currentColor" stroke-width="2"/>
+      <circle cx="15" cy="3" r="2" fill="currentColor"/>
+    `,
+    label: "Modem",
+  },
+  {
+    id: "ip-phone",
+    name: "IP-Telefon",
+    category: "network",
+    icon: "ipphone",
+    color: "#10B981",
+    width: 50,
+    height: 55,
+    svgPath: `
+      <rect x="5" y="15" width="40" height="35" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="20" width="30" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="21" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="32" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="10" y="43" width="9" height="4" rx="1" fill="currentColor" opacity="0.4"/>
+      <rect x="21" y="43" width="9" height="4" rx="1" fill="currentColor" opacity="0.4"/>
+      <path d="M30 15 Q35 5 42 8" stroke="currentColor" stroke-width="2" fill="none"/>
+      <circle cx="43" cy="7" r="3" fill="currentColor" opacity="0.5"/>
+    `,
+    label: "IP Phone",
+  },
+  {
+    id: "printer",
+    name: "Drucker",
+    category: "network",
+    icon: "printer",
+    color: "#64748B",
+    width: 60,
+    height: 55,
+    svgPath: `
+      <rect x="5" y="20" width="50" height="25" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="12" y="5" width="36" height="15" rx="2" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="10" y="45" width="40" height="8" rx="2" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="38" y="28" width="12" height="8" rx="1" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="32" r="2" fill="#22C55E"/>
+    `,
+    label: "Printer",
+  },
+  {
+    id: "tablet",
+    name: "Tablet",
+    category: "network",
+    icon: "tablet",
+    color: "#64748B",
+    width: 45,
+    height: 60,
+    svgPath: `
+      <rect x="5" y="5" width="35" height="50" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="8" y="10" width="29" height="38" fill="currentColor" opacity="0.1"/>
+      <circle cx="22.5" cy="52" r="2" fill="currentColor" opacity="0.5"/>
+    `,
+    label: "Tablet",
+  },
+
   // ========== SERVER ==========
   {
     id: "server",
@@ -206,6 +316,194 @@ export const IT_SHAPES: ShapeDefinition[] = [
       <text x="35" y="35" text-anchor="middle" fill="currentColor" font-size="12" font-weight="bold">VM</text>
     `,
     label: "VM",
+  },
+
+  // ========== SERVER (Zusätzlich) ==========
+  {
+    id: "dns-server",
+    name: "DNS Server",
+    category: "server",
+    icon: "dnsserver",
+    color: "#6366F1",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#22C55E"/>
+      <circle cx="44" cy="32" r="3" fill="#22C55E"/>
+      <text x="30" y="56" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">DNS</text>
+    `,
+    label: "DNS Server",
+  },
+  {
+    id: "dhcp-server",
+    name: "DHCP Server",
+    category: "server",
+    icon: "dhcpserver",
+    color: "#6366F1",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#3B82F6"/>
+      <circle cx="44" cy="32" r="3" fill="#3B82F6"/>
+      <text x="30" y="56" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">DHCP</text>
+    `,
+    label: "DHCP Server",
+  },
+  {
+    id: "ad-server",
+    name: "Active Directory",
+    category: "server",
+    icon: "adserver",
+    color: "#0078D4",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#0078D4"/>
+      <circle cx="44" cy="32" r="3" fill="#0078D4"/>
+      <text x="30" y="56" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">AD</text>
+    `,
+    label: "AD Server",
+  },
+  {
+    id: "web-server",
+    name: "Web Server",
+    category: "server",
+    icon: "webserver",
+    color: "#22C55E",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#22C55E"/>
+      <circle cx="44" cy="32" r="3" fill="#22C55E"/>
+      <text x="30" y="56" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">WWW</text>
+    `,
+    label: "Web Server",
+  },
+  {
+    id: "file-server",
+    name: "File Server",
+    category: "server",
+    icon: "fileserver",
+    color: "#F59E0B",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="42" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#F59E0B"/>
+      <circle cx="44" cy="32" r="3" fill="#F59E0B"/>
+      <circle cx="44" cy="48" r="3" fill="#F59E0B"/>
+      <text x="30" y="70" text-anchor="middle" fill="currentColor" font-size="8" font-weight="bold">FILE</text>
+    `,
+    label: "File Server",
+  },
+  {
+    id: "mail-server",
+    name: "Mail Server",
+    category: "server",
+    icon: "mailserver",
+    color: "#EC4899",
+    width: 60,
+    height: 80,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="44" cy="16" r="3" fill="#EC4899"/>
+      <circle cx="44" cy="32" r="3" fill="#EC4899"/>
+      <path d="M15 52 L30 62 L45 52 Z" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="15" y="52" width="30" height="15" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.5"/>
+    `,
+    label: "Mail Server",
+  },
+  {
+    id: "proxy",
+    name: "Proxy Server",
+    category: "server",
+    icon: "proxy",
+    color: "#8B5CF6",
+    width: 60,
+    height: 70,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="60" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <circle cx="30" cy="28" r="12" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <path d="M22 28 L30 22 L38 28 L30 34 Z" fill="currentColor" opacity="0.5"/>
+      <text x="30" y="55" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">PROXY</text>
+    `,
+    label: "Proxy",
+  },
+
+  // ========== STORAGE (Zusätzlich) ==========
+  {
+    id: "nas",
+    name: "NAS",
+    category: "storage",
+    icon: "nas",
+    color: "#F59E0B",
+    width: 70,
+    height: 55,
+    svgPath: `
+      <rect x="5" y="5" width="60" height="45" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="18" height="35" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="31" y="10" width="18" height="35" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="52" y="10" width="10" height="35" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="19" cy="40" r="2" fill="#22C55E"/>
+      <circle cx="40" cy="40" r="2" fill="#22C55E"/>
+      <circle cx="57" cy="40" r="2" fill="#F59E0B"/>
+    `,
+    label: "NAS",
+  },
+  {
+    id: "san",
+    name: "SAN",
+    category: "storage",
+    icon: "san",
+    color: "#F59E0B",
+    width: 80,
+    height: 60,
+    svgPath: `
+      <rect x="5" y="5" width="70" height="50" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <rect x="10" y="10" width="60" height="15" rx="2" fill="currentColor" opacity="0.3"/>
+      <rect x="10" y="28" width="60" height="15" rx="2" fill="currentColor" opacity="0.3"/>
+      <circle cx="62" cy="17" r="3" fill="#22C55E"/>
+      <circle cx="62" cy="35" r="3" fill="#22C55E"/>
+      <line x1="15" y1="17" x2="50" y2="17" stroke="currentColor" stroke-width="2"/>
+      <line x1="15" y1="35" x2="50" y2="35" stroke="currentColor" stroke-width="2"/>
+      <text x="40" y="52" text-anchor="middle" fill="currentColor" font-size="8" font-weight="bold">SAN</text>
+    `,
+    label: "SAN",
+  },
+
+  // ========== SECURITY (Zusätzlich) ==========
+  {
+    id: "ids-ips",
+    name: "IDS/IPS",
+    category: "security",
+    icon: "idsips",
+    color: "#EF4444",
+    width: 60,
+    height: 60,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="50" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
+      <circle cx="30" cy="25" r="12" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <path d="M24 25 L30 19 L36 25 L30 31 Z" fill="currentColor" opacity="0.5"/>
+      <text x="30" y="50" text-anchor="middle" fill="currentColor" font-size="8" font-weight="bold">IDS/IPS</text>
+    `,
+    label: "IDS/IPS",
   },
 
   // ========== STORAGE ==========
@@ -634,6 +932,93 @@ export const IT_SHAPES: ShapeDefinition[] = [
     label: "Function",
   },
 
+  // ========== AZURE (Zusätzlich) ==========
+  {
+    id: "azure-vnet",
+    name: "Azure VNet",
+    category: "azure",
+    icon: "azurevnet",
+    color: "#0078D4",
+    width: 120,
+    height: 80,
+    svgPath: `
+      <rect x="3" y="3" width="114" height="74" rx="6" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="2"/>
+      <rect x="8" y="8" width="104" height="18" rx="3" fill="currentColor" opacity="0.2"/>
+      <text x="60" y="21" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">VNet</text>
+      <rect x="12" y="32" width="45" height="22" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1"/>
+      <text x="34" y="46" text-anchor="middle" fill="currentColor" font-size="7">Subnet</text>
+      <rect x="63" y="32" width="45" height="22" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1"/>
+      <text x="85" y="46" text-anchor="middle" fill="currentColor" font-size="7">Subnet</text>
+      <rect x="12" y="58" width="96" height="14" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="60" y="68" text-anchor="middle" fill="currentColor" font-size="7">NSG</text>
+    `,
+    label: "Azure VNet",
+  },
+  {
+    id: "azure-nsg",
+    name: "Azure NSG",
+    category: "azure",
+    icon: "azurensg",
+    color: "#0078D4",
+    width: 55,
+    height: 55,
+    svgPath: `
+      <path d="M27.5 5 L50 16 L50 44 L27.5 55 L5 44 L5 16 Z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <path d="M20 25 L27.5 20 L35 25 L27.5 30 Z" fill="currentColor" opacity="0.5"/>
+      <line x1="17" y1="35" x2="38" y2="35" stroke="currentColor" stroke-width="2"/>
+      <line x1="17" y1="40" x2="38" y2="40" stroke="currentColor" stroke-width="1.5"/>
+    `,
+    label: "NSG",
+  },
+  {
+    id: "azure-app-service",
+    name: "Azure App Service",
+    category: "azure",
+    icon: "azureappservice",
+    color: "#0078D4",
+    width: 60,
+    height: 55,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="45" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <circle cx="30" cy="22" r="10" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M25 22 L30 18 L35 22 L30 26 Z" fill="currentColor"/>
+      <text x="30" y="45" text-anchor="middle" fill="currentColor" font-size="7" font-weight="bold">App Svc</text>
+    `,
+    label: "App Service",
+  },
+  {
+    id: "azure-sql",
+    name: "Azure SQL",
+    category: "azure",
+    icon: "azuresql",
+    color: "#0078D4",
+    width: 60,
+    height: 65,
+    svgPath: `
+      <ellipse cx="30" cy="15" rx="22" ry="8" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 15 L8 48 Q8 56 30 56 Q52 56 52 48 L52 15" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <ellipse cx="30" cy="48" rx="22" ry="8" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="2"/>
+      <text x="30" y="35" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">SQL</text>
+    `,
+    label: "Azure SQL",
+  },
+  {
+    id: "azure-aks",
+    name: "Azure AKS",
+    category: "azure",
+    icon: "azureaks",
+    color: "#326CE5",
+    width: 60,
+    height: 60,
+    svgPath: `
+      <rect x="5" y="5" width="50" height="50" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <polygon points="30,12 48,24 48,40 30,52 12,40 12,24" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="30" cy="32" r="8" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1"/>
+      <text x="30" y="36" text-anchor="middle" fill="currentColor" font-size="8" font-weight="bold">AKS</text>
+    `,
+    label: "AKS",
+  },
+
   // ========== AWS ==========
   {
     id: "aws-ec2",
@@ -679,6 +1064,77 @@ export const IT_SHAPES: ShapeDefinition[] = [
       <text x="27.5" y="35" text-anchor="middle" fill="currentColor" font-size="12" font-weight="bold">λ</text>
     `,
     label: "Lambda",
+  },
+
+  // ========== AWS (Zusätzlich) ==========
+  {
+    id: "aws-vpc",
+    name: "AWS VPC",
+    category: "aws",
+    icon: "awsvpc",
+    color: "#FF9900",
+    width: 120,
+    height: 80,
+    svgPath: `
+      <rect x="3" y="3" width="114" height="74" rx="6" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="2"/>
+      <rect x="8" y="8" width="104" height="18" rx="3" fill="currentColor" opacity="0.2"/>
+      <text x="60" y="21" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">VPC</text>
+      <rect x="12" y="32" width="45" height="22" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1"/>
+      <text x="34" y="46" text-anchor="middle" fill="currentColor" font-size="7">Subnet</text>
+      <rect x="63" y="32" width="45" height="22" rx="3" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1"/>
+      <text x="85" y="46" text-anchor="middle" fill="currentColor" font-size="7">Subnet</text>
+    `,
+    label: "AWS VPC",
+  },
+  {
+    id: "aws-rds",
+    name: "AWS RDS",
+    category: "aws",
+    icon: "awsrds",
+    color: "#3B48CC",
+    width: 60,
+    height: 65,
+    svgPath: `
+      <ellipse cx="30" cy="15" rx="22" ry="8" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 15 L8 48 Q8 56 30 56 Q52 56 52 48 L52 15" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <ellipse cx="30" cy="48" rx="22" ry="8" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="2"/>
+      <text x="30" y="35" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">RDS</text>
+    `,
+    label: "RDS",
+  },
+  {
+    id: "aws-cloudfront",
+    name: "AWS CloudFront",
+    category: "aws",
+    icon: "awscf",
+    color: "#8B5CF6",
+    width: 60,
+    height: 60,
+    svgPath: `
+      <circle cx="30" cy="30" r="25" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
+      <circle cx="30" cy="30" r="12" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M30 5 L30 18" stroke="currentColor" stroke-width="2"/>
+      <path d="M30 42 L30 55" stroke="currentColor" stroke-width="2"/>
+      <path d="M5 30 L18 30" stroke="currentColor" stroke-width="2"/>
+      <path d="M42 30 L55 30" stroke="currentColor" stroke-width="2"/>
+      <text x="30" y="34" text-anchor="middle" fill="currentColor" font-size="6" font-weight="bold">CDN</text>
+    `,
+    label: "CloudFront",
+  },
+  {
+    id: "aws-route53",
+    name: "AWS Route 53",
+    category: "aws",
+    icon: "awsroute53",
+    color: "#8B5CF6",
+    width: 55,
+    height: 55,
+    svgPath: `
+      <polygon points="27.5,5 50,16 50,44 27.5,55 5,44 5,16" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+      <text x="27.5" y="28" text-anchor="middle" fill="currentColor" font-size="7" font-weight="bold">Route</text>
+      <text x="27.5" y="40" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">53</text>
+    `,
+    label: "Route 53",
   },
 
   // ========== INFRASTRUKTUR ==========

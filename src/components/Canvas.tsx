@@ -15,6 +15,7 @@ import {
   getPortPosition,
   PortPosition,
 } from "@/lib/connection-utils";
+import { getConnectionCompatibility } from "@/lib/connection-compatibility";
 import { ShapeConnection } from "@/lib/shape-properties";
 import { IT_SHAPES } from "@/lib/shapes";
 import {
@@ -1131,14 +1132,32 @@ export function Canvas({
 
         const nearestPort = findNearestPort(obj, worldPos, 20);
         if (nearestPort) {
-          // Create the connection
+          // Auto-detect recommended connection/cable type
+          const sourceObj = objects.find(
+            (o) => o.id === connectionStart.shapeId,
+          );
+          const compat = getConnectionCompatibility(
+            sourceObj?.shapeId,
+            obj.shapeId,
+          );
+
+          // Create the connection with auto-detected types
           const newConnection = createConnection(
             connectionStart.shapeId,
             connectionStart.port,
             obj.id,
             nearestPort,
+            compat.recommendedConnection,
           );
-          onConnectionsChange([...connections, newConnection]);
+
+          // Apply recommended cable type
+          const enrichedConnection = {
+            ...newConnection,
+            cableType: compat.recommendedCable,
+            ...(compat.warning ? { label: compat.warning } : {}),
+          };
+
+          onConnectionsChange([...connections, enrichedConnection]);
           break;
         }
       }

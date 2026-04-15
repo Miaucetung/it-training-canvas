@@ -11,14 +11,17 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { getConnectionCompatibility } from "@/lib/connection-compatibility";
 import { CONNECTION_COLORS, ConnectionType } from "@/lib/shape-properties";
 import { CableType, CanvasConnection, DrawingObject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   ArrowsLeftRight,
   GitBranch,
+  Info,
   Lightning,
   Trash,
+  Warning,
   X,
 } from "@phosphor-icons/react";
 
@@ -43,6 +46,11 @@ export function ConnectionPropertiesPanel({
 
   const sourceObj = objects.find((o) => o.id === connection.sourceShapeId);
   const targetObj = objects.find((o) => o.id === connection.targetShapeId);
+
+  // Auto-compatibility analysis
+  const compat = getConnectionCompatibility(sourceObj?.shapeId, targetObj?.shapeId);
+  const isRecommendedType = connection.connectionType === compat.recommendedConnection;
+  const isRecommendedCable = (connection.cableType || "straight-through") === compat.recommendedCable;
 
   const connectionTypes: {
     value: ConnectionType;
@@ -174,6 +182,61 @@ export function ConnectionPropertiesPanel({
           </div>
         </div>
       </div>
+
+      {/* Compatibility Hints */}
+      {(compat.warning || !isRecommendedType || !isRecommendedCable) && (
+        <div
+          className={cn(
+            "px-4 py-2 border-b space-y-1",
+            theme === "dark" ? "border-slate-700" : "border-slate-200",
+          )}
+        >
+          {compat.warning && (
+            <div className="flex items-start gap-2 text-xs text-amber-500">
+              <Warning size={14} className="mt-0.5 flex-shrink-0" />
+              <span>{compat.warning}</span>
+            </div>
+          )}
+          {!isRecommendedType && (
+            <div className="flex items-start gap-2 text-xs text-blue-400">
+              <Info size={14} className="mt-0.5 flex-shrink-0" />
+              <span>
+                Empfohlen: <strong>{compat.recommendedConnection}</strong>
+                <Button
+                  variant="link"
+                  className="h-auto p-0 ml-1 text-xs text-blue-400"
+                  onClick={() =>
+                    onUpdateConnection(connection.id, {
+                      connectionType: compat.recommendedConnection,
+                    })
+                  }
+                >
+                  Übernehmen
+                </Button>
+              </span>
+            </div>
+          )}
+          {!isRecommendedCable && (
+            <div className="flex items-start gap-2 text-xs text-blue-400">
+              <Info size={14} className="mt-0.5 flex-shrink-0" />
+              <span>
+                Kabel: <strong>{compat.recommendedCable}</strong>
+                <Button
+                  variant="link"
+                  className="h-auto p-0 ml-1 text-xs text-blue-400"
+                  onClick={() =>
+                    onUpdateConnection(connection.id, {
+                      cableType: compat.recommendedCable,
+                    })
+                  }
+                >
+                  Übernehmen
+                </Button>
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Properties */}
       <div className="p-4 space-y-4">
