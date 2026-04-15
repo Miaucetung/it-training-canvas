@@ -120,10 +120,41 @@ export function ShapeConfigDialog({
   onSave,
   theme,
 }: ShapeConfigDialogProps) {
-  // ALL hooks MUST be called before any conditional return
-  const [config, setConfig] = useState<ShapeConfig>(shape?.config || {});
+  // Outer wrapper: NO hooks here. This prevents Error #310.
+  // The inner component only mounts when open && shape are truthy,
+  // so it always calls the same number of hooks.
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {open && shape ? (
+        <ShapeConfigDialogContent
+          shape={shape}
+          onOpenChange={onOpenChange}
+          onSave={onSave}
+          theme={theme}
+        />
+      ) : null}
+    </Dialog>
+  );
+}
+
+function ShapeConfigDialogContent({
+  shape,
+  onOpenChange,
+  onSave,
+  theme,
+}: {
+  shape: DrawingObject;
+  onOpenChange: (open: boolean) => void;
+  onSave: (
+    shapeId: string,
+    config: ShapeConfig,
+    status: DrawingObject["status"],
+  ) => void;
+  theme: "light" | "dark";
+}) {
+  const [config, setConfig] = useState<ShapeConfig>(shape.config || {});
   const [status, setStatus] = useState<DrawingObject["status"]>(
-    shape?.status || "stopped",
+    shape.status || "stopped",
   );
   const [newPort, setNewPort] = useState({
     port: 80,
@@ -161,8 +192,6 @@ export function ShapeConfigDialog({
     value: "",
     ttl: 3600,
   });
-
-  if (!shape) return null;
 
   const shapeType = getShapeType(shape.shapeId);
 
@@ -233,7 +262,6 @@ export function ShapeConfigDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
           "max-w-3xl max-h-[90vh] overflow-y-auto",
@@ -2295,6 +2323,5 @@ export function ShapeConfigDialog({
           <Button onClick={handleSave}>Speichern</Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
   );
 }
