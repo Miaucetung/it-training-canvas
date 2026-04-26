@@ -198,6 +198,7 @@ export interface Quiz {
   description: string;
   questions: Question[];
   passingScore: number; // 0-100
+  moduleId?: string;
   timeLimit?: number; // Sekunden, optional
   shuffleQuestions: boolean;
 }
@@ -697,6 +698,15 @@ export interface SubjectConfig {
 }
 
 export const SUBJECT_CONFIGS: Record<string, SubjectConfig> = {
+  CCNA: {
+    id: "CCNA",
+    name: "CCNA 200-301",
+    icon: "WifiHigh",
+    color: "#1BA0D7",
+    gradient: "from-sky-500 to-blue-600",
+    description: "Cisco Certified Network Associate",
+    category: "certification",
+  },
   FISI: {
     id: "FISI",
     name: "FISI",
@@ -807,7 +817,7 @@ export const SUBJECT_CONFIGS: Record<string, SubjectConfig> = {
   },
 };
 
-export const DEFAULT_SUBJECTS = ["FISI", "Azure", "AWS", "Linux"];
+export const DEFAULT_SUBJECTS = ["CCNA", "FISI", "Azure", "AWS", "Linux"];
 
 export const CATEGORY_LABELS: Record<SubjectConfig["category"], string> = {
   certification: "Zertifizierung",

@@ -1,4 +1,5 @@
 import { Hint, LearningPath, LearningStep, ValidationRule } from "@/lib/types";
+import { gamificationBus } from "@/lib/gamification/events/event-bus";
 import {
   ArrowDown,
   ArrowUp,
@@ -241,6 +242,16 @@ export function LearningPathEditor({
       return;
     }
     setValidationErrors([]);
+    gamificationBus.emit({
+      id: `topic-${editPath.id}-${Date.now()}`,
+      type: 'topic_completed',
+      timestamp: Date.now(),
+      payload: {
+        topicId: editPath.id,
+        moduleId: 'learning-path',
+        estimatedMinutes: editPath.estimatedMinutes ?? 0,
+      },
+    });
     onSave({ ...editPath, updatedAt: Date.now() });
   }, [editPath, onSave]);
 

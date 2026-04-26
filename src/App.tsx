@@ -250,14 +250,13 @@ function App() {
     }
   }, []);
 
-  // Seed default learning paths & quizzes if empty
+  // Seed default learning paths & quizzes — merge so new default content is always present
   useEffect(() => {
     if (Object.keys(learningPaths).length === 0) {
       setLearningPaths(DEFAULT_LEARNING_PATHS);
     }
-    if (Object.keys(quizzes).length === 0) {
-      setQuizzes(DEFAULT_QUIZZES);
-    }
+    // DEFAULT_QUIZZES as base, existing user quizzes override (preserves customizations)
+    setQuizzes((prev) => ({ ...DEFAULT_QUIZZES, ...prev }));
   }, []);
 
   useEffect(() => {

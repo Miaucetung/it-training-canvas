@@ -1,4 +1,5 @@
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
+import { gamificationBus } from "@/lib/gamification/events/event-bus";
 import {
   CheckCircle,
   Clock,
@@ -185,6 +186,19 @@ export function QuizDialog({
     };
 
     setResult(scoreResult);
+    gamificationBus.emit({
+      id: `quiz-${quiz.id}-${Date.now()}`,
+      type: 'quiz_completed',
+      timestamp: Date.now(),
+      payload: {
+        quizId: quiz.id,
+        moduleId: quiz.moduleId ?? 'unknown',
+        score: percentage,
+        correctAnswers: results.filter(r => r.passed).length,
+        totalQuestions: results.length,
+        passed: percentage >= quiz.passingScore,
+      },
+    });
     setShowResult(true);
   }, [
     questions,
