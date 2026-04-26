@@ -83,7 +83,7 @@ describe('progress-store', () => {
     expect(state.xpTotal).toBe(0);
   });
 
-  it('load() with schemaVersion=1 returns data', () => {
+  it('load() with current schema version returns data', () => {
     const validState = createEmptyState();
     mockStorage.set('it-training-progress-v1', JSON.stringify(validState));
     const state = store.load();

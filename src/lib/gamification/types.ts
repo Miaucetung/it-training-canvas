@@ -26,6 +26,8 @@ export interface ProgressState {
   unlockedAchievementIds: string[];
   eventHistory: PersistedEvent[];
   lastUpdated: number;
+  /** Added in schema v2 — tracks cumulative days with at least one activity */
+  totalDaysActive?: number;
 }
 
 export interface XpEntry {

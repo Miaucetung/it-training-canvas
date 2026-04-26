@@ -6,7 +6,7 @@ export interface ProgressStore {
   reset(): void;
 }
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 const STORAGE_KEY = 'it-training-progress-v1';
 const MAX_HISTORY_DAYS = 30;
 
@@ -26,6 +26,7 @@ export function createEmptyState(): ProgressState {
     unlockedAchievementIds: [],
     eventHistory: [],
     lastUpdated: Date.now(),
+    totalDaysActive: 0,
   };
 }
 
@@ -45,6 +46,14 @@ function migrate(raw: unknown): ProgressState {
   if (obj['schemaVersion'] > SCHEMA_VERSION) {
     console.warn('[ProgressStore] Future schema version detected — resetting');
     return createEmptyState();
+  }
+  // v1 → v2: add totalDaysActive field
+  if (obj['schemaVersion'] === 1) {
+    return {
+      ...(raw as ProgressState),
+      schemaVersion: 2,
+      totalDaysActive: 0,
+    };
   }
   return raw as ProgressState;
 }

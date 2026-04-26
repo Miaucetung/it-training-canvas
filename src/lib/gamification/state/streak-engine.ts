@@ -44,6 +44,9 @@ export function updateStreak(
     const diff = daysBetween(last, today);
     if (diff === 1) {
       newStreak = state.streak.currentStreak + 1;
+    } else if (diff === 2 && state.streak.freezeUsedThisWeek) {
+      // Streak freeze covers exactly one missed day
+      newStreak = state.streak.currentStreak + 1;
     } else {
       newStreak = 1;
     }
