@@ -815,6 +815,25 @@ export const SUBJECT_CONFIGS: Record<string, SubjectConfig> = {
     description: "SQL & NoSQL Systems",
     category: "development",
   },
+  // ── Catalog-sourced modules (Phase 6c) ─────────────────────
+  "AZ-900": {
+    id: "AZ-900",
+    name: "AZ-900 Fundamentals",
+    icon: "MicrosoftAzureLogo",
+    color: "#005BA1",
+    gradient: "from-sky-700 to-blue-800",
+    description: "Azure Fundamentals · Catalog",
+    category: "certification",
+  },
+  NetworkPlus: {
+    id: "NetworkPlus",
+    name: "CompTIA Network+",
+    icon: "WifiHigh",
+    color: "#C8202D",
+    gradient: "from-red-600 to-red-800",
+    description: "N10-009 · Catalog Stub",
+    category: "certification",
+  },
 };
 
 export const DEFAULT_SUBJECTS = ["CCNA", "FISI", "Azure", "AWS", "Linux"];

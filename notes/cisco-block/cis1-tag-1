@@ -1,0 +1,224 @@
+Client		Meist eine Workstation, Handy,Tablet ….
+Server		Besteht aus 2 Teilen: Die Hardware ist für 24h, 7 Tage die Woche bzw, 365 Tage im Jahr ausgelegt ist, Software technisch bietet ein Server einen Dienst im Netzwerk an. Das kann sein einen Speicherort für Daten, Webseiten usw.
+
+Hub	Ein Hub leitet die Informationen über jeden Port, wo ein Endgerät angeschlossen ist weiter.
+
+Switch	Verbindet zwei Rechner virtuell miteinander, in dem er die entsprechenden Ports zusammenschaltet. Weiter arbeitet ein Switch mit der sogenannten physikalischen Adresse.
+Router	Ein Router arbeitet mit den sogenannten logischen Adressen und ermöglicht so, die Kommunikation zwischen unterschiedlichen Netzwerken
+Layer3 Switch	Dies ist ein Switch mit der Funktion eines Routers.
+
+Unicast			Eine Kommunikation zwischen zwei Endgeräten
+Multicast		Eine Kommunikation zwischen einem Endgerät mit eine Gruppen von Geräten
+
+Broadcast	Eine Kommunikation von einem Endgerät zu allen Endgeräten.
+Media	Hier sind gemeint Übertragungsmedien
+
+Protokolle	Bezeichnet eine Sprache, Rules, Agreements und Standards der Kommunikation
+RFC	Read for Comments und ist internationaler Standard, beschreibt wie Protokolle auszusehen haben, damit jeder Rechner diese verstehen
+MAC-Adresse			Wird auch als physikalische Adresse bezeichnet und besteht aus 48 Bit. Die ersten 24 Bit beschreiben den Hersteller eine Netzwerkkarte und die letzten 24 Bit das Produkt.
+
+IP-Adresse	Besteht entweder aus 32 Bit oder 128 Bit. 32 Bit ist eine IPv4-Adresse, während 128-Bit eine IPv6 Adresse ist.
+
+Eigenschaften von Netzwerken
+-	Leistungsverbund
+-	Last-Verteilung
+-	Erhöhte Zuverlässigkeit
+-	Erweitertes Dienstleistungsangebot
+-	Geringe Kosten
+-	Verbesserte Kommunikationsmöglichkeiten
+
+Kommunikation von Netzwerken
+-	Client/Servermodell
+-	Peer-to-Peer Netzwerke
+
+Netzwerkarten -> nach Ausdehnung
+Personal Area Network	PAN	Bluetooth-Verbindungen  max. 10 Metern
+Local Area Network	LAN 	Umfast in der Regel Netzwerke, die über eine Etage oder über 1-2 aneinanderliegende Gebäude
+Metropolitan Area _Network	MAN	Verbindet mehrere Lans, Werden auch Stadtnetzwerke genannt, Wie der Name schon sagt Größe eine Stadt
+Campus Area Network	CAN	 Ein Netzwerk in der Größe eines Universität
+Wide Area Network	WAN 	Bezeichnet ein Netzwerk über Länder oder auch Kontinente hinweg
+Global Area Network	GAN	 Nutzt neben der WAN-Infrastruktur auch noch Satelliten-Verbindungen und umspannt unseren kompletten Planeten
+Merksatz: Je größer das Netzwerk, desto höher die Latenz und geringer die Kontrolle!!
+Netzwerkarten -> nach Funktion
+Content Network	CN 	Vereinfachter Zugang zum Internet
+Storage Area Network	SAN	Highspeed Netzwerk mit Datenspeichergeräten in einem besonders geschützten Bereich.
+Virtual Privat Network	VPN	Bezeichnet eine gesicherte Verbindung über das öffentlich Netz
+
+Netzwerke die über ihre Zugriffsmöglichkeiten definiert werden:
+-	intranet 		Lokales Netzwerk ohne zugriff auf externe Netze
+-	extranet		Erweitertes Intranet mit beschränktem Zugriff auf externe Ressourcen
+-	internet		Lokales Netzwerk mit unbeschränktem Zugriff aus externen Netzen, Zugriff erfolgt meist über Firewalls(Zugriff von aussen nach innen).
+-	Internet		Bezeichnet das Netz alle Netze, _Öffentliches Netz in dem alle Ressourcen abgerufen werden können
+Leistung im Netzwerk/Bandbreite
+
+Durchsatz
+Der Datendurchsatz ist die tatsächliche Menge an Daten, die gesendet oder empfangen wurde. Der Datendurchsatz ist abhängig von:
+	Verzögerung (Delay/Latency) von Netzwerkgeräten
+	Topologie/Bandbreite aller beteiligten Netzwerken/Verbindungen
+	Auslastung des Netzwerkes
+	Verwendete Hardware
+	Leitungsausfälle
+
+Netzwerktopologien
+1. Bus-Topologie
+Bei der Bus-Topologie hängen alle Geräte an einer gemeinsamen Leitung, dem sogenannten Bus.
+PC1 ─── PC2 ─── PC3 ─── PC4
+Eigenschaften
+Alle Geräte teilen sich dasselbe Übertragungsmedium. Sendet ein Gerät Daten, können alle anderen Geräte diese Signale „sehen“. Früher wurde diese Topologie oft bei Koaxialkabel-Netzwerken eingesetzt.
+Vorteile
+•	einfacher Aufbau
+•	wenig Kabelbedarf
+•	kostengünstig
+Nachteile
+•	fällt das Hauptkabel aus, ist das ganze Netzwerk gestört
+•	Kollisionen sind möglich
+•	schlechte Erweiterbarkeit
+•	Fehlersuche schwierig
+Beispiel
+Alte Ethernet-Netzwerke mit Koaxialkabel, zum Beispiel 10BASE2 oder 10BASE5.
+
+2. Stern-Topologie
+Bei der Stern-Topologie sind alle Endgeräte mit einem zentralen Gerät verbunden, meistens einem Switch.
+      	  PC1
+        	 |
+PC2 ── Switch ── PC3
+        	 |
+     	   PC4
+Eigenschaften
+Jedes Gerät hat eine eigene Verbindung zum zentralen Switch. Die Daten laufen über den Switch, der entscheidet, an welchen Port die Daten weitergeleitet werden.
+Vorteile
+•	heute die wichtigste LAN-Topologie
+•	einfache Fehlersuche
+•	gute Erweiterbarkeit
+•	Ausfall eines einzelnen Kabels betrifft meist nur ein Gerät
+•	hohe Geschwindigkeit durch Switches
+Nachteile
+•	fällt der zentrale Switch aus, ist das Netzwerk stark gestört
+•	mehr Kabel als bei Bus-Topologie
+•	zentraler Punkt ist kritisch
+Beispiel
+Typisches Büro-, Schul- oder Heimnetzwerk mit Switch oder Router.
+
+3. Ring-Topologie
+Bei der Ring-Topologie ist jedes Gerät mit genau zwei Nachbarn verbunden. Die Geräte bilden einen geschlossenen Ring.
+PC1 ── PC2
+|      	 |
+PC4 ── PC3
+Eigenschaften
+Daten laufen meist in eine Richtung durch den Ring. Bei klassischen Ringnetzen durfte oft nur ein Gerät zu einem Zeitpunkt senden. Dafür wurde zum Beispiel ein sogenanntes Token verwendet.
+Vorteile
+•	geordneter Datenverkehr
+•	weniger Kollisionen
+•	vorhersehbares Übertragungsverhalten
+Nachteile
+•	Ausfall eines Geräts oder Kabels kann den Ring stören
+•	Erweiterung ist aufwendiger
+•	heute im klassischen LAN kaum noch üblich
+Beispiel
+Token Ring oder FDDI. In modernen Netzen findet man ringartige Strukturen eher im Provider- oder Glasfaserbereich, häufig mit Redundanzmechanismen.
+
+
+
+4. Mesh-Topologie / Vermaschtes Netz
+Bei der Mesh-Topologie sind Geräte mit mehreren anderen Geräten verbunden.
+PC1 ───── PC2
+ | \                 / |
+ |  \               /  |
+ |   \             /   |
+PC3 ───── PC4
+Man unterscheidet:
+Teilvermaschtes Netz
+Nicht jedes Gerät ist mit jedem anderen verbunden, aber es gibt mehrere alternative Wege.
+Vollvermaschtes Netz
+Jedes Gerät ist direkt mit jedem anderen Gerät verbunden.
+Eigenschaften
+Daten können über verschiedene Wege zum Ziel gelangen. Fällt ein Weg aus, kann oft ein anderer genutzt werden.
+Vorteile
+•	sehr ausfallsicher
+•	mehrere Wege möglich
+•	gute Grundlage für Hochverfügbarkeit
+•	geeignet für Backbone- und WAN-Strukturen
+Nachteile
+•	hoher Verkabelungsaufwand
+•	teuer
+•	komplexe Planung
+•	Routing wird wichtiger
+Beispiel
+Internet, Provider-Netze, große Unternehmensnetze, WLAN-Mesh-Systeme.
+
+5. Baum-Topologie / Hierarchische Topologie
+Die Baum-Topologie ist eine Erweiterung der Stern-Topologie. Mehrere Sternnetze werden hierarchisch verbunden.
+          Core-Switch
+                   /        \
+   Switch A        Switch B
+           /     \             /     \
+ PC1    PC2      PC3    PC4
+Eigenschaften
+Das Netzwerk ist in Ebenen aufgebaut. Typisch sind:
+•	Core-Ebene
+•	Distribution-Ebene
+•	Access-Ebene
+Vorteile
+•	sehr gut skalierbar
+•	übersichtlich
+•	gut für große Unternehmen
+•	klare Struktur
+•	einfache Segmentierung möglich
+Nachteile
+•	Ausfall zentraler Komponenten kann viele Bereiche betreffen
+•	Planung aufwendiger als einfache Stern-Topologie
+•	Redundanz muss bewusst eingebaut werden
+Beispiel
+Schulnetz, Campusnetz, Unternehmensnetzwerk mit mehreren Etagen oder Gebäuden.
+
+
+
+
+________________________________________
+6. Linien-Topologie
+Bei der Linien-Topologie sind Geräte hintereinander verbunden.
+PC1 ── PC2 ── PC3 ── PC4
+Eigenschaften
+Die Linien-Topologie ähnelt der Bus-Topologie, ist aber eher eine Verkettung von Geräten. Sie wird oft in industriellen Netzwerken verwendet.
+Vorteile
+•	einfache Verkabelung
+•	wenig Kabel
+•	geeignet für lange Strecken
+Nachteile
+•	Ausfall eines Zwischenpunkts kann dahinterliegende Geräte trennen
+•	begrenzte Ausfallsicherheit
+•	Fehlersuche kann schwierig sein
+Beispiel
+Industrienetzwerke, Produktionsanlagen, Sensor-Aktor-Netze.
+
+
+________________________________________
+7. Hybrid-Topologie
+Eine Hybrid-Topologie kombiniert mehrere Topologien miteinander.
+Beispiel: Ein Unternehmen nutzt intern eine Stern- oder Baum-Topologie, verbindet aber mehrere Standorte über ein WAN, das vermascht aufgebaut ist.
+Standort A ───── Standort B
+                   |               |
+ Stern-LAN       Stern-LAN
+                   |               |
+Standort C ───── Standort D
+Vorteile
+•	flexibel
+•	praxisnah
+•	anpassbar an Unternehmensanforderungen
+•	Kombination der Vorteile verschiedener Topologien
+Nachteile
+•	komplexer Aufbau
+•	höherer Planungsaufwand
+•	Dokumentation sehr wichtig
+Beispiel
+Fast jedes moderne Unternehmensnetzwerk ist eine Hybrid-Topologie.
+
+
+Topologie	Ausfallsicherheit	Kosten	Erweiterbarkeit	Heute üblich?
+Bus	niedrig	niedrig	schlecht	kaum
+Stern	mittel	mittel	gut	sehr häufig
+Ring	mittel	mittel	mäßig	selten
+Mesh	sehr hoch	hoch	gut	häufig im Backbone/WAN
+Baum	hoch	mittel-hoch	sehr gut	häufig
+Linie	niedrig-mittel	niedrig	mäßig	Industrie
+Hybrid	abhängig vom Aufbau	mittel-hoch	sehr gut	sehr häufig

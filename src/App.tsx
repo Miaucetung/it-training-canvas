@@ -31,6 +31,7 @@ import {
   DEFAULT_LEARNING_PATHS,
   DEFAULT_QUIZZES,
 } from "@/lib/default-learning-content";
+import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
 import {
   Annotation,
   CanvasConnection,
@@ -72,6 +73,20 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
+
+// ── Phase 6c-1: Catalog → Subject-ID mapping ─────────────────
+// Maps CATALOG_PREVIEW slugs to SUBJECT_CONFIGS keys.
+const CATALOG_SLUG_TO_SUBJECT: Record<string, string> = {
+  "ccna": "CCNA",
+  "az-900": "AZ-900",
+  "comptia-network-plus": "NetworkPlus",
+};
+
+// New subjects from the catalog that aren't already in DEFAULT_SUBJECTS.
+// These are injected alongside legacy subjects so catalog modules appear in the Sidebar.
+const CATALOG_SUBJECTS: string[] = CATALOG_PREVIEW
+  .map((m) => CATALOG_SLUG_TO_SUBJECT[m.slug])
+  .filter((s): s is string => !!s && !DEFAULT_SUBJECTS.includes(s));
 
 // Custom hook to replace useKV with localStorage fallback
 function useLocalStorage<T>(
@@ -130,7 +145,10 @@ function App() {
   const [gridAccentColor, setGridAccentColor] = useState<string>("");
   const [gridOpacity, setGridOpacity] = useState<number>(0.5);
   const [showPresentations, setShowPresentations] = useState(false);
-  const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
+  const [subjects, setSubjects] = useState<string[]>([
+    ...DEFAULT_SUBJECTS,
+    ...CATALOG_SUBJECTS,
+  ]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showShapePicker, setShowShapePicker] = useState(false);
@@ -225,23 +243,41 @@ function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const emptyCanvasState = () => ({
+      objects: [] as DrawingObject[],
+      connections: [] as CanvasConnection[],
+      history: [[]] as DrawingObject[][],
+      historyIndex: 0,
+    });
+
     if (!appData || Object.keys(appData).length === 0) {
+      // Fresh state: initialize all subjects (legacy + catalog)
       const initialData: Record<string, SubjectData> = {};
-      DEFAULT_SUBJECTS.forEach((subject) => {
+      [...DEFAULT_SUBJECTS, ...CATALOG_SUBJECTS].forEach((subject) => {
         initialData[subject] = {
           name: subject,
-          canvasState: {
-            objects: [],
-            connections: [],
-            history: [[]],
-            historyIndex: 0,
-          },
+          canvasState: emptyCanvasState(),
           lastModified: Date.now(),
         };
       });
       setAppData(initialData);
     } else {
-      setSubjects(Object.keys(appData));
+      // Existing state: ensure catalog subjects are present (migration)
+      const missingCatalog = CATALOG_SUBJECTS.filter((s) => !(s in appData));
+      if (missingCatalog.length > 0) {
+        const updated = { ...appData };
+        missingCatalog.forEach((subject) => {
+          updated[subject] = {
+            name: subject,
+            canvasState: emptyCanvasState(),
+            lastModified: Date.now(),
+          };
+        });
+        setAppData(updated);
+        setSubjects(Object.keys(updated));
+      } else {
+        setSubjects(Object.keys(appData));
+      }
       // Hide welcome if there's content
       const hasContent = Object.values(appData).some(
         (subject) => subject.canvasState.objects.length > 0,
