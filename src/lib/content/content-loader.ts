@@ -19,7 +19,7 @@ const MODULE_FACTORIES: Record<string, ModuleFactory> = {
   ccna: () => import("@/content/modules/ccna/index"),
   "az-900": () => import("@/content/modules/az-900/index"),
   // Add new modules here — no other files need to change:
-  // 'comptia-network-plus': () => import('@/content/modules/comptia-network-plus/index'),
+  "comptia-network-plus": () => import("@/content/modules/comptia-network-plus/index"),
   // 'az-104': () => import('@/content/modules/az-104/index'),
 };
 
