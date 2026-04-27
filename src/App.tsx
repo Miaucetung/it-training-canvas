@@ -18,6 +18,7 @@ import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
+import { TopicListPanel } from "@/components/TopicListPanel";
 import { TemplateGallery } from "@/components/TemplateGallery";
 import { TerminalEmulator } from "@/components/TerminalEmulator";
 import {
@@ -80,6 +81,13 @@ const CATALOG_SLUG_TO_SUBJECT: Record<string, string> = {
   "ccna": "CCNA",
   "az-900": "AZ-900",
   "comptia-network-plus": "NetworkPlus",
+};
+
+// Reverse map: Subject-ID → module ID (for TopicListPanel, Phase 6c-2)
+export const SUBJECT_TO_MODULE_ID: Record<string, string> = {
+  "CCNA": "ccna",
+  "AZ-900": "az-900",
+  "NetworkPlus": "comptia-network-plus",
 };
 
 // New subjects from the catalog that aren't already in DEFAULT_SUBJECTS.
@@ -1243,6 +1251,8 @@ function App() {
   const canUndo = canvasState.historyIndex > 0;
   const canRedo = canvasState.historyIndex < canvasState.history.length - 1;
   const currentConfig = SUBJECT_CONFIGS[currentSubject];
+  // Phase 6c-2: resolve catalog module ID for current subject (null = legacy)
+  const catalogModuleId = SUBJECT_TO_MODULE_ID[currentSubject] ?? null;
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-slate-900 text-white flex">
@@ -1444,8 +1454,12 @@ function App() {
           </div>
         </div>
 
-        {/* Canvas Area */}
-        <div className="flex-1 relative">
+        {/* Canvas Area / Topic Panel */}
+        <div className="flex-1 relative overflow-hidden">
+          {catalogModuleId ? (
+            <TopicListPanel moduleId={catalogModuleId} theme={theme} />
+          ) : (
+            <>
           <Canvas
             objects={canvasState.objects}
             onObjectsChange={updateCanvasState}
@@ -1617,6 +1631,8 @@ function App() {
                 </button>
               </div>
             </div>
+          )}
+            </>
           )}
         </div>
 
