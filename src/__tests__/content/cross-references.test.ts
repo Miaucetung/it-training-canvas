@@ -198,9 +198,15 @@ describe("Cross-References", () => {
       }
     });
 
-    it("returns empty array for a module with no defined bridges", () => {
+    it("returns bridges for comptia-network-plus once module is registered", () => {
       const bridges = getConceptBridgesForModule("comptia-network-plus");
-      expect(bridges).toHaveLength(0);
+      expect(bridges.length).toBeGreaterThan(0);
+      for (const b of bridges) {
+        const involved =
+          b.sourceModuleId === "comptia-network-plus" ||
+          b.targetModuleId === "comptia-network-plus";
+        expect(involved).toBe(true);
+      }
     });
   });
 });

@@ -80,9 +80,30 @@ export const CATALOG_PREVIEW: CourseMetadata[] = [
     categories: ["cloud", "azure", "microsoft", "certification"],
   },
   // Stubs — uncomment when module is created
-  // {
-  //   slug: 'comptia-network-plus',
-  //   tagline: 'CompTIA Network+ — Hersteller-neutrale Netzwerk-Zertifizierung',
-  //   ...
-  // },
+  {
+    slug: "comptia-network-plus",
+    tagline: "Vendor-neutrale Netzwerkkonzepte — die Brücke zwischen CCNA und Azure",
+    objectives: [
+      "OSI-Modell und TCP/IP vendor-neutral erklären (Abgrenzung von CCNA-Cisco-Kontext)",
+      "Netzwerkports und Protokolle (N10-009 Pflichtkanon) auswendig kennen",
+      "Cloud-Netzwerkkonzepte (VPC, IaaS/PaaS/SaaS) mit AZ-900-Wissen verknüpfen",
+      "SDN, Zero Trust Architecture und IPv6-Übergangstechnologien beschreiben",
+      "VLANs, STP und Routing-Protokolle (OSPF/BGP/RIP) vendor-neutral anwenden",
+      "Wi-Fi 6/6E/7 (802.11ax/be) und WPA3-Sicherheit erklären",
+      "CIA-Triade, Firewall-Typen und Netzwerkangriffe erkennen und benennen",
+      "SNMP v1/v2c/v3, Syslog und Flow-Daten (IPFIX vs. NetFlow) als Monitoring-Grundlage",
+    ],
+    targetAudience: [
+      "CCNA-Absolventen, die vendor-neutrale Perspektive ergänzen wollen",
+      "AZ-900-Lernende mit Netzwerkbedarf, die konzeptionelle Grundlagen vertiefen wollen",
+      "N10-009-Prüfungskandidaten für die Bereiche Konzepte, Implementation, Security und Betrieb",
+    ],
+    previewImageUrl: "/assets/modules/comptia-network-plus-preview.png",
+    priceCents: 0,
+    lastUpdated: "2026-04-27",
+    certificationBody: "CompTIA",
+    certValidityMonths: 36,
+    featured: false,
+    categories: ["networking", "comptia", "certification", "vendor-neutral"],
+  },
 ];

@@ -33,7 +33,7 @@ const CONCEPT_BRIDGES: ConceptBridge[] = [
       "CIDR-Subnetting aus dem CCNA ist identisch mit der Adressplanung für Azure VNet Address Spaces und Subnets.",
   },
   {
-    sourceConceptId: "acl",
+    sourceConceptId: "acls",
     sourceModuleId: "ccna",
     targetConceptId: "nsg",
     targetModuleId: "az-900",
@@ -79,6 +79,47 @@ const CONCEPT_BRIDGES: ConceptBridge[] = [
     targetModuleId: "az-900",
     bridgeNote:
       "Syslog und SNMP sammeln Logs und Metriken von Cisco-Geräten. Azure Monitor ist das Cloud-Äquivalent: zentrales Monitoring aller Azure-Ressourcen mit Log Analytics, Metriken und Alerts.",
+  },
+  // ── Trilaterale Brücken: CCNA ↔ N10-009 ↔ AZ-900 ──────────
+  {
+    sourceConceptId: "netplus-monitoring",
+    sourceModuleId: "comptia-network-plus",
+    targetConceptId: "azure-monitor",
+    targetModuleId: "az-900",
+    bridgeNote:
+      "Network+ SNMP/Syslog ist das vendor-neutrale Fundament. Azure Monitor (AZ-900) ist die Cloud-native Umsetzung: dasselbe Bedürfnis (zentrale Metrik- und Log-Sammlung), unterschiedliche Implementierung. Trilateraler Knoten: CCNA (Cisco-IOS-Syslog) → N10-009 (Konzept) → AZ-900 (Cloud-Plattform).",
+  },
+  {
+    sourceConceptId: "netplus-security-fundamentals",
+    sourceModuleId: "comptia-network-plus",
+    targetConceptId: "azure-rbac",
+    targetModuleId: "az-900",
+    bridgeNote:
+      "IAM-Konzepte in N10-009 (Authentifizierung, Autorisierung, Least Privilege) sind vendor-neutral. Azure RBAC (AZ-900) implementiert Autorisierung als rollenbasiertes Modell auf Cloud-Ressourcen. N10-009 liefert das Konzept, AZ-900 die Azure-spezifische Umsetzung.",
+  },
+  {
+    sourceConceptId: "netplus-network-concepts",
+    sourceModuleId: "comptia-network-plus",
+    targetConceptId: "vnet-subnet",
+    targetModuleId: "az-900",
+    bridgeNote:
+      "VPC/Cloud-Networking in N10-009 (Domain 1.2) ist das vendor-neutrale Pendant zu Azure VNet und Subnets (AZ-900). N10-009: Konzept. AZ-900: Microsoft-Implementierung.",
+  },
+  {
+    sourceConceptId: "netplus-switching-vlans",
+    sourceModuleId: "comptia-network-plus",
+    targetConceptId: "vlans",
+    targetModuleId: "ccna",
+    bridgeNote:
+      "VLANs und 802.1Q in N10-009 vendor-neutral (Tagged/Untagged Port). In CCNA mit Cisco-IOS (Trunk/Access Port, PVST+). Konzepte identisch, Terminologie und Implementierung verschieden.",
+  },
+  {
+    sourceConceptId: "netplus-routing",
+    sourceModuleId: "comptia-network-plus",
+    targetConceptId: "ospf",
+    targetModuleId: "ccna",
+    bridgeNote:
+      "OSPF in N10-009 vendor-neutral (RFC 2328). In CCNA mit Cisco-IOS-Konfiguration (network-Befehl, DR/BDR, Cisco-Areas). Protokoll identisch, Cisco-Praxis vs. N+-Konzept.",
   },
 ];
 
