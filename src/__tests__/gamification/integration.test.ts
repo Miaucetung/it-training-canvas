@@ -512,3 +512,84 @@ describe('Scenario 6: Schema Migration v1 → v2', () => {
     expect(reloaded.totalDaysActive).toBe(0);
   });
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Scenario 8: Network+ N10-009 Topic Completed — Gamification Pipeline
+// The Lackmustest: module-agnostic engine must handle comptia-network-plus
+// identically to ccna and az-900. No module-specific branches anywhere.
+// ──────────────────────────────────────────────────────────────────────────────
+
+describe('Scenario 8: Network+ N10-009 topic completed triggers full gamification pipeline', () => {
+  it('awards XP for netplus-monitoring topic (comptia-network-plus module)', () => {
+    const DAY = '2024-04-01';
+    setClock(makeFakeClock(DAY));
+    const store = new LocalStorageProgressStore();
+
+    const unlockedIds: string[] = [];
+    gamificationBus.subscribe('achievement_unlocked', (e) => {
+      unlockedIds.push((e.payload as AchievementUnlockedPayload).achievementId);
+    });
+
+    let state = store.load();
+    const ts = makeFakeClock(DAY).now();
+
+    // Complete a Network+ topic — engine must be completely module-agnostic
+    state = processEvent(
+      state,
+      makeEvent('topic_completed', { topicId: 'netplus-monitoring', moduleId: 'comptia-network-plus', estimatedMinutes: 55 }, ts),
+      store,
+    );
+
+    // XP awarded — module name is irrelevant to the XP engine
+    expect(state.xpTotal).toBeGreaterThan(0);
+
+    // Streak starts at 1 — module-agnostic streak engine
+    expect(state.streak.currentStreak).toBe(1);
+
+    // first-topic unlocked on first topic_completed regardless of module
+    expect(state.unlockedAchievementIds).toContain('first-topic');
+    expect(unlockedIds).toContain('first-topic');
+
+    // Persisted correctly
+    const loaded = store.load();
+    expect(loaded.xpTotal).toBe(state.xpTotal);
+    expect(loaded.streak.currentStreak).toBe(1);
+  });
+
+  it('handles N10-009 quiz_completed event (netplus-quiz-security)', () => {
+    const DAY = '2024-04-02';
+    setClock(makeFakeClock(DAY));
+    const store = new LocalStorageProgressStore();
+    let state = store.load();
+    const ts = makeFakeClock(DAY).now();
+
+    // 6 correct answers (typical N10-009 stub quiz size: 6-8 questions)
+    for (let i = 1; i <= 6; i++) {
+      state = processEvent(
+        state,
+        makeEvent('question_answered', { questionId: `nq${i}`, quizId: 'netplus-quiz-security', correct: true }, ts + i),
+        store,
+      );
+    }
+
+    // Quiz completed at 100% — N10-009 quiz, passingScore: 70
+    state = processEvent(
+      state,
+      makeEvent('quiz_completed', {
+        quizId: 'netplus-quiz-security',
+        moduleId: 'comptia-network-plus',
+        score: 100,
+        correctAnswers: 6,
+        totalQuestions: 6,
+        passed: true,
+      }, ts + 10),
+      store,
+    );
+
+    // XP: 6×10 (questions) + 100 (quiz 100%) = 160 minimum
+    expect(state.xpTotal).toBeGreaterThanOrEqual(160);
+
+    // Persistence round-trip
+    expect(store.load().xpTotal).toBe(state.xpTotal);
+  });
+});

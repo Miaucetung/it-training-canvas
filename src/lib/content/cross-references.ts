@@ -98,7 +98,7 @@ const CONCEPT_BRIDGES: ConceptBridge[] = [
       "IAM-Konzepte in N10-009 (Authentifizierung, Autorisierung, Least Privilege) sind vendor-neutral. Azure RBAC (AZ-900) implementiert Autorisierung als rollenbasiertes Modell auf Cloud-Ressourcen. N10-009 liefert das Konzept, AZ-900 die Azure-spezifische Umsetzung.",
   },
   {
-    sourceConceptId: "netplus-network-concepts",
+    sourceConceptId: "netplus-cloud-networking",
     sourceModuleId: "comptia-network-plus",
     targetConceptId: "vnet-subnet",
     targetModuleId: "az-900",
