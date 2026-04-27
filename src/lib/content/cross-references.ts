@@ -57,12 +57,28 @@ const CONCEPT_BRIDGES: ConceptBridge[] = [
       "OSPF propagiert Routing-Informationen zwischen Cisco Routern. Azure Route Server ermöglicht dynamischen BGP-Austausch zwischen Azure und On-Premises Routern.",
   },
   {
-    sourceConceptId: "dhcp",
+    sourceConceptId: "aaa-radius",
     sourceModuleId: "ccna",
-    targetConceptId: "azure-dhcp",
+    targetConceptId: "azure-rbac",
     targetModuleId: "az-900",
     bridgeNote:
-      "DHCP-Server auf Cisco-Geräten vergeben IP-Adressen dynamisch. Azure übernimmt DHCP automatisch für alle VMs innerhalb eines VNets.",
+      "AAA (Authentication, Authorization, Accounting) mit RADIUS im CCNA entspricht konzeptuell Azure RBAC: beides kontrolliert Zugriffsberechtigungen, aber RBAC ist feingranularer und für Cloud-Ressourcen optimiert (kein Accounting, kein RADIUS-Protokoll).",
+  },
+  {
+    sourceConceptId: "stp-redundancy",
+    sourceModuleId: "ccna",
+    targetConceptId: "azure-availability-zones",
+    targetModuleId: "az-900",
+    bridgeNote:
+      "STP verhindert Switching-Loops durch Redundanz-Management im LAN. Azure Availability Zones sichern Hochverfügbarkeit auf Rechenzentrumsebene — Redundanz als Architekturprinzip auf Cloud-Ebene.",
+  },
+  {
+    sourceConceptId: "syslog-snmp",
+    sourceModuleId: "ccna",
+    targetConceptId: "azure-monitor",
+    targetModuleId: "az-900",
+    bridgeNote:
+      "Syslog und SNMP sammeln Logs und Metriken von Cisco-Geräten. Azure Monitor ist das Cloud-Äquivalent: zentrales Monitoring aller Azure-Ressourcen mit Log Analytics, Metriken und Alerts.",
   },
 ];
 

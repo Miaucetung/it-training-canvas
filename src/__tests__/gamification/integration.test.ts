@@ -409,8 +409,48 @@ describe('Scenario 5: Corrupt LocalStorage state', () => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Scenario 6: Schema Migration v1 → v2
+// Scenario 7: AZ-900 Topic Completed — Gamification Pipeline
 // ──────────────────────────────────────────────────────────────────────────────
+
+describe('Scenario 7: AZ-900 topic completed triggers full gamification pipeline', () => {
+  it('awards XP, sets streak to 1, unlocks first-topic achievement, and persists', () => {
+    const DAY = '2024-03-01';
+    setClock(makeFakeClock(DAY));
+    const store = new LocalStorageProgressStore();
+
+    const unlockedIds: string[] = [];
+    gamificationBus.subscribe('achievement_unlocked', (e) => {
+      unlockedIds.push((e.payload as AchievementUnlockedPayload).achievementId);
+    });
+
+    let state = store.load(); // fresh empty state
+    const ts = makeFakeClock(DAY).now();
+
+    // Complete an AZ-900 topic — same event shape as CCNA, module-agnostic engine
+    state = processEvent(
+      state,
+      makeEvent('topic_completed', { topicId: 'cloud-fundamentals', moduleId: 'az-900', estimatedMinutes: 60 }, ts),
+      store,
+    );
+
+    // XP must be awarded — engine is module-agnostic
+    expect(state.xpTotal).toBeGreaterThan(0);
+
+    // Streak: Day 1 starts
+    expect(state.streak.currentStreak).toBe(1);
+
+    // first-topic achievement unlocked (module-agnostic, fires on first topic_completed ever)
+    expect(state.unlockedAchievementIds).toContain('first-topic');
+    expect(unlockedIds).toContain('first-topic');
+
+    // ProgressStore persisted correctly
+    const loaded = store.load();
+    expect(loaded.xpTotal).toBe(state.xpTotal);
+    expect(loaded.streak.currentStreak).toBe(1);
+    expect(loaded.unlockedAchievementIds).toContain('first-topic');
+  });
+});
+
 
 describe('Scenario 6: Schema Migration v1 → v2', () => {
   const STORAGE_KEY = 'it-training-progress-v1';
