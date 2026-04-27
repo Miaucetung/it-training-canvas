@@ -15,71 +15,61 @@ import { contentRegistry } from "@/lib/content/content-registry";
 // Static bridges between known modules
 // Add entries here as new modules are created
 // ────────────────────────────────────────────────────────────
-const CONCEPT_BRIDGES: ConceptBridge[] = [
+export const CONCEPT_BRIDGES: ConceptBridge[] = [
   {
-    sourceConceptId: "vlan",
+    sourceConceptId: "vlans",
     sourceModuleId: "ccna",
     targetConceptId: "vnet-subnet",
     targetModuleId: "az-900",
     bridgeNote:
       "VLANs im CCNA segmentieren lokale Netzwerke auf Layer 2. In Azure übernimmt das VNet Subnet dieselbe Rolle: logische Isolation innerhalb eines Virtual Network.",
   },
-  {
-    sourceConceptId: "subnetting",
-    sourceModuleId: "ccna",
-    targetConceptId: "azure-addressing",
-    targetModuleId: "az-900",
-    bridgeNote:
-      "CIDR-Subnetting aus dem CCNA ist identisch mit der Adressplanung für Azure VNet Address Spaces und Subnets.",
-  },
+  // Bridge 2 (subnetting ↔ azure-addressing) entfernt: keines der beiden Concepts existiert.
+  // CCNA hat kein 'subnetting'-Concept (nur 'ipv4-addressing-guide' in ipv4-addressing.ts).
+  // AZ-900 hat kein 'azure-addressing'-Concept. Ohne reale Concepts ist eine Bridge nicht validierbar.
   {
     sourceConceptId: "acls",
     sourceModuleId: "ccna",
-    targetConceptId: "nsg",
+    targetConceptId: "azure-network-services",
     targetModuleId: "az-900",
     bridgeNote:
-      "Cisco ACLs filtern Traffic auf Router-Interfaces. Azure Network Security Groups (NSGs) erfüllen dieselbe Aufgabe für VMs und Subnets in Azure.",
+      "Cisco ACLs filtern Traffic auf Router-Interfaces nach Quelle/Ziel/Port. Azure Network Services (NSG, Azure Firewall) erfüllen dieselbe Funktion für Cloud-Ressourcen.",
   },
   {
-    sourceConceptId: "nat-pat",
+    sourceConceptId: "nat",
     sourceModuleId: "ccna",
-    targetConceptId: "azure-nat-gateway",
+    targetConceptId: "azure-connectivity",
     targetModuleId: "az-900",
     bridgeNote:
-      "PAT/NAT Overload auf dem Edge-Router entspricht dem Azure NAT Gateway: ausgehender Internettraffic vieler interner Ressourcen über eine öffentliche IP.",
+      "PAT/NAT auf dem Edge-Router ermöglicht ausgehenden Internettraffic vieler interner Hosts über eine öffentliche IP. Azure Connectivity-Optionen (NAT Gateway, Load Balancer Outbound) lösen dasselbe Problem in der Cloud.",
   },
   {
     sourceConceptId: "ospf",
     sourceModuleId: "ccna",
-    targetConceptId: "azure-route-server",
+    targetConceptId: "azure-connectivity",
     targetModuleId: "az-900",
     bridgeNote:
-      "OSPF propagiert Routing-Informationen zwischen Cisco Routern. Azure Route Server ermöglicht dynamischen BGP-Austausch zwischen Azure und On-Premises Routern.",
+      "OSPF propagiert Routing-Informationen zwischen Routern im LAN/WAN. Azure Connectivity-Optionen (VPN Gateway, ExpressRoute, Route Tables) übernehmen dynamisches Routing in der Cloud.",
   },
   {
-    sourceConceptId: "aaa-radius",
+    sourceConceptId: "security-fundamentals",
     sourceModuleId: "ccna",
     targetConceptId: "azure-rbac",
     targetModuleId: "az-900",
     bridgeNote:
-      "AAA (Authentication, Authorization, Accounting) mit RADIUS im CCNA entspricht konzeptuell Azure RBAC: beides kontrolliert Zugriffsberechtigungen, aber RBAC ist feingranularer und für Cloud-Ressourcen optimiert (kein Accounting, kein RADIUS-Protokoll).",
+      "AAA-Konzepte (Authentication, Authorization, Accounting) aus dem CCNA-Security-Modul entsprechen konzeptuell Azure RBAC: beides kontrolliert Zugriffsberechtigungen, RBAC ist feingranularer und für Cloud-Ressourcen optimiert.",
   },
   {
-    sourceConceptId: "stp-redundancy",
+    sourceConceptId: "stp",
     sourceModuleId: "ccna",
     targetConceptId: "azure-availability-zones",
     targetModuleId: "az-900",
     bridgeNote:
       "STP verhindert Switching-Loops durch Redundanz-Management im LAN. Azure Availability Zones sichern Hochverfügbarkeit auf Rechenzentrumsebene — Redundanz als Architekturprinzip auf Cloud-Ebene.",
   },
-  {
-    sourceConceptId: "syslog-snmp",
-    sourceModuleId: "ccna",
-    targetConceptId: "azure-monitor",
-    targetModuleId: "az-900",
-    bridgeNote:
-      "Syslog und SNMP sammeln Logs und Metriken von Cisco-Geräten. Azure Monitor ist das Cloud-Äquivalent: zentrales Monitoring aller Azure-Ressourcen mit Log Analytics, Metriken und Alerts.",
-  },
+  // Bridge 8 (syslog-snmp ↔ azure-monitor) entfernt: CCNA hat kein Concept 'syslog-snmp'.
+  // Monitoring-Concepts in CCNA sind in den Topics beschrieben, aber kein eigenes Concept.
+  // Bridge wird hinzugefügt, sobald CCNA ein 'network-monitoring' Concept erhält.
   // ── Trilaterale Brücken: CCNA ↔ N10-009 ↔ AZ-900 ──────────
   {
     sourceConceptId: "netplus-monitoring",

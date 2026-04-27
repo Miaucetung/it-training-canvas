@@ -286,7 +286,75 @@ Aktueller Stand (nach CCNA + AZ-900 + Tests):
 
 ---
 
-## Häufige Fallstricke
+## Bridge-Integrität
+
+### Was ist ein "toter" Bridge?
+
+Ein `ConceptBridge` in `src/lib/content/cross-references.ts` ist **tot**, wenn:
+- `sourceConceptId` kein Concept mit dieser ID im `sourceModuleId`-Modul hat, **oder**
+- `targetConceptId` kein Concept mit dieser ID im `targetModuleId`-Modul hat, **oder**
+- eines der beiden Module nicht im Registry registriert ist.
+
+TypeScript erkennt das nicht (beide Seiten sind `string`) — deshalb gibt es den Runtime-Validator.
+
+### Der Integration-Test als Gate
+
+```bash
+npm test src/__tests__/content/bridge-integrity.test.ts
+```
+
+Dieser Test lädt alle 3 Module (ccna, az-900, comptia-network-plus), ruft `validateBridges(contentRegistry, CONCEPT_BRIDGES)` auf und schlägt mit einer **detaillierten Fehlermeldung** fehl, wenn tote Bridges gefunden werden:
+
+```
+❌ Bridge tot: ccna.syslog-snmp ↔ az-900.azure-monitor
+   Grund (source-concept-missing): Concept 'syslog-snmp' nicht in Modul 'ccna' gefunden.
+   Verfügbare Concepts in 'ccna': [acls, ospf, stp, vlans, ...].
+   Meintest du 'stp' oder 'vlans'?
+```
+
+**Beim ersten Rotwerden:** STOPP. Nicht workaround. Die tote Bridge reparieren oder entfernen.
+
+### Neue Bridge hinzufügen — sicherer Prozess
+
+1. Öffne `src/lib/content/cross-references.ts`
+2. Füge den neuen `ConceptBridge`-Eintrag hinzu
+3. **Sofort testen:**
+   ```bash
+   npm test src/__tests__/content/bridge-integrity.test.ts
+   ```
+4. Wenn rot: die Fehlermeldung zeigt den genauen Grund + Suggestions
+5. Erst wenn grün: committen
+
+### Modul löschen — Prüfliste
+
+Wenn ein Modul gelöscht oder umbenannt wird, könnte eine Bridge ins Leere zeigen:
+
+1. In `cross-references.ts` alle Bridges filtern, die `sourceModuleId` oder `targetModuleId` dieses Moduls haben
+2. Bridges entfernen oder auf das neue Modul umbiegen
+3. `npm test` — bridge-integrity.test.ts muss grün sein
+
+### Lokaler Validator (ad-hoc)
+
+```typescript
+import { contentRegistry } from '@/lib/content/content-registry';
+import { validateBridges, formatBridgeValidationReport } from '@/lib/content/bridge-validator';
+import { CONCEPT_BRIDGES } from '@/lib/content/cross-references';
+
+// Alle Module registrieren...
+import '@/content/modules/ccna';
+import '@/content/modules/az-900';
+import '@/content/modules/comptia-network-plus';
+
+const result = validateBridges(contentRegistry, CONCEPT_BRIDGES);
+console.log(formatBridgeValidationReport(result));
+```
+
+### Bekannte Architektur-Einschränkung
+
+Der Validator prüft **Runtime-Existenz** (Concept-ID im `module.concepts`-Objekt), nicht TypeScript-Typen. Das ist absichtlich: TypeScript kann Topic-IDs nicht von Concept-IDs unterscheiden (beide sind `string`). Der Validator ist die einzige Absicherung.
+
+---
+
 
 | Problem | Ursache | Lösung |
 |---------|---------|--------|

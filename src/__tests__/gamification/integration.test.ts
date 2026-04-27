@@ -271,6 +271,7 @@ describe('Scenario 4: Cross-Module Achievement (bridge-builder)', () => {
   beforeEach(() => {
     // Register minimal module stubs so findRelatedConcepts can resolve concepts.
     // setup.ts beforeEach already cleared the registry; this runs after that.
+    // Uses vlans↔vnet-subnet — a real bridge that exists in CONCEPT_BRIDGES.
     const ccnaStub = {
       id: 'ccna',
       title: 'CCNA',
@@ -281,11 +282,11 @@ describe('Scenario 4: Cross-Module Achievement (bridge-builder)', () => {
       estimatedHours: 40,
       topics: [],
       concepts: {
-        subnetting: {
-          id: 'subnetting',
-          title: 'Subnetting',
+        vlans: {
+          id: 'vlans',
+          title: 'VLANs',
           content: '',
-          tags: ['networking', 'ip-addressing'],
+          tags: ['networking', 'switching'],
           appliesTo: ['ccna'],
         },
       },
@@ -304,11 +305,11 @@ describe('Scenario 4: Cross-Module Achievement (bridge-builder)', () => {
       estimatedHours: 20,
       topics: [],
       concepts: {
-        'azure-addressing': {
-          id: 'azure-addressing',
-          title: 'Azure Addressing',
+        'vnet-subnet': {
+          id: 'vnet-subnet',
+          title: 'VNet Subnet',
           content: '',
-          tags: ['networking', 'ip-addressing'],
+          tags: ['networking', 'azure'],
           appliesTo: ['az-900'],
         },
       },
@@ -333,10 +334,10 @@ describe('Scenario 4: Cross-Module Achievement (bridge-builder)', () => {
       unlockedIds.push((e.payload as AchievementUnlockedPayload).achievementId);
     });
 
-    // Complete CCNA subnetting topic
+    // Complete CCNA vlans topic (vlans is a sourceConceptId in the vlans↔vnet-subnet bridge)
     state = processEvent(
       state,
-      makeEvent('topic_completed', { topicId: 'subnetting', moduleId: 'ccna', estimatedMinutes: 10 }, ts),
+      makeEvent('topic_completed', { topicId: 'vlans', moduleId: 'ccna', estimatedMinutes: 10 }, ts),
       store,
     );
 
@@ -347,7 +348,7 @@ describe('Scenario 4: Cross-Module Achievement (bridge-builder)', () => {
       store,
     );
 
-    // bridge-builder should now be unlocked (cross-reference subnetting↔azure-addressing exists)
+    // bridge-builder should now be unlocked (cross-reference vlans↔vnet-subnet exists)
     expect(state.unlockedAchievementIds).toContain('bridge-builder');
     expect(unlockedIds).toContain('bridge-builder');
 

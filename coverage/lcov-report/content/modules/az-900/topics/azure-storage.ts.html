@@ -1,0 +1,1564 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for content/modules/az-900/topics/azure-storage.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">content/modules/az-900/topics</a> azure-storage.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>8/8</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>8/8</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a>
+<a name='L308'></a><a href='#L308'>308</a>
+<a name='L309'></a><a href='#L309'>309</a>
+<a name='L310'></a><a href='#L310'>310</a>
+<a name='L311'></a><a href='#L311'>311</a>
+<a name='L312'></a><a href='#L312'>312</a>
+<a name='L313'></a><a href='#L313'>313</a>
+<a name='L314'></a><a href='#L314'>314</a>
+<a name='L315'></a><a href='#L315'>315</a>
+<a name='L316'></a><a href='#L316'>316</a>
+<a name='L317'></a><a href='#L317'>317</a>
+<a name='L318'></a><a href='#L318'>318</a>
+<a name='L319'></a><a href='#L319'>319</a>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a>
+<a name='L323'></a><a href='#L323'>323</a>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a>
+<a name='L326'></a><a href='#L326'>326</a>
+<a name='L327'></a><a href='#L327'>327</a>
+<a name='L328'></a><a href='#L328'>328</a>
+<a name='L329'></a><a href='#L329'>329</a>
+<a name='L330'></a><a href='#L330'>330</a>
+<a name='L331'></a><a href='#L331'>331</a>
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a>
+<a name='L334'></a><a href='#L334'>334</a>
+<a name='L335'></a><a href='#L335'>335</a>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a>
+<a name='L338'></a><a href='#L338'>338</a>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a>
+<a name='L349'></a><a href='#L349'>349</a>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a>
+<a name='L356'></a><a href='#L356'>356</a>
+<a name='L357'></a><a href='#L357'>357</a>
+<a name='L358'></a><a href='#L358'>358</a>
+<a name='L359'></a><a href='#L359'>359</a>
+<a name='L360'></a><a href='#L360'>360</a>
+<a name='L361'></a><a href='#L361'>361</a>
+<a name='L362'></a><a href='#L362'>362</a>
+<a name='L363'></a><a href='#L363'>363</a>
+<a name='L364'></a><a href='#L364'>364</a>
+<a name='L365'></a><a href='#L365'>365</a>
+<a name='L366'></a><a href='#L366'>366</a>
+<a name='L367'></a><a href='#L367'>367</a>
+<a name='L368'></a><a href='#L368'>368</a>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a>
+<a name='L374'></a><a href='#L374'>374</a>
+<a name='L375'></a><a href='#L375'>375</a>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a>
+<a name='L379'></a><a href='#L379'>379</a>
+<a name='L380'></a><a href='#L380'>380</a>
+<a name='L381'></a><a href='#L381'>381</a>
+<a name='L382'></a><a href='#L382'>382</a>
+<a name='L383'></a><a href='#L383'>383</a>
+<a name='L384'></a><a href='#L384'>384</a>
+<a name='L385'></a><a href='#L385'>385</a>
+<a name='L386'></a><a href='#L386'>386</a>
+<a name='L387'></a><a href='#L387'>387</a>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a>
+<a name='L391'></a><a href='#L391'>391</a>
+<a name='L392'></a><a href='#L392'>392</a>
+<a name='L393'></a><a href='#L393'>393</a>
+<a name='L394'></a><a href='#L394'>394</a>
+<a name='L395'></a><a href='#L395'>395</a>
+<a name='L396'></a><a href='#L396'>396</a>
+<a name='L397'></a><a href='#L397'>397</a>
+<a name='L398'></a><a href='#L398'>398</a>
+<a name='L399'></a><a href='#L399'>399</a>
+<a name='L400'></a><a href='#L400'>400</a>
+<a name='L401'></a><a href='#L401'>401</a>
+<a name='L402'></a><a href='#L402'>402</a>
+<a name='L403'></a><a href='#L403'>403</a>
+<a name='L404'></a><a href='#L404'>404</a>
+<a name='L405'></a><a href='#L405'>405</a>
+<a name='L406'></a><a href='#L406'>406</a>
+<a name='L407'></a><a href='#L407'>407</a>
+<a name='L408'></a><a href='#L408'>408</a>
+<a name='L409'></a><a href='#L409'>409</a>
+<a name='L410'></a><a href='#L410'>410</a>
+<a name='L411'></a><a href='#L411'>411</a>
+<a name='L412'></a><a href='#L412'>412</a>
+<a name='L413'></a><a href='#L413'>413</a>
+<a name='L414'></a><a href='#L414'>414</a>
+<a name='L415'></a><a href='#L415'>415</a>
+<a name='L416'></a><a href='#L416'>416</a>
+<a name='L417'></a><a href='#L417'>417</a>
+<a name='L418'></a><a href='#L418'>418</a>
+<a name='L419'></a><a href='#L419'>419</a>
+<a name='L420'></a><a href='#L420'>420</a>
+<a name='L421'></a><a href='#L421'>421</a>
+<a name='L422'></a><a href='#L422'>422</a>
+<a name='L423'></a><a href='#L423'>423</a>
+<a name='L424'></a><a href='#L424'>424</a>
+<a name='L425'></a><a href='#L425'>425</a>
+<a name='L426'></a><a href='#L426'>426</a>
+<a name='L427'></a><a href='#L427'>427</a>
+<a name='L428'></a><a href='#L428'>428</a>
+<a name='L429'></a><a href='#L429'>429</a>
+<a name='L430'></a><a href='#L430'>430</a>
+<a name='L431'></a><a href='#L431'>431</a>
+<a name='L432'></a><a href='#L432'>432</a>
+<a name='L433'></a><a href='#L433'>433</a>
+<a name='L434'></a><a href='#L434'>434</a>
+<a name='L435'></a><a href='#L435'>435</a>
+<a name='L436'></a><a href='#L436'>436</a>
+<a name='L437'></a><a href='#L437'>437</a>
+<a name='L438'></a><a href='#L438'>438</a>
+<a name='L439'></a><a href='#L439'>439</a>
+<a name='L440'></a><a href='#L440'>440</a>
+<a name='L441'></a><a href='#L441'>441</a>
+<a name='L442'></a><a href='#L442'>442</a>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a>
+<a name='L448'></a><a href='#L448'>448</a>
+<a name='L449'></a><a href='#L449'>449</a>
+<a name='L450'></a><a href='#L450'>450</a>
+<a name='L451'></a><a href='#L451'>451</a>
+<a name='L452'></a><a href='#L452'>452</a>
+<a name='L453'></a><a href='#L453'>453</a>
+<a name='L454'></a><a href='#L454'>454</a>
+<a name='L455'></a><a href='#L455'>455</a>
+<a name='L456'></a><a href='#L456'>456</a>
+<a name='L457'></a><a href='#L457'>457</a>
+<a name='L458'></a><a href='#L458'>458</a>
+<a name='L459'></a><a href='#L459'>459</a>
+<a name='L460'></a><a href='#L460'>460</a>
+<a name='L461'></a><a href='#L461'>461</a>
+<a name='L462'></a><a href='#L462'>462</a>
+<a name='L463'></a><a href='#L463'>463</a>
+<a name='L464'></a><a href='#L464'>464</a>
+<a name='L465'></a><a href='#L465'>465</a>
+<a name='L466'></a><a href='#L466'>466</a>
+<a name='L467'></a><a href='#L467'>467</a>
+<a name='L468'></a><a href='#L468'>468</a>
+<a name='L469'></a><a href='#L469'>469</a>
+<a name='L470'></a><a href='#L470'>470</a>
+<a name='L471'></a><a href='#L471'>471</a>
+<a name='L472'></a><a href='#L472'>472</a>
+<a name='L473'></a><a href='#L473'>473</a>
+<a name='L474'></a><a href='#L474'>474</a>
+<a name='L475'></a><a href='#L475'>475</a>
+<a name='L476'></a><a href='#L476'>476</a>
+<a name='L477'></a><a href='#L477'>477</a>
+<a name='L478'></a><a href='#L478'>478</a>
+<a name='L479'></a><a href='#L479'>479</a>
+<a name='L480'></a><a href='#L480'>480</a>
+<a name='L481'></a><a href='#L481'>481</a>
+<a name='L482'></a><a href='#L482'>482</a>
+<a name='L483'></a><a href='#L483'>483</a>
+<a name='L484'></a><a href='#L484'>484</a>
+<a name='L485'></a><a href='#L485'>485</a>
+<a name='L486'></a><a href='#L486'>486</a>
+<a name='L487'></a><a href='#L487'>487</a>
+<a name='L488'></a><a href='#L488'>488</a>
+<a name='L489'></a><a href='#L489'>489</a>
+<a name='L490'></a><a href='#L490'>490</a>
+<a name='L491'></a><a href='#L491'>491</a>
+<a name='L492'></a><a href='#L492'>492</a>
+<a name='L493'></a><a href='#L493'>493</a>
+<a name='L494'></a><a href='#L494'>494</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// ============================================================
+// AZ-900 Topic 5: Azure Storage Services
+// Domain 2: Azure Architecture and Services (~35-40%)
+// Outline: "Describe Azure storage services"
+// Sources: learn.microsoft.com/azure/storage/blobs,
+//          learn.microsoft.com/azure/storage/files,
+//          learn.microsoft.com/azure/storage/common/storage-redundancy,
+//          learn.microsoft.com/azure/databox,
+//          learn.microsoft.com/azure/migrate
+// ============================================================
+&nbsp;
+import type { Concept, Topic } from "@/lib/content/types";
+import type { Quiz, Question } from "@/lib/types";
+&nbsp;
+// ── Concepts ─────────────────────────────────────────────────
+&nbsp;
+export const CONCEPT_AZURE_STORAGE_TYPES: Concept = {
+  id: "azure-storage-types",
+  title: "Azure Storage-Dienste: Blob, Files, Queue, Table, Disk",
+  appliesTo: ["az-900", "az-104"],
+  tags: ["azure", "storage", "blob", "files", "queue", "table", "disk", "iaas", "paas"],
+  content: `
+## Azure Storage Account und Storage-Typen
+&nbsp;
+Ein **Azure Storage Account** ist der Einstiegspunkt für alle Azure-Speicherdienste.
+Pro Storage Account können Blob, Files, Queue und Table Storage gleichzeitig genutzt
+werden. Jedes Storage Account hat einen global eindeutigen Namen.
+&nbsp;
+### 1. Azure Blob Storage
+&nbsp;
+Blob Storage ist Azures Object Storage für unstrukturierte Daten:
+&nbsp;
+- Dokumente, Bilder, Videos, Backups, Log-Dateien, VM-Disk-Images
+- Zugriff über HTTP/HTTPS (REST-API, SDKs, AzCopy)
+- Keine Ordnerstruktur im klassischen Sinn — nur Container + Blob-Name
+- Drei Blob-Typen:
+  - **Block Blobs**: Dateien (das ist der Normalfall — Dokumente, Bilder, etc.)
+  - **Append Blobs**: Log-Dateien (nur Anhängen, kein Überschreiben)
+  - **Page Blobs**: VM-Disks (random read/write optimiert)
+&nbsp;
+**Access-Tiers für Block Blobs** (Prüfungsrelevant):
+&nbsp;
+| Tier | Zugriffsfrequenz | Min. Aufbewahrung | Early Deletion Fee | Zugriffskosten |
+|------|-----------------|-------------------|--------------------|----------------|
+| **Hot** | Häufig | Keine | Keine | Niedrigste |
+| **Cool** | Selten (≥ 30 Tage) | 30 Tage | Anteilig für fehlende Tage | Mittlere |
+| **Cold** | Sehr selten (≥ 90 Tage) | 90 Tage | Anteilig für fehlende Tage | Höhere |
+| **Archive** | Extrem selten (≥ 180 Tage) | 180 Tage | Anteilig für fehlende Tage | Höchste + Rehydrierung |
+&nbsp;
+**Early Deletion Fee (Frühzeitige Löschgebühr)**: Wenn ein Blob im Cool, Cold oder
+Archive-Tier gelöscht, verschoben oder in den Hot-Tier umgestuft wird, bevor die
+Mindestaufbewahrungszeit abgelaufen ist, fällt eine anteilige Gebühr für die restlichen
+Tage an. Hot-Tier hat keine Mindestaufbewahrung — keine Early Deletion Fee.
+&nbsp;
+Beispiel: Ein Blob liegt seit 10 Tagen im Cool-Tier und wird gelöscht.
+→ Cool hat 30 Tage Mindestaufbewahrung → es fallen Gebühren für 20 noch ausstehende Tage an.
+&nbsp;
+&gt; **Cold-Tier-Hinweis**: Der Cold-Tier wurde 2023 eingeführt und ist in manchen
+&gt; älteren Lernmaterialien noch nicht enthalten. Aktuelle AZ-900-Prüfungen kennen
+&gt; vier Tiers: Hot, Cool, Cold, Archive.
+&nbsp;
+**Archive-Rehydrierung**: Daten im Archive-Tier sind nicht direkt zugreifbar —
+sie müssen erst "rehydriert" (in Hot oder Cool verschoben) werden. Das dauert
+je nach Rehydrierungspriorität Stunden bis zu einem Tag.
+&nbsp;
+### 2. Azure Files
+&nbsp;
+Azure Files ist ein vollständig verwalteter Cloud-Dateispeicher:
+- Unterstützt SMB (3.0/2.1) und NFS-Protokolle
+- Einbindbar als Netzlaufwerk unter Windows, Linux und macOS
+- **Azure File Sync**: Synchronisiert On-Premises-Windows-Server-Dateien mit
+  Azure Files (Cloud-Tiering: selten genutzte Dateien werden automatisch nach
+  Azure ausgelagert, erscheinen aber weiterhin lokal als Dateisystem)
+- Einsatz: Migrieren von On-Premises-Dateiservern, geteilte Konfigurationsdateien
+  für mehrere VMs, Lift-and-Shift von Anwendungen, die SMB-Shares brauchen
+&nbsp;
+### 3. Azure Queue Storage
+&nbsp;
+Queue Storage ist ein Nachrichten-Warteschlangendienst:
+- Speichert Millionen von Nachrichten (bis zu 64 KB pro Nachricht)
+- Entkopplung von Anwendungskomponenten (Producer/Consumer-Muster)
+- Nachrichten bleiben bis zu 7 Tage in der Queue
+- Einsatz: Asynchrone Verarbeitung, Task-Queues, Entkopplung von Microservices
+&nbsp;
+### 4. Azure Table Storage
+&nbsp;
+Table Storage ist ein NoSQL-Schlüssel-Wert-Speicher:
+- Speichert strukturierte, nicht-relationale Daten
+- Keine feste Schema — flexible Datensätze
+- Günstig für sehr große Datenmengen mit einfachen Abfragen
+- Prüfungshinweis: Für komplexere NoSQL-Anforderungen bietet Azure Cosmos DB
+  mehr Features (Multi-Modell, globale Replikation, niedrigere Latenz)
+&nbsp;
+### 5. Azure Disk Storage
+&nbsp;
+Azure Disk Storage sind verwaltete Block-Disks für Azure VMs:
+&nbsp;
+| Disk-Typ | Technologie | Einsatz |
+|----------|-------------|---------|
+| Ultra Disk | NVMe SSD | Datenbankserver, extrem I/O-intensiv |
+| Premium SSD v2 | NVMe SSD | Produktions-Workloads, flexible IOPS |
+| Premium SSD | SSD | Produktions-VMs, Standard |
+| Standard SSD | SSD | Webserver, Dev/Test |
+| Standard HDD | HDD | Backup, Archiv, nicht-kritische Workloads |
+&nbsp;
+Hinweis: Der Disk-Typ beeinflusst den VM-SLA (Premium SSD Voraussetzung für 99,9%+).
+  `.trim(),
+};
+&nbsp;
+export const CONCEPT_AZURE_STORAGE_REDUNDANCY: Concept = {
+  id: "azure-storage-redundancy",
+  title: "Azure Storage-Redundanz: LRS, ZRS, GRS, GZRS",
+  appliesTo: ["az-900", "az-104"],
+  tags: ["azure", "storage", "redundancy", "lrs", "zrs", "grs", "gzrs", "disaster-recovery"],
+  content: `
+## Azure Storage-Redundanzoptionen
+&nbsp;
+Azure Storage repliziert immer mehrere Kopien deiner Daten für Ausfallsicherheit.
+Die Redundanzoptionen unterscheiden sich in Schutzumfang und Kosten.
+&nbsp;
+### Primärregion-Redundanz
+&nbsp;
+| Option | Abkürzung | Kopien | Schutz vor |
+|--------|-----------|--------|-----------|
+| Locally Redundant Storage | **LRS** | 3× im selben DC | Hardware-Ausfall im DC |
+| Zone-Redundant Storage | **ZRS** | 3× über Availability Zones | DC-Ausfall (AZ-Ausfall) |
+&nbsp;
+**LRS**: Günstigste Option. 3 Kopien synchron im selben Rechenzentrum.
+Kein Schutz bei DC-Ausfall (Brand, Überflutung des Gebäudes).
+&nbsp;
+**ZRS**: 3 Kopien synchron über 3 Availability Zones. Schützt auch gegen
+DC-Ausfall. Nur in Regionen mit Availability Zones verfügbar.
+&nbsp;
+### Georedundanz (Primär + Sekundär-Region)
+&nbsp;
+Georedundante Optionen replizieren Daten asynchron in die gepaarte Region
+(oder eine konfigurierbare Region). Die Sekundärregion liegt mindestens
+300 Meilen entfernt.
+&nbsp;
+| Option | Abkürzung | Primärregion | Sekundärregion | Lesen im Failover |
+|--------|-----------|-------------|----------------|-----------------|
+| Geo-Redundant Storage | **GRS** | LRS (3× 1 DC) | LRS in Pair-Region | Nur nach Failover |
+| Geo-Zone-Redundant Storage | **GZRS** | ZRS (3 AZs) | LRS in Pair-Region | Nur nach Failover |
+| Read-Access GRS | **RA-GRS** | LRS | LRS in Pair-Region | Immer lesbar |
+| Read-Access GZRS | **RA-GZRS** | ZRS | LRS in Pair-Region | Immer lesbar |
+&nbsp;
+**GRS**: Kombiniert LRS in der Primärregion mit async Replikation in die gepaarte
+Region. Im Failover-Fall sind die Daten in der Sekundärregion verfügbar.
+&nbsp;
+**GZRS** (empfohlene Option für kritische Daten): ZRS in der Primärregion
+(schützt gegen AZ-Ausfall) + Replikation in die Sekundärregion (schützt gegen
+regionalen Ausfall).
+&nbsp;
+**RA-GRS**: Wie GRS, aber der Sekundärendpunkt ist immer lesbar — auch ohne
+Failover. Sinnvoll für Anwendungen mit globalen Lesezugriffen.
+&nbsp;
+### Redundanz-Auswahlhilfe
+&nbsp;
+\`\`\`
+Brauche ich Geo-Redundanz (regionaler Ausfall)?
+  Nein → Brauche ich AZ-Schutz?
+    Nein → LRS (günstig, 1 DC)
+    Ja  → ZRS (AZ-resistent)
+  Ja  → Brauche ich AZ-Schutz in der Primärregion?
+    Nein → GRS oder RA-GRS (wenn Sekundär-Lesen nötig)
+    Ja  → GZRS oder RA-GZRS (empfohlen für kritische Workloads)
+\`\`\`
+&nbsp;
+### RPO und Georedundanz
+&nbsp;
+Bei Georedundanz ist die asynchrone Replikation kein Echtzeit-Spiegel.
+Der **Recovery Point Objective (RPO)** bei GRS/GZRS beträgt weniger als 15 Minuten
+für die meisten Daten (Microsoft-Zielvorgabe), aber eine bestimmte Garantie
+wird nicht vertraglich zugesagt. Bei einem Failover können die jüngsten
+Schreibvorgänge verloren gehen.
+  `.trim(),
+};
+&nbsp;
+export const CONCEPT_AZURE_DATA_MOVEMENT: Concept = {
+  id: "azure-data-movement",
+  title: "Datenmigration: AzCopy, Storage Explorer, Azure Migrate, Data Box",
+  appliesTo: ["az-900"],
+  tags: ["azure", "storage", "azcopy", "migration", "data-box", "azure-migrate", "file-sync"],
+  content: `
+## Daten nach Azure bewegen
+&nbsp;
+Azure bietet verschiedene Werkzeuge je nach Datenmenge, Netzwerkbandbreite
+und Migrationsziel.
+&nbsp;
+### AzCopy
+&nbsp;
+AzCopy ist ein Kommandozeilen-Tool für den Transfer von Blobs und Dateien:
+- Hochperformant, unterstützt parallele Uploads/Downloads
+- Läuft auf Windows, Linux, macOS
+- Authentifizierung via SAS-Token oder Microsoft Entra ID
+- Typische Nutzung: Skripte, CI/CD-Pipelines, Massen-Datenmigrationen
+- Kann auch zwischen zwei Storage Accounts kopieren (Server-side copy)
+&nbsp;
+Beispiel-Befehl (konzeptionell):
+\`\`\`
+azcopy copy 'C:\\Daten\\*' 'https://myaccount.blob.core.windows.net/container'
+\`\`\`
+&nbsp;
+### Azure Storage Explorer
+&nbsp;
+Storage Explorer ist eine grafische Desktop-Applikation:
+- Windows, macOS, Linux
+- Drag-and-Drop für Blob, Files, Queues, Tables
+- Geeignet für: manuelle Verwaltung, einmalige Dateitransfers, Debugging
+&nbsp;
+### Azure File Sync
+&nbsp;
+Azure File Sync synchronisiert On-Premises Windows Server mit Azure Files:
+- **Cloud-Tiering**: Selten genutzte Dateien werden automatisch nach Azure
+  ausgelagert, erscheinen aber lokal als normaler Dateisystemzugriff (ähnlich
+  wie ein Offline-Attribut bei alten Windows-Offline-Ordnern)
+- Mehrere Server können dieselbe Azure Files Share synchronisieren
+- Einsatz: Migration von Dateiservern in die Cloud, Backup, Zentralisierung
+  verteilter Standort-Dateien
+&nbsp;
+### Azure Migrate
+&nbsp;
+Azure Migrate ist das Migrations-Hub für die Verlagerung von On-Premises
+Workloads nach Azure:
+- **Discovery und Assessment**: Analysiert On-Premises-VMs (VMware, Hyper-V,
+  physische Server) und empfiehlt Azure VM-Größen + Kostenabschätzung
+- **Server Migration**: Repliziert und migriert VMs nach Azure (Lift-and-Shift)
+- **Database Migration**: Migriert Datenbanken zu Azure SQL, Cosmos DB, etc.
+- **Web App Migration**: Bewertet ASP.NET-Apps für Azure App Service Migration
+&nbsp;
+Azure Migrate ist kein dauerhafter Dienst, sondern ein Migrations-Werkzeug.
+&nbsp;
+### Azure Data Box
+&nbsp;
+Azure Data Box löst das "Large Dataset"-Problem: Was tun, wenn Petabytes
+an Daten zu übertragen sind, aber die Netzwerkbandbreite nicht ausreicht?
+&nbsp;
+| Produkt | Kapazität | Übertragungsrichtung |
+|---------|-----------|---------------------|
+| **Data Box Disk** | Bis zu 35 TB (5 SSDs × 8 TB) | On-Premises → Azure |
+| **Data Box** | 80 TB nutzbar | On-Premises → Azure |
+| **Data Box Heavy** | 770 TB nutzbar | On-Premises → Azure |
+&nbsp;
+**Ablauf**:
+1. Microsoft schickt das verschlüsselte Gerät zu dir
+2. Du kopierst Daten auf das Gerät (lokal, über Netzwerk)
+3. Du schickst das Gerät zurück an Microsoft
+4. Microsoft importiert die Daten in dein Azure Storage
+5. Das Gerät wird sicher gelöscht
+&nbsp;
+**Wann Data Box statt Netzwerktransfer?**
+Als Faustregel: Wenn der Netzwerktransfer länger als 10 Tage dauern würde,
+ist Data Box schneller und oft günstiger als Bandbreite zu bezahlen.
+&nbsp;
+**Data Box Prüfungsfalle**: Data Box ist für den *Import* von On-Premises nach Azure
+konzipiert (nicht umgekehrt als primärer Einsatz). Es gibt "Data Box Export"
+für Fälle, wo Daten aus Azure zu On-Premises müssen (z.B. für Compliance-Audits).
+  `.trim(),
+};
+&nbsp;
+export const CONCEPT_AZURE_STORAGE_GUIDE: Concept = {
+  id: "azure-storage-guide",
+  title: "Lernguide: Azure Storage",
+  appliesTo: ["az-900"],
+  tags: ["azure", "storage", "guide", "blob", "redundancy", "migration"],
+  content: `
+## Lernziele
+&nbsp;
+- Die fünf Azure Storage-Typen und ihre Anwendungsfälle unterscheiden
+- Blob-Access-Tiers (Hot/Cool/Cold/Archive) und ihre Kosten-Zugriffsfrequenz-Abwägung erklären
+- LRS, ZRS, GRS, GZRS voneinander abgrenzen und für Szenarien auswählen
+- AzCopy, Storage Explorer und Azure File Sync in ihren Anwendungsfällen einordnen
+- Azure Migrate als Assessment- und Migrations-Werkzeug erklären
+- Data Box als Offline-Bulk-Migrationslösung beschreiben
+&nbsp;
+## Praxis-Szenario
+&nbsp;
+Die "Hafen Logistics KG" betreibt ihre IT On-Premises und plant die Migration:
+&nbsp;
+- **Archiv-Videomaterial** (150 TB, wird einmal jährlich für Revisionen benötigt):
+  → Azure Blob Storage, Archive-Tier. Kein Internetzugang — Data Box für den
+  initialen Upload der 150 TB.
+&nbsp;
+- **Tagesoperative Dokumentenablage** (täglich genutzt, 2 TB):
+  → Azure Blob Storage, Hot-Tier. AzCopy für tägliche Batch-Uploads.
+&nbsp;
+- **Fileserver-Migration** (Windows Server 2019, 50 Mitarbeiter greifen auf
+  SMB-Freigabe zu, 3 TB Daten):
+  → Azure Files mit Azure File Sync. On-Premises-Server bleibt bestehen,
+  Daten synchronisieren in die Cloud.
+&nbsp;
+- **Kunden-Buchungsdaten** (kritisch, 99,99% DR-Anforderung):
+  → Azure Blob Storage mit GZRS-Redundanz (ZRS in Primärregion +
+  geo-redundante Replikation).
+&nbsp;
+## Typische Prüfungsfallen
+&nbsp;
+- ⚠️ **"Löschen aus Cool/Cold/Archive ist immer kostenlos"** — FALSCH.
+  Cool (30T), Cold (90T) und Archive (180T) haben Mindestaufbewahrungszeiten.
+  Frühzeitiges Löschen oder Tierwechsel löst eine **Early Deletion Fee** für
+  die restlichen Tage aus. Nur Hot hat keine Mindestaufbewahrung.
+&nbsp;
+- ⚠️ **"Archive-Daten sind sofort abrufbar"** — FALSCH. Archive-Tier erfordert
+  Rehydrierung (Stunden, je nach Priorität). Für sofortigen Zugriff: Hot oder Cool.
+&nbsp;
+- ⚠️ **"GRS = Echtzeit-Spiegel der Sekundärregion"** — FALSCH. GRS repliziert
+  asynchron. Im Normalbetrieb ist der Sekundärendpunkt NICHT lesbar (außer RA-GRS).
+&nbsp;
+- ⚠️ **"Azure Table Storage = Azure Cosmos DB"** — FALSCH. Table Storage ist ein
+  einfacher NoSQL-Schlüssel-Wert-Speicher. Cosmos DB ist ein umfangreicher
+  Multi-Modell-NoSQL-Dienst mit globalem Multi-Master und garantierten Latenzen.
+  Cosmos DB ist teurer, leistungsfähiger und für komplexere Szenarien.
+&nbsp;
+- ⚠️ **"Data Box ist ein Cloud-Dienst"** — FALSCH. Data Box ist ein physisches
+  Gerät, das Microsoft zu dir schickt. Es ist eine "Offline"-Migrationslösung.
+&nbsp;
+- ⚠️ **"AzCopy = Azure Storage Explorer"** — Beide übertragen Daten, aber AzCopy
+  ist ein CLI-Tool für Skripte/Automatisierung, Storage Explorer ist eine GUI
+  für manuelle Verwaltung.
+  `.trim(),
+};
+&nbsp;
+// ── Quiz ─────────────────────────────────────────────────────
+&nbsp;
+const AZURE_STORAGE_QUESTIONS: Question[] = [
+  {
+    id: "az900-storage-q1",
+    type: "single-choice",
+    points: 10,
+    text: "Die 'Mediathek Rhein GmbH' speichert Archiv-Videos, die durchschnittlich einmal im Jahr für Audits abgerufen werden. Die Daten sollen so günstig wie möglich gespeichert werden, und ein Zugriff mit einigen Stunden Verzögerung ist akzeptabel. Welcher Blob-Tier ist geeignet?",
+    explanation: "Der Archive-Tier ist für extrem selten abgerufene Daten mit der niedrigsten Speicherkosten. Daten im Archive-Tier sind offline und müssen erst rehydriert werden (Stunden). Da eine Verzögerung akzeptabel ist und die Zugriffshäufigkeit sehr gering, ist Archive die kostengünstigste und richtige Wahl.",
+    answers: [
+      { id: "a", text: "Hot — niedrigste Zugriffskosten, schnellster Zugriff", isCorrect: false },
+      { id: "b", text: "Cool — günstiger als Hot, 30 Tage Mindestaufbewahrung", isCorrect: false },
+      { id: "c", text: "Cold — sehr selten genutzter Tier, 90 Tage Mindestaufbewahrung", isCorrect: false },
+      { id: "d", text: "Archive — niedrigste Speicherkosten, Rehydrierung nötig", isCorrect: true },
+    ],
+  },
+  {
+    id: "az900-storage-q2",
+    type: "single-choice",
+    points: 10,
+    text: "Ein Unternehmen benötigt maximalen Schutz für kritische Daten: Schutz gegen DC-Ausfall innerhalb der Region UND gegen einen vollständigen Ausfall der primären Azure-Region. Welche Redundanzoption bietet beides?",
+    explanation: "GZRS (Geo-Zone-Redundant Storage) kombiniert ZRS in der Primärregion (Schutz gegen DC-/AZ-Ausfall) mit asynchroner Replikation in die gepaarte Region (Schutz gegen regionalen Ausfall). LRS und ZRS schützen nur lokal. GRS nutzt LRS (kein AZ-Schutz) in der Primärregion.",
+    answers: [
+      { id: "a", text: "LRS — 3 Kopien im selben Rechenzentrum", isCorrect: false },
+      { id: "b", text: "ZRS — 3 Kopien über Availability Zones verteilt", isCorrect: false },
+      { id: "c", text: "GRS — LRS in Primärregion + Replikation in Sekundärregion", isCorrect: false },
+      { id: "d", text: "GZRS — ZRS in Primärregion + Replikation in Sekundärregion", isCorrect: true },
+    ],
+  },
+  {
+    id: "az900-storage-q3",
+    type: "single-choice",
+    points: 10,
+    text: "Welcher Azure-Speicherdienst ist für die gemeinsame Nutzung von Dateien über SMB-Protokoll zwischen mehreren Azure VMs konzipiert?",
+    explanation: "Azure Files ist der verwaltete Dateispeicher, der SMB 3.0/2.1 und NFS unterstützt. Mehrere VMs können dieselbe Azure Files Share gleichzeitig einbinden. Blob Storage ist Object Storage (kein SMB). Disk Storage sind individuelle VM-Disks (nicht geteilt).",
+    answers: [
+      { id: "a", text: "Azure Blob Storage — skalierbarster Speicher für alle Dateiarten", isCorrect: false },
+      { id: "b", text: "Azure Disk Storage — hochperformante Block-Disks für VMs", isCorrect: false },
+      { id: "c", text: "Azure Files — verwaltete SMB/NFS-Dateifreigabe für mehrere Nutzer", isCorrect: true },
+      { id: "d", text: "Azure Queue Storage — Nachrichten-Warteschlange zwischen Diensten", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q4",
+    type: "single-choice",
+    points: 10,
+    text: "Ein Unternehmen möchte 800 TB an Produktionsdaten nach Azure migrieren. Die Internetanbindung erlaubt maximal 1 Gbps Upload. Welche Option ist für diesen Datentransfer am praktischsten?",
+    explanation: "800 TB bei 1 Gbps: 800 TB / (1 Gbps / 8 * 3600 * 24) ≈ 74 Tage Netzwerktransfer. Azure Data Box Heavy (770 TB) würde den Großteil in einem Durchgang abdecken. Microsoft schickt das physische Gerät, du kopierst lokal, schickst es zurück — deutlich schneller als 74 Tage Online-Transfer.",
+    answers: [
+      { id: "a", text: "AzCopy mit parallelen Uploads und maximaler Bandbreite", isCorrect: false },
+      { id: "b", text: "Azure ExpressRoute — maximale Netzwerkbandbreite für Migrationen", isCorrect: false },
+      { id: "c", text: "Azure Data Box Heavy — physisches Offline-Migrations-Gerät für große Datenmengen", isCorrect: true },
+      { id: "d", text: "Azure Migrate — geeignet für Bulk-Datenmigration", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q5",
+    type: "single-choice",
+    points: 10,
+    text: "Was ist Azure File Sync, und wofür wird es eingesetzt?",
+    explanation: "Azure File Sync synchronisiert einen Windows Server On-Premises mit Azure Files. Das Cloud-Tiering-Feature lagert selten genutzte Dateien automatisch in Azure aus, die aber weiterhin als lokale Dateien sichtbar bleiben. Der On-Premises-Server bleibt als Einstiegspunkt bestehen — schrittweise Migration ohne erzwungenen Cut-Over.",
+    answers: [
+      { id: "a", text: "Ein Tool zum Synchronisieren von Azure Blob Storage zwischen zwei Storage Accounts", isCorrect: false },
+      { id: "b", text: "Ein Dienst zum Synchronisieren eines Windows Server On-Premises mit Azure Files, mit Cloud-Tiering", isCorrect: true },
+      { id: "c", text: "Eine Funktion, die Dateien automatisch zwischen Hot und Archive wechselt", isCorrect: false },
+      { id: "d", text: "Ein Replikationsdienst für Azure Files zwischen zwei Azure-Regionen", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q6",
+    type: "single-choice",
+    points: 10,
+    text: "Das Entwicklungsteam hat eine neue Version einer Webanwendung in einem Azure Blob Storage Container bereitgestellt. Ein Hotfix muss sofort live, und die Assets sollen weltweit mit minimaler Latenz ausgeliefert werden. Welches Tool wird für den schnellen, skriptbaren Upload der neuen Dateien eingesetzt?",
+    explanation: "AzCopy ist das Kommandozeilen-Tool für hochperformante, skriptbare Dateiübertragungen zu Azure Storage. Es ist für Pipelines, CI/CD und Automatisierung ausgelegt. Azure Storage Explorer wäre die grafische Alternative für manuelle Transfers, nicht für automatisierte Deployments.",
+    answers: [
+      { id: "a", text: "Azure Storage Explorer — grafische Oberfläche für Uploads", isCorrect: false },
+      { id: "b", text: "AzCopy — Kommandozeilen-Tool für performante, skriptbare Dateiübertragungen", isCorrect: true },
+      { id: "c", text: "Azure Data Box — physisches Offline-Transfer-Gerät", isCorrect: false },
+      { id: "d", text: "Azure Migrate — Migrations-Hub für Workloads", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q7",
+    type: "multiple-choice",
+    points: 15,
+    text: "Welche ZWEI der folgenden Aussagen zu GRS (Geo-Redundant Storage) sind korrekt? (Wähle 2)",
+    explanation: "GRS repliziert asynchron (nicht synchron) in die gepaarte Region (B korrekt). Im Normalbetrieb ist der Sekundärendpunkt NICHT lesbar — nur nach einem Failover oder bei RA-GRS (C korrekt). LRS in der Primärregion bedeutet 3 Kopien im selben DC (nicht über AZs — das wäre GZRS).",
+    answers: [
+      { id: "a", text: "GRS repliziert synchron in Echtzeit in die Sekundärregion", isCorrect: false },
+      { id: "b", text: "GRS nutzt LRS (3 Kopien im selben DC) als Primärregion-Redundanz", isCorrect: true },
+      { id: "c", text: "Bei Standard-GRS (nicht RA-GRS) ist der Sekundärendpunkt im Normalbetrieb nicht lesbar", isCorrect: true },
+      { id: "d", text: "GRS schützt gegen den gleichzeitigen Ausfall aller Availability Zones in der Primärregion", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q8",
+    type: "single-choice",
+    points: 10,
+    text: "Welcher Blob-Typ ist speziell für Anwendungen optimiert, die Daten nur anhängen (append), niemals überschreiben — wie z.B. Log-Dateien?",
+    explanation: "Append Blobs sind für Szenarien optimiert, in denen nur Daten angehängt werden und bestehende Inhalte nicht verändert werden — typisch für Log-Dateien, Audit-Trails, Event-Streams. Block Blobs sind für allgemeine Dateien. Page Blobs sind für VM-Disks (random read/write).",
+    answers: [
+      { id: "a", text: "Block Blob — für allgemeine Dateien und Objekte", isCorrect: false },
+      { id: "b", text: "Page Blob — optimiert für random read/write Zugriffe", isCorrect: false },
+      { id: "c", text: "Append Blob — optimiert für reine Anhänge-Operationen", isCorrect: true },
+      { id: "d", text: "Archive Blob — für selten genutzte, langfristige Speicherung", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q9",
+    type: "single-choice",
+    points: 10,
+    text: "Ein Unternehmen möchte seine On-Premises-VMware-VMs nach Azure migrieren. Zuerst soll eine Analyse der aktuellen Umgebung erfolgen, um den Ressourcenbedarf zu bewerten und Azure VM-Größen zu empfehlen. Welcher Azure-Dienst übernimmt diese Discovery und Assessment-Phase?",
+    explanation: "Azure Migrate ist das zentrale Hub für On-Premises-Migrationen. Es enthält Assessment-Tools, die VMware-, Hyper-V- und physische Server analysieren, Azure VM-Größen empfehlen und Kostenabschätzungen liefern. Data Box ist für Daten-Offline-Transfer, AzCopy für Datei-Transfer.",
+    answers: [
+      { id: "a", text: "Azure Data Box — physisches Gerät für VM-Migration", isCorrect: false },
+      { id: "b", text: "Azure Site Recovery — für DR, nicht Assessment", isCorrect: false },
+      { id: "c", text: "Azure Migrate — Discovery, Assessment und Migration von On-Premises-Workloads", isCorrect: true },
+      { id: "d", text: "AzCopy — für den Transfer von VM-Disk-Images", isCorrect: false },
+    ],
+  },
+  {
+    id: "az900-storage-q10",
+    type: "single-choice",
+    points: 10,
+    text: "Ein Blob wird nach 15 Tagen aus dem Cool-Tier gelöscht. Was passiert aus Kostensicht?",
+    explanation: "Cool-Tier hat eine Mindestaufbewahrungsdauer von 30 Tagen. Wird ein Blob vor Ablauf dieser Frist gelöscht (oder in einen anderen Tier verschoben), fällt eine 'Early Deletion Fee' für die verbleibenden Tage an — hier 15 Tage. Hot-Tier hat keine Mindestaufbewahrung und damit keine Early Deletion Fee. Archive hat 180 Tage Mindestaufbewahrung.",
+    answers: [
+      { id: "a", text: "Keine Gebühren — beim Löschen wird die Speichergebühr sofort beendet", isCorrect: false },
+      { id: "b", text: "Early Deletion Fee für die verbleibenden 15 Tage der Mindestaufbewahrungszeit", isCorrect: true },
+      { id: "c", text: "Eine Strafgebühr, die dem doppelten Monatspreis des Cool-Tiers entspricht", isCorrect: false },
+      { id: "d", text: "Das Blob wird automatisch in den Hot-Tier verschoben statt gelöscht", isCorrect: false },
+    ],
+  },
+];
+&nbsp;
+export const QUIZ_AZURE_STORAGE: Quiz = {
+  id: "az900-quiz-azure-storage",
+  title: "Quiz: Azure Storage Services",
+  description: "Blob Storage, Azure Files, Redundanz (LRS/ZRS/GRS/GZRS), AzCopy, Azure Migrate, Data Box",
+  passingScore: 70,
+  shuffleQuestions: true,
+  timeLimit: 600,
+  questions: AZURE_STORAGE_QUESTIONS,
+};
+&nbsp;
+// ── Topic ─────────────────────────────────────────────────────
+&nbsp;
+export const TOPIC_AZURE_STORAGE: Topic = {
+  id: "azure-storage",
+  title: "Azure Storage Services",
+  description:
+    "Blob Storage (Tiers: Hot/Cool/Cold/Archive), Azure Files, Queue, Table, Disk Storage. Redundanz: LRS, ZRS, GRS, GZRS. Datenmigration: AzCopy, File Sync, Azure Migrate, Data Box.",
+  conceptIds: [
+    "azure-storage-types",
+    "azure-storage-redundancy",
+    "azure-data-movement",
+    "azure-storage-guide",
+  ],
+  quizIds: ["az900-quiz-azure-storage"],
+  exerciseIds: [],
+  prerequisiteTopicIds: ["azure-architecture"],
+  estimatedMinutes: 75,
+  tags: ["azure", "storage", "blob", "files", "redundancy", "migration"],
+};
+&nbsp;
+export const AZURE_STORAGE_CONCEPTS: Record&lt;string, Concept&gt; = {
+  "azure-storage-types": CONCEPT_AZURE_STORAGE_TYPES,
+  "azure-storage-redundancy": CONCEPT_AZURE_STORAGE_REDUNDANCY,
+  "azure-data-movement": CONCEPT_AZURE_DATA_MOVEMENT,
+  "azure-storage-guide": CONCEPT_AZURE_STORAGE_GUIDE,
+};
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-04-27T08:26:04.118Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    

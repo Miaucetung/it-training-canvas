@@ -67,61 +67,61 @@ describe("Cross-References", () => {
     });
 
     it("returns empty array when target module is not registered", () => {
-      // ccna not registered, so bridge lookup yields nothing
-      const results = findRelatedConcepts("subnetting", "az-900");
+      // vlans→vnet-subnet bridge exists but neither module is registered yet
+      const results = findRelatedConcepts("vlans", "az-900");
       expect(results).toHaveLength(0);
     });
 
     it("finds a bridge when target module IS registered with the target concept", () => {
-      // Register az-900 with the concept that is the bridge target
+      // Register az-900 with the concept that is the bridge target (vlans→vnet-subnet bridge)
       const az900 = makeModuleWithConcepts("az-900", "microsoft", {
-        "azure-addressing": makeConcept(
-          "azure-addressing",
-          ["networking", "subnetting"],
+        "vnet-subnet": makeConcept(
+          "vnet-subnet",
+          ["networking", "vlan"],
           ["az-900"],
         ),
       });
       contentRegistry.register(az900);
 
-      const results = findRelatedConcepts("subnetting", "az-900");
+      const results = findRelatedConcepts("vlans", "az-900");
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]!.concept.id).toBe("azure-addressing");
+      expect(results[0]!.concept.id).toBe("vnet-subnet");
     });
 
     it("bridge includes the bridgeNote text", () => {
       const az900 = makeModuleWithConcepts("az-900", "microsoft", {
-        "azure-addressing": makeConcept("azure-addressing", [], ["az-900"]),
+        "vnet-subnet": makeConcept("vnet-subnet", [], ["az-900"]),
       });
       contentRegistry.register(az900);
 
-      const results = findRelatedConcepts("subnetting", "az-900");
+      const results = findRelatedConcepts("vlans", "az-900");
       expect(results[0]!.bridge.bridgeNote).toBeTruthy();
       expect(results[0]!.bridge.bridgeNote.length).toBeGreaterThan(10);
     });
 
     it("works in reverse direction (target → source lookup)", () => {
-      // Searching from az-900 concept back to ccna module
+      // Searching from az-900 concept back to ccna module (vnet-subnet→vlans)
       const ccna = makeModuleWithConcepts("ccna", "cisco", {
-        subnetting: makeConcept("subnetting", ["networking"], ["ccna"]),
+        vlans: makeConcept("vlans", ["networking"], ["ccna"]),
       });
       contentRegistry.register(ccna);
 
-      const results = findRelatedConcepts("azure-addressing", "ccna");
+      const results = findRelatedConcepts("vnet-subnet", "ccna");
       expect(results.length).toBeGreaterThan(0);
-      expect(results[0]!.concept.id).toBe("subnetting");
+      expect(results[0]!.concept.id).toBe("vlans");
     });
 
     it("does not return the same module's concept as a cross-reference to itself", () => {
       const mod = makeModuleWithConcepts("ccna", "cisco", {
-        subnetting: makeConcept("subnetting", ["networking"], ["ccna"]),
+        vlans: makeConcept("vlans", ["networking"], ["ccna"]),
       });
       contentRegistry.register(mod);
 
       // Source and target are the same module — should not self-reference
-      const results = findRelatedConcepts("subnetting", "ccna");
+      const results = findRelatedConcepts("vlans", "ccna");
       // The bridge points ccna → az-900, so searching within ccna → ccna finds nothing
       for (const r of results) {
-        expect(r.concept.id).not.toBe("subnetting");
+        expect(r.concept.id).not.toBe("vlans");
       }
     });
   });
