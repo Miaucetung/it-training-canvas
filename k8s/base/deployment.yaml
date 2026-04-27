@@ -19,7 +19,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-        - name: app
+        - name: it-training-canvas
           image: ghcr.io/miaucetung/it-training-canvas:main
           imagePullPolicy: Always
           ports:
