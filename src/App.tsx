@@ -18,6 +18,7 @@ import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
+import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import { TopicListPanel } from "@/components/TopicListPanel";
 import { TemplateGallery } from "@/components/TemplateGallery";
 import { TerminalEmulator } from "@/components/TerminalEmulator";
@@ -33,6 +34,7 @@ import {
   DEFAULT_QUIZZES,
 } from "@/lib/default-learning-content";
 import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
+import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   Annotation,
   CanvasConnection,
@@ -159,6 +161,10 @@ function App() {
   ]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  // Phase 6c-3: selected topic for detail panel
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [selectedTopicModule, setSelectedTopicModule] =
+    useState<CertificationModule | null>(null);
   const [showShapePicker, setShowShapePicker] = useState(false);
   const [selectedShape, setSelectedShape] = useState<ShapeDefinition | null>(
     null,
@@ -1260,7 +1266,11 @@ function App() {
       <Sidebar
         subjects={subjects}
         currentSubject={currentSubject}
-        onSubjectChange={setCurrentSubject}
+        onSubjectChange={(s) => {
+            setCurrentSubject(s);
+            setSelectedTopic(null);
+            setSelectedTopicModule(null);
+          }}
         onAddSubject={handleAddSubject}
         onRemoveSubject={handleRemoveSubject}
         collapsed={sidebarCollapsed}
@@ -1455,9 +1465,40 @@ function App() {
         </div>
 
         {/* Canvas Area / Topic Panel */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden flex">
           {catalogModuleId ? (
-            <TopicListPanel moduleId={catalogModuleId} theme={theme} />
+            <>
+              {/* Topic List — shrinks when detail panel open */}
+              <div
+                className={`flex-shrink-0 overflow-y-auto ${
+                  selectedTopic ? "w-80" : "flex-1"
+                }`}
+              >
+                <TopicListPanel
+                  moduleId={catalogModuleId}
+                  theme={theme}
+                  onTopicClick={(topic, mod) => {
+                    setSelectedTopic(topic);
+                    setSelectedTopicModule(mod);
+                  }}
+                />
+              </div>
+
+              {/* Topic Detail — slides in from right */}
+              {selectedTopic && selectedTopicModule && (
+                <div className="flex-1 overflow-hidden">
+                  <TopicDetailPanel
+                    topic={selectedTopic}
+                    module={selectedTopicModule}
+                    theme={theme}
+                    onClose={() => {
+                      setSelectedTopic(null);
+                      setSelectedTopicModule(null);
+                    }}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <>
           <Canvas

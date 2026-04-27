@@ -1,0 +1,294 @@
+﻿Teil 1: Multiple Choice (1–40)
+1. Was ist ein Server?
+a) Ein Kabel
+b) Ein Gerät ohne Software
+c) Ein System, das Dienste im Netzwerk bereitstellt
+d) Ein Switch
+
+2. Was macht ein Hub?
+a) Filtert Daten
+b) Leitet Daten an alle Ports weiter
+c) Arbeitet mit IP-Adressen
+d) Speichert Daten
+
+3. Womit arbeitet ein Switch?
+a) IP-Adresse
+b) MAC-Adresse
+c) DNS
+d) Ports
+
+4. Womit arbeitet ein Router?
+a) MAC-Adresse
+b) IP-Adresse
+c) Portnummern
+d) Kabel
+
+5. Was ist ein Layer 3 Switch?
+a) Nur ein Switch
+b) Nur ein Router
+c) Kombination aus Switch und Router
+d) Firewall
+
+6. Was ist Unicast?
+a) Kommunikation mit allen
+b) Kommunikation mit einer Gruppe
+c) Kommunikation zwischen zwei Geräten
+d) Broadcast
+
+7. Was ist Broadcast?
+a) Kommunikation zu einem Gerät
+b) Kommunikation zu allen Geräten
+c) Kommunikation zu Gruppen
+d) Kommunikation über WAN
+
+8. Wie lang ist eine MAC-Adresse?
+a) 32 Bit
+b) 64 Bit
+c) 48 Bit
+d) 128 Bit
+
+9. IPv4 besteht aus:
+a) 48 Bit
+b) 32 Bit
+c) 64 Bit
+d) 128 Bit
+
+10. IPv6 besteht aus:
+a) 32 Bit
+b) 48 Bit
+c) 64 Bit
+d) 128 Bit
+
+11. Was beschreibt ein Protokoll?
+a) Hardware
+b) Regeln der Kommunikation
+c) Kabel
+d) Geschwindigkeit
+
+12. Was ist ein RFC?
+a) Router-Konfiguration
+b) Standardbeschreibung für Protokolle
+c) Netzwerkgerät
+d) Betriebssystem
+
+13. PAN hat welche Reichweite?
+a) 1 km
+b) 10 m
+c) 100 km
+d) global
+
+14. LAN beschreibt:
+a) Weltweites Netzwerk
+b) Netzwerk innerhalb eines Gebäudes
+c) Satellitennetz
+d) Mobilfunk
+
+15. MAN bedeutet:
+a) Kleines Netzwerk
+b) Stadtnetz
+c) Globales Netz
+d) Heimnetz
+
+16. WAN beschreibt:
+a) Raum
+b) Gebäude
+c) Länderübergreifend
+d) Bluetooth
+
+17. GAN umfasst:
+a) Gebäude
+b) Stadt
+c) Weltweit
+d) Büro
+
+18. Was ist ein VPN?
+a) Offenes Netzwerk
+b) Gesicherte Verbindung
+c) Switch
+d) Kabel
+
+19. SAN steht für:
+a) Storage Area Network
+b) Secure Area Network
+c) Small Area Network
+d) System Area Network
+
+20. Intranet bedeutet:
+a) Öffentlich
+b) Intern ohne externen Zugriff
+c) Global
+d) WLAN
+
+21. Was beeinflusst den Datendurchsatz?
+a) Farbe des Kabels
+b) Latenz
+c) Bildschirmgröße
+d) Tastatur
+
+22. Welche Topologie nutzt ein gemeinsames Medium?
+a) Stern
+b) Bus
+c) Mesh
+d) Baum
+
+23. Welche Topologie nutzt einen zentralen Switch?
+a) Ring
+b) Bus
+c) Stern
+d) Linie
+
+24. Welche Topologie ist am häufigsten?
+a) Bus
+b) Stern
+c) Ring
+d) Linie
+
+25. Welche Topologie ist sehr ausfallsicher?
+a) Bus
+b) Linie
+c) Mesh
+d) Stern
+
+26. Was ist Nachteil der Bus-Topologie?
+a) teuer
+b) wenig Kabel
+c) Ausfall des Hauptkabels
+d) zu schnell
+
+27. Ring-Topologie nutzt oft:
+a) Token
+b) DNS
+c) HTTP
+d) VLAN
+
+28. Mesh bedeutet:
+a) ein Kabel
+b) mehrere Verbindungen
+c) kein Netzwerk
+d) WLAN
+
+29. Baum-Topologie ist:
+a) Mischung aus Ring
+b) Erweiterung der Stern-Topologie
+c) Bus
+d) Linie
+
+30. Linie bedeutet:
+a) Kreis
+b) Verkettung
+c) Stern
+d) Mesh
+
+31. Hybrid bedeutet:
+a) nur eine Topologie
+b) Kombination mehrerer
+c) kein Netzwerk
+d) WLAN
+
+32. Vorteil Stern:
+a) keine Kabel
+b) einfache Fehlersuche
+c) langsam
+d) teuer
+
+33. Nachteil Stern:
+a) kein Switch
+b) zentraler Punkt kritisch
+c) keine Geräte
+d) langsam
+
+34. Vorteil Mesh:
+a) günstig
+b) ausfallsicher
+c) wenig Kabel
+d) langsam
+
+35. Nachteil Mesh:
+a) teuer
+b) langsam
+c) einfach
+d) klein
+
+36. WAN Beispiel:
+a) Heimnetz
+b) Internet
+c) Bluetooth
+d) USB
+
+37. Switch arbeitet auf:
+a) Layer 1
+b) Layer 2
+c) Layer 7
+d) Layer 4
+
+38. Router arbeitet auf:
+a) Layer 3
+b) Layer 1
+c) Layer 2
+d) Layer 7
+
+39. Peer-to-Peer bedeutet:
+a) Server notwendig
+b) gleichberechtigte Geräte
+c) kein Netzwerk
+d) Router
+
+40. Client-Server bedeutet:
+a) alle gleich
+b) Server stellt Dienste bereit
+c) kein Server
+d) nur WLAN
+
+
+🟡 Teil 2: Fill in the Blank (41–60)
+41. Eine MAC-Adresse hat __48____ Bit.
+42. IPv4 hat ___32___ Bit.
+43. IPv6 hat __128____ Bit.
+44. Ein Router arbeitet mit ___IP___ Adressen.
+45. Ein Switch arbeitet mit ___MAC___ Adressen.
+46. Ein Hub sendet an ___Alle___ Ports.
+47. Ein LAN ist auf __lokalen Bereich (Gebäude)____ begrenzt.
+48. Ein WAN verbindet ___Netzwerke Weltweit___.
+49. Ein VPN ist eine __geschützte____ Verbindung.
+50. Ein SAN ist ein ___Speicher___ Netzwerk.
+51. Intranet ist ___nur intern  zugänglich.
+52. Der Datendurchsatz hängt von ___Bandbreite und Latenz___ ab.
+53. Die Stern-Topologie hat einen ___zentralen___ Punkt.
+54. Die Bus-Topologie nutzt ein ___gemeinsames___ Medium.
+55. Die Ring-Topologie nutzt oft ein ___Token___.
+56. Mesh bietet ___mehrere___ Wege.
+57. Baum-Topologie ist ___hierarchisch___ aufgebaut.
+58. Linie ist eine ___Verkettung___ von Geräten.
+59. Hybrid ist eine ___kombi___ von Topologien.
+60. GAN ist ___Global Area Network___.
+
+🔵 Teil 3: Erklärfragen (61–70)
+61. Erkläre den Unterschied zwischen Hub und Switch.
+Hub sendet Daten ungefiltert an alle Ports (Layer 1). Switch arbeitet intelligent mit MAC-Adressen und leitet gezielt weiter (Layer 2).
+62. Beschreibe die Funktion eines Routers.
+Ein Router verbindet verschiedene Netzwerke und leitet Datenpakete anhand von IP-Adressen weiter (Routing, Layer 3).
+63. Erkläre den Unterschied zwischen MAC- und IP-Adresse.
+MAC-Adresse = hardwaregebunden, eindeutig pro Netzwerkkarte (Layer 2).
+IP-Adresse = logisch, wird zugewiesen und dient zur Kommunikation zwischen Netzwerken (Layer 3).
+64. Beschreibe das Client-Server-Modell.
+Beim Client-Server-Modell stellt ein zentraler Server Dienste (z. B. Web, Datei, Authentifizierung) bereit, Clients greifen darauf zu.
+65. Erkläre den Unterschied zwischen LAN und WAN.
+LAN = lokales Netzwerk (Gebäude/Standort).
+WAN = verbindet mehrere LANs über große Entfernungen (z. B. Internet).
+66. Beschreibe die Bus-Topologie mit Vor- und Nachteilen.
+Bus-Topologie: alle Geräte teilen sich ein Kabel.
+Vorteil: wenig Verkabelung.
+Nachteil: Kabelausfall legt gesamtes Netzwerk lahm.
+67. Erkläre die Stern-Topologie.
+Stern-Topologie: alle Geräte sind an einen zentralen Switch angeschlossen.
+Vorteil: leicht erweiterbar, gute Fehlersuche.
+Nachteil: zentraler Ausfallpunkt.
+68. Beschreibe die Mesh-Topologie und deren Vorteile.
+Mesh-Topologie: Geräte sind mehrfach miteinander verbunden.
+Vorteil: sehr hohe Ausfallsicherheit und Redundanz.
+69. Erkläre die Baum-Topologie und deren Einsatz.
+Baum-Topologie: hierarchische Struktur aus mehreren Stern-Netzen.
+Einsatz: große Netzwerke, Unternehmen.
+70. Warum sind Hybrid-Topologien heute Standard?
+Hybrid-Topologien sind Standard, weil sie die Vorteile mehrerer Topologien kombinieren (z. B. Skalierbarkeit + Ausfallsicherheit).
+

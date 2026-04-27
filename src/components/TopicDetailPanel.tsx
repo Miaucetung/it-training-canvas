@@ -1,0 +1,400 @@
+// ============================================================
+// TopicDetailPanel — Phase 6c-3
+// Renders the full detail view for a single Topic:
+//   - Concepts (ordered, with markdown content preview)
+//   - Quizzes (via adapters.ts — FIRST production use)
+//   - Cross-References (via CONCEPT_BRIDGES, read-only)
+//   - Close button + ESC key
+// Gamification, canvas-integration: Phase 6c-4 / 6c-5
+// ============================================================
+
+import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
+import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
+import type { CertificationModule, Topic } from "@/lib/content/types";
+import { ArrowLeft, BookOpen, Link, Question, X } from "@phosphor-icons/react";
+import { useEffect } from "react";
+
+interface TopicDetailPanelProps {
+  topic: Topic;
+  module: CertificationModule;
+  theme: "light" | "dark";
+  onClose: () => void;
+}
+
+// ── Cross-reference helpers ──────────────────────────────────
+// adapters.ts has no cross-reference functions — we read CONCEPT_BRIDGES
+// directly here. Noted as Architektur-Befund in Phase-6c-3 report.
+
+interface TopicCrossRef {
+  conceptId: string;
+  conceptTitle: string;
+  otherModuleId: string;
+  bridgeNote: string;
+  direction: "outbound" | "inbound";
+}
+
+function getCrossRefsForTopic(
+  topic: Topic,
+  moduleId: string,
+): TopicCrossRef[] {
+  const refs: TopicCrossRef[] = [];
+  for (const bridge of CONCEPT_BRIDGES) {
+    if (
+      bridge.sourceModuleId === moduleId &&
+      topic.conceptIds.includes(bridge.sourceConceptId)
+    ) {
+      refs.push({
+        conceptId: bridge.sourceConceptId,
+        conceptTitle: bridge.sourceConceptId,
+        otherModuleId: bridge.targetModuleId,
+        bridgeNote: bridge.bridgeNote,
+        direction: "outbound",
+      });
+    } else if (
+      bridge.targetModuleId === moduleId &&
+      topic.conceptIds.includes(bridge.targetConceptId)
+    ) {
+      refs.push({
+        conceptId: bridge.targetConceptId,
+        conceptTitle: bridge.targetConceptId,
+        otherModuleId: bridge.sourceModuleId,
+        bridgeNote: bridge.bridgeNote,
+        direction: "inbound",
+      });
+    }
+  }
+  return refs;
+}
+
+// ── Component ────────────────────────────────────────────────
+
+export function TopicDetailPanel({
+  topic,
+  module,
+  theme,
+  onClose,
+}: TopicDetailPanelProps) {
+  const dark = theme === "dark";
+
+  // ESC key support
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  // ── adapters.ts — FIRST PRODUCTION USE ──────────────────────
+  // getTopicQuizIds: returns quiz IDs linked to this topic
+  const quizIds = getTopicQuizIds(module, topic.id);
+  // extractQuizzes: returns full quiz map for the module
+  const allQuizzes = extractQuizzes(module);
+  const topicQuizzes = quizIds
+    .map((qid) => allQuizzes[qid])
+    .filter(Boolean);
+
+  // ── Concepts ─────────────────────────────────────────────────
+  const concepts = topic.conceptIds
+    .map((id) => module.concepts[id])
+    .filter(Boolean);
+
+  // ── Cross-References ─────────────────────────────────────────
+  const crossRefs = getCrossRefsForTopic(topic, module.id);
+
+  // ── Module label for module ID ────────────────────────────────
+  const moduleLabel: Record<string, string> = {
+    ccna: "CCNA 200-301",
+    "az-900": "AZ-900",
+    "comptia-network-plus": "Network+ N10-009",
+  };
+  const getModLabel = (id: string) => moduleLabel[id] ?? id;
+
+  return (
+    <div
+      className={`h-full flex flex-col border-l ${
+        dark
+          ? "bg-slate-900 border-slate-700"
+          : "bg-white border-slate-200"
+      }`}
+      role="region"
+      aria-label={`Topic-Detail: ${topic.title}`}
+    >
+      {/* ── Header ── */}
+      <div
+        className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${
+          dark ? "border-slate-700" : "border-slate-200"
+        }`}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Schließen"
+          className={`p-1.5 rounded-lg transition-colors ${
+            dark
+              ? "text-slate-400 hover:text-white hover:bg-slate-700"
+              : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+        >
+          <ArrowLeft size={18} />
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <h2
+            className={`font-semibold text-sm truncate ${
+              dark ? "text-white" : "text-slate-900"
+            }`}
+          >
+            {topic.title}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {topic.estimatedMinutes} Min. · {concepts.length} Konzepte
+            {topicQuizzes.length > 0 &&
+              ` · ${topicQuizzes.reduce((s, q) => s + q.questions.length, 0)} Fragen`}
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          aria-label="Panel schließen"
+          className={`p-1.5 rounded-lg transition-colors ${
+            dark
+              ? "text-slate-400 hover:text-white hover:bg-slate-700"
+              : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+
+        {/* Description */}
+        {topic.description && (
+          <p className={`text-sm leading-relaxed ${dark ? "text-slate-400" : "text-slate-600"}`}>
+            {topic.description}
+          </p>
+        )}
+
+        {/* ── Concepts ── */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <BookOpen
+              size={14}
+              className={dark ? "text-indigo-400" : "text-indigo-500"}
+            />
+            <h3
+              className={`text-xs font-semibold uppercase tracking-wider ${
+                dark ? "text-slate-500" : "text-slate-400"
+              }`}
+            >
+              Konzepte ({concepts.length})
+            </h3>
+          </div>
+
+          {concepts.length === 0 ? (
+            <p className="text-xs text-slate-500 italic">Keine Konzepte verknüpft.</p>
+          ) : (
+            <div className="space-y-2">
+              {concepts.map((concept, idx) => (
+                <div
+                  key={concept.id}
+                  className={`rounded-xl border p-4 ${
+                    dark
+                      ? "bg-slate-800/60 border-slate-700/50"
+                      : "bg-slate-50 border-slate-200"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                        dark
+                          ? "bg-indigo-500/20 text-indigo-300"
+                          : "bg-indigo-100 text-indigo-600"
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className={`font-medium text-sm ${
+                          dark ? "text-white" : "text-slate-900"
+                        }`}
+                      >
+                        {concept.title}
+                      </div>
+                      {/* Show first 200 chars of content as preview */}
+                      <div
+                        className={`text-xs mt-1 leading-relaxed line-clamp-2 ${
+                          dark ? "text-slate-400" : "text-slate-500"
+                        }`}
+                      >
+                        {concept.content
+                          .replace(/#{1,6}\s/g, "")
+                          .replace(/\n+/g, " ")
+                          .slice(0, 200)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* "Verstanden"-Button — disabled, Gamification in Phase 6c-4 */}
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      disabled
+                      aria-disabled="true"
+                      title="XP-System wird in Phase 6c-4 angebunden"
+                      className={`text-xs px-3 py-1 rounded-lg border transition-colors opacity-50 cursor-not-allowed ${
+                        dark
+                          ? "border-slate-600 text-slate-500"
+                          : "border-slate-300 text-slate-400"
+                      }`}
+                    >
+                      Verstanden
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── Quizzes ── */}
+        {topicQuizzes.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Question
+                size={14}
+                className={dark ? "text-amber-400" : "text-amber-500"}
+              />
+              <h3
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  dark ? "text-slate-500" : "text-slate-400"
+                }`}
+              >
+                Quiz ({topicQuizzes.reduce((s, q) => s + q.questions.length, 0)} Fragen)
+              </h3>
+            </div>
+
+            <div className="space-y-2">
+              {topicQuizzes.map((quiz) => (
+                <div
+                  key={quiz.id}
+                  className={`rounded-xl border p-4 ${
+                    dark
+                      ? "bg-amber-500/10 border-amber-500/30"
+                      : "bg-amber-50 border-amber-200"
+                  }`}
+                >
+                  <div
+                    className={`font-medium text-sm ${
+                      dark ? "text-amber-200" : "text-amber-800"
+                    }`}
+                  >
+                    {quiz.title}
+                  </div>
+                  <div className="text-xs mt-1 text-slate-500">
+                    {quiz.questions.length} Fragen · Bestehensgrenze{" "}
+                    {quiz.passingScore}%
+                  </div>
+
+                  {/* Quiz questions preview */}
+                  <div className="mt-3 space-y-1.5">
+                    {quiz.questions.slice(0, 3).map((q, i) => (
+                      <div
+                        key={q.id}
+                        className={`text-xs rounded-lg px-3 py-2 ${
+                          dark
+                            ? "bg-slate-800 text-slate-400"
+                            : "bg-white text-slate-600 border border-slate-200"
+                        }`}
+                      >
+                        <span className="opacity-50">{i + 1}. </span>
+                        {q.text}
+                      </div>
+                    ))}
+                    {quiz.questions.length > 3 && (
+                      <p className="text-xs text-slate-500 text-center py-1">
+                        + {quiz.questions.length - 3} weitere Fragen
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Start-Quiz-Button — disabled until Gamification */}
+                  <button
+                    disabled
+                    aria-disabled="true"
+                    title="Quiz-Flow wird in Phase 6c-4 aktiviert"
+                    className={`mt-3 w-full text-xs py-2 rounded-lg border opacity-50 cursor-not-allowed ${
+                      dark
+                        ? "border-amber-500/40 text-amber-400"
+                        : "border-amber-300 text-amber-700"
+                    }`}
+                  >
+                    Quiz starten (bald verfügbar)
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Cross-References ── */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Link
+              size={14}
+              className={dark ? "text-emerald-400" : "text-emerald-500"}
+            />
+            <h3
+              className={`text-xs font-semibold uppercase tracking-wider ${
+                dark ? "text-slate-500" : "text-slate-400"
+              }`}
+            >
+              Cross-References ({crossRefs.length})
+            </h3>
+          </div>
+
+          {crossRefs.length === 0 ? (
+            <p className="text-xs text-slate-500 italic">
+              Keine Cross-References für dieses Topic.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {crossRefs.map((ref, idx) => (
+                <div
+                  key={`${ref.conceptId}-${idx}`}
+                  className={`rounded-xl border p-3 ${
+                    dark
+                      ? "bg-emerald-500/10 border-emerald-500/30"
+                      : "bg-emerald-50 border-emerald-200"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <div
+                      className={`text-xs font-medium flex-shrink-0 ${
+                        dark ? "text-emerald-300" : "text-emerald-700"
+                      }`}
+                    >
+                      → {getModLabel(ref.otherModuleId)}
+                    </div>
+                  </div>
+                  <p
+                    className={`text-xs mt-1 leading-relaxed ${
+                      dark ? "text-slate-400" : "text-slate-600"
+                    }`}
+                  >
+                    {ref.bridgeNote}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1 opacity-70">
+                    Konzept: {ref.conceptId}
+                    {ref.direction === "inbound" && " (von anderem Modul)"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

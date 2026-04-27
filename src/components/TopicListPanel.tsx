@@ -7,7 +7,7 @@
 // ============================================================
 
 import { loadModule } from "@/lib/content/content-loader";
-import type { CertificationModule } from "@/lib/content/types";
+import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   BookOpen,
   CheckCircle,
@@ -20,9 +20,11 @@ import { useEffect, useState } from "react";
 interface TopicListPanelProps {
   moduleId: string;
   theme: "light" | "dark";
+  /** Called when user clicks a topic. Receives the Topic and the loaded module. */
+  onTopicClick?: (topic: Topic, module: CertificationModule) => void;
 }
 
-export function TopicListPanel({ moduleId, theme }: TopicListPanelProps) {
+export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanelProps) {
   const [mod, setMod] = useState<CertificationModule | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -161,9 +163,24 @@ export function TopicListPanel({ moduleId, theme }: TopicListPanelProps) {
                   key={topic.id}
                   role="button"
                   tabIndex={0}
-                  title="Detail-Ansicht in Kürze verfügbar"
-                  aria-disabled="true"
-                  className={`group rounded-xl border p-4 cursor-default transition-colors ${
+                  title={
+                    onTopicClick
+                      ? `${topic.title} öffnen`
+                      : "Detail-Ansicht in Kürze verfügbar"
+                  }
+                  aria-disabled={onTopicClick ? undefined : "true"}
+                  onClick={() => onTopicClick && mod && onTopicClick(topic, mod)}
+                  onKeyDown={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && onTopicClick && mod) {
+                      e.preventDefault();
+                      onTopicClick(topic, mod);
+                    }
+                  }}
+                  className={`group rounded-xl border p-4 transition-colors ${
+                    onTopicClick
+                      ? "cursor-pointer"
+                      : "cursor-default"
+                  } ${
                     theme === "dark"
                       ? "bg-slate-800/60 border-slate-700/50 hover:bg-slate-800 hover:border-slate-600"
                       : "bg-white border-slate-200 hover:border-slate-300"
@@ -218,7 +235,8 @@ export function TopicListPanel({ moduleId, theme }: TopicListPanelProps) {
                       </div>
                     </div>
 
-                    {/* "Coming soon" indicator */}
+                    {/* "Coming soon" indicator — hidden when onTopicClick is active */}
+                    {!onTopicClick && (
                     <div
                       className={`text-xs px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ${
                         theme === "dark"
@@ -228,6 +246,7 @@ export function TopicListPanel({ moduleId, theme }: TopicListPanelProps) {
                     >
                       Bald
                     </div>
+                    )}
                   </div>
                 </div>
               );
