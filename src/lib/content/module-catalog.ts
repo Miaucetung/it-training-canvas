@@ -55,7 +55,8 @@ export const CATALOG_PREVIEW: CourseMetadata[] = [
   },
   {
     slug: "az-900",
-    tagline: "Azure Fundamentals — solide Cloud-Grundlagen, sofort prüfungsrelevant",
+    tagline:
+      "Azure Fundamentals — solide Cloud-Grundlagen, sofort prüfungsrelevant",
     objectives: [
       "Cloud-Konzepte (IaaS, PaaS, SaaS, Shared Responsibility) erklären",
       "Azure-Architektur: Regionen, Availability Zones, Ressourcen-Hierarchie",
@@ -82,7 +83,8 @@ export const CATALOG_PREVIEW: CourseMetadata[] = [
   // Stubs — uncomment when module is created
   {
     slug: "comptia-network-plus",
-    tagline: "Vendor-neutrale Netzwerkkonzepte — die Brücke zwischen CCNA und Azure",
+    tagline:
+      "Vendor-neutrale Netzwerkkonzepte — die Brücke zwischen CCNA und Azure",
     objectives: [
       "OSI-Modell und TCP/IP vendor-neutral erklären (Abgrenzung von CCNA-Cisco-Kontext)",
       "Netzwerkports und Protokolle (N10-009 Pflichtkanon) auswendig kennen",

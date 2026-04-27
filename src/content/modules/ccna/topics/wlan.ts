@@ -165,7 +165,12 @@ export const TOPIC_WLAN: Topic = {
   title: "WLAN",
   description:
     "802.11-Standards, Frequenzbänder, CSMA/CA, WPA2/WPA3, 802.1X und Cisco WLC-Architektur.",
-  conceptIds: ["wlan-standards", "wlan-security", "wireless-architecture", "wlan-guide"],
+  conceptIds: [
+    "wlan-standards",
+    "wlan-security",
+    "wireless-architecture",
+    "wlan-guide",
+  ],
   quizIds: ["ccna-quiz-wlan"],
   exerciseIds: [],
   prerequisiteTopicIds: ["security"],

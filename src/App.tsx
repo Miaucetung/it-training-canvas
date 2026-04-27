@@ -73,6 +73,7 @@ import {
   Keyboard,
   Lightning,
   Notepad,
+  SidebarSimple,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
@@ -165,6 +166,8 @@ function App() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedTopicModule, setSelectedTopicModule] =
     useState<CertificationModule | null>(null);
+  // Phase 6c: catalog panel open/collapsed (so canvas stays accessible)
+  const [catalogPanelOpen, setCatalogPanelOpen] = useState(true);
   const [showShapePicker, setShowShapePicker] = useState(false);
   const [selectedShape, setSelectedShape] = useState<ShapeDefinition | null>(
     null,
@@ -1270,6 +1273,7 @@ function App() {
             setCurrentSubject(s);
             setSelectedTopic(null);
             setSelectedTopicModule(null);
+            setCatalogPanelOpen(true);
           }}
         onAddSubject={handleAddSubject}
         onRemoveSubject={handleRemoveSubject}
@@ -1466,11 +1470,23 @@ function App() {
 
         {/* Canvas Area / Topic Panel */}
         <div className="flex-1 relative overflow-hidden flex">
-          {catalogModuleId ? (
+          {catalogModuleId && catalogPanelOpen ? (
             <>
+              {/* Collapse button — top-left corner of panel */}
+              <div className="absolute top-2 left-2 z-30">
+                <button
+                  onClick={() => setCatalogPanelOpen(false)}
+                  title="Panel minimieren"
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600/50 backdrop-blur-sm transition-colors"
+                >
+                  <SidebarSimple size={13} />
+                  <span>Minimieren</span>
+                </button>
+              </div>
+
               {/* Topic List — shrinks when detail panel open */}
               <div
-                className={`flex-shrink-0 overflow-y-auto ${
+                className={`flex-shrink-0 overflow-y-auto pt-8 ${
                   selectedTopic ? "w-80" : "flex-1"
                 }`}
               >
@@ -1501,6 +1517,17 @@ function App() {
             </>
           ) : (
             <>
+              {/* Floating "Themen" button when catalog panel is collapsed */}
+              {catalogModuleId && !catalogPanelOpen && (
+                <button
+                  onClick={() => setCatalogPanelOpen(true)}
+                  title="Themen-Panel öffnen"
+                  className="absolute top-2 left-2 z-30 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-indigo-600/90 hover:bg-indigo-500 text-white border border-indigo-500/50 backdrop-blur-sm shadow-lg transition-colors"
+                >
+                  <SidebarSimple size={13} />
+                  <span>Themen</span>
+                </button>
+              )}
           <Canvas
             objects={canvasState.objects}
             onObjectsChange={updateCanvasState}

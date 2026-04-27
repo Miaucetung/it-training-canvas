@@ -213,7 +213,12 @@ export const TOPIC_ROUTING_OSPF: Topic = {
   title: "Routing & OSPF",
   description:
     "Routing-Grundlagen, statische Routen, OSPF Single- und Multi-Area, Inter-VLAN Routing — Layer-3-Vermittlung meistern.",
-  conceptIds: ["routing-fundamentals", "ospf", "inter-vlan-routing", "routing-ospf-guide"],
+  conceptIds: [
+    "routing-fundamentals",
+    "ospf",
+    "inter-vlan-routing",
+    "routing-ospf-guide",
+  ],
   quizIds: ["ccna-quiz-ospf"],
   exerciseIds: ["exercise-ospf-topology"],
   prerequisiteTopicIds: ["ipv4-addressing", "switching-vlans"],

@@ -10,63 +10,63 @@ import type { LearningPath, Quiz } from "@/lib/types";
 // ── Topic-Imports ─────────────────────────────────────────────
 
 import {
-  TOPIC_CLOUD_FUNDAMENTALS,
-  QUIZ_CLOUD_FUNDAMENTALS,
   CLOUD_FUNDAMENTALS_CONCEPTS,
+  QUIZ_CLOUD_FUNDAMENTALS,
+  TOPIC_CLOUD_FUNDAMENTALS,
 } from "./topics/cloud-fundamentals";
 
 import {
-  TOPIC_AZURE_ARCHITECTURE,
-  QUIZ_AZURE_ARCHITECTURE,
   AZURE_ARCHITECTURE_CONCEPTS,
+  QUIZ_AZURE_ARCHITECTURE,
+  TOPIC_AZURE_ARCHITECTURE,
 } from "./topics/azure-architecture";
 
 import {
-  TOPIC_AZURE_COMPUTE,
-  QUIZ_AZURE_COMPUTE,
   AZURE_COMPUTE_CONCEPTS,
+  QUIZ_AZURE_COMPUTE,
+  TOPIC_AZURE_COMPUTE,
 } from "./topics/azure-compute";
 
 import {
-  TOPIC_AZURE_NETWORKING,
-  QUIZ_AZURE_NETWORKING,
   AZURE_NETWORKING_CONCEPTS,
+  QUIZ_AZURE_NETWORKING,
+  TOPIC_AZURE_NETWORKING,
 } from "./topics/azure-networking";
 
 import {
-  TOPIC_AZURE_STORAGE,
-  QUIZ_AZURE_STORAGE,
   AZURE_STORAGE_CONCEPTS,
+  QUIZ_AZURE_STORAGE,
+  TOPIC_AZURE_STORAGE,
 } from "./topics/azure-storage";
 
 import {
-  TOPIC_AZURE_IDENTITY_SECURITY,
-  QUIZ_AZURE_IDENTITY_SECURITY,
   AZURE_IDENTITY_SECURITY_CONCEPTS,
+  QUIZ_AZURE_IDENTITY_SECURITY,
+  TOPIC_AZURE_IDENTITY_SECURITY,
 } from "./topics/azure-identity-security";
 
 import {
-  TOPIC_AZURE_GOVERNANCE,
-  QUIZ_AZURE_GOVERNANCE,
   AZURE_GOVERNANCE_CONCEPTS,
+  QUIZ_AZURE_GOVERNANCE,
+  TOPIC_AZURE_GOVERNANCE,
 } from "./topics/azure-governance";
 
 import {
-  TOPIC_AZURE_MANAGEMENT_TOOLS,
-  QUIZ_AZURE_MANAGEMENT_TOOLS,
   AZURE_MANAGEMENT_TOOLS_CONCEPTS,
+  QUIZ_AZURE_MANAGEMENT_TOOLS,
+  TOPIC_AZURE_MANAGEMENT_TOOLS,
 } from "./topics/azure-management-tools";
 
 import {
-  TOPIC_AZURE_MONITORING,
-  QUIZ_AZURE_MONITORING,
   AZURE_MONITORING_CONCEPTS,
+  QUIZ_AZURE_MONITORING,
+  TOPIC_AZURE_MONITORING,
 } from "./topics/azure-monitoring";
 
 import {
-  TOPIC_AZURE_COST_SLA,
-  QUIZ_AZURE_COST_SLA,
   AZURE_COST_SLA_CONCEPTS,
+  QUIZ_AZURE_COST_SLA,
+  TOPIC_AZURE_COST_SLA,
 } from "./topics/azure-cost-sla";
 
 // ── Learning Path ─────────────────────────────────────────────
@@ -87,7 +87,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-1",
         title: "Cloud Computing Grundlagen",
-        description: "IaaS/PaaS/SaaS, Bereitstellungsmodelle, Shared Responsibility, Cloud-Vorteile.",
+        description:
+          "IaaS/PaaS/SaaS, Bereitstellungsmodelle, Shared Responsibility, Cloud-Vorteile.",
         type: "info",
         order: 1,
         completed: false,
@@ -96,7 +97,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-2",
         title: "Azure-Architektur & Infrastruktur",
-        description: "Regionen, Availability Zones, Availability Sets, Ressourcen-Hierarchie.",
+        description:
+          "Regionen, Availability Zones, Availability Sets, Ressourcen-Hierarchie.",
         type: "info",
         order: 2,
         completed: false,
@@ -123,7 +125,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-5",
         title: "Azure Storage",
-        description: "Blob, Files, Disk, Queue, Redundanz-Optionen, Access Tiers.",
+        description:
+          "Blob, Files, Disk, Queue, Redundanz-Optionen, Access Tiers.",
         type: "info",
         order: 5,
         completed: false,
@@ -132,7 +135,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-6",
         title: "Identity, Security & Compliance",
-        description: "Microsoft Entra ID, RBAC, Zero Trust, Defender for Cloud, Sentinel.",
+        description:
+          "Microsoft Entra ID, RBAC, Zero Trust, Defender for Cloud, Sentinel.",
         type: "info",
         order: 6,
         completed: false,
@@ -141,7 +145,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-7",
         title: "Azure Governance & Compliance",
-        description: "Management Groups, Azure Policy, Resource Locks, Microsoft Purview.",
+        description:
+          "Management Groups, Azure Policy, Resource Locks, Microsoft Purview.",
         type: "info",
         order: 7,
         completed: false,
@@ -150,7 +155,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-8",
         title: "Azure Management Tools & IaC",
-        description: "Portal, Cloud Shell, PowerShell, CLI, Azure Arc, ARM Templates, Bicep.",
+        description:
+          "Portal, Cloud Shell, PowerShell, CLI, Azure Arc, ARM Templates, Bicep.",
         type: "info",
         order: 8,
         completed: false,
@@ -159,7 +165,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-9",
         title: "Azure Monitoring",
-        description: "Azure Advisor, Service Health, Azure Monitor, Log Analytics, Application Insights.",
+        description:
+          "Azure Advisor, Service Health, Azure Monitor, Log Analytics, Application Insights.",
         type: "info",
         order: 9,
         completed: false,
@@ -168,7 +175,8 @@ const AZ900_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "az900-step-10",
         title: "Cost Management & SLAs",
-        description: "Kostenoptimierung, Pricing Calculator, Cost Management, Composite SLA, Service Lifecycle.",
+        description:
+          "Kostenoptimierung, Pricing Calculator, Cost Management, Composite SLA, Service Lifecycle.",
         type: "info",
         order: 10,
         completed: false,
@@ -237,7 +245,8 @@ const AZ900_MODULE: CertificationModule = {
 
   metadata: {
     slug: "az-900",
-    tagline: "Azure Fundamentals — solide Cloud-Grundlagen, sofort prüfungsrelevant",
+    tagline:
+      "Azure Fundamentals — solide Cloud-Grundlagen, sofort prüfungsrelevant",
     objectives: [
       "Cloud-Konzepte (IaaS, PaaS, SaaS, Shared Responsibility) erklären",
       "Azure-Architektur: Regionen, Availability Zones, Ressourcen-Hierarchie",

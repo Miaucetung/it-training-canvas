@@ -190,7 +190,12 @@ export const TOPIC_SECURITY: Topic = {
   title: "Netzwerksicherheit",
   description:
     "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI und 802.1X — Netzwerke absichern.",
-  conceptIds: ["security-fundamentals", "acls", "port-security", "security-guide"],
+  conceptIds: [
+    "security-fundamentals",
+    "acls",
+    "port-security",
+    "security-guide",
+  ],
   quizIds: [
     "ccna-quiz-security",
     "ccna-quiz-harden-access",

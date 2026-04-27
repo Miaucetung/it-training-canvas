@@ -116,7 +116,13 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
   title: "IPv4-Adressierung & Subnetting",
   description:
     "IPv4-Aufbau, CIDR-Notation, Subnetting, VLSM, ARP und ICMP — unverzichtbar für jede Netzwerkkonfiguration.",
-  conceptIds: ["subnetting", "ipv4-header", "arp", "icmp", "ipv4-addressing-guide"],
+  conceptIds: [
+    "subnetting",
+    "ipv4-header",
+    "arp",
+    "icmp",
+    "ipv4-addressing-guide",
+  ],
   quizIds: ["ccna-quiz-ipv4"],
   exerciseIds: ["exercise-subnetting-design"],
   prerequisiteTopicIds: ["networking-fundamentals"],

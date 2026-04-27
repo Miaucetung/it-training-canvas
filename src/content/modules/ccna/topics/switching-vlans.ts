@@ -224,7 +224,13 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
   title: "Switching & VLANs",
   description:
     "Switching-Grundlagen, VLANs, Trunking, STP/RSTP und EtherChannel — Layer-2-Netzwerke verstehen und konfigurieren.",
-  conceptIds: ["switching-basics", "vlans", "stp", "etherchannel", "switching-vlans-guide"],
+  conceptIds: [
+    "switching-basics",
+    "vlans",
+    "stp",
+    "etherchannel",
+    "switching-vlans-guide",
+  ],
   quizIds: [],
   exerciseIds: ["exercise-vlan-config", "exercise-stp-analysis"],
   prerequisiteTopicIds: ["networking-fundamentals"],
