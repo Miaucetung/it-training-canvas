@@ -505,3 +505,67 @@ describe("Light-Theme", () => {
     ).not.toThrow();
   });
 });
+
+// ── Phase 6c-3a: Markdown-Rendering Tests ────────────────────
+describe("6c-3a) Markdown-Rendering in Konzept-Texten", () => {
+  function makeMarkdownModule(content: string): CertificationModule {
+    const conceptId = "md-concept";
+    const topic = makeTopic("md-topic", "Markdown Topic", [conceptId]);
+    return {
+      ...makeModule("md-module", [topic]),
+      concepts: {
+        [conceptId]: {
+          id: conceptId,
+          title: "Markdown Konzept",
+          content,
+          appliesTo: ["md-module"],
+          tags: [],
+        },
+      },
+    };
+  }
+
+  it("rendert **fett** als <strong>-Element", () => {
+    const { container } = render(
+      <TopicDetailPanel
+        topic={makeTopic("md-topic", "MD Topic", ["md-concept"])}
+        module={makeMarkdownModule("**Fettschrift** hier")}
+        theme="dark"
+        onClose={vi.fn()}
+      />,
+    );
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    expect(strong?.textContent).toContain("Fettschrift");
+  });
+
+  it("rendert Listenelemente als <ul>/<li>", () => {
+    const { container } = render(
+      <TopicDetailPanel
+        topic={makeTopic("md-topic", "MD Topic", ["md-concept"])}
+        module={makeMarkdownModule("- Erster Punkt\n- Zweiter Punkt\n- Dritter Punkt")}
+        theme="dark"
+        onClose={vi.fn()}
+      />,
+    );
+    const ul = container.querySelector("ul");
+    expect(ul).not.toBeNull();
+    const items = container.querySelectorAll("li");
+    expect(items.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("rendert Pipe-Tabellen als <table>", () => {
+    const tableMarkdown =
+      "| Spalte A | Spalte B |\n| --- | --- |\n| Wert 1 | Wert 2 |";
+    const { container } = render(
+      <TopicDetailPanel
+        topic={makeTopic("md-topic", "MD Topic", ["md-concept"])}
+        module={makeMarkdownModule(tableMarkdown)}
+        theme="dark"
+        onClose={vi.fn()}
+      />,
+    );
+    const table = container.querySelector("table");
+    expect(table).not.toBeNull();
+  });
+});
