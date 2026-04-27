@@ -43,12 +43,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  deploy:
+    runs-on: self-hosted
+    needs: build-and-push
+
+    steps:
       - name: Deploy to k3s
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            sudo kubectl rollout restart deployment/it-training-canvas -n apps
-            sudo kubectl rollout status deployment/it-training-canvas -n apps --timeout=120s
+        run: |
+          kubectl rollout restart deployment/it-training-canvas -n apps
+          kubectl rollout status deployment/it-training-canvas -n apps --timeout=120s
