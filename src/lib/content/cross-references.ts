@@ -123,7 +123,8 @@ export function findRelatedConcepts(
 ): { concept: Concept; bridge: ConceptBridge }[] {
   const matches = CONCEPT_BRIDGES.filter(
     (b) =>
-      (b.sourceConceptId === conceptId && b.targetModuleId === targetModuleId) ||
+      (b.sourceConceptId === conceptId &&
+        b.targetModuleId === targetModuleId) ||
       (b.targetConceptId === conceptId && b.sourceModuleId === targetModuleId),
   );
 
@@ -165,7 +166,9 @@ export function getConceptBridgesForModule(moduleId: string): ConceptBridge[] {
 // findConceptsByTag
 // Searches across all registered modules for concepts with tag
 // ────────────────────────────────────────────────────────────
-export function findConceptsByTag(tag: string): { concept: Concept; moduleId: string }[] {
+export function findConceptsByTag(
+  tag: string,
+): { concept: Concept; moduleId: string }[] {
   const results: { concept: Concept; moduleId: string }[] = [];
 
   for (const [moduleId, module] of contentRegistry.getAllModules()) {
