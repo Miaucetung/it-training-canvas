@@ -232,7 +232,7 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
     "switching-vlans-guide",
   ],
   quizIds: [],
-  exerciseIds: ["exercise-vlan-config", "exercise-stp-analysis"],
+  exerciseIds: [],
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 150,
   tags: ["switching", "vlan", "stp", "layer-2"],

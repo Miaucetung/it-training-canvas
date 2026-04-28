@@ -214,11 +214,11 @@ const CCNA_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "step-17-exam-sim",
         title: "Prüfungssimulation CCNA",
-        description: "Vollständiger Übungstest im Prüfungsformat.",
-        type: "quiz",
+        description:
+          "Wiederhole alle 20 Themen-Quizze im Prüfungsmodus, bevor Du zur Cisco-Zertifizierung antrittst.",
+        type: "info",
         order: 17,
         completed: false,
-        quizId: "ccna-quiz-exam",
         hints: [],
       },
       {

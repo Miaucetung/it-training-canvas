@@ -220,7 +220,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "routing-ospf-guide",
   ],
   quizIds: ["ccna-quiz-ospf"],
-  exerciseIds: ["exercise-ospf-topology"],
+  exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing", "switching-vlans"],
   estimatedMinutes: 180,
   tags: ["routing", "ospf", "layer-3"],

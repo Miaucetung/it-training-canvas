@@ -150,7 +150,7 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
     "networking-fundamentals-guide",
   ],
   quizIds: ["ccna-quiz-netzwerkgrundlagen"],
-  exerciseIds: ["exercise-build-basic-network"],
+  exerciseIds: [],
   prerequisiteTopicIds: [],
   estimatedMinutes: 90,
   tags: ["osi", "tcp-ip", "networking", "fundamentals"],
