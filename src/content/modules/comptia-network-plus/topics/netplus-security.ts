@@ -23,7 +23,7 @@ export const CONCEPT_SECURITY_FUNDAMENTALS_NP: Concept = {
   title: "Netzwerksicherheit-Grundlagen: CIA, IAM, Firewall-Typen (N10-009)",
   appliesTo: ["comptia-network-plus"],
   tags: ["security", "cia-triad", "iam", "firewall", "zero-trust", "n10-009", "vendor-neutral"],
-  relatedConceptIds: ["acls", "azure-rbac", "security-fundamentals"],
+  relatedConceptIds: ["acl-extended", "azure-rbac", "security-fundamentals"],
   content: `
 ## Netzwerksicherheit: Die N10-009-Grundlagen
 
@@ -176,7 +176,7 @@ export const CONCEPT_SECURITY_SOLUTIONS_NP: Concept = {
   title: "Sicherheitslösungen: NAC, ACLs, Port Security (N10-009 Domain 4.3)",
   appliesTo: ["comptia-network-plus"],
   tags: ["nac", "acl", "port-security", "802.1x", "n10-009", "vendor-neutral"],
-  relatedConceptIds: ["acls", "port-security"],
+  relatedConceptIds: ["acl-extended", "port-security"],
   content: `
 ## Sicherheitslösungen: N10-009 Domain 4.3
 

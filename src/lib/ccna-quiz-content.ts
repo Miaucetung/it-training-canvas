@@ -1477,6 +1477,702 @@ export const QUIZ_CCNA_EXAM: Quiz = {
 };
 
 // ============================================================
+// QUIZ 14: Cisco IOS CLI
+// ============================================================
+export const QUIZ_IOS_CLI: Quiz = {
+  id: "ccna-quiz-ios-cli",
+  title: "CCNA: Cisco IOS CLI",
+  description: "CLI-Modi, Gerätezugriff, SSH, Interface-Konfiguration und Diagnose",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Prompt zeigt den Privileged EXEC Mode?",
+      explanation: "Privileged EXEC Mode wird durch '#' angezeigt (z.B. R1#). User EXEC Mode endet mit '>'.",
+      answers: [
+        { id: "a", text: "R1>", isCorrect: false },
+        { id: "b", text: "R1#", isCorrect: true },
+        { id: "c", text: "R1(config)#", isCorrect: false },
+        { id: "d", text: "R1(config-if)#", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl wechselt man vom Privileged EXEC in den Global Configuration Mode?",
+      explanation: "'configure terminal' (kurz: conf t) wechselt in den Global Config Mode.",
+      answers: [
+        { id: "a", text: "enable", isCorrect: false },
+        { id: "b", text: "configure terminal", isCorrect: true },
+        { id: "c", text: "config router", isCorrect: false },
+        { id: "d", text: "interface global", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Schritte sind für SSH auf einem Cisco-Router erforderlich? (Mehrere Antworten)",
+      explanation: "SSH benötigt: Hostname (≠ Default), Domain-Name, RSA-Schlüssel (>=1024 Bit empfohlen), lokaler User mit Passwort sowie 'transport input ssh' auf der VTY-Linie.",
+      answers: [
+        { id: "a", text: "ip domain-name setzen", isCorrect: true },
+        { id: "b", text: "crypto key generate rsa", isCorrect: true },
+        { id: "c", text: "transport input ssh auf VTY", isCorrect: true },
+        { id: "d", text: "no ip http server", isCorrect: false },
+        { id: "e", text: "Lokalen User mit Passwort anlegen", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie speichert man die laufende Konfiguration dauerhaft?",
+      explanation: "'copy running-config startup-config' (oder 'write memory') speichert die aktive Konfiguration ins NVRAM.",
+      answers: [
+        { id: "a", text: "save config", isCorrect: false },
+        { id: "b", text: "write running", isCorrect: false },
+        { id: "c", text: "copy running-config startup-config", isCorrect: true },
+        { id: "d", text: "reload", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl zeigt den Status aller Layer-1/2-Interfaces inklusive IP-Adressen kompakt an?",
+      explanation: "'show ip interface brief' (sh ip int br) listet alle Interfaces mit IP, Status (up/down) und Protocol.",
+      answers: [
+        { id: "a", text: "show interfaces", isCorrect: false },
+        { id: "b", text: "show ip interface brief", isCorrect: true },
+        { id: "c", text: "show running-config", isCorrect: false },
+        { id: "d", text: "show ip route", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher IOS-Befehl deaktiviert die störende DNS-Auflösung von Tippfehlern?",
+      explanation: "'no ip domain-lookup' verhindert, dass der Router fehlerhafte Befehle als Hostnamen interpretiert und DNS-Lookups startet.",
+      answers: [
+        { id: "a", text: "no dns lookup", isCorrect: false },
+        { id: "b", text: "no ip domain-lookup", isCorrect: true },
+        { id: "c", text: "ip dns disable", isCorrect: false },
+        { id: "d", text: "no resolver", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Passwortform ist auf einem Cisco-Gerät am sichersten?",
+      explanation: "'enable secret' (oder 'username … secret 9 …') verwendet starke Hashes (Type 9 = scrypt). 'enable password' speichert reversibel (Type 7 ist trivial entschlüsselbar).",
+      answers: [
+        { id: "a", text: "enable password", isCorrect: false },
+        { id: "b", text: "service password-encryption (Type 7)", isCorrect: false },
+        { id: "c", text: "enable secret (Type 9 / scrypt)", isCorrect: true },
+        { id: "d", text: "Keine Passwörter setzen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "'shutdown' auf einem Interface ist Standardeinstellung bei Cisco-Routern.",
+      explanation: "Wahr. Auf Routern sind Interfaces im Default 'shutdown'; auf Catalyst-Switches dagegen 'no shutdown'.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 15: Device Management (CDP/LLDP/NTP/Syslog/SNMP)
+// ============================================================
+export const QUIZ_DEVICE_MGMT: Quiz = {
+  id: "ccna-quiz-device-management",
+  title: "CCNA: Device Management Protocols",
+  description: "CDP, LLDP, NTP, Syslog und SNMPv3 im Cisco-Betrieb",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Discovery-Protokoll ist ein offener IEEE-Standard?",
+      explanation: "LLDP (IEEE 802.1AB) ist herstellerunabhängig. CDP ist Cisco-proprietär.",
+      answers: [
+        { id: "a", text: "CDP", isCorrect: false },
+        { id: "b", text: "LLDP", isCorrect: true },
+        { id: "c", text: "VTP", isCorrect: false },
+        { id: "d", text: "STP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl zeigt detaillierte CDP-Nachbarinformationen inklusive IP-Adressen?",
+      explanation: "'show cdp neighbors detail' (oder 'show cdp entry *') zeigt IPs und IOS-Version.",
+      answers: [
+        { id: "a", text: "show cdp", isCorrect: false },
+        { id: "b", text: "show cdp neighbors", isCorrect: false },
+        { id: "c", text: "show cdp neighbors detail", isCorrect: true },
+        { id: "d", text: "show neighbors", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher UDP-Port wird von NTP verwendet?",
+      explanation: "NTP nutzt UDP/123.",
+      answers: [
+        { id: "a", text: "UDP/53", isCorrect: false },
+        { id: "b", text: "UDP/123", isCorrect: true },
+        { id: "c", text: "UDP/161", isCorrect: false },
+        { id: "d", text: "UDP/514", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Syslog-Severity-Level ist am kritischsten?",
+      explanation: "Severity 0 (Emergency) ist am höchsten, 7 (Debug) am niedrigsten.",
+      answers: [
+        { id: "a", text: "0 — Emergency", isCorrect: true },
+        { id: "b", text: "3 — Error", isCorrect: false },
+        { id: "c", text: "5 — Notification", isCorrect: false },
+        { id: "d", text: "7 — Debug", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Eigenschaften treffen auf SNMPv3 zu? (Mehrere Antworten)",
+      explanation: "SNMPv3 unterstützt Authentication (MD5/SHA), Verschlüsselung (DES/AES) und Integritätsprüfung. SNMPv1/v2c verwenden nur Community-Strings im Klartext.",
+      answers: [
+        { id: "a", text: "Authentication via MD5/SHA", isCorrect: true },
+        { id: "b", text: "Verschlüsselung der Payload (priv)", isCorrect: true },
+        { id: "c", text: "Community-String im Klartext (Standard)", isCorrect: false },
+        { id: "d", text: "Integritätsprüfung", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Adresse ist die Layer-2-Multicast-MAC für CDP-Frames?",
+      explanation: "CDP nutzt 0100.0CCC.CCCC als Destination-MAC.",
+      answers: [
+        { id: "a", text: "FFFF.FFFF.FFFF (Broadcast)", isCorrect: false },
+        { id: "b", text: "0100.0CCC.CCCC", isCorrect: true },
+        { id: "c", text: "0180.C200.0000", isCorrect: false },
+        { id: "d", text: "0100.5E00.0001", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl konfiguriert einen Cisco-Router als NTP-Client zu Server 10.10.10.1?",
+      explanation: "'ntp server 10.10.10.1' (im Global Config) macht den Router zum NTP-Client.",
+      answers: [
+        { id: "a", text: "clock source ntp 10.10.10.1", isCorrect: false },
+        { id: "b", text: "ntp server 10.10.10.1", isCorrect: true },
+        { id: "c", text: "ntp client 10.10.10.1", isCorrect: false },
+        { id: "d", text: "set ntp 10.10.10.1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wohin schickt 'logging host 192.168.1.10' Syslog-Meldungen?",
+      explanation: "An den externen Syslog-Server 192.168.1.10 (UDP/514).",
+      answers: [
+        { id: "a", text: "An die Konsole", isCorrect: false },
+        { id: "b", text: "In den lokalen Buffer", isCorrect: false },
+        { id: "c", text: "An den externen Syslog-Server 192.168.1.10", isCorrect: true },
+        { id: "d", text: "An alle aktiven VTY-Sessions", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 16: First Hop Redundancy (HSRP/VRRP/GLBP)
+// ============================================================
+export const QUIZ_FHRP: Quiz = {
+  id: "ccna-quiz-fhrp",
+  title: "CCNA: FHRP – HSRP / VRRP / GLBP",
+  description: "Default-Gateway-Redundanz mit virtueller IP/MAC, Priorities, Preemption und Object Tracking",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Problem löst FHRP?",
+      explanation: "FHRP stellt eine virtuelle Default-Gateway-IP/MAC bereit, sodass Hosts beim Ausfall des aktiven Routers nicht umkonfiguriert werden müssen.",
+      answers: [
+        { id: "a", text: "Layer-2-Loops in redundanten Topologien", isCorrect: false },
+        { id: "b", text: "Single Point of Failure des Default Gateways", isCorrect: true },
+        { id: "c", text: "Routing-Schleifen zwischen Areas", isCorrect: false },
+        { id: "d", text: "DHCP-Pool-Erschöpfung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche virtuelle MAC-Adresse nutzt HSRPv2 für Group 10?",
+      explanation: "HSRPv2: 0000.0C9F.F000–0FFF (Group hex angehängt). Group 10 = 0000.0C9F.F00A.",
+      answers: [
+        { id: "a", text: "0000.0C07.AC0A", isCorrect: false },
+        { id: "b", text: "0000.0C9F.F00A", isCorrect: true },
+        { id: "c", text: "0000.5E00.010A", isCorrect: false },
+        { id: "d", text: "FFFF.FFFF.FFFF", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher HSRP-Router ist der aktive Router?",
+      explanation: "Der Router mit der höchsten HSRP-Priority (Default 100) wird Active. Bei gleicher Priority entscheidet die höchste IP.",
+      answers: [
+        { id: "a", text: "Der mit der niedrigsten Priority", isCorrect: false },
+        { id: "b", text: "Der mit der höchsten Priority (Default 100)", isCorrect: true },
+        { id: "c", text: "Der mit der niedrigsten IP-Adresse", isCorrect: false },
+        { id: "d", text: "Immer der erste, der online ist", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "VRRP ist ein offener IEEE-Standard, HSRP ist Cisco-proprietär.",
+      explanation: "Wahr. VRRP (RFC 5798) ist offen, HSRP ist Cisco-spezifisch.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches FHRP unterstützt Lastverteilung über mehrere aktive Router pro Gruppe?",
+      explanation: "GLBP (Cisco) verteilt Anfragen über mehrere AVF-Router. HSRP/VRRP haben nur einen aktiven Router pro Gruppe.",
+      answers: [
+        { id: "a", text: "HSRP", isCorrect: false },
+        { id: "b", text: "VRRP", isCorrect: false },
+        { id: "c", text: "GLBP", isCorrect: true },
+        { id: "d", text: "Keiner", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bewirkt HSRP-Preemption?",
+      explanation: "Mit Preemption übernimmt ein Router mit höherer Priority sofort die Active-Rolle, sobald er online kommt.",
+      answers: [
+        { id: "a", text: "Verhindert, dass Router je die Active-Rolle wechseln", isCorrect: false },
+        { id: "b", text: "Erlaubt höher priorisiertem Router, sofort Active zu werden", isCorrect: true },
+        { id: "c", text: "Reduziert die Hello-Zeit auf 1 Sekunde", isCorrect: false },
+        { id: "d", text: "Aktiviert Object Tracking", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was macht 'standby 1 track 1 decrement 30'?",
+      explanation: "Wenn Object 1 (z.B. Uplink-Interface) ausfällt, wird die HSRP-Priority um 30 reduziert — der Standby-Router kann übernehmen.",
+      answers: [
+        { id: "a", text: "Erhöht Priority um 30 bei Uplink-Failure", isCorrect: false },
+        { id: "b", text: "Senkt Priority um 30 wenn Object 1 ausfällt", isCorrect: true },
+        { id: "c", text: "Setzt die Priority hart auf 30", isCorrect: false },
+        { id: "d", text: "Verzögert Failover um 30 Sekunden", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Multicast-IP nutzt VRRPv2 für Hello-Pakete?",
+      explanation: "VRRPv2 sendet Advertisements an 224.0.0.18 (HSRPv1: 224.0.0.2; HSRPv2: 224.0.0.102).",
+      answers: [
+        { id: "a", text: "224.0.0.2", isCorrect: false },
+        { id: "b", text: "224.0.0.18", isCorrect: true },
+        { id: "c", text: "224.0.0.102", isCorrect: false },
+        { id: "d", text: "239.255.255.250", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 17: WAN & VPN
+// ============================================================
+export const QUIZ_WAN_VPN: Quiz = {
+  id: "ccna-quiz-wan-vpn",
+  title: "CCNA: WAN & VPN",
+  description: "WAN-Technologien, IPsec, GRE/DMVPN und Cisco SD-WAN",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Aussagen treffen auf MPLS zu? (Mehrere Antworten)",
+      explanation: "MPLS arbeitet zwischen Layer 2 und 3 ('Layer 2.5'), verwendet Label statt IP-Lookup im Provider-Backbone und unterstützt Traffic Engineering und L3-VPNs.",
+      answers: [
+        { id: "a", text: "Arbeitet zwischen Layer 2 und 3", isCorrect: true },
+        { id: "b", text: "Verwendet Labels für Forwarding", isCorrect: true },
+        { id: "c", text: "Ist ein Layer-1-Übertragungsstandard", isCorrect: false },
+        { id: "d", text: "Unterstützt L3-VPN-Dienste", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche IPsec-Komponente bietet Vertraulichkeit (Verschlüsselung)?",
+      explanation: "ESP (Encapsulating Security Payload) verschlüsselt Daten. AH liefert nur Authentizität/Integrität, keine Verschlüsselung.",
+      answers: [
+        { id: "a", text: "AH (Authentication Header)", isCorrect: false },
+        { id: "b", text: "ESP (Encapsulating Security Payload)", isCorrect: true },
+        { id: "c", text: "IKE Phase 1", isCorrect: false },
+        { id: "d", text: "ISAKMP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Funktion hat IKE Phase 1?",
+      explanation: "IKE Phase 1 etabliert einen sicheren Management-Tunnel (ISAKMP SA) zwischen den Peers. Phase 2 verhandelt dann die IPsec-SAs für Nutzdaten.",
+      answers: [
+        { id: "a", text: "Verschlüsselt Nutzdaten", isCorrect: false },
+        { id: "b", text: "Etabliert ISAKMP SA (sicherer Management-Kanal)", isCorrect: true },
+        { id: "c", text: "Vergibt IP-Adressen an VPN-Clients", isCorrect: false },
+        { id: "d", text: "Macht Routing über den Tunnel", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "GRE-Tunnel verschlüsseln den Datenverkehr standardmäßig.",
+      explanation: "Falsch. GRE kapselt nur (Multicast/Routing-fähig), bietet aber keine Verschlüsselung. Schutz: GRE über IPsec.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Hauptkomponente ist im Cisco SD-WAN für die zentrale Konfigurationsverwaltung verantwortlich?",
+      explanation: "vManage ist das zentrale Management/Orchestration-Tool. vSmart steuert das Control Plane (OMP), vBond authentifiziert Endgeräte, vEdge/cEdge sind die Edge-Router.",
+      answers: [
+        { id: "a", text: "vSmart", isCorrect: false },
+        { id: "b", text: "vBond", isCorrect: false },
+        { id: "c", text: "vManage", isCorrect: true },
+        { id: "d", text: "vEdge", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist DMVPN?",
+      explanation: "DMVPN (Dynamic Multipoint VPN) baut on-demand verschlüsselte mGRE/IPsec-Tunnel zwischen Spokes auf. Konfiguration nur am Hub erforderlich (Zero-Touch für neue Spokes).",
+      answers: [
+        { id: "a", text: "Layer-2-VPN über MPLS", isCorrect: false },
+        { id: "b", text: "Dynamische Multipoint-VPN-Lösung mit mGRE/IPsec/NHRP", isCorrect: true },
+        { id: "c", text: "DSL-Multiplexing-Verfahren", isCorrect: false },
+        { id: "d", text: "WLAN-Roaming-Protokoll", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Vorteile bietet SD-WAN gegenüber klassischem MPLS-WAN? (Mehrere Antworten)",
+      explanation: "SD-WAN: zentrales Policy-Management, dynamische Pfadauswahl pro Anwendung, Direct Internet Breakout, transportunabhängig (MPLS/Internet/LTE).",
+      answers: [
+        { id: "a", text: "Zentralisiertes Policy-Management", isCorrect: true },
+        { id: "b", text: "Application-aware Routing", isCorrect: true },
+        { id: "c", text: "Direct Internet Breakout möglich", isCorrect: true },
+        { id: "d", text: "Erfordert zwingend MPLS als Transport", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher VPN-Modus verschlüsselt das gesamte ursprüngliche IP-Paket inkl. Header?",
+      explanation: "Tunnel-Mode kapselt das komplette Original-Paket in ein neues IP-Paket. Transport-Mode erhält den Original-IP-Header (Host-zu-Host).",
+      answers: [
+        { id: "a", text: "Transport Mode", isCorrect: false },
+        { id: "b", text: "Tunnel Mode", isCorrect: true },
+        { id: "c", text: "Aggressive Mode", isCorrect: false },
+        { id: "d", text: "Main Mode", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 18: SDN, DNA Center & Cloud
+// ============================================================
+export const QUIZ_SDN: Quiz = {
+  id: "ccna-quiz-sdn",
+  title: "CCNA: SDN, Controller-Based Networking & Cloud",
+  description: "Control/Data/Mgmt Plane, SDN-Architekturen, Cisco DNA Center, SD-Access und Cloud-Service-Modelle",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Plane wird in einer SDN-Architektur am stärksten zentralisiert?",
+      explanation: "Die Control Plane wird in einem zentralen Controller zusammengeführt; die Data Plane bleibt verteilt auf den Forwarding-Geräten.",
+      answers: [
+        { id: "a", text: "Data Plane", isCorrect: false },
+        { id: "b", text: "Control Plane", isCorrect: true },
+        { id: "c", text: "Application Plane", isCorrect: false },
+        { id: "d", text: "Power Plane", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Schnittstelle eines SDN-Controllers wird Richtung der Netzwerkgeräte (Switches/Router) verwendet?",
+      explanation: "Southbound API (z.B. OpenFlow, NETCONF, gRPC) spricht mit den Geräten. Northbound API spricht mit Anwendungen.",
+      answers: [
+        { id: "a", text: "Northbound API", isCorrect: false },
+        { id: "b", text: "Southbound API", isCorrect: true },
+        { id: "c", text: "Eastbound API", isCorrect: false },
+        { id: "d", text: "Westbound API", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist Cisco DNA Center?",
+      explanation: "DNA Center ist Ciscos Intent-Based-Networking-Controller für Campus-Netze (Design, Provisioning, Assurance, SD-Access).",
+      answers: [
+        { id: "a", text: "Ein Cloud-Backup-Dienst", isCorrect: false },
+        { id: "b", text: "Cisco Intent-Based Networking Controller für Campus", isCorrect: true },
+        { id: "c", text: "Ersatz für vManage in SD-WAN", isCorrect: false },
+        { id: "d", text: "Ein Hypervisor", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Cloud-Service-Modell stellt vorgefertigte Anwendungen (z.B. Office 365) bereit?",
+      explanation: "SaaS = Software as a Service (komplette Anwendung). PaaS = Plattform für Eigenentwicklung. IaaS = virtuelle Infrastruktur.",
+      answers: [
+        { id: "a", text: "IaaS", isCorrect: false },
+        { id: "b", text: "PaaS", isCorrect: false },
+        { id: "c", text: "SaaS", isCorrect: true },
+        { id: "d", text: "FaaS", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Bestandteile gehören zu Cisco SD-Access? (Mehrere Antworten)",
+      explanation: "SD-Access kombiniert: Underlay (IP-Routing IS-IS), Overlay (VXLAN), LISP für Endpoint-Tracking, Cisco TrustSec/SGT für Mikrosegmentierung — verwaltet via DNA Center.",
+      answers: [
+        { id: "a", text: "VXLAN als Overlay", isCorrect: true },
+        { id: "b", text: "LISP als Control Plane", isCorrect: true },
+        { id: "c", text: "Cisco TrustSec / Security Group Tags", isCorrect: true },
+        { id: "d", text: "MPLS als Pflicht-Backbone", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Hauptvorteil eines Intent-Based-Networking-Ansatzes?",
+      explanation: "Admins definieren das gewünschte Ergebnis ('Intent'); der Controller übersetzt es in Konfigurationen und verifiziert kontinuierlich (Assurance).",
+      answers: [
+        { id: "a", text: "CLI-Befehle pro Gerät einzeln tippen", isCorrect: false },
+        { id: "b", text: "Deklarative Beschreibung des Ziels — Controller setzt um und überwacht", isCorrect: true },
+        { id: "c", text: "Manuelle Konfiguration bleibt Pflicht", isCorrect: false },
+        { id: "d", text: "Hardware-spezifische Skripte bevorzugen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "OpenFlow ist ein Beispiel für eine Southbound-Schnittstelle.",
+      explanation: "Wahr. OpenFlow programmiert die Forwarding-Tabellen der Switches direkt vom Controller aus.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Cloud-Deployment-Modell kombiniert Public und Private Cloud?",
+      explanation: "Hybrid Cloud verbindet beide Modelle, oft via Site-to-Site-VPN oder Direct Connect/ExpressRoute.",
+      answers: [
+        { id: "a", text: "Private Cloud", isCorrect: false },
+        { id: "b", text: "Hybrid Cloud", isCorrect: true },
+        { id: "c", text: "Community Cloud", isCorrect: false },
+        { id: "d", text: "Edge Cloud", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 19: Programmability & Automation
+// ============================================================
+export const QUIZ_AUTOMATION: Quiz = {
+  id: "ccna-quiz-automation",
+  title: "CCNA: Programmability & Automation",
+  description: "REST APIs, JSON/YAML, Ansible, Terraform und GitOps-Grundlagen",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche HTTP-Methode wird in REST üblicherweise zum Anlegen einer Ressource verwendet?",
+      explanation: "POST erzeugt eine neue Ressource. GET liest, PUT ersetzt, DELETE löscht.",
+      answers: [
+        { id: "a", text: "GET", isCorrect: false },
+        { id: "b", text: "POST", isCorrect: true },
+        { id: "c", text: "DELETE", isCorrect: false },
+        { id: "d", text: "OPTIONS", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher HTTP-Statuscode bedeutet 'Erfolg, Ressource erstellt'?",
+      explanation: "201 Created. 200 = OK, 204 = No Content, 401 = Unauthorized.",
+      answers: [
+        { id: "a", text: "200", isCorrect: false },
+        { id: "b", text: "201", isCorrect: true },
+        { id: "c", text: "401", isCorrect: false },
+        { id: "d", text: "500", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Eigenschaften treffen auf Ansible zu? (Mehrere Antworten)",
+      explanation: "Ansible ist agentenlos, nutzt SSH/NETCONF, beschreibt Playbooks in YAML und ist idempotent.",
+      answers: [
+        { id: "a", text: "Agentenlos (kein Client auf Zielgeräten nötig)", isCorrect: true },
+        { id: "b", text: "Playbooks in YAML", isCorrect: true },
+        { id: "c", text: "Idempotente Tasks", isCorrect: true },
+        { id: "d", text: "Erfordert zwingend Windows-Zielsysteme", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Format ist Whitespace-sensitiv und nutzt Einrückung als Strukturierung?",
+      explanation: "YAML basiert auf Einrückung (keine Klammern). JSON nutzt {} und [].",
+      answers: [
+        { id: "a", text: "JSON", isCorrect: false },
+        { id: "b", text: "XML", isCorrect: false },
+        { id: "c", text: "YAML", isCorrect: true },
+        { id: "d", text: "INI", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Terraform verwendet eine deklarative Sprache (HCL) zur Beschreibung der gewünschten Infrastruktur.",
+      explanation: "Wahr. HCL ist deklarativ; Terraform berechnet die Differenz zum aktuellen State und führt notwendige Änderungen aus.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Datenstruktur entspricht in JSON einem Schlüssel-Wert-Mapping?",
+      explanation: "Ein JSON-Objekt {} ist ein Set von key:value-Paaren; ein Array [] ist eine geordnete Liste.",
+      answers: [
+        { id: "a", text: "Array []", isCorrect: false },
+        { id: "b", text: "Objekt {}", isCorrect: true },
+        { id: "c", text: "String", isCorrect: false },
+        { id: "d", text: "Boolean", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 'Idempotenz' im Kontext von Konfigurationsmanagement?",
+      explanation: "Mehrfache Ausführung desselben Tasks führt zum gleichen Ergebnis — keine ungewollten Seiteneffekte bei Wiederholung.",
+      answers: [
+        { id: "a", text: "Tasks laufen nur einmal pro Tag", isCorrect: false },
+        { id: "b", text: "Wiederholte Ausführung erzeugt das gleiche Endergebnis", isCorrect: true },
+        { id: "c", text: "Tasks werden parallel ausgeführt", isCorrect: false },
+        { id: "d", text: "Konfiguration wird automatisch verschlüsselt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Schnittstelle wird häufig auf modernen Cisco-Geräten für strukturierte Konfiguration genutzt (statt CLI-Parsing)?",
+      explanation: "NETCONF (RFC 6241) mit YANG-Datenmodellen liefert strukturierte XML/JSON-Konfiguration. RESTCONF ist die HTTP/REST-Variante.",
+      answers: [
+        { id: "a", text: "Telnet-Skript-Parsing", isCorrect: false },
+        { id: "b", text: "NETCONF/YANG bzw. RESTCONF", isCorrect: true },
+        { id: "c", text: "TFTP-Push", isCorrect: false },
+        { id: "d", text: "FTP-Konfigurationssync", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 20: Troubleshooting & Diagnose
+// ============================================================
+export const QUIZ_TROUBLESHOOTING: Quiz = {
+  id: "ccna-quiz-troubleshooting",
+  title: "CCNA: Troubleshooting & Diagnose",
+  description: "Methodik, Ping/Traceroute, Interface-Counter, err-disabled Recovery",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Troubleshooting-Ansatz beginnt bei der physischen Schicht und arbeitet sich nach oben durch das OSI-Modell?",
+      explanation: "Bottom-Up startet bei Layer 1. Top-Down beginnt bei der Anwendung. Divide-and-Conquer in der Mitte.",
+      answers: [
+        { id: "a", text: "Top-Down", isCorrect: false },
+        { id: "b", text: "Bottom-Up", isCorrect: true },
+        { id: "c", text: "Divide-and-Conquer", isCorrect: false },
+        { id: "d", text: "Follow-the-Path", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was deutet 'line protocol is down' bei 'show interfaces' auf?",
+      explanation: "Layer 1 ist up (Kabel/Träger ok), aber Layer 2 ist down — typisch bei Encapsulation-Mismatch, Keepalive-Fehlern oder Clock-Problemen auf seriellen Strecken.",
+      answers: [
+        { id: "a", text: "Kabel ist nicht angeschlossen", isCorrect: false },
+        { id: "b", text: "Layer 2 down (z.B. Encap-Mismatch, Keepalive-Fehler)", isCorrect: true },
+        { id: "c", text: "Interface ist administrativ deaktiviert", isCorrect: false },
+        { id: "d", text: "Routing-Protokoll konvergiert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher 'show interface'-Counter steigt bei einem Duplex-Mismatch typischerweise?",
+      explanation: "'late collisions' sind ein klassisches Symptom für Duplex-Mismatch (eine Seite Half, andere Full).",
+      answers: [
+        { id: "a", text: "input errors / CRC", isCorrect: false },
+        { id: "b", text: "late collisions", isCorrect: true },
+        { id: "c", text: "no buffer", isCorrect: false },
+        { id: "d", text: "ignored", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie setzt man einen err-disabled Switch-Port wieder in Betrieb (manuell)?",
+      explanation: "'shutdown' gefolgt von 'no shutdown' auf dem Port. Alternativ 'errdisable recovery cause psecure-violation' für automatische Wiederherstellung.",
+      answers: [
+        { id: "a", text: "Nur Switch neu starten", isCorrect: false },
+        { id: "b", text: "shutdown / no shutdown am Port", isCorrect: true },
+        { id: "c", text: "clear mac address-table", isCorrect: false },
+        { id: "d", text: "write erase", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Befehle sind nützlich, um einen Layer-3-Pfad zu prüfen? (Mehrere Antworten)",
+      explanation: "ping prüft Erreichbarkeit, traceroute zeigt Hop-für-Hop-Pfad, 'show ip route' zeigt die Routing-Tabelle, 'show ip cef' das FIB.",
+      answers: [
+        { id: "a", text: "ping", isCorrect: true },
+        { id: "b", text: "traceroute", isCorrect: true },
+        { id: "c", text: "show ip route", isCorrect: true },
+        { id: "d", text: "show vlan brief", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was zeigt 'show ip arp'?",
+      explanation: "Die ARP-Tabelle des Routers — Zuordnung IP↔MAC für direkt verbundene Layer-2-Nachbarn.",
+      answers: [
+        { id: "a", text: "Routing-Tabelle", isCorrect: false },
+        { id: "b", text: "MAC-Adressen mit zugehörigen IPs (ARP-Tabelle)", isCorrect: true },
+        { id: "c", text: "Interface-Statistiken", isCorrect: false },
+        { id: "d", text: "DHCP-Leases", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein extended ping zeigt '!!!.!' — was bedeutet das?",
+      explanation: "'!' = Echo Reply empfangen, '.' = Timeout. Hier 4 Erfolge, 1 Verlust → 80% Erfolgsquote (typischerweise akzeptabel, kann aber Hinweis auf Paketverlust sein).",
+      answers: [
+        { id: "a", text: "Alle Pakete erfolgreich", isCorrect: false },
+        { id: "b", text: "4 Antworten, 1 Timeout (80% Erfolg)", isCorrect: true },
+        { id: "c", text: "Alle Pakete verloren", isCorrect: false },
+        { id: "d", text: "Destination Unreachable", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Beim 'traceroute' inkrementiert der Sender das TTL-Feld, um jeden Router auf dem Pfad sichtbar zu machen.",
+      explanation: "Wahr. Traceroute startet mit TTL=1, jeder Router antwortet mit ICMP 'Time Exceeded' und enthüllt sich so.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -1493,4 +2189,11 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_QOS.id]: QUIZ_QOS,
   [QUIZ_WLAN.id]: QUIZ_WLAN,
   [QUIZ_CCNA_EXAM.id]: QUIZ_CCNA_EXAM,
+  [QUIZ_IOS_CLI.id]: QUIZ_IOS_CLI,
+  [QUIZ_DEVICE_MGMT.id]: QUIZ_DEVICE_MGMT,
+  [QUIZ_FHRP.id]: QUIZ_FHRP,
+  [QUIZ_WAN_VPN.id]: QUIZ_WAN_VPN,
+  [QUIZ_SDN.id]: QUIZ_SDN,
+  [QUIZ_AUTOMATION.id]: QUIZ_AUTOMATION,
+  [QUIZ_TROUBLESHOOTING.id]: QUIZ_TROUBLESHOOTING,
 };

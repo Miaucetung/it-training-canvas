@@ -111,6 +111,91 @@ Die "TechVision AG" (Softwareentwicklung, Standort München) bezieht ein neues B
   `.trim(),
 };
 
+export const CONCEPT_SUBNETTING_DRILL: Concept = {
+  id: "subnetting-drill",
+  title: "Subnetting-Drill — 20 Übungsaufgaben",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["subnetting", "drill", "practice", "vlsm", "cidr"],
+  content: `
+## Subnetting-Drill
+
+> **Tipp zum Trainieren:** Decke die Antwort ab, rechne im Kopf, vergleiche dann.
+
+### Block 1 — Netzklasse, Subnetzmaske, Hostanzahl
+
+| # | Aufgabe | Antwort |
+|---|---------|--------|
+| 1 | Subnetzmaske von /22 in Dotted-Decimal? | \`255.255.252.0\` |
+| 2 | /27 — wie viele nutzbare Hosts? | \`30\` (2^5 − 2) |
+| 3 | /30 — wie viele nutzbare Hosts? | \`2\` (typisch P2P) |
+| 4 | /29 — Subnetzmaske + Hosts? | \`255.255.255.248\`, **6 Hosts** |
+| 5 | 255.255.255.192 → CIDR + Hosts? | \`/26\`, **62 Hosts** |
+
+### Block 2 — Subnetz-ID, Broadcast, Hostbereich
+
+| # | Adresse | Subnetz-ID | Broadcast | Erste / Letzte Host |
+|---|---------|----------|-----------|--------------------|
+| 6 | 10.10.10.45 /27 | 10.10.10.32 | 10.10.10.63 | .33 / .62 |
+| 7 | 192.168.1.130 /26 | 192.168.1.128 | 192.168.1.191 | .129 / .190 |
+| 8 | 172.16.5.200 /22 | 172.16.4.0 | 172.16.7.255 | 172.16.4.1 / 172.16.7.254 |
+| 9 | 10.0.0.18 /29 | 10.0.0.16 | 10.0.0.23 | .17 / .22 |
+| 10 | 192.168.50.77 /28 | 192.168.50.64 | 192.168.50.79 | .65 / .78 |
+
+### Block 3 — Subnetzanzahl
+
+| # | Aufgabe | Antwort |
+|---|---------|--------|
+| 11 | /24 zu /27 — wie viele Subnetze? | \`8\` (2^3) |
+| 12 | /16 zu /20 — wie viele Subnetze? | \`16\` (2^4) |
+| 13 | /22 zu /28 — wie viele Subnetze? | \`64\` (2^6) |
+
+### Block 4 — VLSM-Aufgabe
+
+**Aufgabe 14 — Acme GmbH**
+Du hast \`192.168.10.0/24\` und brauchst:
+- LAN-A: 50 Hosts
+- LAN-B: 25 Hosts
+- LAN-C: 10 Hosts
+- WAN-Link 1: 2 Hosts
+- WAN-Link 2: 2 Hosts
+
+**Lösung (von größtem zu kleinstem Bedarf):**
+| Netz | Bedarf | Größe | Subnetz | Bereich | Maske |
+|------|-------|-------|---------|---------|-------|
+| LAN-A | 50 | /26 (62 H) | 192.168.10.0/26 | .0–.63 | 255.255.255.192 |
+| LAN-B | 25 | /27 (30 H) | 192.168.10.64/27 | .64–.95 | 255.255.255.224 |
+| LAN-C | 10 | /28 (14 H) | 192.168.10.96/28 | .96–.111 | 255.255.255.240 |
+| WAN-1 | 2 | /30 (2 H) | 192.168.10.112/30 | .112–.115 | 255.255.255.252 |
+| WAN-2 | 2 | /30 (2 H) | 192.168.10.116/30 | .116–.119 | 255.255.255.252 |
+| Reserve | – | – | 192.168.10.120/29 etc. | .120–.255 | – |
+
+### Block 5 — Schnell-Tricks
+
+| # | Aufgabe | Trick / Antwort |
+|---|---------|----------------|
+| 15 | Schrittweite (Block-Size) bei /26? | \`64\` (256 − 192) |
+| 16 | Schrittweite bei /29? | \`8\` |
+| 17 | Schrittweite bei /20? | \`16\` (im 3. Oktett) |
+| 18 | /23 — Hosts? | \`510\` (2^9 − 2) |
+| 19 | /17 — Hosts? | \`32766\` (2^15 − 2) |
+| 20 | Wo liegt 172.20.130.5 im /17 \`172.20.128.0\`? | im Subnetz (172.20.128.1 – 172.20.255.254) |
+
+### Methode (Standard-Cookbook)
+1. **Bestimme das Magic Number = 256 − Maske-Oktett.**
+2. **Subnetz-ID = größter Vielfaches der Magic Number ≤ Host-Oktett.**
+3. **Broadcast = nächste Subnetz-ID − 1.**
+4. **Erster Host = Subnetz-ID + 1, letzter Host = Broadcast − 1.**
+5. **Hostzahl = 2^Hostbits − 2** (Subnetz + Broadcast abziehen; nicht bei /31 P2P RFC 3021).
+
+### Häufige Fehlerquellen
+- ⚠️ Magic Number aus dem **falschen Oktett** ableiten (immer das Oktett, in dem die Maske wechselt).
+- ⚠️ Bei /31 fälschlich \`-2\` rechnen — RFC 3021 erlaubt 2 Hosts (Point-to-Point).
+- ⚠️ /30 vs. /29 verwechseln (2 Hosts vs. 6 Hosts).
+- ⚠️ Bei VLSM den Bedarf **nicht von groß nach klein** sortiert → Verschnitt entsteht.
+  `.trim(),
+};
+
+
 export const TOPIC_IPV4_ADDRESSING: Topic = {
   id: "ipv4-addressing",
   title: "IPv4-Adressierung & Subnetting",
@@ -118,6 +203,7 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
     "IPv4-Aufbau, CIDR-Notation, Subnetting, VLSM, ARP und ICMP — unverzichtbar für jede Netzwerkkonfiguration.",
   conceptIds: [
     "subnetting",
+    "subnetting-drill",
     "ipv4-header",
     "arp",
     "icmp",
@@ -132,6 +218,7 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
 
 export const IPV4_CONCEPTS: Record<string, Concept> = {
   subnetting: CONCEPT_SUBNETTING,
+  "subnetting-drill": CONCEPT_SUBNETTING_DRILL,
   "ipv4-header": CONCEPT_IPV4_HEADER,
   arp: CONCEPT_ARP,
   icmp: CONCEPT_ICMP,

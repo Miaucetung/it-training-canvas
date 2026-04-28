@@ -28,7 +28,7 @@ export const CONCEPT_BRIDGES: ConceptBridge[] = [
   // CCNA hat kein 'subnetting'-Concept (nur 'ipv4-addressing-guide' in ipv4-addressing.ts).
   // AZ-900 hat kein 'azure-addressing'-Concept. Ohne reale Concepts ist eine Bridge nicht validierbar.
   {
-    sourceConceptId: "acls",
+    sourceConceptId: "acl-extended",
     sourceModuleId: "ccna",
     targetConceptId: "azure-network-services",
     targetModuleId: "az-900",

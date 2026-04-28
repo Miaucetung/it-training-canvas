@@ -45,55 +45,156 @@ Mehrere Sicherheitsschichten: Perimeter → Netzwerk → Host → Anwendung → 
   `.trim(),
 };
 
-export const CONCEPT_ACLS: Concept = {
-  id: "acls",
-  title: "ACLs — Access Control Lists",
+export const CONCEPT_ACL_STANDARD: Concept = {
+  id: "acl-standard",
+  title: "Standard ACLs",
+  appliesTo: ["ccna"],
+  tags: ["security", "acl", "standard-acl", "filtering", "layer-3"],
+  content: `
+## Standard ACLs (1–99, 1300–1999)
+
+### Wesentlich
+- Filtern **nur** anhand der **Quell-IP**.
+- Kein Schutz vor spezifischen Diensten (kein Port-Match möglich).
+- **Platzierung: nahe am Ziel**, da sonst alle anderen Verbindungen der Quelle ebenfalls blockiert würden.
+
+### Konfiguration (nummeriert)
+\`\`\`
+R1(config)# access-list 10 deny 192.168.1.50 0.0.0.0
+R1(config)# access-list 10 permit 192.168.1.0 0.0.0.255
+R1(config)# access-list 10 deny any log
+
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip access-group 10 out
+\`\`\`
+
+### Wildcard-Maske vs. Subnetzmaske
+- 0 = prüfen, 1 = ignorieren (Inverse zur Subnetzmaske)
+- /24 → Wildcard \`0.0.0.255\`
+- Einzelhost → \`host 192.168.1.50\` oder \`192.168.1.50 0.0.0.0\`
+
+### Verifikation
+\`\`\`
+R1# show access-lists 10
+R1# show ip interface GigabitEthernet0/1 | include access list
+\`\`\`
+  `.trim(),
+};
+
+export const CONCEPT_ACL_EXTENDED: Concept = {
+  id: "acl-extended",
+  title: "Extended ACLs",
   appliesTo: ["ccna", "az-104"],
-  tags: ["security", "networking", "acl", "filtering", "layer-3", "layer-4"],
+  tags: ["security", "acl", "extended-acl", "filtering", "layer-3", "layer-4"],
   relatedConceptIds: ["azure-nsg"],
   content: `
-## Access Control Lists (ACLs)
+## Extended ACLs (100–199, 2000–2699)
 
-### Zweck
-- Paketfilterung auf Router-Interfaces (inbound/outbound)
-- Identifikation von Traffic für QoS, NAT, VPN
+### Wesentlich
+- Filtern auf **Quell- und Ziel-IP**, **Protokoll** (TCP/UDP/ICMP/IP), **Port**, **TCP-Flags**, **DSCP**.
+- **Platzierung: nahe an der Quelle** — ungewollter Traffic wird früh verworfen.
 
-### Typen
-| Typ | Nummerierung | Filterkriterium |
-|-----|-------------|----------------|
-| Standard ACL | 1-99, 1300-1999 | Nur Quell-IP |
-| Extended ACL | 100-199, 2000-2699 | Quell/Ziel-IP, Protokoll, Port |
-| Named ACL | Name | Wie Standard/Extended, leichter zu editieren |
-
-### Verarbeitungsreihenfolge
-- ACEs werden **von oben nach unten** abgearbeitet
-- Erste Match gewinnt
-- Implizites **"deny all"** am Ende (nicht sichtbar!)
-
-### Platzierung
-- **Standard ACL**: Nah am Ziel (nur Quell-IP)
-- **Extended ACL**: Nah an der Quelle (spezifisch genug)
-- **Inbound**: Vor dem Routing-Prozess
-- **Outbound**: Nach dem Routing-Prozess
-
-### Cisco Konfiguration (Extended Named ACL)
+### Konfiguration (nummeriert)
 \`\`\`
-R1(config)# ip access-list extended BLOCK-TELNET
-R1(config-ext-nacl)# remark Block Telnet from 192.168.1.0/24
-R1(config-ext-nacl)# deny tcp 192.168.1.0 0.0.0.255 any eq 23
-R1(config-ext-nacl)# permit ip any any
+R1(config)# access-list 110 deny tcp 192.168.1.0 0.0.0.255 any eq 23
+R1(config)# access-list 110 permit tcp 192.168.1.0 0.0.0.255 any eq 80
+R1(config)# access-list 110 permit tcp 192.168.1.0 0.0.0.255 any eq 443
+R1(config)# access-list 110 permit ip any any
 
 R1(config)# interface GigabitEthernet0/0
-R1(config-if)# ip access-group BLOCK-TELNET in
-
-R1# show ip access-lists
-R1# show running-config | section access-list
+R1(config-if)# ip access-group 110 in
 \`\`\`
 
-### Wildcard-Masken (ACL)
-Gegenteil der Subnetzmaske: 0 = prüfen, 1 = ignorieren
-- 255.255.255.0 → Wildcard: 0.0.0.255
-- /27 (255.255.255.224) → Wildcard: 0.0.0.31
+### Wichtige Operatoren
+| Operator | Bedeutung |
+|---------|----------|
+| \`eq\`   | Port equals |
+| \`neq\`  | Port not equals |
+| \`gt\` / \`lt\` | Port größer/kleiner |
+| \`range\` | Port-Bereich (z.B. \`range 8080 8090\`) |
+| \`established\` | TCP ACK/RST gesetzt — Rückverkehr |
+
+### Hinweis
+Für komplexere TCP-Stateful-Filterung wird **Reflexive ACL** oder **Zone-Based Firewall (ZBFW)** statt einfacher Extended-ACLs eingesetzt.
+  `.trim(),
+};
+
+export const CONCEPT_ACL_NAMED: Concept = {
+  id: "acl-named",
+  title: "Named ACLs & Editierbarkeit",
+  appliesTo: ["ccna"],
+  tags: ["security", "acl", "named-acl", "filtering"],
+  content: `
+## Named ACLs
+
+### Vorteile gegenüber nummerierten ACLs
+- Sprechende Namen (\`BLOCK-TELNET\` statt \`110\`).
+- **Sequenznummern** ermöglichen gezieltes Einfügen/Löschen einzelner ACEs ohne ACL-Neubau.
+- Wahlweise Standard- oder Extended-Modus.
+
+### Beispiel: Extended Named ACL
+\`\`\`
+R1(config)# ip access-list extended DMZ-POLICY
+R1(config-ext-nacl)# 10 permit tcp any host 172.16.10.10 eq 80
+R1(config-ext-nacl)# 20 permit tcp any host 172.16.10.10 eq 443
+R1(config-ext-nacl)# 30 deny ip 172.16.10.0 0.0.0.255 192.168.50.0 0.0.0.255
+R1(config-ext-nacl)# 40 permit icmp 192.168.50.0 0.0.0.255 172.16.10.0 0.0.0.255
+R1(config-ext-nacl)# 50 permit ip any any
+\`\`\`
+
+### Einzelne Zeile nachträglich einfügen / löschen
+\`\`\`
+R1(config)# ip access-list extended DMZ-POLICY
+R1(config-ext-nacl)# 25 deny tcp any host 172.16.10.10 eq 22
+R1(config-ext-nacl)# no 40
+\`\`\`
+
+### Sequenznummern neu vergeben
+\`\`\`
+R1# show access-lists DMZ-POLICY
+R1(config)# ip access-list resequence DMZ-POLICY 100 10
+\`\`\`
+  `.trim(),
+};
+
+export const CONCEPT_ACL_TROUBLESHOOTING: Concept = {
+  id: "acl-troubleshooting",
+  title: "ACL-Troubleshooting",
+  appliesTo: ["ccna"],
+  tags: ["security", "acl", "troubleshooting"],
+  content: `
+## Typische ACL-Fehler
+
+| Symptom | Ursache | Diagnose |
+|---------|--------|----------|
+| Alles wird blockiert | Implizites \`deny any\` greift | \`show access-lists\` Hit-Counter prüfen |
+| Falsche Richtung gewählt | \`in\` vs. \`out\` vertauscht | \`show ip interface <int>\` |
+| Falsche Wildcard | Wildcard statt Subnetzmaske notiert | ACE prüfen, Maske invertieren |
+| Reihenfolge falsch | Spezifische Regel **nach** allgemeiner | ACE-Reihenfolge umstellen |
+| Stateful-Verhalten erwartet | Extended ACL ist stateless | \`established\`-Keyword oder ZBFW |
+
+### Diagnosebefehle
+\`\`\`
+R1# show access-lists
+R1# show ip interface GigabitEthernet0/0 | include access list
+R1# debug ip packet detail 110     ! VORSICHT: Performance!
+\`\`\`
+
+### Beispiel-Output: Hit-Counter
+\`\`\`
+R1# show access-lists DMZ-POLICY
+Extended IP access list DMZ-POLICY
+    10 permit tcp any host 172.16.10.10 eq www (1284 matches)
+    20 permit tcp any host 172.16.10.10 eq 443 (8771 matches)
+    30 deny ip 172.16.10.0 0.0.0.255 192.168.50.0 0.0.0.255 (12 matches)
+    40 permit icmp 192.168.50.0 0.0.0.255 172.16.10.0 0.0.0.255 (3 matches)
+    50 permit ip any any (45120 matches)
+\`\`\`
+
+### Best Practices
+- ACLs immer mit \`log\` auf den letzten \`deny\` versehen, um Fehlblockaden zu erkennen.
+- Vor Änderung: \`show access-lists\` und Konfiguration sichern.
+- Bei kritischen Pfaden Test-Traffic mit \`extended ping\` von der Quelle aussenden.
   `.trim(),
 };
 
@@ -192,7 +293,10 @@ export const TOPIC_SECURITY: Topic = {
     "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI und 802.1X — Netzwerke absichern.",
   conceptIds: [
     "security-fundamentals",
-    "acls",
+    "acl-standard",
+    "acl-extended",
+    "acl-named",
+    "acl-troubleshooting",
     "port-security",
     "security-guide",
   ],
@@ -202,7 +306,7 @@ export const TOPIC_SECURITY: Topic = {
     "ccna-quiz-dhcp-snooping-dai",
     "ccna-quiz-acl",
   ],
-  exerciseIds: [],
+  exerciseIds: ["exercise-acl-dmz"],
   prerequisiteTopicIds: ["routing-ospf", "switching-vlans"],
   estimatedMinutes: 150,
   tags: ["security", "acl", "port-security"],
@@ -210,7 +314,10 @@ export const TOPIC_SECURITY: Topic = {
 
 export const SECURITY_CONCEPTS: Record<string, Concept> = {
   "security-fundamentals": CONCEPT_SECURITY_FUNDAMENTALS,
-  acls: CONCEPT_ACLS,
+  "acl-standard": CONCEPT_ACL_STANDARD,
+  "acl-extended": CONCEPT_ACL_EXTENDED,
+  "acl-named": CONCEPT_ACL_NAMED,
+  "acl-troubleshooting": CONCEPT_ACL_TROUBLESHOOTING,
   "port-security": CONCEPT_PORT_SECURITY,
   "security-guide": CONCEPT_SECURITY_GUIDE,
 };
