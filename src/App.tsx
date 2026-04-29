@@ -18,10 +18,12 @@ import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
+import { SimulationControls, useSimulation } from "@/components/SimulationControls";
 import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import { TopicListPanel } from "@/components/TopicListPanel";
 import { TemplateGallery } from "@/components/TemplateGallery";
 import { TerminalEmulator } from "@/components/TerminalEmulator";
+import { TopologyValidator } from "@/components/TopologyValidator";
 import {
   downloadJSON,
   exportCanvasAsPNG,
@@ -73,7 +75,9 @@ import {
   Lightning,
   Notepad,
   Plus,
+  Pulse,
   SidebarSimple,
+  Stethoscope,
   Terminal,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -208,6 +212,8 @@ function App() {
     hopIndex: number;
   } | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
+  const [showSimulationHUD, setShowSimulationHUD] = useState(false);
+  const [showTopologyValidator, setShowTopologyValidator] = useState(false);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -1264,6 +1270,16 @@ function App() {
   // Phase 6c-2: resolve catalog module ID for current subject (null = legacy)
   const catalogModuleId = SUBJECT_TO_MODULE_ID[currentSubject] ?? null;
 
+  // Simulation engine (Packet-Tracer-style HUD)
+  const noopObjects = useCallback((_o: DrawingObject[]) => {}, []);
+  const noopConnections = useCallback((_c: CanvasConnection[]) => {}, []);
+  const { simulationState, setSimulationState, sendPacket } = useSimulation(
+    canvasState.objects,
+    canvasState.connections,
+    noopObjects,
+    noopConnections,
+  );
+
   return (
     <div className="h-screen w-screen overflow-hidden bg-slate-900 text-white flex">
       {/* Sidebar */}
@@ -1405,6 +1421,35 @@ function App() {
             >
               <Lightning size={16} />
               Paketfluss
+            </button>
+            <button
+              onClick={() => setShowSimulationHUD(!showSimulationHUD)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                showSimulationHUD
+                  ? "bg-teal-500/20 text-teal-300"
+                  : theme === "dark"
+                    ? "text-slate-400 hover:text-teal-300 hover:bg-teal-500/10"
+                    : "text-slate-500 hover:text-teal-600 hover:bg-teal-50"
+              }`}
+              title="Simulation – Play/Pause/Step, Pakete manuell senden"
+            >
+              <Pulse size={16} />
+              Simulation
+              {simulationState.isRunning && (
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+              )}
+            </button>
+            <button
+              onClick={() => setShowTopologyValidator(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                theme === "dark"
+                  ? "text-slate-400 hover:text-rose-300 hover:bg-rose-500/10"
+                  : "text-slate-500 hover:text-rose-600 hover:bg-rose-50"
+              }`}
+              title="Topologie prüfen – Verkabelung & Konfiguration validieren"
+            >
+              <Stethoscope size={16} />
+              Prüfen
             </button>
             <button
               onClick={() => setShowMetrics(!showMetrics)}
@@ -1941,6 +1986,35 @@ function App() {
           theme={theme}
         />
       )}
+
+      {/* Simulation HUD (Packet-Tracer-style controls) */}
+      {showSimulationHUD && (
+        <SimulationControls
+          objects={canvasState.objects}
+          connections={canvasState.connections}
+          simulationState={simulationState}
+          onSimulationChange={setSimulationState}
+          onPacketSend={sendPacket}
+          theme={theme}
+        />
+      )}
+
+      {/* Topology Validator dialog */}
+      <TopologyValidator
+        open={showTopologyValidator}
+        onOpenChange={setShowTopologyValidator}
+        objects={canvasState.objects}
+        connections={canvasState.connections}
+        theme={theme}
+        onSelectObject={(id) => {
+          const newObjects = canvasState.objects.map((o) => ({
+            ...o,
+            selected: o.id === id,
+          }));
+          updateCanvasState(newObjects);
+          setShowTopologyValidator(false);
+        }}
+      />
 
       {/* Phase 3: Learning Path Editor */}
       {showLearningPathEditor && (

@@ -126,9 +126,9 @@ export function SimulationControls({
   return (
     <div
       className={cn(
-        "fixed bottom-4 left-1/2 -translate-x-1/2 z-50",
+        "fixed bottom-28 left-1/2 -translate-x-1/2 z-40",
         "flex flex-col gap-2 p-4 rounded-xl shadow-2xl border",
-        "backdrop-blur-xl",
+        "backdrop-blur-xl max-w-[calc(100vw-2rem)]",
         theme === "dark"
           ? "bg-slate-900/95 border-slate-700"
           : "bg-white/95 border-slate-200",
