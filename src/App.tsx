@@ -63,7 +63,6 @@ import {
   UserProgress,
 } from "@/lib/types";
 import {
-  BookOpen,
   ChartLine,
   CurrencyDollar,
   Export,
@@ -73,7 +72,9 @@ import {
   Keyboard,
   Lightning,
   Notepad,
+  Plus,
   SidebarSimple,
+  Terminal,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
@@ -1309,18 +1310,22 @@ function App() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {/* Learning Engine Button */}
+          <div className="flex items-center gap-2">
+            {/* Group: LERNEN */}
             <button
               onClick={() => {
                 const paths = Object.values(learningPaths);
                 if (paths.length > 0) {
-                  // Show path selector or start first path
                   handleStartLearningPath(paths[0]);
                 } else {
                   setEditingPath(null);
                   setShowLearningPathEditor(true);
                 }
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setEditingPath(null);
+                setShowLearningPathEditor(true);
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 activeLearningPath
@@ -1329,7 +1334,7 @@ function App() {
                     ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
                     : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
               }`}
-              title="Lernpfade"
+              title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
             >
               <GraduationCap size={16} />
               Lernpfade
@@ -1343,25 +1348,50 @@ function App() {
                 </span>
               )}
             </button>
-            <button
-              onClick={() => {
-                setEditingPath(null);
-                setShowLearningPathEditor(true);
-              }}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${
-                theme === "dark"
-                  ? "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
-                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-              }`}
-              title="Neuen Lernpfad erstellen"
-            >
-              <BookOpen size={14} />+
-            </button>
 
-            {/* Phase 4: Simulation Buttons */}
             <div
               className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
             />
+
+            {/* Group: TOPOLOGIE & SIMULATION (Packet-Tracer-Funktionen) */}
+            <button
+              onClick={() => setShowShapePicker(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                theme === "dark"
+                  ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
+                  : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+              }`}
+              title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
+            >
+              <Plus size={16} />
+              Gerät
+            </button>
+            <button
+              onClick={() => {
+                const sel = canvasState.objects.find(
+                  (o) => o.selected && o.type === "shape",
+                );
+                if (sel) {
+                  handleOpenTerminal(sel);
+                } else {
+                  toast.info(
+                    "Wähle zuerst ein Netzwerkgerät auf dem Canvas aus",
+                    { duration: 2500 },
+                  );
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                showTerminal
+                  ? "bg-green-500/20 text-green-300"
+                  : theme === "dark"
+                    ? "text-slate-400 hover:text-green-300 hover:bg-green-500/10"
+                    : "text-slate-500 hover:text-green-600 hover:bg-green-50"
+              }`}
+              title="IOS-CLI für selektiertes Gerät öffnen"
+            >
+              <Terminal size={16} />
+              CLI
+            </button>
             <button
               onClick={() => setShowPacketFlow(!showPacketFlow)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -1371,24 +1401,10 @@ function App() {
                     ? "text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10"
                     : "text-slate-500 hover:text-emerald-600 hover:bg-emerald-50"
               }`}
-              title="Paketfluss-Simulation"
+              title="Paketfluss-Simulation – Pakete zwischen Geräten visualisieren"
             >
               <Lightning size={16} />
               Paketfluss
-            </button>
-            <button
-              onClick={() => setShowCostCalculator(!showCostCalculator)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showCostCalculator
-                  ? "bg-amber-500/20 text-amber-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-amber-300 hover:bg-amber-500/10"
-                    : "text-slate-500 hover:text-amber-600 hover:bg-amber-50"
-              }`}
-              title="Kosten-Rechner"
-            >
-              <CurrencyDollar size={16} />
-              Kosten
             </button>
             <button
               onClick={() => setShowMetrics(!showMetrics)}
@@ -1399,16 +1415,17 @@ function App() {
                     ? "text-slate-400 hover:text-blue-300 hover:bg-blue-500/10"
                     : "text-slate-500 hover:text-blue-600 hover:bg-blue-50"
               }`}
-              title="Metriken-Dashboard"
+              title="Metriken-Dashboard (Durchsatz, Latenz, Fehler)"
             >
               <ChartLine size={16} />
               Metriken
             </button>
 
-            {/* Phase 5: Collaboration Buttons */}
             <div
               className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
             />
+
+            {/* Group: KOLLABORATION */}
             <button
               onClick={() => setShowAnnotations(!showAnnotations)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -1418,7 +1435,7 @@ function App() {
                     ? "text-slate-400 hover:text-pink-300 hover:bg-pink-500/10"
                     : "text-slate-500 hover:text-pink-600 hover:bg-pink-50"
               }`}
-              title="Annotationen"
+              title="Annotationen / Notizen am Canvas"
             >
               <Notepad size={16} />
               Notizen
@@ -1439,7 +1456,7 @@ function App() {
                     ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
                     : "text-slate-500 hover:text-violet-600 hover:bg-violet-50"
               }`}
-              title="Vorlagen-Galerie"
+              title="Vorlagen-Galerie (Topologien, Diagramme)"
             >
               <FolderOpen size={16} />
               Vorlagen
@@ -1460,11 +1477,34 @@ function App() {
             </button>
 
             <div
-              className={`flex items-center gap-2 text-xs ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}
+              className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
+            />
+
+            {/* Overflow: Kosten-Rechner & Hilfe */}
+            <button
+              onClick={() => setShowCostCalculator(!showCostCalculator)}
+              className={`flex items-center justify-center w-8 h-8 rounded-lg text-xs transition-colors ${
+                showCostCalculator
+                  ? "bg-amber-500/20 text-amber-300"
+                  : theme === "dark"
+                    ? "text-slate-500 hover:text-amber-300 hover:bg-amber-500/10"
+                    : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"
+              }`}
+              title="Kosten-Rechner (Hardware-Kalkulation)"
             >
-              <Keyboard size={14} />
-              <span>P Stift • E Radierer • V Auswahl • T Text</span>
-            </div>
+              <CurrencyDollar size={16} />
+            </button>
+            <button
+              onClick={() => setShowKeyboardShortcuts(true)}
+              className={`flex items-center justify-center w-8 h-8 rounded-lg text-xs transition-colors ${
+                theme === "dark"
+                  ? "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Tastenkürzel & Hilfe (?)"
+            >
+              <Keyboard size={16} />
+            </button>
           </div>
         </div>
 

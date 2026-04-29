@@ -656,143 +656,90 @@ export function FloatingToolbar({
             )}
           />
 
-          {/* Actions */}
+          {/* File Actions – bundled into a single popover */}
           <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Popover>
+              <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={onSave}
                   className={cn(
                     "h-10 w-10 rounded-xl",
                     theme === "dark"
                       ? "text-slate-400 hover:text-white hover:bg-slate-800"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
                   )}
+                  title="Datei: Speichern, Importieren, Exportieren"
+                  aria-label="Datei-Aktionen"
                 >
                   <FloppyDisk size={20} />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent
+              </PopoverTrigger>
+              <PopoverContent
+                align="center"
                 side="top"
-                className={
-                  theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-                }
+                className={cn(
+                  "w-56 p-2",
+                  theme === "dark" ? "bg-slate-900 border-slate-700" : "",
+                )}
               >
-                <p>
-                  Speichern <span className="text-slate-500">(Ctrl+S)</span>
-                </p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onExport}
-                  className={cn(
-                    "h-10 w-10 rounded-xl",
-                    theme === "dark"
-                      ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
-                  )}
-                >
-                  <DownloadSimple size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className={
-                  theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-                }
-              >
-                <p>JSON exportieren</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {onExportPNG && (
-              <Tooltip>
-                <TooltipTrigger asChild>
+                <div className="flex flex-col gap-1">
                   <Button
                     variant="ghost"
-                    size="icon"
-                    onClick={onExportPNG}
-                    className={cn(
-                      "h-10 w-10 rounded-xl",
-                      theme === "dark"
-                        ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
-                    )}
+                    onClick={onSave}
+                    className="justify-start gap-2 h-9"
                   >
-                    <Image size={20} />
+                    <FloppyDisk size={16} />
+                    Speichern
+                    <span className="ml-auto text-xs text-slate-500">
+                      Ctrl+S
+                    </span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  className={
-                    theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-                  }
-                >
-                  <p>PNG exportieren</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-
-            {onExportSVG && (
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    onClick={onExportSVG}
-                    className={cn(
-                      "h-10 w-10 rounded-xl",
-                      theme === "dark"
-                        ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
-                    )}
+                    onClick={onImport}
+                    className="justify-start gap-2 h-9"
                   >
-                    <FileSvg size={20} />
+                    <UploadSimple size={16} />
+                    Importieren (JSON)
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  className={
-                    theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-                  }
-                >
-                  <p>SVG exportieren</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onImport}
-                  className={cn(
-                    "h-10 w-10 rounded-xl",
-                    theme === "dark"
-                      ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
+                  <Separator
+                    className={cn(
+                      "my-1",
+                      theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+                    )}
+                  />
+                  <Button
+                    variant="ghost"
+                    onClick={onExport}
+                    className="justify-start gap-2 h-9"
+                  >
+                    <DownloadSimple size={16} />
+                    JSON exportieren
+                  </Button>
+                  {onExportPNG && (
+                    <Button
+                      variant="ghost"
+                      onClick={onExportPNG}
+                      className="justify-start gap-2 h-9"
+                    >
+                      <Image size={16} />
+                      PNG exportieren
+                    </Button>
                   )}
-                >
-                  <UploadSimple size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className={
-                  theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-                }
-              >
-                <p>Importieren</p>
-              </TooltipContent>
-            </Tooltip>
+                  {onExportSVG && (
+                    <Button
+                      variant="ghost"
+                      onClick={onExportSVG}
+                      className="justify-start gap-2 h-9"
+                    >
+                      <FileSvg size={16} />
+                      SVG exportieren
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
 
             <Tooltip>
               <TooltipTrigger asChild>
