@@ -298,6 +298,52 @@ function tplShape(
   };
 }
 
+// Helper: Begleittext (Annotation) für didaktische Vorlagen
+function tplText(
+  id: string,
+  x: number,
+  y: number,
+  text: string,
+  color: string = "#1E293B",
+  fontSize: number = 14,
+): DrawingObject {
+  return {
+    id,
+    type: "text",
+    color,
+    width: 1,
+    startPoint: { x, y },
+    text,
+    fontSize,
+    fontFamily: "IBM Plex Sans",
+    layer: "foreground",
+    locked: false,
+    visible: true,
+  };
+}
+
+// Helper: Hervorhebungs-Rechteck (z. B. Subnetz-Bereich, Schicht-Hülle)
+function tplRect(
+  id: string,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color: string,
+): DrawingObject {
+  return {
+    id,
+    type: "rectangle",
+    color,
+    width: 2,
+    startPoint: { x, y },
+    endPoint: { x: x + w, y: y + h },
+    layer: "background",
+    locked: false,
+    visible: true,
+  };
+}
+
 // Helper to create a CanvasConnection for templates
 function tplConn(
   id: string,
@@ -625,6 +671,291 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     estimatedTime: "20 min",
     downloads: 0,
     rating: 4.9,
+  },
+
+  // ============================================================
+  // Didaktische Vorlagen (für Dozenten / Selbststudium)
+  // Jede Vorlage erklärt ein Konzept visuell und ist sofort
+  // einsetzbar im Unterricht — Begleittexte sind direkt im Canvas.
+  // ============================================================
+
+  {
+    id: "tpl-edu-warum-subnetting",
+    name: "Warum Subnetting? (Vorher / Nachher)",
+    description:
+      "Direkter Vergleich: ein flaches /24 mit einer großen Broadcast-Domain gegenüber drei segmentierten /27-Subnetzen mit Router. Zeigt visuell warum Subnetting Performance, Sicherheit und Verwaltbarkeit verbessert.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["Subnetting", "Broadcast", "Sicherheit", "Didaktik"],
+    difficulty: "beginner",
+    objects: [
+      // Linke Seite — flat /24
+      tplRect("edu-sn-zone-flat", 40, 80, 440, 320, "#FCA5A5"),
+      tplText("edu-sn-h1", 60, 60, "VORHER: Ein flaches /24", "#B91C1C", 18),
+      tplText("edu-sn-h1b", 60, 100, "192.168.1.0/24 — 1 Broadcast-Domain", "#7F1D1D", 12),
+      tplShape("edu-sn-sw1", "switch", 220, 160, 80, 50, "#10B981", "Switch"),
+      tplShape("edu-sn-pc1a", "computer", 70, 280, 60, 60, "#6366F1", ".10"),
+      tplShape("edu-sn-pc1b", "computer", 150, 280, 60, 60, "#6366F1", ".11"),
+      tplShape("edu-sn-pc1c", "computer", 230, 280, 60, 60, "#6366F1", ".12"),
+      tplShape("edu-sn-pc1d", "computer", 310, 280, 60, 60, "#6366F1", ".13"),
+      tplShape("edu-sn-pc1e", "computer", 390, 280, 60, 60, "#6366F1", ".14"),
+      tplText("edu-sn-bad1", 60, 380, "× Jeder Broadcast erreicht ALLE Hosts", "#B91C1C", 12),
+      tplText("edu-sn-bad2", 60, 400, "× Keine Trennung HR / Buchhaltung / Gäste", "#B91C1C", 12),
+      tplText("edu-sn-bad3", 60, 420, "× Ein infizierter Host gefährdet alle", "#B91C1C", 12),
+
+      // Rechte Seite — segmentiert /27
+      tplRect("edu-sn-zone-a", 540, 100, 180, 180, "#86EFAC"),
+      tplRect("edu-sn-zone-b", 740, 100, 180, 180, "#93C5FD"),
+      tplRect("edu-sn-zone-c", 640, 360, 180, 180, "#FDE68A"),
+      tplText("edu-sn-h2", 560, 60, "NACHHER: Drei /27-Subnetze + Router", "#15803D", 18),
+      tplShape("edu-sn-r2", "router", 720, 290, 80, 60, "#3B82F6", "Gateway"),
+      tplText("edu-sn-zoneA-l", 560, 90, "HR  192.168.1.0/27", "#15803D", 11),
+      tplText("edu-sn-zoneB-l", 760, 90, "Buchhaltung  /27", "#1D4ED8", 11),
+      tplText("edu-sn-zoneC-l", 660, 350, "Gäste-WLAN  /27", "#A16207", 11),
+      tplShape("edu-sn-pcA1", "computer", 560, 180, 50, 50, "#15803D", "HR"),
+      tplShape("edu-sn-pcA2", "computer", 640, 180, 50, 50, "#15803D", "HR"),
+      tplShape("edu-sn-pcB1", "computer", 760, 180, 50, 50, "#1D4ED8", "Buch"),
+      tplShape("edu-sn-pcB2", "computer", 840, 180, 50, 50, "#1D4ED8", "Buch"),
+      tplShape("edu-sn-pcC1", "smartphone", 660, 440, 50, 60, "#A16207", "Gast"),
+      tplShape("edu-sn-pcC2", "smartphone", 740, 440, 50, 60, "#A16207", "Gast"),
+      tplText("edu-sn-good1", 560, 580, "✓ Broadcasts bleiben lokal pro Subnetz", "#15803D", 12),
+      tplText("edu-sn-good2", 560, 600, "✓ ACLs auf dem Router trennen Bereiche", "#15803D", 12),
+      tplText("edu-sn-good3", 560, 620, "✓ Sauberes Logging & Troubleshooting", "#15803D", 12),
+    ],
+    connections: [
+      tplConn("edu-sn-c1", "edu-sn-sw1", "edu-sn-pc1a", "", "#10B981"),
+      tplConn("edu-sn-c2", "edu-sn-sw1", "edu-sn-pc1b", "", "#10B981"),
+      tplConn("edu-sn-c3", "edu-sn-sw1", "edu-sn-pc1c", "", "#10B981"),
+      tplConn("edu-sn-c4", "edu-sn-sw1", "edu-sn-pc1d", "", "#10B981"),
+      tplConn("edu-sn-c5", "edu-sn-sw1", "edu-sn-pc1e", "", "#10B981"),
+      tplConn("edu-sn-c6", "edu-sn-r2", "edu-sn-pcA1", "VLAN10", "#15803D"),
+      tplConn("edu-sn-c7", "edu-sn-r2", "edu-sn-pcB1", "VLAN20", "#1D4ED8"),
+      tplConn("edu-sn-c8", "edu-sn-r2", "edu-sn-pcC1", "VLAN30", "#A16207"),
+    ],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 5.0,
+  },
+
+  {
+    id: "tpl-edu-ping-arp",
+    name: "Ping & ARP — Schritt für Schritt",
+    description:
+      "Was passiert beim ersten ping zwischen zwei Hosts? Visualisiert die vier Schritte ARP-Request, ARP-Reply, ICMP Echo Request, ICMP Echo Reply mit eigenen Verbindungen je Schritt.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["Ping", "ICMP", "ARP", "Layer 2", "Layer 3"],
+    difficulty: "beginner",
+    objects: [
+      tplText("edu-p-h", 40, 40, "Ping 192.168.1.20 — der erste Versuch", "#0F172A", 18),
+      tplText("edu-p-h2", 40, 70, "PC-A weiß die IP, aber NICHT die MAC. → erst ARP, dann ICMP.", "#475569", 12),
+      tplShape("edu-p-pcA", "computer", 80, 200, 80, 80, "#3B82F6", "PC-A 192.168.1.10"),
+      tplShape("edu-p-sw", "switch", 440, 220, 100, 50, "#10B981", "Switch"),
+      tplShape("edu-p-pcB", "computer", 820, 200, 80, 80, "#8B5CF6", "PC-B 192.168.1.20"),
+
+      tplText("edu-p-s1", 200, 130, "1) ARP-Request — Broadcast: »Wer hat .20?«", "#B91C1C", 12),
+      tplText("edu-p-s2", 200, 320, "2) ARP-Reply — Unicast: »Ich (MAC bb:bb…)«", "#15803D", 12),
+      tplText("edu-p-s3", 200, 410, "3) ICMP Echo Request (Type 8)", "#1D4ED8", 12),
+      tplText("edu-p-s4", 200, 470, "4) ICMP Echo Reply (Type 0) — Antwortzeit = RTT", "#1D4ED8", 12),
+
+      tplText("edu-p-note1", 40, 560, "Merkhilfe: ARP nutzt Layer 2 (MAC), ICMP nutzt Layer 3 (IP).", "#334155", 13),
+      tplText("edu-p-note2", 40, 580, "Im selben Subnetz redet Host direkt mit Host — kein Router nötig.", "#334155", 13),
+      tplText("edu-p-note3", 40, 600, "ARP-Eintrag wird gecached (arp -a). Cache-Timeout typ. 4 h.", "#334155", 13),
+    ],
+    connections: [
+      tplConn("edu-p-c1", "edu-p-pcA", "edu-p-sw", "1) ARP-Req (Broadcast FF:FF:FF:FF:FF:FF)", "#EF4444", { animated: true }),
+      tplConn("edu-p-c2", "edu-p-sw", "edu-p-pcB", "ARP-Req fluten", "#EF4444", { animated: true }),
+      tplConn("edu-p-c3", "edu-p-pcB", "edu-p-pcA", "2) ARP-Reply (Unicast)", "#22C55E", { animated: true }),
+      tplConn("edu-p-c4", "edu-p-pcA", "edu-p-pcB", "3) ICMP Echo Request", "#3B82F6", { animated: true, protocol: "ICMP" }),
+      tplConn("edu-p-c5", "edu-p-pcB", "edu-p-pcA", "4) ICMP Echo Reply", "#3B82F6", { animated: true, protocol: "ICMP" }),
+    ],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 5.0,
+  },
+
+  {
+    id: "tpl-edu-ttl-traceroute",
+    name: "Hop-by-Hop & TTL (traceroute)",
+    description:
+      "Veranschaulicht TTL-Dekrementierung: Ein Paket startet mit TTL=64 und verliert pro Router 1. traceroute setzt TTL gezielt auf 1, 2, 3 … um jeden Hop sichtbar zu machen.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["TTL", "Routing", "Traceroute", "Layer 3"],
+    difficulty: "intermediate",
+    objects: [
+      tplText("edu-t-h", 40, 40, "TTL — warum traceroute funktioniert", "#0F172A", 18),
+      tplText("edu-t-h2", 40, 68, "Jeder Router dekrementiert TTL um 1. Erreicht TTL 0 → ICMP \"Time Exceeded\".", "#475569", 12),
+
+      tplShape("edu-t-pc", "computer", 40, 200, 80, 80, "#3B82F6", "PC TTL=64"),
+      tplShape("edu-t-r1", "router", 220, 210, 80, 60, "#10B981", "R1"),
+      tplShape("edu-t-r2", "router", 400, 210, 80, 60, "#10B981", "R2"),
+      tplShape("edu-t-r3", "router", 580, 210, 80, 60, "#10B981", "R3"),
+      tplShape("edu-t-r4", "router", 760, 210, 80, 60, "#10B981", "R4"),
+      tplShape("edu-t-srv", "server", 940, 200, 80, 80, "#8B5CF6", "Ziel"),
+
+      tplText("edu-t-ttl0", 50, 300, "TTL=64", "#0F172A", 12),
+      tplText("edu-t-ttl1", 230, 300, "TTL=63", "#0F172A", 12),
+      tplText("edu-t-ttl2", 410, 300, "TTL=62", "#0F172A", 12),
+      tplText("edu-t-ttl3", 590, 300, "TTL=61", "#0F172A", 12),
+      tplText("edu-t-ttl4", 770, 300, "TTL=60", "#0F172A", 12),
+
+      tplText("edu-t-tr", 40, 380, "traceroute-Trick:", "#B45309", 14),
+      tplText("edu-t-tr1", 40, 405, "Probe 1 → TTL=1 → R1 antwortet \"Time Exceeded\"  (Hop 1 sichtbar)", "#B45309", 12),
+      tplText("edu-t-tr2", 40, 425, "Probe 2 → TTL=2 → R2 antwortet → Hop 2 sichtbar", "#B45309", 12),
+      tplText("edu-t-tr3", 40, 445, "Probe 3 → TTL=3 → R3 antwortet → Hop 3 sichtbar  …", "#B45309", 12),
+
+      tplText("edu-t-warn", 40, 510, "Praxisrelevanz: Routing-Loops lassen TTL gegen 0 laufen → Schutz vor unendlichen Schleifen.", "#334155", 12),
+      tplText("edu-t-warn2", 40, 530, "Linux startet typ. mit TTL 64, Windows mit 128 — Indikator beim Reverse-Engineering von Hops.", "#334155", 12),
+    ],
+    connections: [
+      tplConn("edu-t-c1", "edu-t-pc", "edu-t-r1", "", "#3B82F6", { animated: true }),
+      tplConn("edu-t-c2", "edu-t-r1", "edu-t-r2", "", "#3B82F6", { animated: true }),
+      tplConn("edu-t-c3", "edu-t-r2", "edu-t-r3", "", "#3B82F6", { animated: true }),
+      tplConn("edu-t-c4", "edu-t-r3", "edu-t-r4", "", "#3B82F6", { animated: true }),
+      tplConn("edu-t-c5", "edu-t-r4", "edu-t-srv", "", "#3B82F6", { animated: true }),
+    ],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 4.9,
+  },
+
+  {
+    id: "tpl-edu-osi-encapsulation",
+    name: "OSI-Encapsulation (Header pro Schicht)",
+    description:
+      "Sichtbar machen, was beim Senden mit den Daten passiert: pro Schicht wird ein Header angeklebt (Daten → Segment → Paket → Frame → Bits). Kernkonzept für CCNA/Net+.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["OSI", "Encapsulation", "Header", "CCNA"],
+    difficulty: "beginner",
+    objects: [
+      tplText("edu-osi-h", 40, 40, "Encapsulation — wie aus Daten ein Frame wird", "#0F172A", 18),
+      tplText("edu-osi-h2", 40, 68, "Sender (oben → unten) hängt Header an. Empfänger entkapselt in umgekehrter Reihenfolge.", "#475569", 12),
+
+      // 5 Schichten als Bänder
+      tplRect("edu-osi-l7-bg", 40, 110, 940, 60, "#FBBF24"),
+      tplText("edu-osi-l7", 60, 145, "L7 Anwendung — z. B. HTTP-GET /index.html", "#78350F", 14),
+
+      tplRect("edu-osi-l4-bg", 40, 185, 940, 60, "#60A5FA"),
+      tplText("edu-osi-l4", 60, 220, "L4 Transport — TCP-Header [SrcPort 51322 | DstPort 80 | Seq | Ack | Flags] + Daten = Segment", "#1E3A8A", 13),
+
+      tplRect("edu-osi-l3-bg", 40, 260, 940, 60, "#34D399"),
+      tplText("edu-osi-l3", 60, 295, "L3 Internet — IP-Header [Src 10.0.0.5 | Dst 93.184.216.34 | TTL | Proto=TCP] + Segment = Paket", "#065F46", 13),
+
+      tplRect("edu-osi-l2-bg", 40, 335, 940, 60, "#F472B6"),
+      tplText("edu-osi-l2", 60, 370, "L2 Verbindung — Ethernet-Header [Src-MAC | Dst-MAC | EtherType=0x0800] + Paket + FCS = Frame", "#831843", 13),
+
+      tplRect("edu-osi-l1-bg", 40, 410, 940, 60, "#9CA3AF"),
+      tplText("edu-osi-l1", 60, 445, "L1 Bitübertragung — Frame als 0/1 auf Kabel, Funk oder Lichtwellenleiter", "#1F2937", 13),
+
+      // Pfeil-Hinweise
+      tplText("edu-osi-arrow", 1000, 280, "▼ Encapsulation", "#0F172A", 14),
+      tplText("edu-osi-arrow2", 1000, 305, "▲ Decapsulation", "#0F172A", 14),
+
+      tplText("edu-osi-tip1", 40, 510, "Merksatz: »Daten — Segment — Paket — Frame — Bits«.", "#334155", 13),
+      tplText("edu-osi-tip2", 40, 532, "Jeder Header trägt Adressen seiner Schicht: L4=Ports, L3=IPs, L2=MACs.", "#334155", 13),
+      tplText("edu-osi-tip3", 40, 554, "Switches arbeiten auf L2, Router auf L3, Firewalls L3/L4 (Stateful) bis L7 (NGFW).", "#334155", 13),
+    ],
+    connections: [],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 5.0,
+  },
+
+  {
+    id: "tpl-edu-tcp-handshake",
+    name: "TCP 3-Way-Handshake",
+    description:
+      "Visualisiert den Verbindungsaufbau zwischen Client und Server mit SYN, SYN-ACK, ACK inkl. Sequenznummern. Basis für jedes TCP-Verständnis (HTTPS, SSH, RDP).",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["TCP", "Handshake", "Layer 4", "Verbindung"],
+    difficulty: "beginner",
+    objects: [
+      tplText("edu-tcp-h", 40, 40, "TCP 3-Way-Handshake — verbindungsorientierter Aufbau", "#0F172A", 18),
+      tplText("edu-tcp-h2", 40, 68, "Vor dem ersten Datenbyte synchronisieren Client und Server Sequenznummern.", "#475569", 12),
+
+      tplShape("edu-tcp-c", "computer", 80, 220, 90, 90, "#3B82F6", "Client"),
+      tplShape("edu-tcp-s", "server", 820, 220, 90, 90, "#8B5CF6", "Server :443"),
+
+      tplText("edu-tcp-1", 220, 180, "1) SYN — Seq=x, Flags: SYN", "#B91C1C", 13),
+      tplText("edu-tcp-1b", 220, 200, "Client: »Ich möchte sprechen.«", "#B91C1C", 11),
+
+      tplText("edu-tcp-2", 220, 280, "2) SYN-ACK — Seq=y, Ack=x+1, Flags: SYN, ACK", "#15803D", 13),
+      tplText("edu-tcp-2b", 220, 300, "Server: »OK — du hast x gesendet, ich starte mit y.«", "#15803D", 11),
+
+      tplText("edu-tcp-3", 220, 380, "3) ACK — Seq=x+1, Ack=y+1, Flags: ACK", "#1D4ED8", 13),
+      tplText("edu-tcp-3b", 220, 400, "Client: »Bestätigt — Verbindung steht.«", "#1D4ED8", 11),
+
+      tplText("edu-tcp-state", 40, 480, "Zustände: CLOSED → SYN_SENT → ESTABLISHED (Client)", "#334155", 12),
+      tplText("edu-tcp-state2", 40, 500, "         CLOSED → LISTEN → SYN_RCVD → ESTABLISHED (Server)", "#334155", 12),
+      tplText("edu-tcp-tip", 40, 540, "Nach dem Handshake fließen Daten in beide Richtungen mit Bestätigung & Reihenfolge.", "#334155", 13),
+      tplText("edu-tcp-tip2", 40, 562, "UDP überspringt all das → schneller, aber unzuverlässig (DNS, VoIP, Gaming).", "#334155", 13),
+    ],
+    connections: [
+      tplConn("edu-tcp-c1", "edu-tcp-c", "edu-tcp-s", "SYN", "#EF4444", { animated: true, protocol: "TCP" }),
+      tplConn("edu-tcp-c2", "edu-tcp-s", "edu-tcp-c", "SYN-ACK", "#22C55E", { animated: true, protocol: "TCP" }),
+      tplConn("edu-tcp-c3", "edu-tcp-c", "edu-tcp-s", "ACK", "#3B82F6", { animated: true, protocol: "TCP" }),
+    ],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 5.0,
+  },
+
+  {
+    id: "tpl-edu-dhcp-dora",
+    name: "DHCP — DORA-Prozess",
+    description:
+      "Wie ein Client automatisch eine IP bekommt: Discover, Offer, Request, Acknowledge — jeweils mit Quell-/Ziel-Adressen, weil bei Discover noch keine eigene IP existiert.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["DHCP", "DORA", "Auto-Konfiguration"],
+    difficulty: "beginner",
+    objects: [
+      tplText("edu-dh-h", 40, 40, "DHCP DORA — automatische IP-Vergabe", "#0F172A", 18),
+      tplText("edu-dh-h2", 40, 68, "Merksatz: D-O-R-A → Discover, Offer, Request, Acknowledge.", "#475569", 12),
+
+      tplShape("edu-dh-c", "computer", 80, 230, 90, 90, "#3B82F6", "Client (kein IP)"),
+      tplShape("edu-dh-srv", "dhcp-server", 820, 230, 90, 90, "#10B981", "DHCP-Server"),
+
+      tplText("edu-dh-1", 230, 170, "1) DISCOVER — UDP 68→67", "#B91C1C", 13),
+      tplText("edu-dh-1b", 230, 190, "Src 0.0.0.0 → Dst 255.255.255.255 (Broadcast)", "#B91C1C", 11),
+
+      tplText("edu-dh-2", 230, 260, "2) OFFER — »Ich biete 192.168.10.45 an, Lease 24 h«", "#15803D", 13),
+      tplText("edu-dh-2b", 230, 280, "Optionen: Subnetz, Gateway, DNS-Server", "#15803D", 11),
+
+      tplText("edu-dh-3", 230, 350, "3) REQUEST — »Ich nehme die Offer von Server X«", "#1D4ED8", 13),
+      tplText("edu-dh-3b", 230, 370, "Wieder Broadcast — andere Server merken: ich war's nicht", "#1D4ED8", 11),
+
+      tplText("edu-dh-4", 230, 440, "4) ACK — »Bestätigt, IP ist deine«", "#A16207", 13),
+      tplText("edu-dh-4b", 230, 460, "Client setzt IP, Maske, GW, DNS und startet Lease-Timer", "#A16207", 11),
+
+      tplText("edu-dh-tip1", 40, 540, "Subnetz-übergreifend: Router braucht ip helper-address (DHCP-Relay).", "#334155", 13),
+      tplText("edu-dh-tip2", 40, 562, "Lease-Erneuerung bei T1 (50 %), Rebinding bei T2 (87,5 %), Verlust bei 100 %.", "#334155", 13),
+      tplText("edu-dh-tip3", 40, 584, "Häufiger Fehler: zwei DHCP-Server im selben Segment → konkurrierende Offers.", "#334155", 13),
+    ],
+    connections: [
+      tplConn("edu-dh-c1", "edu-dh-c", "edu-dh-srv", "DISCOVER", "#EF4444", { animated: true, protocol: "UDP" }),
+      tplConn("edu-dh-c2", "edu-dh-srv", "edu-dh-c", "OFFER", "#22C55E", { animated: true, protocol: "UDP" }),
+      tplConn("edu-dh-c3", "edu-dh-c", "edu-dh-srv", "REQUEST", "#3B82F6", { animated: true, protocol: "UDP" }),
+      tplConn("edu-dh-c4", "edu-dh-srv", "edu-dh-c", "ACK", "#F59E0B", { animated: true, protocol: "UDP" }),
+    ],
+    estimatedTime: "10 min",
+    downloads: 0,
+    rating: 5.0,
   },
 ];
 

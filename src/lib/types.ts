@@ -959,6 +959,7 @@ export type TemplateCategory =
   | "devops"
   | "database"
   | "kubernetes"
+  | "education"
   | "general";
 
 export const TEMPLATE_CATEGORY_LABELS: Record<TemplateCategory, string> = {
@@ -968,6 +969,7 @@ export const TEMPLATE_CATEGORY_LABELS: Record<TemplateCategory, string> = {
   devops: "DevOps/CI-CD",
   database: "Datenbank",
   kubernetes: "Kubernetes",
+  education: "Didaktik / Lehrkonzept",
   general: "Allgemein",
 };
 
