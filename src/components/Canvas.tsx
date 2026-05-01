@@ -113,6 +113,15 @@ export function Canvas({
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState<Point | null>(null);
 
+  // Resize state (drag a selection corner-handle)
+  type ResizeHandle = "tl" | "tr" | "bl" | "br";
+  const [resizeState, setResizeState] = useState<{
+    objectId: string;
+    handle: ResizeHandle;
+    fixedCorner: Point; // world-coords corner that stays put
+  } | null>(null);
+  const [hoverHandle, setHoverHandle] = useState<ResizeHandle | null>(null);
+
   // Cursor preview for shapes
   const [cursorPosition, setCursorPosition] = useState<Point | null>(null);
 
@@ -716,6 +725,50 @@ export function Canvas({
     ctx.restore();
   };
 
+  // Hit-test for selection-corner-handles (returns handle + fixed-opposite-corner in world coords)
+  const getResizeHandleAt = (
+    worldPos: Point,
+  ): { obj: DrawingObject; handle: ResizeHandle; fixedCorner: Point } | null => {
+    if (selectedObjectIds.size !== 1) return null;
+    const obj = objects.find(
+      (o) =>
+        selectedObjectIds.has(o.id) &&
+        o.startPoint &&
+        o.endPoint &&
+        !o.locked,
+    );
+    if (!obj || !obj.startPoint || !obj.endPoint) return null;
+
+    const minX = Math.min(obj.startPoint.x, obj.endPoint.x);
+    const minY = Math.min(obj.startPoint.y, obj.endPoint.y);
+    const maxX = Math.max(obj.startPoint.x, obj.endPoint.x);
+    const maxY = Math.max(obj.startPoint.y, obj.endPoint.y);
+
+    // Selection box is drawn with -5/+5 padding around bounds — match that
+    const padded = {
+      tl: { x: minX - 5, y: minY - 5 },
+      tr: { x: maxX + 5, y: minY - 5 },
+      bl: { x: minX - 5, y: maxY + 5 },
+      br: { x: maxX + 5, y: maxY + 5 },
+    } as const;
+    const fixed: Record<ResizeHandle, Point> = {
+      tl: { x: maxX, y: maxY },
+      tr: { x: minX, y: maxY },
+      bl: { x: maxX, y: minY },
+      br: { x: minX, y: minY },
+    };
+
+    const r = 12 / scale; // generous hit-radius in world units
+    const handles: ResizeHandle[] = ["tl", "tr", "bl", "br"];
+    for (const h of handles) {
+      const p = padded[h];
+      if (Math.abs(worldPos.x - p.x) <= r && Math.abs(worldPos.y - p.y) <= r) {
+        return { obj, handle: h, fixedCorner: fixed[h] };
+      }
+    }
+    return null;
+  };
+
   const drawShapePreview = (ctx: CanvasRenderingContext2D, pos: Point) => {
     if (!selectedShape) return;
 
@@ -797,6 +850,20 @@ export function Canvas({
       return;
     }
 
+    // Resize: clicked on a selection corner-handle of a selected shape?
+    if (tool === "select" && e.button === 0) {
+      const hit = getResizeHandleAt(worldPos);
+      if (hit) {
+        setResizeState({
+          objectId: hit.obj.id,
+          handle: hit.handle,
+          fixedCorner: hit.fixedCorner,
+        });
+        e.preventDefault();
+        return;
+      }
+    }
+
     setIsDrawing(true);
     setDragStart(worldPos);
 
@@ -865,6 +932,10 @@ export function Canvas({
       } else {
         setSelectedObjectIds(new Set());
         onObjectsChange(objects.map((obj) => ({ ...obj, selected: false })));
+        // Empty area click in select mode → start panning (LMB drag)
+        setIsPanning(true);
+        setPanStart(screenPos);
+        setIsDrawing(false);
       }
       return;
     }
@@ -939,6 +1010,51 @@ export function Canvas({
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const screenPos = getMousePos(e);
     const worldPos = screenToWorld(screenPos);
+
+    // RESIZE: actively dragging a corner-handle
+    if (resizeState) {
+      const idx = objects.findIndex((o) => o.id === resizeState.objectId);
+      if (idx !== -1) {
+        const obj = objects[idx];
+        const fixed = resizeState.fixedCorner;
+        // Optional grid-snap with Shift
+        const target = e.shiftKey ? snapToGrid(worldPos) : worldPos;
+        const newStart = {
+          x: Math.min(fixed.x, target.x),
+          y: Math.min(fixed.y, target.y),
+        };
+        const newEnd = {
+          x: Math.max(fixed.x, target.x),
+          y: Math.max(fixed.y, target.y),
+        };
+        // Avoid degenerate 0×0
+        if (newEnd.x - newStart.x < 4) newEnd.x = newStart.x + 4;
+        if (newEnd.y - newStart.y < 4) newEnd.y = newStart.y + 4;
+
+        const updated: DrawingObject = {
+          ...obj,
+          startPoint: newStart,
+          endPoint: newEnd,
+          // For shape objects, sync the rendered size too
+          shapeWidth:
+            obj.type === "shape" ? newEnd.x - newStart.x : obj.shapeWidth,
+          shapeHeight:
+            obj.type === "shape" ? newEnd.y - newStart.y : obj.shapeHeight,
+        };
+        const next = objects.slice();
+        next[idx] = updated;
+        onObjectsChange(next);
+      }
+      return;
+    }
+
+    // Hover-detect resize handle for cursor feedback
+    if (!isDrawing && !isPanning && tool === "select") {
+      const hit = getResizeHandleAt(worldPos);
+      setHoverHandle(hit ? hit.handle : null);
+    } else {
+      setHoverHandle(null);
+    }
 
     // Update cursor position for shape preview
     if (tool === "shape" && selectedShape) {
@@ -1114,6 +1230,10 @@ export function Canvas({
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (resizeState) {
+      setResizeState(null);
+      return;
+    }
     if (isPanning) {
       setIsPanning(false);
       setPanStart(null);
@@ -1193,30 +1313,25 @@ export function Canvas({
 
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    // Shift+Wheel = pan, alles andere (inkl. ohne Modifier oder mit Ctrl) = Zoom mit Cursor-Anker
+    if (e.shiftKey) {
+      setOffset((prev) => ({
+        x: prev.x - (e.deltaX || e.deltaY),
+        y: prev.y - (e.shiftKey && !e.deltaX ? 0 : e.deltaY),
+      }));
+      return;
+    }
 
     const screenPos = getMousePos(e as any);
     const worldPos = screenToWorld(screenPos);
-
-    // Zoom with ctrl+wheel, pan otherwise
-    if (e.ctrlKey || e.metaKey) {
-      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-      const newScale = Math.max(0.1, Math.min(5, scale * zoomFactor));
-
-      // Zoom towards cursor position
-      const newOffset = {
-        x: screenPos.x - worldPos.x * newScale,
-        y: screenPos.y - worldPos.y * newScale,
-      };
-
-      setScale(newScale);
-      setOffset(newOffset);
-    } else {
-      // Pan
-      setOffset((prev) => ({
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
-    }
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.max(0.1, Math.min(5, scale * zoomFactor));
+    setScale(newScale);
+    setOffset({
+      x: screenPos.x - worldPos.x * newScale,
+      y: screenPos.y - worldPos.y * newScale,
+    });
   };
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -1357,6 +1472,11 @@ export function Canvas({
   }, []);
 
   const getCursor = () => {
+    if (resizeState || hoverHandle) {
+      const h = resizeState?.handle ?? hoverHandle;
+      if (h === "tl" || h === "br") return "nwse-resize";
+      if (h === "tr" || h === "bl") return "nesw-resize";
+    }
     if (isPanning) return "grabbing";
     if (tool === "select") return "default";
     if (tool === "text") return "text";
@@ -1493,9 +1613,11 @@ export function Canvas({
         } backdrop-blur-sm pointer-events-none`}
       >
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w-md">
+          <span>Linke Maustaste auf leerer Fläche: Verschieben</span>
+          <span>Scrollrad: Zoom (zum Cursor)</span>
+          <span>Shift+Scroll: Schwenken</span>
+          <span>Eckpunkt ziehen: Größe ändern</span>
           <span>Shift: Snap</span>
-          <span>Alt+Drag: Pan</span>
-          <span>Ctrl+Scroll: Zoom</span>
           <span>Ctrl+C/V: Kopieren</span>
           <span>R: Drehen</span>
           <span>S: Schatten</span>
