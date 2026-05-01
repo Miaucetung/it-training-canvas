@@ -1824,6 +1824,7 @@ function App() {
           onShowPresentations={() => setShowPresentations(true)}
           onShowShapePicker={() => setShowShapePicker(true)}
           onShowKeyboardShortcuts={() => setShowKeyboardShortcuts(true)}
+          onSelectAll={handleSelectAll}
           canUndo={canUndo}
           canRedo={canRedo}
           currentSubject={currentSubject}

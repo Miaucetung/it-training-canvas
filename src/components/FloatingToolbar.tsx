@@ -44,6 +44,7 @@ import {
   PencilLine,
   Question,
   Selection,
+  SelectionAll,
   Shapes,
   Square,
   Sun,
@@ -85,6 +86,7 @@ interface FloatingToolbarProps {
   onShowPresentations: () => void;
   onShowShapePicker: () => void;
   onShowKeyboardShortcuts?: () => void;
+  onSelectAll?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   currentSubject: string;
@@ -143,6 +145,7 @@ export function FloatingToolbar({
   onShowPresentations,
   onShowShapePicker,
   onShowKeyboardShortcuts,
+  onSelectAll,
   canUndo,
   canRedo,
   currentSubject,
@@ -207,6 +210,47 @@ export function FloatingToolbar({
               </Tooltip>
             ))}
           </div>
+
+          {onSelectAll && (
+            <>
+              <Separator
+                orientation="vertical"
+                className={cn(
+                  "h-8 mx-1",
+                  theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+                )}
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onSelectAll}
+                    className={cn(
+                      "h-10 w-10 rounded-xl",
+                      theme === "dark"
+                        ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
+                    )}
+                  >
+                    <SelectionAll size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className={cn(
+                    "mb-2",
+                    theme === "dark" ? "bg-slate-800 border-slate-700" : "",
+                  )}
+                >
+                  <p>
+                    Alles markieren{" "}
+                    <span className="text-slate-500">(Strg+A)</span>
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </>
+          )}
 
           <Separator
             orientation="vertical"
