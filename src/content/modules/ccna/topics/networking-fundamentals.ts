@@ -10,6 +10,40 @@ import {
 } from "@/content/_shared/networking/osi-model";
 import type { Concept, Topic } from "@/lib/content/types";
 
+export const CONCEPT_NETWORK_TYPES_BY_SCOPE: Concept = {
+  id: "network-types-by-scope",
+  title: "Netzwerkarten — geographisch & funktional",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["networking", "fundamentals", "lan", "wan", "vpn", "intranet"],
+  content: `
+## 1) Klassifikation nach geographischer Ausdehnung
+
+| Akronym | Voll                          | Reichweite                  | Typisches Beispiel |
+|---------|-------------------------------|-----------------------------|---------------------|
+| PAN     | Personal Area Network         | wenige Meter (Bluetooth)    | Smartphone ↔ Headset |
+| LAN     | Local Area Network            | ein Gebäude / Standort      | Büro-Ethernet, WLAN |
+| CAN     | Campus Area Network           | mehrere Gebäude eines Geländes | Hochschul-Campus, Werksgelände |
+| MAN     | Metropolitan Area Network     | Stadt / Ballungsraum        | Stadt-Backbone, Carrier-Ethernet |
+| WAN     | Wide Area Network             | Land / Kontinent            | MPLS-Backbone, Standortvernetzung |
+| GAN     | Global Area Network           | weltweit                    | Internet, Satelliten-Netze |
+
+> **Merksatz:** *PAN < LAN < CAN < MAN < WAN < GAN* — Reichweite wächst, Bandbreite pro Strecke sinkt tendenziell, Latenz steigt.
+
+## 2) Funktionale Klassifikation (Anwendungszweck)
+
+| Begriff   | Bedeutung |
+|-----------|-----------|
+| Intranet  | Internes Firmennetz, nur für eigene Mitarbeiter erreichbar |
+| Extranet  | Erweiterung des Intranets für definierte externe Partner (Kunden, Lieferanten) |
+| Internet  | Globaler Verbund aller öffentlichen Netze |
+| SAN       | **Storage Area Network** — dediziertes Speichernetz (FC, iSCSI), trennt Storage-Traffic vom LAN |
+| CN        | **Content Network** / Content Delivery Network — verteilt Inhalte geografisch nahe an die Nutzer |
+| VPN       | **Virtual Private Network** — verschlüsselter Tunnel über ein unsicheres Transitnetz (meist das Internet) |
+
+> **Was ist ein RFC?** **R**equest **f**or **C**omments — von der IETF veröffentlichte Spezifikationsdokumente, die alle Internet-Standards definieren (z. B. RFC 791 = IPv4, RFC 1918 = private Adressbereiche, RFC 2616/7230 = HTTP).
+  `.trim(),
+};
+
 export const CONCEPT_NETWORK_COMPONENTS: Concept = {
   id: "network-components",
   title: "Netzwerkkomponenten & Medien",
@@ -27,6 +61,7 @@ export const CONCEPT_NETWORK_COMPONENTS: Concept = {
 |-------|---------|---------|
 | Hub | 1 | Broadcastet eingehende Signale auf alle Ports |
 | Switch | 2 | Leitet Frames anhand der MAC-Tabelle weiter |
+| L3-Switch | 2 + 3 | Switch mit integrierter Routing-Engine — Inter-VLAN-Routing in Hardware (kein Router-Hop nötig) |
 | Router | 3 | Leitet Pakete anhand der Routing-Tabelle weiter |
 | Firewall | 3-7 | Filtert Datenverkehr nach Regeln |
 | Access Point | 1-2 | Verbindet WLAN mit dem kabelgebundenen Netz |
@@ -115,6 +150,30 @@ export const CONCEPT_NETWORKING_FUNDAMENTALS_GUIDE: Concept = {
 - Gängige Protokolle (HTTP, DNS, DHCP, ICMP) der richtigen Schicht zuordnen
 - Encapsulation und De-Encapsulation an einem konkreten Beispiel durchspielen
 
+## Warum vernetzen wir überhaupt?
+Bevor wir uns in Schichten und Protokolle vertiefen, lohnt sich der Blick auf den **Geschäftswert** eines Netzwerks. Vier zentrale Vorteile:
+
+| Vorteil | Konkret |
+|---------|---------|
+| **Ressourcen teilen** | Drucker, Storage, Lizenzen, Internet-Zugang werden einmal angeschafft und vielfach genutzt |
+| **Kommunikation** | E-Mail, Chat, VoIP, Videokonferenz — synchron und asynchron |
+| **Zentrale Verwaltung** | Updates, Backups, Benutzerkonten an einer Stelle pflegen statt an jedem Endgerät |
+| **Skalierbarkeit & Mobilität** | Neue Mitarbeiter / Standorte / Mobilgeräte schnell einbinden |
+
+→ Das ist der Grund, warum jede Klassifikation (PAN/LAN/WAN, Intranet/Extranet, SAN/VPN) existiert: jede löst einen anderen dieser Vorteile in einem anderen Maßstab.
+
+## Bandbreite vs. Durchsatz vs. Latenz
+Drei Begriffe, die in der Praxis ständig verwechselt werden:
+
+| Begriff | Definition | Einheit | Analogie (Autobahn) |
+|---------|-----------|---------|---------------------|
+| **Bandbreite** | Theoretische Maximalkapazität einer Leitung | Mbit/s, Gbit/s | Anzahl der Spuren |
+| **Durchsatz** | Tatsächlich übertragene Nutzdatenmenge pro Zeit | Mbit/s | Anzahl Autos pro Stunde, die wirklich durchkommen |
+| **Latenz** | Zeit, die ein einzelnes Paket von A nach B braucht | ms | Zeit, die *ein* Auto für die Strecke braucht |
+
+> **Wichtig:** Eine Leitung mit 1 Gbit/s Bandbreite kann durchaus nur 600 Mbit/s Durchsatz liefern (Overhead, Retransmits, halb-duplex), und sie kann gleichzeitig hohe oder niedrige Latenz haben — beides ist unabhängig.
+> *Faustregel:* Für VoIP ist niedrige Latenz wichtiger als hohe Bandbreite; für große File-Transfers umgekehrt.
+
 ## Praxis-Szenario
 Die Firma "Müller & Partner GmbH" (Steuerberatung, 25 Mitarbeiter) betreibt bisher einen einzigen unmanaged Hub in ihrem Büro. Alle PCs hängen an einem einzigen Kollisionsbereich — bei gleichzeitigem Drucken und Surfen bricht die Performance ein. Der IT-Dienstleister empfiehlt den Einsatz eines managed Switches (Cisco Catalyst 2960X) sowie eines Routers (Cisco ISR 4331) mit Anschluss an einen 100-Mbit/s-Glasfaseranschluss (IP 203.0.113.1). Das neue Netz erhält das Subnetz 192.168.10.0/24. Aufgabe: Die Teilnehmenden sollen erklären, auf welcher OSI-Schicht Hub, Switch und Router jeweils arbeiten und warum der Wechsel vom Hub zum Switch die Kollisionsdomänen beseitigt.
 
@@ -145,6 +204,7 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
     "osi-model",
     "encapsulation",
     "network-topologies",
+    "network-types-by-scope",
     "network-components",
     "tcp-ip-suite",
     "networking-fundamentals-guide",
@@ -160,6 +220,7 @@ export const NETWORKING_FUNDAMENTALS_CONCEPTS: Record<string, Concept> = {
   "osi-model": CONCEPT_OSI_MODEL,
   encapsulation: CONCEPT_ENCAPSULATION,
   "network-topologies": CONCEPT_NETWORK_TOPOLOGIES,
+  "network-types-by-scope": CONCEPT_NETWORK_TYPES_BY_SCOPE,
   "network-components": CONCEPT_NETWORK_COMPONENTS,
   "tcp-ip-suite": CONCEPT_TCP_IP_SUITE,
   "networking-fundamentals-guide": CONCEPT_NETWORKING_FUNDAMENTALS_GUIDE,

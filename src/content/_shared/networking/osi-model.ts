@@ -99,11 +99,24 @@ export const CONCEPT_NETWORK_TOPOLOGIES: Concept = {
 | Topologie | Beschreibung | Redundanz |
 |-----------|-------------|-----------|
 | Bus | Alle Geräte an einem Kabel | Sehr gering |
-| Ring | Jedes Gerät mit zwei Nachbarn verbunden | Gering |
-| Star | Alle Geräte über zentralen Switch | Mittel |
+| Linie (Line / Daisy-Chain) | Geräte in Reihe verkettet, jeder hat genau 2 Nachbarn (außer den Enden) | Sehr gering — Kabelbruch trennt Netz |
+| Ring | Wie Linie, aber Endpunkte geschlossen → Token kreist | Gering — bei zwei Brüchen geteilt |
+| Star | Alle Geräte über zentralen Switch | Mittel — Switch = Single Point of Failure |
+| Baum (Tree) | Hierarchische Verkettung mehrerer Sterne (z. B. Etagen-Switch → Core-Switch) | Mittel |
 | Mesh (full) | Jeder mit jedem verbunden | Sehr hoch |
 | Mesh (partial) | Ausgewählte direkte Verbindungen | Hoch |
 | Hybrid | Kombination mehrerer Topologien | Variabel |
+
+### Vergleichstabelle (Praxis-Bewertung)
+| Topologie | Ausfallsicherheit | Kosten | Erweiterbarkeit | Heute relevant? |
+|-----------|-------------------|--------|-----------------|------------------|
+| Bus       | ✗ niedrig         | ✓ sehr günstig | ✗ nur kurze Strecken | nein (historisch, 10BASE-2/5) |
+| Linie     | ✗ niedrig         | ✓ günstig | ⚠ jeder Knoten ist Single Point | nur Industrieprotokolle (z. B. PROFIBUS) |
+| Ring      | ⚠ mittel (Token Ring), ✓ Dual-Ring (FDDI/SDH) | ⚠ mittel | ⚠ aufwendig | im LAN nein, im MAN/WAN ja (SDH, RPR) |
+| Star      | ⚠ Switch = SPOF   | ⚠ mittel | ✓ einfach (Port hinzufügen) | ✓ Standard im Access-Layer |
+| Baum      | ⚠ Mittel (mehrere SPOFs)        | ⚠ mittel | ✓ sehr gut (Etagen / Standorte) | ✓ Standard für Campus-Netze |
+| Mesh full | ✓ höchstmöglich   | ✗ teuer (n·(n−1)/2 Links) | ✗ schwer skalierbar | nur in WAN-Backbones / Spine-Leaf |
+| Hybrid    | abhängig          | abhängig | ✓ ja | ✓ Realität jedes größeren Netzes |
 
 ### Cisco Hierarchical Network Model (3-Tier)
 \`\`\`

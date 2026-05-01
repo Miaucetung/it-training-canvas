@@ -54,6 +54,21 @@ Eine IP-Adresse mit Präfixlänge, z.B. **192.168.1.0/24**
 | 172.16.0.0 – 172.31.255.255 | 172.16.0.0/12 |
 | 192.168.0.0 – 192.168.255.255 | 192.168.0.0/16 |
 
+### IP-Klassen A–E (historisch / "classful")
+Vor CIDR (1993) waren IPv4-Adressen in fünf Klassen unterteilt — anhand des **ersten Oktetts** bzw. der ersten Bits:
+
+| Klasse | Erstes Oktett | Erste Bits | Default-Maske | Verwendung |
+|--------|---------------|-----------|---------------|------------|
+| A | 1 – 126   | \`0xxxxxxx\` | /8 (255.0.0.0) | sehr große Netze |
+| B | 128 – 191 | \`10xxxxxx\` | /16 (255.255.0.0) | mittelgroße Netze |
+| C | 192 – 223 | \`110xxxxx\` | /24 (255.255.255.0) | kleine Netze |
+| D | 224 – 239 | \`1110xxxx\` | — | **Multicast** (z. B. 224.0.0.5 = OSPF) |
+| E | 240 – 255 | \`1111xxxx\` | — | reserviert / experimentell |
+
+> **Klasse 127** (\`01111111\`) ist offiziell Klasse A, wird aber komplett für **Loopback** verwendet (127.0.0.0/8) — kein Bereich für Hosts.
+>
+> **Heute** (CIDR / VLSM) sind die Klassen für Routing irrelevant — die Schwellen tauchen aber in Prüfungsfragen auf, weil sie über das erste Bit-Muster die Klasse erkennen lassen.
+
 ### Spezielle Adressen
 | Adresse | Zweck |
 |---------|-------|

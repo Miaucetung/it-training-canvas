@@ -109,6 +109,73 @@ export const QUIZ_NETZWERKGRUNDLAGEN: Quiz = {
         { id: "d", text: "Fehlerkorrektur auf Schicht 2", isCorrect: false },
       ],
     },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wofür steht die Abkürzung RFC?",
+      explanation: "RFC = Request for Comments. Die IETF veröffentlicht RFCs als Spezifikationsdokumente für alle Internet-Standards (z. B. RFC 791 = IPv4, RFC 1918 = private Adressbereiche).",
+      answers: [
+        { id: "a", text: "Read for Comments", isCorrect: false },
+        { id: "b", text: "Request for Comments", isCorrect: true },
+        { id: "c", text: "Routing Function Code", isCorrect: false },
+        { id: "d", text: "Reserved Frame Control", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele Bits hat eine MAC-Adresse?",
+      explanation: "Eine MAC-Adresse ist 48 Bit lang (6 Bytes), typischerweise dargestellt als 12 hexadezimale Stellen, z. B. 00:1A:2B:3C:4D:5E.",
+      answers: [
+        { id: "a", text: "32 Bit", isCorrect: false },
+        { id: "b", text: "48 Bit", isCorrect: true },
+        { id: "c", text: "64 Bit", isCorrect: false },
+        { id: "d", text: "128 Bit", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Klassifikationen beschreiben die geographische Ausdehnung eines Netzwerks? (Mehrere Antworten möglich)",
+      explanation: "PAN, LAN, CAN, MAN, WAN und GAN klassifizieren nach Reichweite. SAN und VPN sind funktionale Klassifikationen.",
+      answers: [
+        { id: "a", text: "PAN — Personal Area Network", isCorrect: true },
+        { id: "b", text: "LAN — Local Area Network", isCorrect: true },
+        { id: "c", text: "MAN — Metropolitan Area Network", isCorrect: true },
+        { id: "d", text: "SAN — Storage Area Network", isCorrect: false },
+        { id: "e", text: "WAN — Wide Area Network", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Unterschied zwischen einem Intranet und einem Extranet?",
+      explanation: "Intranet = ausschließlich interne Mitarbeiter. Extranet = kontrollierte Erweiterung des Intranets für definierte externe Partner (Kunden, Lieferanten).",
+      answers: [
+        { id: "a", text: "Intranet ist verschlüsselt, Extranet nicht", isCorrect: false },
+        { id: "b", text: "Intranet ist nur intern; Extranet erweitert es um definierte externe Partner", isCorrect: true },
+        { id: "c", text: "Extranet liegt im Internet, Intranet im LAN", isCorrect: false },
+        { id: "d", text: "Es gibt keinen Unterschied", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Aussage zur Topologie 'Linie' (Daisy-Chain) ist korrekt?",
+      explanation: "In einer Linientopologie sind die Geräte in Reihe verkettet — jeder Knoten hat zwei Nachbarn (außer den Endpunkten). Ein Kabelbruch trennt das Netz.",
+      answers: [
+        { id: "a", text: "Jeder Knoten ist mit jedem anderen direkt verbunden", isCorrect: false },
+        { id: "b", text: "Geräte sind in Reihe verkettet — ein Kabelbruch trennt das Netz", isCorrect: true },
+        { id: "c", text: "Ein zentraler Switch verbindet alle Geräte sternförmig", isCorrect: false },
+        { id: "d", text: "Die Endpunkte sind geschlossen (Token kreist)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Eine 1-Gbit/s-Leitung liefert in der Praxis nur 600 Mbit/s — wie heißt der Begriff dafür?",
+      explanation: "Bandbreite = theoretisches Maximum (1 Gbit/s). Durchsatz (Throughput) = tatsächlich übertragene Nutzdatenmenge pro Zeit (600 Mbit/s). Latenz = Zeit pro Paket.",
+      answers: [
+        { id: "a", text: "Bandbreite", isCorrect: false },
+        { id: "b", text: "Durchsatz (Throughput)", isCorrect: true },
+        { id: "c", text: "Latenz", isCorrect: false },
+        { id: "d", text: "Jitter", isCorrect: false },
+      ],
+    },
   ],
 };
 

@@ -113,7 +113,7 @@ Die "TechVision AG" (Softwareentwicklung, Standort München) bezieht ein neues B
 
 export const CONCEPT_SUBNETTING_DRILL: Concept = {
   id: "subnetting-drill",
-  title: "Subnetting-Drill — 20 Übungsaufgaben",
+  title: "Subnetting-Drill — Übungsaufgaben (Block 1–6)",
   appliesTo: ["ccna", "comptia-network-plus"],
   tags: ["subnetting", "drill", "practice", "vlsm", "cidr"],
   content: `
@@ -179,6 +179,33 @@ Du hast \`192.168.10.0/24\` und brauchst:
 | 18 | /23 — Hosts? | \`510\` (2^9 − 2) |
 | 19 | /17 — Hosts? | \`32766\` (2^15 − 2) |
 | 20 | Wo liegt 172.20.130.5 im /17 \`172.20.128.0\`? | im Subnetz (172.20.128.1 – 172.20.255.254) |
+
+### Block 6 — Binär-Drill (Klasse erkennen)
+
+> **Aufgabe:** IP-Adresse → Binär (4 × 8 Bit) → Klasse (A/B/C/D/E) bestimmen.
+> Methode: Erstes Oktett ansehen, dann Klassen-Schwellen \`1–126 / 128–191 / 192–223 / 224–239 / 240–255\` anwenden.
+
+| #  | IP-Adresse        | Binär (1. Oktett)  | Klasse |
+|----|-------------------|--------------------|--------|
+| 21 | 101.29.16.200     | \`01100101\`         | **A** |
+| 22 | 172.20.0.39       | \`10101100\`         | **B** |
+| 23 | 212.14.154.0      | \`11010100\`         | **C** |
+| 24 | 25.246.133.37     | \`00011001\`         | **A** |
+| 25 | 128.2.229.1       | \`10000000\`         | **B** |
+| 26 | 192.168.5.254     | \`11000000\`         | **C** (privat, RFC 1918) |
+| 27 | 185.138.123.40    | \`10111001\`         | **B** |
+| 28 | 223.255.199.80    | \`11011111\`         | **C** (Grenzfall — letzte C-Adresse) |
+| 29 | 203.7.224.240     | \`11001011\`         | **C** |
+| 30 | 198.162.13.252    | \`11000110\`         | **C** |
+| 31 | 19.249.83.75      | \`00010011\`         | **A** |
+| 32 | 95.127.11.239     | \`01011111\`         | **A** |
+| 33 | 224.0.0.5         | \`11100000\`         | **D** (Multicast — OSPF "AllSPFRouters") |
+| 34 | 134.78.45.227     | \`10000110\`         | **B** |
+| 35 | 245.72.189.160    | \`11110101\`         | **E** (reserviert) |
+| 36 | 145.23.12.24      | \`10010001\`         | **B** |
+| 37 | 42.36.53.234      | \`00101010\`         | **A** |
+
+> **Selbsttest-Tipp:** Die Übung ohne Taschenrechner durchführen — in der CCNA-Prüfung steht keiner zur Verfügung. Aus den ersten zwei bis drei Bits lässt sich die Klasse bereits ablesen (\`0…\` = A, \`10…\` = B, \`110…\` = C, \`1110…\` = D, \`1111…\` = E).
 
 ### Methode (Standard-Cookbook)
 1. **Bestimme das Magic Number = 256 − Maske-Oktett.**

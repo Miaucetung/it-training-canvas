@@ -11,10 +11,11 @@
 import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
 import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
 import type { CertificationModule, Topic } from "@/lib/content/types";
-import { ArrowLeft, BookOpen, Link, Question, X } from "@phosphor-icons/react";
-import { useEffect } from "react";
+import { ArrowLeft, BookOpen, Calculator, Link, Question, X } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -77,6 +78,8 @@ export function TopicDetailPanel({
   onClose,
 }: TopicDetailPanelProps) {
   const dark = theme === "dark";
+  const [drillOpen, setDrillOpen] = useState(false);
+  const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
 
   // ESC key support
   useEffect(() => {
@@ -176,6 +179,36 @@ export function TopicDetailPanel({
           <p className={`text-sm leading-relaxed ${dark ? "text-slate-400" : "text-slate-600"}`}>
             {topic.description}
           </p>
+        )}
+
+        {/* ── Subnetting Drill CTA (interaktiv, 30 generierte Aufgaben) ── */}
+        {hasSubnettingDrill && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setDrillOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-200"
+                  : "bg-indigo-50 border-indigo-200 hover:bg-indigo-100 text-indigo-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  dark ? "bg-indigo-500/30 text-indigo-200" : "bg-indigo-100 text-indigo-700"
+                }`}
+              >
+                <Calculator size={18} weight="duotone" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">Interaktiver Subnetting-Drill</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  30 automatisch generierte Aufgaben — Subnetz, Broadcast, Hostbereich, Magic Number
+                </div>
+              </div>
+              <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>Starten →</span>
+            </button>
+          </section>
         )}
 
         {/* ── Concepts ── */}
@@ -454,6 +487,14 @@ export function TopicDetailPanel({
           )}
         </section>
       </div>
+
+      {hasSubnettingDrill && (
+        <SubnettingDrillDialog
+          open={drillOpen}
+          onClose={() => setDrillOpen(false)}
+          theme={theme}
+        />
+      )}
     </div>
   );
 }
