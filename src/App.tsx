@@ -2153,6 +2153,7 @@ function App() {
           customTemplates={customTemplates}
           currentObjects={canvasState.objects}
           currentConnections={canvasState.connections}
+          viewport={viewportInfo}
           onApplyTemplate={(objects, connections) => {
             setShowWelcome(false);
             setAppData((prev) => {

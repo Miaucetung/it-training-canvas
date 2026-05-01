@@ -28,6 +28,7 @@ interface TemplateGalleryProps {
   customTemplates: CanvasTemplate[];
   currentObjects: DrawingObject[];
   currentConnections: CanvasConnection[];
+  viewport?: { x: number; y: number; zoom: number; width: number; height: number };
   onApplyTemplate: (
     objects: DrawingObject[],
     connections: CanvasConnection[],
@@ -55,6 +56,7 @@ export function TemplateGallery({
   customTemplates,
   currentObjects,
   currentConnections,
+  viewport,
   onApplyTemplate,
   onSaveAsTemplate,
   onClose,
@@ -95,30 +97,77 @@ export function TemplateGallery({
 
   const handleApply = useCallback(
     (template: CanvasTemplate) => {
-      // Offset objects slightly to avoid overlapping existing content
-      const offsetX = currentObjects.length > 0 ? 50 : 0;
-      const offsetY = currentObjects.length > 0 ? 50 : 0;
+      // Bounding-Box der Vorlage ermitteln
+      const xs = template.objects.flatMap((o) => [
+        o.startPoint?.x ?? 0,
+        o.endPoint?.x ?? o.startPoint?.x ?? 0,
+      ]);
+      const ys = template.objects.flatMap((o) => [
+        o.startPoint?.y ?? 0,
+        o.endPoint?.y ?? o.startPoint?.y ?? 0,
+      ]);
+      const tplMinX = xs.length ? Math.min(...xs) : 0;
+      const tplMinY = ys.length ? Math.min(...ys) : 0;
 
-      const newObjects = template.objects.map((obj) => ({
+      // Zielposition: aktueller Viewport-Ausschnitt (mit kleinem Rand),
+      // Fallback wenn keine Viewport-Info vorhanden
+      let targetX = 60;
+      let targetY = 60;
+      if (viewport) {
+        targetX = viewport.x + 40;
+        targetY = viewport.y + 60;
+      }
+      // Bei leerem Canvas und kein Viewport: Original-Position behalten
+      if (!viewport && currentObjects.length === 0) {
+        targetX = tplMinX;
+        targetY = tplMinY;
+      }
+
+      const dx = targetX - tplMinX;
+      const dy = targetY - tplMinY;
+      const stamp = Date.now();
+      // Eine groupId fuer ALLE Elemente der angewendeten Vorlage —
+      // dadurch verschiebt jedes Anfassen die gesamte Vorlage gemeinsam.
+      const groupId = `tpl-group-${stamp}`;
+
+      const newObjects: DrawingObject[] = template.objects.map((obj) => ({
         ...obj,
-        id: `${obj.id}-${Date.now()}`,
+        id: `${obj.id}-${stamp}`,
+        groupId,
         startPoint: obj.startPoint
-          ? { x: obj.startPoint.x + offsetX, y: obj.startPoint.y + offsetY }
+          ? { x: obj.startPoint.x + dx, y: obj.startPoint.y + dy }
           : undefined,
         endPoint: obj.endPoint
-          ? { x: obj.endPoint.x + offsetX, y: obj.endPoint.y + offsetY }
+          ? { x: obj.endPoint.x + dx, y: obj.endPoint.y + dy }
           : undefined,
       }));
 
+      // Sichtbarer Bezugspunkt: Anker-Handle oben links der Bounding-Box
+      const anchor: DrawingObject = {
+        id: `${template.id}-anchor-${stamp}`,
+        type: "text",
+        color: "#6366F1",
+        width: 1,
+        startPoint: { x: targetX, y: targetY - 16 },
+        text: "\u2725 Vorlage verschieben (anfassen & ziehen)",
+        fontSize: 13,
+        fontFamily: "IBM Plex Sans",
+        groupId,
+        layer: "foreground",
+        locked: false,
+        visible: true,
+      };
+      newObjects.unshift(anchor);
+
       // Map old IDs to new IDs for connections
       const idMap = new Map<string, string>();
-      template.objects.forEach((obj, i) => {
-        idMap.set(obj.id, newObjects[i].id);
+      template.objects.forEach((obj) => {
+        idMap.set(obj.id, `${obj.id}-${stamp}`);
       });
 
       const newConnections = template.connections.map((conn) => ({
         ...conn,
-        id: `${conn.id}-${Date.now()}`,
+        id: `${conn.id}-${stamp}`,
         sourceShapeId: idMap.get(conn.sourceShapeId) || conn.sourceShapeId,
         targetShapeId: idMap.get(conn.targetShapeId) || conn.targetShapeId,
       }));
@@ -127,7 +176,7 @@ export function TemplateGallery({
       toast.success(`Template "${template.name}" angewendet`);
       onClose();
     },
-    [currentObjects.length, onApplyTemplate, onClose],
+    [currentObjects.length, onApplyTemplate, onClose, viewport],
   );
 
   const handleSave = useCallback(() => {
