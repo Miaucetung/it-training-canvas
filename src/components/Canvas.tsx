@@ -1117,7 +1117,9 @@ export function Canvas({
       return;
     }
 
-    if (!isDrawing || !currentObject) return;
+    if (!isDrawing) return;
+    // For draw-tools we need a currentObject; select-tool dragging continues without one.
+    if (tool !== "select" && !currentObject) return;
 
     // Snap to nearby shapes when dragging
     let snappedPos = e.shiftKey ? snapToGrid(worldPos) : worldPos;
@@ -1216,6 +1218,7 @@ export function Canvas({
     }
 
     // Update current drawing object
+    if (!currentObject) return;
     if (currentObject.type === "pen" || currentObject.type === "eraser") {
       setCurrentObject({
         ...currentObject,
