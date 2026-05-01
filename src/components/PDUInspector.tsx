@@ -85,11 +85,12 @@ export function PDUInspector({
   return (
     <div
       className={cn(
-        "fixed bottom-4 right-4 w-[420px] max-h-[500px] rounded-lg border shadow-xl z-50",
+        "fixed bottom-4 right-4 w-[420px] flex flex-col rounded-lg border shadow-xl z-50",
         theme === "dark"
           ? "bg-slate-900 border-slate-700 text-slate-100"
           : "bg-white border-slate-200 text-slate-900",
       )}
+      style={{ maxHeight: "calc(100vh - 2rem)" }}
     >
       {/* Header */}
       <div
@@ -133,7 +134,7 @@ export function PDUInspector({
       </div>
 
       {/* Frames (OSI Layers) */}
-      <ScrollArea className="max-h-[380px]">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {pdu.frames.map((frame: PDUFrame) => {
             const isExpanded = expandedLayers.has(frame.layer);
