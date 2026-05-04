@@ -20,7 +20,7 @@ import { useCallback, useState } from "react";
 // ── Types ────────────────────────────────────────────────────
 
 type IPv6Tab = "analyse" | "eui64" | "segmentation" | "drill";
-type DrillType = "type" | "expand" | "compress" | "eui64";
+type DrillType = "type" | "expand" | "compress" | "eui64" | "prefix";
 
 export type IPv6AddrType =
   | "loopback"
@@ -70,6 +70,8 @@ interface DrillTask {
   choices?: string[];
   hint: string;
   explanation: string;
+  /** Optional normalizer: expand both sides before comparing, so different forms match. */
+  answerNormalize?: (s: string) => string;
 }
 
 // ── IPv6 Engine (exported for tests) ─────────────────────────
@@ -354,8 +356,25 @@ function randomAddr(t: IPv6AddrType): string {
   }
 }
 
+/** Returns the network (prefix) address for an address/CIDR string, compressed. */
+export function calcIPv6Prefix(addrWithCidr: string): { network: string; prefixLen: number } | null {
+  const m = addrWithCidr.trim().match(/^(.+?)\/(\d+)$/);
+  if (!m) return null;
+  const prefixLen = parseInt(m[2], 10);
+  if (isNaN(prefixLen) || prefixLen < 0 || prefixLen > 128) return null;
+  const exp = expandIPv6(m[1].trim());
+  if (!exp) return null;
+  let addr = BigInt(0);
+  for (const g of exp.split(":")) addr = (addr << BigInt(16)) | BigInt(parseInt(g, 16));
+  const mask =
+    prefixLen === 0
+      ? BigInt(0)
+      : ((BigInt(1) << BigInt(prefixLen)) - BigInt(1)) << BigInt(128 - prefixLen);
+  return { network: bigIntToIPv6(addr & mask), prefixLen };
+}
+
 function makeDrillTask(dt?: DrillType): DrillTask {
-  const all: DrillType[] = ["type", "expand", "compress", "eui64"];
+  const all: DrillType[] = ["type", "expand", "compress", "eui64", "prefix"];
   const drillType = dt ?? all[Math.floor(Math.random() * all.length)];
   switch (drillType) {
     case "type": {
@@ -422,6 +441,64 @@ function makeDrillTask(dt?: DrillType): DrillTask {
         answer: r.interfaceId,
         hint: "1) FF:FE in die Mitte der MAC einfügen. 2) Erstes Oktett XOR 0x02. 3) Als 4 × 4-Hex-Gruppen aufschreiben.",
         explanation: `Interface-ID: ${r.interfaceId}. ${r.steps[3].explanation}`,
+      };
+    }
+    case "prefix": {
+      // Real-world-style examples like classroom exercise sheets
+      const POOL = [
+        "2340:0:10:100:1000:abcd:101:1010/64",
+        "30a0:abcd:ef12:3456:abc:b0b0:9999:9009/64",
+        "2222:3333:4444:5555:0:6060:707:1/64",
+        "34ba:b:b:0:5555:0:6060:707/64",
+        "3124:0:dead:cafe:ff:fe00:1:2/64",
+        "2bcd:0:face:beff:febe:cafe:1:2/64",
+        "3fed:f:e0:d00:face:baff:fe00:0/80",
+        "34ba:b:b:0:5555:1:6060:707/80",
+        "3124:0:dead:cafe:f:fe00:1:2/80",
+        "3fed:f:e0:d00:face:baff:fe00:0/48",
+        "3bed:800:0:40:face:baff:fe00:0/48",
+        "210f:a:b:c:cccc:b0b0:9999:9009/40",
+        "34ba:b:b:0:5555:0:6060:707/36",
+        "3124:0:dead:cafe:ff:fe00:1:2/60",
+        "2bcd:0:face:1:beff:febe:cafe:3/56",
+        "3fed:f:e0:d000:face:baff:fe00:0/52",
+        "3bed:800:0:40:face:baff:fe00:0/44",
+        "2001:db8:acad:1:face:baff:fe00:1/64",
+        "fc00:0:a:1:200:ff:fe00:1/48",
+        "fd12:3456:789a:1:abc:def:0:1/56",
+      ];
+      const src = POOL[Math.floor(Math.random() * POOL.length)];
+      const pm = src.match(/^(.+?)\/(\d+)$/);
+      if (!pm) return makeDrillTask("type");
+      const prefixLen = parseInt(pm[2], 10);
+      const result = calcIPv6Prefix(src);
+      if (!result) return makeDrillTask("type");
+      const expAddr = expandIPv6(pm[1]);
+      if (!expAddr) return makeDrillTask("type");
+      const prefixGroups = Math.floor(prefixLen / 16);
+      const partialBits = prefixLen % 16;
+      const groups = expAddr.split(":");
+      let explanation = `Vollform: ${expAddr}/${prefixLen}\n`;
+      explanation += `Erste ${prefixLen} Bits = ${prefixGroups} vollständige Gruppe(n): ${groups.slice(0, prefixGroups).join(":")}`;
+      if (partialBits > 0) {
+        const mask = (0xffff << (16 - partialBits)) & 0xffff;
+        explanation += ` + Gruppe ${prefixGroups + 1} AND 0x${mask.toString(16).toUpperCase().padStart(4, "0")} = ${groups[prefixGroups]}`;
+      }
+      explanation += `\n→ Host-Bits auf 0 → komprimiert: ${result.network}/${prefixLen}`;
+      const normalize = (s: string) => {
+        const n = s.trim().match(/^(.+?)\/(\d+)$/);
+        if (!n) return s.trim().toLowerCase();
+        const exp2 = expandIPv6(n[1].trim());
+        return exp2 ? `${exp2}/${n[2].trim()}` : s.trim().toLowerCase();
+      };
+      return {
+        drillType: "prefix",
+        question: "Leite die IPv6-Präfixadresse ab (Host-Bits → 0, dann kürzen):",
+        input: src,
+        answer: `${result.network}/${prefixLen}`,
+        hint: `/${prefixLen} = die ersten ${prefixLen} Bits sind Netzwerk. Bei /64 → erste 4 Gruppen behalten, Rest → ::. Bei nicht-16er-Grenzen Gruppe AND Maske.`,
+        explanation,
+        answerNormalize: normalize,
       };
     }
   }
@@ -1083,8 +1160,9 @@ function DrillTab({ dark }: { dark: boolean }) {
 
   const check = useCallback(() => {
     if (checked) return;
-    const userAnswer = task.choices ? choice : textInput.trim().toLowerCase();
-    const isCorrect = userAnswer?.toLowerCase() === task.answer.toLowerCase();
+    const rawAnswer = task.choices ? choice : textInput.trim();
+    const normalize = task.answerNormalize ?? ((s: string) => s.toLowerCase());
+    const isCorrect = normalize(rawAnswer ?? "") === normalize(task.answer);
     setCorrect(isCorrect);
     setChecked(true);
     setScore((s) => ({
@@ -1102,12 +1180,14 @@ function DrillTab({ dark }: { dark: boolean }) {
     expand: "Vollform",
     compress: "Kurzform",
     eui64: "EUI-64",
+    prefix: "Präfix",
   };
   const taskTypeLabel: Record<DrillType, string> = {
     type: "Adresstyp",
     expand: "Vollform",
     compress: "Kurzform",
     eui64: "EUI-64",
+    prefix: "Präfixadresse",
   };
 
   return (
@@ -1115,7 +1195,7 @@ function DrillTab({ dark }: { dark: boolean }) {
       {/* Filter + Score */}
       <div className="flex items-center gap-2 flex-wrap">
         {(
-          ["random", "type", "expand", "compress", "eui64"] as (
+          ["random", "type", "expand", "compress", "eui64", "prefix"] as (
             | DrillType
             | "random"
           )[]
@@ -1416,4 +1496,5 @@ export const __test__ = {
   getIPv6Type,
   eui64FromMac,
   calcIPv6Segmentation,
+  calcIPv6Prefix,
 };
