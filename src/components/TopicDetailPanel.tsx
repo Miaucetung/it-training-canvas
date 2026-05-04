@@ -11,7 +11,14 @@
 import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
 import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
 import type { CertificationModule, Topic } from "@/lib/content/types";
-import { ArrowLeft, BookOpen, Calculator, Link, Question, X } from "@phosphor-icons/react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Calculator,
+  Link,
+  Question,
+  X,
+} from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -36,10 +43,7 @@ interface TopicCrossRef {
   direction: "outbound" | "inbound";
 }
 
-function getCrossRefsForTopic(
-  topic: Topic,
-  moduleId: string,
-): TopicCrossRef[] {
+function getCrossRefsForTopic(topic: Topic, moduleId: string): TopicCrossRef[] {
   const refs: TopicCrossRef[] = [];
   for (const bridge of CONCEPT_BRIDGES) {
     if (
@@ -79,7 +83,9 @@ export function TopicDetailPanel({
 }: TopicDetailPanelProps) {
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
+  const [ipv6Open, setIpv6Open] = useState(false);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
+  const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
 
   // ESC key support
   useEffect(() => {
@@ -95,9 +101,7 @@ export function TopicDetailPanel({
   const quizIds = getTopicQuizIds(module, topic.id);
   // extractQuizzes: returns full quiz map for the module
   const allQuizzes = extractQuizzes(module);
-  const topicQuizzes = quizIds
-    .map((qid) => allQuizzes[qid])
-    .filter(Boolean);
+  const topicQuizzes = quizIds.map((qid) => allQuizzes[qid]).filter(Boolean);
 
   // ── Concepts ─────────────────────────────────────────────────
   const concepts = topic.conceptIds
@@ -118,9 +122,7 @@ export function TopicDetailPanel({
   return (
     <div
       className={`h-full flex flex-col border-l ${
-        dark
-          ? "bg-slate-900 border-slate-700"
-          : "bg-white border-slate-200"
+        dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
       }`}
       role="region"
       aria-label={`Topic-Detail: ${topic.title}`}
@@ -173,10 +175,11 @@ export function TopicDetailPanel({
 
       {/* ── Body ── */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
-
         {/* Description */}
         {topic.description && (
-          <p className={`text-sm leading-relaxed ${dark ? "text-slate-400" : "text-slate-600"}`}>
+          <p
+            className={`text-sm leading-relaxed ${dark ? "text-slate-400" : "text-slate-600"}`}
+          >
             {topic.description}
           </p>
         )}
@@ -195,18 +198,59 @@ export function TopicDetailPanel({
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  dark
+                    ? "bg-indigo-500/30 text-indigo-200"
+                    : "bg-indigo-100 text-indigo-700"
+                }`}
+              >
+                <Calculator size={18} weight="duotone" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">
+                  Interaktiver Subnetting-Drill
+                </div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  30 automatisch generierte Aufgaben — Subnetz, Broadcast,
+                  Hostbereich, Magic Number
+                </div>
+              </div>
+              <span
+                className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}
+              >
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── IPv6 Rechner & Drill CTA ── */}
+        {hasIPv6Calculator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setIpv6Open(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-200"
+                  : "bg-indigo-50 border-indigo-200 hover:bg-indigo-100 text-indigo-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   dark ? "bg-indigo-500/30 text-indigo-200" : "bg-indigo-100 text-indigo-700"
                 }`}
               >
                 <Calculator size={18} weight="duotone" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold">Interaktiver Subnetting-Drill</div>
+                <div className="text-sm font-semibold">IPv6 Rechner &amp; Drill</div>
                 <div className="text-xs opacity-80 mt-0.5">
-                  30 automatisch generierte Aufgaben — Subnetz, Broadcast, Hostbereich, Magic Number
+                  Adress-Analyse · EUI-64 · Segmentierung · Zufalls-Drill
                 </div>
               </div>
-              <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>Starten →</span>
+              <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>
+                Starten →
+              </span>
             </button>
           </section>
         )}
@@ -228,7 +272,9 @@ export function TopicDetailPanel({
           </div>
 
           {concepts.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">Keine Konzepte verknüpft.</p>
+            <p className="text-xs text-slate-500 italic">
+              Keine Konzepte verknüpft.
+            </p>
           ) : (
             <div className="space-y-2">
               {concepts.map((concept, idx) => (
@@ -264,28 +310,56 @@ export function TopicDetailPanel({
                           remarkPlugins={[remarkGfm]}
                           components={{
                             h1: ({ children }) => (
-                              <h1 className={`text-base font-bold mt-3 mb-1 ${dark ? "text-white" : "text-slate-900"}`}>{children}</h1>
+                              <h1
+                                className={`text-base font-bold mt-3 mb-1 ${dark ? "text-white" : "text-slate-900"}`}
+                              >
+                                {children}
+                              </h1>
                             ),
                             h2: ({ children }) => (
-                              <h2 className={`text-sm font-semibold mt-3 mb-1 ${dark ? "text-slate-100" : "text-slate-800"}`}>{children}</h2>
+                              <h2
+                                className={`text-sm font-semibold mt-3 mb-1 ${dark ? "text-slate-100" : "text-slate-800"}`}
+                              >
+                                {children}
+                              </h2>
                             ),
                             h3: ({ children }) => (
-                              <h3 className={`text-xs font-semibold uppercase tracking-wide mt-2 mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}>{children}</h3>
+                              <h3
+                                className={`text-xs font-semibold uppercase tracking-wide mt-2 mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}
+                              >
+                                {children}
+                              </h3>
                             ),
                             p: ({ children }) => (
-                              <p className={`text-xs leading-relaxed my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}>{children}</p>
+                              <p
+                                className={`text-xs leading-relaxed my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}
+                              >
+                                {children}
+                              </p>
                             ),
                             strong: ({ children }) => (
-                              <strong className={`font-semibold ${dark ? "text-white" : "text-slate-900"}`}>{children}</strong>
+                              <strong
+                                className={`font-semibold ${dark ? "text-white" : "text-slate-900"}`}
+                              >
+                                {children}
+                              </strong>
                             ),
                             em: ({ children }) => (
                               <em className="italic">{children}</em>
                             ),
                             ul: ({ children }) => (
-                              <ul className={`list-disc list-inside text-xs space-y-0.5 my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}>{children}</ul>
+                              <ul
+                                className={`list-disc list-inside text-xs space-y-0.5 my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}
+                              >
+                                {children}
+                              </ul>
                             ),
                             ol: ({ children }) => (
-                              <ol className={`list-decimal list-inside text-xs space-y-0.5 my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}>{children}</ol>
+                              <ol
+                                className={`list-decimal list-inside text-xs space-y-0.5 my-1.5 ${dark ? "text-slate-300" : "text-slate-600"}`}
+                              >
+                                {children}
+                              </ol>
                             ),
                             li: ({ children }) => (
                               <li className="leading-relaxed">{children}</li>
@@ -293,33 +367,67 @@ export function TopicDetailPanel({
                             code: ({ children, className }) => {
                               const isBlock = className?.includes("language-");
                               return isBlock ? (
-                                <code className={`block text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto ${dark ? "bg-slate-900 text-slate-200 border border-slate-700" : "bg-slate-100 text-slate-800 border border-slate-200"}`}>{children}</code>
+                                <code
+                                  className={`block text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto ${dark ? "bg-slate-900 text-slate-200 border border-slate-700" : "bg-slate-100 text-slate-800 border border-slate-200"}`}
+                                >
+                                  {children}
+                                </code>
                               ) : (
-                                <code className={`text-xs font-mono px-1 py-0.5 rounded ${dark ? "bg-slate-700 text-indigo-300" : "bg-slate-100 text-indigo-700"}`}>{children}</code>
+                                <code
+                                  className={`text-xs font-mono px-1 py-0.5 rounded ${dark ? "bg-slate-700 text-indigo-300" : "bg-slate-100 text-indigo-700"}`}
+                                >
+                                  {children}
+                                </code>
                               );
                             },
                             pre: ({ children }) => (
-                              <pre className={`text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto ${dark ? "bg-slate-900 border border-slate-700" : "bg-slate-100 border border-slate-200"}`}>{children}</pre>
+                              <pre
+                                className={`text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto ${dark ? "bg-slate-900 border border-slate-700" : "bg-slate-100 border border-slate-200"}`}
+                              >
+                                {children}
+                              </pre>
                             ),
                             blockquote: ({ children }) => (
-                              <blockquote className={`border-l-2 pl-3 my-2 italic text-xs ${dark ? "border-indigo-500 text-slate-400" : "border-indigo-400 text-slate-500"}`}>{children}</blockquote>
+                              <blockquote
+                                className={`border-l-2 pl-3 my-2 italic text-xs ${dark ? "border-indigo-500 text-slate-400" : "border-indigo-400 text-slate-500"}`}
+                              >
+                                {children}
+                              </blockquote>
                             ),
                             table: ({ children }) => (
                               <div className="overflow-x-auto my-2">
-                                <table className="w-full text-xs border-collapse">{children}</table>
+                                <table className="w-full text-xs border-collapse">
+                                  {children}
+                                </table>
                               </div>
                             ),
                             thead: ({ children }) => (
-                              <thead className={dark ? "bg-slate-700" : "bg-slate-100"}>{children}</thead>
+                              <thead
+                                className={
+                                  dark ? "bg-slate-700" : "bg-slate-100"
+                                }
+                              >
+                                {children}
+                              </thead>
                             ),
                             th: ({ children }) => (
-                              <th className={`px-2 py-1 text-left font-semibold border ${dark ? "border-slate-600 text-slate-200" : "border-slate-200 text-slate-700"}`}>{children}</th>
+                              <th
+                                className={`px-2 py-1 text-left font-semibold border ${dark ? "border-slate-600 text-slate-200" : "border-slate-200 text-slate-700"}`}
+                              >
+                                {children}
+                              </th>
                             ),
                             td: ({ children }) => (
-                              <td className={`px-2 py-1 border ${dark ? "border-slate-700 text-slate-300" : "border-slate-200 text-slate-600"}`}>{children}</td>
+                              <td
+                                className={`px-2 py-1 border ${dark ? "border-slate-700 text-slate-300" : "border-slate-200 text-slate-600"}`}
+                              >
+                                {children}
+                              </td>
                             ),
                             hr: () => (
-                              <hr className={`my-3 ${dark ? "border-slate-700" : "border-slate-200"}`} />
+                              <hr
+                                className={`my-3 ${dark ? "border-slate-700" : "border-slate-200"}`}
+                              />
                             ),
                           }}
                         >
@@ -363,7 +471,8 @@ export function TopicDetailPanel({
                   dark ? "text-slate-500" : "text-slate-400"
                 }`}
               >
-                Quiz ({topicQuizzes.reduce((s, q) => s + q.questions.length, 0)} Fragen)
+                Quiz ({topicQuizzes.reduce((s, q) => s + q.questions.length, 0)}{" "}
+                Fragen)
               </h3>
             </div>
 
@@ -492,6 +601,14 @@ export function TopicDetailPanel({
         <SubnettingDrillDialog
           open={drillOpen}
           onClose={() => setDrillOpen(false)}
+          theme={theme}
+        />
+      )}
+
+      {hasIPv6Calculator && (
+        <IPv6CalculatorDialog
+          open={ipv6Open}
+          onClose={() => setIpv6Open(false)}
           theme={theme}
         />
       )}

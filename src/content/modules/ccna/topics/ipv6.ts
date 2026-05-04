@@ -136,7 +136,7 @@ export const TOPIC_IPV6: Topic = {
   title: "IPv6",
   description:
     "IPv6-Adressierung, NDP, SLAAC, DHCPv6 und Routing — der Nachfolger von IPv4.",
-  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide"],
+  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator"],
   quizIds: ["ccna-quiz-ipv6"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
