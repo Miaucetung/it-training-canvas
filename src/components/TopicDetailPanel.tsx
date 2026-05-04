@@ -11,6 +11,7 @@
 import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
 import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
 import type { CertificationModule, Topic } from "@/lib/content/types";
+import type { Quiz, ScoreResult } from "@/lib/types";
 import {
   ArrowLeft,
   BookOpen,
@@ -23,6 +24,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
+import { QuizDialog } from "./QuizDialog";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
 
 interface TopicDetailPanelProps {
@@ -85,6 +87,8 @@ export function TopicDetailPanel({
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
   const [ipv6Open, setIpv6Open] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
 
@@ -521,19 +525,22 @@ export function TopicDetailPanel({
                     )}
                   </div>
 
-                  {/* Start-Quiz-Button — disabled until Gamification */}
+                  {/* Start-Quiz-Button */}
                   <button
-                    disabled
-                    aria-disabled="true"
-                    title="Quiz-Flow wird in Phase 6c-4 aktiviert"
-                    className={`mt-3 w-full text-xs py-2 rounded-lg border opacity-50 cursor-not-allowed ${
+                    onClick={() => { setLastResult(null); setActiveQuiz(quiz); }}
+                    className={`mt-3 w-full text-xs py-2 rounded-lg border transition-colors ${
                       dark
-                        ? "border-amber-500/40 text-amber-400"
-                        : "border-amber-300 text-amber-700"
+                        ? "border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+                        : "border-amber-300 text-amber-700 hover:bg-amber-50"
                     }`}
                   >
-                    Quiz starten (bald verfügbar)
+                    Quiz starten →
                   </button>
+                  {lastResult && (
+                    <p className={`mt-1.5 text-center text-xs ${lastResult.passed ? (dark ? "text-emerald-400" : "text-emerald-600") : (dark ? "text-red-400" : "text-red-600")}`}>
+                      Letztes Ergebnis: {lastResult.score}% — {lastResult.passed ? "Bestanden ✓" : "Nicht bestanden ✗"}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -611,6 +618,18 @@ export function TopicDetailPanel({
           open={ipv6Open}
           onClose={() => setIpv6Open(false)}
           theme={theme}
+        />
+      )}
+
+      {activeQuiz && (
+        <QuizDialog
+          quiz={activeQuiz}
+          theme={theme}
+          onComplete={(result) => {
+            setLastResult(result);
+            setActiveQuiz(null);
+          }}
+          onClose={() => setActiveQuiz(null)}
         />
       )}
     </div>
