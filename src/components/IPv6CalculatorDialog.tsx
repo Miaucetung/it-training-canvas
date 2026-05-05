@@ -19,7 +19,7 @@ import { useCallback, useState } from "react";
 
 // ── Types ────────────────────────────────────────────────────
 
-type IPv6Tab = "analyse" | "eui64" | "segmentation" | "drill";
+type IPv6Tab = "analyse" | "eui64" | "segmentation" | "drill" | "binaer";
 type DrillType = "type" | "expand" | "compress" | "eui64" | "prefix";
 
 export type IPv6AddrType =
@@ -357,7 +357,9 @@ function randomAddr(t: IPv6AddrType): string {
 }
 
 /** Returns the network (prefix) address for an address/CIDR string, compressed. */
-export function calcIPv6Prefix(addrWithCidr: string): { network: string; prefixLen: number } | null {
+export function calcIPv6Prefix(
+  addrWithCidr: string,
+): { network: string; prefixLen: number } | null {
   const m = addrWithCidr.trim().match(/^(.+?)\/(\d+)$/);
   if (!m) return null;
   const prefixLen = parseInt(m[2], 10);
@@ -365,11 +367,13 @@ export function calcIPv6Prefix(addrWithCidr: string): { network: string; prefixL
   const exp = expandIPv6(m[1].trim());
   if (!exp) return null;
   let addr = BigInt(0);
-  for (const g of exp.split(":")) addr = (addr << BigInt(16)) | BigInt(parseInt(g, 16));
+  for (const g of exp.split(":"))
+    addr = (addr << BigInt(16)) | BigInt(parseInt(g, 16));
   const mask =
     prefixLen === 0
       ? BigInt(0)
-      : ((BigInt(1) << BigInt(prefixLen)) - BigInt(1)) << BigInt(128 - prefixLen);
+      : ((BigInt(1) << BigInt(prefixLen)) - BigInt(1)) <<
+        BigInt(128 - prefixLen);
   return { network: bigIntToIPv6(addr & mask), prefixLen };
 }
 
@@ -493,7 +497,8 @@ function makeDrillTask(dt?: DrillType): DrillTask {
       };
       return {
         drillType: "prefix",
-        question: "Leite die IPv6-Präfixadresse ab (Host-Bits → 0, dann kürzen):",
+        question:
+          "Leite die IPv6-Präfixadresse ab (Host-Bits → 0, dann kürzen):",
         input: src,
         answer: `${result.network}/${prefixLen}`,
         hint: `/${prefixLen} = die ersten ${prefixLen} Bits sind Netzwerk. Bei /64 → erste 4 Gruppen behalten, Rest → ::. Bei nicht-16er-Grenzen Gruppe AND Maske.`,
@@ -754,9 +759,17 @@ function toBin8(n: number): string {
   return n.toString(2).padStart(8, "0");
 }
 
-function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: number }) {
+function XorExplainer({
+  dark,
+  initialByte,
+}: {
+  dark: boolean;
+  initialByte?: number;
+}) {
   const [byteA, setByteA] = useState(
-    initialByte !== undefined ? initialByte.toString(16).toUpperCase().padStart(2, "0") : "AA",
+    initialByte !== undefined
+      ? initialByte.toString(16).toUpperCase().padStart(2, "0")
+      : "AA",
   );
   const [byteB, setByteB] = useState("02");
   const [error, setError] = useState("");
@@ -772,14 +785,20 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
 
   const handleA = (v: string) => {
     setByteA(v);
-    setError(parseHex(v) === null ? "Eingabe muss 1-2 Hex-Ziffern (00-FF) sein" : "");
+    setError(
+      parseHex(v) === null ? "Eingabe muss 1-2 Hex-Ziffern (00-FF) sein" : "",
+    );
   };
   const handleB = (v: string) => {
     setByteB(v);
-    setError(parseHex(v) === null ? "Eingabe muss 1-2 Hex-Ziffern (00-FF) sein" : "");
+    setError(
+      parseHex(v) === null ? "Eingabe muss 1-2 Hex-Ziffern (00-FF) sein" : "",
+    );
   };
 
-  const card = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const card = dark
+    ? "bg-slate-800/60 border-slate-700"
+    : "bg-slate-50 border-slate-200";
   const lbl = dark ? "text-slate-400" : "text-slate-500";
   const mono = dark ? "text-white" : "text-slate-900";
   const accent = dark ? "text-amber-300" : "text-amber-700";
@@ -789,14 +808,18 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
 
   // 0x02 = 00000010: the set bit is at Bit 1 (0-indexed from RIGHT, value=2).
   // In the left-to-right display array [7,6,5,4,3,2,1,0], that is array index 6.
-  const UL_BIT_POS = 1;           // 0-indexed from right
+  const UL_BIT_POS = 1; // 0-indexed from right
   const UL_ARRAY_IDX = 7 - UL_BIT_POS; // = 6
 
   const isULCol = (arrayIdx: number) => b === 0x02 && arrayIdx === UL_ARRAY_IDX;
 
-  const changedBits = a !== null && result !== null
-    ? Array.from({ length: 8 }, (_, i) => ((a >> (7 - i)) & 1) !== ((result >> (7 - i)) & 1))
-    : (Array(8).fill(false) as boolean[]);
+  const changedBits =
+    a !== null && result !== null
+      ? Array.from(
+          { length: 8 },
+          (_, i) => ((a >> (7 - i)) & 1) !== ((result >> (7 - i)) & 1),
+        )
+      : (Array(8).fill(false) as boolean[]);
 
   const binA = a !== null ? toBin8(a) : "????????";
   const binB = b !== null ? toBin8(b) : "????????";
@@ -805,51 +828,89 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
   return (
     <div className={`rounded-xl border p-4 space-y-5 ${card}`}>
       <div className="flex items-center gap-2">
-        <span className={`text-xs font-bold uppercase tracking-wide ${accent}`}>XOR-Rechner</span>
+        <span className={`text-xs font-bold uppercase tracking-wide ${accent}`}>
+          XOR-Rechner
+        </span>
         <span className={`text-xs ${lbl}`}>Bit-fur-Bit Erklarung</span>
       </div>
 
       {/* Step 0: XOR rules */}
-      <div className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-slate-700 bg-slate-900/50" : "border-slate-200 bg-white"}`}>
+      <div
+        className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-slate-700 bg-slate-900/50" : "border-slate-200 bg-white"}`}
+      >
         <p className={`font-bold ${mono}`}>Schritt 0 - Die XOR-Regel</p>
         <div className="grid grid-cols-4 gap-2 text-center font-mono">
-          {([ ["0","0","0","unverandert"], ["1","0","1","unverandert"], ["0","1","1","flippt!"], ["1","1","0","flippt!"] ] as const).map(([x,y,r,note], i) => (
-            <div key={i} className={`rounded-lg border p-2 ${note === "flippt!" ? (dark ? "border-cyan-600 bg-cyan-500/10" : "border-cyan-300 bg-cyan-50") : (dark ? "border-slate-700 bg-slate-800/60" : "border-slate-200 bg-slate-50")}`}>
-              <p className={`text-sm font-bold ${mono}`}>{x} XOR {y} = {r}</p>
-              <p className={`text-xs mt-0.5 ${note === "flippt!" ? cyanText : lbl}`}>{note}</p>
+          {(
+            [
+              ["0", "0", "0", "unverandert"],
+              ["1", "0", "1", "unverandert"],
+              ["0", "1", "1", "flippt!"],
+              ["1", "1", "0", "flippt!"],
+            ] as const
+          ).map(([x, y, r, note], i) => (
+            <div
+              key={i}
+              className={`rounded-lg border p-2 ${note === "flippt!" ? (dark ? "border-cyan-600 bg-cyan-500/10" : "border-cyan-300 bg-cyan-50") : dark ? "border-slate-700 bg-slate-800/60" : "border-slate-200 bg-slate-50"}`}
+            >
+              <p className={`text-sm font-bold ${mono}`}>
+                {x} XOR {y} = {r}
+              </p>
+              <p
+                className={`text-xs mt-0.5 ${note === "flippt!" ? cyanText : lbl}`}
+              >
+                {note}
+              </p>
             </div>
           ))}
         </div>
         <p className={`text-xs ${lbl}`}>
-          <strong className={mono}>Merksatz:</strong> XOR mit <strong className={cyanText}>1</strong> flippt das Bit.
-          XOR mit <strong className={mono}>0</strong> lasst das Bit unverandert.
+          <strong className={mono}>Merksatz:</strong> XOR mit{" "}
+          <strong className={cyanText}>1</strong> flippt das Bit. XOR mit{" "}
+          <strong className={mono}>0</strong> lasst das Bit unverandert.
         </p>
       </div>
 
       {/* Step 1: Why 0x02 = only 1 bit */}
       {b === 0x02 && (
-        <div className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10" : "border-amber-200 bg-amber-50"}`}>
-          <p className={`font-bold ${accent}`}>Schritt 1 - Was bedeutet "XOR mit 0x02"?</p>
+        <div
+          className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10" : "border-amber-200 bg-amber-50"}`}
+        >
+          <p className={`font-bold ${accent}`}>
+            Schritt 1 - Was bedeutet "XOR mit 0x02"?
+          </p>
           <p className={`${mono}`}>0x02 in Binar:</p>
           <div className="flex gap-1 font-mono text-lg justify-center">
-            {toBin8(0x02).split("").map((bit, i) => (
-              <span key={i} className={`w-8 h-8 flex items-center justify-center rounded font-black border ${i === UL_ARRAY_IDX ? `${accentBg} ${accent} border-amber-400` : `${dark ? "border-slate-600 text-slate-400" : "border-slate-300 text-slate-400"}`}`}>
-                {bit}
-              </span>
-            ))}
+            {toBin8(0x02)
+              .split("")
+              .map((bit, i) => (
+                <span
+                  key={i}
+                  className={`w-8 h-8 flex items-center justify-center rounded font-black border ${i === UL_ARRAY_IDX ? `${accentBg} ${accent} border-amber-400` : `${dark ? "border-slate-600 text-slate-400" : "border-slate-300 text-slate-400"}`}`}
+                >
+                  {bit}
+                </span>
+              ))}
           </div>
           <p className={`text-center text-xs ${lbl}`}>
-            {[7,6,5,4,3,2,1,0].map((n,i) => (
-              <span key={n} className={`inline-block w-8 text-center ${i === UL_ARRAY_IDX ? accent : lbl}`}>{n}</span>
+            {[7, 6, 5, 4, 3, 2, 1, 0].map((n, i) => (
+              <span
+                key={n}
+                className={`inline-block w-8 text-center ${i === UL_ARRAY_IDX ? accent : lbl}`}
+              >
+                {n}
+              </span>
             ))}
-            <br/><em>Bit-Nr. (0-indexed von rechts)</em>
+            <br />
+            <em>Bit-Nr. (0-indexed von rechts)</em>
           </p>
           <p className={`font-semibold ${accent}`}>
-            Nur Bit 1 (das 2. von rechts, Wert = 2) ist auf "1" gesetzt. Alle anderen 7 Bits = 0.
+            Nur Bit 1 (das 2. von rechts, Wert = 2) ist auf "1" gesetzt. Alle
+            anderen 7 Bits = 0.
           </p>
           <p className={lbl}>
-            Weil XOR mit 0 nichts andert und XOR mit 1 flippt:
-            XOR mit 0x02 andert genau ein einziges Bit und lasst alle anderen 7 Bits vollig unverandert.
+            Weil XOR mit 0 nichts andert und XOR mit 1 flippt: XOR mit 0x02
+            andert genau ein einziges Bit und lasst alle anderen 7 Bits vollig
+            unverandert.
           </p>
         </div>
       )}
@@ -868,7 +929,9 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
             />
           </div>
           <div>
-            <label className={`block text-xs mb-1 ${lbl}`}>Byte B (Hex) = Maske</label>
+            <label className={`block text-xs mb-1 ${lbl}`}>
+              Byte B (Hex) = Maske
+            </label>
             <input
               value={byteB}
               onChange={(e) => handleB(e.target.value.toUpperCase())}
@@ -880,9 +943,21 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
         </div>
         {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
         <div className="flex gap-2 mt-1.5 flex-wrap">
-          {[["AA","02"],["00","02"],["02","02"],["FF","02"],["1A","02"]].map(([ma,mb]) => (
-            <button key={ma+mb} onClick={() => { handleA(ma); setByteB(mb); }}
-              className={`text-xs px-2 py-0.5 rounded border transition-colors ${dark ? "border-slate-700 text-slate-400 hover:text-amber-300 hover:border-amber-500/40" : "border-slate-200 text-slate-500 hover:text-amber-700 hover:border-amber-300"}`}>
+          {[
+            ["AA", "02"],
+            ["00", "02"],
+            ["02", "02"],
+            ["FF", "02"],
+            ["1A", "02"],
+          ].map(([ma, mb]) => (
+            <button
+              key={ma + mb}
+              onClick={() => {
+                handleA(ma);
+                setByteB(mb);
+              }}
+              className={`text-xs px-2 py-0.5 rounded border transition-colors ${dark ? "border-slate-700 text-slate-400 hover:text-amber-300 hover:border-amber-500/40" : "border-slate-200 text-slate-500 hover:text-amber-700 hover:border-amber-300"}`}
+            >
               0x{ma} XOR 0x{mb}
             </button>
           ))}
@@ -894,71 +969,150 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
         <div className="space-y-4">
           <div>
             <p className={`text-xs font-bold mb-2 ${mono}`}>
-              Schritt 2 - Bit-Tabelle (links = Bit 7 = MSB = grosster Wert 128, rechts = Bit 0 = LSB = Wert 1)
+              Schritt 2 - Bit-Tabelle (links = Bit 7 = MSB = grosster Wert 128,
+              rechts = Bit 0 = LSB = Wert 1)
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-center text-xs font-mono border-collapse">
                 <thead>
                   <tr>
-                    <td className={`text-left pr-2 ${lbl}`} style={{minWidth:"140px"}}>Position</td>
-                    {[7,6,5,4,3,2,1,0].map((bitNr, i) => (
-                      <td key={bitNr} className={`w-9 pb-1 ${isULCol(i) ? accentBg : ""}`}>
-                        <div className={`font-bold ${isULCol(i) ? accent : lbl}`}>{bitNr}</div>
-                        <div className={`text-xs ${isULCol(i) ? `${accent} opacity-80` : lbl}`} style={{fontSize:"9px"}}>={Math.pow(2,bitNr)}</div>
+                    <td
+                      className={`text-left pr-2 ${lbl}`}
+                      style={{ minWidth: "140px" }}
+                    >
+                      Position
+                    </td>
+                    {[7, 6, 5, 4, 3, 2, 1, 0].map((bitNr, i) => (
+                      <td
+                        key={bitNr}
+                        className={`w-9 pb-1 ${isULCol(i) ? accentBg : ""}`}
+                      >
+                        <div
+                          className={`font-bold ${isULCol(i) ? accent : lbl}`}
+                        >
+                          {bitNr}
+                        </div>
+                        <div
+                          className={`text-xs ${isULCol(i) ? `${accent} opacity-80` : lbl}`}
+                          style={{ fontSize: "9px" }}
+                        >
+                          ={Math.pow(2, bitNr)}
+                        </div>
                       </td>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className={`pr-2 py-2 text-left ${lbl}`}>A = 0x{a.toString(16).toUpperCase().padStart(2,"0")}</td>
+                    <td className={`pr-2 py-2 text-left ${lbl}`}>
+                      A = 0x{a.toString(16).toUpperCase().padStart(2, "0")}
+                    </td>
                     {binA.split("").map((bit, i) => (
-                      <td key={i} className={`w-9 py-2 font-bold text-sm rounded ${isULCol(i) ? `${accentBg} ${accent}` : mono}`}>{bit}</td>
+                      <td
+                        key={i}
+                        className={`w-9 py-2 font-bold text-sm rounded ${isULCol(i) ? `${accentBg} ${accent}` : mono}`}
+                      >
+                        {bit}
+                      </td>
                     ))}
                   </tr>
                   <tr>
                     <td className={`pr-2 py-1 text-left text-xs ${lbl}`}>
-                      Maske B = 0x{b.toString(16).toUpperCase().padStart(2,"0")}
-                      {b === 0x02 && <span className={`ml-1 ${accent}`}>(nur Bit 1 gesetzt!)</span>}
+                      Maske B = 0x
+                      {b.toString(16).toUpperCase().padStart(2, "0")}
+                      {b === 0x02 && (
+                        <span className={`ml-1 ${accent}`}>
+                          (nur Bit 1 gesetzt!)
+                        </span>
+                      )}
                     </td>
                     {binB.split("").map((bit, i) => (
-                      <td key={i} className={`w-9 py-1 font-bold text-sm rounded ${bit === "1" ? `${cyanBg} ${cyanText}` : (isULCol(i) ? `${accentBg} ${lbl}` : lbl)}`}>{bit}</td>
+                      <td
+                        key={i}
+                        className={`w-9 py-1 font-bold text-sm rounded ${bit === "1" ? `${cyanBg} ${cyanText}` : isULCol(i) ? `${accentBg} ${lbl}` : lbl}`}
+                      >
+                        {bit}
+                      </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className={`pr-2 py-0.5 text-left text-xs ${lbl}`}>Wirkung</td>
-                    {Array.from({length:8}, (_,i) => {
-                      const bBit = (b >> (7-i)) & 1;
+                    <td className={`pr-2 py-0.5 text-left text-xs ${lbl}`}>
+                      Wirkung
+                    </td>
+                    {Array.from({ length: 8 }, (_, i) => {
+                      const bBit = (b >> (7 - i)) & 1;
                       return (
-                        <td key={i} className={`text-center py-0.5`} style={{fontSize:"9px"}}>
-                          <span className={bBit === 1 ? cyanText : lbl}>{bBit === 1 ? "flippt" : "="}</span>
+                        <td
+                          key={i}
+                          className={`text-center py-0.5`}
+                          style={{ fontSize: "9px" }}
+                        >
+                          <span className={bBit === 1 ? cyanText : lbl}>
+                            {bBit === 1 ? "flippt" : "="}
+                          </span>
                         </td>
                       );
                     })}
                   </tr>
-                  <tr className={`border-t-2 ${dark ? "border-amber-500/50" : "border-amber-400"}`}>
+                  <tr
+                    className={`border-t-2 ${dark ? "border-amber-500/50" : "border-amber-400"}`}
+                  >
                     <td className={`pr-2 py-2 text-left font-bold ${accent}`}>
-                      = 0x{result.toString(16).toUpperCase().padStart(2,"0")}
+                      = 0x{result.toString(16).toUpperCase().padStart(2, "0")}
                     </td>
                     {binR.split("").map((bit, i) => (
-                      <td key={i} className={`w-9 py-2 font-bold text-sm rounded ${changedBits[i] ? `${cyanBg} ${cyanText}` : (isULCol(i) ? `${accentBg} ${accent}` : mono)}`}>{bit}</td>
+                      <td
+                        key={i}
+                        className={`w-9 py-2 font-bold text-sm rounded ${changedBits[i] ? `${cyanBg} ${cyanText}` : isULCol(i) ? `${accentBg} ${accent}` : mono}`}
+                      >
+                        {bit}
+                      </td>
                     ))}
                   </tr>
                 </tbody>
               </table>
             </div>
             <div className="flex gap-4 mt-2 text-xs flex-wrap">
-              {b === 0x02 && <span className={`flex items-center gap-1 ${accent}`}><span className={`inline-block w-3 h-3 rounded ${accentBg}`}/> U/L-Bit (Bit 1, Wert=2)</span>}
-              <span className={`flex items-center gap-1 ${cyanText}`}><span className={`inline-block w-3 h-3 rounded ${cyanBg}`}/> Geflippt</span>
-              <span className={`flex items-center gap-1 ${lbl}`}>"flippt" = Maskenbit war 1 | "=" = Maskenbit war 0, bleibt gleich</span>
+              {b === 0x02 && (
+                <span className={`flex items-center gap-1 ${accent}`}>
+                  <span
+                    className={`inline-block w-3 h-3 rounded ${accentBg}`}
+                  />{" "}
+                  U/L-Bit (Bit 1, Wert=2)
+                </span>
+              )}
+              <span className={`flex items-center gap-1 ${cyanText}`}>
+                <span className={`inline-block w-3 h-3 rounded ${cyanBg}`} />{" "}
+                Geflippt
+              </span>
+              <span className={`flex items-center gap-1 ${lbl}`}>
+                "flippt" = Maskenbit war 1 | "=" = Maskenbit war 0, bleibt
+                gleich
+              </span>
             </div>
           </div>
 
           {/* Step 3: Bit by bit */}
-          <div className={`rounded-lg border p-3 space-y-1 text-xs ${dark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-white"}`}>
-            <p className={`font-bold mb-2 ${mono}`}>Schritt 3 - Jedes Bit einzeln (von links nach rechts = Bit 7 bis Bit 0)</p>
-            <div className={`grid text-xs font-semibold px-2 mb-1 ${lbl}`} style={{gridTemplateColumns:"80px 28px 20px 28px 20px 28px 1fr"}}>
-              <span>Bit-Nr.</span><span className="text-center">A</span><span className="text-center">XOR</span><span className="text-center">Maske</span><span className="text-center">=</span><span className="text-center">Erg.</span><span>Erklarung</span>
+          <div
+            className={`rounded-lg border p-3 space-y-1 text-xs ${dark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-white"}`}
+          >
+            <p className={`font-bold mb-2 ${mono}`}>
+              Schritt 3 - Jedes Bit einzeln (von links nach rechts = Bit 7 bis
+              Bit 0)
+            </p>
+            <div
+              className={`grid text-xs font-semibold px-2 mb-1 ${lbl}`}
+              style={{
+                gridTemplateColumns: "80px 28px 20px 28px 20px 28px 1fr",
+              }}
+            >
+              <span>Bit-Nr.</span>
+              <span className="text-center">A</span>
+              <span className="text-center">XOR</span>
+              <span className="text-center">Maske</span>
+              <span className="text-center">=</span>
+              <span className="text-center">Erg.</span>
+              <span>Erklarung</span>
             </div>
             {Array.from({ length: 8 }, (_, i) => {
               const bitPos = 7 - i;
@@ -968,21 +1122,47 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
               const flipped = bA !== bR;
               const isUL = b === 0x02 && bitPos === UL_BIT_POS;
               return (
-                <div key={i} className={`grid rounded px-2 py-1.5 ${isUL ? accentBg : flipped ? cyanBg : ""}`} style={{gridTemplateColumns:"80px 28px 20px 28px 20px 28px 1fr"}}>
-                  <span className={`font-mono font-semibold ${isUL ? accent : lbl}`}>
-                    Bit {bitPos}{isUL ? " U/L" : ""}
+                <div
+                  key={i}
+                  className={`grid rounded px-2 py-1.5 ${isUL ? accentBg : flipped ? cyanBg : ""}`}
+                  style={{
+                    gridTemplateColumns: "80px 28px 20px 28px 20px 28px 1fr",
+                  }}
+                >
+                  <span
+                    className={`font-mono font-semibold ${isUL ? accent : lbl}`}
+                  >
+                    Bit {bitPos}
+                    {isUL ? " U/L" : ""}
                   </span>
-                  <span className={`text-center font-mono font-bold ${mono}`}>{bA}</span>
+                  <span className={`text-center font-mono font-bold ${mono}`}>
+                    {bA}
+                  </span>
                   <span className={`text-center ${lbl}`}>XOR</span>
-                  <span className={`text-center font-mono font-bold ${bB === 1 ? cyanText : lbl}`}>{bB}</span>
+                  <span
+                    className={`text-center font-mono font-bold ${bB === 1 ? cyanText : lbl}`}
+                  >
+                    {bB}
+                  </span>
                   <span className={`text-center ${lbl}`}>=</span>
-                  <span className={`text-center font-mono font-bold ${flipped ? cyanText : mono}`}>{bR}</span>
+                  <span
+                    className={`text-center font-mono font-bold ${flipped ? cyanText : mono}`}
+                  >
+                    {bR}
+                  </span>
                   <span className={`${lbl}`}>
-                    {bB === 1
-                      ? <span className={cyanText}>{bA} wird {bR} (Maske=1 flippt)</span>
-                      : <span>bleibt {bA} (Maske=0, kein Flip)</span>
-                    }
-                    {isUL && <span className={`ml-2 font-bold ${accent}`}>DIES ist das U/L-Bit!</span>}
+                    {bB === 1 ? (
+                      <span className={cyanText}>
+                        {bA} wird {bR} (Maske=1 flippt)
+                      </span>
+                    ) : (
+                      <span>bleibt {bA} (Maske=0, kein Flip)</span>
+                    )}
+                    {isUL && (
+                      <span className={`ml-2 font-bold ${accent}`}>
+                        DIES ist das U/L-Bit!
+                      </span>
+                    )}
                   </span>
                 </div>
               );
@@ -990,53 +1170,126 @@ function XorExplainer({ dark, initialByte }: { dark: boolean; initialByte?: numb
           </div>
 
           {/* Step 4: Summary */}
-          <div className={`rounded-lg border p-3 ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}>
-            <p className={`text-xs font-bold mb-2 ${mono}`}>Schritt 4 - Ergebnis</p>
+          <div
+            className={`rounded-lg border p-3 ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}
+          >
+            <p className={`text-xs font-bold mb-2 ${mono}`}>
+              Schritt 4 - Ergebnis
+            </p>
             <div className="grid grid-cols-3 gap-3 text-center text-xs">
               <div>
                 <p className={lbl}>Byte A (Binar)</p>
-                <p className={`font-mono font-bold mt-0.5 ${mono}`}>{toBin8(a)}</p>
-                <p className={`font-mono text-xs ${lbl}`}>= 0x{a.toString(16).toUpperCase().padStart(2,"0")} = {a}</p>
+                <p className={`font-mono font-bold mt-0.5 ${mono}`}>
+                  {toBin8(a)}
+                </p>
+                <p className={`font-mono text-xs ${lbl}`}>
+                  = 0x{a.toString(16).toUpperCase().padStart(2, "0")} = {a}
+                </p>
               </div>
               <div>
                 <p className={lbl}>XOR Maske (Binar)</p>
-                <p className={`font-mono font-bold mt-0.5 ${cyanText}`}>{toBin8(b)}</p>
-                <p className={`font-mono text-xs ${lbl}`}>= 0x{b.toString(16).toUpperCase().padStart(2,"0")} = {b}</p>
+                <p className={`font-mono font-bold mt-0.5 ${cyanText}`}>
+                  {toBin8(b)}
+                </p>
+                <p className={`font-mono text-xs ${lbl}`}>
+                  = 0x{b.toString(16).toUpperCase().padStart(2, "0")} = {b}
+                </p>
               </div>
               <div>
                 <p className={lbl}>Ergebnis (Binar)</p>
-                <p className={`font-mono font-bold mt-0.5 ${accent}`}>{toBin8(result)}</p>
-                <p className={`font-mono text-xs ${lbl}`}>= 0x{result.toString(16).toUpperCase().padStart(2,"0")} = {result}</p>
+                <p className={`font-mono font-bold mt-0.5 ${accent}`}>
+                  {toBin8(result)}
+                </p>
+                <p className={`font-mono text-xs ${lbl}`}>
+                  = 0x{result.toString(16).toUpperCase().padStart(2, "0")} ={" "}
+                  {result}
+                </p>
               </div>
             </div>
           </div>
 
           {/* U/L Bit naming confusion explainer */}
           {b === 0x02 && (
-            <div className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
-              <p className="font-bold text-sm">Das "7. Bit" - Warum heisst es so? (Namenswirrwarr klaren!)</p>
-              <p>0x02 = <strong>0000 0010</strong>. Die unterlegte Stelle (von rechts das 2. Bit) ist es.</p>
+            <div
+              className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-900"}`}
+            >
+              <p className="font-bold text-sm">
+                Das "7. Bit" - Warum heisst es so? (Namenswirrwarr klaren!)
+              </p>
+              <p>
+                0x02 = <strong>0000 0010</strong>. Die unterlegte Stelle (von
+                rechts das 2. Bit) ist es.
+              </p>
               <table className="w-full border-collapse text-xs">
                 <thead>
-                  <tr className={`${dark ? "text-amber-300" : "text-amber-800"}`}>
+                  <tr
+                    className={`${dark ? "text-amber-300" : "text-amber-800"}`}
+                  >
                     <th className="text-left py-1 pr-3">Zahlung</th>
-                    <th className="text-left py-1">Ergebnis fur das Bit mit Wert 2</th>
+                    <th className="text-left py-1">
+                      Ergebnis fur das Bit mit Wert 2
+                    </th>
                     <th className="text-left py-1">Warum</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td className="pr-3 py-0.5 font-semibold">Von links, ab 1</td><td className="py-0.5">das <strong>7. Bit</strong></td><td className="py-0.5 opacity-80">Position 7 von 8 von links</td></tr>
-                  <tr><td className="pr-3 py-0.5 font-semibold">Von rechts, ab 0</td><td className="py-0.5"><strong>Bit 1</strong></td><td className="py-0.5 opacity-80">Informatik-Konvention (LSB=0)</td></tr>
-                  <tr><td className="pr-3 py-0.5 font-semibold">Von rechts, ab 1</td><td className="py-0.5">das <strong>2. Bit</strong></td><td className="py-0.5 opacity-80">Alltagssprache</td></tr>
-                  <tr><td className="pr-3 py-0.5 font-semibold">Wert</td><td className="py-0.5"><strong>2 (= 0x02 = 2^1)</strong></td><td className="py-0.5 opacity-80">Einzig eindeutige Angabe!</td></tr>
+                  <tr>
+                    <td className="pr-3 py-0.5 font-semibold">
+                      Von links, ab 1
+                    </td>
+                    <td className="py-0.5">
+                      das <strong>7. Bit</strong>
+                    </td>
+                    <td className="py-0.5 opacity-80">
+                      Position 7 von 8 von links
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="pr-3 py-0.5 font-semibold">
+                      Von rechts, ab 0
+                    </td>
+                    <td className="py-0.5">
+                      <strong>Bit 1</strong>
+                    </td>
+                    <td className="py-0.5 opacity-80">
+                      Informatik-Konvention (LSB=0)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="pr-3 py-0.5 font-semibold">
+                      Von rechts, ab 1
+                    </td>
+                    <td className="py-0.5">
+                      das <strong>2. Bit</strong>
+                    </td>
+                    <td className="py-0.5 opacity-80">Alltagssprache</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-3 py-0.5 font-semibold">Wert</td>
+                    <td className="py-0.5">
+                      <strong>2 (= 0x02 = 2^1)</strong>
+                    </td>
+                    <td className="py-0.5 opacity-80">
+                      Einzig eindeutige Angabe!
+                    </td>
+                  </tr>
                 </tbody>
               </table>
-              <p>Alle vier Beschreibungen meinen <strong>dasselbe Bit</strong>. Verwirrung entsteht nur durch unterschiedliche Zahlanfange.</p>
-              <p className="font-semibold">
-                Konkretes Beispiel: 0xAA (10101010) XOR 0x02 (00000010) = 0xA8 (10101000)
-                - nur das 2. Bit von rechts (Wert 2) kippt von 1 auf 0.
+              <p>
+                Alle vier Beschreibungen meinen <strong>dasselbe Bit</strong>.
+                Verwirrung entsteht nur durch unterschiedliche Zahlanfange.
               </p>
-              <p className="opacity-80">IEEE U/L-Bit Bedeutung: Bei einer neuen fabrikseitig zugeteilten MAC ist dieses Bit = 0. EUI-64 setzt es auf 1 um zu kennzeichnen: "diese Interface-ID wurde aus einer MAC abgeleitet".</p>
+              <p className="font-semibold">
+                Konkretes Beispiel: 0xAA (10101010) XOR 0x02 (00000010) = 0xA8
+                (10101000) - nur das 2. Bit von rechts (Wert 2) kippt von 1 auf
+                0.
+              </p>
+              <p className="opacity-80">
+                IEEE U/L-Bit Bedeutung: Bei einer neuen fabrikseitig zugeteilten
+                MAC ist dieses Bit = 0. EUI-64 setzt es auf 1 um zu
+                kennzeichnen: "diese Interface-ID wurde aus einer MAC
+                abgeleitet".
+              </p>
             </div>
           )}
         </div>
@@ -1192,7 +1445,12 @@ function EUI64Tab({ dark }: { dark: boolean }) {
       )}
 
       {/* ── XOR / U/L-Bit Erklärer ─────────────────────────────── */}
-      <XorExplainer dark={dark} initialByte={result ? parseInt(result.steps[0].value.split(":")[0], 16) : undefined} />
+      <XorExplainer
+        dark={dark}
+        initialByte={
+          result ? parseInt(result.steps[0].value.split(":")[0], 16) : undefined
+        }
+      />
     </div>
   );
 }
@@ -1675,6 +1933,250 @@ function DrillTab({ dark }: { dark: boolean }) {
   );
 }
 
+// ── Tab: Binär-Rechner ────────────────────────────────────────
+
+const HEX_DIGITS = "0123456789ABCDEF";
+
+function hexToBin4(h: string): string {
+  return parseInt(h, 16).toString(2).padStart(4, "0");
+}
+
+function BinaryTab({ dark }: { dark: boolean }) {
+  const [ipv6Input, setIpv6Input] = useState("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+  const [hoverDigit, setHoverDigit] = useState<string | null>(null);
+  const [clickedDigit, setClickedDigit] = useState<string | null>(null);
+
+  const card = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const lbl = dark ? "text-slate-400" : "text-slate-500";
+  const mono = dark ? "text-white" : "text-slate-900";
+  const accent = dark ? "text-indigo-300" : "text-indigo-700";
+  const accentBg = dark ? "bg-indigo-500/20" : "bg-indigo-100";
+
+  const activeDigit = clickedDigit ?? hoverDigit;
+
+  // Parse IPv6 to 32 hex chars (fill gaps gracefully)
+  const cleanHex = (() => {
+    const raw = ipv6Input.trim().replace(/:/g, "").toUpperCase();
+    if (/^[0-9A-F]{1,32}$/.test(raw)) return raw.padEnd(32, "0").slice(0, 32);
+    try {
+      const exp = expandIPv6(ipv6Input.trim());
+      return exp.replace(/:/g, "").toUpperCase();
+    } catch {
+      return null;
+    }
+  })();
+
+  const groups = cleanHex
+    ? Array.from({ length: 8 }, (_, i) => cleanHex.slice(i * 4, i * 4 + 4))
+    : null;
+
+  return (
+    <div className="p-4 space-y-5">
+      {/* Hex→Binär Reference Matrix */}
+      <div className={`rounded-xl border p-4 space-y-3 ${card}`}>
+        <p className={`text-xs font-bold uppercase tracking-wide ${accent}`}>
+          Hex → Binär Referenztabelle (alle 16 Ziffern 0–F)
+        </p>
+        <p className={`text-xs ${lbl}`}>
+          Jede Hex-Ziffer entspricht genau <strong className={mono}>4 Bits</strong> (einem Nibble).
+          Eine IPv6-Gruppe (z.B. <span className="font-mono">2001</span>) = 4 Hex-Ziffern = <strong className={mono}>16 Bits</strong>.
+        </p>
+
+        {/* Bit-value header */}
+        <div className={`flex items-center text-center font-mono text-xs ${lbl}`} style={{ paddingLeft: "72px" }}>
+          {["8","4","2","1"].map(v => (
+            <span key={v} className="w-7 font-semibold">{v}</span>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-1.5">
+          {HEX_DIGITS.split("").map((h) => {
+            const bin = hexToBin4(h);
+            const isActive = activeDigit === h;
+            const val = parseInt(h, 16);
+            return (
+              <button
+                key={h}
+                onMouseEnter={() => setHoverDigit(h)}
+                onMouseLeave={() => setHoverDigit(null)}
+                onClick={() => setClickedDigit(clickedDigit === h ? null : h)}
+                className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
+                  isActive
+                    ? dark ? "border-indigo-500 bg-indigo-500/25" : "border-indigo-400 bg-indigo-50"
+                    : dark ? "border-slate-700 hover:border-slate-500 hover:bg-slate-700/50" : "border-slate-200 hover:border-slate-300 hover:bg-white"
+                }`}
+              >
+                {/* Hex digit */}
+                <span className={`w-5 text-center font-mono font-black text-base ${isActive ? accent : mono}`}>{h}</span>
+                <span className={`text-xs ${lbl}`}>=</span>
+                {/* 4 bits */}
+                <span className="flex gap-0.5">
+                  {bin.split("").map((bit, i) => (
+                    <span key={i} className={`w-6 h-6 flex items-center justify-center rounded font-mono font-bold text-sm border ${
+                      bit === "1"
+                        ? dark ? "bg-indigo-500/30 border-indigo-500/60 text-indigo-200" : "bg-indigo-100 border-indigo-300 text-indigo-800"
+                        : dark ? "bg-slate-700/50 border-slate-600 text-slate-500" : "bg-slate-100 border-slate-200 text-slate-400"
+                    }`}>{bit}</span>
+                  ))}
+                </span>
+                <span className={`text-xs ml-auto font-mono ${lbl}`}>{val}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Detail view for active digit */}
+        {activeDigit && (() => {
+          const val = parseInt(activeDigit, 16);
+          const bin = hexToBin4(activeDigit);
+          const parts = [8, 4, 2, 1];
+          return (
+            <div className={`rounded-lg border p-3 space-y-2 text-xs ${dark ? "border-indigo-500/40 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
+              <p className={`font-bold ${accent}`}>
+                0x{activeDigit} = {val} = Binär: {bin}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                {bin.split("").map((bit, i) => (
+                  <div key={i} className="text-center">
+                    <div className={`w-9 h-9 flex items-center justify-center rounded-lg font-mono font-black text-lg border-2 ${
+                      bit === "1"
+                        ? dark ? "bg-indigo-500/30 border-indigo-400 text-indigo-200" : "bg-indigo-100 border-indigo-400 text-indigo-800"
+                        : dark ? "bg-slate-800 border-slate-600 text-slate-500" : "bg-white border-slate-300 text-slate-400"
+                    }`}>{bit}</div>
+                    <div className={`mt-0.5 font-semibold ${bit === "1" ? accent : lbl}`}>{parts[i]}</div>
+                  </div>
+                ))}
+                <div className={`flex items-center ml-3 gap-1 text-sm font-mono ${mono}`}>
+                  {bin.split("").map((bit, i) => (
+                    <span key={i}>
+                      {bit === "1" && <span className={`${accent} font-bold`}>{parts[i]}</span>}
+                      {bit === "1" && i < 3 && bin.split("").slice(i + 1).some(b => b === "1") && <span className={lbl}> + </span>}
+                    </span>
+                  ))}
+                  {val === 0 && <span className={lbl}>kein Bit gesetzt</span>}
+                  <span className={lbl}> = </span>
+                  <span className={`font-bold ${accent}`}>{val}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* IPv6 address decomposition */}
+      <div className={`rounded-xl border p-4 space-y-3 ${card}`}>
+        <p className={`text-xs font-bold uppercase tracking-wide ${accent}`}>IPv6-Adresse Bit für Bit</p>
+        <div>
+          <label className={`block text-xs mb-1 ${lbl}`}>IPv6-Adresse eingeben</label>
+          <input
+            value={ipv6Input}
+            onChange={(e) => setIpv6Input(e.target.value)}
+            placeholder="z.B. 2001:db8::1"
+            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-900 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+          />
+          <div className="flex gap-2 mt-1.5 flex-wrap">
+            {["2001:0db8:85a3::8a2e:0370:7334", "fe80::1", "::1", "ff02::1", "2001:db8:1:2:3:4:5:6"].map(ex => (
+              <button key={ex} onClick={() => setIpv6Input(ex)}
+                className={`text-xs px-2 py-0.5 rounded border transition-colors ${dark ? "border-slate-700 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/40" : "border-slate-200 text-slate-500 hover:text-indigo-700 hover:border-indigo-300"}`}>
+                {ex}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {groups ? (
+          <div className="space-y-3">
+            {/* Group overview */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-center" style={{minWidth:"560px"}}>
+                <thead>
+                  <tr>
+                    {groups.map((g, gi) => (
+                      <td key={gi} className={`px-1 pb-1 text-xs font-semibold ${lbl}`}>Gruppe {gi + 1}</td>
+                    ))}
+                  </tr>
+                  <tr>
+                    {groups.map((g, gi) => (
+                      <td key={gi} className={`px-1 pb-2`}>
+                        <span className={`font-mono font-bold text-sm ${accent}`}>{g}</span>
+                      </td>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Per-group: 4 hex digits each as 4 bits */}
+                  {[0,1,2,3].map(digitIdx => (
+                    <tr key={digitIdx}>
+                      {groups.map((g, gi) => {
+                        const h = g[digitIdx];
+                        const bin = hexToBin4(h);
+                        return (
+                          <td key={gi} className="px-1 py-0.5">
+                            <div className="flex justify-center gap-0.5">
+                              {bin.split("").map((bit, bi) => (
+                                <span key={bi} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-bold border ${
+                                  bit === "1"
+                                    ? dark ? "bg-indigo-500/25 border-indigo-500/50 text-indigo-200" : "bg-indigo-100 border-indigo-300 text-indigo-700"
+                                    : dark ? "bg-slate-700/40 border-slate-700 text-slate-500" : "bg-slate-100 border-slate-200 text-slate-400"
+                                }`}>{bit}</span>
+                              ))}
+                            </div>
+                            <div className={`text-center text-xs font-mono mt-0.5 ${accent}`}>{h}</div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  {/* bit count row */}
+                  <tr>
+                    {groups.map((_, gi) => (
+                      <td key={gi} className={`px-1 pt-1 text-center text-xs ${lbl}`}>16 Bit</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Full 128-bit binary string */}
+            <div className={`rounded-lg border p-3 space-y-2 ${dark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-white"}`}>
+              <p className={`text-xs font-bold ${mono}`}>Vollständige 128-Bit Darstellung</p>
+              <div className="flex flex-wrap gap-0.5">
+                {groups.map((g, gi) =>
+                  g.split("").map((h, di) =>
+                    hexToBin4(h).split("").map((bit, bi) => {
+                      const absIdx = gi * 16 + di * 4 + bi;
+                      return (
+                        <span key={absIdx} className={`font-mono text-xs font-bold ${
+                          (absIdx % 16 === 0 && absIdx > 0) ? "ml-2" : (absIdx % 4 === 0 && absIdx > 0 ? "ml-0.5" : "")
+                        } ${bit === "1"
+                          ? dark ? "text-indigo-300" : "text-indigo-700"
+                          : dark ? "text-slate-600" : "text-slate-400"
+                        }`}>{bit}</span>
+                      );
+                    })
+                  )
+                )}
+              </div>
+              <p className={`text-xs ${lbl}`}>
+                Leerzeichen = Nibble-Grenze (4 Bit) · Größerer Abstand = Gruppen-Grenze (16 Bit)
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className={`text-xs ${lbl}`}>Ungültige IPv6-Adresse — bitte korrigieren.</p>
+        )}
+      </div>
+
+      {/* Quick tip */}
+      <div className={`rounded-lg border p-3 text-xs space-y-1 ${dark ? "border-slate-700 bg-slate-800/40 text-slate-400" : "border-slate-200 bg-slate-50 text-slate-500"}`}>
+        <p className={`font-bold ${mono}`}>Merkhilfe</p>
+        <p>1 Hex-Ziffer = 4 Bit | 1 IPv6-Gruppe (z.B. <span className="font-mono">85a3</span>) = 4 Ziffern = <strong className={mono}>16 Bit</strong> | Ganze IPv6-Adresse = 8 Gruppen = <strong className={mono}>128 Bit</strong></p>
+        <p>Tipp: Klicke eine Ziffer in der Tabelle oben an, um die Berechnungsformel zu sehen.</p>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Dialog ───────────────────────────────────────────────
 
 interface IPv6CalculatorDialogProps {
@@ -1722,6 +2224,13 @@ export function IPv6CalculatorDialog({
         ? "border-amber-400 text-amber-300"
         : "border-amber-600 text-amber-700",
     },
+    {
+      id: "binaer",
+      label: "Binär",
+      activeClass: dark
+        ? "border-violet-400 text-violet-300"
+        : "border-violet-600 text-violet-700",
+    },
   ];
 
   return (
@@ -1749,7 +2258,7 @@ export function IPv6CalculatorDialog({
             <p
               className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}
             >
-              Adress-Analyse · EUI-64 · Segmentierung · Drill
+              Adress-Analyse · EUI-64 · Segmentierung · Binär · Drill
             </p>
           </div>
           <button
@@ -1782,6 +2291,7 @@ export function IPv6CalculatorDialog({
           {tab === "eui64" && <EUI64Tab dark={dark} />}
           {tab === "segmentation" && <SegmentationTab dark={dark} />}
           {tab === "drill" && <DrillTab dark={dark} />}
+          {tab === "binaer" && <BinaryTab dark={dark} />}
         </div>
       </div>
     </div>
@@ -1798,4 +2308,3 @@ export const __test__ = {
   calcIPv6Segmentation,
   calcIPv6Prefix,
 };
-
