@@ -165,6 +165,15 @@ const VLAN_DEFS = [
 function vlanDef(id: number) { return VLAN_DEFS.find(v => v.id === id) ?? VLAN_DEFS[0]; }
 
 type PortMode = "access" | "trunk" | "unassigned";
+type DeviceType = "none" | "pc" | "router" | "ap" | "server";
+
+const DEVICE_META: Record<DeviceType, { label: string; icon: string; color: string; badge: string; defaultMode: PortMode; hint: string }> = {
+  none:   { label: "— keins —",             icon: "",   color: "#6b7280", badge: "",  defaultMode: "unassigned", hint: "" },
+  pc:     { label: "PC / Laptop / Drucker",  icon: "💻", color: "#3b82f6", badge: "P", defaultMode: "access",     hint: "Access-Port: PC erwartet ungetaggte Frames." },
+  server: { label: "Server (Datei/Web/DB)",  icon: "🖥",  color: "#a855f7", badge: "S", defaultMode: "access",     hint: "Server meist Access. Für Multi-VLAN-Dienste: Trunk + VLAN-Interface im OS." },
+  ap:     { label: "Access Point (WLAN)",    icon: "📡", color: "#f59e0b", badge: "A", defaultMode: "trunk",      hint: "AP muss Trunk sein: je SSID ein VLAN (Büro/Gäste getrennte Broadcast-Domänen)." },
+  router: { label: "Router (Gi0/0)",        icon: "🔀", color: "#22c55e", badge: "R", defaultMode: "trunk",      hint: "Router-on-a-Stick: Trunk mit allen VLANs. Router dekodiert per Subinterface." },
+};
 
 interface SWPort {
   num: number;         // 1-24
@@ -172,7 +181,7 @@ interface SWPort {
   accessVlan: number;
   trunkAllowed: number[];
   trunkNative: number;
-  connectedTo: "pc" | "router" | "none";
+  connectedTo: DeviceType;
   deviceLabel: string;
 }
 
@@ -192,9 +201,55 @@ function buildDefaultPorts(): SWPort[] {
     accessVlan: 10,
     trunkAllowed: [10, 20, 30, 99],
     trunkNative: 99,
-    connectedTo: "none" as const,
+    connectedTo: "none" as DeviceType,
     deviceLabel: "",
   }));
+}
+
+// ── Preset scenario: Router + 2 APs + 2 Servers + clients ─────
+
+function buildScenarioPorts(): SWPort[] {
+  const ports = buildDefaultPorts();
+  const p = (num: number, update: Partial<SWPort>) => Object.assign(ports[num - 1], update);
+
+  // Port 1 → Router (Trunk, alle VLANs, Native 99)
+  p(1, { connectedTo: "router", mode: "trunk", trunkAllowed: [10, 20, 30, 99], trunkNative: 99, deviceLabel: "Router Gi0/0" });
+
+  // Port 2 → AP-1 Büro (Trunk VLAN 10 Büro + 30 Gäste)
+  p(2, { connectedTo: "ap", mode: "trunk", trunkAllowed: [10, 30, 99], trunkNative: 99, deviceLabel: "AP-1 (SSID: Büro + Gäste)" });
+
+  // Port 3 → AP-2 Produktion (Trunk VLAN 20 Produktion + 30 Gäste)
+  p(3, { connectedTo: "ap", mode: "trunk", trunkAllowed: [20, 30, 99], trunkNative: 99, deviceLabel: "AP-2 (SSID: Produktion + Gäste)" });
+
+  // Port 4 → File-Server (VLAN 10 Büro)
+  p(4, { connectedTo: "server", mode: "access", accessVlan: 10, deviceLabel: "FileServer (Büro)" });
+
+  // Port 5 → Web/DB-Server (VLAN 20 Produktion)
+  p(5, { connectedTo: "server", mode: "access", accessVlan: 20, deviceLabel: "WebServer (Produktion)" });
+
+  // Ports 6–9 → PC Büro (VLAN 10)
+  [6, 7, 8, 9].forEach((n, i) => p(n, { connectedTo: "pc", mode: "access", accessVlan: 10, deviceLabel: `PC-Büro-${i + 1}` }));
+
+  // Ports 10–12 → PC Produktion (VLAN 20)
+  [10, 11, 12].forEach((n, i) => p(n, { connectedTo: "pc", mode: "access", accessVlan: 20, deviceLabel: `PC-Produktion-${i + 1}` }));
+
+  // Port 13 → Management-PC (VLAN 99)
+  p(13, { connectedTo: "pc", mode: "access", accessVlan: 99, deviceLabel: "Admin-PC (MGMT)" });
+
+  // Ports 14–15 → Drucker (VLAN 10 Büro)
+  p(14, { connectedTo: "pc", mode: "access", accessVlan: 10, deviceLabel: "Drucker-1 (Büro)" });
+  p(15, { connectedTo: "pc", mode: "access", accessVlan: 10, deviceLabel: "Drucker-2 (Büro)" });
+
+  return ports;
+}
+
+function buildScenarioRouter(): RouterIntf[] {
+  return [
+    { id: "Gi0/0.10", vlan: 10, ip: "192.168.10.1/24", mode: "subinterface", active: true },
+    { id: "Gi0/0.20", vlan: 20, ip: "192.168.20.1/24", mode: "subinterface", active: true },
+    { id: "Gi0/0.30", vlan: 30, ip: "192.168.30.1/24", mode: "subinterface", active: true },
+    { id: "Gi0/0.99", vlan: 99, ip: "192.168.99.1/24", mode: "subinterface", active: true },
+  ];
 }
 
 function buildDefaultRouter(): RouterIntf[] {
@@ -258,6 +313,32 @@ function validateTopology(ports: SWPort[], router: RouterIntf[]): ValidationIssu
     }
   });
 
+  // Access Point checks
+  const apPorts = ports.filter(p => p.connectedTo === "ap");
+  apPorts.forEach(p => {
+    if (p.mode === "access") {
+      issues.push({ level: "error", port: p.num, msg: `Port ${p.num} (AP "${p.deviceLabel || "Access Point"}"): Access-Modus! APs mit mehreren SSIDs (Büro + Gäste) MÜSSEN Trunk sein — sonst können nur Clients aus einem VLAN verbinden.` });
+    }
+    if (p.mode === "unassigned") {
+      issues.push({ level: "error", port: p.num, msg: `Port ${p.num} (AP): Nicht konfiguriert — AP sendet keine Frames.` });
+    }
+    if (p.mode === "trunk") {
+      const apVlans = p.trunkAllowed;
+      issues.push({ level: "info", port: p.num, msg: `Port ${p.num} (AP "${p.deviceLabel}"): Trunk korrekt. SSIDs: ${apVlans.filter(v => v !== p.trunkNative).map(v => `SSID→VLAN ${v}`).join(", ")}. Clients verbinden per SSID und landen automatisch im richtigen VLAN.` });
+    }
+  });
+
+  // Server checks
+  const serverPorts = ports.filter(p => p.connectedTo === "server");
+  serverPorts.forEach(p => {
+    if (p.mode === "unassigned") {
+      issues.push({ level: "error", port: p.num, msg: `Port ${p.num} (Server "${p.deviceLabel || "Server"}"): Nicht konfiguriert — Server hat keine VLAN-Zugehörigkeit.` });
+    }
+    if (p.mode === "trunk") {
+      issues.push({ level: "warn", port: p.num, msg: `Port ${p.num} (Server "${p.deviceLabel}"): Trunk-Modus. Möglich für Multi-VLAN-Dienste, aber Server-OS muss VLAN-Interfaces (802.1Q-Trunking im OS) unterstützen und konfiguriert haben.` });
+    }
+  });
+
   // PC ports: check if access, warn if trunk
   const pcPorts = ports.filter(p => p.connectedTo === "pc");
   pcPorts.forEach(p => {
@@ -270,13 +351,25 @@ function validateTopology(ports: SWPort[], router: RouterIntf[]): ValidationIssu
   });
 
   // Same VLAN, different ports: reachability
-  const accessVlans = new Set(pcPorts.filter(p => p.mode === "access").map(p => p.accessVlan));
+  const endpointPorts = [...pcPorts, ...serverPorts].filter(p => p.mode === "access");
+  const accessVlans = new Set(endpointPorts.map(p => p.accessVlan));
   accessVlans.forEach(vid => {
-    const portsInVlan = pcPorts.filter(p => p.mode === "access" && p.accessVlan === vid);
-    if (portsInVlan.length >= 1) {
-      issues.push({ level: "info", msg: `VLAN ${vid} (${vlanDef(vid).name}): ${portsInVlan.length} PC(s) in derselben Broadcast-Domäne — können direkt kommunizieren ohne Router.` });
+    const portsInVlan = endpointPorts.filter(p => p.accessVlan === vid);
+    if (portsInVlan.length >= 2) {
+      issues.push({ level: "info", msg: `VLAN ${vid} (${vlanDef(vid).name}): ${portsInVlan.length} Geräte in derselben Broadcast-Domäne — können direkt kommunizieren ohne Router.` });
     }
   });
+
+  // AP trunk coverage check: are AP VLANs reachable via router?
+  if (activeRouterIntfs.length > 0) {
+    apPorts.filter(p => p.mode === "trunk").forEach(p => {
+      p.trunkAllowed.filter(v => v !== p.trunkNative).forEach(vid => {
+        if (!activeRouterIntfs.some(r => r.vlan === vid)) {
+          issues.push({ level: "warn", port: p.num, msg: `AP Port ${p.num}: VLAN ${vid} auf Trunk erlaubt, aber Router hat kein aktives Subinterface Gi0/0.${vid} — WLAN-Clients in VLAN ${vid} können nicht Inter-VLAN routen.` });
+        }
+      });
+    });
+  }
 
   // Inter-VLAN reachability
   if (activeRouterIntfs.length >= 2) {
@@ -346,6 +439,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
   const [router, setRouter] = useState<RouterIntf[]>(buildDefaultRouter);
   const [selectedPort, setSelectedPort] = useState<number | null>(null);
   const [showConfig, setShowConfig] = useState<"switch" | "router" | null>(null);
+  const [view, setView] = useState<"topo" | "ports">("topo");
 
   const issues = validateTopology(ports, router);
   const errors   = issues.filter(i => i.level === "error");
@@ -363,6 +457,13 @@ function TopologySimulator({ dark }: { dark: boolean }) {
     setRouter(prev => prev.map(r => r.id === id ? { ...r, active: !r.active } : r));
   }
 
+  function loadScenario() {
+    setPorts(buildScenarioPorts());
+    setRouter(buildScenarioRouter());
+    setSelectedPort(null);
+    setView("topo");
+  }
+
   function reset() {
     setPorts(buildDefaultPorts());
     setRouter(buildDefaultRouter());
@@ -371,19 +472,20 @@ function TopologySimulator({ dark }: { dark: boolean }) {
 
   const selPort = selectedPort !== null ? ports.find(p => p.num === selectedPort) : null;
 
-  // Tagging explanation for a port
   function taggingExplain(p: SWPort): { tag: boolean; why: string; color: string } {
+    const dm = DEVICE_META[p.connectedTo];
     if (p.mode === "access") {
+      const hint = dm.hint || ("Gerät \"" + (p.deviceLabel || p.connectedTo) + "\" arbeitet in VLAN " + p.accessVlan + " ohne Tag-Kenntnisse — Switch setzt den Tag intern.");
       return {
         tag: false,
-        why: `Access-Port: Frames werden OHNE 802.1Q-Tag gesendet und empfangen. Das angeschlossene Gerät (${p.deviceLabel || "PC"}) kennt VLAN ${p.accessVlan} nicht — der Switch setzt den Tag intern.`,
+        why: "Access-Port: Frames werden OHNE 802.1Q-Tag gesendet/empfangen. " + hint,
         color: "#22c55e",
       };
     }
     if (p.mode === "trunk") {
       return {
         tag: true,
-        why: `Trunk-Port: Alle Frames AUSSER Native VLAN (${p.trunkNative}) werden MIT 802.1Q-Tag übertragen. Erlaubte VLANs: ${p.trunkAllowed.join(", ")}. Native VLAN ${p.trunkNative} = kein Tag.`,
+        why: `Trunk-Port: Alle VLANs AUSSER Native VLAN (${p.trunkNative}) tragen 802.1Q-Tags. ${dm.hint || ""} Erlaubte VLANs: ${p.trunkAllowed.join(", ")}.`,
         color: "#f59e0b",
       };
     }
@@ -393,9 +495,18 @@ function TopologySimulator({ dark }: { dark: boolean }) {
   const sb = dark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200";
   const tb = dark ? "text-slate-300" : "text-slate-700";
 
+  // ── Topology diagram data ──────────────────────────────────────
+  // Group connected ports by device type for visual diagram
+  const connectedPorts = ports.filter(p => p.connectedTo !== "none");
+  const routerPort  = connectedPorts.filter(p => p.connectedTo === "router");
+  const apPorts     = connectedPorts.filter(p => p.connectedTo === "ap");
+  const serverPorts = connectedPorts.filter(p => p.connectedTo === "server");
+  const pcPorts     = connectedPorts.filter(p => p.connectedTo === "pc");
+  const deviceColCount = [apPorts, serverPorts, pcPorts].filter(a => a.length > 0).length;
+
   return (
     <div className="space-y-4">
-      {/* Legend bar */}
+      {/* Toolbar */}
       <div className="flex flex-wrap gap-2 items-center">
         {VLAN_DEFS.map(v => (
           <span key={v.id} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border" style={{ borderColor: v.color, color: dark ? v.textD : v.text, background: dark ? v.bgD : v.bg }}>
@@ -403,33 +514,205 @@ function TopologySimulator({ dark }: { dark: boolean }) {
             VLAN {v.id} {v.name}
           </span>
         ))}
-        <button onClick={reset} className={`ml-auto text-[10px] px-2 py-0.5 rounded border ${dark ? "border-slate-600 text-slate-400 hover:text-slate-200" : "border-slate-300 text-slate-500 hover:text-slate-700"}`}>↺ Reset</button>
+        <div className="ml-auto flex gap-1.5">
+          <button
+            onClick={loadScenario}
+            className="text-[10px] px-2.5 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 font-semibold"
+          >
+            📋 Szenario laden
+          </button>
+          <button onClick={reset} className={`text-[10px] px-2 py-1 rounded-lg border ${dark ? "border-slate-600 text-slate-400 hover:text-slate-200" : "border-slate-300 text-slate-500 hover:text-slate-700"}`}>↺ Reset</button>
+        </div>
       </div>
 
-      {/* Topology: two column layout */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
+      {/* View toggle */}
+      <div className={`flex gap-1 rounded-lg p-0.5 w-fit ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+        {(["topo", "ports"] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`text-[10px] px-3 py-1 rounded-md font-semibold transition-colors ${view === v ? "bg-indigo-600 text-white" : dark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+          >
+            {v === "topo" ? "🗺 Topologie" : "🔌 Port-Faceplate"}
+          </button>
+        ))}
+      </div>
 
-        {/* Switch */}
+      {/* ── TOPOLOGY VIEW ── */}
+      {view === "topo" && (
+        <div className={`rounded-xl border p-4 space-y-3 ${sb}`}>
+          <div className={`text-xs font-bold ${tb}`}>Netzwerk-Topologie</div>
+
+          {connectedPorts.length === 0 && (
+            <div className={`text-xs text-center py-6 ${dark ? "text-slate-500" : "text-slate-400"}`}>
+              Keine Geräte konfiguriert. Klicke <strong>„Szenario laden"</strong> für ein Beispiel oder wechsle zu <em>Port-Faceplate</em> zum manuellen Konfigurieren.
+            </div>
+          )}
+
+          {connectedPorts.length > 0 && (
+            <div className="flex flex-col items-center gap-0">
+
+              {/* ROUTER row */}
+              {routerPort.length > 0 && (
+                <div className="flex flex-col items-center">
+                  <div className={`rounded-xl border-2 px-4 py-2 text-center ${dark ? "bg-slate-700 border-green-500/60" : "bg-green-50 border-green-400"}`} style={{ minWidth: 140 }}>
+                    <div className="text-lg">🔀</div>
+                    <div className={`text-[11px] font-bold ${dark ? "text-green-300" : "text-green-800"}`}>Router (ISR)</div>
+                    <div className={`text-[9px] mt-0.5 font-mono ${dark ? "text-slate-400" : "text-slate-500"}`}>
+                      {router.filter(r => r.active).map(r => r.id).join(" · ") || "keine Subinterfaces"}
+                    </div>
+                  </div>
+                  <div className={`flex flex-col items-center`}>
+                    <div className="w-px h-4" style={{ background: "#22c55e" }} />
+                    <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold" style={{ background: "#22c55e22", color: "#22c55e" }}>
+                      Trunk Port {routerPort[0].num} · VLANs {routerPort[0].trunkAllowed?.join(",")}
+                    </span>
+                    <div className="w-px h-4" style={{ background: "#22c55e" }} />
+                  </div>
+                </div>
+              )}
+
+              {/* SWITCH */}
+              <div className={`rounded-xl border-2 px-4 py-2.5 w-full max-w-xl text-center ${dark ? "bg-slate-700 border-slate-500" : "bg-slate-100 border-slate-400"}`}>
+                <div className={`text-[11px] font-bold mb-1 ${tb}`}>🖧 Cisco Catalyst 2960X — 24-Port Switch</div>
+                <div className="flex flex-wrap justify-center gap-0.5">
+                  {ports.map(p => {
+                    const vc = p.mode === "access" ? vlanDef(p.accessVlan) : null;
+                    const bg = p.mode === "unassigned"
+                      ? dark ? "#374151" : "#e2e8f0"
+                      : p.mode === "trunk" ? dark ? "#1e3a8a55" : "#dbeafe" : dark ? vc!.bgD : vc!.bg;
+                    const bc = p.mode === "unassigned" ? dark ? "#4b5563" : "#cbd5e1" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
+                    return (
+                      <div
+                        key={p.num}
+                        title={`Port ${p.num}${p.deviceLabel ? ` — ${p.deviceLabel}` : ""}`}
+                        style={{ background: bg, borderColor: bc, width: 14, height: 18 }}
+                        className={`rounded border flex items-center justify-center text-[7px] font-bold cursor-default ${selectedPort === p.num ? "ring-1 ring-indigo-400" : ""}`}
+                      >
+                        {p.connectedTo !== "none" ? DEVICE_META[p.connectedTo].badge : ""}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Connection lines + device groups */}
+              {(apPorts.length > 0 || serverPorts.length > 0 || pcPorts.length > 0) && (
+                <div className="w-full max-w-xl">
+                  <div className="border-t-2 border-dashed mt-0 mb-2" style={{ borderColor: dark ? "#334155" : "#cbd5e1" }} />
+                  <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${deviceColCount}, 1fr)` }}>
+
+                    {/* Access Points */}
+                    {apPorts.length > 0 && (
+                      <div className="space-y-2">
+                        {apPorts.map(p => (
+                          <div key={p.num} className="flex flex-col items-center gap-0.5">
+                            <div className="w-px h-3" style={{ background: "#f59e0b" }} />
+                            <div
+                              onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
+                              className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-105" : ""}`}
+                              style={{ borderColor: "#f59e0b", background: dark ? "#78350f22" : "#fef3c7" }}
+                            >
+                              <div className="text-base">📡</div>
+                              <div className="text-[10px] font-bold" style={{ color: dark ? "#fcd34d" : "#92400e" }}>
+                                {p.deviceLabel || `AP Port ${p.num}`}
+                              </div>
+                              <div className="text-[9px]" style={{ color: dark ? "#a3a3a3" : "#78716c" }}>
+                                Trunk P{p.num} · {p.trunkAllowed?.filter(v => v !== p.trunkNative).map(v => `VLAN${v}`).join("+")}
+                              </div>
+                            </div>
+                            {/* Wireless clients */}
+                            <div className="flex gap-1 mt-0.5">
+                              {p.trunkAllowed?.filter(v => v !== p.trunkNative && v !== 99).map(vid => {
+                                const vd = vlanDef(vid);
+                                return (
+                                  <div key={vid} className="flex flex-col items-center">
+                                    <div className="w-px h-2 border-l border-dashed" style={{ borderColor: vd.color }} />
+                                    <div className="rounded px-1 py-0.5 text-[8px] font-semibold border" style={{ borderColor: vd.color, color: dark ? vd.textD : vd.text, background: dark ? vd.bgD : vd.bg }}>
+                                      ☁ SSID→V{vid}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Servers */}
+                    {serverPorts.length > 0 && (
+                      <div className="space-y-2">
+                        {serverPorts.map(p => {
+                          const vd = vlanDef(p.accessVlan);
+                          return (
+                            <div key={p.num} className="flex flex-col items-center gap-0.5">
+                              <div className="w-px h-3" style={{ background: vd.color }} />
+                              <div
+                                onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
+                                className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-105" : ""}`}
+                                style={{ borderColor: vd.color, background: dark ? vd.bgD : vd.bg }}
+                              >
+                                <div className="text-base">🖥</div>
+                                <div className="text-[10px] font-bold" style={{ color: dark ? vd.textD : vd.text }}>
+                                  {p.deviceLabel || `Server Port ${p.num}`}
+                                </div>
+                                <div className="text-[9px]" style={{ color: dark ? "#a3a3a3" : "#78716c" }}>
+                                  Access P{p.num} · VLAN {p.accessVlan}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* PCs */}
+                    {pcPorts.length > 0 && (
+                      <div>
+                        <div className={`text-[9px] font-semibold mb-1 ${dark ? "text-slate-500" : "text-slate-400"}`}>Clients ({pcPorts.length} Geräte)</div>
+                        <div className="flex flex-wrap gap-1">
+                          {pcPorts.map(p => {
+                            const vd = vlanDef(p.accessVlan);
+                            return (
+                              <div
+                                key={p.num}
+                                onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
+                                title={`${p.deviceLabel || "PC"} — Port ${p.num} — VLAN ${p.accessVlan}`}
+                                className={`rounded-lg border px-1.5 py-1 text-center cursor-pointer transition-all hover:scale-110 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-110" : ""}`}
+                                style={{ borderColor: vd.color, background: dark ? vd.bgD : vd.bg }}
+                              >
+                                <div className="text-sm">💻</div>
+                                <div className="text-[8px] font-semibold" style={{ color: dark ? vd.textD : vd.text }}>P{p.num}</div>
+                                <div className="text-[7px]" style={{ color: dark ? "#94a3b8" : "#64748b" }}>V{p.accessVlan}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PORT FACEPLATE VIEW ── */}
+      {view === "ports" && (
         <div className={`rounded-xl border p-3 ${sb}`}>
-          <div className={`text-xs font-bold mb-2 ${tb}`}>🖥 Cisco Catalyst 2960X — 24-Port Switch</div>
-
-          {/* Port grid: 2 rows of 12 like a real switch faceplate */}
+          <div className={`text-xs font-bold mb-2 ${tb}`}>🖧 Cisco Catalyst 2960X — 24-Port Switch</div>
           <div className="space-y-1">
             {[0, 1].map(row => (
               <div key={row} className="flex gap-1 flex-wrap">
                 {ports.slice(row * 12, row * 12 + 12).map(p => {
                   const vc = p.mode === "access" ? vlanDef(p.accessVlan) : null;
-                  const portBg = p.mode === "unassigned"
-                    ? dark ? "#374151" : "#e2e8f0"
-                    : p.mode === "trunk"
-                      ? dark ? "#1e3a8a55" : "#dbeafe"
-                      : dark ? vc!.bgD : vc!.bg;
-                  const portBorder = p.mode === "unassigned"
-                    ? dark ? "#4b5563" : "#cbd5e1"
-                    : p.mode === "trunk"
-                      ? "#3b82f6"
-                      : vc!.color;
+                  const portBg = p.mode === "unassigned" ? dark ? "#374151" : "#e2e8f0" : p.mode === "trunk" ? dark ? "#1e3a8a55" : "#dbeafe" : dark ? vc!.bgD : vc!.bg;
+                  const portBorder = p.mode === "unassigned" ? dark ? "#4b5563" : "#cbd5e1" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
                   const isSelected = selectedPort === p.num;
+                  const dm = DEVICE_META[p.connectedTo];
                   return (
                     <button
                       key={p.num}
@@ -439,11 +722,10 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                       className={`relative w-7 h-9 rounded border-2 flex flex-col items-center justify-center gap-0.5 transition-all hover:scale-110 ${isSelected ? "ring-2 ring-indigo-400 scale-110" : ""}`}
                     >
                       <span className="text-[8px] font-bold leading-none" style={{ color: dark ? "#94a3b8" : "#475569" }}>{p.num}</span>
-                      {/* LED dot */}
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: p.mode === "unassigned" ? "#4b5563" : p.mode === "trunk" ? "#f59e0b" : vc!.color }} />
                       {p.connectedTo !== "none" && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white border border-current text-[6px] flex items-center justify-center" style={{ color: portBorder }}>
-                          {p.connectedTo === "router" ? "R" : "P"}
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border text-[6px] flex items-center justify-center font-bold" style={{ borderColor: portBorder, color: portBorder }}>
+                          {dm.badge}
                         </span>
                       )}
                     </button>
@@ -452,45 +734,38 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               </div>
             ))}
           </div>
-
-          {/* Port legend */}
           <div className="flex gap-3 mt-2 text-[10px] flex-wrap">
-            <span className={dark ? "text-slate-500" : "text-slate-400"}>● LED: <span style={{ color: "#4b5563" }}>grau</span>=frei, <span style={{ color: "#f59e0b" }}>gelb</span>=Trunk, Farbe=Access-VLAN</span>
-            <span className={dark ? "text-slate-500" : "text-slate-400"}>R=Router angeschlossen, P=PC angeschlossen</span>
+            {Object.entries(DEVICE_META).filter(([k]) => k !== "none").map(([k, v]) => (
+              <span key={k} style={{ color: dark ? "#94a3b8" : "#64748b" }}>{v.badge}={v.label.split(" ")[0]}</span>
+            ))}
+            <span className={dark ? "text-slate-500" : "text-slate-400"}>· LED: <span style={{ color: "#4b5563" }}>grau</span>=frei, <span style={{ color: "#f59e0b" }}>gelb</span>=Trunk, Farbe=VLAN</span>
           </div>
         </div>
+      )}
 
-        {/* Router */}
-        <div className={`rounded-xl border p-3 min-w-[180px] ${sb}`}>
-          <div className={`text-xs font-bold mb-2 ${tb}`}>🔀 Cisco ISR (Router-on-a-Stick)</div>
-          <div className={`text-[10px] mb-2 ${dark ? "text-slate-400" : "text-slate-500"}`}>
-            Aktiviere Subinterfaces für Inter-VLAN-Routing
-          </div>
-          <div className="space-y-1.5">
-            {router.map(r => {
-              const vd = vlanDef(r.vlan);
-              return (
-                <button
-                  key={r.id}
-                  onClick={() => toggleRouterIntf(r.id)}
-                  style={{
-                    borderColor: r.active ? vd.color : dark ? "#374151" : "#e2e8f0",
-                    background: r.active ? (dark ? vd.bgD : vd.bg) : "transparent",
-                  }}
-                  className="w-full text-left rounded-lg border p-1.5 transition-all"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: r.active ? vd.color : dark ? "#4b5563" : "#cbd5e1" }} />
-                    <span className="text-[10px] font-mono font-semibold" style={{ color: r.active ? (dark ? vd.textD : vd.text) : dark ? "#94a3b8" : "#64748b" }}>{r.id}</span>
-                  </div>
-                  <div className="text-[9px] mt-0.5 ml-3.5" style={{ color: dark ? "#64748b" : "#94a3b8" }}>
-                    {r.ip} · encap dot1q {r.vlan}
-                  </div>
-                  {!r.active && <div className="text-[9px] ml-3.5" style={{ color: "#ef4444" }}>inaktiv</div>}
-                </button>
-              );
-            })}
-          </div>
+      {/* Router subinterface panel */}
+      <div className={`rounded-xl border p-3 ${sb}`}>
+        <div className={`text-xs font-bold mb-1 ${tb}`}>🔀 Cisco ISR — Router-on-a-Stick Subinterfaces</div>
+        <div className={`text-[10px] mb-2 ${dark ? "text-slate-400" : "text-slate-500"}`}>Klicken zum Aktivieren/Deaktivieren — aktive Subinterfaces ermöglichen Inter-VLAN-Routing</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          {router.map(r => {
+            const vd = vlanDef(r.vlan);
+            return (
+              <button
+                key={r.id}
+                onClick={() => toggleRouterIntf(r.id)}
+                style={{ borderColor: r.active ? vd.color : dark ? "#374151" : "#e2e8f0", background: r.active ? (dark ? vd.bgD : vd.bg) : "transparent" }}
+                className="text-left rounded-lg border p-2 transition-all hover:scale-105"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: r.active ? vd.color : dark ? "#4b5563" : "#cbd5e1" }} />
+                  <span className="text-[10px] font-mono font-semibold" style={{ color: r.active ? (dark ? vd.textD : vd.text) : dark ? "#94a3b8" : "#64748b" }}>{r.id}</span>
+                </div>
+                <div className="text-[9px] mt-0.5 ml-3.5" style={{ color: dark ? "#64748b" : "#94a3b8" }}>{r.ip}</div>
+                <div className="text-[9px] ml-3.5" style={{ color: r.active ? vd.color : "#ef4444" }}>{r.active ? "✓ aktiv" : "✗ inaktiv"}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -509,12 +784,12 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                 <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Gerät angeschlossen</label>
                 <select
                   value={selPort.connectedTo}
-                  onChange={e => updatePort(selPort.num, { connectedTo: e.target.value as SWPort["connectedTo"] })}
+                  onChange={e => updatePort(selPort.num, { connectedTo: e.target.value as DeviceType })}
                   className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
                 >
-                  <option value="none">— keins —</option>
-                  <option value="pc">PC / Server / Drucker</option>
-                  <option value="router">Router (Gi0/0)</option>
+                  {Object.entries(DEVICE_META).map(([k, v]) => (
+                    <option key={k} value={k}>{v.icon} {v.label}</option>
+                  ))}
                 </select>
               </div>
 
