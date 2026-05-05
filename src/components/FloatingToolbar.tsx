@@ -170,7 +170,7 @@ export function FloatingToolbar({
                 : "bg-white/90 border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-300",
             )}
           >
-            <CaretUp size={14} />
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 5L14 11H2L8 5Z"/></svg>
             Toolbar
           </button>
         ) : (
@@ -913,7 +913,7 @@ export function FloatingToolbar({
                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-100",
                 )}
               >
-                <CaretDown size={16} />
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5H14L8 11Z"/></svg>
               </Button>
             </TooltipTrigger>
             <TooltipContent
