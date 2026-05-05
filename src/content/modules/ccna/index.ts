@@ -37,6 +37,14 @@ import {
   TROUBLESHOOTING_CONCEPTS,
 } from "./topics/troubleshooting";
 import { TOPIC_WAN, WAN_CONCEPTS } from "./topics/wan";
+import {
+  TOPIC_VERKABELUNG,
+  VERKABELUNG_CONCEPTS,
+} from "./topics/verkabelung";
+import {
+  TOPIC_VLAN_ADVANCED,
+  VLAN_ADVANCED_CONCEPTS,
+} from "./topics/vlan-advanced";
 import { TOPIC_WLAN, WLAN_CONCEPTS } from "./topics/wlan";
 
 // ── Existing quiz registry (unchanged) ──────────────────────
@@ -468,6 +476,8 @@ const CCNA_MODULE: CertificationModule = {
     TOPIC_IPV4_ADDRESSING,
     TOPIC_IPV6,
     TOPIC_SWITCHING_VLANS,
+    TOPIC_VLAN_ADVANCED,
+    TOPIC_VERKABELUNG,
     TOPIC_ROUTING_OSPF,
     TOPIC_FHRP,
     TOPIC_DHCP_NAT,
@@ -487,6 +497,8 @@ const CCNA_MODULE: CertificationModule = {
     ...IPV4_CONCEPTS,
     ...IPV6_CONCEPTS,
     ...SWITCHING_CONCEPTS,
+    ...VLAN_ADVANCED_CONCEPTS,
+    ...VERKABELUNG_CONCEPTS,
     ...ROUTING_CONCEPTS,
     ...FHRP_CONCEPTS,
     ...DHCP_NAT_CONCEPTS,

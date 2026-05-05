@@ -26,6 +26,8 @@ import remarkGfm from "remark-gfm";
 import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
 import { QuizDialog } from "./QuizDialog";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
+import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
+import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -87,10 +89,14 @@ export function TopicDetailPanel({
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
   const [ipv6Open, setIpv6Open] = useState(false);
+  const [verkabelungOpen, setVerkabelungOpen] = useState(false);
+  const [vlanSimOpen, setVlanSimOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
+  const hasVerkabelungTrainer = topic.conceptIds.includes("verkabelung-trainer");
+  const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
 
   // ESC key support
   useEffect(() => {
@@ -254,6 +260,70 @@ export function TopicDetailPanel({
                 </div>
               </div>
               <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── Verkabelungs-Trainer CTA ── */}
+        {hasVerkabelungTrainer && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setVerkabelungOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-200"
+                  : "bg-emerald-50 border-emerald-200 hover:bg-emerald-100 text-emerald-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark ? "bg-emerald-500/30 text-emerald-200" : "bg-emerald-100 text-emerald-700"
+                }`}
+              >
+                🔌
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">Verkabelungs-Trainer</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  Pin-Belegung T568A/B · Kabeltyp-Wizard · Kategorie-Vergleich
+                </div>
+              </div>
+              <span className={`text-xs ${dark ? "text-emerald-300" : "text-emerald-600"}`}>
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── VLAN-Simulator CTA ── */}
+        {hasVlanSimulator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setVlanSimOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/20 text-cyan-200"
+                  : "bg-cyan-50 border-cyan-200 hover:bg-cyan-100 text-cyan-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark ? "bg-cyan-500/30 text-cyan-200" : "bg-cyan-100 text-cyan-700"
+                }`}
+              >
+                🌐
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">VLAN-Simulator</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  802.1Q Frame-Vivisektor · Switch-Simulator · Trunk-Animation
+                </div>
+              </div>
+              <span className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}>
                 Starten →
               </span>
             </button>
@@ -618,6 +688,20 @@ export function TopicDetailPanel({
           open={ipv6Open}
           onClose={() => setIpv6Open(false)}
           theme={theme}
+        />
+      )}
+
+      {hasVerkabelungTrainer && verkabelungOpen && (
+        <VerkabelungTrainerDialog
+          dark={dark}
+          onClose={() => setVerkabelungOpen(false)}
+        />
+      )}
+
+      {hasVlanSimulator && vlanSimOpen && (
+        <VlanSimulatorDialog
+          dark={dark}
+          onClose={() => setVlanSimOpen(false)}
         />
       )}
 
