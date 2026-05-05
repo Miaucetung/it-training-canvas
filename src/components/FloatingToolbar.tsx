@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -152,18 +153,35 @@ export function FloatingToolbar({
   selectedShape,
 }: FloatingToolbarProps) {
   const subjectColor = SUBJECT_CONFIGS[currentSubject]?.color || "#6366F1";
+  const [minimized, setMinimized] = useState(false);
 
   return (
     <TooltipProvider delayDuration={200}>
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div
-          className={cn(
-            "flex items-center gap-1 p-2 rounded-2xl shadow-2xl backdrop-blur-xl border",
-            theme === "dark"
-              ? "bg-slate-900/90 border-slate-700/50 shadow-black/50"
-              : "bg-white/90 border-slate-200 shadow-slate-200/50",
-          )}
-        >
+        {minimized ? (
+          /* Minimized pill */
+          <button
+            onClick={() => setMinimized(false)}
+            title="Toolbar einblenden"
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-xl border text-xs font-medium transition-all",
+              theme === "dark"
+                ? "bg-slate-900/90 border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500"
+                : "bg-white/90 border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-300",
+            )}
+          >
+            <CaretUp size={14} />
+            Toolbar
+          </button>
+        ) : (
+          <div
+            className={cn(
+              "flex items-center gap-1 p-2 rounded-2xl shadow-2xl backdrop-blur-xl border",
+              theme === "dark"
+                ? "bg-slate-900/90 border-slate-700/50 shadow-black/50"
+                : "bg-white/90 border-slate-200 shadow-slate-200/50",
+            )}
+          >
           {/* Drawing Tools */}
           <div className="flex items-center gap-1 px-1">
             {tools.map(({ tool: t, icon: Icon, label, shortcut }) => (
@@ -880,7 +898,33 @@ export function FloatingToolbar({
               <p>{theme === "dark" ? "Heller Modus" : "Dunkler Modus"}</p>
             </TooltipContent>
           </Tooltip>
+
+          {/* Minimize button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMinimized(true)}
+                className={cn(
+                  "h-10 w-10 rounded-xl",
+                  theme === "dark"
+                    ? "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
+                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-100",
+                )}
+              >
+                <CaretDown size={16} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className={theme === "dark" ? "bg-slate-800 border-slate-700" : ""}
+            >
+              <p>Toolbar minimieren</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
+        )}
       </div>
     </TooltipProvider>
   );
