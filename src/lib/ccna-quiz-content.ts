@@ -642,6 +642,248 @@ export const QUIZ_IPV4: Quiz = {
 };
 
 // ============================================================
+// QUIZ 2b: Netzwerk-Segmentierung
+// ============================================================
+export const QUIZ_SEGMENTIERUNG: Quiz = {
+  id: "ccna-quiz-segmentierung",
+  title: "CCNA: Netzwerk-Segmentierung",
+  description: "Sicherheitszonen, VLSM-Design, DMZ, ACL-Policy und Enterprise-Segmentierungsszenarien",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    // ── Block 1: Warum segmentieren? ─────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Problem löst Netzwerk-Segmentierung als erstes?",
+      explanation: "Das Hauptproblem ohne Segmentierung sind zu große Broadcast-Domänen: Jedes Gerät verarbeitet jeden Broadcast (ARP, DHCP, STP-BPDUs). Ab ~200 Geräten entstehen messbare Performance-Einbußen.",
+      answers: [
+        { id: "a", text: "Zu langsame Festplatten auf Servern", isCorrect: false },
+        { id: "b", text: "Zu große Broadcast-Domänen mit zu vielen Geräten", isCorrect: true },
+        { id: "c", text: "Zu wenig DHCP-Lease-Zeiten", isCorrect: false },
+        { id: "d", text: "Zu langsame Switch-Backplane", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche der folgenden Vorteile bietet Netzwerk-Segmentierung? (Mehrere Antworten möglich)",
+      explanation: "Segmentierung verbessert Performance (kleinere Broadcast-Domänen), Sicherheit (Zonenübergänge kontrollierbar), IP-Management (Adressen = Funktionen) und Compliance (PCI-DSS, ISO 27001 fordern Netztrennung). WLAN-Geschwindigkeit selbst wird nicht durch IP-Segmentierung beeinflusst.",
+      answers: [
+        { id: "a", text: "Kleinere Broadcast-Domänen → bessere Performance", isCorrect: true },
+        { id: "b", text: "Laterale Bewegung von Angreifern erschwert", isCorrect: true },
+        { id: "c", text: "IP-Adressen reflektieren Funktion und Zone", isCorrect: true },
+        { id: "d", text: "WLAN-Übertragungsrate wird erhöht", isCorrect: false },
+        { id: "e", text: "Compliance-Anforderungen (PCI-DSS) leichter erfüllbar", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 'laterale Bewegung' (Lateral Movement) im Kontext der Netzwerksicherheit?",
+      explanation: "Laterale Bewegung bezeichnet das Ausbreiten eines Angreifers innerhalb eines Netzwerks nach dem ersten Einbruch. Ein kompromittierter PC in der Client-Zone kann ohne Segmentierung direkt Server angreifen. Segmentierung mit ACLs verhindert diese Ausbreitung.",
+      answers: [
+        { id: "a", text: "Das Roaming von WLAN-Clients zwischen Access Points", isCorrect: false },
+        { id: "b", text: "Das Ausbreiten eines Angreifers von System zu System nach dem Einbruch", isCorrect: true },
+        { id: "c", text: "Das Verschieben von VMs zwischen Hypervisoren", isCorrect: false },
+        { id: "d", text: "Die Verlagerung von Traffic auf redundante Links", isCorrect: false },
+      ],
+    },
+    // ── Block 2: Sicherheitszonen ─────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine DMZ (Demilitarized Zone) in einem Unternehmensnetz?",
+      explanation: "Die DMZ ist eine Netzwerkzone für Server, die vom Internet erreichbar sein müssen (Web, Mail, DNS), aber keinen direkten Zugriff auf das interne Netz haben dürfen. Sie liegt zwischen der äußeren und inneren Firewall.",
+      answers: [
+        { id: "a", text: "Eine spezielle VLAN für Management-Geräte", isCorrect: false },
+        { id: "b", text: "Eine Zone für öffentlich erreichbare Server, getrennt vom internen Netz", isCorrect: true },
+        { id: "c", text: "Das Standard-VLAN 1 auf Cisco-Switches", isCorrect: false },
+        { id: "d", text: "Ein separates WLAN nur für Gäste", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Firewall-Regel ist für eine korrekt konfigurierte DMZ ZWINGEND notwendig?",
+      explanation: "Die kritischste Regel: DMZ → Internes Netz muss blockiert sein. Wenn ein Web-Server in der DMZ kompromittiert wird, darf er keinen Zugriff auf interne Systeme haben. Ohne diese Regel ist die DMZ wertlos.",
+      answers: [
+        { id: "a", text: "Internet → DMZ: alles erlauben", isCorrect: false },
+        { id: "b", text: "DMZ → Internes Netz: blockieren", isCorrect: true },
+        { id: "c", text: "Intern → DMZ: alles blockieren", isCorrect: false },
+        { id: "d", text: "DMZ → Internet: alles erlauben", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches VLAN sollte laut Best Practices für das Management-Netz verwendet werden?",
+      explanation: "Management-Datenverkehr (SSH zu Switches, SNMP) sollte niemals über VLAN 1 laufen (VLAN 1 ist Default und unsicher). Best Practice: ein dediziertes VLAN (oft 99 oder 100) für Management, das nur Admin-Stationen nutzen dürfen.",
+      answers: [
+        { id: "a", text: "VLAN 1 (Default VLAN)", isCorrect: false },
+        { id: "b", text: "VLAN 0 (reserviert)", isCorrect: false },
+        { id: "c", text: "Ein dediziertes VLAN (z.B. VLAN 99)", isCorrect: true },
+        { id: "d", text: "Das VLAN mit der höchsten ID (4094)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Systeme gehören typischerweise in die DMZ? (Mehrere Antworten möglich)",
+      explanation: "In die DMZ gehören nur Systeme, die direkt aus dem Internet erreichbar sein müssen: Web-Server, Mail-Server (SMTP), öffentliche DNS-Resolver, VPN-Gateways. Active Directory, interne Datenbanken und File-Server gehören niemals in die DMZ.",
+      answers: [
+        { id: "a", text: "Web-Server (HTTP/HTTPS)", isCorrect: true },
+        { id: "b", text: "Active Directory Domain Controller", isCorrect: false },
+        { id: "c", text: "Mail-Server (SMTP)", isCorrect: true },
+        { id: "d", text: "Interner SQL-Datenbank-Server", isCorrect: false },
+        { id: "e", text: "Öffentlicher DNS-Resolver", isCorrect: true },
+        { id: "f", text: "VPN-Gateway", isCorrect: true },
+      ],
+    },
+    // ── Block 3: VLSM-Planung ─────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Du musst 5 Subnetze aus 192.168.50.0/24 bilden: 100 Hosts, 50 Hosts, 25 Hosts, 10 Hosts, 5 Hosts. In welcher Reihenfolge vergibst du die Subnetze bei VLSM?",
+      explanation: "VLSM-Grundregel: Immer vom größten zum kleinsten Subnetz planen. Sonst entstehen Lücken im Adressraum, die nicht mehr genutzt werden können. Also: 100 → 50 → 25 → 10 → 5.",
+      answers: [
+        { id: "a", text: "Kleinste zuerst: 5, 10, 25, 50, 100", isCorrect: false },
+        { id: "b", text: "Alphabetisch nach Zone", isCorrect: false },
+        { id: "c", text: "Größte zuerst: 100, 50, 25, 10, 5", isCorrect: true },
+        { id: "d", text: "Beliebig — VLSM hat keine Reihenfolge", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Eine Zone benötigt 50 nutzbare Hosts. Welches CIDR-Präfix ist das kleinste (effizienteste), das ausreicht?",
+      explanation: "50 Hosts benötigen: 2^n - 2 ≥ 50 → 2^6 = 64 → 64 - 2 = 62 Hosts nutzbar. Also /26. Ein /27 würde nur 30 Hosts liefern (zu wenig). Ein /25 wäre zu groß (126 Hosts).",
+      answers: [
+        { id: "a", text: "/25 (126 Hosts)", isCorrect: false },
+        { id: "b", text: "/26 (62 Hosts) ✓", isCorrect: true },
+        { id: "c", text: "/27 (30 Hosts)", isCorrect: false },
+        { id: "d", text: "/28 (14 Hosts)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Du planst VLSM aus 10.0.0.0/22. Erst vergibst du ein /24 für 200 Hosts. Wo beginnt das nächste Subnetz (/26, 60 Hosts)?",
+      explanation: "10.0.0.0/22 enthält .0 bis .3.255. Ein /24 beginnt bei 10.0.0.0 und endet bei 10.0.0.255. Das nächste Subnetz beginnt daher bei 10.0.1.0.",
+      answers: [
+        { id: "a", text: "10.0.0.192", isCorrect: false },
+        { id: "b", text: "10.0.0.254", isCorrect: false },
+        { id: "c", text: "10.0.1.0", isCorrect: true },
+        { id: "d", text: "10.0.2.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Firma bekommt 172.16.0.0/20. Welche maximale Anzahl nutzbarer Hosts bietet dieses Netz?",
+      explanation: "/20 → 12 Host-Bits → 2^12 - 2 = 4096 - 2 = 4094 nutzbare Hosts. Der Adressraum geht von 172.16.0.0 bis 172.16.15.255.",
+      answers: [
+        { id: "a", text: "1022", isCorrect: false },
+        { id: "b", text: "2046", isCorrect: false },
+        { id: "c", text: "4094", isCorrect: true },
+        { id: "d", text: "8190", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Für eine Point-to-Point Verbindung zwischen zwei Routern — welches CIDR-Präfix spart am meisten Adressen?",
+      explanation: "/30 liefert genau 2 nutzbare Hosts (4 Adressen: Netz, Host1, Host2, Broadcast) — perfekt für P2P-Links. /31 (RFC 3021) ist auch gültig für P2P, aber weniger verbreitet. /29 wäre Verschwendung (6 nutzbar, aber nur 2 gebraucht).",
+      answers: [
+        { id: "a", text: "/28 (14 nutzbare Hosts)", isCorrect: false },
+        { id: "b", text: "/29 (6 nutzbare Hosts)", isCorrect: false },
+        { id: "c", text: "/30 (2 nutzbare Hosts)", isCorrect: true },
+        { id: "d", text: "/32 (0 nutzbare Hosts — Host-Route)", isCorrect: false },
+      ],
+    },
+    // ── Block 4: Cisco IOS Segmentierung ─────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Du konfigurierst Router-on-a-Stick für VLAN 20. Welcher Befehl aktiviert das 802.1Q-Tagging am Sub-Interface?",
+      explanation: "encapsulation dot1Q 20 weist dem Sub-Interface die VLAN-ID 20 zu und aktiviert 802.1Q-Tagging. Ohne diesen Befehl weiß der Router nicht, welches VLAN dieses Sub-Interface bedient.",
+      answers: [
+        { id: "a", text: "switchport mode trunk", isCorrect: false },
+        { id: "b", text: "vlan 20", isCorrect: false },
+        { id: "c", text: "encapsulation dot1Q 20", isCorrect: true },
+        { id: "d", text: "ip vlan-id 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl verknüpft eine ACL namens 'GAESTE-POLICY' mit einem Router-Interface in eingehender Richtung?",
+      explanation: "ip access-group NAME in wendet eine named ACL eingehend (in) auf ein Interface an. 'out' wäre ausgehend. access-list group und ip access-list in sind keine gültigen Cisco IOS Befehle.",
+      answers: [
+        { id: "a", text: "access-list group GAESTE-POLICY in", isCorrect: false },
+        { id: "b", text: "ip access-group GAESTE-POLICY in", isCorrect: true },
+        { id: "c", text: "ip access-list GAESTE-POLICY in", isCorrect: false },
+        { id: "d", text: "apply access-list GAESTE-POLICY inbound", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Layer-3-Switch soll als Inter-VLAN-Router fungieren. Welcher globale Befehl muss zuerst eingegeben werden?",
+      explanation: "ip routing aktiviert auf einem Layer-3-Switch die Routing-Funktion. Ohne diesen Befehl arbeitet der Switch nur auf Layer 2, auch wenn SVIs konfiguriert sind.",
+      answers: [
+        { id: "a", text: "router eigrp 1", isCorrect: false },
+        { id: "b", text: "ip routing", isCorrect: true },
+        { id: "c", text: "no switchport", isCorrect: false },
+        { id: "d", text: "routing-protocol on", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was zeigt der Befehl 'show ip route' nach korrekter Segmentierungs-Konfiguration?",
+      explanation: "show ip route zeigt alle bekannten Netzwerke in der Routing-Tabelle. Nach korrekter Segmentierung sollten alle konfigurierten Subnetze als 'C' (Connected) erscheinen — eines pro Sub-Interface oder SVI.",
+      answers: [
+        { id: "a", text: "Die MAC-Adresstabelle des Switches", isCorrect: false },
+        { id: "b", text: "Alle direkt verbundenen und erlernten Netzwerke", isCorrect: true },
+        { id: "c", text: "Alle konfigurierten ACLs", isCorrect: false },
+        { id: "d", text: "Die DHCP-Lease-Tabelle", isCorrect: false },
+      ],
+    },
+    // ── Block 5: Szenarien & Planung ─────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Unternehmen hat 3 Abteilungen (je 30 Hosts) und ein Managementnetz (5 Hosts). Welches Netz als Basis ist mindestens nötig, um alle Bereiche zu versorgen?",
+      explanation: "3 × /27 (je 32er-Block) + 1 × /29 (8er-Block) = 96 + 8 = 104 Adressen. Ein /25 (128 Adressen, 126 nutzbar) reicht nicht für 4 separate Subnetze mit eigenen Netz- und Broadcast-Adressen. Ein /24 (256 Adressen) passt bequem.",
+      answers: [
+        { id: "a", text: "/25 (128 Adressen)", isCorrect: false },
+        { id: "b", text: "/24 (256 Adressen)", isCorrect: true },
+        { id: "c", text: "/28 (16 Adressen)", isCorrect: false },
+        { id: "d", text: "/30 (4 Adressen)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was passiert, wenn ein Gäste-WLAN-Client versucht, einen internen Server zu erreichen, und die ACL lautet: 'deny ip 192.168.40.0 0.0.0.255 192.168.0.0 0.0.255.255'?",
+      explanation: "Die ACL-Regel verweigert (deny) allen Traffic von 192.168.40.0/24 (Gäste-WLAN) in Richtung 192.168.0.0/16 (internes Netz). Der Verbindungsversuch wird stillschweigend verworfen. Der Client erhält keine direkte Fehlermeldung — der TCP-Verbindungsaufbau läuft ins Timeout.",
+      answers: [
+        { id: "a", text: "Die Verbindung wird aufgebaut, aber langsamer", isCorrect: false },
+        { id: "b", text: "Der Paket wird verworfen — Verbindung schlägt fehl", isCorrect: true },
+        { id: "c", text: "Der Client wird ins Management-VLAN umgeleitet", isCorrect: false },
+        { id: "d", text: "Eine ICMP-Fehlermeldung wird an den Client gesendet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche der folgenden Aussagen zur Netzwerk-Segmentierung sind korrekt? (Mehrere Antworten möglich)",
+      explanation: "Korrekt: Segmentierung reduziert Broadcast-Domänen, ACLs kontrollieren Zonenübergänge, und Management-Traffic sollte ein eigenes VLAN haben. Falsch: VLANs allein sind keine vollständige Sicherheitslösung (ohne ACLs/Firewall sind Inter-VLAN-Flows offen) und Segmentierung erhöht nicht automatisch die Bandbreite.",
+      answers: [
+        { id: "a", text: "Segmentierung reduziert die Größe von Broadcast-Domänen", isCorrect: true },
+        { id: "b", text: "ACLs an Zonen-Übergängen kontrollieren, welcher Traffic erlaubt ist", isCorrect: true },
+        { id: "c", text: "VLANs allein (ohne ACLs) sind bereits eine vollständige Sicherheitslösung", isCorrect: false },
+        { id: "d", text: "Management-Traffic sollte in einem eigenen VLAN isoliert sein", isCorrect: true },
+        { id: "e", text: "Segmentierung erhöht automatisch die Netzwerkbandbreite", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Native VLAN auf einem Trunk-Port ist standardmäßig VLAN 1. Was ist das Sicherheitsrisiko?",
+      explanation: "VLAN 1 ist das Default-VLAN auf allen Cisco-Ports und trägt auch untagged Management-Traffic (CDP, STP, VTP). Ein Angreifer kann VLAN-Hopping via Double-Tagging betreiben, wenn Native VLAN = VLAN 1 ist. Best Practice: Native VLAN auf ein ungenutztes VLAN setzen.",
+      answers: [
+        { id: "a", text: "VLAN 1 hat weniger Bandbreite", isCorrect: false },
+        { id: "b", text: "VLAN 1 kann für VLAN-Hopping-Angriffe missbraucht werden", isCorrect: true },
+        { id: "c", text: "VLAN 1 unterstützt kein 802.1Q", isCorrect: false },
+        { id: "d", text: "VLAN 1 ist auf Layer 3 nicht routbar", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // QUIZ 3: IPv6
 // ============================================================
 export const QUIZ_IPV6: Quiz = {
@@ -2606,6 +2848,7 @@ export const QUIZ_TROUBLESHOOTING: Quiz = {
 export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_NETZWERKGRUNDLAGEN.id]: QUIZ_NETZWERKGRUNDLAGEN,
   [QUIZ_IPV4.id]: QUIZ_IPV4,
+  [QUIZ_SEGMENTIERUNG.id]: QUIZ_SEGMENTIERUNG,
   [QUIZ_IPV6.id]: QUIZ_IPV6,
   [QUIZ_DHCP.id]: QUIZ_DHCP,
   [QUIZ_NAT.id]: QUIZ_NAT,

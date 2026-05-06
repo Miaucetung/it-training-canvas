@@ -28,6 +28,7 @@ import { QuizDialog } from "./QuizDialog";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
 import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
+import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -97,6 +98,7 @@ export function TopicDetailPanel({
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
   const hasVerkabelungTrainer = topic.conceptIds.includes("verkabelung-trainer");
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
+  const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
 
   // ESC key support
   useEffect(() => {
@@ -327,6 +329,13 @@ export function TopicDetailPanel({
                 Starten →
               </span>
             </button>
+          </section>
+        )}
+
+        {/* ── Subnetz-Segmentierungsplaner (inline) ── */}
+        {hasSubnetSegTool && (
+          <section>
+            <SubnetSegmentationTool dark={dark} />
           </section>
         )}
 

@@ -46,6 +46,10 @@ import {
   VLAN_ADVANCED_CONCEPTS,
 } from "./topics/vlan-advanced";
 import { TOPIC_WLAN, WLAN_CONCEPTS } from "./topics/wlan";
+import {
+  TOPIC_SUBNET_SEGMENTATION,
+  SUBNET_SEGMENTATION_CONCEPTS,
+} from "./topics/subnet-segmentation";
 
 // ── Existing quiz registry (unchanged) ──────────────────────
 import { CCNA_QUIZZES } from "@/lib/ccna-quiz-content";
@@ -103,6 +107,25 @@ const CCNA_LEARNING_PATHS: Record<string, LearningPath> = {
         order: 4,
         completed: false,
         quizId: "ccna-quiz-ipv4",
+        hints: [],
+      },
+      {
+        id: "step-4b-segmentierung",
+        title: "Netzwerk-Segmentierung",
+        description: "Sicherheitszonen, VLSM-Planung, Cisco IOS Konfiguration und Enterprise-Szenarien.",
+        type: "info",
+        order: 4,
+        completed: false,
+        hints: [],
+      },
+      {
+        id: "step-4c-quiz-segmentierung",
+        title: "Quiz: Netzwerk-Segmentierung",
+        description: "Sicherheitszonen, VLSM-Design, DMZ und ACL-Policy testen.",
+        type: "quiz",
+        order: 4,
+        completed: false,
+        quizId: "ccna-quiz-segmentierung",
         hints: [],
       },
       {
@@ -474,6 +497,7 @@ const CCNA_MODULE: CertificationModule = {
     TOPIC_NETWORKING_FUNDAMENTALS,
     TOPIC_IOS_CLI,
     TOPIC_IPV4_ADDRESSING,
+    TOPIC_SUBNET_SEGMENTATION,
     TOPIC_IPV6,
     TOPIC_SWITCHING_VLANS,
     TOPIC_VLAN_ADVANCED,
@@ -495,6 +519,7 @@ const CCNA_MODULE: CertificationModule = {
     ...NETWORKING_FUNDAMENTALS_CONCEPTS,
     ...IOS_CLI_CONCEPTS,
     ...IPV4_CONCEPTS,
+    ...SUBNET_SEGMENTATION_CONCEPTS,
     ...IPV6_CONCEPTS,
     ...SWITCHING_CONCEPTS,
     ...VLAN_ADVANCED_CONCEPTS,
