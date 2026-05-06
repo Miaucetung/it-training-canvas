@@ -176,6 +176,109 @@ export const QUIZ_NETZWERKGRUNDLAGEN: Quiz = {
         { id: "d", text: "Jitter", isCorrect: false },
       ],
     },
+    // ── Netzwerkanforderungen & QoS ───────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der maximale empfohlene One-Way-Delay (Latenz) für VoIP-Qualität laut QoS-Standard?",
+      explanation: "Für akzeptable VoIP-Qualität gilt: One-Way-Delay < 150 ms, Jitter < 30 ms, Paketverlust < 1 %.",
+      answers: [
+        { id: "a", text: "50 ms", isCorrect: false },
+        { id: "b", text: "100 ms", isCorrect: false },
+        { id: "c", text: "150 ms", isCorrect: true },
+        { id: "d", text: "300 ms", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was beschreibt 'Jitter' in einem Netzwerk?",
+      explanation: "Jitter ist die Schwankung der Übertragungsverzögerung zwischen aufeinanderfolgenden Paketen. Für VoIP darf er < 30 ms betragen.",
+      answers: [
+        { id: "a", text: "Die maximale Datenrate einer Verbindung", isCorrect: false },
+        { id: "b", text: "Die Schwankung der Übertragungsverzögerung zwischen Paketen", isCorrect: true },
+        { id: "c", text: "Die Anzahl verlorener Pakete pro Sekunde", isCorrect: false },
+        { id: "d", text: "Die Round-Trip-Time eines Pakets", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche der folgenden gehören zum CIA+A-Sicherheits-Framework? (Mehrere Antworten möglich)",
+      explanation: "CIA+A steht für Confidentiality (Vertraulichkeit), Integrity (Integrität), Availability (Verfügbarkeit) + Authenticity (Authentizität). Authentication ist ein Prozess, kein Schutzziel.",
+      answers: [
+        { id: "a", text: "Confidentiality (Vertraulichkeit)", isCorrect: true },
+        { id: "b", text: "Integrity (Integrität)", isCorrect: true },
+        { id: "c", text: "Availability (Verfügbarkeit)", isCorrect: true },
+        { id: "d", text: "Authenticity (Authentizität)", isCorrect: true },
+        { id: "e", text: "Anonymity (Anonymität)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches CIA+A-Schutzziel garantiert, dass Daten unterwegs nicht manipuliert wurden?",
+      explanation: "Integrity (Integrität) stellt sicher, dass Daten unverändert ankommen. Realisiert durch Hashing (SHA-256) und digitale Signaturen.",
+      answers: [
+        { id: "a", text: "Confidentiality", isCorrect: false },
+        { id: "b", text: "Integrity", isCorrect: true },
+        { id: "c", text: "Availability", isCorrect: false },
+        { id: "d", text: "Authenticity", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches der '5 As' von Cisco beschreibt, dass ein Netz 24/7/365 erreichbar sein muss?",
+      explanation: "Anytime / Always-on beschreibt die Anforderung permanenter Verfügbarkeit. Dies wird durch Redundanz, Failover und unterbrechungsfreie Stromversorgung (USV) realisiert.",
+      answers: [
+        { id: "a", text: "Anybody", isCorrect: false },
+        { id: "b", text: "Anytime / Always-on", isCorrect: true },
+        { id: "c", text: "Anywhere", isCorrect: false },
+        { id: "d", text: "Any Device", isCorrect: false },
+      ],
+    },
+    // ── Enterprise Network Design ─────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie nennt man das 2-Tier-Design, bei dem Core-Layer und Distribution-Layer in einem Gerät zusammengeführt werden?",
+      explanation: "Collapsed Core: Core- und Distribution-Layer sind physisch zusammengelegt. Günstiger als 3-Tier, geeignet für mittlere Unternehmen, aber weniger skalierbar.",
+      answers: [
+        { id: "a", text: "Spine-Leaf", isCorrect: false },
+        { id: "b", text: "Collapsed Core", isCorrect: true },
+        { id: "c", text: "SOHO-Design", isCorrect: false },
+        { id: "d", text: "Flat Network", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Aussagen zu Spine-Leaf sind korrekt? (Mehrere Antworten möglich)",
+      explanation: "Spine-Leaf Regeln: Jeder Leaf muss mit jedem Spine verbunden sein. Leaf-Leaf und Spine-Spine Verbindungen sind verboten. Endpunkte (Server) nur an Leaf-Switches.",
+      answers: [
+        { id: "a", text: "Jeder Leaf muss mit jedem Spine verbunden sein", isCorrect: true },
+        { id: "b", text: "Leaf-Switches dürfen nicht untereinander verbunden werden", isCorrect: true },
+        { id: "c", text: "Spine-Switches dürfen nicht untereinander verbunden werden", isCorrect: true },
+        { id: "d", text: "Server können direkt an Spine-Switches angebunden werden", isCorrect: false },
+        { id: "e", text: "Endpunkte werden ausschließlich an Leaf-Switches angebunden", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welchen Vorteil bietet Spine-Leaf gegenüber einem klassischen 3-Tier-Design im Rechenzentrum?",
+      explanation: "Spine-Leaf garantiert immer genau 2 Hops zwischen beliebigen Endpunkten → gleichmäßige, vorhersagbare Latenz. 3-Tier hat variable Hop-Counts.",
+      answers: [
+        { id: "a", text: "Günstiger in der Anschaffung", isCorrect: false },
+        { id: "b", text: "Einfacher zu konfigurieren als 3-Tier", isCorrect: false },
+        { id: "c", text: "Gleichmäßige, vorhersagbare Latenz (immer 2 Hops)", isCorrect: true },
+        { id: "d", text: "Unterstützt mehr Protokolle als 3-Tier", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welcher Schicht des 3-Tier Hierarchical Network Model werden ACLs, QoS und Routing-Policies implementiert?",
+      explanation: "Der Distribution Layer ist der Policy-Layer: hier laufen ACLs, QoS, Inter-VLAN-Routing und Routing-Policies. Core ist nur Hochgeschwindigkeits-Backbone, Access ist für Endgeräte.",
+      answers: [
+        { id: "a", text: "Access Layer", isCorrect: false },
+        { id: "b", text: "Distribution Layer", isCorrect: true },
+        { id: "c", text: "Core Layer", isCorrect: false },
+        { id: "d", text: "Management Layer", isCorrect: false },
+      ],
+    },
   ],
 };
 
@@ -275,6 +378,264 @@ export const QUIZ_IPV4: Quiz = {
         { id: "b", text: "Subnetzmasken können variabel (unterschiedlich lang) sein", isCorrect: true },
         { id: "c", text: "Subnetze können mit variablen VLANs kombiniert werden", isCorrect: false },
         { id: "d", text: "Eine spezielle Methode für IPv6-Adressierung", isCorrect: false },
+      ],
+    },
+    // ── Block 1: Maske / Hosts ──────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Subnetzmaske in Dotted-Decimal entspricht dem Präfix /22?",
+      explanation: "/22 = 22 Netz-Bits. Die ersten drei Oktette sind voll besetzt (255.255), das vierte Oktett: 22 − 16 = 6 Bits gesetzt → 11111100 = 252. Ergebnis: 255.255.252.0",
+      answers: [
+        { id: "a", text: "255.255.255.0", isCorrect: false },
+        { id: "b", text: "255.255.252.0", isCorrect: true },
+        { id: "c", text: "255.255.254.0", isCorrect: false },
+        { id: "d", text: "255.255.248.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele nutzbare Hosts hat ein /27-Subnetz?",
+      explanation: "/27 → 5 Host-Bits → 2^5 − 2 = 32 − 2 = 30 nutzbare Hosts.",
+      answers: [
+        { id: "a", text: "14", isCorrect: false },
+        { id: "b", text: "30", isCorrect: true },
+        { id: "c", text: "32", isCorrect: false },
+        { id: "d", text: "62", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches CIDR-Präfix und wie viele Hosts hat die Subnetzmaske 255.255.255.192?",
+      explanation: "255.255.255.192 → 192 = 11000000 → 2 Host-Bits gesetzt im letzten Oktett → 24 + 2 = /26. Host-Bits: 6 → 2^6 − 2 = 62 Hosts.",
+      answers: [
+        { id: "a", text: "/25, 126 Hosts", isCorrect: false },
+        { id: "b", text: "/27, 30 Hosts", isCorrect: false },
+        { id: "c", text: "/26, 62 Hosts", isCorrect: true },
+        { id: "d", text: "/28, 14 Hosts", isCorrect: false },
+      ],
+    },
+    // ── Block 2: Subnetz-ID / Broadcast / Hostbereich ───────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Subnetz-ID gehört zu 10.10.10.45 /27?",
+      explanation: "Magic Number: 256 − 224 = 32. Vielfache: 0, 32, 64 ... → 32 ≤ 45 < 64 → Subnetz-ID: 10.10.10.32",
+      answers: [
+        { id: "a", text: "10.10.10.0", isCorrect: false },
+        { id: "b", text: "10.10.10.32", isCorrect: true },
+        { id: "c", text: "10.10.10.40", isCorrect: false },
+        { id: "d", text: "10.10.10.64", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die Broadcast-Adresse von 192.168.1.130 /26?",
+      explanation: "Magic = 256 − 192 = 64. Subnetz-ID: 128 (128 ≤ 130 < 192). Broadcast: 128 + 64 − 1 = 191 → 192.168.1.191",
+      answers: [
+        { id: "a", text: "192.168.1.127", isCorrect: false },
+        { id: "b", text: "192.168.1.190", isCorrect: false },
+        { id: "c", text: "192.168.1.191", isCorrect: true },
+        { id: "d", text: "192.168.1.255", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Subnetz-ID hat 172.16.5.200 /22?",
+      explanation: "Magic = 256 − 252 = 4 (im 3. Oktett). Vielfache: 0, 4, 8 ... Oktett 3: 5 → 4 ≤ 5 < 8 → Subnetz-ID: 172.16.4.0",
+      answers: [
+        { id: "a", text: "172.16.0.0", isCorrect: false },
+        { id: "b", text: "172.16.4.0", isCorrect: true },
+        { id: "c", text: "172.16.5.0", isCorrect: false },
+        { id: "d", text: "172.16.8.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Broadcast-Adresse von 10.0.0.18 /29?",
+      explanation: "Magic = 256 − 248 = 8. Vielfache: 0, 8, 16, 24 ... → 16 ≤ 18 < 24 → Subnetz-ID: .16, Broadcast: 16 + 8 − 1 = 23 → 10.0.0.23",
+      answers: [
+        { id: "a", text: "10.0.0.19", isCorrect: false },
+        { id: "b", text: "10.0.0.22", isCorrect: false },
+        { id: "c", text: "10.0.0.23", isCorrect: true },
+        { id: "d", text: "10.0.0.31", isCorrect: false },
+      ],
+    },
+    // ── Block 3: Subnetzanzahl ───────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele /27-Subnetze passen in ein /24-Netz?",
+      explanation: "Differenz der Präfix-Längen: 27 − 24 = 3 zusätzliche Netz-Bits → 2^3 = 8 Subnetze.",
+      answers: [
+        { id: "a", text: "4", isCorrect: false },
+        { id: "b", text: "6", isCorrect: false },
+        { id: "c", text: "8", isCorrect: true },
+        { id: "d", text: "16", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele /20-Subnetze passen in ein /16-Netz?",
+      explanation: "20 − 16 = 4 zusätzliche Bits → 2^4 = 16 Subnetze.",
+      answers: [
+        { id: "a", text: "8", isCorrect: false },
+        { id: "b", text: "16", isCorrect: true },
+        { id: "c", text: "32", isCorrect: false },
+        { id: "d", text: "64", isCorrect: false },
+      ],
+    },
+    // ── Block 4: VLSM ────────────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 15,
+      text: "Ein LAN braucht 50 Hosts. Welches CIDR-Präfix ist das kleinste (sparsamste), das ausreicht?",
+      explanation: "/26 → 6 Host-Bits → 2^6 − 2 = 62 nutzbare Hosts ≥ 50. /27 hätte nur 30 Hosts — zu wenig.",
+      answers: [
+        { id: "a", text: "/25 (126 Hosts)", isCorrect: false },
+        { id: "b", text: "/26 (62 Hosts)", isCorrect: true },
+        { id: "c", text: "/27 (30 Hosts)", isCorrect: false },
+        { id: "d", text: "/28 (14 Hosts)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 15,
+      text: "VLSM-Aufgabe: Du hast 192.168.10.0/24. LAN-A braucht 50 Hosts, LAN-B 25, LAN-C 10, WAN-1 und WAN-2 je 2 Hosts. Welches Subnetz wird LAN-A zugewiesen (von größtem Bedarf her)?",
+      explanation: "VLSM: größten Bedarf zuerst. 50 Hosts → /26 (62 Hosts). Erstes verfügbares /26 im .0/24 ist 192.168.10.0/26 (Bereich .0–.63).",
+      answers: [
+        { id: "a", text: "192.168.10.0/27", isCorrect: false },
+        { id: "b", text: "192.168.10.0/25", isCorrect: false },
+        { id: "c", text: "192.168.10.0/26", isCorrect: true },
+        { id: "d", text: "192.168.10.64/26", isCorrect: false },
+      ],
+    },
+    // ── Block 5: Schnell-Tricks ───────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie groß ist die Block-Size (Magic Number) bei /29?",
+      explanation: "/29 → Maske 255.255.255.248 → letztes Oktett: 248. Magic = 256 − 248 = 8.",
+      answers: [
+        { id: "a", text: "4", isCorrect: false },
+        { id: "b", text: "8", isCorrect: true },
+        { id: "c", text: "16", isCorrect: false },
+        { id: "d", text: "32", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele nutzbare Hosts hat ein /23-Netz?",
+      explanation: "/23 → 9 Host-Bits → 2^9 − 2 = 512 − 2 = 510 nutzbare Hosts.",
+      answers: [
+        { id: "a", text: "254", isCorrect: false },
+        { id: "b", text: "510", isCorrect: true },
+        { id: "c", text: "512", isCorrect: false },
+        { id: "d", text: "1022", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Der Host 172.20.130.5 liegt im Subnetz 172.20.128.0/17.",
+      explanation: "Richtig. Magic = 256 − 128 = 128 (im 3. Oktett). Subnetz-ID: 128 (da 128 ≤ 130 < 256). Das Subnetz 172.20.128.0/17 umfasst 172.20.128.0 – 172.20.255.254 → 130.5 liegt darin.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    // ── Block 6: Klasse erkennen ─────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher IP-Klasse gehört 172.20.0.39 an?",
+      explanation: "172 in Binär: 10101100. Beginnt mit '10' → Klasse B (128–191).",
+      answers: [
+        { id: "a", text: "Klasse A", isCorrect: false },
+        { id: "b", text: "Klasse B", isCorrect: true },
+        { id: "c", text: "Klasse C", isCorrect: false },
+        { id: "d", text: "Klasse D", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher IP-Klasse gehört 224.0.0.5 an, und wofür wird sie typischerweise genutzt?",
+      explanation: "224 = 11100000 → beginnt mit '1110' → Klasse D (Multicast). 224.0.0.5 ist die OSPF AllSPFRouters Multicast-Adresse.",
+      answers: [
+        { id: "a", text: "Klasse C – Unicast", isCorrect: false },
+        { id: "b", text: "Klasse D – Multicast", isCorrect: true },
+        { id: "c", text: "Klasse E – Reserviert", isCorrect: false },
+        { id: "d", text: "Klasse B – Unicast", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher IP-Klasse gehört 245.72.189.160 an?",
+      explanation: "245 = 11110101 → beginnt mit '1111' → Klasse E (reserviert/experimentell).",
+      answers: [
+        { id: "a", text: "Klasse C", isCorrect: false },
+        { id: "b", text: "Klasse D", isCorrect: false },
+        { id: "c", text: "Klasse E", isCorrect: true },
+        { id: "d", text: "Klasse A", isCorrect: false },
+      ],
+    },
+    // ── Block 7: Magic-Number-Praxis ─────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Subnetz-ID hat 220.8.7.100 /28?",
+      explanation: "Magic = 256 − 240 = 16. Vielfache: 80, 96, 112 ... → 96 ≤ 100 < 112 → Subnetz-ID: 220.8.7.96",
+      answers: [
+        { id: "a", text: "220.8.7.80", isCorrect: false },
+        { id: "b", text: "220.8.7.96", isCorrect: true },
+        { id: "c", text: "220.8.7.100", isCorrect: false },
+        { id: "d", text: "220.8.7.112", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Broadcast-Adresse von 177.88.77.154 /27?",
+      explanation: "Magic = 256 − 224 = 32. Vielfache: 128, 160 ... → 128 ≤ 154 < 160 → Subnetz-ID: .128, Broadcast: 128 + 32 − 1 = 159 → 177.88.77.159",
+      answers: [
+        { id: "a", text: "177.88.77.158", isCorrect: false },
+        { id: "b", text: "177.88.77.159", isCorrect: true },
+        { id: "c", text: "177.88.77.160", isCorrect: false },
+        { id: "d", text: "177.88.77.191", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Subnetz-ID für 197.99.178.212 /25?",
+      explanation: "Magic = 256 − 128 = 128. Vielfache: 0, 128, 256 ... → 128 ≤ 212 < 256 → Subnetz-ID: 197.99.178.128",
+      answers: [
+        { id: "a", text: "197.99.178.0", isCorrect: false },
+        { id: "b", text: "197.99.178.128", isCorrect: true },
+        { id: "c", text: "197.99.178.192", isCorrect: false },
+        { id: "d", text: "197.99.178.224", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Subnetz-ID (3. Oktett) für 172.25.45.154 /22?",
+      explanation: "Magic = 256 − 252 = 4 im 3. Oktett. Vielfache: 40, 44, 48 ... → 44 ≤ 45 < 48 → Subnetz-ID: 172.25.44.0",
+      answers: [
+        { id: "a", text: "172.25.40.0", isCorrect: false },
+        { id: "b", text: "172.25.44.0", isCorrect: true },
+        { id: "c", text: "172.25.45.0", isCorrect: false },
+        { id: "d", text: "172.25.48.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die Broadcast-Adresse von 192.168.78.189 /28?",
+      explanation: "Magic = 16. Vielfache: 176, 192 ... → 176 ≤ 189 < 192 → Subnetz-ID: .176, Broadcast: 176 + 16 − 1 = 191 → 192.168.78.191",
+      answers: [
+        { id: "a", text: "192.168.78.188", isCorrect: false },
+        { id: "b", text: "192.168.78.190", isCorrect: false },
+        { id: "c", text: "192.168.78.191", isCorrect: true },
+        { id: "d", text: "192.168.78.255", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Subnetz-ID (3. Oktett) für 10.1.98.199 /19?",
+      explanation: "Magic = 256 − 224 = 32 im 3. Oktett. Vielfache: 64, 96, 128 ... → 96 ≤ 98 < 128 → Subnetz-ID: 10.1.96.0",
+      answers: [
+        { id: "a", text: "10.1.64.0", isCorrect: false },
+        { id: "b", text: "10.1.96.0", isCorrect: true },
+        { id: "c", text: "10.1.98.0", isCorrect: false },
+        { id: "d", text: "10.1.128.0", isCorrect: false },
       ],
     },
   ],
