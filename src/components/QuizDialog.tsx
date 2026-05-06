@@ -19,8 +19,9 @@ interface QuizDialogProps {
 
 interface QuizState {
   currentIndex: number;
-  answers: Record<string, string[]>; // questionId -> selected answer IDs
-  textAnswers: Record<string, string>; // questionId -> text input
+  answers: Record<string, string[]>;
+  textAnswers: Record<string, string>;
+  confirmedQuestions: Record<string, boolean>;
   startedAt: number;
   timeRemaining: number | null;
 }
@@ -49,6 +50,7 @@ export function QuizDialog({
     currentIndex: 0,
     answers: {},
     textAnswers: {},
+    confirmedQuestions: {},
     startedAt: Date.now(),
     timeRemaining: quiz.timeLimit || null,
   });
@@ -77,7 +79,9 @@ export function QuizDialog({
 
   const selectAnswer = useCallback(
     (questionId: string, answerId: string) => {
+      // Don't allow changing answer after confirming
       setState((prev) => {
+        if (prev.confirmedQuestions[questionId]) return prev;
         const q = questions.find((q) => q.id === questionId);
         if (!q) return prev;
 
@@ -102,11 +106,21 @@ export function QuizDialog({
     [questions],
   );
 
-  const setTextAnswer = useCallback((questionId: string, text: string) => {
+  const confirmAnswer = useCallback((questionId: string) => {
     setState((prev) => ({
       ...prev,
-      textAnswers: { ...prev.textAnswers, [questionId]: text },
+      confirmedQuestions: { ...prev.confirmedQuestions, [questionId]: true },
     }));
+  }, []);
+
+  const setTextAnswer = useCallback((questionId: string, text: string) => {
+    setState((prev) => {
+      if (prev.confirmedQuestions[questionId]) return prev;
+      return {
+        ...prev,
+        textAnswers: { ...prev.textAnswers, [questionId]: text },
+      };
+    });
   }, []);
 
   const goToNext = useCallback(() => {
@@ -260,7 +274,6 @@ export function QuizDialog({
               <p className={`text-sm ${textMuted}`}>
                 {result.totalPoints} / {result.maxPoints} Punkte
               </p>
-              {/* Progress bar */}
               <div
                 className={`h-2 rounded-full ${isDark ? "bg-slate-700" : "bg-slate-200"} mt-4 overflow-hidden`}
               >
@@ -274,36 +287,36 @@ export function QuizDialog({
               </div>
             </div>
 
-            {/* Question Results */}
+            {/* Question Results with explanation */}
             <div className="space-y-2 text-left mb-6">
-              {result.results.map((r, i) => (
-                <div
-                  key={r.ruleId}
-                  className={`flex items-center gap-3 p-3 rounded-lg ${cardBg}`}
-                >
-                  {r.passed ? (
-                    <CheckCircle
-                      size={20}
-                      className="text-green-400 shrink-0"
-                      weight="fill"
-                    />
-                  ) : (
-                    <XCircle
-                      size={20}
-                      className="text-red-400 shrink-0"
-                      weight="fill"
-                    />
-                  )}
-                  <span className={`flex-1 text-sm ${text}`}>
-                    Frage {i + 1}
-                  </span>
-                  <span
-                    className={`text-xs font-medium ${r.passed ? "text-green-400" : "text-red-400"}`}
+              {result.results.map((r, i) => {
+                const q = questions[i];
+                return (
+                  <div
+                    key={r.ruleId}
+                    className={`p-3 rounded-lg ${cardBg}`}
                   >
-                    {r.points} / {questions[i]?.points || 0} Pkt
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center gap-3">
+                      {r.passed ? (
+                        <CheckCircle size={20} className="text-green-400 shrink-0" weight="fill" />
+                      ) : (
+                        <XCircle size={20} className="text-red-400 shrink-0" weight="fill" />
+                      )}
+                      <span className={`flex-1 text-sm ${text}`}>
+                        Frage {i + 1}: {q?.text}
+                      </span>
+                      <span className={`text-xs font-medium shrink-0 ${r.passed ? "text-green-400" : "text-red-400"}`}>
+                        {r.points} / {q?.points || 0} Pkt
+                      </span>
+                    </div>
+                    {!r.passed && q?.explanation && (
+                      <p className={`mt-2 text-xs leading-relaxed ${textMuted} pl-8`}>
+                        💡 {q.explanation}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex gap-3 justify-center">
@@ -320,6 +333,7 @@ export function QuizDialog({
                       currentIndex: 0,
                       answers: {},
                       textAnswers: {},
+                      confirmedQuestions: {},
                       startedAt: Date.now(),
                       timeRemaining: quiz.timeLimit || null,
                     });
@@ -338,6 +352,18 @@ export function QuizDialog({
     );
   }
 
+  const isCurrentConfirmed = currentQuestion
+    ? !!state.confirmedQuestions[currentQuestion.id]
+    : false;
+
+  const hasCurrentAnswer = currentQuestion
+    ? currentQuestion.type === "text-input"
+      ? !!state.textAnswers[currentQuestion.id]?.trim()
+      : !!(state.answers[currentQuestion.id]?.length)
+    : false;
+
+  const isLastQuestion = state.currentIndex === questions.length - 1;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
@@ -348,9 +374,7 @@ export function QuizDialog({
         className={`relative w-[650px] max-w-[95vw] max-h-[90vh] rounded-2xl ${bg} ${border} border shadow-2xl flex flex-col`}
       >
         {/* Header */}
-        <div
-          className={`flex items-center justify-between px-6 py-4 border-b ${border}`}
-        >
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
           <div>
             <h2 className={`font-bold ${text}`}>{quiz.title}</h2>
             <p className={`text-xs ${textMuted}`}>
@@ -359,17 +383,12 @@ export function QuizDialog({
           </div>
           <div className="flex items-center gap-4">
             {state.timeRemaining !== null && (
-              <div
-                className={`flex items-center gap-1.5 text-sm font-mono ${state.timeRemaining < 60 ? "text-red-400" : textMuted}`}
-              >
+              <div className={`flex items-center gap-1.5 text-sm font-mono ${state.timeRemaining < 60 ? "text-red-400" : textMuted}`}>
                 <Clock size={16} />
                 {formatTime(state.timeRemaining)}
               </div>
             )}
-            <button
-              onClick={onClose}
-              className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}
-            >
+            <button onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
               <X size={20} />
             </button>
           </div>
@@ -379,9 +398,7 @@ export function QuizDialog({
         <div className={`h-1 ${isDark ? "bg-slate-800" : "bg-slate-100"}`}>
           <div
             className="h-full bg-indigo-500 transition-all duration-300"
-            style={{
-              width: `${((state.currentIndex + 1) / questions.length) * 100}%`,
-            }}
+            style={{ width: `${((state.currentIndex + 1) / questions.length) * 100}%` }}
           />
         </div>
 
@@ -392,10 +409,9 @@ export function QuizDialog({
               question={currentQuestion}
               selectedAnswers={state.answers[currentQuestion.id] || []}
               textAnswer={state.textAnswers[currentQuestion.id] || ""}
-              onSelectAnswer={(answerId) =>
-                selectAnswer(currentQuestion.id, answerId)
-              }
-              onTextAnswer={(text) => setTextAnswer(currentQuestion.id, text)}
+              onSelectAnswer={(answerId) => selectAnswer(currentQuestion.id, answerId)}
+              onTextAnswer={(t) => setTextAnswer(currentQuestion.id, t)}
+              isConfirmed={isCurrentConfirmed}
               isDark={isDark}
               text={text}
               textMuted={textMuted}
@@ -406,9 +422,7 @@ export function QuizDialog({
         </div>
 
         {/* Navigation */}
-        <div
-          className={`flex items-center justify-between px-6 py-4 border-t ${border}`}
-        >
+        <div className={`flex items-center justify-between px-6 py-4 border-t ${border}`}>
           <button
             onClick={goToPrev}
             disabled={state.currentIndex === 0}
@@ -420,56 +434,67 @@ export function QuizDialog({
           {/* Question dots */}
           <div className="flex gap-1.5">
             {questions.map((q, i) => {
-              const answered = !!(
-                state.answers[q.id]?.length || state.textAnswers[q.id]
-              );
+              const answered = !!(state.answers[q.id]?.length || state.textAnswers[q.id]);
+              const confirmed = !!state.confirmedQuestions[q.id];
               return (
                 <button
                   key={q.id}
-                  onClick={() =>
-                    setState((prev) => ({ ...prev, currentIndex: i }))
-                  }
+                  onClick={() => setState((prev) => ({ ...prev, currentIndex: i }))}
                   className={`w-2.5 h-2.5 rounded-full transition-colors ${
                     i === state.currentIndex
                       ? "bg-indigo-500"
-                      : answered
-                        ? "bg-green-500/50"
-                        : isDark
-                          ? "bg-slate-700"
-                          : "bg-slate-300"
+                      : confirmed
+                        ? "bg-green-500/60"
+                        : answered
+                          ? "bg-amber-500/50"
+                          : isDark
+                            ? "bg-slate-700"
+                            : "bg-slate-300"
                   }`}
                 />
               );
             })}
           </div>
 
-          {state.currentIndex < questions.length - 1 ? (
-            <button
-              onClick={goToNext}
-              className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600 transition-colors"
-            >
-              Weiter
-            </button>
-          ) : (
-            <div className="flex flex-col items-end gap-1">
-              {showUnansweredWarning && (
-                <span className="text-xs text-amber-400">
-                  {unansweredCount} Frage{unansweredCount > 1 ? "n" : ""}{" "}
-                  unbeantwortet — trotzdem abgeben?
-                </span>
-              )}
+          <div className="flex gap-2 items-center">
+            {/* Confirm button — shown when answer selected but not yet confirmed */}
+            {hasCurrentAnswer && !isCurrentConfirmed && (
               <button
-                onClick={handleSubmit}
-                className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                  showUnansweredWarning
-                    ? "bg-amber-500 hover:bg-amber-600"
-                    : "bg-green-500 hover:bg-green-600"
-                }`}
+                onClick={() => confirmAnswer(currentQuestion.id)}
+                className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors"
               >
-                {showUnansweredWarning ? "Trotzdem abgeben" : "Abgeben"}
+                Prüfen
               </button>
-            </div>
-          )}
+            )}
+
+            {/* Next / Submit — shown after confirming */}
+            {isCurrentConfirmed && (
+              isLastQuestion ? (
+                <div className="flex flex-col items-end gap-1">
+                  {showUnansweredWarning && (
+                    <span className="text-xs text-amber-400">
+                      {unansweredCount} Frage{unansweredCount > 1 ? "n" : ""} unbeantwortet — trotzdem abgeben?
+                    </span>
+                  )}
+                  <button
+                    onClick={handleSubmit}
+                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                      showUnansweredWarning ? "bg-amber-500 hover:bg-amber-600" : "bg-green-500 hover:bg-green-600"
+                    }`}
+                  >
+                    {showUnansweredWarning ? "Trotzdem abgeben" : "Abgeben"}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={goToNext}
+                  className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600 transition-colors"
+                >
+                  Weiter
+                </button>
+              )
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -482,6 +507,7 @@ function QuestionCard({
   textAnswer,
   onSelectAnswer,
   onTextAnswer,
+  isConfirmed,
   isDark,
   text,
   textMuted,
@@ -493,6 +519,7 @@ function QuestionCard({
   textAnswer: string;
   onSelectAnswer: (answerId: string) => void;
   onTextAnswer: (text: string) => void;
+  isConfirmed: boolean;
   isDark: boolean;
   text: string;
   textMuted: string;
@@ -500,6 +527,44 @@ function QuestionCard({
   border: string;
 }) {
   const inputBg = isDark ? "bg-slate-800" : "bg-slate-50";
+
+  const getAnswerStyle = (answerId: string, isCorrect: boolean) => {
+    if (!isConfirmed) {
+      const isSelected = selectedAnswers.includes(answerId);
+      return isSelected
+        ? "bg-indigo-500/15 border-indigo-500/50 text-indigo-300"
+        : `${cardBg} ${border} ${text} hover:border-indigo-500/30`;
+    }
+    // After confirmation: show correct/incorrect
+    const isSelected = selectedAnswers.includes(answerId);
+    if (isCorrect && isSelected) return "bg-green-500/15 border-green-500/60 text-green-300";
+    if (isCorrect && !isSelected) return "bg-green-500/10 border-green-500/40 text-green-400"; // show missed correct
+    if (!isCorrect && isSelected) return "bg-red-500/15 border-red-500/60 text-red-300";
+    return `${cardBg} ${border} ${isDark ? "text-slate-500" : "text-slate-400"} opacity-60`;
+  };
+
+  const getAnswerIcon = (answerId: string, isCorrect: boolean) => {
+    if (!isConfirmed) return null;
+    const isSelected = selectedAnswers.includes(answerId);
+    if (isCorrect) return <CheckCircle size={18} className="text-green-400 shrink-0" weight="fill" />;
+    if (isSelected && !isCorrect) return <XCircle size={18} className="text-red-400 shrink-0" weight="fill" />;
+    return null;
+  };
+
+  // Check if the confirmed answer was correct
+  const isAnswerCorrect = isConfirmed && (() => {
+    if (question.type === "text-input") {
+      const correctAnswers = question.answers
+        .filter((a) => a.isCorrect)
+        .map((a) => a.text.toLowerCase().trim());
+      return correctAnswers.includes(textAnswer.toLowerCase().trim());
+    }
+    const correctIds = question.answers.filter((a) => a.isCorrect).map((a) => a.id);
+    return (
+      selectedAnswers.length === correctIds.length &&
+      selectedAnswers.every((id) => correctIds.includes(id))
+    );
+  })();
 
   return (
     <div className="space-y-4">
@@ -526,54 +591,52 @@ function QuestionCard({
           type="text"
           value={textAnswer}
           onChange={(e) => onTextAnswer(e.target.value)}
+          disabled={isConfirmed}
           placeholder="Deine Antwort eingeben..."
-          className={`w-full px-4 py-3 rounded-xl ${inputBg} ${text} border ${border} text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50`}
+          className={`w-full px-4 py-3 rounded-xl ${inputBg} ${text} border ${border} text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-70`}
         />
       ) : (
         <div className="space-y-2">
           {question.answers.map((answer) => {
-            const isSelected = selectedAnswers.includes(answer.id);
             const isMulti = question.type === "multiple-choice";
+            const isSelected = selectedAnswers.includes(answer.id);
 
             return (
               <button
                 key={answer.id}
-                onClick={() => onSelectAnswer(answer.id)}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${
-                  isSelected
-                    ? "bg-indigo-500/15 border-indigo-500/50 text-indigo-300"
-                    : `${cardBg} ${border} ${text} hover:border-indigo-500/30`
-                }`}
+                onClick={() => !isConfirmed && onSelectAnswer(answer.id)}
+                disabled={isConfirmed}
+                className={`w-full text-left p-4 rounded-xl border transition-all ${getAnswerStyle(answer.id, answer.isCorrect)} disabled:cursor-default`}
               >
                 <div className="flex items-center gap-3">
-                  {/* Radio/Checkbox indicator */}
-                  <div
-                    className={`w-5 h-5 rounded-${isMulti ? "md" : "full"} border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      isSelected
-                        ? "border-indigo-500 bg-indigo-500"
-                        : isDark
-                          ? "border-slate-600"
-                          : "border-slate-300"
-                    }`}
-                  >
-                    {isSelected && (
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 12 12"
-                        className="text-white"
-                      >
-                        <path
-                          d="M2 6L5 9L10 3"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </div>
+                  {isConfirmed ? (
+                    <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+                      {getAnswerIcon(answer.id, answer.isCorrect)}
+                    </div>
+                  ) : (
+                    <div
+                      className={`w-5 h-5 rounded-${isMulti ? "md" : "full"} border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        isSelected
+                          ? "border-indigo-500 bg-indigo-500"
+                          : isDark
+                            ? "border-slate-600"
+                            : "border-slate-300"
+                      }`}
+                    >
+                      {isSelected && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" className="text-white">
+                          <path
+                            d="M2 6L5 9L10 3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                  )}
                   <span className="text-sm">{answer.text}</span>
                 </div>
               </button>
@@ -581,6 +644,25 @@ function QuestionCard({
           })}
         </div>
       )}
+
+      {/* Explanation — shown after confirmation */}
+      {isConfirmed && question.explanation && (
+        <div
+          className={`mt-2 p-4 rounded-xl border-l-4 ${
+            isAnswerCorrect
+              ? "bg-green-500/10 border-green-500"
+              : "bg-red-500/10 border-red-500"
+          }`}
+        >
+          <p className={`text-xs font-semibold mb-1 ${isAnswerCorrect ? "text-green-400" : "text-red-400"}`}>
+            {isAnswerCorrect ? "✓ Richtig!" : "✗ Leider falsch"}
+          </p>
+          <p className={`text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            {question.explanation}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
+
