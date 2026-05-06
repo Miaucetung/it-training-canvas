@@ -2843,6 +2843,368 @@ export const QUIZ_TROUBLESHOOTING: Quiz = {
 };
 
 // ============================================================
+// QUIZ: Glasfaser & Verkabelung (Tag 8 — Fragenpool)
+// ============================================================
+export const QUIZ_GLASFASER: Quiz = {
+  id: "ccna-quiz-glasfaser",
+  title: "Glasfaser & Verkabelung: Stecker, Dämpfung, LSZH",
+  description:
+    "Glasfaser-Grundlagen, Sicherheit, Steckverbinder, Dämpfungsarten, Reinigung, LSZH und Kupfer-/Ethernet-Basics",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    // ── Glasfaser Grundlagen ────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie erfolgt die Datenübertragung bei Glasfaser?",
+      explanation: "Glasfaser überträgt Daten mit Lichtsignalen (optisch), nicht elektrisch. Das ermöglicht hohe Bandbreiten und Immunität gegen elektromagnetische Störungen.",
+      answers: [
+        { id: "a", text: "Elektrisch über Kupferadern", isCorrect: false },
+        { id: "b", text: "Magnetisch", isCorrect: false },
+        { id: "c", text: "Mit Lichtsignalen (optisch)", isCorrect: true },
+        { id: "d", text: "Per Funk (WLAN)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein typischer Vorteil von Glasfaser gegenüber Kupfer?",
+      explanation: "Glasfaser bietet konstante Leistung auch in Stoßzeiten (keine Bandbreitendegradation durch Crosstalk/EMI), hohe Upload-Raten und Zukunftssicherheit durch sehr hohe mögliche Bandbreiten.",
+      answers: [
+        { id: "a", text: "Hohe elektromagnetische Störungsanfälligkeit", isCorrect: false },
+        { id: "b", text: "Geringe Bandbreite", isCorrect: false },
+        { id: "c", text: "Günstiger Ausbau", isCorrect: false },
+        { id: "d", text: "Konstante Leistung auch bei Stoßzeiten", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein Nachteil von Glasfaser?",
+      explanation: "Glasfaser ist empfindlicher als Kupfer und der Ausbau (Grabungs-/Verlegearbeiten) ist aufwendiger und teurer als Kupferverkabelung.",
+      answers: [
+        { id: "a", text: "Niedrige Geschwindigkeit", isCorrect: false },
+        { id: "b", text: "Aufwendiger Ausbau und höhere Kosten", isCorrect: true },
+        { id: "c", text: "Keine Zukunftssicherheit", isCorrect: false },
+        { id: "d", text: "Empfindlich für EMI", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet FTTH?",
+      explanation: "FTTH = Fiber to the Home. Die Glasfaserleitung endet direkt in der Wohnung/am Büro an der Anschlussdose. Das ist die leistungsstärkste FTTx-Variante, da kein Kupferanteil auf der letzten Meile vorhanden ist.",
+      answers: [
+        { id: "a", text: "Fiber to the Hall", isCorrect: false },
+        { id: "b", text: "Fiber to the Hub", isCorrect: false },
+        { id: "c", text: "Fiber to the Home", isCorrect: true },
+        { id: "d", text: "Fiber to the Host", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wo endet die Glasfaserleitung bei FTTC?",
+      explanation: "FTTC = Fiber to the Curb. Die Glasfaser endet am Straßenverteiler (Multifunktionsgehäuse, MFG — die grauen Kästen am Straßenrand). Von dort überbrückt Kupfer/VDSL die letzte Meile bis zur Wohnung.",
+      answers: [
+        { id: "a", text: "In der Wohnung", isCorrect: false },
+        { id: "b", text: "Am Straßenverteiler", isCorrect: true },
+        { id: "c", text: "Im Router", isCorrect: false },
+        { id: "d", text: "Im Rechenzentrum", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Technik wandelt am FTTx-Übergangspunkt optische Signale in elektrische Signale um?",
+      explanation: "Der OLT (Optical Line Transmitter) wandelt optische Signale in elektrische um. Er steht z.B. im Straßenverteiler (FTTC) oder Gebäudekeller (FTTB) und bildet den Übergang zwischen Glasfaser- und Kupfernetz.",
+      answers: [
+        { id: "a", text: "DNS-Server", isCorrect: false },
+        { id: "b", text: "DHCP-Server", isCorrect: false },
+        { id: "c", text: "OLT (Optical Line Transmitter)", isCorrect: true },
+        { id: "d", text: "NAT-Gateway", isCorrect: false },
+      ],
+    },
+    // ── Sicherheit ─────────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die Methode 'Bending' beim Abhören von Glasfaserkabeln?",
+      explanation: "Beim Bending wird das Glasfaserkabel gezielt gebogen, um den Mindestbiegeradius zu unterschreiten. Dabei tritt ein Teil des Lichts aus dem Faserkern seitlich aus und kann mit einem empfindlichen optischen Sensor abgefangen werden — ohne die Verbindung zu unterbrechen.",
+      answers: [
+        { id: "a", text: "Routing-Angriff auf Layer 3", isCorrect: false },
+        { id: "b", text: "Gezieltes Biegen des Kabels, um Licht auszukoppeln", isCorrect: true },
+        { id: "c", text: "VLAN-Hopping-Technik", isCorrect: false },
+        { id: "d", text: "Crimpen eines Steckers", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der effektivste Schutz gegen das Abhören von Glasfaserleitungen?",
+      explanation: "Verschlüsselung (Ende-zu-Ende, z.B. MACsec auf Layer 2 oder TLS/IPSec auf höheren Schichten) ist der effektivste Schutz. Da 100 % physische Sicherheit nicht garantiert werden kann, müssen Daten auch bei physischem Zugriff unlesbar sein.",
+      answers: [
+        { id: "a", text: "Verwenden eines Hubs statt Switches", isCorrect: false },
+        { id: "b", text: "Firewall-Regeln", isCorrect: false },
+        { id: "c", text: "NAT-Verschleierung", isCorrect: false },
+        { id: "d", text: "Ende-zu-Ende-Verschlüsselung (MACsec, TLS)", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was detektieren optische Netzwerk-Monitoringsysteme, um Abhörversuche zu erkennen?",
+      explanation: "Optische Monitoringsysteme messen Dämpfungsverluste kontinuierlich. Ein Abhörversuch (z.B. durch Bending oder Tapping) verursacht messbare Änderungen in der Signalstärke, die ein Alarm-System triggern können.",
+      answers: [
+        { id: "a", text: "Temperaturveränderungen", isCorrect: false },
+        { id: "b", text: "Dämpfungsverluste (Signalpegeländerungen)", isCorrect: true },
+        { id: "c", text: "Spannungsänderungen", isCorrect: false },
+        { id: "d", text: "DHCP-Anomalien", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Glasfaserkabel benötigen für Alarmanlagen eine separate Notstromversorgung, weil...",
+      explanation: "Glasfaser überträgt Licht, keine Elektrizität. Analoges Kupfernetz (PSTN) lieferte früher Strom über die Leitung. FTTH-Anschlüsse benötigen daher eine USV (Notstromversorgung) am ONT, damit Alarmanlagen und Notrufe bei Stromausfall funktionieren.",
+      answers: [
+        { id: "a", text: "Glasfaser zu schnell für Alarmsignale ist", isCorrect: false },
+        { id: "b", text: "Glasfaser keinen elektrischen Strom überträgt", isCorrect: true },
+        { id: "c", text: "Glasfaser störanfällig ist", isCorrect: false },
+        { id: "d", text: "Glasfaser nur für Internet genutzt werden kann", isCorrect: false },
+      ],
+    },
+    // ── Steckverbinder ─────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Glasfaser-Steckverbinder ist weltweit am häufigsten verbaut (über 50 Millionen Einheiten)?",
+      explanation: "Der LC-Steckverbinder (Lucent Connector) ist mit über 50 Millionen verbauten Einheiten der weltweit meistverbauteste Glasfaserstecker. Er hat eine 1,25 mm Ferrule und eignet sich als SFF-Stecker (Small Form Factor) für hochdichte Installationen.",
+      answers: [
+        { id: "a", text: "ST (Straight Tip)", isCorrect: false },
+        { id: "b", text: "MPO/MTP", isCorrect: false },
+        { id: "c", text: "LC (Lucent Connector)", isCorrect: true },
+        { id: "d", text: "E2000", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Glasfaser-Stecker nutzt einen Bajonettverschluss (BFOC) und unterstützt nur Simplex?",
+      explanation: "Der ST-Stecker (Straight Tip, entwickelt von AT&T) besitzt eine 2,5 mm Ferrule und einen Bajonettverschluss (BFOC-Stecker). Er ist ausschließlich für Simplex-Übertragung ausgelegt und wird hauptsächlich in Legacy-LANs gefunden.",
+      answers: [
+        { id: "a", text: "LC (Lucent Connector)", isCorrect: false },
+        { id: "b", text: "ST (Straight Tip)", isCorrect: true },
+        { id: "c", text: "SC (Subscriber Connector)", isCorrect: false },
+        { id: "d", text: "MPO (Multifiber Push On)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Glasfaser-Stecker besitzt eine Push/Pull-Verriegelung und eine 2,5 mm Ferrule?",
+      explanation: "Der SC-Stecker (Subscriber Connector) hat eine 2,5 mm Ferrule und wird durch eine beliebt Push/Pull-Verriegelung gesichert. Er ist der zweithäufigst eingesetzte Stecker nach LC und sowohl in Simplex als auch Duplex erhältlich.",
+      answers: [
+        { id: "a", text: "SC (Subscriber Connector)", isCorrect: true },
+        { id: "b", text: "ST (Straight Tip)", isCorrect: false },
+        { id: "c", text: "LC (Lucent Connector)", isCorrect: false },
+        { id: "d", text: "MTRJ", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet die Abkürzung MPO?",
+      explanation: "MPO steht für 'Multifiber Push On'. MPO-Stecker sind mehrfaserige Steckverbinder mit 12, 16, 24 oder 32 Fasern in einer rechteckigen Ferrule. Sie werden nach IEC 61754-7 genormt und hauptsächlich in Rechenzentren für paralleloptische Hochgeschwindigkeitsverbindungen eingesetzt.",
+      answers: [
+        { id: "a", text: "Multi Port Optic", isCorrect: false },
+        { id: "b", text: "Multi Protocol Output", isCorrect: false },
+        { id: "c", text: "Multifiber Push On", isCorrect: true },
+        { id: "d", text: "Multi Power Optic", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Ferrulengröße besitzt der LC-Steckverbinder?",
+      explanation: "Der LC-Stecker hat eine 1,25 mm Ferrule — halb so groß wie SC/ST (2,5 mm). Diese geringe Baugröße macht LC zum SFF-Stecker (Small Form Factor) der Wahl für hochdichte Patchfelder und SFP-Transceiver.",
+      answers: [
+        { id: "a", text: "5,0 mm", isCorrect: false },
+        { id: "b", text: "1,25 mm", isCorrect: true },
+        { id: "c", text: "10,0 mm", isCorrect: false },
+        { id: "d", text: "2,5 mm", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche besondere Schutzfunktion besitzt der E2000-Steckverbinder?",
+      explanation: "Der E2000-Stecker besitzt eine automatische Schutzkappe, die sich beim Stecken/Trennen selbstständig zurück- bzw. vorschiebt. Sie schützt sowohl den Anwender vor dem Laserstrahl als auch die Ferrule vor Verschmutzungen.",
+      answers: [
+        { id: "a", text: "Metallplatte als Zugentlastung", isCorrect: false },
+        { id: "b", text: "Doppelte Ferrule für bessere Dämpfung", isCorrect: false },
+        { id: "c", text: "Automatische Schutzkappe für Ferrule und Laserschutz", isCorrect: true },
+        { id: "d", text: "Integriertes Patchpanel", isCorrect: false },
+      ],
+    },
+    // ── Dämpfung ───────────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welcher Einheit wird die Glasfaser-Dämpfung gemessen?",
+      explanation: "Dämpfung wird in Dezibel (dB) gemessen. dB ist eine logarithmische Einheit, die den Leistungsverlust beschreibt. Bei Glasfaser gilt: je niedriger die Dämpfung (in dB), desto besser die Signalqualität.",
+      answers: [
+        { id: "a", text: "Volt (V)", isCorrect: false },
+        { id: "b", text: "Watt (W)", isCorrect: false },
+        { id: "c", text: "Ampere (A)", isCorrect: false },
+        { id: "d", text: "Dezibel (dB)", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wozu werden Dämpfungsglieder (Attenuatoren) bei Glasfaser eingesetzt?",
+      explanation: "Dämpfungsglieder reduzieren die optische Leistung. Bei kurzen Strecken kann das Empfängersignal zu stark sein und den Empfänger übersteuern. Attenuatoren senken dann gezielt die Signalstärke auf ein kompatibles Niveau (0–30 dB Dämpfungsbereich).",
+      answers: [
+        { id: "a", text: "Erhöhung der Signalspannung", isCorrect: false },
+        { id: "b", text: "Reduktion der optischen Leistung zur Vermeidung von Übersteuerung", isCorrect: true },
+        { id: "c", text: "Verstärkung des WLAN-Signals", isCorrect: false },
+        { id: "d", text: "Routing zwischen Glasfasersegmenten", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet 'Return Loss' bei Glasfaserverbindungen?",
+      explanation: "Return Loss (Reflexionsdämpfung) beschreibt die Lichtmenge, die an Verbindungsstellen zur Quelle zurückreflektiert wird (Fresnel-Reflexion). Ein hoher Return Loss-Wert (in dB) ist gut — er bedeutet, dass wenig Licht reflektiert wird. APC-Schliff (grüne Stecker) liefert besseren Return Loss als PC/UPC.",
+      answers: [
+        { id: "a", text: "Rückflussdämpfung — Licht wird an Steckern zur Quelle reflektiert", isCorrect: true },
+        { id: "b", text: "Netzwerkausfall durch Überlastung", isCorrect: false },
+        { id: "c", text: "Kabelbruch-Diagnose", isCorrect: false },
+        { id: "d", text: "Broadcast-Verlust im VLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wann treten bei Glasfaser Übertragungsfehler aufgrund von Dämpfung auf?",
+      explanation: "Übertragungsfehler entstehen bei zu hoher Dämpfung — das Signal am Empfänger ist zu schwach, um korrekt dekodiert zu werden. Bei zu geringer Dämpfung (z.B. kurze Strecken mit leistungsstarkem Laser) kann der Empfänger übersteuert werden — auch das verursacht Fehler, weshalb Dämpfungsglieder eingesetzt werden.",
+      answers: [
+        { id: "a", text: "Bei zu geringer Dämpfung", isCorrect: false },
+        { id: "b", text: "Bei zu hoher Dämpfung (Signal zu schwach am Empfänger)", isCorrect: true },
+        { id: "c", text: "Bei zu wenigen VLANs", isCorrect: false },
+        { id: "d", text: "Bei zu vielen Routern im Netz", isCorrect: false },
+      ],
+    },
+    // ── Reinigung ──────────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die wichtigste Maßnahme zur Fehlervermeidung bei Glasfaserverbindungen?",
+      explanation: "98% aller Verbindungsausfälle bei Glasfaser sind auf Verschmutzungen zurückzuführen (NTT-Studie). Reinigung der Ferrulen vor der Installation und nach jedem Abziehen/Wiederanschließen ist die einfachste und wirksamste Fehlervermeidung.",
+      answers: [
+        { id: "a", text: "Regelmäßiger Neustart aller Netzwerkgeräte", isCorrect: false },
+        { id: "b", text: "Routing-Tabellen optimieren", isCorrect: false },
+        { id: "c", text: "Reinigung der Ferrulen und Stecker", isCorrect: true },
+        { id: "d", text: "VLANs konfigurieren", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Reihenfolge ist beim Reinigen von Glasfasersteckern einzuhalten?",
+      explanation: "Der korrekte Ablauf ist immer: Inspektion (mit Glasfaser-Mikroskop prüfen) → ggf. Reinigung → Inspektion (Reinigungserfolg prüfen). Nur reinigen, wenn die Inspektion Verschmutzung zeigt. Nach der Reinigung erneut prüfen.",
+      answers: [
+        { id: "a", text: "Reinigen → Prüfen", isCorrect: false },
+        { id: "b", text: "Prüfen → Reinigen → Prüfen (Inspektion-Reinigung-Inspektion)", isCorrect: true },
+        { id: "c", text: "Prüfen → Tauschen", isCorrect: false },
+        { id: "d", text: "Installieren → Reinigen ohne Prüfung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wann ist die Reinigung von Glasfasersteckern besonders wichtig?",
+      explanation: "Nach dem Abziehen und Wiederanschließen: Beim Abziehen wandert Schmutz vom Rand der Ferrule in die Mitte. Da das Lichtsignal durch die Mitte der Ferrule geleitet wird, verursacht Schmutz in der Mitte direkte Übertragungsfehler.",
+      answers: [
+        { id: "a", text: "Nach jedem Router-Wechsel", isCorrect: false },
+        { id: "b", text: "Beim Umzug des Servers", isCorrect: false },
+        { id: "c", text: "Nach dem Abziehen und Wiederanschließen eines Steckers", isCorrect: true },
+        { id: "d", text: "Nach jeder DHCP-Erneuerung", isCorrect: false },
+      ],
+    },
+    // ── LSZH ──────────────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wofür steht die Abkürzung LSZH?",
+      explanation: "LSZH = Low Smoke Zero Halogen. Diese Materialklasse für Kabelmäntel entwickelt im Brandfall minimalen Rauch und keine Halogene (kein Chlorwasserstoff/HCl). Im Gegensatz zu PVC-Kabeln entsteht kein gefährliches Salzsäuregas.",
+      answers: [
+        { id: "a", text: "Low Signal Zero Heat", isCorrect: false },
+        { id: "b", text: "Long Shield Zone Housing", isCorrect: false },
+        { id: "c", text: "Low Smoke Zero Halogen", isCorrect: true },
+        { id: "d", text: "Light Signal Zone Handling", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Warum sind LSZH-Kabel in Flugzeugen und U-Booten vorgeschrieben?",
+      explanation: "In engen, geschlossenen Räumen mit vielen Menschen (Flugzeuge, U-Boote) darf im Brandfall kein giftiges Chlorwasserstoffgas entstehen. LSZH-Kabel sind daher gesetzlich vorgeschrieben, da sie keinen HCl-Rauch produzieren, der mit Löschmitteln zu gefährlicher Salzsäure reagieren würde.",
+      answers: [
+        { id: "a", text: "Wegen geringerer Kosten", isCorrect: false },
+        { id: "b", text: "Wegen schnellerer Datenübertragung", isCorrect: false },
+        { id: "c", text: "Kein giftiger Rauch in engen Räumen mit vielen Menschen", isCorrect: true },
+        { id: "d", text: "Wegen WLAN-Kompatibilität", isCorrect: false },
+      ],
+    },
+    // ── Kupfer / Ethernet / RJ45 ───────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie nennt man das Verbinden eines RJ45-Steckers mit einem Kabel?",
+      explanation: "Das Verbinden (Anpressen) eines RJ45-Steckers auf ein Kabel mit einem Crimpwerkzeug heißt Crimpen. Das Werkzeug drückt die Kontaktstifte in die Kabeladern und fixiert gleichzeitig den Stecker auf dem Kabel.",
+      answers: [
+        { id: "a", text: "Patchen", isCorrect: false },
+        { id: "b", text: "Spleißen", isCorrect: false },
+        { id: "c", text: "Crimpen", isCorrect: true },
+        { id: "d", text: "Stecken", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele Pins und wie viele verdrillte Adernpaare hat ein RJ45-Netzwerkkabel?",
+      explanation: "RJ45 (8P8C) hat 8 Pins und 4 verdrillte Adernpaare (= 8 Adern). Bei 10/100BASE-T werden nur 2 Paare genutzt, bei 1000BASE-T/10GBASE-T alle 4 Paare.",
+      answers: [
+        { id: "a", text: "4 Pins, 2 Paare", isCorrect: false },
+        { id: "b", text: "8 Pins, 4 Paare", isCorrect: true },
+        { id: "c", text: "12 Pins, 6 Paare", isCorrect: false },
+        { id: "d", text: "6 Pins, 3 Paare", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Farbe liegt bei T568B auf Pin 1?",
+      explanation: "Bei T568B ist Pin 1 = Weiß/Orange. Merkhilfe: Bei 568B kommt Orange zuerst (Pins 1+2 = Weiß-Orange, Orange). Bei 568A ist Pin 1 = Weiß/Grün.",
+      answers: [
+        { id: "a", text: "Weiß/Grün", isCorrect: false },
+        { id: "b", text: "Blau", isCorrect: false },
+        { id: "c", text: "Weiß/Orange", isCorrect: true },
+        { id: "d", text: "Braun", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der einzige Unterschied zwischen T568A und T568B?",
+      explanation: "Bei T568A und T568B sind ausschließlich das grüne und das orangene Adernpaar vertauscht. Alle anderen Paare (Blau, Braun) bleiben identisch. 568A: Pin 1+2 = Grün, Pin 3+6 = Orange. 568B: Pin 1+2 = Orange, Pin 3+6 = Grün.",
+      answers: [
+        { id: "a", text: "Unterschiedliche Pinanzahl", isCorrect: false },
+        { id: "b", text: "Grünes und oranges Adernpaar sind vertauscht", isCorrect: true },
+        { id: "c", text: "Anderer Steckertyp erforderlich", isCorrect: false },
+        { id: "d", text: "Anderes Kabel erforderlich", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Belegungsnorm (568A oder 568B) ist heute weiter verbreitet?",
+      explanation: "T568B ist heute die weltweit verbreitetere Norm, besonders in kommerziellen und gewerblichen Installationen. T568A wird hauptsächlich in US-Regierungsinstallationen und einigen älteren Installationen verwendet. Beide Normen sind technisch gleichwertig.",
+      answers: [
+        { id: "a", text: "568A", isCorrect: false },
+        { id: "b", text: "STP (nicht relevant)", isCorrect: false },
+        { id: "c", text: "FTTH", isCorrect: false },
+        { id: "d", text: "568B", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Steckverbinder zählen zu den SFF-Steckern (Small Form Factor)?",
+      explanation: "LC (1,25 mm Ferrule) und SC (2,5 mm Ferrule) zählen beide zu den SFF-Steckern. Trotz des doppelten Ferrulendurchmessers gilt SC noch als SFF. ST ist kein SFF-Stecker. MPO ist ein separater Standard für Multifaser-Anwendungen.",
+      answers: [
+        { id: "a", text: "LC und SC", isCorrect: true },
+        { id: "b", text: "ST und GG45", isCorrect: false },
+        { id: "c", text: "RJ45 und LC", isCorrect: false },
+        { id: "d", text: "MPO und ST", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -2867,4 +3229,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_SDN.id]: QUIZ_SDN,
   [QUIZ_AUTOMATION.id]: QUIZ_AUTOMATION,
   [QUIZ_TROUBLESHOOTING.id]: QUIZ_TROUBLESHOOTING,
+  [QUIZ_GLASFASER.id]: QUIZ_GLASFASER,
 };

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Plus, Trash, Copy, Check, ChevronDown, ChevronRight } from "@phosphor-icons/react";
+import { Plus, Trash, Copy, Check, CaretDown, CaretRight } from "@phosphor-icons/react";
 
 // ─── Types ───────────────────────────────────────────────────
 interface SegmentInput {
@@ -529,7 +529,7 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
                     Router-on-a-Stick
                   </span>
                 </div>
-                {showConfig ? <ChevronDown size={16} className={textMuted} /> : <ChevronRight size={16} className={textMuted} />}
+                {showConfig ? <CaretDown size={16} className={textMuted} /> : <CaretRight size={16} className={textMuted} />}
               </button>
 
               {showConfig && (

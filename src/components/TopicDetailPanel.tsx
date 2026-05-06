@@ -617,7 +617,7 @@ export function TopicDetailPanel({
                   </button>
                   {lastResult && (
                     <p className={`mt-1.5 text-center text-xs ${lastResult.passed ? (dark ? "text-emerald-400" : "text-emerald-600") : (dark ? "text-red-400" : "text-red-600")}`}>
-                      Letztes Ergebnis: {lastResult.score}% — {lastResult.passed ? "Bestanden ✓" : "Nicht bestanden ✗"}
+                      Letztes Ergebnis: {lastResult.percentage}% — {lastResult.passed ? "Bestanden ✓" : "Nicht bestanden ✗"}
                     </p>
                   )}
                 </div>

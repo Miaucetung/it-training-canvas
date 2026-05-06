@@ -1960,7 +1960,7 @@ function BinaryTab({ dark }: { dark: boolean }) {
     if (/^[0-9A-F]{1,32}$/.test(raw)) return raw.padEnd(32, "0").slice(0, 32);
     try {
       const exp = expandIPv6(ipv6Input.trim());
-      return exp.replace(/:/g, "").toUpperCase();
+      return exp ? exp.replace(/:/g, "").toUpperCase() : null;
     } catch {
       return null;
     }

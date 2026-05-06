@@ -11,7 +11,16 @@ export const CONCEPT_KUPFER_TWISTED_PAIR: Concept = {
   id: "kupfer-twisted-pair",
   title: "Kupferkabel — Twisted Pair Aufbau & Störungsunterdrückung",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "copper", "twisted-pair", "emi", "crosstalk", "utp", "stp", "layer-1"],
+  tags: [
+    "cabling",
+    "copper",
+    "twisted-pair",
+    "emi",
+    "crosstalk",
+    "utp",
+    "stp",
+    "layer-1",
+  ],
   content: `
 ## 🧲 Anker — Alltagsanalogie
 
@@ -90,7 +99,17 @@ export const CONCEPT_KUPFER_KATEGORIEN: Concept = {
   id: "kupfer-kategorien",
   title: "Twisted-Pair Kategorien — Cat5e bis Cat8",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "cat5e", "cat6", "cat6a", "cat7", "cat8", "bandwidth", "frequency", "layer-1"],
+  tags: [
+    "cabling",
+    "cat5e",
+    "cat6",
+    "cat6a",
+    "cat7",
+    "cat8",
+    "bandwidth",
+    "frequency",
+    "layer-1",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 1.3 | ⏱️ 20 Min
 
@@ -157,7 +176,16 @@ export const CONCEPT_KUPFER_STECKER_PINBELEGUNG: Concept = {
   id: "kupfer-stecker-pinbelegung",
   title: "RJ45-Stecker, Pinbelegung & Kabeltypen",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "rj45", "t568a", "t568b", "straight-through", "crossover", "rollover", "layer-1"],
+  tags: [
+    "cabling",
+    "rj45",
+    "t568a",
+    "t568b",
+    "straight-through",
+    "crossover",
+    "rollover",
+    "layer-1",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 1.3 | ⏱️ 25 Min
 
@@ -229,7 +257,20 @@ export const CONCEPT_GLASFASER_GRUNDLAGEN: Concept = {
   id: "glasfaser-grundlagen",
   title: "Glasfaser — Singlemode vs. Multimode",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "fiber", "singlemode", "multimode", "om1", "om2", "om3", "om4", "om5", "os1", "os2", "layer-1"],
+  tags: [
+    "cabling",
+    "fiber",
+    "singlemode",
+    "multimode",
+    "om1",
+    "om2",
+    "om3",
+    "om4",
+    "om5",
+    "os1",
+    "os2",
+    "layer-1",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 1.3 | ⏱️ 20 Min
 
@@ -305,7 +346,18 @@ export const CONCEPT_GLASFASER_STECKER_TRANSCEIVER: Concept = {
   id: "glasfaser-stecker-transceiver",
   title: "Glasfaser-Stecker, Transceiver, DAC & AOC",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "fiber", "lc", "sc", "sfp", "qsfp", "transceiver", "dac", "aoc", "layer-1"],
+  tags: [
+    "cabling",
+    "fiber",
+    "lc",
+    "sc",
+    "sfp",
+    "qsfp",
+    "transceiver",
+    "dac",
+    "aoc",
+    "layer-1",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 1.3 | ⏱️ 20 Min
 
@@ -380,7 +432,16 @@ export const CONCEPT_VERKABELUNG_PRAXIS: Concept = {
   id: "verkabelung-praxis",
   title: "Praxis: Patchpanel, strukturierte Verkabelung & Messtechnik",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["cabling", "patch-panel", "structured-cabling", "wiremap", "next", "tdr", "lsa", "layer-1"],
+  tags: [
+    "cabling",
+    "patch-panel",
+    "structured-cabling",
+    "wiremap",
+    "next",
+    "tdr",
+    "lsa",
+    "layer-1",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐ | Exam Topic: 1.3 | ⏱️ 15 Min
 
@@ -457,10 +518,207 @@ SW# show cable-diagnostics tdr interface GigabitEthernet 0/1
   `.trim(),
 };
 
-// ── Concept 7: Lernguide Verkabelung ─────────────────────────
+// ── Concept 7: Glasfaser Sicherheit & FTTx ───────────────────
+
+export const CONCEPT_GLASFASER_SICHERHEIT_FTTX: Concept = {
+  id: "glasfaser-sicherheit-fttx",
+  title: "Glasfaser: Sicherheit, Abhören & FTTx-Architekturen",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: [
+    "cabling",
+    "fiber",
+    "security",
+    "ftth",
+    "fttb",
+    "fttc",
+    "olt",
+    "bending",
+    "tapping",
+    "lszh",
+    "layer-1",
+  ],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐ | Exam Topic: 1.3 | ⏱️ 15 Min
+
+---
+
+## 🔒 Glasfaser — Kann man sie abhören?
+
+Glasfaser gilt als "abhörsicher", aber das stimmt nur bedingt. Es gibt reale Angriffsmethoden:
+
+### Bending (Kabelbiegen)
+Wird der **Mindestbiegeradius** unterschritten, tritt ein Teil des Lichts seitlich aus dem Faserkern aus. Mit einem empfindlichen optischen Sensor direkt am gebogenen Kabel lässt sich das ausgetretene Licht empfangen und dekodieren — ohne die Verbindung zu unterbrechen.
+
+### Tapping (physisches Anzapfen)
+Angreifer können eine Glasfaserleitung aufschneiden und eine **optische Abzweigung (Optical Splitter)** einschleusen, die einen Teil des Signals abgreift. Da moderne Empfänger nur 1–2 % der optischen Leistung benötigen, kann ein solcher Verlust beim legitimen Empfänger unbemerkt bleiben.
+
+### Glasfaser als Mikrofon
+Akustische Signale (Schall) in der Umgebung des Kabels beeinflussen die Lichtsignale messbar. Forscher haben gezeigt, dass Gespräche in Kabel-Nähe als Audiodaten rekonstruiert werden können.
+
+### Schutzmaßnahmen
+
+| Maßnahme | Beschreibung |
+|----------|-------------|
+| **Ende-zu-Ende-Verschlüsselung** | Effektivster Schutz — Daten auch bei physischem Zugriff unlesbar |
+| **Optisches Monitoring** | Systeme messen Dämpfungsverluste kontinuierlich — Abweichungen lösen Alarm aus |
+| **Physische Sicherheit** | Kabeltrassen überwachen, Sicherheitsummantelungen, Zugangskontrolle |
+
+> ⚠️ **Achtung-Falle**: Glasfaser ≠ abhörsicher. Verschlüsselung (TLS, MACsec) ist immer erforderlich, nicht optional!
+
+---
+
+## 📡 FTTx — Fiber to the X
+
+Das **X** steht für den Endpunkt der Glasfaserleitung. Je weiter Glasfaser reicht, desto höher die Bandbreite.
+
+| Abkürzung | Bedeutung | Glasfaser endet bei | Letzte Meile | Typische Technik |
+|-----------|-----------|---------------------|--------------|-----------------|
+| **FTTH** | Fiber to the **Home** | Wohnung / Büro (Dose) | – (100 % Glasfaser) | GPON, XGS-PON |
+| **FTTB** | Fiber to the **Building** | Gebäudekeller (APL) | Kupfer im Haus | VDSL2, G.fast |
+| **FTTC** | Fiber to the **Curb** | Straßenverteiler (MFG) | Kupfer bis Dose | VDSL2 |
+
+> **FTTH** = beste Leistung, da kein Kupferanteil auf der letzten Meile. Die Deutsche Telekom setzt bei Neuausbau bevorzugt auf FTTH.
+
+### OLT — Optical Line Transmitter
+An den FTTx-Übergangspunkten wandelt ein **OLT** (Optical Line Transmitter) optische Signale in elektrische um (und umgekehrt). Der OLT im Straßenverteiler (FTTC) oder Gebäudekeller (FTTB) ist der "Übersetzer" zwischen Glasfaser- und Kupfernetz.
+
+---
+
+## Glasfaser — Warum keine Notstromversorgung?
+
+Glasfaser überträgt **kein elektrisches Signal** — keine Elektrizität fließt durch das Kabel. Das bedeutet:
+- **Stromausfall** → Alarmanlagen/Notrufdienste über Glasfaser funktionieren nicht
+- Lösung: Notstromversorgung (USV) am OLT / ONT **und** optionaler Rückfallkanal (Mobilfunk, Kupfer-PSTN)
+
+> ⚠️ **Achtung-Falle**: Analoges Kupfernetz (PSTN) lieferte Strom über die Leitung — Glasfaser tut das nicht. In neuen FTTH-Installationen ist eine separate Notstromquelle Pflicht.
+  `.trim(),
+};
+
+// ── Concept 8: Glasfaser Dämpfung, Reinigung & LSZH ──────────
+
+export const CONCEPT_GLASFASER_REINIGUNG_LSZH: Concept = {
+  id: "glasfaser-reinigung-lszh",
+  title: "Glasfaser: Dämpfungsarten, Farbtabelle, Reinigung & LSZH",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: [
+    "cabling",
+    "fiber",
+    "attenuation",
+    "insertion-loss",
+    "return-loss",
+    "cleaning",
+    "lszh",
+    "color-code",
+    "layer-1",
+  ],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐ | Exam Topic: 1.3 | ⏱️ 20 Min
+
+---
+
+## 📉 Glasfaser-Dämpfungsarten
+
+Bei Glasfasern unterscheidet man drei Arten von Dämpfung:
+
+### 1. Attenuation (klassische Dämpfung)
+- **Definition**: Leistungsabfall des optischen Signals zwischen Eingangs- und Ausgangsseite
+- **Einheit**: Dezibel (dB) — je **niedriger**, desto besser
+- **Ursachen**: Absorption, Reflexion, Streuung, Dispersion, Diffusion
+- Glasfaser hat deutlich geringere Dämpfung als Kupferkabel
+- Bei zu kurzen Strecken kann Dämpfung sogar **erwünscht sein** → Dämpfungsglieder (Attenuatoren)
+
+### 2. Insertion Loss (Eingangsdämpfung)
+- **Definition**: Gesamtverlust durch Hinzufügen von Komponenten (Stecker, Koppler, Spleißstellen)
+- **Merkregel**: Qualitätskabel haben Insertion Loss < 0,3 dB
+- Jeder Stecker, jeder Spleißpunkt addiert Verlust zum Gesamtbudget
+
+### 3. Return Loss (Reflexionsdämpfung / Fresnel Loss)
+- **Definition**: Licht, das an Verbindungsstellen zur Quelle zurückreflektiert wird
+- Auch "Fresnel Reflection Loss" oder "Fresnel Loss"
+- Return Loss ist **minimal**, wenn:
+  - Faserkerne exakt ausgerichtet sind
+  - Stecker/Spleißstellen einwandfrei ausgeführt sind
+  - Keine Verschmutzungen vorhanden sind
+- **Einheit**: dB — je **höher**, desto besser (wie bei Kupfer)
+
+> ⚠️ **Achtung-Falle**: Bei Dämpfung (Attenuation) gilt "niedriger = besser", bei Return Loss gilt "höher = besser". Beide werden in dB gemessen — Kontext beachten!
+
+---
+
+## 🌈 Glasfaser-Farbtabelle
+
+Farben geben schnellen Aufschluss über Glasfasertyp und Polierstil:
+
+| Farbe | Bedeutung |
+|-------|----------|
+| **Gelb** | Singlemode (OS1/OS2) |
+| **Orange** | Multimode OM1/OM2 |
+| **Aqua/Türkis** | Multimode OM3/OM4 |
+| **Limetten-Grün** | Multimode OM5 (WBMMF) |
+
+### Stecker-/Kupplungsfarben (Polierstil)
+
+| Farbe | Polierstil | Schliff | Return Loss |
+|-------|-----------|---------|-------------|
+| **Blau** | PC / UPC (Ultra Physical Contact) | Gerade (0°) | ~40–55 dB |
+| **Grün** | APC (Angled Physical Contact) | 8° Schräge | ~60–65 dB |
+
+> **APC (Grün)** hat deutlich besseren Return Loss durch den 8° Schrägschliff — reflektiertes Licht wird in den Mantel geleitet statt zurück zur Quelle. Nicht mit PC/UPC kombinieren!
+
+---
+
+## 🧹 Glasfaser reinigen — Warum und wie?
+
+**98 % aller Verbindungsausfälle** sind auf Verschmutzungen zurückzuführen (Studie NTT-Advanced Technology).
+
+### Was reinigen?
+- **Glasfaserferrulen**: Steckerenden — Staub/Fett blockiert das Lichtsignal
+- **Glasfaseradapter**: Kupplungen, in denen sich Partikel ansammeln
+- **Geräteanschlüsse**: SFP-Transceiver und Geräteports ebenfalls reinigen
+
+### Wann reinigen?
+- Vor der ersten Installation (auch neue Kabel!)
+- Nach dem Abziehen und Wiederanschließen — beim Abziehen wandert Schmutz vom Rand in die Mitte der Ferrule
+- **Nicht** bei dauerhaft gesteckten, unangetasteten Kabeln notwendig
+
+### Ablauf (Pflicht!): **Inspektion → Reinigung → Inspektion**
+Erst inspizieren (z.B. Glasfaser-Mikroskop/Inspektionskamera), dann reinigen, dann erneut prüfen ob sauber.
+
+### Reinigungswerkzeuge
+
+| Werkzeug | Einsatz | Vorteil |
+|---------|---------|---------|
+| **Spulenreiniger** | Ferrulen unterschiedlicher Größen | Tuch austauschbar, wiederverwendbar |
+| **Klick-Reiniger (1,25 mm)** | LC, MU-Stecker | Einfach, auch Adapter reinigbar |
+| **Klick-Reiniger (2,5 mm)** | SC, ST-Stecker | Einfach, auch Adapter reinigbar |
+| **Klick-Reiniger (MPO)** | MPO/MTP-Stecker | Spezialisiert für Multifaser |
+| **Reinigungsstäbchen** | Transceiver-Ports | Geringstes Risiko für Beschädigung |
+
+---
+
+## 🔥 LSZH — Low Smoke Zero Halogen
+
+**LSZH** beschreibt eine Materialklasse für Kabelmäntel:
+
+| Eigenschaft | PVC (alt) | LSZH (modern) |
+|-------------|-----------|---------------|
+| Brandfall | Produziert Chlorwasserstoff (HCl) | Kein Halogen, kaum Rauch |
+| Reaktion mit Löschmittel | Salzsäure → gefährlich für Mensch + Geräte | Keine Salzsäurebildung |
+| Rauchentwicklung | Stark | Minimal |
+
+### Wo wird LSZH eingesetzt?
+- **Historisch**: Flugzeuge, U-Boote (enge Räume, viele Menschen)
+- **Heute**: Rechenzentren, Serverräume, moderne Gebäudeverkabelung
+- **Zukunft**: LSZH wird PVC als Standard-Kabelmaterial ersetzen
+
+> ⚠️ **Achtung-Falle**: LSZH ≠ feuerfest. LSZH-Kabel können brennen — sie produzieren jedoch deutlich weniger giftigen Rauch. In Fluchtwegen und sicherheitskritischen Bereichen sind LSZH-Kabel gesetzlich vorgeschrieben.
+  `.trim(),
+};
+
+// ── Concept 9: Lernguide Verkabelung ─────────────────────────
 
 export const CONCEPT_VERKABELUNG_GUIDE: Concept = {
-  id: "verkabelung-guide",
+  id: "verkabelung-guide", // keep id for backwards compatibility
   title: "Lernguide: Verkabelung — Anker bis Selbsttest",
   appliesTo: ["ccna", "comptia-network-plus"],
   tags: ["cabling", "guide", "rj45", "fiber", "structured-cabling", "layer-1"],
@@ -531,22 +789,32 @@ export const TOPIC_VERKABELUNG: Topic = {
   id: "verkabelung",
   title: "Verkabelung (Cabling)",
   description:
-    "Twisted-Pair-Kategorien, Glasfaser, Steckertypen, Pinbelegung, strukturierte Verkabelung und Messtechnik — Layer-1 physische Infrastruktur für das CCNA.",
+    "Twisted-Pair-Kategorien, Glasfaser, Steckertypen, FTTx, LSZH, Reinigung, Pinbelegung, strukturierte Verkabelung und Messtechnik — Layer-1 physische Infrastruktur für das CCNA.",
   conceptIds: [
     "kupfer-twisted-pair",
     "kupfer-kategorien",
     "kupfer-stecker-pinbelegung",
     "glasfaser-grundlagen",
     "glasfaser-stecker-transceiver",
+    "glasfaser-sicherheit-fttx",
+    "glasfaser-reinigung-lszh",
     "verkabelung-praxis",
     "verkabelung-guide",
     "verkabelung-trainer",
   ],
-  quizIds: [],
+  quizIds: ["ccna-quiz-glasfaser"],
   exerciseIds: [],
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 120,
-  tags: ["cabling", "layer-1", "copper", "fiber", "rj45", "sfp", "structured-cabling"],
+  tags: [
+    "cabling",
+    "layer-1",
+    "copper",
+    "fiber",
+    "rj45",
+    "sfp",
+    "structured-cabling",
+  ],
 };
 
 // ── Exports ───────────────────────────────────────────────────
@@ -557,6 +825,8 @@ export const VERKABELUNG_CONCEPTS: Record<string, Concept> = {
   "kupfer-stecker-pinbelegung": CONCEPT_KUPFER_STECKER_PINBELEGUNG,
   "glasfaser-grundlagen": CONCEPT_GLASFASER_GRUNDLAGEN,
   "glasfaser-stecker-transceiver": CONCEPT_GLASFASER_STECKER_TRANSCEIVER,
+  "glasfaser-sicherheit-fttx": CONCEPT_GLASFASER_SICHERHEIT_FTTX,
+  "glasfaser-reinigung-lszh": CONCEPT_GLASFASER_REINIGUNG_LSZH,
   "verkabelung-praxis": CONCEPT_VERKABELUNG_PRAXIS,
   "verkabelung-guide": CONCEPT_VERKABELUNG_GUIDE,
 };
