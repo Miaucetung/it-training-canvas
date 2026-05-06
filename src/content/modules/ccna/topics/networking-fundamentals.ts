@@ -195,11 +195,150 @@ Die Firma "Müller & Partner GmbH" (Steuerberatung, 25 Mitarbeiter) betreibt bis
   `.trim(),
 };
 
+export const CONCEPT_NETWORK_REQUIREMENTS: Concept = {
+  id: "network-requirements",
+  title: "Netzwerkanforderungen — 5 As, QoS & Sicherheit",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["networking", "fundamentals", "qos", "security", "availability", "cia"],
+  content: `
+## Anforderungen an ein modernes Netzwerk
+
+Jedes professionelle Netzwerk muss folgende Grundanforderungen erfüllen:
+
+### Die 5 As (Cisco-Framework)
+| Anforderung | Beschreibung |
+|-------------|--------------|
+| **Anybody** | Jeder soll die Geräte bedienen können — herstellerunabhängige Standards (RFC, IEEE) |
+| **Anytime / Always on** | Verfügbarkeit zu jeder Zeit — 24/7/365 |
+| **Anywhere** | Zugriff von überall — WLAN, VPN, Remote-Access |
+| **Any Application** | Jede Anwendung soll über das Netz verfügbar sein |
+| **Any Device** | Jedes Gerät soll unabhängig vom Hersteller im Netz arbeiten |
+
+### Fault Tolerance (Fehlertoleranz)
+Fehlertoleranz durch **Redundanzen** — kein Single Point of Failure. Realisiert durch:
+- Redundante Verbindungen (mehrere Uplinks)
+- Redundante Geräte (zwei Distribution-Switches, FHRP)
+- Spanningprotokoll (STP) zum Vermeiden von Loops
+
+### Scalability (Skalierbarkeit)
+Skalierbarkeit des Netzes durch **hierarchischen Aufbau** (Core / Distribution / Access).
+Neue Segmente lassen sich ohne Umbau des Kerns hinzufügen.
+
+### Quality of Service (QoS)
+Priorisierung von Echtzeit-Verkehr über Best-Effort-Verkehr:
+
+| QoS-Metrik | Bedeutung | VoIP-Toleranz |
+|------------|-----------|---------------|
+| **Delay (Latenz)** | Verzögerung der Datenübertragung (One-Way) | < 150 ms |
+| **Jitter** | Unterschiedliche Verzögerung während der Übertragung | < 30 ms |
+| **Packet Loss** | Paketverlust | < 1 % |
+| **Bandwidth** | Verfügbare Datenrate | min. 30 kbps pro VoIP-Call |
+
+### Security (Sicherheit) — CIA+A-Triad
+
+| Eigenschaft | Deutsch | Frage | Maßnahme |
+|-------------|---------|-------|----------|
+| **Confidentiality** | Vertraulichkeit | „Kann ich sicher sein, dass kein anderer meine Daten einsehen kann?" | Verschlüsselung (TLS, IPsec), ACLs |
+| **Authenticity** | Authentizität | „Ist der am anderen Ende wirklich der, für den ich ihn halte?" | Zertifikate, 802.1X, AAA |
+| **Integrity** | Integrität | „Stimmen die Daten — wurden sie unterwegs manipuliert?" | Hashing (SHA-256), Digital Signatures |
+| **Availability** | Verfügbarkeit | „Sind die Dienste da, wenn man sie braucht?" | Redundanz, DDoS-Schutz, UPS |
+
+> **⚠️ Achtung-Falle:** Authenticity ≠ Authentication. *Authenticity* beschreibt die Eigenschaft (Echtheit), *Authentication* ist der Prozess, der Authentizität nachweist.
+  `.trim(),
+};
+
+export const CONCEPT_ENTERPRISE_NETWORK_DESIGN: Concept = {
+  id: "enterprise-network-design",
+  title: "Enterprise-Netzwerk-Design: 2-Tier, 3-Tier, Spine-Leaf, SOHO",
+  appliesTo: ["ccna"],
+  tags: ["networking", "design", "enterprise", "hierarchical", "spine-leaf", "soho", "2-tier", "3-tier"],
+  content: `
+## Cisco Hierarchical Network Model (3-Tier)
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│   Core Layer — High-Speed Backbone      │
+│   Geräte: Layer-3-Switches              │
+│   Keine Filterung, maximale Performance │
+├─────────────────────────────────────────┤
+│   Distribution Layer — Policy & Routing │
+│   Geräte: Multilayer-Switches, Router   │
+│   ACLs, QoS, Routing, Broadcast-Dom.   │
+├─────────────────────────────────────────┤
+│   Access Layer — Endgeräteanschluss     │
+│   Geräte: Layer-2-Switches              │
+│   Port-Security, DHCP, PoE, VLANs      │
+└─────────────────────────────────────────┘
+\`\`\`
+
+### 2-Tier Design (Collapsed Core)
+Der Core-Layer und Distribution-Layer werden zu einem Layer zusammengeführt.
+- **Vorteil**: Günstiger, einfacher, für mittelgroße Netze geeignet
+- **Nachteil**: Geringere Skalierbarkeit, mehr Belastung auf Distribution-Switches
+- Als **Tier** wird ein funktionaler Block innerhalb eines Campus bezeichnet
+
+### 3-Tier Design (Full Hierarchy)
+Alle drei Ebenen getrennt — typisch für große Campus-Netze mit vielen Gebäuden.
+
+### Enterprise Composite Network Model
+Erweiterung des 3-Tier-Modells um weitere Funktionsblöcke:
+| Block | Funktion |
+|-------|----------|
+| **Management Distribution** | Netzwerkmanagement, SNMP, Syslog |
+| **Edge Distribution** | Übergang zwischen internem Netz und Internet-Edge |
+| **Enterprise Edge** | Firewall, DMZ, VPN-Konzentrator |
+| **Service Provider Edge** | ISP-Anbindung (WAN, BGP) |
+| **Server Farm** | Interne Server (DNS, DHCP, AD, Webserver) |
+
+## Spine and Leaf (Rechenzentrum)
+
+Moderne 2-Tier-Architektur für Rechenzentren und Data Centers:
+
+\`\`\`
+       Spine-Switch A ──── Spine-Switch B
+      /    \\               /    \\
+ Leaf-1  Leaf-2        Leaf-3  Leaf-4
+  │││      │││           │││     │││
+ Server   Server        Server  Server
+\`\`\`
+
+### Die 4 Regeln (PFLICHT):
+1. Jeder **Leaf Switch** muss mit **jedem Spine Switch** verbunden werden
+2. Jeder **Spine Switch** muss mit **jedem Leaf Switch** verbunden werden
+3. **Leaf Switches** dürfen **nicht untereinander** verbunden werden
+4. **Spine Switches** dürfen **nicht untereinander** verbunden werden
+5. Endpunkte (Server, Controller, VMs) werden **ausschließlich an Leaf Switches** angebunden
+
+> **Vorteil**: Gleichmäßige, vorhersehbare Latenz von jedem Server zu jedem anderen Server (immer genau 2 Hops).
+
+## Small Office / Home Office (SOHO)
+
+Typische SOHO-Geräte:
+- **Autonomous Access Point** (WLAN)
+- **L2-Switch** (Endgeräte-Anbindung)
+- **Router** (Internet-Zugang, NAT)
+- **Cable/DSL-Modem** (ISP-Anbindung)
+
+Häufig in einem kombinierten Gerät (Router + Switch + WLAN + Modem = SOHO-Router).
+
+## Vergleich der Design-Modelle
+
+| Modell | Ebenen | Einsatz | Redundanz |
+|--------|--------|---------|-----------|
+| SOHO | 1–2 | Heimnetz, Kleinstunternehmen | gering |
+| 2-Tier (Collapsed Core) | 2 | SMB, mittlere Unternehmen | mittel |
+| 3-Tier | 3 | Enterprise, Campus-Netze | hoch |
+| Spine-Leaf | 2 | Rechenzentren, Cloud | sehr hoch |
+
+> **⚠️ Achtung-Falle:** Ein Switch, der Distribution und Core übernimmt (Collapsed Core), heißt trotzdem „2-Tier" — nicht „1-Tier". Die physische Zusammenlegung ändert nicht die logische Funktion.
+  `.trim(),
+};
+
 export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
   id: "networking-fundamentals",
   title: "Netzwerkgrundlagen",
   description:
-    "OSI-Modell, TCP/IP-Suite, Netzwerkkomponenten und Medien — die Basis für alle weiteren CCNA-Themen.",
+    "OSI-Modell, TCP/IP-Suite, Netzwerkkomponenten, Netzwerkanforderungen und Enterprise-Design — die Basis für alle weiteren CCNA-Themen.",
   conceptIds: [
     "osi-model",
     "encapsulation",
@@ -207,13 +346,15 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
     "network-types-by-scope",
     "network-components",
     "tcp-ip-suite",
+    "network-requirements",
+    "enterprise-network-design",
     "networking-fundamentals-guide",
   ],
   quizIds: ["ccna-quiz-netzwerkgrundlagen"],
   exerciseIds: [],
   prerequisiteTopicIds: [],
-  estimatedMinutes: 90,
-  tags: ["osi", "tcp-ip", "networking", "fundamentals"],
+  estimatedMinutes: 120,
+  tags: ["osi", "tcp-ip", "networking", "fundamentals", "enterprise", "design"],
 };
 
 export const NETWORKING_FUNDAMENTALS_CONCEPTS: Record<string, Concept> = {
@@ -223,5 +364,7 @@ export const NETWORKING_FUNDAMENTALS_CONCEPTS: Record<string, Concept> = {
   "network-types-by-scope": CONCEPT_NETWORK_TYPES_BY_SCOPE,
   "network-components": CONCEPT_NETWORK_COMPONENTS,
   "tcp-ip-suite": CONCEPT_TCP_IP_SUITE,
+  "network-requirements": CONCEPT_NETWORK_REQUIREMENTS,
+  "enterprise-network-design": CONCEPT_ENTERPRISE_NETWORK_DESIGN,
   "networking-fundamentals-guide": CONCEPT_NETWORKING_FUNDAMENTALS_GUIDE,
 };
