@@ -25,10 +25,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
 import { QuizDialog } from "./QuizDialog";
+import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
 import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
-import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
+import { VlanNetworkVisualizer } from "./VlanNetworkVisualizer";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -92,12 +93,16 @@ export function TopicDetailPanel({
   const [ipv6Open, setIpv6Open] = useState(false);
   const [verkabelungOpen, setVerkabelungOpen] = useState(false);
   const [vlanSimOpen, setVlanSimOpen] = useState(false);
+  const [vlanNetworkOpen, setVlanNetworkOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
-  const hasVerkabelungTrainer = topic.conceptIds.includes("verkabelung-trainer");
+  const hasVerkabelungTrainer = topic.conceptIds.includes(
+    "verkabelung-trainer",
+  );
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
+  const hasVlanNetwork = topic.conceptIds.includes("vlan-network");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
 
   // ESC key support
@@ -250,18 +255,24 @@ export function TopicDetailPanel({
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  dark ? "bg-indigo-500/30 text-indigo-200" : "bg-indigo-100 text-indigo-700"
+                  dark
+                    ? "bg-indigo-500/30 text-indigo-200"
+                    : "bg-indigo-100 text-indigo-700"
                 }`}
               >
                 <Calculator size={18} weight="duotone" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold">IPv6 Rechner &amp; Drill</div>
+                <div className="text-sm font-semibold">
+                  IPv6 Rechner &amp; Drill
+                </div>
                 <div className="text-xs opacity-80 mt-0.5">
                   Adress-Analyse · EUI-64 · Segmentierung · Zufalls-Drill
                 </div>
               </div>
-              <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>
+              <span
+                className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}
+              >
                 Starten →
               </span>
             </button>
@@ -282,18 +293,24 @@ export function TopicDetailPanel({
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
-                  dark ? "bg-emerald-500/30 text-emerald-200" : "bg-emerald-100 text-emerald-700"
+                  dark
+                    ? "bg-emerald-500/30 text-emerald-200"
+                    : "bg-emerald-100 text-emerald-700"
                 }`}
               >
                 🔌
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold">Verkabelungs-Trainer</div>
+                <div className="text-sm font-semibold">
+                  Verkabelungs-Trainer
+                </div>
                 <div className="text-xs opacity-80 mt-0.5">
                   Pin-Belegung T568A/B · Kabeltyp-Wizard · Kategorie-Vergleich
                 </div>
               </div>
-              <span className={`text-xs ${dark ? "text-emerald-300" : "text-emerald-600"}`}>
+              <span
+                className={`text-xs ${dark ? "text-emerald-300" : "text-emerald-600"}`}
+              >
                 Starten →
               </span>
             </button>
@@ -314,7 +331,9 @@ export function TopicDetailPanel({
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
-                  dark ? "bg-cyan-500/30 text-cyan-200" : "bg-cyan-100 text-cyan-700"
+                  dark
+                    ? "bg-cyan-500/30 text-cyan-200"
+                    : "bg-cyan-100 text-cyan-700"
                 }`}
               >
                 🌐
@@ -325,7 +344,9 @@ export function TopicDetailPanel({
                   802.1Q Frame-Vivisektor · Switch-Simulator · Trunk-Animation
                 </div>
               </div>
-              <span className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}>
+              <span
+                className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}
+              >
                 Starten →
               </span>
             </button>
@@ -336,6 +357,38 @@ export function TopicDetailPanel({
         {hasSubnetSegTool && (
           <section>
             <SubnetSegmentationTool dark={dark} />
+          </section>
+        )}
+
+        {/* ── VLAN-Netzwerk-Visualizer CTA ── */}
+        {hasVlanNetwork && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setVlanNetworkOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-200"
+                  : "bg-indigo-50 border-indigo-200 hover:bg-indigo-100 text-indigo-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark ? "bg-indigo-500/30 text-indigo-200" : "bg-indigo-100 text-indigo-700"
+                }`}
+              >
+                🗺️
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">VLAN Netzwerk Visualizer</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  Router · 24-Port Switch · 5 VLANs · Animierte Pakete
+                </div>
+              </div>
+              <span className={`text-xs ${dark ? "text-indigo-300" : "text-indigo-600"}`}>
+                Starten →
+              </span>
+            </button>
           </section>
         )}
 
@@ -606,7 +659,10 @@ export function TopicDetailPanel({
 
                   {/* Start-Quiz-Button */}
                   <button
-                    onClick={() => { setLastResult(null); setActiveQuiz(quiz); }}
+                    onClick={() => {
+                      setLastResult(null);
+                      setActiveQuiz(quiz);
+                    }}
                     className={`mt-3 w-full text-xs py-2 rounded-lg border transition-colors ${
                       dark
                         ? "border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
@@ -616,8 +672,11 @@ export function TopicDetailPanel({
                     Quiz starten →
                   </button>
                   {lastResult && (
-                    <p className={`mt-1.5 text-center text-xs ${lastResult.passed ? (dark ? "text-emerald-400" : "text-emerald-600") : (dark ? "text-red-400" : "text-red-600")}`}>
-                      Letztes Ergebnis: {lastResult.percentage}% — {lastResult.passed ? "Bestanden ✓" : "Nicht bestanden ✗"}
+                    <p
+                      className={`mt-1.5 text-center text-xs ${lastResult.passed ? (dark ? "text-emerald-400" : "text-emerald-600") : dark ? "text-red-400" : "text-red-600"}`}
+                    >
+                      Letztes Ergebnis: {lastResult.percentage}% —{" "}
+                      {lastResult.passed ? "Bestanden ✓" : "Nicht bestanden ✗"}
                     </p>
                   )}
                 </div>
@@ -711,6 +770,13 @@ export function TopicDetailPanel({
         <VlanSimulatorDialog
           dark={dark}
           onClose={() => setVlanSimOpen(false)}
+        />
+      )}
+
+      {hasVlanNetwork && vlanNetworkOpen && (
+        <VlanNetworkVisualizer
+          dark={dark}
+          onClose={() => setVlanNetworkOpen(false)}
         />
       )}
 

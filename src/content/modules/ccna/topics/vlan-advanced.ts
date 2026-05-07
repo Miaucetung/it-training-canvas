@@ -12,7 +12,14 @@ export const CONCEPT_VLAN_BROADCAST_PROBLEM: Concept = {
   id: "vlan-broadcast-problem",
   title: "Broadcast-Domäne — das Problem und die Lösung",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["vlan", "broadcast", "layer-2", "segmentation", "performance", "security"],
+  tags: [
+    "vlan",
+    "broadcast",
+    "layer-2",
+    "segmentation",
+    "performance",
+    "security",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1 | ⏱️ 15 Min
 
@@ -93,7 +100,17 @@ export const CONCEPT_DOT1Q_TAGGING: Concept = {
   id: "dot1q-tagging",
   title: "802.1Q VLAN-Tagging — Frame-Aufbau Byte für Byte",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["vlan", "802.1q", "tagging", "trunk", "tpid", "tci", "native-vlan", "frame", "layer-2"],
+  tags: [
+    "vlan",
+    "802.1q",
+    "tagging",
+    "trunk",
+    "tpid",
+    "tci",
+    "native-vlan",
+    "frame",
+    "layer-2",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1 | ⏱️ 30 Min
 
@@ -162,7 +179,7 @@ Gi0/24      on               802.1q         trunking      999
 
 ---
 
-> ⚠️ **Achtung-Falle**: **Native VLAN ≠ Default VLAN!** 
+> ⚠️ **Achtung-Falle**: **Native VLAN ≠ Default VLAN!**
 > - **Default VLAN** = VLAN 1, dem alle Ports nach dem Reset zugewiesen sind
 > - **Native VLAN** = das VLAN, das auf Trunk-Ports *ohne* Tag übertragen wird (konfigurierbar)
 > - Beide sind standardmäßig VLAN 1 — das führt zur Verwechslung!
@@ -277,7 +294,14 @@ export const CONCEPT_VLAN_TYPEN: Concept = {
   id: "vlan-typen",
   title: "VLAN-Typen — Default, Data, Voice, Management, Native",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["vlan", "vlan-types", "management-vlan", "native-vlan", "data-vlan", "layer-2"],
+  tags: [
+    "vlan",
+    "vlan-types",
+    "management-vlan",
+    "native-vlan",
+    "data-vlan",
+    "layer-2",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1 | ⏱️ 15 Min
 
@@ -355,7 +379,16 @@ export const CONCEPT_INTER_VLAN_ROUTING: Concept = {
   id: "inter-vlan-routing",
   title: "Inter-VLAN Routing — Router-on-a-Stick vs. Layer-3-Switch",
   appliesTo: ["ccna"],
-  tags: ["vlan", "inter-vlan", "routing", "router-on-a-stick", "svi", "l3-switch", "subinterface", "layer-3"],
+  tags: [
+    "vlan",
+    "inter-vlan",
+    "routing",
+    "router-on-a-stick",
+    "svi",
+    "l3-switch",
+    "subinterface",
+    "layer-3",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 3.3 | ⏱️ 30 Min
 
@@ -467,7 +500,15 @@ export const CONCEPT_VTP_DTP: Concept = {
   id: "vtp-dtp",
   title: "VTP & DTP — Automatisierung mit Risiken",
   appliesTo: ["ccna"],
-  tags: ["vlan", "vtp", "dtp", "vlan-trunking-protocol", "dynamic-trunking", "security", "layer-2"],
+  tags: [
+    "vlan",
+    "vtp",
+    "dtp",
+    "vlan-trunking-protocol",
+    "dynamic-trunking",
+    "security",
+    "layer-2",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 2.1 | ⏱️ 15 Min
 
@@ -520,7 +561,7 @@ DTP ist ein weiteres **Cisco-proprietäres Protokoll**, das Ports automatisch al
 | \`access\` | Immer Access | Access ✅ | Access ✅ |
 | \`nonegotiate\` | Kein DTP | – | – |
 
-> ⚠️ **Achtung-Falle**: Der Standard-Modus auf vielen Cisco-Switches ist **\`dynamic auto\`** — der Port wird zum Trunk, sobald die Gegenseite Trunk möchte. Das ist ein **Sicherheitsrisiko (VLAN Hopping)**! 
+> ⚠️ **Achtung-Falle**: Der Standard-Modus auf vielen Cisco-Switches ist **\`dynamic auto\`** — der Port wird zum Trunk, sobald die Gegenseite Trunk möchte. Das ist ein **Sicherheitsrisiko (VLAN Hopping)**!
 
 **Empfehlung**: DTP grundsätzlich deaktivieren:
 \`\`\`
@@ -539,7 +580,15 @@ export const CONCEPT_VLAN_SICHERHEIT: Concept = {
   id: "vlan-sicherheit",
   title: "VLAN Hopping & Sicherheitsmaßnahmen",
   appliesTo: ["ccna"],
-  tags: ["vlan", "security", "vlan-hopping", "double-tagging", "native-vlan", "dtp", "layer-2"],
+  tags: [
+    "vlan",
+    "security",
+    "vlan-hopping",
+    "double-tagging",
+    "native-vlan",
+    "dtp",
+    "layer-2",
+  ],
   content: `
 ## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 2.1 | ⏱️ 20 Min
 
@@ -639,7 +688,15 @@ export const CONCEPT_VLAN_ADVANCED_GUIDE: Concept = {
   id: "vlan-advanced-guide",
   title: "Lernguide: VLANs Advanced — Anker bis Selbsttest",
   appliesTo: ["ccna"],
-  tags: ["vlan", "guide", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
+  tags: [
+    "vlan",
+    "guide",
+    "802.1q",
+    "trunk",
+    "inter-vlan",
+    "security",
+    "layer-2",
+  ],
   content: `
 ## Lernziele
 
@@ -751,6 +808,7 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-sicherheit",
     "vlan-advanced-guide",
     "vlan-simulator",
+    "vlan-network",
   ],
   quizIds: [],
   exerciseIds: [],
