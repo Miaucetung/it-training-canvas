@@ -29,7 +29,6 @@ import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
 import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
-import { VlanNetworkVisualizer } from "./VlanNetworkVisualizer";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -93,7 +92,6 @@ export function TopicDetailPanel({
   const [ipv6Open, setIpv6Open] = useState(false);
   const [verkabelungOpen, setVerkabelungOpen] = useState(false);
   const [vlanSimOpen, setVlanSimOpen] = useState(false);
-  const [vlanNetOpen, setVlanNetOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
@@ -102,7 +100,6 @@ export function TopicDetailPanel({
     "verkabelung-trainer",
   );
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
-  const hasVlanNetwork   = topic.conceptIds.includes("vlan-network");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
 
   // ESC key support
@@ -348,42 +345,6 @@ export function TopicDetailPanel({
                 className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}
               >
                 Starten →
-              </span>
-            </button>
-          </section>
-        )}
-
-        {/* ── VLAN Netzwerk Visualizer CTA ── */}
-        {hasVlanNetwork && (
-          <section>
-            <button
-              type="button"
-              onClick={() => setVlanNetOpen(true)}
-              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
-                dark
-                  ? "bg-fuchsia-500/10 border-fuchsia-500/30 hover:bg-fuchsia-500/20 text-fuchsia-200"
-                  : "bg-fuchsia-50 border-fuchsia-200 hover:bg-fuchsia-100 text-fuchsia-800"
-              }`}
-            >
-              <div
-                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
-                  dark
-                    ? "bg-fuchsia-500/30 text-fuchsia-200"
-                    : "bg-fuchsia-100 text-fuchsia-700"
-                }`}
-              >
-                🗺️
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold">VLAN Netzwerk</div>
-                <div className="text-xs opacity-80 mt-0.5">
-                  Interaktive Topologie · Router · 24-Port Switch · 5 VLANs · Port-genaue Verbindungen
-                </div>
-              </div>
-              <span
-                className={`text-xs ${dark ? "text-fuchsia-300" : "text-fuchsia-600"}`}
-              >
-                Öffnen →
               </span>
             </button>
           </section>
@@ -774,13 +735,6 @@ export function TopicDetailPanel({
         <VlanSimulatorDialog
           dark={dark}
           onClose={() => setVlanSimOpen(false)}
-        />
-      )}
-
-      {hasVlanNetwork && vlanNetOpen && (
-        <VlanNetworkVisualizer
-          dark={dark}
-          onClose={() => setVlanNetOpen(false)}
         />
       )}
 

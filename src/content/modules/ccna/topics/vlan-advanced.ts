@@ -808,7 +808,6 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-sicherheit",
     "vlan-advanced-guide",
     "vlan-simulator",
-    "vlan-network",
   ],
   quizIds: [],
   exerciseIds: [],
