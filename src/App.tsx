@@ -219,6 +219,8 @@ function App() {
   const [showAnnotations, setShowAnnotations] = useState(false);
   const [showShareExport, setShowShareExport] = useState(false);
   const [showTemplateGallery, setShowTemplateGallery] = useState(false);
+  // QW-4: Template-ID die beim Öffnen der Gallery vorausgewählt wird (von Topic-CTA)
+  const [pendingTemplateId, setPendingTemplateId] = useState<string | undefined>(undefined);
   const [annotations, setAnnotations] = useLocalStorage<
     Record<string, Annotation[]>
   >("canvas-annotations", {});
@@ -1592,6 +1594,10 @@ function App() {
                     topic={selectedTopic}
                     module={selectedTopicModule}
                     theme={theme}
+                    onOpenTemplate={(tplId) => {
+                      setPendingTemplateId(tplId);
+                      setShowTemplateGallery(true);
+                    }}
                     onClose={() => {
                       setSelectedTopic(null);
                       setSelectedTopicModule(null);
@@ -2154,6 +2160,7 @@ function App() {
           currentObjects={canvasState.objects}
           currentConnections={canvasState.connections}
           viewport={viewportInfo}
+          initialTemplateId={pendingTemplateId}
           onApplyTemplate={(objects, connections) => {
             setShowWelcome(false);
             setAppData((prev) => {
@@ -2198,7 +2205,10 @@ function App() {
             );
             setCustomTemplates((prev) => [...prev, template]);
           }}
-          onClose={() => setShowTemplateGallery(false)}
+          onClose={() => {
+            setShowTemplateGallery(false);
+            setPendingTemplateId(undefined);
+          }}
         />
       )}
 

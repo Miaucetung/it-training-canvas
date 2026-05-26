@@ -27,6 +27,7 @@ import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
 import { QuizDialog } from "./QuizDialog";
 import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
+import { TerminalEmulator } from "./TerminalEmulator";
 import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
 
@@ -35,6 +36,8 @@ interface TopicDetailPanelProps {
   module: CertificationModule;
   theme: "light" | "dark";
   onClose: () => void;
+  /** Callback: Lerner möchte ein Canvas-Template öffnen (Variante A) */
+  onOpenTemplate?: (templateId: string) => void;
 }
 
 // ── Cross-reference helpers ──────────────────────────────────
@@ -86,12 +89,14 @@ export function TopicDetailPanel({
   module,
   theme,
   onClose,
+  onOpenTemplate,
 }: TopicDetailPanelProps) {
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
   const [ipv6Open, setIpv6Open] = useState(false);
   const [verkabelungOpen, setVerkabelungOpen] = useState(false);
   const [vlanSimOpen, setVlanSimOpen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
@@ -101,6 +106,11 @@ export function TopicDetailPanel({
   );
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
+  const hasTerminalEmulator = topic.conceptIds.includes("ios-terminal");
+  // canvas-template:<id> — ein Topic kann beliebig viele Template-CTAs haben
+  const canvasTemplateIds = topic.conceptIds
+    .filter((id) => id.startsWith("canvas-template:"))
+    .map((id) => id.slice("canvas-template:".length));
 
   // ESC key support
   useEffect(() => {
@@ -354,6 +364,90 @@ export function TopicDetailPanel({
         {hasSubnetSegTool && (
           <section>
             <SubnetSegmentationTool dark={dark} />
+          </section>
+        )}
+
+        {/* ── IOS Terminal CTA ── */}
+        {hasTerminalEmulator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setTerminalOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20 text-orange-200"
+                  : "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark
+                    ? "bg-orange-500/30 text-orange-200"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                &gt;_
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">Cisco IOS Terminal</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  IOS-Befehlszeile üben · show · conf t · interfaces
+                </div>
+                <div className={`text-xs mt-1 ${
+                  dark ? "text-orange-400/70" : "text-orange-600/70"
+                }`}>
+                  Übungseingaben werden nicht gespeichert. Für persistente Labs nutze das Canvas.
+                </div>
+              </div>
+              <span
+                className={`text-xs flex-shrink-0 ${
+                  dark ? "text-orange-300" : "text-orange-600"
+                }`}
+              >
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── Canvas-Template CTAs (canvas-template:<id> in conceptIds) ── */}
+        {canvasTemplateIds.length > 0 && onOpenTemplate && (
+          <section className="space-y-2">
+            {canvasTemplateIds.map((tplId) => (
+              <button
+                key={tplId}
+                type="button"
+                onClick={() => onOpenTemplate(tplId)}
+                className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                  dark
+                    ? "bg-violet-500/10 border-violet-500/30 hover:bg-violet-500/20 text-violet-200"
+                    : "bg-violet-50 border-violet-200 hover:bg-violet-100 text-violet-800"
+                }`}
+              >
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                    dark
+                      ? "bg-violet-500/30 text-violet-200"
+                      : "bg-violet-100 text-violet-700"
+                  }`}
+                >
+                  🗺️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold">Topologie auf Canvas öffnen</div>
+                  <div className="text-xs opacity-80 mt-0.5">
+                    Vorgefertigte Netzwerktopologie laden und erkunden
+                  </div>
+                </div>
+                <span
+                  className={`text-xs flex-shrink-0 ${
+                    dark ? "text-violet-300" : "text-violet-600"
+                  }`}
+                >
+                  Laden →
+                </span>
+              </button>
+            ))}
           </section>
         )}
 
@@ -735,6 +829,15 @@ export function TopicDetailPanel({
         <VlanSimulatorDialog
           dark={dark}
           onClose={() => setVlanSimOpen(false)}
+        />
+      )}
+
+      {hasTerminalEmulator && terminalOpen && (
+        <TerminalEmulator
+          shape={null}
+          onClose={() => setTerminalOpen(false)}
+          onUpdateHistory={() => {}}
+          theme={theme}
         />
       )}
 

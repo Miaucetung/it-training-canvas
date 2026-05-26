@@ -20,7 +20,7 @@ import {
   Tag,
   X,
 } from "@phosphor-icons/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface TemplateGalleryProps {
@@ -28,6 +28,8 @@ interface TemplateGalleryProps {
   customTemplates: CanvasTemplate[];
   currentObjects: DrawingObject[];
   currentConnections: CanvasConnection[];
+  /** Wenn gesetzt, wird dieses Template beim Öffnen der Gallery vorausgewählt (Vorschau) */
+  initialTemplateId?: string;
   viewport?: { x: number; y: number; zoom: number; width: number; height: number };
   onApplyTemplate: (
     objects: DrawingObject[],
@@ -57,6 +59,7 @@ export function TemplateGallery({
   currentObjects,
   currentConnections,
   viewport,
+  initialTemplateId,
   onApplyTemplate,
   onSaveAsTemplate,
   onClose,
@@ -71,6 +74,14 @@ export function TemplateGallery({
   const [previewTemplate, setPreviewTemplate] = useState<CanvasTemplate | null>(
     null,
   );
+
+  // Bei Übergabe einer initialTemplateId das Template direkt in der Vorschau öffnen
+  useEffect(() => {
+    if (!initialTemplateId) return;
+    const allTpl = [...BUILT_IN_TEMPLATES, ...customTemplates];
+    const found = allTpl.find((t) => t.id === initialTemplateId);
+    if (found) setPreviewTemplate(found);
+  }, [initialTemplateId, customTemplates]);
   const [showSaveForm, setShowSaveForm] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");

@@ -701,6 +701,7 @@ export const TOPIC_SUBNET_SEGMENTATION: Topic = {
     "segment-cisco-config",
     "segment-enterprise-example",
     "subnet-seg-tool",
+    "subnetting-drill",
   ],
   quizIds: ["ccna-quiz-segmentierung"],
   exerciseIds: [],

@@ -229,6 +229,7 @@ export const TOPIC_IOS_CLI: Topic = {
     "ios-device-access",
     "ios-interface-config",
     "ios-cli-guide",
+    "ios-terminal",
   ],
   quizIds: ["ccna-quiz-ios-cli"],
   exerciseIds: [],

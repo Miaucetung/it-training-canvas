@@ -957,6 +957,132 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     downloads: 0,
     rating: 5.0,
   },
+
+  // ── QW-5a: VLAN + Trunk + Router-on-a-Stick ────────────────
+  {
+    id: "tpl-edu-vlan-trunk-ris",
+    name: "VLAN + Trunk + Router-on-a-Stick",
+    description:
+      "Drei VLANs (Sales/IT/Mgmt), 802.1Q-Trunk zwischen zwei Switches und Inter-VLAN-Routing über einen Router mit Subinterfaces (Router-on-a-Stick). CCNA Blueprint 2.1.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["VLAN", "Trunk", "802.1Q", "Router-on-a-Stick", "Inter-VLAN", "Didaktik"],
+    difficulty: "beginner",
+    objects: [
+      // Header
+      tplText("ris-h1", 60, 30, "Router-on-a-Stick — Inter-VLAN Routing", "#1E293B", 18),
+      tplText("ris-h2", 60, 55, "R1 terminiert alle 3 VLANs via Subinterfaces (Gi0/0.10 / .20 / .30)", "#475569", 12),
+
+      // Router
+      tplShape("ris-r1", "router", 390, 90, 80, 80, "#F59E0B", "R1 (RoaS)"),
+      tplText("ris-r1-sub", 340, 180, "Gi0/0.10  .20  .30", "#B45309", 11),
+
+      // Switches
+      tplShape("ris-sw1", "switch", 230, 290, 90, 70, "#10B981", "SW1"),
+      tplShape("ris-sw2", "switch", 550, 290, 90, 70, "#10B981", "SW2"),
+
+      // VLAN-Zone Hintergründe (SW1-Seite)
+      tplRect("ris-zone10", 50, 420, 130, 110, "#BFDBFE"),
+      tplRect("ris-zone20", 200, 420, 130, 110, "#BBF7D0"),
+      tplRect("ris-zone30", 350, 420, 130, 110, "#DDD6FE"),
+
+      // PCs an SW1
+      tplShape("ris-pc10",  "computer", 85,  450, 65, 65, "#3B82F6", "PC-Sales"),
+      tplShape("ris-pc20",  "computer", 235, 450, 65, 65, "#10B981", "PC-IT"),
+      tplShape("ris-pc30",  "computer", 385, 450, 65, 65, "#8B5CF6", "PC-Mgmt"),
+
+      // VLAN-Labels
+      tplText("ris-l10", 58,  425, "VLAN 10 — Sales", "#1D4ED8", 11),
+      tplText("ris-l20", 208, 425, "VLAN 20 — IT", "#15803D", 11),
+      tplText("ris-l30", 358, 425, "VLAN 30 — Mgmt", "#6D28D9", 11),
+      tplText("ris-l10b", 58,  438, "192.168.10.0/24", "#1D4ED8", 10),
+      tplText("ris-l20b", 208, 438, "192.168.20.0/24", "#15803D", 10),
+      tplText("ris-l30b", 358, 438, "192.168.30.0/24", "#6D28D9", 10),
+
+      // PC an SW2
+      tplShape("ris-pc10b", "computer", 545, 450, 65, 65, "#3B82F6", "PC2-Sales"),
+      tplText("ris-l10c", 525, 435, "VLAN 10", "#1D4ED8", 10),
+
+      // Hinweis
+      tplText("ris-tip1", 60, 560, "Trunk-Port: switchport mode trunk  |  switchport trunk allowed vlan 10,20,30", "#334155", 12),
+      tplText("ris-tip2", 60, 578, "Access-Port: switchport mode access  |  switchport access vlan <ID>", "#334155", 12),
+      tplText("ris-tip3", 60, 596, "Router: interface Gi0/0.10  |  encapsulation dot1Q 10  |  ip address 192.168.10.1 255.255.255.0", "#334155", 12),
+    ],
+    connections: [
+      tplConn("ris-c1", "ris-r1",  "ris-sw1",  "Gi0/0 Trunk 802.1Q",  "#F59E0B"),
+      tplConn("ris-c2", "ris-sw1", "ris-sw2",  "Trunk 802.1Q (Gi0/24)", "#F59E0B"),
+      tplConn("ris-c3", "ris-sw1", "ris-pc10", "Gi0/1 Access VLAN10", "#3B82F6"),
+      tplConn("ris-c4", "ris-sw1", "ris-pc20", "Gi0/2 Access VLAN20", "#10B981"),
+      tplConn("ris-c5", "ris-sw1", "ris-pc30", "Gi0/3 Access VLAN30", "#8B5CF6"),
+      tplConn("ris-c6", "ris-sw2", "ris-pc10b","Gi0/1 Access VLAN10", "#3B82F6"),
+    ],
+    estimatedTime: "20 min",
+    downloads: 0,
+    rating: 4.9,
+  },
+
+  // ── QW-5b: STP Root Bridge Election ────────────────────────
+  {
+    id: "tpl-edu-stp-root-bridge",
+    name: "STP Root Bridge Election",
+    description:
+      "Drei Switches mit unterschiedlicher Bridge Priority. Zeigt Bridge-ID-Aufbau (Priority + VLAN-Extension + MAC), Port-Rollen (RP/DP/BLK) und die vollständige Tiebreaker-Reihenfolge. CCNA Blueprint 2.5.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["STP", "Spanning Tree", "Root Bridge", "RSTP", "Port-Rolle", "Didaktik"],
+    difficulty: "intermediate",
+    objects: [
+      // Header
+      tplText("stp-h1", 60, 25,  "STP Root Bridge Election (IEEE 802.1D)", "#1E293B", 18),
+      tplText("stp-h2", 60, 50,  "Niedrigste Bridge-ID gewinnt → Priority (4 Bit) + VLAN-Extension (12 Bit) + MAC-Adresse (48 Bit)", "#475569", 12),
+
+      // Root-Zone Hintergrund
+      tplRect("stp-zone-root", 310, 90, 200, 130, "#D1FAE5"),
+      tplText("stp-root-badge", 325, 97, "✓ ROOT BRIDGE", "#065F46", 13),
+
+      // Switches
+      tplShape("stp-sw1", "switch", 355, 110, 100, 80, "#10B981", "SW1"),
+      tplShape("stp-sw2", "switch", 130, 340, 100, 80, "#3B82F6", "SW2"),
+      tplShape("stp-sw3", "switch", 590, 340, 100, 80, "#3B82F6", "SW3"),
+
+      // Bridge-ID Annotationen
+      tplText("stp-bid1",  265, 200, "Bridge-ID: 4096.1.AA:BB:CC:DD:EE:01", "#065F46", 11),
+      tplText("stp-bid1b", 265, 214, "Priority 4096 (manuell gesetzt)  ← gewinnt", "#065F46", 11),
+      tplText("stp-bid2",  30,  430, "Bridge-ID: 32768.1.11:22:33:44:55:02", "#1D4ED8", 11),
+      tplText("stp-bid2b", 30,  444, "Priority 32768 (Default, PVST VLAN 1)", "#1D4ED8", 11),
+      tplText("stp-bid3",  490, 430, "Bridge-ID: 32768.1.AA:BB:CC:DD:EE:03", "#1D4ED8", 11),
+      tplText("stp-bid3b", 490, 444, "Priority 32768 (Default, PVST VLAN 1)", "#1D4ED8", 11),
+
+      // Port-Rollen Labels (nahe der Verbindungen)
+      tplText("stp-pr1",  270, 255, "DP",  "#065F46", 13),   // SW1-Seite → SW2
+      tplText("stp-pr2",  430, 255, "DP",  "#065F46", 13),   // SW1-Seite → SW3
+      tplText("stp-pr3",  185, 310, "RP",  "#1D4ED8", 13),   // SW2 → Root
+      tplText("stp-pr4",  590, 310, "RP",  "#1D4ED8", 13),   // SW3 → Root
+      tplText("stp-pr5",  300, 400, "DP",  "#10B981", 13),   // SW2 → SW3 Designated
+      tplText("stp-pr6",  480, 400, "BLK", "#EF4444", 13),   // SW3 → SW2 Blocked
+
+      // Tiebreaker Erklärung
+      tplRect("stp-tbox", 60, 500, 740, 120, "#F1F5F9"),
+      tplText("stp-tb0", 75, 510, "Port-Rollen-Entscheidung (Tiebreaker-Reihenfolge wenn Priority gleich):", "#0F172A", 13),
+      tplText("stp-tb1", 75, 530, "1. Niedrigster Root Path Cost (Summe der Link-Kosten zum Root)  — Kosten nach IEEE 802.1D-1998:", "#334155", 12),
+      tplText("stp-tb2", 75, 546, "   10 Mbps = 100  |  100 Mbps = 19  |  1 Gbps = 4  |  10 Gbps = 2", "#334155", 12),
+      tplText("stp-tb3", 75, 562, "2. Niedrigste Sender-Bridge-ID  →  3. Niedrigste Sender-Port-Priority  →  4. Niedrigste Port-Nummer", "#334155", 12),
+      tplText("stp-tb4", 75, 582, "SW3 Gi0/2 → SW2: Path Cost 4+4=8 > direkter Pfad 4 → BLK  (kein weiterer Nutzen, würde Loop erzeugen)", "#7C3AED", 12),
+      tplText("stp-tb5", 75, 598, "Cisco-Befehl: spanning-tree vlan 1 priority 4096", "#0F172A", 13),
+    ],
+    connections: [
+      tplConn("stp-c1", "stp-sw1", "stp-sw2", "Cost 4 (1 Gbps)", "#10B981"),
+      tplConn("stp-c2", "stp-sw1", "stp-sw3", "Cost 4 (1 Gbps)", "#10B981"),
+      tplConn("stp-c3", "stp-sw2", "stp-sw3", "Cost 4 (1 Gbps) — BLK", "#EF4444"),
+    ],
+    estimatedTime: "25 min",
+    downloads: 0,
+    rating: 4.9,
+  },
 ];
 
 export function searchTemplates(
