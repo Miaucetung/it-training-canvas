@@ -1,6 +1,6 @@
 // ============================================================
 // CompTIA Network+ N10-009 — Topic 1: Netzwerkkonzepte & OSI
-// Domains: 1.1 (OSI), 1.2 (Geräte/Cloud), 1.3 (Ports/Protokolle), 1.4 (Medien), 1.8 (SDN/Zero Trust)
+// Domains: 1.1 (OSI), 1.2 (Geräte/Cloud), 1.3 (Ports/Protokolle), 1.4 (Medien), 1.5 (Kabeltypen/Transceiver), 1.6 (Topologien), 1.7 (IPv4/VLSM/CIDR), 1.8 (SDN/Zero Trust)
 // Sources:
 //   CompTIA Network+ N10-009 Exam Objectives Version 4.0 (lokal, Projektordner)
 //   RFC 791 (IPv4), RFC 793 (TCP), RFC 768 (UDP) — rfc-editor.org
@@ -275,6 +275,236 @@ IPv6 ist keine Zukunftstechnologie mehr — N10-009 behandelt es als prüfungsre
 `,
 };
 
+export const CONCEPT_MEDIA_TRANSCEIVERS: Concept = {
+  id: "netplus-media-transceivers",
+  title: "Kabelmedien, Transceiver und Steckverbinder (N10-009 Domain 1.5)",
+  appliesTo: ["comptia-network-plus"],
+  tags: ["cable", "fiber", "transceiver", "sfp", "cat6a", "smf", "mmf", "n10-009"],
+  relatedConceptIds: ["netplus-cable-physical-issues"],
+  content: `
+## Kabelmedien und Transceiver: N10-009 Domain 1.5
+
+### Kupferkabel — Twisted Pair
+
+| Kategorie | Max. Bandbreite | Max. Länge | Einsatz |
+|-----------|----------------|------------|--------|
+| **Cat5e** | 1 Gbit/s (1000BASE-T) | 100 m | LAN-Installationen, ältere Gebäude |
+| **Cat6** | 10 Gbit/s (bis 55 m) | 100 m (1G), 55 m (10G) | Standard-LAN, Serverräume |
+| **Cat6A** | 10 Gbit/s | 100 m | Empfohlen für neue 10G-Installationen |
+| **Cat7** | 10 Gbit/s | 100 m | Bessere Abschirmung (STP), proprietäre Stecker |
+| **Cat8** | 40 Gbit/s | 30 m | Rechenzentrum, kurze Server-to-Switch-Strecken |
+
+**UTP vs. STP:**
+- **UTP (Unshielded Twisted Pair):** Keine Abschirmung — günstiger, flexibler, am häufigsten
+- **STP (Shielded Twisted Pair):** Abschirmung reduziert Interferenz — Vorsicht: muss korrekt geerdet sein, sonst verstärkt Abschirmung Interferenz
+- **Prüfungsregel:** N10-009 fragt gelegentlich nach dem richtigen Einsatzort — STP für Umgebungen mit hoher EMI (Industriehallen, neben Hochspannungskabeln)
+
+### Glasfaser (Fiber Optic)
+
+| Typ | Farbe (typisch) | Kerndurchmesser | Max. Reichweite | Einsatz |
+|-----|----------------|-----------------|----------------|--------|
+| **SMF (Single-Mode)** | Gelb | 9 µm | Bis 100 km (und mehr) | WAN, Campus-Backbone, ISP |
+| **MMF (Multi-Mode) OM3** | Aqua/Türkis | 50 µm | ~300 m @ 10G | Rechenzentrum, Gebäude-Backbone |
+| **MMF (Multi-Mode) OM4** | Violett/Magenta | 50 µm | ~400 m @ 10G | Hochperformantes RZ |
+| **MMF (Multi-Mode) OM5** | Grün-Limette | 50 µm | SWDM4 (Multiwell. 40/100G) | Moderne RZ-Anwendungen |
+
+**Wichtige Unterscheidung:**
+- SMF hat einen kleinen Kern → nur ein Lichtmodus → geringere Dispersion → sehr lange Reichweiten
+- MMF hat einen größen Kern → mehrere Lichtmodi → modale Dispersion begrenzt Reichweite
+- SMF und MMF sehen sich äußerlich ähnlich (gleiche Stecker möglich), sind aber **optisch inkompatibel**
+
+### Transceiver und Stecker
+
+**SFP-Formfaktoren:**
+
+| Formfaktor | Bandbreite | Beschreibung |
+|------------|-----------|-------------|
+| **SFP** (Small Form-factor Pluggable) | Bis 1 Gbit/s | Standard-Einzelkanalmodul |
+| **SFP+** | Bis 10 Gbit/s | Enhanced SFP |
+| **SFP28** | Bis 25 Gbit/s | 25G-Einzelkanal |
+| **QSFP+** (Quad SFP) | 40 Gbit/s | 4 × 10G-Kanäle |
+| **QSFP28** | 100 Gbit/s | 4 × 25G-Kanäle |
+
+**BiDi (Bidirectional Transceiver):**
+- Sendet und empfängt über eine einzige Glasfaser (statt zwei) mittels WDM (Wellenlängenmultiplex)
+- Vorteil: Halbiert den benötigten Faserstrang
+- Erfordert einen TX-BiDi auf einer Seite und einen RX-BiDi auf der anderen
+
+**DAC (Direct Attach Copper):**
+- Vorkonfektioniertes Kupferkabel mit integrierten SFP+-Köpfen
+- Einsatz: Kurze Verbindungen (≤7 m) im Rechenzentrum zwischen Switch und Server
+- Günstiger als Glasfaser-Transceiver für kurze Strecken
+
+### Glasfaser-Steckverbinder
+
+| Stecker | Einsatz | Merkmal |
+|---------|---------|--------|
+| **LC** (Lucent Connector) | Standard in RZ und modernen Installationen | Klein, Duplex-Variante üblich |
+| **SC** (Subscriber Connector) | Ältere Installationen, GPON | Quadratisch, Push-Pull |
+| **ST** (Straight Tip) | Ältere Netzwerke | Bajonettverschluss, rund |
+| **MTP/MPO** | Hochdichte RZ, 40G/100G | 12 oder 24 Fasern in einem Stecker |
+
+> **Cross-Reference Troubleshooting:** Falsche Stecker oder SMF/MMF-Verwechslung sind typische physische Fehlerquellen — siehe Konzept \`netplus-cable-physical-issues\` in Topic 5.
+`,
+};
+
+export const CONCEPT_TOPOLOGIES_ARCHITECTURES: Concept = {
+  id: "netplus-topologies-architectures",
+  title: "Netzwerktopologien und -architekturen (N10-009 Domain 1.6)",
+  appliesTo: ["comptia-network-plus"],
+  tags: ["topology", "star", "mesh", "three-tier", "spine-leaf", "wan", "n10-009"],
+  relatedConceptIds: ["netplus-osi-tcpip", "netplus-cloud-networking"],
+  content: `
+## Netzwerktopologien: N10-009 Domain 1.6
+
+### Physische LAN-Topologien
+
+| Topologie | Beschreibung | Vorteil | Nachteil |
+|-----------|-------------|---------|----------|
+| **Bus** | Alle Geräte an einem gemeinsamen Kabel | Einfach, günstig | Kollisionen, Single Point of Failure, historisch (Koaxial) |
+| **Ring** | Geräte in einem Kreisring verbunden | Kollisionsfrei (Token), deterministisch | Ausfall eines Geräts unterbricht Ring (außer dual ring) |
+| **Star (Stern)** | Alle Geräte mit einem zentralen Switch verbunden | Ausfalltoleranz (Gerät ≠ ganzes Netz), einfach erweiterbar | Zentraler Switch ist Single Point of Failure |
+| **Mesh (Voll)** | Jedes Gerät direkt mit jedem anderen verbunden | Maximale Redundanz, kein SPof | Sehr teuer (n×(n-1)/2 Verbindungen) |
+| **Mesh (Partiell)** | Kritische Knoten mit mehreren Verbindungen | Guter Kompromiss Redundanz/Kosten | Selektive Redundanz |
+| **Hybrid** | Kombination mehrerer Topologien | Flexibel anpassbar | Komplex in Verwaltung |
+
+**Prüfungsregel:** Heute nutzen nahezu alle LANs eine **logische Bus**-Topologie über Ethernet, aber eine **physische Stern**-Topologie (alle Geräte mit Switch verbunden).
+
+### LAN-Netzwerkarchitekturen
+
+**Dreischicht-Architektur (Three-Tier):**
+Die klassische Enterprise-Hierarchie — prüfungsrelevant für N10-009:
+
+| Schicht | Funktion | Geräte |
+|---------|---------|--------|
+| **Access Layer** | Endgeräte verbinden sich hier | Access-Switches mit PoE, Port Security |
+| **Distribution Layer** | Verbindet Access-Switches, Policy-Enforcement, VLAN-Routing | L3-Switches, Router |
+| **Core Layer** | Hochgeschwindigkeits-Backbone, Routing zwischen Verteilungsblöcken | Hochleistungs-Layer-3-Switches |
+
+**Collapsed Core (Zweischicht):**
+- Distribution und Core werden auf einem Gerät zusammengeführt
+- Einsatz: Mittlere Unternehmen — einfacher, kostengünstiger als Three-Tier
+
+**Spine-Leaf-Architektur (Rechenzentrum):**
+- Moderne RZ-Architektur für East-West-Traffic (Server-zu-Server)
+- **Leaf:** Access-Switches — jeder Server ist an einem Leaf angeschlossen
+- **Spine:** Backbone-Switches — jeder Leaf ist mit jedem Spine verbunden
+- Kein Trunking, flache Topologie, niedrige und vorhersehbare Latenz
+- **Traffic-Richtungen:**
+  - **North-South:** Externer Traffic (Internet → Rechenzentrum, Client → Server) → traditionell Three-Tier
+  - **East-West:** Interner RZ-Traffic (Server ↔ Server, Microservices) → Spine-Leaf
+
+### WAN-Topologien
+
+| WAN-Topologie | Beschreibung | Einsatz |
+|--------------|-------------|--------|
+| **Point-to-Point** | Direkte dedizierte Leitung zwischen zwei Standorten | Kleine Unternehmen, kritische Verbindungen |
+| **Hub-and-Spoke (Stern)** | Zentrale Hub-Site verbindet alle Spoke-Sites | Viele Standorte, zentrales RZ, kostengünstig |
+| **Full Mesh** | Jeder Standort direkt mit jedem anderen verbunden | Maximale Redundanz, teuer, für kritische Infrastruktur |
+| **Partial Mesh** | Kritische Standorte voll verbunden, andere über Hub | Kompromiss zwischen Kosten und Redundanz |
+
+**MPLS (Multiprotocol Label Switching):**
+- Dedizierte WAN-Verbindung mit garantierter Bandbreite und QoS
+- Teurer als Internet-basierte VPNs, aber vorhersehbare Performance
+- In SD-WAN-Architektur: MPLS als einer von mehreren Transportwegen
+
+### SOHO-Netzwerke
+
+SOHO (Small Office/Home Office): Kleine Netzwerke mit einem kombinierten Gerät (Router + Switch + WLAN + Firewall)
+- Alles in einem Gerät → kostengünstig, aber begrenzte Konfigurierbarkeit
+- N10-009 fragt grundlegende SOHO-Konfiguration: DHCP, NAT, Wireless-Sicherheit
+`,
+};
+
+export const CONCEPT_IPv4_SUBNETTING: Concept = {
+  id: "netplus-ipv4-subnetting",
+  title: "IPv4-Adressierung, Subnetting, VLSM und CIDR (N10-009 Domain 1.7)",
+  appliesTo: ["comptia-network-plus"],
+  tags: ["ipv4", "subnetting", "cidr", "vlsm", "rfc1918", "nat", "n10-009"],
+  relatedConceptIds: ["netplus-network-service-issues"],
+  content: `
+## IPv4-Adressierung und Subnetting: N10-009 Domain 1.7
+
+**N10-009-Anforderung:** IPv4-Subnetting ist Pflichtthema — du musst Netzwerkadresse, Broadcastadresse, Hostbereich und Subnetzmaske aus einer CIDR-Notation bestimmen können.
+
+### IPv4-Adressklassen (historisch, aber prüfungsrelevant)
+
+| Klasse | Bereich (erstes Oktett) | Standard-Maske | Netzwerke | Hosts/Netz |
+|--------|------------------------|---------------|-----------|------------|
+| **A** | 1–126 | /8 (255.0.0.0) | 126 | ~16,7 Mio. |
+| **B** | 128–191 | /16 (255.255.0.0) | 16.384 | ~65.534 |
+| **C** | 192–223 | /24 (255.255.255.0) | ~2 Mio. | 254 |
+| **D** | 224–239 | — | Multicast | — |
+| **E** | 240–255 | — | Reserviert | — |
+
+**Loopback:** 127.0.0.0/8 (127.0.0.1 = lokaler Host — kein Traffic verlässt das Interface)
+
+### Private RFC-1918-Adressbereiche
+
+| Bereich | CIDR | Klasse |
+|---------|------|-------|
+| 10.0.0.0 – 10.255.255.255 | /8 | A |
+| 172.16.0.0 – 172.31.255.255 | /12 | B |
+| 192.168.0.0 – 192.168.255.255 | /16 | C |
+
+**APIPA:** 169.254.0.0/16 — automatisch zugewiesen bei fehlendem DHCP-Server
+
+**NAT (Network Address Translation):**
+- Private Adressen werden durch NAT auf öffentliche IP-Adressen übersetzt
+- PAT (Port Address Translation) / NAT Overloading: Viele private IPs teilen sich eine öffentliche IP (Port-basiert)
+- Ermöglicht private RFC-1918-Netzwerke im Internet-Zugang
+
+### CIDR-Notation und Subnetzmasken
+
+| CIDR | Subnetzmaske | Hosts | Netzwerkadressen |
+|------|-------------|-------|------------------|
+| **/24** | 255.255.255.0 | 254 | 1 Netzwerk von /24 |
+| **/25** | 255.255.255.128 | 126 | 2 × /25 aus /24 |
+| **/26** | 255.255.255.192 | 62 | 4 × /26 aus /24 |
+| **/27** | 255.255.255.224 | 30 | 8 × /27 aus /24 |
+| **/28** | 255.255.255.240 | 14 | 16 × /28 aus /24 |
+| **/29** | 255.255.255.248 | 6 | 32 × /29 aus /24 |
+| **/30** | 255.255.255.252 | 2 | Point-to-Point-Links |
+| **/32** | 255.255.255.255 | 0 (Host-Route) | Einzelne Hostadresse |
+
+**Hosts-Formel:** $2^{(32 - \\text{Präfixlänge})} - 2$ 
+(-2 für Netzwerkadresse und Broadcast)
+
+### Subnetz berechnen: Schritt-für-Schritt
+
+**Beispiel:** 192.168.10.50/26
+
+1. **Präfixlänge:** /26 → 26 Bits Netz, 6 Bits Host
+2. **Subnetzmaske:** 255.255.255.192
+3. **Blockgröße:** $2^6 = 64$ Adressen pro Subnetz
+4. **Subnetze:** 192.168.10.0/26, 192.168.10.64/26, 192.168.10.128/26, 192.168.10.192/26
+5. **Host 50 liegt in:** 192.168.10.0/26 (Bereich 0–63)
+6. **Netzwerkadresse:** 192.168.10.0
+7. **Broadcastadresse:** 192.168.10.63
+8. **Hostbereich:** 192.168.10.1 – 192.168.10.62 (62 Hosts)
+
+### VLSM — Variable Length Subnet Masking
+
+VLSM erlaubt verschiedene Subnetzmasken innerhalb des gleichen Netzwerks — ermöglicht effiziente Adresszuweisung:
+
+**Szenario:** Netzwerk 10.0.0.0/24, drei Standorte: 50 Hosts, 25 Hosts, 2 Hosts (Point-to-Point)
+
+| Standort | Benötigte Hosts | CIDR | Subnetz | Tatsächlich verfügbar |
+|---------|----------------|------|---------|----------------------|
+| Standort A | 50 | /26 | 10.0.0.0/26 | 62 Hosts |
+| Standort B | 25 | /27 | 10.0.0.64/27 | 30 Hosts |
+| WAN-Link | 2 | /30 | 10.0.0.96/30 | 2 Hosts |
+
+**Vorteile gegenüber klassischem Subnetting:** Keine verschwendeten Adressen durch zu große Subnetze.
+
+### Supernetting / CIDR-Aggregation
+
+Mehrere aufeinanderfolgende Subnetze können zu einem größeren Netzwerk zusammengefasst werden (Route Summarization):
+- 192.168.0.0/24 + 192.168.1.0/24 + 192.168.2.0/24 + 192.168.3.0/24 → 192.168.0.0/22
+- Vorteil: Weniger Einträge in der Routing-Tabelle → weniger Rechenaufwand für Router
+`,
+};
+
 // ── Quiz ──────────────────────────────────────────────────────
 
 const QUIZ_QUESTIONS_T1: Question[] = [
@@ -441,6 +671,48 @@ const QUIZ_QUESTIONS_T1: Question[] = [
     explanation:
       "SSH (Secure Shell) verwendet TCP Port 22. SFTP (Secure File Transfer Protocol) teilt sich Port 22 mit SSH, da SFTP als SSH-Subsystem läuft. Port 21 ist FTP (unverschlüsselt), Port 23 ist Telnet (unverschlüsselt, in der Praxis ersetzt durch SSH), Port 443 ist HTTPS. Port-Zuordnungen sind in N10-009 Pflicht-Lernstoff.",
   },
+  {
+    id: "np-concepts-q8",
+    type: "single-choice",
+    text: "Welcher SFP-Formfaktor unterstützt bis zu 100 Gbit/s durch vier parallel genutzte 25G-Kanäle?",
+    points: 10,
+    answers: [
+      { id: "a", text: "SFP+", isCorrect: false },
+      { id: "b", text: "SFP28", isCorrect: false },
+      { id: "c", text: "QSFP28", isCorrect: true },
+      { id: "d", text: "BiDi SFP", isCorrect: false },
+    ],
+    explanation:
+      "QSFP28 (Quad Small Form-factor Pluggable 28) nutzt 4 Kanäle mit je 25 Gbit/s = 100 Gbit/s gesamt. QSFP+ nutzt 4 × 10G = 40G. SFP28 ist ein Einzelkanalmodul mit 25G. BiDi SFP überträgt zwei Richtungen auf einer Faser, aber mit 1G oder 10G pro Kanal — kein 100G-Formfaktor.",
+  },
+  {
+    id: "np-concepts-q9",
+    type: "single-choice",
+    text: "Ein Rechenzentrum will Server-zu-Server-Traffic (East-West) mit niedriger, vorhersehbarer Latenz und ohne Spanning Tree optimieren. Welche Architektur ist am geeignetsten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Three-Tier (Access/Distribution/Core)", isCorrect: false },
+      { id: "b", text: "Hub-and-Spoke WAN-Topologie", isCorrect: false },
+      { id: "c", text: "Spine-Leaf-Architektur", isCorrect: true },
+      { id: "d", text: "Bus-Topologie mit Koaxialkabel", isCorrect: false },
+    ],
+    explanation:
+      "Spine-Leaf ist die moderne RZ-Architektur für East-West-Traffic (Server ↔ Server). Jeder Leaf-Switch ist mit jedem Spine-Switch verbunden — maximale 2-Hop-Latenz von jedem Server zu jedem anderen Server. Kein Spanning Tree nötig (ECMP stattdessen). Three-Tier ist für North-South-Traffic (Client→Server) optimiert. Hub-and-Spoke ist eine WAN-Topologie.",
+  },
+  {
+    id: "np-concepts-q10",
+    type: "single-choice",
+    text: "Ein Administrator hat das Netzwerk 192.168.5.0/27 erhalten. Wie viele nutzbare Hostadressen stehen zur Verfügung?",
+    points: 10,
+    answers: [
+      { id: "a", text: "32", isCorrect: false },
+      { id: "b", text: "30", isCorrect: true },
+      { id: "c", text: "62", isCorrect: false },
+      { id: "d", text: "14", isCorrect: false },
+    ],
+    explanation:
+      "/27 bedeutet 27 Netzwerk-Bits, 5 Host-Bits. Blockgröße: 2^5 = 32 Adressen. Nutzbare Hosts: 32 − 2 = 30 (Netzwerkadresse 192.168.5.0 und Broadcast 192.168.5.31 abziehen). Hostbereich: 192.168.5.1 – 192.168.5.30. /26 = 62 Hosts, /28 = 14 Hosts — die Prüfung testet diese Unterschiede häufig.",
+  },
 ];
 
 export const QUIZ_NETPLUS_NETWORK_CONCEPTS: Quiz = {
@@ -466,6 +738,9 @@ export const TOPIC_NETPLUS_NETWORK_CONCEPTS: Topic = {
     "netplus-ports-protocols",
     "netplus-cloud-networking",
     "netplus-modern-network",
+    "netplus-media-transceivers",
+    "netplus-topologies-architectures",
+    "netplus-ipv4-subnetting",
   ],
   quizIds: ["netplus-quiz-network-concepts"],
   exerciseIds: [],
@@ -481,4 +756,7 @@ export const NETWORK_CONCEPTS_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_PORTS_PROTOCOLS.id]: CONCEPT_PORTS_PROTOCOLS,
   [CONCEPT_CLOUD_NETWORKING.id]: CONCEPT_CLOUD_NETWORKING,
   [CONCEPT_MODERN_NETWORK.id]: CONCEPT_MODERN_NETWORK,
+  [CONCEPT_MEDIA_TRANSCEIVERS.id]: CONCEPT_MEDIA_TRANSCEIVERS,
+  [CONCEPT_TOPOLOGIES_ARCHITECTURES.id]: CONCEPT_TOPOLOGIES_ARCHITECTURES,
+  [CONCEPT_IPv4_SUBNETTING.id]: CONCEPT_IPv4_SUBNETTING,
 };
