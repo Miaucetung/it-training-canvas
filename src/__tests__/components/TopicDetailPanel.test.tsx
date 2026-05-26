@@ -277,7 +277,7 @@ describe("c) Quiz-Rendering", () => {
 
 // ── d) Cross-References ──────────────────────────────────────
 describe("d) Cross-References", () => {
-  it("zeigt 'Cross-References (0)' für Topic ohne Bridges — kein Crash", () => {
+  it("zeigt keine Cross-Ref-Sektion wenn Topic keine Bridges hat", () => {
     render(
       <TopicDetailPanel
         topic={TOPIC_NO_CROSSREF}
@@ -286,10 +286,7 @@ describe("d) Cross-References", () => {
         onClose={vi.fn()}
       />,
     );
-    expect(screen.getByText("Cross-References (0)")).toBeTruthy();
-    expect(
-      screen.getByText("Keine Cross-References für dieses Topic."),
-    ).toBeTruthy();
+    expect(screen.queryByText(/Cross-References/)).toBeNull();
   });
 
   it("rendert ohne Crash wenn crossRefs leer sind", () => {
@@ -416,7 +413,7 @@ describe("g) Stub-Topic ohne Quizfragen", () => {
 
 // ── h) Topic ohne Cross-References ──────────────────────────
 describe("h) Topic ohne Cross-References", () => {
-  it("zeigt leere Cross-Ref-Sektion ohne Crash", () => {
+  it("zeigt keine Cross-Ref-Sektion wenn crossRefs leer sind", () => {
     render(
       <TopicDetailPanel
         topic={TOPIC_NO_CROSSREF}
@@ -425,10 +422,10 @@ describe("h) Topic ohne Cross-References", () => {
         onClose={vi.fn()}
       />,
     );
-    expect(screen.getByText("Cross-References (0)")).toBeTruthy();
+    expect(screen.queryByText(/Cross-References/)).toBeNull();
   });
 
-  it("zeigt Hinweistext wenn keine Cross-Refs", () => {
+  it("zeigt keinen Hinweistext wenn keine Cross-Refs (Section ist versteckt)", () => {
     render(
       <TopicDetailPanel
         topic={TOPIC_NO_CROSSREF}
@@ -438,8 +435,8 @@ describe("h) Topic ohne Cross-References", () => {
       />,
     );
     expect(
-      screen.getByText("Keine Cross-References für dieses Topic."),
-    ).toBeTruthy();
+      screen.queryByText("Keine Cross-References für dieses Topic."),
+    ).toBeNull();
   });
 });
 
