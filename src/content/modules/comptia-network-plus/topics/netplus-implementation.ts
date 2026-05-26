@@ -1,6 +1,6 @@
 // ============================================================
 // CompTIA Network+ N10-009 — Topic 2: Switching, Routing & Wireless
-// Domains: 2.1 (Routing), 2.2 (Switching/VLANs), 2.3 (Wireless)
+// Domains: 2.1 (Routing), 2.2 (Switching/VLANs), 2.3 (Wireless), 2.4 (Physische Installation)
 // Sources:
 //   CompTIA Network+ N10-009 Exam Objectives Version 4.0 (lokal, Projektordner)
 //   RFC 2328 (OSPF), RFC 4271 (BGP), RFC 2453 (RIP) — rfc-editor.org
@@ -249,6 +249,63 @@ export const CONCEPT_WIRELESS_NP: Concept = {
 `,
 };
 
+export const CONCEPT_PHYSICAL_INSTALLATION_NP: Concept = {
+  id: "netplus-physical-installation",
+  title: "Physische Netzwerkinstallation: Rack, Verkabelung, Dokumentation (N10-009 Domain 2.4)",
+  appliesTo: ["comptia-network-plus"],
+  tags: ["installation", "rack", "mdf", "idf", "patch-panel", "labeling", "n10-009"],
+  relatedConceptIds: ["netplus-media-transceivers", "netplus-cable-physical-issues"],
+  content: `
+## Physische Installation: N10-009 Domain 2.4
+
+Domain 2.4 fokussiert auf **saubere, sichere und wartbare** physische Installation von Netzwerkkomponenten. Das Thema wird in vielen Lernpfaden unterschätzt, ist aber in der Prüfung präsent.
+
+### MDF und IDF
+
+| Begriff | Rolle |
+|---|---|
+| **MDF (Main Distribution Frame)** | Zentrale Hauptverteilung des Gebäudes/Campus; häufig Router-Core, Firewall-Uplink, Provider-Übergabe |
+| **IDF (Intermediate Distribution Frame)** | Etagen- oder Bereichsverteiler; verbindet lokale Access-Switches mit dem MDF |
+
+**Best Practice:** Sternförmige Struktur mit klaren Uplinks von IDF zu MDF, dokumentierten Trunks und sauberer VLAN-Zuordnung.
+
+### Rack-Planung und Einbau
+
+- **Rack-Höheneinheiten (RU/U):** 1U = 1,75 Zoll; Geräte müssen mit Luftstrom und Gewicht korrekt eingeplant werden
+- **Schweres Equipment unten:** USV/Server unten, leichtere Geräte oben → bessere Stabilität
+- **Kalt-/Warmgang-Prinzip:** Luftstrom berücksichtigen, Hotspots vermeiden
+- **Kabeleinführung getrennt:** Strom und Datenkabel physisch trennen, um EMI und Wartungschaos zu reduzieren
+
+### Patch Panel, Keystone, Punchdown
+
+- **Patch Panel:** Feste Terminierung horizontaler Verkabelung; aktive Geräte werden per Patchkabel verbunden
+- **Keystone Jacks:** Modulare Netzwerkdosen/Panel-Module
+- **Punchdown (110/66-Block):** Werkzeuggestützte Terminierung von Adernpaaren
+
+**Prüfungsfalle:** Endgeräte werden nicht direkt an horizontale Verlegekabel gekrimpt, sondern über strukturierte Verkabelung (Dose/Panel) geführt.
+
+### PoE, Strom und Erdung
+
+- PoE-Budget pro Switch prüfen (Summe aller Endgeräteleistung)
+- Redundante Stromversorgung für kritische Komponenten einplanen
+- Korrekte Erdung insbesondere bei geschirmten Leitungen (STP) und Schränken
+
+### Labeling und Dokumentation
+
+- Eindeutige Port- und Kabelkennzeichnung an beiden Enden
+- Aktuelle Rack-/Patchfeld-Pläne pflegen
+- Change-Log bei Moves/Adds/Changes (MAC) führen
+
+### Sicherheits- und Umweltaspekte
+
+- Physischer Zugangsschutz (abschließbarer Raum/Schrank)
+- Brandschutz und Kabelklassifizierung nach lokalen Vorgaben
+- Temperatur- und Feuchtemonitoring in Netzwerkschränken
+
+> **Praxisregel:** Eine gute Installation reduziert spätere Troubleshooting-Zeit massiv. Viele Layer-1/2-Probleme sind Folgen schlechter Dokumentation und unsauberer Patchfelder.
+`,
+};
+
 // ── Quiz ──────────────────────────────────────────────────────
 
 const QUIZ_QUESTIONS_T2: Question[] = [
@@ -429,6 +486,48 @@ const QUIZ_QUESTIONS_T2: Question[] = [
     explanation:
       "RIP ist auf 15 Hops begrenzt und konvergiert langsam (sendet alle 30 Sekunden vollständige Routing-Tabellen). OSPF hat keine Hop-Count-Begrenzung, nutzt den Dijkstra-Algorithmus (kürzester Pfad), konvergiert schnell bei Topologieänderungen und skaliert durch hierarchische Aufteilung in Areas. Für große Enterprise-Netzwerke ist OSPF die Standardwahl.",
   },
+  {
+    id: "np-impl-q9",
+    type: "single-choice",
+    text: "Welche Aussage beschreibt MDF und IDF korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "IDF ist die zentrale Hauptverteilung, MDF die Etagenverteilung", isCorrect: false },
+      { id: "b", text: "MDF ist die zentrale Hauptverteilung, IDF sind Zwischenverteiler pro Bereich/Etage", isCorrect: true },
+      { id: "c", text: "MDF und IDF sind Synonyme ohne funktionalen Unterschied", isCorrect: false },
+      { id: "d", text: "MDF darf nur Wireless-Controller enthalten", isCorrect: false },
+    ],
+    explanation:
+      "Das MDF ist der zentrale Hauptverteiler, während IDFs als Bereichs- oder Etagenverteiler dienen. Uplinks verbinden IDFs mit dem MDF. Diese Struktur ist ein Standardmuster in Enterprise-Gebäudeverkabelung.",
+  },
+  {
+    id: "np-impl-q10",
+    type: "multiple-choice",
+    text: "Welche ZWEI Maßnahmen verbessern typischerweise die Wartbarkeit einer physischen Installation? (Wähle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "Kabel und Ports an beiden Enden eindeutig beschriften", isCorrect: true },
+      { id: "b", text: "Strom- und Datenkabel im selben engen Bündel führen", isCorrect: false },
+      { id: "c", text: "Patchpanel und Rack-Plan aktuell dokumentieren", isCorrect: true },
+      { id: "d", text: "Alle Reserven entfernen, um Platz zu sparen", isCorrect: false },
+    ],
+    explanation:
+      "Eindeutiges Labeling und aktuelle Dokumentation sind zentrale Erfolgsfaktoren für Betrieb und Troubleshooting. Strom- und Datenführung sollte getrennt geplant werden. Gezielte Reserven sind sinnvoll für spätere Erweiterungen.",
+  },
+  {
+    id: "np-impl-q11",
+    type: "single-choice",
+    text: "Warum wird bei strukturierter Gebäudeverkabelung ein Patchpanel eingesetzt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Um Routing-Protokolle schneller zu konvergieren", isCorrect: false },
+      { id: "b", text: "Um horizontale Verkabelung sauber zu terminieren und flexible Patchverbindungen zu ermöglichen", isCorrect: true },
+      { id: "c", text: "Um VLAN-IDs automatisch zu vergeben", isCorrect: false },
+      { id: "d", text: "Um PoE-Leistung zu erhöhen", isCorrect: false },
+    ],
+    explanation:
+      "Patchpanels dienen der strukturierten Terminierung von Verlegekabeln und schaffen eine wartbare Trennung zwischen permanenter Verkabelung und aktiver Technik. Routing, VLAN-Vergabe oder PoE-Budget werden dadurch nicht direkt beeinflusst.",
+  },
 ];
 
 export const QUIZ_NETPLUS_IMPLEMENTATION: Quiz = {
@@ -453,6 +552,7 @@ export const TOPIC_NETPLUS_IMPLEMENTATION: Topic = {
     "netplus-switching-vlans",
     "netplus-routing",
     "netplus-wireless",
+    "netplus-physical-installation",
   ],
   quizIds: ["netplus-quiz-implementation"],
   exerciseIds: [],
@@ -467,4 +567,5 @@ export const IMPLEMENTATION_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_SWITCHING_VLANS_NP.id]: CONCEPT_SWITCHING_VLANS_NP,
   [CONCEPT_ROUTING_NP.id]: CONCEPT_ROUTING_NP,
   [CONCEPT_WIRELESS_NP.id]: CONCEPT_WIRELESS_NP,
+  [CONCEPT_PHYSICAL_INSTALLATION_NP.id]: CONCEPT_PHYSICAL_INSTALLATION_NP,
 };
