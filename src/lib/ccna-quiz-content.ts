@@ -2385,6 +2385,71 @@ export const QUIZ_WLAN: Quiz = {
         { id: "d", text: "LAP wird an einen Trunk Port angeschlossen", isCorrect: false },
       ],
     },
+    // ── 6 neue Fragen (T-3/R-3 WLAN AP-Modi Gap-Plan) ───────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Welchen AP-Modus sollte man wählen, wenn eine Filiale mit schlechter WAN-Verbindung zum WLC trotzdem WLAN-Dienste aufrechterhalten soll, wenn der WLC nicht erreichbar ist?",
+      explanation: "FlexConnect ermöglicht lokales Forwarding, wenn der WLC nicht erreichbar ist (Standalone-Modus). Die Filiale kann weiter WLAN-Dienste anbieten, ohne dass Traffic durch den CAPWAP-Tunnel zum WLC muss.",
+      answers: [
+        { id: "a", text: "Lightweight (Local Modus)", isCorrect: false },
+        { id: "b", text: "Autonomous AP", isCorrect: false },
+        { id: "c", text: "FlexConnect", isCorrect: true },
+        { id: "d", text: "Monitor-Modus", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Was beschreibt die Split MAC-Architektur bei Lightweight APs?",
+      explanation: "Split MAC: Der AP übernimmt nur Layer-1/2-Aufgaben (Senden/Empfangen, Frame-Erkennung), während der WLC die Steuerungsfunktionen übernimmt (Authentifizierung, Verschlüsselung, SSID-Management). Dies ermöglicht zentrales Management.",
+      answers: [
+        { id: "a", text: "Jeder AP hat zwei MAC-Adressen — eine für Management, eine für Daten", isCorrect: false },
+        { id: "b", text: "Der AP verarbeitet Layer-1/2-Aufgaben; der WLC übernimmt alle Steuerungsfunktionen", isCorrect: true },
+        { id: "c", text: "Der Switch trennt MAC-Adressen auf zwei VLANs auf", isCorrect: false },
+        { id: "d", text: "Zwei WLCs teilen sich die MAC-Tabelle eines APs", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Für welchen Einsatzzweck ist der Monitor-Modus eines Lightweight APs geeignet?",
+      explanation: "Im Monitor-Modus lauscht der AP passiv — er sendet keine Frames und assoziiert keine Clients. Er wird für Rogue-AP-Erkennung, IDS/IPS und WLAN-Überwachung genutzt.",
+      answers: [
+        { id: "a", text: "Client-Traffic-Weiterleitung bei WLC-Ausfall", isCorrect: false },
+        { id: "b", text: "Passives Lauschen für Rogue-AP-Erkennung und IDS", isCorrect: true },
+        { id: "c", text: "Aufzeichnen von Frames für Wireshark-Analyse", isCorrect: false },
+        { id: "d", text: "Erweiterung des WLAN-Coverage über mehrere Etagen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "An welchen Switch-Port-Typ wird ein Lightweight AP (LAP) üblicherweise angeschlossen?",
+      explanation: "Ein Lightweight AP wird an einen Access Port angeschlossen (einem VLAN zugewiesen). Der AP selbst macht kein Trunking — alle VLAN-Logik liegt beim WLC. Der WLC hingegen wird an einen Trunk Port angeschlossen.",
+      answers: [
+        { id: "a", text: "Trunk Port (alle VLANs)", isCorrect: false },
+        { id: "b", text: "Access Port (einem VLAN zugewiesen)", isCorrect: true },
+        { id: "c", text: "Routed Port (Layer-3-Interface)", isCorrect: false },
+        { id: "d", text: "EtherChannel-Port (gebündelt)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 10, blueprint: "2.6",
+      text: "Ein Lightweight AP im Local-Modus leitet Client-Traffic direkt lokal weiter, ohne den WLC zu involvieren.",
+      explanation: "Falsch. Im Local-Modus wird der gesamte Client-Traffic durch den CAPWAP-Tunnel zum WLC geleitet (centralized forwarding). Nur FlexConnect kann Traffic lokal weiterleiten.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch — im Local-Modus wird Traffic durch CAPWAP zum WLC geleitet", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Welche CAPWAP-UDP-Ports werden zwischen einem Lightweight AP und dem WLC verwendet?",
+      explanation: "CAPWAP nutzt UDP 5246 für den Control-Kanal (AP-Steuerung, DTLS-verschlüsselt) und UDP 5247 für den Data-Kanal (Client-Traffic-Tunnel). Diese Ports müssen in Firewalls zwischen AP und WLC freigegeben sein.",
+      answers: [
+        { id: "a", text: "TCP 5246 und TCP 5247", isCorrect: false },
+        { id: "b", text: "UDP 5246 (Control) und UDP 5247 (Data)", isCorrect: true },
+        { id: "c", text: "UDP 1812 und UDP 1813", isCorrect: false },
+        { id: "d", text: "UDP 4500 und UDP 500", isCorrect: false },
+      ],
+    },
   ],
 };
 

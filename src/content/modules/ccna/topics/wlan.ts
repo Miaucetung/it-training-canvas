@@ -126,6 +126,72 @@ export const CONCEPT_WIRELESS_ARCHITECTURE: Concept = {
   `.trim(),
 };
 
+export const CONCEPT_WLAN_AP_MODES: Concept = {
+  id: "wlan-ap-modes",
+  title: "WLAN AP-Betriebsmodi",
+  appliesTo: ["ccna"],
+  tags: ["wireless", "wlan", "ap", "flexconnect", "capwap", "lightweight"],
+  content: `
+## WLAN Access Point Betriebsmodi
+
+### Überblick: AP-Betriebsmodi im Vergleich
+
+| Modus | Beschreibung | Einsatz |
+|-------|-------------|---------|
+| **Autonomous** | Komplett selbstständig; jede Funktion lokal konfiguriert | Kleine Netze ohne WLC |
+| **Lightweight (Local)** | Alle Funktionen über WLC; Traffic wird durch CAPWAP-Tunnel zum WLC geleitet | Enterprise-Netze mit zentralem WLC |
+| **FlexConnect** | Lightweight AP, der bei WLC-Ausfall lokal weiterleitet | Filialen mit eingeschränkter WAN-Leitung |
+| **Monitor** | Nur passives Lauschen; kein Client-Traffic | Rogue-AP-Erkennung, IDS |
+| **Sniffer** | Captures frames für externe Analyse (z.B. Wireshark) | WLAN-Troubleshooting |
+| **Mesh** | APs als Backhaul-Mesh-Knoten (Outdoor/Indoor) | Schwer verkabelbare Bereiche |
+
+### Autonomous AP — Modus "Stand-alone"
+- Vollständige Funktionalität ohne WLC
+- Jeder AP wird **einzeln** konfiguriert (CLI oder Web-GUI)
+- Eignet sich für kleine Unternehmen oder Einzelinstallationen
+- **Nachteil**: Keine zentrale Verwaltung, kein einheitliches Roaming, keine dynamische RF-Verwaltung
+
+### Lightweight AP — Local Modus (Standard)
+- Minimale Logik im AP — WLC übernimmt alle Steuerungsentscheidungen
+- **Split MAC-Architektur**:
+  - AP: Sendet/empfängt RF, kümmert sich um Layer-1/2 Funktionen
+  - WLC: Authentifizierung, Verschlüsselung, SSID-Management, QoS
+- Client-Traffic wird durch CAPWAP-Tunnel zum WLC geleitet (**centralized forwarding**)
+- **Vorteil**: Zentrale Konfiguration, nahtloses Roaming, RF-Optimierung
+
+### FlexConnect (früher: H-REAP)
+- Hybrid: AP kann beim WLC-Ausfall **lokal weiterleiten** (local switching)
+- **Zwei Betriebszustände**:
+  - **Connected**: WLC ist erreichbar → zentrale Steuerung + lokales Forwarding möglich
+  - **Standalone**: WLC nicht erreichbar → AP leitet lokal weiter, Authentifizierung lokal
+- Ideal für **Filialen** mit schmaler WAN-Verbindung zum WLC
+- Konfiguration: WLC → WLAN → Advanced → FlexConnect Local Switching aktivieren
+
+### AP-Modus-Konfiguration (Cisco WLC GUI)
+\`\`\`
+WLC → Wireless → Access Points → [AP auswählen]
+  → General → AP Mode: Local / FlexConnect / Monitor / Sniffer
+\`\`\`
+
+### CAPWAP im Detail
+| Element | Wert |
+|---------|------|
+| Protokoll | UDP |
+| Control-Kanal | Port 5246 (verschlüsselt DTLS) |
+| Data-Kanal | Port 5247 (optional DTLS) |
+| Funktion | AP-Konfiguration, Software-Updates, Client-Daten |
+
+### Typische Prüfungsfrage: Welcher Modus für welches Szenario?
+| Szenario | Empfohlener Modus |
+|---------|-----------------|
+| Kleine Arztpraxis, kein WLC | Autonomous |
+| Unternehmensnetz mit zentralem WLC | Lightweight (Local) |
+| Filiale mit schlechter WAN-Verbindung | FlexConnect |
+| WLAN-Troubleshooting mit Wireshark | Sniffer |
+| Rogue-AP-Überwachung | Monitor |
+  `.trim(),
+};
+
 export const CONCEPT_WLAN_GUIDE: Concept = {
   id: "wlan-guide",
   title: "Lernguide: WLAN",
@@ -169,6 +235,7 @@ export const TOPIC_WLAN: Topic = {
     "wlan-standards",
     "wlan-security",
     "wireless-architecture",
+    "wlan-ap-modes",
     "wlan-guide",
   ],
   quizIds: ["ccna-quiz-wlan"],
@@ -182,5 +249,6 @@ export const WLAN_CONCEPTS: Record<string, Concept> = {
   "wlan-standards": CONCEPT_WLAN_STANDARDS,
   "wlan-security": CONCEPT_WLAN_SECURITY,
   "wireless-architecture": CONCEPT_WIRELESS_ARCHITECTURE,
+  "wlan-ap-modes": CONCEPT_WLAN_AP_MODES,
   "wlan-guide": CONCEPT_WLAN_GUIDE,
 };
