@@ -42,6 +42,19 @@ Mehrere Sicherheitsschichten: Perimeter → Netzwerk → Host → Anwendung → 
 ### Cisco AAA (TACACS+ / RADIUS)
 - **TACACS+** (Cisco-proprietär): Trennt Auth/Author/Accounting, TCP 49, verschlüsselt
 - **RADIUS** (offen): Kombiniert Auth+Author, UDP 1812/1813
+
+### TACACS+ vs. RADIUS — Detaillierter Vergleich
+| Merkmal | TACACS+ | RADIUS |
+|---------|---------|--------|
+| **Transport** | TCP Port 49 | UDP Port 1812 (Auth), 1813 (Accounting) |
+| **Entwickler** | Cisco (proprietär) | RFC-Standard (offen) |
+| **Verschlüsselung** | Gesamter Payload (vollständig) | Nur Passwort-Feld |
+| **AAA-Trennung** | Vollständig getrennt (Auth / Author / Accounting) | Auth + Author kombiniert; Accounting separat |
+| **Primärer Einsatz** | **Device-Administration** (CLI-Zugriff auf Router/Switch) | **Network Access** (WLAN-Clients, 802.1X, VPN) |
+| **Fehlermeldungen** | Detailliert (separate Author-Antwort pro Befehl) | Begrenzt (Access-Accept / Access-Reject) |
+| **Command Authorization** | Ja — granulare Befehlserlaubnis pro Benutzer | Nein — nicht unterstützt |
+
+> **Merkregel**: **TACACS+ → Terminal (CLI/Device-Admin)**, **RADIUS → Remote-Access (WLAN/VPN/802.1X)**
   `.trim(),
 };
 
