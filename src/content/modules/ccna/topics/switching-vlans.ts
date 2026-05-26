@@ -230,6 +230,7 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
     "stp",
     "etherchannel",
     "switching-vlans-guide",
+    "vlan-simulator",
   ],
   quizIds: ["ccna-quiz-stp", "ccna-quiz-switching", "ccna-quiz-etherchannel"],
   exerciseIds: [],
