@@ -1368,7 +1368,7 @@ function App() {
             </button>
 
             <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
+              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
             />
 
             {/* Group: TOPOLOGIE & SIMULATION (Packet-Tracer-Funktionen) */}
@@ -1469,7 +1469,7 @@ function App() {
             </button>
 
             <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
+              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
             />
 
             {/* Group: KOLLABORATION */}
@@ -1524,7 +1524,7 @@ function App() {
             </button>
 
             <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`}
+              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
             />
 
             {/* Overflow: Kosten-Rechner & Hilfe */}
