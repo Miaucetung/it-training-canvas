@@ -9,7 +9,7 @@ Reihenfolge der geplanten Vertiefungsmodule.
 
 | # | Modul | Blueprint | Status | Zieldateien |
 |---|-------|-----------|--------|-------------|
-| 1 | **VLAN Vertiefung** | 2.1–2.3 | 🔄 In Arbeit (Phase 2) | `vlan-advanced.ts`, `ccna-quiz-content.ts`, `collaboration-engine.ts`, `VlanSimulatorDialog.tsx` |
+| 1 | **VLAN Vertiefung** | 2.1–2.3 | ✅ Phase 2 abgeschlossen (PR: feature/vlan-deepdive-module) | `vlan-advanced.ts`, `ccna-quiz-content.ts`, `collaboration-engine.ts`, `VlanSimulatorDialog.tsx` |
 | 2 | OSPF Multi-Area | 3.4 | ⬜ Geplant | `routing-ospf.ts`, neues Template `tpl-edu-ospf-areas` |
 | 3 | STP Deep-Dive | 2.5 | ⬜ Geplant | `switching-vlans.ts`, Erweiterung `tpl-edu-stp-root-bridge` |
 | 4 | Subnetting Advanced | 1.6 | ⬜ Geplant | `subnet-segmentation.ts`, VLSM / Aggregation / Summarization |
@@ -47,3 +47,16 @@ Reihenfolge der geplanten Vertiefungsmodule.
 - EtherChannel-Template (`tpl-edu-etherchannel`) → gehört zu `switching-vlans.ts`, **nicht** `vlan-advanced.ts`
 - DAI-Visualisierung → eigenes Template in Tier-2 #10 (Security), kein VLAN-Template
 - Extended VLANs (1006–4094) → bereits in `vlan-advanced.ts` Concept 4 abgedeckt; kein eigenständiges Tier-Item nötig
+
+---
+
+## TODOs aus VLAN-Vertiefung (Cross-References für Folgemodule)
+
+Diese Cross-References wurden in `vlan-advanced.ts` als Text-Hinweise eingebaut.
+Wenn die Ziel-Module implementiert werden, sollten formale `relatedTopicIds` ergänzt werden:
+
+| Cross-Reference | Erwähnt in Concept | Ziel-Modul | Aktion bei Implementierung |
+|---|---|---|---|
+| STP wird relevant wenn 2 Switches mit Trunk | `vlan-lab-multi-switch` (Lab 12.2) | **STP Deep-Dive** (Tier 1 #3) | `prerequisiteTopicIds` oder `relatedTopicIds` in `vlan-advanced.ts` ergänzen |
+| AP-SSID → VLAN Mapping ist herstellerspezifisch | `vlan-lab-wlan` (Lab 12.3) | **WLAN / Wireless** (Tier 1 #5) | `relatedTopicIds: ["wlan"]` in `vlan-lab-wlan` ergänzen |
+| Gäste-VLAN-Isolation: DAI, IP Source Guard | `vlan-lab-wlan` (Lab 12.3) | **Security Hardening Extended** (Tier 2 #10) | `relatedTopicIds: ["security-hardening"]` ergänzen |
