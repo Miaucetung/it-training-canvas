@@ -27,6 +27,7 @@ import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
 import { QuizDialog } from "./QuizDialog";
 import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
+import { TerminalEmulator } from "./TerminalEmulator";
 import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
 
@@ -92,6 +93,7 @@ export function TopicDetailPanel({
   const [ipv6Open, setIpv6Open] = useState(false);
   const [verkabelungOpen, setVerkabelungOpen] = useState(false);
   const [vlanSimOpen, setVlanSimOpen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
@@ -101,6 +103,7 @@ export function TopicDetailPanel({
   );
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
+  const hasTerminalEmulator = topic.conceptIds.includes("ios-terminal");
 
   // ESC key support
   useEffect(() => {
@@ -354,6 +357,49 @@ export function TopicDetailPanel({
         {hasSubnetSegTool && (
           <section>
             <SubnetSegmentationTool dark={dark} />
+          </section>
+        )}
+
+        {/* ── IOS Terminal CTA ── */}
+        {hasTerminalEmulator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setTerminalOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20 text-orange-200"
+                  : "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark
+                    ? "bg-orange-500/30 text-orange-200"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                &gt;_
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">Cisco IOS Terminal</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  IOS-Befehlszeile üben · show · conf t · interfaces
+                </div>
+                <div className={`text-xs mt-1 ${
+                  dark ? "text-orange-400/70" : "text-orange-600/70"
+                }`}>
+                  Übungseingaben werden nicht gespeichert. Für persistente Labs nutze das Canvas.
+                </div>
+              </div>
+              <span
+                className={`text-xs flex-shrink-0 ${
+                  dark ? "text-orange-300" : "text-orange-600"
+                }`}
+              >
+                Starten →
+              </span>
+            </button>
           </section>
         )}
 
@@ -735,6 +781,15 @@ export function TopicDetailPanel({
         <VlanSimulatorDialog
           dark={dark}
           onClose={() => setVlanSimOpen(false)}
+        />
+      )}
+
+      {hasTerminalEmulator && terminalOpen && (
+        <TerminalEmulator
+          shape={null}
+          onClose={() => setTerminalOpen(false)}
+          onUpdateHistory={() => {}}
+          theme={theme}
         />
       )}
 
