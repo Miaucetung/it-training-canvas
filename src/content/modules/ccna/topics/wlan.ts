@@ -123,6 +123,50 @@ export const CONCEPT_WIRELESS_ARCHITECTURE: Concept = {
 - **Controller**: Management, Interfaces, Ports
 - **Wireless**: APs, RF-Profile, Channel Assignment
 - **Security**: AAA, ACLs, Rogue Detection
+
+---
+
+## WLC-Management-Zugriff — TACACS+ vs. RADIUS
+
+Auf dem Cisco WLC gibt es zwei verschiedene AAA-Anwendungsfälle, die unterschiedliche
+Protokolle verwenden:
+
+| Anwendungsfall | Protokoll | Begründung |
+|---------------|-----------|------------|
+| **WLC Device-Admin** (GUI/SSH-Zugriff von Netzwerktechnikern) | **TACACS+** | Command-Authorization: TACACS+ trennt Auth/Author/Accounting vollständig. Jeder CLI-Befehl kann per Policy erlaubt/verboten werden. TCP 49, gesamter Payload verschlüsselt. |
+| **WLAN-Client-Auth** (Endgeräte via 802.1X) | **RADIUS** | Network-Access-Protokoll: UDP 1812/1813, weit verbreitet, EAP-Unterstützung. Kein Command-Authorization nötig. |
+
+> **Merksatz (identisch security.ts)**: **TACACS+ → Terminal/Device-Admin**, **RADIUS → Remote-Access/WLAN-Clients**
+
+### WLC-Admin-Konfiguration (Cisco WLC GUI)
+\`\`\`
+Security → AAA → TACACS+ → New
+  Server IP: 10.0.100.20
+  Port: 49
+  Shared Secret: ****
+
+Security → Priority Order → Management User
+  Order: 1. TACACS+   2. LOCAL
+\`\`\`
+
+---
+
+## WLC WLAN-Konfiguration — GUI-Workflow (Schritt für Schritt)
+
+1. **WLANs → New** → Type: WLAN → SSID eingeben (z. B. \`Corp-WiFi\`) → WLAN-ID wählen
+2. **General-Tab** → Status: Enabled → Interface/Interface Group: VLAN-Mapping wählen (z. B. \`vlan10\`)
+3. **Security → Layer 2**
+   - Security: \`WPA+WPA2\` → WPA2 Policy: ✓ → Encryption: \`AES\` (CCMP)
+   - Auth Key Mgmt: **PSK** (WPA2-Personal, Pre-Shared Key eingeben)
+     **oder** **802.1X** (WPA2-Enterprise, weiter zu Schritt 4)
+4. **Security → AAA Servers** (nur bei 802.1X)
+   - Authentication Server: RADIUS-Server aus Dropdown wählen
+   - Accounting Server: optional
+5. **Apply → Save Configuration**
+
+### WPA3-Hinweis (CCNA v1.1)
+- **WPA3-Personal**: SAE (Simultaneous Authentication of Equals) statt PSK — schützt vor Offline-Dictionary-Attacks
+- **WPA3-Enterprise**: 192-Bit Security Mode mit Suite-B-Kryptografie
   `.trim(),
 };
 
