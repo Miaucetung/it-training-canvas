@@ -713,6 +713,220 @@ const QUIZ_QUESTIONS_T1: Question[] = [
     explanation:
       "/27 bedeutet 27 Netzwerk-Bits, 5 Host-Bits. Blockgröße: 2^5 = 32 Adressen. Nutzbare Hosts: 32 − 2 = 30 (Netzwerkadresse 192.168.5.0 und Broadcast 192.168.5.31 abziehen). Hostbereich: 192.168.5.1 – 192.168.5.30. /26 = 62 Hosts, /28 = 14 Hosts — die Prüfung testet diese Unterschiede häufig.",
   },
+  {
+    id: "np-concepts-q11",
+    type: "single-choice",
+    text: "Welcher private RFC-1918-Bereich entspricht einer /12-Präfixlänge?",
+    points: 10,
+    answers: [
+      { id: "a", text: "10.0.0.0 - 10.255.255.255", isCorrect: false },
+      { id: "b", text: "172.16.0.0 - 172.31.255.255", isCorrect: true },
+      { id: "c", text: "192.168.0.0 - 192.168.255.255", isCorrect: false },
+      { id: "d", text: "169.254.0.0 - 169.254.255.255", isCorrect: false },
+    ],
+    explanation:
+      "RFC-1918 definiert drei private Bereiche: 10.0.0.0/8, 172.16.0.0/12 und 192.168.0.0/16. Die /12-Range ist 172.16.0.0 bis 172.31.255.255. 169.254.0.0/16 ist APIPA (Link-Local) und kein RFC-1918-Privatbereich.",
+  },
+  {
+    id: "np-concepts-q12",
+    type: "single-choice",
+    text: "Welche Aussage beschreibt den Hauptzweck von NAT/PAT in IPv4-Netzen am besten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Erhöht die Layer-2-Bandbreite auf Switch-Ports", isCorrect: false },
+      { id: "b", text: "Ersetzt DNS durch direkte IP-Zuordnung", isCorrect: false },
+      {
+        id: "c",
+        text: "Ermöglicht mehreren privaten Hosts den Internetzugang über eine oder wenige öffentliche IP-Adressen",
+        isCorrect: true,
+      },
+      { id: "d", text: "Verhindert grundsätzlich alle eingehenden Angriffe", isCorrect: false },
+    ],
+    explanation:
+      "PAT (NAT Overload) übersetzt viele interne private Quelladressen auf eine öffentliche IP plus unterschiedliche Quellports. Dadurch wird IPv4-Adressknappheit kompensiert. NAT ist kein vollwertiger Sicherheitsmechanismus und ersetzt keine Firewall-Regeln.",
+  },
+  {
+    id: "np-concepts-q13",
+    type: "single-choice",
+    text: "Welcher Port ist korrekt für SNMP-Manager-Anfragen bzw. SNMP-Traps zugeordnet?",
+    points: 10,
+    answers: [
+      { id: "a", text: "161/162 UDP", isCorrect: true },
+      { id: "b", text: "67/68 UDP", isCorrect: false },
+      { id: "c", text: "20/21 TCP", isCorrect: false },
+      { id: "d", text: "500/4500 UDP", isCorrect: false },
+    ],
+    explanation:
+      "SNMP nutzt UDP 161 für Manager-Queries an Agents und UDP 162 für asynchrone Traps/Inform-Meldungen. 67/68 gehört zu DHCP, 20/21 zu FTP, 500/4500 zu IKE/IPsec-NAT-T.",
+  },
+  {
+    id: "np-concepts-q14",
+    type: "multiple-choice",
+    text: "Welche ZWEI Aussagen zu Fiber-Optic sind korrekt? (Wähle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "SMF hat typischerweise einen 9-um-Kern und eignet sich für lange Strecken", isCorrect: true },
+      { id: "b", text: "MMF ist immer besser für WAN-Backbones über viele Kilometer", isCorrect: false },
+      { id: "c", text: "MMF nutzt mehrere Lichtmodi, was die Reichweite begrenzen kann", isCorrect: true },
+      { id: "d", text: "SMF und MMF sind austauschbar, solange der Stecker passt", isCorrect: false },
+    ],
+    explanation:
+      "SMF verwendet einen kleinen Kern (typisch 9 um), reduziert modale Dispersion und erlaubt große Reichweiten. MMF hat mehrere Lichtmodi, was Dispersion erhöht und die Distanz begrenzt. Gleicher Stecker bedeutet nicht optische Kompatibilität.",
+  },
+  {
+    id: "np-concepts-q15",
+    type: "single-choice",
+    text: "Ein Unternehmen benötigt eine dedizierte private Verbindung zur Public Cloud ohne Internet-Transit. Welche Option passt am besten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Site-to-Site VPN über das öffentliche Internet", isCorrect: false },
+      { id: "b", text: "Direkte Verbindung wie ExpressRoute/Direct Connect", isCorrect: true },
+      { id: "c", text: "NAT Gateway im Cloud-Subnetz", isCorrect: false },
+      { id: "d", text: "Public Load Balancer", isCorrect: false },
+    ],
+    explanation:
+      "Eine dedizierte Direktverbindung (z.B. ExpressRoute/Direct Connect) umgeht den Internet-Transit, liefert planbare Latenzen und oft bessere SLA-Werte. Site-to-Site VPN nutzt das Internet. NAT Gateway und Load Balancer lösen andere Probleme.",
+  },
+  {
+    id: "np-concepts-q16",
+    type: "single-choice",
+    text: "Welche Architektur trennt bei SDN die Entscheidungslogik von der reinen Paketweiterleitung?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Control Plane im zentralen Controller, Data Plane in den Forwarding-Geräten", isCorrect: true },
+      { id: "b", text: "Control und Data Plane bleiben in jedem Access Point zusammen", isCorrect: false },
+      { id: "c", text: "Nur die Security Plane wird zentralisiert", isCorrect: false },
+      { id: "d", text: "Data Plane wird vollständig in die Cloud ausgelagert, Control Plane lokal", isCorrect: false },
+    ],
+    explanation:
+      "Das Kernprinzip von SDN ist die Trennung von Control Plane (zentrale Richtlinien-/Pfadentscheidung) und Data Plane (lokales Forwarding in Netzwerkgeräten). Dadurch wird Netzwerksteuerung programmierbar und konsistent.",
+  },
+  {
+    id: "np-concepts-q17",
+    type: "single-choice",
+    text: "Welche Aussage zu Zero Trust ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Interner Traffic wird pauschal als vertrauenswürdig behandelt", isCorrect: false },
+      { id: "b", text: "Authentifizierung und Autorisierung erfolgen kontinuierlich und kontextabhängig", isCorrect: true },
+      { id: "c", text: "Zero Trust ersetzt jede Form von Netzwerksegmentierung", isCorrect: false },
+      { id: "d", text: "Zero Trust ist nur für Cloud-Umgebungen geeignet", isCorrect: false },
+    ],
+    explanation:
+      "Zero Trust bedeutet 'never trust, always verify'. Zugriffe werden kontinuierlich anhand von Identität, Gerätezustand, Kontext und Policy bewertet. Segmentierung bleibt ein wichtiges Element und Zero Trust gilt für on-prem wie Cloud.",
+  },
+  {
+    id: "np-concepts-q18",
+    type: "single-choice",
+    text: "Ein Host hat die Adresse 10.1.4.130/25. In welchem Subnetz liegt er?",
+    points: 10,
+    answers: [
+      { id: "a", text: "10.1.4.0/25", isCorrect: false },
+      { id: "b", text: "10.1.4.64/25", isCorrect: false },
+      { id: "c", text: "10.1.4.128/25", isCorrect: true },
+      { id: "d", text: "10.1.4.192/25", isCorrect: false },
+    ],
+    explanation:
+      "Bei /25 ist die Blockgroesse 128. Die Subnetze sind 10.1.4.0/25 (0-127) und 10.1.4.128/25 (128-255). 10.1.4.130 liegt damit im zweiten Subnetz 10.1.4.128/25.",
+  },
+  {
+    id: "np-concepts-q19",
+    type: "single-choice",
+    text: "Welche Kombination beschreibt eine typische dreistufige Enterprise-LAN-Architektur korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Access - Core - WAN Edge", isCorrect: false },
+      { id: "b", text: "Distribution - Access - Data Center", isCorrect: false },
+      { id: "c", text: "Access - Distribution - Core", isCorrect: true },
+      { id: "d", text: "Edge - Spine - Leaf", isCorrect: false },
+    ],
+    explanation:
+      "Die klassische Three-Tier-LAN-Struktur besteht aus Access, Distribution und Core. Spine-Leaf ist eher ein Datacenter-Ansatz. WAN Edge ist kein eigenes Standard-Layer innerhalb der klassischen LAN-Three-Tier-Hierarchie.",
+  },
+  {
+    id: "np-concepts-q20",
+    type: "single-choice",
+    text: "Welche Aussage zu APIPA ist richtig?",
+    points: 10,
+    answers: [
+      { id: "a", text: "APIPA-Adressen sind global im Internet routbar", isCorrect: false },
+      { id: "b", text: "APIPA wird typischerweise genutzt, wenn DHCP nicht erreichbar ist", isCorrect: true },
+      { id: "c", text: "APIPA basiert auf IPv6-RA und SLAAC", isCorrect: false },
+      { id: "d", text: "APIPA entspricht dem privaten Bereich 192.168.0.0/16", isCorrect: false },
+    ],
+    explanation:
+      "APIPA (169.254.0.0/16) wird lokal vergeben, wenn ein Client keinen DHCP-Server erreicht. Diese Adressen sind nicht fuer normales Routing ins Internet gedacht und dienen primär lokaler Link-Kommunikation.",
+  },
+  {
+    id: "np-concepts-q21",
+    type: "multiple-choice",
+    text: "Welche ZWEI Aussagen zu WAN-Topologien sind korrekt? (Wähle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "Hub-and-Spoke reduziert in der Regel Kosten gegenueber Full Mesh", isCorrect: true },
+      { id: "b", text: "Full Mesh minimiert die Anzahl der Verbindungen", isCorrect: false },
+      { id: "c", text: "Partial Mesh ist oft ein Kompromiss aus Redundanz und Kosten", isCorrect: true },
+      { id: "d", text: "Point-to-Point erfordert immer mindestens drei Standorte", isCorrect: false },
+    ],
+    explanation:
+      "Hub-and-Spoke ist in grossen Standortnetzen meist günstiger als Full Mesh. Partial Mesh verbindet kritische Knoten redundant und spart trotzdem Leitungen. Full Mesh maximiert Verbindungen und Kosten. Point-to-Point verbindet genau zwei Endpunkte.",
+  },
+  {
+    id: "np-concepts-q22",
+    type: "single-choice",
+    text: "Welche Port-Zuordnung ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "RDP - TCP 3389", isCorrect: true },
+      { id: "b", text: "HTTPS - TCP 22", isCorrect: false },
+      { id: "c", text: "NTP - UDP 69", isCorrect: false },
+      { id: "d", text: "TFTP - UDP 161", isCorrect: false },
+    ],
+    explanation:
+      "RDP nutzt TCP 3389. HTTPS ist TCP 443, NTP ist UDP 123 und TFTP ist UDP 69. Port-Mapping ist in Domain 1 ein zentraler Teil des klausurrelevanten Grundwissens.",
+  },
+  {
+    id: "np-concepts-q23",
+    type: "single-choice",
+    text: "Wie viele nutzbare Hosts bietet ein /26-Netz?",
+    points: 10,
+    answers: [
+      { id: "a", text: "14", isCorrect: false },
+      { id: "b", text: "30", isCorrect: false },
+      { id: "c", text: "62", isCorrect: true },
+      { id: "d", text: "126", isCorrect: false },
+    ],
+    explanation:
+      "Ein /26 hat 6 Host-Bits. 2^6 = 64 Gesamtadressen, davon 2 reserviert (Netzwerk und Broadcast). Es bleiben 62 nutzbare Hostadressen.",
+  },
+  {
+    id: "np-concepts-q24",
+    type: "single-choice",
+    text: "Welche Beschreibung trifft am besten auf BiDi-Transceiver zu?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Benötigt immer zwei Fasern pro Linkrichtung", isCorrect: false },
+      { id: "b", text: "Uebertraegt Senden und Empfangen auf derselben Faser ueber unterschiedliche Wellenlaengen", isCorrect: true },
+      { id: "c", text: "Funktioniert nur mit Kupferkabeln (DAC)", isCorrect: false },
+      { id: "d", text: "Ist ein reines Layer-3-Routing-Feature", isCorrect: false },
+    ],
+    explanation:
+      "BiDi-Transceiver nutzen WDM, um TX und RX auf einer einzelnen Glasfaser mit unterschiedlichen Wellenlaengen zu fahren. Das spart Faserpaare, erfordert aber kompatible Gegenstellen.",
+  },
+  {
+    id: "np-concepts-q25",
+    type: "single-choice",
+    text: "Ein Unternehmen moechte viele unterschiedlich grosse Teilnetze aus einem groesseren Netz effizient adressieren. Welches Konzept ist dafuer vorgesehen?",
+    points: 10,
+    answers: [
+      { id: "a", text: "FLSM mit identischer Subnetzmaske fuer alle Teilnetze", isCorrect: false },
+      { id: "b", text: "VLSM mit variablen Praefixlaengen je nach Hostbedarf", isCorrect: true },
+      { id: "c", text: "APIPA fuer dynamische Segmentierung", isCorrect: false },
+      { id: "d", text: "Loopback-Adressierung 127.0.0.0/8", isCorrect: false },
+    ],
+    explanation:
+      "VLSM erlaubt unterschiedliche Subnetzgroessen innerhalb eines adressierten Blocks und reduziert Adressverschwendung. FLSM nutzt feste Masken fuer alle Segmente und ist weniger effizient bei heterogenen Hostanforderungen.",
+  },
 ];
 
 export const QUIZ_NETPLUS_NETWORK_CONCEPTS: Quiz = {
