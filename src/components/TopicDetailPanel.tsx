@@ -745,26 +745,22 @@ export function TopicDetailPanel({
         )}
 
         {/* ── Cross-References ── */}
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Link
-              size={14}
-              className={dark ? "text-emerald-400" : "text-emerald-500"}
-            />
-            <h3
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                dark ? "text-slate-500" : "text-slate-400"
-              }`}
-            >
-              Cross-References ({crossRefs.length})
-            </h3>
-          </div>
+        {crossRefs.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Link
+                size={14}
+                className={dark ? "text-emerald-400" : "text-emerald-500"}
+              />
+              <h3
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  dark ? "text-slate-500" : "text-slate-400"
+                }`}
+              >
+                Cross-References ({crossRefs.length})
+              </h3>
+            </div>
 
-          {crossRefs.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">
-              Keine Cross-References für dieses Topic.
-            </p>
-          ) : (
             <div className="space-y-2">
               {crossRefs.map((ref, idx) => (
                 <div
@@ -798,8 +794,8 @@ export function TopicDetailPanel({
                 </div>
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
       </div>
 
       {hasSubnettingDrill && (
