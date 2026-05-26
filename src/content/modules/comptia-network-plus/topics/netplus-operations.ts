@@ -1,6 +1,6 @@
 // ============================================================
 // CompTIA Network+ N10-009 — Topic 4: Netzwerkbetrieb & Monitoring
-// Domains: 3.1 (Dokumentation/Prozesse), 3.2 (Monitoring), 3.3 (DR), 3.4 (Netzwerkdienste)
+// Domains: 3.1 (Dokumentation/Prozesse), 3.2 (Monitoring), 3.3 (DR), 3.4 (Netzwerkdienste), 3.5 (Netzwerkzugang)
 // Sources:
 //   CompTIA Network+ N10-009 Exam Objectives Version 4.0 (lokal, Projektordner)
 //   RFC 3164 / RFC 5424 (Syslog), RFC 1157 / RFC 3411 (SNMP), RFC 5101 (IPFIX) — rfc-editor.org
@@ -261,6 +261,63 @@ Jede Änderung an produktiven Netzwerken folgt einem Prozess:
 `,
 };
 
+export const CONCEPT_NETWORK_ACCESS_NP: Concept = {
+  id: "netplus-network-access",
+  title: "Netzwerkzugang und Remote Connectivity (N10-009 Domain 3.5)",
+  appliesTo: ["comptia-network-plus"],
+  tags: ["vpn", "remote-access", "802.1x", "aaa", "split-tunnel", "full-tunnel", "n10-009"],
+  relatedConceptIds: ["netplus-security-solutions", "netplus-network-services"],
+  content: `
+## Netzwerkzugang: N10-009 Domain 3.5
+
+Domain 3.5 behandelt den sicheren Zugang zu Netzwerkressourcen fuer Standorte, mobile Nutzer und externe Partner.
+
+### VPN-Betriebsmodelle
+
+| VPN-Typ | Zweck | Typisches Szenario |
+|---|---|---|
+| **Site-to-Site VPN** | Verbindet ganze Netzwerke transparent | Filiale mit Zentrale verbinden |
+| **Client-to-Site VPN** | Einzelne Clients verbinden sich ins Unternehmensnetz | Homeoffice, Admin-Zugriff unterwegs |
+
+**Full Tunnel vs. Split Tunnel:**
+- **Full Tunnel:** Gesamter Client-Traffic geht durch das Unternehmens-VPN
+  - Vorteil: Zentrale Sicherheitskontrolle (Web-Filter, IDS/IPS, Logging)
+  - Nachteil: Hoehere Last auf VPN-Gateway, moeglichweise mehr Latenz
+- **Split Tunnel:** Nur Zielnetze der Firma gehen durch das VPN, Rest direkt ins Internet
+  - Vorteil: Entlastet VPN-Konzentrator
+  - Nachteil: Erhoehtes Risiko durch parallele Unternehmens- und Internetpfade
+
+### Authentifizierung und Autorisierung
+
+**AAA-Prinzip (Authentication, Authorization, Accounting):**
+- **Authentication:** Wer bist du?
+- **Authorization:** Was darfst du?
+- **Accounting:** Was hast du getan?
+
+In Enterprise-Umgebungen wird AAA typischerweise ueber RADIUS oder TACACS+ umgesetzt.
+
+### Network Access Control (NAC)
+
+- **802.1X:** Port-basierte Zugriffskontrolle an Switch/AP
+- Endpoint muss sich authentifizieren, bevor Datenverkehr erlaubt wird
+- Kann mit Posture Checks kombiniert werden (z.B. aktueller Patch-Stand, EDR aktiv)
+
+### Zero Trust Network Access (ZTNA)
+
+ZTNA gewaehrt Zugriff auf einzelne Anwendungen statt pauschalen Netzwerkkorridor.
+- Kontextbasiert (Identitaet, Geraetestatus, Standort)
+- Grundprinzip: minimale, dynamische Berechtigung
+- In hybriden Umgebungen oft Ergaenzung oder Ersatz klassischer Remote-VPN-Architektur
+
+### Betriebsrelevante Praxispunkte
+
+- Zugriffspfade dokumentieren (welcher Nutzer/Standort darf auf welche Ressourcen)
+- Regelmaessige Rezertifizierung von Berechtigungen
+- Monitoring von VPN-Auslastung, Session-Fehlern und Anmeldeanomalien
+- Klare Entscheidung Full vs. Split Tunnel nach Risiko- und Kapazitaetsprofil
+`,
+};
+
 // ── Quiz ──────────────────────────────────────────────────────
 
 const QUIZ_QUESTIONS_T4: Question[] = [
@@ -412,6 +469,48 @@ const QUIZ_QUESTIONS_T4: Question[] = [
     explanation:
       "PTR-Records (Pointer Records) werden für Reverse-DNS-Lookups genutzt: IP-Adresse → Hostname. Reverse-DNS wird u.a. für E-Mail-Spam-Prüfung, Logging (lesbare Hostnamen in Logs) und manche Authentifizierungsmechanismen verwendet. A-Record: Name→IPv4. AAAA: Name→IPv6. CNAME: Alias→Name. MX: Domain→Mailserver.",
   },
+  {
+    id: "np-ops-q8",
+    type: "single-choice",
+    text: "Welche Aussage zu Full Tunnel und Split Tunnel ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Split Tunnel leitet immer den gesamten Traffic durch das Unternehmens-VPN", isCorrect: false },
+      { id: "b", text: "Full Tunnel reduziert grundsaetzlich die Last auf VPN-Gateways", isCorrect: false },
+      { id: "c", text: "Full Tunnel erzwingt zentralisierte Sicherheitskontrollen fuer den gesamten Client-Traffic", isCorrect: true },
+      { id: "d", text: "Es gibt zwischen beiden Modellen keine Sicherheitsunterschiede", isCorrect: false },
+    ],
+    explanation:
+      "Beim Full Tunnel wird der komplette Traffic durch das Unternehmensnetz gefuehrt, wodurch zentrale Kontrolle moeglich ist. Split Tunnel schickt nur Unternehmensziele durch das VPN und entlastet Gateways, hat aber ein anderes Risikoprofil.",
+  },
+  {
+    id: "np-ops-q9",
+    type: "single-choice",
+    text: "Welcher VPN-Typ verbindet typischerweise zwei komplette Standorte transparent miteinander?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Client-to-Site VPN", isCorrect: false },
+      { id: "b", text: "Site-to-Site VPN", isCorrect: true },
+      { id: "c", text: "Split-Tunnel VPN", isCorrect: false },
+      { id: "d", text: "Port-Mirroring VPN", isCorrect: false },
+    ],
+    explanation:
+      "Site-to-Site-VPN verbindet zwei Netzsegmente/Standorte auf Gateway-Ebene. Endgeraete arbeiten transparent, ohne einen separaten VPN-Client zu starten. Client-to-Site ist fuer einzelne Remote-Nutzer gedacht.",
+  },
+  {
+    id: "np-ops-q10",
+    type: "single-choice",
+    text: "Welcher Standard wird fuer port-basierte Zugriffskontrolle in kabelgebundenen und drahtlosen Enterprise-Netzen verwendet?",
+    points: 10,
+    answers: [
+      { id: "a", text: "IEEE 802.1X", isCorrect: true },
+      { id: "b", text: "IEEE 802.3ad", isCorrect: false },
+      { id: "c", text: "IEEE 802.11h", isCorrect: false },
+      { id: "d", text: "RFC 1918", isCorrect: false },
+    ],
+    explanation:
+      "802.1X ist der Standard fuer port-basierte Authentifizierung und Teil vieler NAC-Architekturen. 802.3ad bezieht sich auf Link Aggregation, 802.11h auf WLAN-Kanalregeln im 5-GHz-Band, RFC1918 auf private IPv4-Adressbereiche.",
+  },
 ];
 
 export const QUIZ_NETPLUS_OPERATIONS: Quiz = {
@@ -436,6 +535,7 @@ export const TOPIC_NETPLUS_OPERATIONS: Topic = {
     "netplus-monitoring",
     "netplus-network-services",
     "netplus-dr-operations",
+    "netplus-network-access",
   ],
   quizIds: ["netplus-quiz-operations"],
   exerciseIds: [],
@@ -450,4 +550,5 @@ export const OPERATIONS_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_MONITORING_NP.id]: CONCEPT_MONITORING_NP,
   [CONCEPT_NETWORK_SERVICES_NP.id]: CONCEPT_NETWORK_SERVICES_NP,
   [CONCEPT_DR_OPERATIONS_NP.id]: CONCEPT_DR_OPERATIONS_NP,
+  [CONCEPT_NETWORK_ACCESS_NP.id]: CONCEPT_NETWORK_ACCESS_NP,
 };
