@@ -216,6 +216,7 @@ export interface Question {
   points: number;
   answers: Answer[];
   imageUrl?: string;
+  blueprint?: string;
 }
 
 export interface Answer {
