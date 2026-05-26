@@ -147,6 +147,42 @@ export const CONCEPT_IPV6_ADDRESS_TYPES: Concept = {
 | **Multicast** | FF00::/8 | Eine-zu-viele-Kommunikation | 224.0.0.0/4 |
 | **Loopback** | ::1/128 | Loopback-Interface | 127.0.0.1 |
 | **Unspecified** | ::/128 | Noch keine Adresse (z. B. DAD) | 0.0.0.0 |
+| **Anycast** | (kein eigener Präfix) | Normale Unicast-Adresse auf mehreren Interfaces — Routing wählt den nächsten | Kein IPv4-Äquivalent |
+
+---
+
+## Anycast — One-to-Nearest
+
+Anycast ist **kein eigener Adresstyp mit reserviertem Präfix**, sondern eine normale
+Global-Unicast-Adresse, die **mehreren Geräten gleichzeitig zugewiesen** wird.
+Das Routing-Protokoll leitet Pakete automatisch zum **topologisch nächsten** Empfänger.
+
+### Funktionsprinzip
+\`\`\`
+Client ──→ [Anycast 2001:DB8::1/128]
+             ├── Server A (Frankfurt)   ← am nächsten → bekommt Paket
+             ├── Server B (Paris)
+             └── Server C (Amsterdam)
+\`\`\`
+
+### Subnet-Router Anycast (reservierter Standardfall)
+Bei jedem IPv6-Präfix ist die Adresse mit **Interface-ID = 0** als
+**Subnet-Router Anycast** reserviert:
+- Präfix: \`2001:DB8:CAFE:1::/64\` → Subnet-Router Anycast: \`2001:DB8:CAFE:1::\` (Interface-ID alle Nullen)
+- Bedeutung: Pakete an diese Adresse werden zum nächsten Router im Subnetz gesendet
+- Konfiguration: \`ipv6 address 2001:DB8:1::/64 anycast\`
+
+### Anycast vs. Multicast — Abgrenzung
+
+| Merkmal | Anycast | Multicast |
+|---------|---------|----------|
+| **Empfänger** | Einer (der nächste) | Alle Mitglieder der Multicast-Gruppe |
+| **Adress-Präfix** | Normaler Unicast-Bereich | FF00::/8 |
+| **Routing** | Unicast-Routing (IGP) wählt nächsten | Multicast-Routing (PIM) |
+| **Anwendung** | DNS-Root-Server, Anycast-CDN | OSPFv3, Video-Streaming |
+
+> **Prüfungshinweis**: Anycast-Adressen sind syntaktisch identisch mit GUA — der Unterschied
+> liegt ausschließlich in der Konfiguration (gleiche Adresse auf mehreren Interfaces).
 
 ---
 

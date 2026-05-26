@@ -1047,6 +1047,17 @@ export const QUIZ_IPV6: Quiz = {
       ],
     },
     {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.9",
+      text: "Was ist eine IPv6 Anycast-Adresse und wie unterscheidet sie sich von einer Multicast-Adresse?",
+      explanation: "Anycast: eine normale GUA-Adresse, die mehreren Interfaces gleichzeitig zugewiesen wird. Das Routing-Protokoll leitet Pakete zum topologisch nächsten Empfänger (one-to-nearest). Kein eigener Adressbereich — syntaktisch identisch mit GUA. Multicast (FF00::/8) sendet dagegen an ALLE Mitglieder einer Gruppe (one-to-all).",
+      answers: [
+        { id: "a", text: "Anycast hat den Präfix FF00::/8 und sendet an alle Gruppenmitglieder", isCorrect: false },
+        { id: "b", text: "Anycast ist eine GUA-Adresse auf mehreren Interfaces — Routing wählt den nächsten Empfänger (one-to-nearest)", isCorrect: true },
+        { id: "c", text: "Anycast-Adressen beginnen immer mit FE80:: und sind nur lokal gültig", isCorrect: false },
+        { id: "d", text: "Anycast und Multicast sind identisch — nur verschiedene Bezeichnungen für denselben Mechanismus", isCorrect: false },
+      ],
+    },
+    {
       id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
       text: "Welcher Cisco IOS-Befehl muss global konfiguriert sein, damit ein Router IPv6-Pakete weiterleitet?",
       explanation: "'ipv6 unicast-routing' aktiviert IPv6-Routing auf dem Cisco-Router. Ohne diesen Befehl verhält sich der Router bezüglich IPv6 wie ein Host und verwirft fremde IPv6-Pakete.",
@@ -2558,6 +2569,17 @@ export const QUIZ_WLAN: Quiz = {
         { id: "b", text: "UDP 5246 (Control) und UDP 5247 (Data)", isCorrect: true },
         { id: "c", text: "UDP 1812 und UDP 1813", isCorrect: false },
         { id: "d", text: "UDP 4500 und UDP 500", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.8",
+      text: "Welches AAA-Protokoll sollte für den administrativen Zugriff auf einen Cisco WLC verwendet werden, und welches für die Authentifizierung von WLAN-Clients?",
+      explanation: "TACACS+ (TCP 49, gesamter Payload verschlüsselt) eignet sich für Device Administration: Command-Authorization ermöglicht granulare Kontrolle über CLI-Befehle auf dem WLC. RADIUS (UDP 1812/1813) ist das Standardprotokoll für Network Access (WLAN-Client-Auth via 802.1X). Merkregel: TACACS+ → Terminal/Admin, RADIUS → Remote-Access/Clients.",
+      answers: [
+        { id: "a", text: "RADIUS für beide — WLC und WLAN-Clients", isCorrect: false },
+        { id: "b", text: "TACACS+ für WLC Device-Admin (Command-Authorization); RADIUS für WLAN-Client-Auth (802.1X)", isCorrect: true },
+        { id: "c", text: "TACACS+ für WLAN-Clients; RADIUS für WLC-Admin-Zugriff", isCorrect: false },
+        { id: "d", text: "Kerberos für WLC-Admin; TACACS+ für WLAN-Clients", isCorrect: false },
       ],
     },
   ],
