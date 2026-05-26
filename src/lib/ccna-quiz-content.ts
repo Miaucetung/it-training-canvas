@@ -4583,6 +4583,283 @@ export const QUIZ_GLASFASER: Quiz = {
 };
 
 // ============================================================
+// QUIZ: Switching (VLAN, Trunking, Inter-VLAN Routing)
+// ============================================================
+export const QUIZ_SWITCHING: Quiz = {
+  id: "ccna-quiz-switching",
+  title: "CCNA: Switching, VLANs & Trunking",
+  description: "VLAN-Konfiguration, 802.1Q Trunking, DTP, VTP, Inter-VLAN Routing, Switchport-Modi",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist ein VLAN (Virtual LAN) und welchen Zweck erfüllt es?",
+      explanation: "Ein VLAN segmentiert ein physisches Netzwerk in logische Broadcast-Domänen. Geräte in verschiedenen VLANs können ohne Router nicht kommunizieren, was Sicherheit und Netzwerkeffizienz verbessert.",
+      answers: [
+        { id: "a", text: "Eine Methode zur WLAN-Kanalzuweisung", isCorrect: false },
+        { id: "b", text: "Logische Segmentierung in separate Broadcast-Domänen", isCorrect: true },
+        { id: "c", text: "Ein Layer-3-Protokoll für virtuelle Netzwerke", isCorrect: false },
+        { id: "d", text: "Ein Protokoll für verschlüsselte VPN-Verbindungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Welches IEEE-Protokoll wird für VLAN-Tagging auf Trunk-Ports verwendet?",
+      explanation: "IEEE 802.1Q ist der offene Standard für VLAN-Tagging. Es fügt einen 4-Byte-Tag (inkl. 12-Bit VLAN-ID) in den Ethernet-Frame ein. Cisco ISL ist ein älteres, proprietäres Verfahren.",
+      answers: [
+        { id: "a", text: "802.1D", isCorrect: false },
+        { id: "b", text: "802.1Q", isCorrect: true },
+        { id: "c", text: "802.3ad", isCorrect: false },
+        { id: "d", text: "ISL (Inter-Switch Link)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist das Native VLAN auf einem 802.1Q Trunk-Port?",
+      explanation: "Das Native VLAN ist das VLAN, dessen Frames OHNE 802.1Q-Tag über den Trunk übertragen werden. Standard ist VLAN 1. Aus Sicherheitsgründen sollte das Native VLAN auf ein unbenutztes VLAN geändert werden (VLAN Hopping-Angriff).",
+      answers: [
+        { id: "a", text: "Das VLAN mit den meisten Hosts", isCorrect: false },
+        { id: "b", text: "Das VLAN, dessen Frames ohne 802.1Q-Tag übertragen werden", isCorrect: true },
+        { id: "c", text: "Das Verwaltungs-VLAN für SSH-Zugriff", isCorrect: false },
+        { id: "d", text: "Das VLAN mit der höchsten Priorität", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Wie wird Inter-VLAN Routing mit einem 'Router-on-a-Stick' implementiert?",
+      explanation: "Router-on-a-Stick: Ein Router-Port wird als Trunk zu einem Switch konfiguriert. Für jedes VLAN wird ein Sub-Interface (z.B. G0/0.10 für VLAN 10) mit 802.1Q Encapsulation und IP-Adresse erstellt.",
+      answers: [
+        { id: "a", text: "Durch einen L3-Switch mit SVIs", isCorrect: false },
+        { id: "b", text: "Trunk-Port + Router-Sub-Interfaces mit 802.1Q Encapsulation", isCorrect: true },
+        { id: "c", text: "Durch direkte physische Verbindung jedes VLANs mit dem Router", isCorrect: false },
+        { id: "d", text: "Durch statische Routen im Switch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist ein Switch Virtual Interface (SVI)?",
+      explanation: "Ein SVI ist ein logisches Layer-3-Interface auf einem L3-Switch, das einer VLAN-ID zugeordnet ist. Es ermöglicht Inter-VLAN Routing ohne externen Router und wird für Management-Zugriff genutzt.",
+      answers: [
+        { id: "a", text: "Ein physischer Port, der als Trunk konfiguriert ist", isCorrect: false },
+        { id: "b", text: "Ein logisches L3-Interface auf einem L3-Switch für Inter-VLAN Routing", isCorrect: true },
+        { id: "c", text: "Ein virtueller Switch-Port ohne VLAN-Zugehörigkeit", isCorrect: false },
+        { id: "d", text: "Eine Sub-Interface-Konfiguration auf einem Router", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist DTP (Dynamic Trunking Protocol)?",
+      explanation: "DTP ist ein Cisco-proprietäres Protokoll, das Switchports automatisch als Trunk oder Access aushandelt. Standard-Modus: dynamic auto (wartet) oder dynamic desirable (verhandelt aktiv). Aus Sicherheitsgründen sollte DTP deaktiviert werden: 'switchport nonegotiate'.",
+      answers: [
+        { id: "a", text: "Ein offener Standard (IEEE 802.1Q-Erweiterung) für Trunk-Konfiguration", isCorrect: false },
+        { id: "b", text: "Cisco-proprietäres Protokoll zur automatischen Trunk-Aushandlung", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur VLAN-Datenbank-Synchronisation zwischen Switches", isCorrect: false },
+        { id: "d", text: "Das Protokoll für dynamische VLAN-Zuweisung basierend auf MAC-Adressen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Welches Cisco IOS-Kommando ordnet einen Switchport dem VLAN 20 zu?",
+      explanation: "'switchport access vlan 20' ordnet den Port VLAN 20 zu. Vorher sollte 'switchport mode access' den Port als Access-Port konfigurieren.",
+      answers: [
+        { id: "a", text: "vlan 20 access", isCorrect: false },
+        { id: "b", text: "switchport access vlan 20", isCorrect: true },
+        { id: "c", text: "switchport vlan 20 access", isCorrect: false },
+        { id: "d", text: "set port vlan 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Wie lautet das Kommando, um alle auf einem Trunk erlaubten VLANs auf 10 und 20 zu beschränken?",
+      explanation: "'switchport trunk allowed vlan 10,20' beschränkt den Trunk auf VLAN 10 und 20. Ohne diese Einschränkung werden alle VLANs erlaubt.",
+      answers: [
+        { id: "a", text: "switchport trunk vlan allow 10,20", isCorrect: false },
+        { id: "b", text: "vlan allowed 10,20 trunk", isCorrect: false },
+        { id: "c", text: "switchport trunk allowed vlan 10,20", isCorrect: true },
+        { id: "d", text: "switchport access vlan 10,20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.1",
+      text: "Welche Vorteile bietet Inter-VLAN Routing über einen L3-Switch mit SVIs gegenüber Router-on-a-Stick? (Mehrere Antworten möglich)",
+      explanation: "L3-Switch mit SVIs: Höherer Durchsatz (Hardware-switching), keine einzelne physische Verbindung als Engpass, zentralere Verwaltung. Router-on-a-Stick hat eine physische Verbindung als Bottleneck.",
+      answers: [
+        { id: "a", text: "Höherer Durchsatz durch Hardware-Switching im ASIC", isCorrect: true },
+        { id: "b", text: "Kein physischer Engpass durch eine einzige Uplink-Verbindung", isCorrect: true },
+        { id: "c", text: "Kein Router erforderlich — Routing im Switch integriert", isCorrect: true },
+        { id: "d", text: "Günstiger in der Anschaffung als alle anderen Lösungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was passiert, wenn ein Gerät in VLAN 10 ein Paket an ein Gerät in VLAN 20 sendet, ohne dass Inter-VLAN Routing konfiguriert ist?",
+      explanation: "Ohne Inter-VLAN Routing können Geräte in verschiedenen VLANs NICHT kommunizieren — VLANs sind separate Broadcast-Domänen auf Layer 2. Ein Router oder L3-Switch ist zwingend erforderlich.",
+      answers: [
+        { id: "a", text: "Das Paket wird automatisch weitergeleitet, da beide im gleichen Switch sind", isCorrect: false },
+        { id: "b", text: "Die Kommunikation schlägt fehl — VLANs sind isolierte Layer-2-Segmente", isCorrect: true },
+        { id: "c", text: "Das Paket wird mit VLAN-Tag weitergeleitet", isCorrect: false },
+        { id: "d", text: "Der Switch fragt automatisch beim DHCP-Server nach dem nächsten Hop", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Welches Kommando zeigt alle konfigurierten VLANs und die zugehörigen Ports auf einem Cisco Switch?",
+      explanation: "'show vlan brief' zeigt eine kompakte Übersicht aller VLANs (ID, Name, Status) und der zugeordneten Ports. 'show interfaces trunk' zeigt Trunk-Informationen.",
+      answers: [
+        { id: "a", text: "show interfaces trunk", isCorrect: false },
+        { id: "b", text: "show vlan brief", isCorrect: true },
+        { id: "c", text: "show ip vlan", isCorrect: false },
+        { id: "d", text: "show switch vlan", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 10, blueprint: "2.1",
+      text: "VLAN 1 ist auf Cisco Switches ein spezielles VLAN, das nicht gelöscht werden kann.",
+      explanation: "Wahr. VLAN 1 ist das Standard-VLAN auf Cisco Switches und kann nicht gelöscht werden. Es ist das Standard-Native VLAN und das Verwaltungs-VLAN (ohne explizite Konfiguration). Best Practice: Management-VLAN von VLAN 1 trennen.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch — VLAN 1 kann wie jedes andere VLAN gelöscht werden", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist VTP (VLAN Trunking Protocol) und welches Sicherheitsrisiko besteht?",
+      explanation: "VTP synchronisiert VLAN-Datenbanken zwischen Switches automatisch. Risiko: Ein Switch im VTP-Server-Modus mit höherer Revision-Nummer kann alle VLANs auf allen Switches löschen — potentiell katastrophal. Best Practice: VTP Transparent- oder Off-Modus.",
+      answers: [
+        { id: "a", text: "Cisco-Protokoll zur VLAN-Synchronisation — Risiko: versehentliches Löschen aller VLANs", isCorrect: true },
+        { id: "b", text: "IEEE-Standard für VLAN-Trunking ohne Sicherheitsrisiken", isCorrect: false },
+        { id: "c", text: "Protokoll für verschlüsselte VLAN-Übertragung", isCorrect: false },
+        { id: "d", text: "Ersatz für 802.1Q ohne Risiken", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.2",
+      text: "Auf welcher OSI-Schicht lernen und speichern Switches MAC-Adressen?",
+      explanation: "Switches arbeiten auf Layer 2 (Data Link Layer) und speichern MAC-Adressen in der CAM-Tabelle (Content Addressable Memory). Unicast-Frames werden nur an den Port weitergeleitet, an dem die Ziel-MAC gelernt wurde.",
+      answers: [
+        { id: "a", text: "Layer 1 (Physical)", isCorrect: false },
+        { id: "b", text: "Layer 2 (Data Link)", isCorrect: true },
+        { id: "c", text: "Layer 3 (Network)", isCorrect: false },
+        { id: "d", text: "Layer 4 (Transport)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.2",
+      text: "Was passiert bei einem Unbekannten Unicast Frame auf einem Switch?",
+      explanation: "Wenn ein Unicast-Frame an eine MAC-Adresse gesendet wird, die nicht in der CAM-Tabelle steht (Unknown Unicast), flutet der Switch den Frame an alle Ports außer dem Eingangsport — ähnlich wie Broadcast/Multicast.",
+      answers: [
+        { id: "a", text: "Der Frame wird verworfen", isCorrect: false },
+        { id: "b", text: "Der Frame wird an alle Ports außer dem Eingangsport geflutet", isCorrect: true },
+        { id: "c", text: "Der Switch sendet ARP, um die MAC aufzulösen", isCorrect: false },
+        { id: "d", text: "Der Frame wird an den Router weitergeleitet", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ: EtherChannel (LACP / PAgP)
+// ============================================================
+export const QUIZ_ETHERCHANNEL: Quiz = {
+  id: "ccna-quiz-etherchannel",
+  title: "CCNA: EtherChannel (LACP & PAgP)",
+  description: "Link Aggregation, LACP, PAgP, EtherChannel-Modi und Konfiguration",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Was ist der Hauptvorteil von EtherChannel gegenüber mehreren einzelnen Links zwischen zwei Switches?",
+      explanation: "EtherChannel bündelt 2–8 physische Links zu einem logischen Link. Vorteile: Höhere Gesamtbandbreite, Redundanz (kein STP-Blocking), und STP sieht nur einen logischen Link.",
+      answers: [
+        { id: "a", text: "Verschlüsselung des Datenverkehrs zwischen Switches", isCorrect: false },
+        { id: "b", text: "Höhere Gesamtbandbreite + Redundanz ohne STP-Blocking", isCorrect: true },
+        { id: "c", text: "Vereinfachte Layer-3-Konfiguration", isCorrect: false },
+        { id: "d", text: "VLAN-Isolierung zwischen den gebündelten Links", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Was ist der Unterschied zwischen LACP und PAgP?",
+      explanation: "LACP (Link Aggregation Control Protocol, IEEE 802.3ad) ist ein offener Standard. PAgP (Port Aggregation Protocol) ist Cisco-proprietär. Beide handeln EtherChannel-Verbindungen automatisch aus.",
+      answers: [
+        { id: "a", text: "LACP ist Cisco-proprietär, PAgP ist IEEE-Standard", isCorrect: false },
+        { id: "b", text: "LACP ist IEEE 802.3ad (offen), PAgP ist Cisco-proprietär", isCorrect: true },
+        { id: "c", text: "Beide sind identische Standards mit anderem Namen", isCorrect: false },
+        { id: "d", text: "LACP arbeitet auf Layer 3, PAgP auf Layer 2", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Welche zwei LACP-Modi können eine EtherChannel-Verbindung aushandeln?",
+      explanation: "LACP-Modi: 'active' sendet LACP-Pakete aktiv; 'passive' wartet auf LACP-Pakete. Eine Verbindung entsteht wenn mindestens eine Seite 'active' ist: active-active oder active-passive.",
+      answers: [
+        { id: "a", text: "desirable und auto", isCorrect: false },
+        { id: "b", text: "active und passive", isCorrect: true },
+        { id: "c", text: "on und auto", isCorrect: false },
+        { id: "d", text: "force und negotiate", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Was passiert, wenn beide Seiten eines EtherChannels auf 'passive' (LACP) konfiguriert sind?",
+      explanation: "Passive-passive: Beide Seiten warten auf LACP-Pakete der Gegenseite — keine EtherChannel-Verbindung entsteht. Mindestens eine Seite muss 'active' sein.",
+      answers: [
+        { id: "a", text: "EtherChannel wird erfolgreich aufgebaut", isCorrect: false },
+        { id: "b", text: "Kein EtherChannel — passive wartet, beide warten endlos", isCorrect: true },
+        { id: "c", text: "Die Verbindung fällt back auf einen einzelnen Link", isCorrect: false },
+        { id: "d", text: "STP blockiert alle redundanten Links", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Welche Voraussetzung muss für alle Ports eines EtherChannels erfüllt sein?",
+      explanation: "Alle Ports eines EtherChannels müssen identisch konfiguriert sein: gleiche Geschwindigkeit, gleicher Duplex, gleicher VLAN-Modus (Access/Trunk), gleiche VLANs auf Trunks. Unterschiedliche Konfigurationen verhindern den Aufbau.",
+      answers: [
+        { id: "a", text: "Alle Ports müssen auf demselben physischen Switch sein", isCorrect: false },
+        { id: "b", text: "Gleiche Geschwindigkeit, Duplex und VLAN-Konfiguration auf allen Ports", isCorrect: true },
+        { id: "c", text: "Alle Ports müssen GigabitEthernet sein (FastEthernet nicht unterstützt)", isCorrect: false },
+        { id: "d", text: "Alle Ports müssen im selben VLAN und im Access-Modus sein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Welches Cisco IOS-Kommando erstellt einen EtherChannel mit LACP im active-Modus?",
+      explanation: "'channel-group 1 mode active' fügt den Port zur EtherChannel-Gruppe 1 im LACP-Active-Modus hinzu. 'mode desirable' ist PAgP, 'mode on' ist statisch ohne Protokoll.",
+      answers: [
+        { id: "a", text: "channel-group 1 mode desirable", isCorrect: false },
+        { id: "b", text: "channel-group 1 mode active", isCorrect: true },
+        { id: "c", text: "etherchannel 1 lacp active", isCorrect: false },
+        { id: "d", text: "port-channel 1 mode active", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Wie viele physische Links kann ein EtherChannel maximal bündeln (aktiv)?",
+      explanation: "EtherChannel unterstützt 2–8 aktive Links. Bei LACP können bis zu 16 konfiguriert werden, aber maximal 8 sind gleichzeitig aktiv (8 weitere sind Hot-Standby).",
+      answers: [
+        { id: "a", text: "Maximal 4 Links", isCorrect: false },
+        { id: "b", text: "Maximal 8 aktive Links", isCorrect: true },
+        { id: "c", text: "Maximal 16 Links (alle aktiv)", isCorrect: false },
+        { id: "d", text: "Maximal 2 Links", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Welches Kommando zeigt den Status aller EtherChannel-Gruppen auf einem Cisco Switch?",
+      explanation: "'show etherchannel summary' zeigt eine kompakte Übersicht aller Port-Channel-Gruppen, deren Protokoll (LACP/PAgP/static) und den Status jedes Member-Ports.",
+      answers: [
+        { id: "a", text: "show port-channel brief", isCorrect: false },
+        { id: "b", text: "show lacp neighbor", isCorrect: false },
+        { id: "c", text: "show etherchannel summary", isCorrect: true },
+        { id: "d", text: "show interfaces port-channel 1", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -4608,4 +4885,7 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_AUTOMATION.id]: QUIZ_AUTOMATION,
   [QUIZ_TROUBLESHOOTING.id]: QUIZ_TROUBLESHOOTING,
   [QUIZ_GLASFASER.id]: QUIZ_GLASFASER,
+  [QUIZ_STP.id]: QUIZ_STP,
+  [QUIZ_SWITCHING.id]: QUIZ_SWITCHING,
+  [QUIZ_ETHERCHANNEL.id]: QUIZ_ETHERCHANNEL,
 };

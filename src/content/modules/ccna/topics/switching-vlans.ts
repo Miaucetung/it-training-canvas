@@ -231,7 +231,7 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
     "etherchannel",
     "switching-vlans-guide",
   ],
-  quizIds: ["ccna-quiz-stp"],
+  quizIds: ["ccna-quiz-stp", "ccna-quiz-switching", "ccna-quiz-etherchannel"],
   exerciseIds: [],
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 150,
