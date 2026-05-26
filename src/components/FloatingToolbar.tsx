@@ -235,7 +235,7 @@ export function FloatingToolbar({
                 orientation="vertical"
                 className={cn(
                   "h-8 mx-1",
-                  theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+                  theme === "dark" ? "bg-slate-500" : "bg-slate-200",
                 )}
               />
               <Tooltip>
@@ -274,7 +274,7 @@ export function FloatingToolbar({
             orientation="vertical"
             className={cn(
               "h-8 mx-1",
-              theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
             )}
           />
 
@@ -485,7 +485,7 @@ export function FloatingToolbar({
             orientation="vertical"
             className={cn(
               "h-8 mx-1",
-              theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
             )}
           />
 
@@ -554,7 +554,7 @@ export function FloatingToolbar({
             orientation="vertical"
             className={cn(
               "h-8 mx-1",
-              theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
             )}
           />
 
@@ -714,7 +714,7 @@ export function FloatingToolbar({
             orientation="vertical"
             className={cn(
               "h-8 mx-1",
-              theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
             )}
           />
 
@@ -768,7 +768,7 @@ export function FloatingToolbar({
                   <Separator
                     className={cn(
                       "my-1",
-                      theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+                      theme === "dark" ? "bg-slate-500" : "bg-slate-200",
                     )}
                   />
                   <Button
@@ -864,7 +864,7 @@ export function FloatingToolbar({
             orientation="vertical"
             className={cn(
               "h-8 mx-1",
-              theme === "dark" ? "bg-slate-700" : "bg-slate-200",
+              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
             )}
           />
 

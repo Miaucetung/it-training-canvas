@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Lightning,
   MagnifyingGlass,
+  Minus,
   Play,
   Sliders,
   Spinner,
@@ -56,6 +57,7 @@ export function PacketFlowVisualizer({
 
   const [sourceId, setSourceId] = useState("");
   const [targetId, setTargetId] = useState("");
+  const [isMinimized, setIsMinimized] = useState(false);
   const [protocol, setProtocol] = useState("PING");
   const [traces, setTraces] = useState<PacketFlowTrace[]>([]);
   const [expandedTrace, setExpandedTrace] = useState<string | null>(null);
@@ -159,6 +161,20 @@ export function PacketFlowVisualizer({
     L7: "text-amber-400",
   };
 
+  if (isMinimized) {
+    return (
+      <button
+        onClick={() => setIsMinimized(false)}
+        aria-label="Packet Flow einblenden"
+        title="Packet Flow einblenden"
+        className={`fixed right-0 bottom-20 z-40 flex items-center gap-2 px-3 py-2 rounded-l-xl border-l border-t border-b ${bg} ${border} shadow-xl text-xs font-medium ${text}`}
+      >
+        <Lightning size={14} className="text-cyan-400" weight="fill" />
+        Packet Flow
+      </button>
+    );
+  }
+
   return (
     <div
       className={`fixed right-0 top-0 bottom-0 w-[420px] max-w-[95vw] z-40 ${bg} ${border} border-l shadow-2xl flex flex-col`}
@@ -170,12 +186,23 @@ export function PacketFlowVisualizer({
             <Lightning size={20} className="text-cyan-400" weight="fill" />
             <h3 className={`font-bold ${text}`}>Packet Flow</h3>
           </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 rounded-lg ${textMuted} hover:bg-slate-700/30`}
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsMinimized(true)}
+              aria-label="Packet Flow minimieren"
+              title="Minimieren"
+              className={`p-1.5 rounded-lg ${textMuted} hover:bg-slate-700/30`}
+            >
+              <Minus size={18} />
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Packet Flow schließen"
+              className={`p-1.5 rounded-lg ${textMuted} hover:bg-slate-700/30`}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Source/Target Selection */}
