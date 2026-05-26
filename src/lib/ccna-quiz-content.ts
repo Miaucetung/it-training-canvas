@@ -6495,6 +6495,118 @@ export const QUIZ_VLAN_ADVANCED: Quiz = {
         { id: "d", text: "Das Native VLAN per 'no switchport trunk native vlan' deaktivieren", isCorrect: false },
       ],
     },
+    // ── Lab 12.2 bezogen ──────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Im Multi-Switch-Lab (SW1 Access → SW2 L3-Switch) schlägt der Ping von PC1 (VLAN 10) zu PC2 (VLAN 20) fehl. Welcher show-Command deckt das Problem zuerst auf?",
+      explanation: "'show ip route' auf SW2 zeigt, ob der L3-Switch überhaupt Routen für beide VLANs hat. Fehlen Einträge für 192.168.10.0/24 oder 192.168.20.0/24, ist 'ip routing' nicht aktiviert oder die SVIs sind down. Das ist der schnellste erste Diagnose-Befehl bei Inter-VLAN-Routing-Problemen.",
+      answers: [
+        { id: "a", text: "SW2# show vlan brief", isCorrect: false },
+        { id: "b", text: "SW2# show ip route", isCorrect: true },
+        { id: "c", text: "SW1# show interfaces trunk", isCorrect: false },
+        { id: "d", text: "PC1# ipconfig /all", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Auf SW2 (L3-Switch) sind SVIs für VLAN 10 und 20 konfiguriert und 'no shutdown' gesetzt — aber 'show interfaces vlan 10' zeigt 'line protocol is down'. Was ist die wahrscheinlichste Ursache?",
+      explanation: "Ein SVI geht nur 'up', wenn: (1) das VLAN in der VLAN-Datenbank existiert, UND (2) mindestens ein aktiver Port dieses VLAN zugewiesen ist (ein aktiver Trunk-Port zählt). 'Line protocol is down' bedeutet meistens, dass kein Port im VLAN aktiv ist — z. B. weil der Trunk-Port noch nicht konfiguriert wurde oder das Kabel nicht eingesteckt ist.",
+      answers: [
+        { id: "a", text: "'ip routing' fehlt auf SW2", isCorrect: false },
+        { id: "b", text: "Die IP-Adresse auf dem SVI ist falsch konfiguriert", isCorrect: false },
+        { id: "c", text: "Kein aktiver Port ist VLAN 10 zugewiesen (Trunk-Port fehlt oder ist down)", isCorrect: true },
+        { id: "d", text: "VLAN 10 ist mit 'no vlan 10' deaktiviert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Du führst 'show interfaces trunk' auf SW2 aus. VLAN 20 erscheint unter 'VLANs allowed on trunk', aber NICHT unter 'VLANs allowed and active in management domain'. Was bedeutet das?",
+      explanation: "'VLANs allowed on trunk' zeigt, was konfiguriert ist. 'Active in management domain' zeigt, was tatsächlich in der VLAN-Datenbank existiert. Wenn VLAN 20 dort fehlt, wurde es mit 'vlan 20' noch nicht angelegt — entweder auf SW2 selbst oder (bei VTP Server/Client) im VTP-Verbund.",
+      answers: [
+        { id: "a", text: "VLAN 20 ist konfiguriert und aktiv — alles in Ordnung", isCorrect: false },
+        { id: "b", text: "VLAN 20 existiert nicht in der VLAN-Datenbank dieses Switches", isCorrect: true },
+        { id: "c", text: "VLAN 20 hat keinen aktiven Host und wird deshalb nicht angezeigt", isCorrect: false },
+        { id: "d", text: "Der Trunk-Port ist im Blocking-State (STP)", isCorrect: false },
+      ],
+    },
+    // ── Lab 12.3 bezogen ──────────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Im WLAN-VLAN-Lab ist der AP am Trunk-Port Gi0/1 angeschlossen. VLAN 10 und 50 sind konfiguriert, aber du willst VLAN 100 (VOICE) hinzufügen, ohne die anderen VLANs zu entfernen. Welcher Befehl ist korrekt?",
+      explanation: "'switchport trunk allowed vlan add 100' fügt VLAN 100 zur bestehenden Liste hinzu. 'switchport trunk allowed vlan 100' würde die Liste auf nur VLAN 100 reduzieren und alle anderen VLANs entfernen — ein häufiger Fehler, der Verbindungsunterbrechungen verursacht.",
+      answers: [
+        { id: "a", text: "SW1(config-if)# switchport trunk allowed vlan 100", isCorrect: false },
+        { id: "b", text: "SW1(config-if)# switchport trunk add vlan 100", isCorrect: false },
+        { id: "c", text: "SW1(config-if)# switchport trunk allowed vlan add 100", isCorrect: true },
+        { id: "d", text: "SW1(config-if)# vlan 100 trunk allowed", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.1",
+      text: "Im WLAN-VLAN-Lab schickt der AP Frames für SSID 'CORP-DATA' (VLAN 10) — aber die Wireless-Clients erhalten keine IP-Adresse. Welche zwei Ursachen sind am wahrscheinlichsten? (Mehrere Antworten möglich)",
+      explanation: "Wenn Wireless-Clients keine IP bekommen: (1) VLAN 10 ist nicht im Trunk-Port erlaubt ('switchport trunk allowed vlan' enthält VLAN 10 nicht) → Frames werden verworfen → DHCP-Discover kommt nie an. (2) SVI Vlan10 ist down (kein aktiver Port im VLAN) → kein DHCP-Relay oder direkte IP-Vergabe möglich. Der AP selbst kann das Problem nur verursachen, wenn die SSID-zu-VLAN-Zuordnung falsch ist.",
+      answers: [
+        { id: "a", text: "VLAN 10 fehlt in 'switchport trunk allowed vlan' am AP-Port", isCorrect: true },
+        { id: "b", text: "Der AP ist zu weit vom Switch entfernt (Kabellänge)", isCorrect: false },
+        { id: "c", text: "SVI Vlan10 ist down — kein DHCP-Server im VLAN erreichbar", isCorrect: true },
+        { id: "d", text: "Das Native VLAN muss auf VLAN 10 gesetzt werden", isCorrect: false },
+      ],
+    },
+    // ── Allgemeine Vertiefungsfragen ──────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "In welchem VLAN-Nummern-Bereich liegen Extended VLANs, und welche Voraussetzung ist für ihre Nutzung nötig?",
+      explanation: "Extended VLANs liegen im Bereich 1006–4094. Sie sind nur nutzbar, wenn der Switch im VTP Transparent Mode oder VTP Off (VTPv3) betrieben wird — VTP Server und Client können Extended VLANs nicht in der vlan.dat speichern. In der CCNA-Prüfung: Extended VLANs werden abgefragt, aber tiefere Konfiguration ist CCNP.",
+      answers: [
+        { id: "a", text: "1–1005 / VTP Server erforderlich", isCorrect: false },
+        { id: "b", text: "1006–4094 / VTP Transparent oder VTP Off", isCorrect: true },
+        { id: "c", text: "2000–4094 / ip routing auf dem Switch", isCorrect: false },
+        { id: "d", text: "1000–2000 / keine Einschränkung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Was bewirkt der Befehl 'encapsulation dot1q 10' auf einem Router-Subinterface?",
+      explanation: "'encapsulation dot1q 10' weist dem Subinterface die VLAN-ID 10 zu. Der Router verarbeitet dann eingehende Frames mit Tag VID=10 auf diesem logischen Interface und fügt den Tag beim Senden hinzu. Ohne diesen Befehl ist das Subinterface zwar konfiguriert, verarbeitet aber keine 802.1Q-getaggten Frames.",
+      answers: [
+        { id: "a", text: "Das physische Interface wird für 802.1Q aktiviert", isCorrect: false },
+        { id: "b", text: "Das Subinterface verarbeitet Frames mit VLAN-Tag VID=10", isCorrect: true },
+        { id: "c", text: "Das Native VLAN des Trunk-Ports wird auf 10 gesetzt", isCorrect: false },
+        { id: "d", text: "QoS-Priorisierung für VLAN 10 wird aktiviert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Wann braucht ein Layer-2-Switch (ohne ip routing) einen konfigurierten 'ip default-gateway'?",
+      explanation: "Ein L2-Switch hat keine Routing-Tabelle. Wenn das Switch-Management (SSH/Telnet zu SVI-IP) von einem anderen Subnetz aus erreichbar sein soll, muss der Switch wissen, an welchen Router er Management-Traffic weiterleiten soll. Ohne 'ip default-gateway' antwortet der Switch nur auf Anfragen aus dem direkt verbundenen Management-VLAN-Subnetz.",
+      answers: [
+        { id: "a", text: "Immer — ohne default-gateway funktioniert kein Switching", isCorrect: false },
+        { id: "b", text: "Wenn der Switch-Management-IP von einem anderen Subnetz aus erreichbar sein soll", isCorrect: true },
+        { id: "c", text: "Nur wenn VTP Server-Modus aktiv ist", isCorrect: false },
+        { id: "d", text: "Nur bei Layer-3-Switches mit ip routing", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.1",
+      text: "Auf einem Trunk-Port zeigt 'show interfaces trunk' ein VLAN unter 'VLANs in spanning tree forwarding state' — das bedeutet, Spanning Tree blockiert dieses VLAN auf dem Port.",
+      explanation: "Falsch. 'VLANs in spanning tree forwarding state' zeigt VLANs, die sich im Forwarding-Zustand befinden — also aktiv weiterleiten. Blockierte VLANs würden NICHT in dieser Liste erscheinen (oder unter 'VLANs not forwarding'). Forwarding = aktiv = Traffic wird durchgelassen.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "3.3",
+      text: "Welche drei Aussagen beschreiben den Unterschied zwischen Router-on-a-Stick (ROAS) und einem L3-Switch mit SVIs korrekt? (Mehrere Antworten möglich)",
+      explanation: "ROAS: Routing in Software auf separatem Router, alle VLANs teilen einen physischen Trunk-Link → Engpass. L3-Switch: Routing in Hardware (ASIC/CEF), Wire-Speed, kein externer Router nötig, SVIs sind logische Layer-3-Interfaces für jedes VLAN. ROAS ist günstiger und einfacher für kleine Umgebungen; L3-Switch ist die bevorzugte Produktionslösung.",
+      answers: [
+        { id: "a", text: "ROAS teilt einen physischen Link für alle VLANs — möglicher Engpass", isCorrect: true },
+        { id: "b", text: "L3-Switch benötigt immer einen externen Router für Standard-Gateway-Funktion", isCorrect: false },
+        { id: "c", text: "L3-Switch routet in Hardware (ASIC) — in der Regel deutlich schneller als ROAS", isCorrect: true },
+        { id: "d", text: "Beide Methoden benötigen 'ip routing' auf dem Switch", isCorrect: false },
+        { id: "e", text: "Beim L3-Switch ersetzt jede SVI das Router-Subinterface von ROAS", isCorrect: true },
+      ],
+    },
   ],
 };
 
