@@ -859,6 +859,10 @@ export const CONCEPT_VLAN_LAB_BRUECKE: Concept = {
 
 ---
 
+> 💡 **Cisco Packet Tracer**: Alle drei Lab-Szenarien (12.1, 12.2, 12.3) können kostenlos in Cisco Packet Tracer nachgebaut werden. Download unter [netacad.com](https://www.netacad.com) (Registrierung erforderlich, kostenlos). Empfehlung: Baue erst die Topologie auf, konfiguriere dann Schritt für Schritt — und mache am Ende jeden Schritt bewusst kaputt, um die Fehlerbehebung zu üben.
+
+---
+
 ## Kapitelabschluss-Lab — Bürogebäude "NetzTech GmbH"
 
 Dieses Lab verbindet alle Konzepte aus dem Modul in einer vollständigen, realen Konfiguration.
@@ -1072,6 +1076,464 @@ PC-SALES# ping 192.168.10.X    ! → direktes VLAN (Layer 2)
 > ⚠️ **Voice VLAN + CoS** — Ohne \`mls qos trust device cisco-phone\` wird QoS-Markierung des Telefons ignoriert.
 
 > ⚠️ **SVI bleibt down** — VLAN 99 muss existieren (vlan 99 anlegen) UND mindestens ein Port im VLAN aktiv sein (der Trunk-Port zählt).
+
+---
+
+## Übungsaufgabe (ROAS-Szenario)
+
+**Füge VLAN 40 (GÄSTE, 192.168.40.0/24) zur NetzTech-GmbH-Konfiguration hinzu:**
+
+1. Welche Befehle brauchst du auf **SW1** und **SW2**? (VLAN anlegen, Trunk erlauben)
+2. Welches Subinterface musst du auf **R1** hinzufügen?
+3. Wie stellst du sicher, dass GÄSTE-Hosts das Internet erreichen können, aber VLAN 10/20/30 **nicht** direkt erreichbar ist?
+4. Teste mit einem Ping von einem Gäste-Host zu 192.168.10.10 (SALES) — was erwartest du?
+
+*Hinweis: Auf dem Router kannst du eine Standard-ACL auf das ROAS-Subinterface anwenden, um VLAN-übergreifenden Traffic von VLAN 40 zu blockieren.*
+
+---
+
+## Abschluss-Reflexion
+
+> **"Wenn du diese drei Szenarien (Lab 12.1 ROAS, Lab 12.2 L3-Switch, Lab 12.3 WLAN-VLAN) aufgebaut und je einmal bewusst kaputtgemacht hast — ip routing entfernt, Native VLAN falsch gesetzt, VLAN aus dem Trunk entfernt — dann hast du VLANs wirklich verstanden."**
+
+Das Kapitelabschluss-Lab markiert den Übergang von Wissen zu Können. Ab jetzt bist du bereit für:
+- **STP Deep-Dive**: Was passiert, wenn du zwischen SW1 und SW2 einen zweiten Trunk-Link ziehst?
+- **OSPF Multi-Area**: Deine VLANs brauchen ein Routing-Protokoll, sobald mehrere Standorte verbunden werden.
+- **Wireless-Modul**: Wie verbindest du SSID "CORP-DATA" mit deinem VLAN 10?
+  `.trim(),
+};
+
+// ── Concept 11: Lab 12.2 — Multi-Switch mit L3-Switch ────────
+
+export const CONCEPT_VLAN_LAB_MULTI_SWITCH: Concept = {
+  id: "vlan-lab-multi-switch",
+  title: "Lab 12.2 — Multi-Switch mit L3-Switch und SVIs",
+  appliesTo: ["ccna"],
+  tags: [
+    "vlan",
+    "lab",
+    "l3-switch",
+    "svi",
+    "ip-routing",
+    "inter-vlan",
+    "trunk",
+    "multi-switch",
+    "layer-3",
+  ],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 3.3 | ⏱️ 45 Min
+
+---
+
+> 💡 **Cisco Packet Tracer**: Dieses Lab kann kostenlos in Cisco Packet Tracer nachgebaut werden. Download unter [netacad.com](https://www.netacad.com) (Registrierung erforderlich, kostenlos).
+
+---
+
+## Lernziel
+
+In Lab 12.1 hast du Inter-VLAN-Routing mit einem separaten Router (ROAS) gelernt.
+In diesem Lab routet der **Layer-3-Switch selbst** — kein externer Router nötig.
+Das ist der häufigste Aufbau in modernen Enterprise-Netzwerken.
+
+---
+
+## Topologie
+
+\`\`\`
+PC1 (VLAN 10) ─── Gi0/1 ┐
+PC2 (VLAN 20) ─── Gi0/2 ├── SW1 (Access-Layer) ── Gi0/24 Trunk ── Gi0/24 SW2 (L3-Switch)
+PC3 (VLAN 20) ─── Gi0/3 ┘                                              │
+                                                                  ip routing aktiv
+                                                                  SVI Vlan10 (GW für VLAN 10)
+                                                                  SVI Vlan20 (GW für VLAN 20)
+                                                                  SVI Vlan99 (Management)
+\`\`\`
+
+---
+
+## IP-Plan
+
+| VLAN-ID | Name | Subnetz | Switch-Gateway (SVI) | Hosts |
+|---------|------|---------|---------------------|-------|
+| 10 | DATA | 192.168.10.0/24 | 192.168.10.1 (SW2) | PC1 → .10 |
+| 20 | SERVERS | 192.168.20.0/24 | 192.168.20.1 (SW2) | PC2 → .10, PC3 → .11 |
+| 99 | MANAGEMENT | 192.168.99.0/28 | 192.168.99.1 (SW2) | SW1-SVI → .10 |
+| 999 | NATIVE | — | — | kein Host |
+
+---
+
+## Schritt 1 — VLANs anlegen (auf beiden Switches)
+
+\`\`\`
+SW(config)# vlan 10
+SW(config-vlan)# name DATA
+SW(config)# vlan 20
+SW(config-vlan)# name SERVERS
+SW(config)# vlan 99
+SW(config-vlan)# name MANAGEMENT
+SW(config)# vlan 999
+SW(config-vlan)# name NATIVE
+
+SW# show vlan brief
+! Erwartung: alle 4 VLANs active, 999 ohne zugewiesene Ports
+\`\`\`
+
+---
+
+## Schritt 2 — Access-Ports auf SW1
+
+\`\`\`
+! PC1 → VLAN 10
+SW1(config)# interface GigabitEthernet 0/1
+SW1(config-if)# switchport mode access
+SW1(config-if)# switchport access vlan 10
+SW1(config-if)# switchport nonegotiate
+SW1(config-if)# spanning-tree portfast
+
+! PC2 → VLAN 20
+SW1(config)# interface GigabitEthernet 0/2
+SW1(config-if)# switchport mode access
+SW1(config-if)# switchport access vlan 20
+SW1(config-if)# switchport nonegotiate
+SW1(config-if)# spanning-tree portfast
+
+! PC3 → VLAN 20
+SW1(config)# interface GigabitEthernet 0/3
+SW1(config-if)# switchport mode access
+SW1(config-if)# switchport access vlan 20
+SW1(config-if)# switchport nonegotiate
+SW1(config-if)# spanning-tree portfast
+\`\`\`
+
+---
+
+## Schritt 3 — Trunk-Link SW1 ↔ SW2 (auf beiden Switches)
+
+\`\`\`
+SW(config)# interface GigabitEthernet 0/24
+SW(config-if)# switchport mode trunk
+SW(config-if)# switchport trunk native vlan 999
+SW(config-if)# switchport trunk allowed vlan 10,20,99,999
+SW(config-if)# switchport nonegotiate
+
+! Auf SW1 und SW2 identisch konfigurieren!
+SW# show interfaces GigabitEthernet 0/24 trunk
+! Prüfen: Mode = trunking, Native = 999, Allowed = 10,20,99,999
+\`\`\`
+
+---
+
+## Schritt 4 — L3-Switch: ip routing + SVIs (SW2)
+
+\`\`\`
+! ← DAS ist der entscheidende Unterschied zu einem normalen Switch
+SW2(config)# ip routing
+
+! Gateway für VLAN 10
+SW2(config)# interface Vlan10
+SW2(config-if)# ip address 192.168.10.1 255.255.255.0
+SW2(config-if)# no shutdown
+
+! Gateway für VLAN 20
+SW2(config)# interface Vlan20
+SW2(config-if)# ip address 192.168.20.1 255.255.255.0
+SW2(config-if)# no shutdown
+
+! Management-SVI
+SW2(config)# interface Vlan99
+SW2(config-if)# ip address 192.168.99.1 255.255.255.240
+SW2(config-if)# no shutdown
+\`\`\`
+
+---
+
+## Schritt 5 — Management-SVI auf SW1
+
+\`\`\`
+SW1(config)# interface Vlan99
+SW1(config-if)# ip address 192.168.99.10 255.255.255.240
+SW1(config-if)# no shutdown
+
+! Default-Gateway auf SW1 (für Management-Traffic)
+SW1(config)# ip default-gateway 192.168.99.1
+\`\`\`
+
+---
+
+## Schritt 6 — PC-Konfiguration (End-to-End-Test vorbereiten)
+
+\`\`\`
+PC1:  IP 192.168.10.10 / Gateway 192.168.10.1
+PC2:  IP 192.168.20.10 / Gateway 192.168.20.1
+PC3:  IP 192.168.20.11 / Gateway 192.168.20.1
+\`\`\`
+
+---
+
+## Verifikation
+
+\`\`\`
+! 1. VLAN-Datenbank prüfen
+SW1# show vlan brief
+SW2# show vlan brief
+
+! 2. Trunk-Status prüfen
+SW1# show interfaces trunk
+! Erwartung: Gi0/24 trunking, Native 999, 10/20/99/999 in active domain
+
+! 3. Routing-Tabelle auf SW2
+SW2# show ip route
+! Erwartung: C 192.168.10.0/24 via Vlan10, C 192.168.20.0/24 via Vlan20
+
+! 4. SVI-Status
+SW2# show interfaces vlan 10
+! Erwartung: Vlan10 is up, line protocol is up
+
+! 5. Konnektivität (Inter-VLAN)
+PC1# ping 192.168.20.10     ! → soll funktionieren (über SW2 ip routing)
+PC1# ping 192.168.10.10     ! → direktes VLAN 10 (Layer 2)
+SW1# ping 192.168.99.1      ! → Management-Ping zum SW2-Gateway
+\`\`\`
+
+---
+
+## Häufige Fehler (5 typische Fallstricke)
+
+> ⚠️ **\`ip routing\` vergessen** — SVIs können ohne \`ip routing\` erstellt werden, Routing findet aber nicht statt. Symptom: Ping zwischen VLANs schlägt fehl, \`show ip route\` zeigt nur direkt verbundene Routen wenn überhaupt.
+
+> ⚠️ **VLAN existiert nicht in Datenbank** — \`show interfaces trunk\` zeigt ein VLAN unter "allowed" aber nicht unter "active in management domain". Ursache: VLAN wurde auf SW1 angelegt aber nicht auf SW2 (oder umgekehrt). Abhilfe: \`show vlan brief\` auf beiden Switches vergleichen.
+
+> ⚠️ **Native VLAN Mismatch** — SW1 und SW2 müssen dasselbe Native VLAN konfiguriert haben. CDP meldet: \`%CDP-4-NATIVE_VLAN_MISMATCH\`. Abhilfe: \`show interfaces trunk\` auf beiden Switches, Native VLAN-Spalte vergleichen.
+
+> ⚠️ **SVI bleibt down** — Ein SVI geht nur "up", wenn VLAN in der Datenbank existiert UND mindestens ein aktiver Port diesem VLAN zugewiesen ist (der Trunk-Port zählt). \`show interfaces vlan 10\` zeigt "line protocol is down" wenn kein Port aktiv ist.
+
+> ⚠️ **PC-Gateway falsch gesetzt** — PC1 sendet Paket an Default-Gateway, aber Gateway-Adresse zeigt nicht auf SW2-SVI. Symptom: Ping innerhalb des VLANs funktioniert, VLAN-übergreifend schlägt fehl. Abhilfe: PC-Konfiguration überprüfen.
+
+---
+
+## Übungsaufgabe
+
+**Erweitere das Lab um VLAN 30 (MARKETING, 192.168.30.0/24):**
+
+1. Welche Befehle brauchst du auf **SW1**? (VLANs, Access-Ports für neue PCs)
+2. Welche Befehle brauchst du auf **SW2**? (VLAN, SVI mit IP, Trunk allowed)
+3. Was muss auf dem **Trunk-Link** geändert werden?
+4. Teste mit \`ping 192.168.10.10\` von einem VLAN-30-Host — funktioniert es?
+
+*Hinweis: Vergiss nicht, VLAN 30 explizit dem Trunk-Link hinzuzufügen: \`switchport trunk allowed vlan add 30\`*
+
+---
+
+## 🔗 Cross-Reference: STP (Spanning Tree Protocol)
+
+> **Sobald du zwei oder mehr Switches mit Trunk-Links verbindest, ist STP aktiv** — und du musst es verstehen.
+>
+> In diesem Lab hast du genau einen Trunk-Pfad zwischen SW1 und SW2. Was passiert, wenn du einen zweiten Trunk-Link hinzufügst (Redundanz)?
+> → **Spanning Tree Protocol (STP)** berechnet automatisch, welcher Link blockiert wird, um Loops zu verhindern.
+>
+> 📚 Nächstes Modul: **STP Deep-Dive** — Lerne wie STP Loops verhindert, was RSTP verbessert, und welche Ports in welchem Zustand sind.
+  `.trim(),
+};
+
+// ── Concept 12: Lab 12.3 — WLAN-VLAN-Anbindung ───────────────
+
+export const CONCEPT_VLAN_LAB_WLAN: Concept = {
+  id: "vlan-lab-wlan",
+  title: "Lab 12.3 — WLAN-VLAN-Anbindung (AP → Trunk → L3-Switch)",
+  appliesTo: ["ccna"],
+  tags: [
+    "vlan",
+    "lab",
+    "wlan",
+    "wireless",
+    "access-point",
+    "trunk",
+    "voice-vlan",
+    "ssid",
+    "l3-switch",
+  ],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1, 3.3 | ⏱️ 40 Min
+
+---
+
+> 💡 **Cisco Packet Tracer**: Dieses Lab kann in Cisco Packet Tracer nachgebaut werden. Verwende einen Cisco Aironet AP oder den generischen "Wireless Router" für die AP-Seite. Download unter [netacad.com](https://www.netacad.com).
+
+---
+
+## Lernziel
+
+Wireless-Netzwerke verbinden sich nicht direkt mit VLANs — sie benötigen eine **SSID-zu-VLAN-Zuordnung** im Access Point.
+Der **Switch sieht den AP wie jeden anderen Trunk-Partner**: getaggte Frames pro VLAN.
+In diesem Lab konfigurierst du die **Switch-Seite** vollständig; die AP-Konfiguration wird konzeptuell beschrieben (sie ist herstellerspezifisch und Thema des Wireless-Moduls).
+
+---
+
+## Topologie
+
+\`\`\`
+Laptop (SSID: "CORP-DATA")  ─── WiFi ─┐
+                                       │
+Phone  (SSID: "CORP-VOICE") ─── WiFi ─┤── [ Access Point (AP) ] ── Gi0/1 Trunk ── Gi0/1 L3-SW1
+                                       │         │
+Guest  (SSID: "GÄSTE-WLAN") ─── WiFi ─┘         │ AP sendet pro SSID getaggte Frames:
+                                             SSID CORP-DATA  → Tag VID=10
+                                             SSID CORP-VOICE → Tag VID=100
+                                             SSID GÄSTE-WLAN → Tag VID=50
+                                             AP-Mgmt-Traffic → ungetaggt (Native VLAN 999)
+
+L3-SW1: ip routing + SVI pro VLAN = Inter-VLAN-Routing
+\`\`\`
+
+---
+
+## IP-Plan
+
+| VLAN-ID | Name | Subnetz | Gateway (SVI) | Verwendung |
+|---------|------|---------|---------------|-----------|
+| 10 | CORP-DATA | 192.168.10.0/24 | 192.168.10.1 | Unternehmens-Laptops |
+| 100 | CORP-VOICE | 192.168.100.0/24 | 192.168.100.1 | VoIP-Phones |
+| 50 | GÄSTE | 192.168.50.0/24 | 192.168.50.1 | Gäste (isoliert) |
+| 99 | MANAGEMENT | 192.168.99.0/28 | 192.168.99.1 | AP + Switch Mgmt |
+| 999 | NATIVE | — | — | kein Host, AP-Trunk |
+
+---
+
+## Switch-Konfiguration (vollständig)
+
+### VLANs anlegen
+
+\`\`\`
+SW1(config)# vlan 10
+SW1(config-vlan)# name CORP-DATA
+SW1(config)# vlan 50
+SW1(config-vlan)# name GAESTE
+SW1(config)# vlan 99
+SW1(config-vlan)# name MANAGEMENT
+SW1(config)# vlan 100
+SW1(config-vlan)# name CORP-VOICE
+SW1(config)# vlan 999
+SW1(config-vlan)# name NATIVE
+\`\`\`
+
+### Trunk-Port zum Access Point
+
+\`\`\`
+! Der AP hängt an Gi0/1 — dieser Port wird als Trunk konfiguriert
+SW1(config)# interface GigabitEthernet 0/1
+SW1(config-if)# switchport mode trunk
+SW1(config-if)# switchport trunk native vlan 999
+SW1(config-if)# switchport trunk allowed vlan 10,50,99,100,999
+SW1(config-if)# switchport nonegotiate
+! Kein 'spanning-tree portfast' auf Trunk-Ports!
+
+! VLAN 1 entfernen (kein Grund, VLAN 1 auf AP-Trunk zu erlauben)
+SW1(config-if)# switchport trunk allowed vlan remove 1
+\`\`\`
+
+### ip routing + SVIs
+
+\`\`\`
+SW1(config)# ip routing
+
+SW1(config)# interface Vlan10
+SW1(config-if)# ip address 192.168.10.1 255.255.255.0
+SW1(config-if)# no shutdown
+
+SW1(config)# interface Vlan50
+SW1(config-if)# ip address 192.168.50.1 255.255.255.0
+SW1(config-if)# no shutdown
+
+SW1(config)# interface Vlan99
+SW1(config-if)# ip address 192.168.99.1 255.255.255.240
+SW1(config-if)# no shutdown
+
+SW1(config)# interface Vlan100
+SW1(config-if)# ip address 192.168.100.1 255.255.255.0
+SW1(config-if)# no shutdown
+\`\`\`
+
+---
+
+## AP-Konfiguration (konzeptuell — herstellerspezifisch)
+
+> ⚠️ **Hinweis**: Die AP-seitige Konfiguration (SSID → VLAN-Mapping) ist **herstellerspezifisch** und wird im Wireless-Modul behandelt. Die folgenden Angaben gelten konzeptuell für Cisco Aironet / Cisco WLC:
+
+\`\`\`
+! Konzeptuell (Cisco WLC / Aironet):
+! SSID "CORP-DATA"  → VLAN 10
+! SSID "CORP-VOICE" → VLAN 100
+! SSID "GÄSTE-WLAN" → VLAN 50
+! AP-Management     → VLAN 99 (Native VLAN auf Trunk = kein Tag)
+
+! Der AP sendet für jede SSID getaggte Frames Richtung Switch
+! Trunk-Port auf dem Switch = einzige Konfiguration auf Switch-Seite
+\`\`\`
+
+📚 **Cross-Reference Wireless-Modul**: Dort lernst du, wie du SSIDs auf einem Cisco WLC oder Meraki AP erstellst und sie per "VLAN Mapping" mit den oben konfigurierten VLANs verknüpfst.
+
+---
+
+## Verifikation (Switch-Seite)
+
+\`\`\`
+! 1. Trunk-Status prüfen
+SW1# show interfaces GigabitEthernet 0/1 trunk
+! Erwartung: Mode = trunking, Native = 999, Allowed = 10,50,99,100,999
+! Active: alle 5 VLANs (vorausgesetzt AP sendet Traffic in diesem VLAN)
+
+! 2. VLANs aktiv?
+SW1# show vlan brief
+! Erwartung: 10,50,99,100 active; 999 active (native, kein Port explizit)
+
+! 3. Routing-Tabelle
+SW1# show ip route
+! Erwartung: C 192.168.10.0/24, 192.168.50.0/24, 192.168.100.0/24 direkt verbunden
+
+! 4. SVI-Status
+SW1# show interfaces vlan 10
+! Erwartung: Vlan10 is up, line protocol is up
+! Achtung: "line protocol is down" wenn kein Gerät im VLAN 10 aktiv ist
+
+! 5. Konnektivität (sobald AP aktiv und Clients verbunden)
+SW1# ping 192.168.99.X     ! AP-Management-IP anpingen
+Laptop# ping 192.168.10.1  ! Default-Gateway erreichbar?
+\`\`\`
+
+---
+
+## Häufige Fehler (5 typische Fallstricke)
+
+> ⚠️ **AP sendet ungetaggte Frames** — Wenn der AP nicht korrekt als Trunk konfiguriert ist, sendet er alle Frames ungetaggt. Der Switch ordnet sie dem Native VLAN (999) zu — kein VLAN-Separation. Abhilfe: AP-Trunk-Konfiguration überprüfen (herstellerspezifisch).
+
+> ⚠️ **Native VLAN Mismatch** — AP erwartet Native VLAN 1, Switch hat Native VLAN 999. Frames für AP-Management kommen im falschen VLAN an. Symptom: AP nicht per SSH/Web erreichbar. Abhilfe: Native VLAN auf beiden Seiten identisch setzen.
+
+> ⚠️ **Gäste-VLAN nicht isoliert** — VLAN 50 (Gäste) hat ip routing → Gäste erreichen VLAN 10/100. In Produktion: Firewall-Regel oder \`ip access-group\` auf SVI Vlan50 einrichten, die VLAN 10/100 blockiert.
+
+> ⚠️ **VLAN nicht im Trunk allowed** — AP sendet getaggte Frames für VLAN 100, aber \`switchport trunk allowed vlan\` enthält VLAN 100 nicht. Frames werden verworfen. Symptom: Voice-Clients haben keine IP-Adresse. Abhilfe: \`show interfaces trunk\` prüfen.
+
+> ⚠️ **SVI bleibt down** — Ein SVI geht nur "up", wenn VLAN existiert UND mindestens ein aktiver Port im VLAN vorhanden ist. Da der AP ein Trunk-Port ist, muss der AP tatsächlich verbunden und aktiv sein.
+
+---
+
+## Übungsaufgabe
+
+**Füge ein zweites Gäste-NETZ für Partner hinzu (VLAN 60, 192.168.60.0/24):**
+
+1. Welche Befehle sind auf dem Switch nötig?
+2. Was muss auf dem AP geändert werden (konzeptuell)?
+3. Wie isolierst du VLAN 60, sodass Partner zwar ins Internet, aber nicht in VLAN 10/50/100 können?
+4. Überprüfe nach der Konfiguration mit \`show interfaces trunk\` — siehst du VLAN 60 unter "active in management domain"?
+
+---
+
+## 🔗 Cross-References
+
+> 📚 **STP-Modul**: Der AP-Trunk-Port sollte **kein** \`spanning-tree portfast\` erhalten, da ein AP prinzipiell ein Switch sein könnte. Lerne im STP-Modul, wann PortFast sicher ist.
+>
+> 📚 **Wireless-Modul**: SSID → VLAN-Mapping auf Cisco WLC, Meraki, und UniFi APs. QoS für CORP-VOICE (SSID markiert Traffic mit WMM-AC_VO → Switch erkennt CoS 5).
+>
+> 📚 **Security-Modul**: Gäste-VLAN-Isolation, Dynamic ARP Inspection (DAI), IP Source Guard zum Schutz von VLAN 10/100 gegen Angriffe aus VLAN 50.
   `.trim(),
 };
 
@@ -1093,11 +1555,13 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-advanced-guide",
     "vlan-simulator",
     "vlan-lab-bruecke",
+    "vlan-lab-multi-switch",
+    "vlan-lab-wlan",
   ],
   quizIds: ["quiz-vlan-advanced"],
   exerciseIds: [],
   prerequisiteTopicIds: ["switching-vlans", "networking-fundamentals"],
-  estimatedMinutes: 180,
+  estimatedMinutes: 240,
   tags: ["vlan", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
 };
 
@@ -1114,4 +1578,6 @@ export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
   "vlan-advanced-guide": CONCEPT_VLAN_ADVANCED_GUIDE,
   "vlan-simulator": CONCEPT_VLAN_SIMULATOR,
   "vlan-lab-bruecke": CONCEPT_VLAN_LAB_BRUECKE,
+  "vlan-lab-multi-switch": CONCEPT_VLAN_LAB_MULTI_SWITCH,
+  "vlan-lab-wlan": CONCEPT_VLAN_LAB_WLAN,
 };
