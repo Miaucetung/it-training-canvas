@@ -4183,6 +4183,51 @@ export const QUIZ_AUTOMATION: Quiz = {
         { id: "d", text: "FTP-Konfigurationssync", isCorrect: false },
       ],
     },
+    // ── 4 neue Fragen (T-6/R-4 NETCONF/YANG Gap-Plan) ───────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.3",
+      text: "Auf welchem TCP-Port kommuniziert NETCONF standardmäßig?",
+      explanation: "NETCONF verwendet SSH als Transport auf TCP-Port 830. RESTCONF nutzt HTTPS (TCP 443). Nicht verwechseln mit SNMP (UDP 161).",
+      answers: [
+        { id: "a", text: "UDP 161", isCorrect: false },
+        { id: "b", text: "TCP 443", isCorrect: false },
+        { id: "c", text: "TCP 830", isCorrect: true },
+        { id: "d", text: "UDP 514", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.3",
+      text: "Was ist YANG im Kontext von NETCONF?",
+      explanation: "YANG (Yet Another Next Generation, RFC 7950) ist eine Datenmodellierungssprache. Es definiert die Struktur und Typen von Konfigurationsdaten, die über NETCONF übertragen werden — ähnlich einem Schema für die Geräteconfig.",
+      answers: [
+        { id: "a", text: "Eine Skriptsprache wie Python zum Konfigurieren von Geräten", isCorrect: false },
+        { id: "b", text: "Eine Datenmodellierungssprache für NETCONF/RESTCONF-Datenstrukturen", isCorrect: true },
+        { id: "c", text: "Ein Ersatz für SNMP MIBs zur WLAN-Verwaltung", isCorrect: false },
+        { id: "d", text: "Ein Cisco-proprietäres Format für Konfigurationsdateien", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.3",
+      text: "Was ist der Unterschied zwischen NETCONF und RESTCONF?",
+      explanation: "NETCONF: SSH (TCP 830), XML, vollständige Transaktionskontrolle mit Candidate-Datastore. RESTCONF: HTTPS (RFC 8040), JSON oder XML, vereinfachter REST-ähnlicher Zugriff. Beide verwenden YANG-Datenmodelle.",
+      answers: [
+        { id: "a", text: "NETCONF ist neuer als RESTCONF und ersetzt es", isCorrect: false },
+        { id: "b", text: "NETCONF nutzt SSH/XML, RESTCONF nutzt HTTPS/JSON — beide mit YANG", isCorrect: true },
+        { id: "c", text: "RESTCONF kann keine Konfiguration ändern, nur lesen", isCorrect: false },
+        { id: "d", text: "NETCONF ist nur für Cisco-Geräte, RESTCONF ist herstellerneutral", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.3",
+      text: "Welches Cisco IOS-Kommando aktiviert NETCONF auf einem Cisco-Gerät?",
+      explanation: "'netconf-yang' aktiviert den NETCONF-Agent auf Cisco IOS-XE. Außerdem muss AAA konfiguriert sein. Anschließend sind YANG-Modell-basierte Konfigurationen über TCP 830 möglich.",
+      answers: [
+        { id: "a", text: "ip netconf enable", isCorrect: false },
+        { id: "b", text: "netconf-yang", isCorrect: true },
+        { id: "c", text: "service netconf activate", isCorrect: false },
+        { id: "d", text: "yang-agent start", isCorrect: false },
+      ],
+    },
   ],
 };
 
