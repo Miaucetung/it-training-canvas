@@ -3897,6 +3897,60 @@ export const QUIZ_DEVICE_MGMT: Quiz = {
         { id: "d", text: "An alle aktiven VTY-Sessions", isCorrect: false },
       ],
     },
+    // ── 5 neue Fragen (M-3 TFTP/FTP Gap-Plan, blueprint: "4.4") ──
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Auf welchem Port und welchem Transport-Protokoll arbeitet TFTP?",
+      explanation: "TFTP (Trivial File Transfer Protocol, RFC 1350) verwendet UDP Port 69. Es ist bewusst einfach gehalten: kein Auth, keine Verschlüsselung, keine Verzeichnisnavigation.",
+      answers: [
+        { id: "a", text: "TCP Port 21", isCorrect: false },
+        { id: "b", text: "TCP Port 69", isCorrect: false },
+        { id: "c", text: "UDP Port 69", isCorrect: true },
+        { id: "d", text: "UDP Port 161", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Welche zwei TCP-Ports nutzt FTP?",
+      explanation: "FTP nutzt TCP Port 21 für den Kommandokanal (Control) und TCP Port 20 für den Datenkanal (aktiver Modus). Im passiven Modus nutzt der Server einen ephemeren Port >1023 statt Port 20.",
+      answers: [
+        { id: "a", text: "TCP 20 (Daten) und TCP 21 (Control)", isCorrect: true },
+        { id: "b", text: "TCP 22 (SSH) und TCP 23 (Telnet)", isCorrect: false },
+        { id: "c", text: "UDP 69 und TCP 21", isCorrect: false },
+        { id: "d", text: "TCP 80 und TCP 443", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Welcher Cisco IOS-Befehl kopiert die laufende Konfiguration auf einen TFTP-Server?",
+      explanation: "'copy running-config tftp:' startet den interaktiven Dialog zur Eingabe der TFTP-Server-IP und des Dateinamens. Alternativ vollständig: 'copy running-config tftp://192.168.1.100/backup.cfg'.",
+      answers: [
+        { id: "a", text: "backup running-config tftp:", isCorrect: false },
+        { id: "b", text: "save running-config tftp:", isCorrect: false },
+        { id: "c", text: "copy running-config tftp:", isCorrect: true },
+        { id: "d", text: "write tftp:", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Was ist der Vorteil von SCP gegenüber FTP und TFTP für Cisco-Geräteverwaltung?",
+      explanation: "SCP (Secure Copy Protocol) basiert auf SSH und verschlüsselt die gesamte Übertragung inkl. Authentifizierung. FTP überträgt Passwörter im Klartext, TFTP hat gar keine Authentifizierung.",
+      answers: [
+        { id: "a", text: "SCP ist schneller als TFTP bei großen Dateien", isCorrect: false },
+        { id: "b", text: "SCP verschlüsselt die Übertragung und Authentifizierung via SSH", isCorrect: true },
+        { id: "c", text: "SCP verwendet UDP, was weniger Overhead hat", isCorrect: false },
+        { id: "d", text: "SCP benötigt keinen separaten Server — es ist im IOS integriert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "4.4",
+      text: "FTP überträgt Benutzername und Passwort verschlüsselt.",
+      explanation: "Falsch. Standard-FTP überträgt Credentials im Klartext (TCP Port 21). Für verschlüsselte Übertragung sind FTPS (FTP over TLS) oder SFTP (SSH-basiert) zu verwenden.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
   ],
 };
 
