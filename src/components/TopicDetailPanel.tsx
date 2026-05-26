@@ -36,6 +36,8 @@ interface TopicDetailPanelProps {
   module: CertificationModule;
   theme: "light" | "dark";
   onClose: () => void;
+  /** Callback: Lerner möchte ein Canvas-Template öffnen (Variante A) */
+  onOpenTemplate?: (templateId: string) => void;
 }
 
 // ── Cross-reference helpers ──────────────────────────────────
@@ -87,6 +89,7 @@ export function TopicDetailPanel({
   module,
   theme,
   onClose,
+  onOpenTemplate,
 }: TopicDetailPanelProps) {
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
@@ -104,6 +107,10 @@ export function TopicDetailPanel({
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
   const hasTerminalEmulator = topic.conceptIds.includes("ios-terminal");
+  // canvas-template:<id> — ein Topic kann beliebig viele Template-CTAs haben
+  const canvasTemplateIds = topic.conceptIds
+    .filter((id) => id.startsWith("canvas-template:"))
+    .map((id) => id.slice("canvas-template:".length));
 
   // ESC key support
   useEffect(() => {
@@ -400,6 +407,47 @@ export function TopicDetailPanel({
                 Starten →
               </span>
             </button>
+          </section>
+        )}
+
+        {/* ── Canvas-Template CTAs (canvas-template:<id> in conceptIds) ── */}
+        {canvasTemplateIds.length > 0 && onOpenTemplate && (
+          <section className="space-y-2">
+            {canvasTemplateIds.map((tplId) => (
+              <button
+                key={tplId}
+                type="button"
+                onClick={() => onOpenTemplate(tplId)}
+                className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                  dark
+                    ? "bg-violet-500/10 border-violet-500/30 hover:bg-violet-500/20 text-violet-200"
+                    : "bg-violet-50 border-violet-200 hover:bg-violet-100 text-violet-800"
+                }`}
+              >
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                    dark
+                      ? "bg-violet-500/30 text-violet-200"
+                      : "bg-violet-100 text-violet-700"
+                  }`}
+                >
+                  🗺️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold">Topologie auf Canvas öffnen</div>
+                  <div className="text-xs opacity-80 mt-0.5">
+                    Vorgefertigte Netzwerktopologie laden und erkunden
+                  </div>
+                </div>
+                <span
+                  className={`text-xs flex-shrink-0 ${
+                    dark ? "text-violet-300" : "text-violet-600"
+                  }`}
+                >
+                  Laden →
+                </span>
+              </button>
+            ))}
           </section>
         )}
 
