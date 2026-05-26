@@ -174,32 +174,52 @@ export function drawConnection(
     CONNECTION_COLORS[connection.connectionType] ||
     "#3B82F6";
 
-  // Animated dash pattern
-  if (animated || connection.animated) {
-    ctx.setLineDash([8, 4]);
-    ctx.lineDashOffset = -animationOffset;
-  } else {
-    ctx.setLineDash([]);
-  }
-
-  ctx.strokeStyle =
+  const strokeColor =
     connection.status === "error"
       ? "#EF4444"
       : connection.status === "inactive"
         ? "#6B7280"
         : color;
-  ctx.lineWidth = 2;
+
+  const isAnimated = animated || connection.animated;
+
+  // — Glow underlayer (solid, wide, low-opacity) —
+  ctx.save();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = isAnimated ? 6 : 4;
+  ctx.globalAlpha = isAnimated ? 0.18 : 0.12;
+  ctx.shadowColor = strokeColor;
+  ctx.shadowBlur = isAnimated ? 18 : 10;
   ctx.stroke();
+  ctx.restore();
+
+  // — Main line —
+  ctx.beginPath();
+  ctx.moveTo(sourcePos.x, sourcePos.y);
+  ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, targetPos.x, targetPos.y);
+  if (isAnimated) {
+    ctx.setLineDash([8, 4]);
+    ctx.lineDashOffset = -animationOffset;
+  } else {
+    ctx.setLineDash([]);
+  }
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = strokeColor;
+  ctx.shadowBlur = isAnimated ? 8 : 4;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 
   // Reset dash
   ctx.setLineDash([]);
 
   // Draw arrow at target
-  drawArrowHead(ctx, cp2, targetPos, color);
+  drawArrowHead(ctx, cp2, targetPos, strokeColor);
 
   // Draw bidirectional arrow if needed
   if (connection.bidirectional) {
-    drawArrowHead(ctx, cp1, sourcePos, color);
+    drawArrowHead(ctx, cp1, sourcePos, strokeColor);
   }
 
   // Draw label if present
@@ -207,23 +227,33 @@ export function drawConnection(
     const midX = (sourcePos.x + targetPos.x) / 2;
     const midY = (sourcePos.y + targetPos.y) / 2;
 
-    ctx.font = '11px "IBM Plex Sans", sans-serif';
-    ctx.fillStyle = "#94A3B8";
+    ctx.font = 'bold 10px "IBM Plex Mono", monospace';
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // Background for label
-    const textMetrics = ctx.measureText(connection.label);
-    const padding = 4;
-    ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
-    ctx.fillRect(
-      midX - textMetrics.width / 2 - padding,
-      midY - 8,
-      textMetrics.width + padding * 2,
-      16,
-    );
+    // Pill background with color border
+    const tw = ctx.measureText(connection.label).width;
+    const pH = 15;
+    const pW = tw + 14;
+    const px = midX - pW / 2;
+    const py = midY - pH / 2;
 
-    ctx.fillStyle = "#E2E8F0";
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(10, 17, 35, 0.88)";
+    ctx.beginPath();
+    (ctx as CanvasRenderingContext2D & { roundRect: (...a: unknown[]) => void })
+      .roundRect(px, py, pW, pH, 4);
+    ctx.fill();
+
+    // Color-tinted border
+    ctx.strokeStyle = strokeColor + "66";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    (ctx as CanvasRenderingContext2D & { roundRect: (...a: unknown[]) => void })
+      .roundRect(px, py, pW, pH, 4);
+    ctx.stroke();
+
+    ctx.fillStyle = "#CBD5E1";
     ctx.fillText(connection.label, midX, midY);
   }
 }

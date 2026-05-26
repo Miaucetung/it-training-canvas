@@ -373,9 +373,9 @@ export function Canvas({
   const drawGrid = useCallback(
     (ctx: CanvasRenderingContext2D, width: number, height: number) => {
       const defaultGridColor =
-        theme === "dark" ? "rgba(100, 100, 120, 0.3)" : "rgba(0, 0, 0, 0.08)";
+        theme === "dark" ? "rgba(56, 189, 248, 0.1)" : "rgba(0, 0, 0, 0.08)";
       const defaultAccentColor =
-        theme === "dark" ? "rgba(100, 100, 120, 0.5)" : "rgba(0, 0, 0, 0.15)";
+        theme === "dark" ? "rgba(56, 189, 248, 0.22)" : "rgba(0, 0, 0, 0.15)";
 
       const finalGridColor = gridColor || defaultGridColor;
       const finalAccentColor = gridAccentColor || defaultAccentColor;
@@ -471,9 +471,21 @@ export function Canvas({
     if (!ctx) return;
 
     // Clear canvas
-    const bgColor = theme === "dark" ? "#0f172a" : "#f8fafc";
+    const bgColor = theme === "dark" ? "#0a0f1e" : "#f8fafc";
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Dark mode radial vignette (darker corners for depth)
+    if (theme === "dark") {
+      const vignette = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, canvas.height * 0.15,
+        canvas.width / 2, canvas.height / 2, canvas.height * 0.95,
+      );
+      vignette.addColorStop(0, "transparent");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.45)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     // Draw grid
     if (showGrid) {

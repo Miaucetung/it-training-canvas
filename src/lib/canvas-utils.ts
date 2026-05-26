@@ -281,12 +281,23 @@ export function drawObject(
 
         // Draw label below the shape
         if (obj.label) {
-          ctx.fillStyle = obj.color;
-          ctx.font = "bold 11px IBM Plex Mono";
+          const lx = centerX;
+          const ly = y + height + 14;
+          ctx.font = "bold 11px 'IBM Plex Mono', monospace";
           ctx.textAlign = "center";
-          const labelX = centerX;
-          const labelY = y + height + 14;
-          ctx.fillText(obj.label, labelX, labelY);
+          const tw = ctx.measureText(obj.label).width;
+
+          // Badge background (semi-transparent dark pill)
+          ctx.fillStyle = "rgba(10, 15, 30, 0.72)";
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          (ctx as unknown as { roundRect: (...a: unknown[]) => void })
+            .roundRect(lx - tw / 2 - 5, ly - 11, tw + 10, 14, 3);
+          ctx.fill();
+
+          // Label text in shape color
+          ctx.fillStyle = obj.color;
+          ctx.fillText(obj.label, lx, ly);
         }
 
         // Draw status indicator (top-right corner)
