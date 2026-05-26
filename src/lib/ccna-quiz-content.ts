@@ -981,6 +981,82 @@ export const QUIZ_IPV6: Quiz = {
         { id: "d", text: "Zwei Prozesse: OSPFv2 für IPv4 + OSPFv3 für IPv6", isCorrect: true },
       ],
     },
+    // ── 7 neue Fragen (T-1/R-1 IPv6 Gap-Plan, blueprint: "1.4") ───
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welcher IPv6-Adresstyp beginnt mit dem Präfix FE80::/10 und ist nur im lokalen Netzwerksegment gültig?",
+      explanation: "Link-Local-Adressen (FE80::/10) werden automatisch auf jedem IPv6-Interface konfiguriert. Sie sind nicht routbar und gelten nur im lokalen Segment. OSPFv3 und NDP nutzen sie als Quelladressen.",
+      answers: [
+        { id: "a", text: "Global Unicast Address (GUA)", isCorrect: false },
+        { id: "b", text: "Unique Local Address (ULA)", isCorrect: false },
+        { id: "c", text: "Link-Local Address", isCorrect: true },
+        { id: "d", text: "Multicast Address", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welches Präfix kennzeichnet eine Global Unicast Address (GUA) in IPv6?",
+      explanation: "GUAs beginnen mit dem Binärpräfix 001, was dem Bereich 2000::/3 entspricht. Sie sind öffentlich routbar — vergleichbar mit öffentlichen IPv4-Adressen.",
+      answers: [
+        { id: "a", text: "FC00::/7", isCorrect: false },
+        { id: "b", text: "FE80::/10", isCorrect: false },
+        { id: "c", text: "FF00::/8", isCorrect: false },
+        { id: "d", text: "2000::/3", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Eine Unique Local Address (ULA) in IPv6 entspricht am ehesten welchem IPv4-Konzept?",
+      explanation: "ULAs (FC00::/7) sind privat und nicht global routbar — das IPv6-Äquivalent zu RFC-1918-Adressen (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) in IPv4.",
+      answers: [
+        { id: "a", text: "IPv4 Public Addresses", isCorrect: false },
+        { id: "b", text: "IPv4 APIPA-Adressen (169.254.x.x)", isCorrect: false },
+        { id: "c", text: "IPv4 Private Addresses (RFC 1918)", isCorrect: true },
+        { id: "d", text: "IPv4 Multicast-Adressen (224.0.0.0/4)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welche NDP-Nachricht sendet ein Router regelmäßig aus, um Hosts über das Netzwerkpräfix zu informieren?",
+      explanation: "Router Advertisement (RA) — gesendet periodisch oder als Antwort auf eine Router Solicitation. RA enthält den IPv6-Präfix, Gateway-Adresse und Flags für SLAAC oder DHCPv6.",
+      answers: [
+        { id: "a", text: "Neighbor Solicitation (NS)", isCorrect: false },
+        { id: "b", text: "Neighbor Advertisement (NA)", isCorrect: false },
+        { id: "c", text: "Router Advertisement (RA)", isCorrect: true },
+        { id: "d", text: "Router Solicitation (RS)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Was ist der Unterschied zwischen Stateful DHCPv6 und Stateless DHCPv6?",
+      explanation: "Stateful DHCPv6: Server vergibt vollständige Adresse + DNS (wie DHCPv4). Stateless DHCPv6: Host nutzt SLAAC für die Adresse, DHCPv6 liefert nur zusätzliche Parameter (z. B. DNS-Server).",
+      answers: [
+        { id: "a", text: "Stateless DHCPv6 vergibt Adressen, Stateful DHCPv6 nur DNS-Informationen", isCorrect: false },
+        { id: "b", text: "Stateful DHCPv6 vergibt Adresse + DNS; Stateless DHCPv6 nur zusätzliche Parameter (z. B. DNS), Adresse via SLAAC", isCorrect: true },
+        { id: "c", text: "Beide Methoden liefern das gleiche Ergebnis, nur mit unterschiedlichem Protokoll", isCorrect: false },
+        { id: "d", text: "Stateful DHCPv6 funktioniert nur mit IPv4-Dual-Stack", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "1.4",
+      text: "Eine IPv6-Loopback-Adresse ist ::1/128.",
+      explanation: "Wahr. Der IPv6-Loopback ist ::1/128 (vollständig: 0000:0000:0000:0000:0000:0000:0000:0001) — entspricht 127.0.0.1 in IPv4.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welcher Cisco IOS-Befehl muss global konfiguriert sein, damit ein Router IPv6-Pakete weiterleitet?",
+      explanation: "'ipv6 unicast-routing' aktiviert IPv6-Routing auf dem Cisco-Router. Ohne diesen Befehl verhält sich der Router bezüglich IPv6 wie ein Host und verwirft fremde IPv6-Pakete.",
+      answers: [
+        { id: "a", text: "ip routing ipv6 enable", isCorrect: false },
+        { id: "b", text: "ipv6 unicast-routing", isCorrect: true },
+        { id: "c", text: "ipv6 routing enable", isCorrect: false },
+        { id: "d", text: "ipv6 forward-protocol", isCorrect: false },
+      ],
+    },
   ],
 };
 
