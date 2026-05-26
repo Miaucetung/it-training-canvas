@@ -1045,60 +1045,63 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     tags: ["VLAN", "Security", "Double-Tagging", "VLAN-Hopping", "Native-VLAN", "Didaktik"],
     difficulty: "intermediate",
     objects: [
-      // Header
-      tplText("vhop-h1", 60, 20, "VLAN-Hopping: Double-Tagging Attack", "#991B1B", 18),
-      tplText("vhop-h2", 60, 46,
+      // ── Zone 1: Titel + Untertitel ──────────────────────────────────
+      tplText("vhop-h1", 60, 20,
+        "VLAN-Hopping: Double-Tagging Attack", "#991B1B", 18),
+      tplText("vhop-h2", 60, 44,
         "Angreifer in Native VLAN sendet doppelt-getaggten Frame → erreicht VLAN 20 ohne Routing",
         "#475569", 12),
 
-      // Warnung-Banner
-      tplRect("vhop-warn", 50, 68, 720, 26, "#FEE2E2"),
-      tplText("vhop-warn-t", 56, 77,
+      // ── Zone 2: Warnungs-Banner ──────────────────────────────────────
+      tplRect("vhop-warn", 50, 58, 740, 28, "#EF4444"),
+      tplText("vhop-warn-t", 58, 77,
         "⚠️  Funktioniert NUR wenn Native VLAN = Angreifer-VLAN  |  Gegenmaßnahme: Native VLAN 999 (keine Hosts)",
         "#991B1B", 11),
 
-      // Angreifer-Zone (rot)
-      tplRect("vhop-zone-a", 40, 108, 130, 90, "#FECACA"),
-      tplText("vhop-al1", 52, 114, "VLAN 1 (Native)", "#991B1B", 10),
-      tplShape("vhop-attacker", "computer", 65, 128, 65, 65, "#EF4444", "Angreifer"),
+      // ── Zone 3: Topologie — vier Shapes horizontal ──────────────────
+      // Angreifer-Zone: Hintergrund-Rechteck (VLAN 1 Native)
+      tplRect("vhop-zone-a", 45, 96, 158, 124, "#EF4444"),
+      tplText("vhop-al1", 53, 110, "VLAN 1 (Native)", "#EF4444", 10),
+      tplShape("vhop-attacker", "computer", 71, 120, 70, 70, "#EF4444", "Angreifer"),
 
-      // SW1
-      tplShape("vhop-sw1", "switch", 275, 128, 90, 70, "#10B981", "SW1"),
-
-      // Schritt-Annotationen Bereich SW1
-      tplRect("vhop-step1", 188, 218, 220, 44, "#FEF3C7"),
-      tplText("vhop-s1a", 194, 225, "① Frame an SW1: [Tag VL1][Tag VL20]", "#92400E", 11),
-      tplText("vhop-s1b", 194, 239, "② SW1 entfernt äußeren Tag (Native VLAN 1)", "#92400E", 11),
+      // SW1 (kein Zonen-Hintergrund — Switch im freien Raum)
+      tplShape("vhop-sw1", "switch", 255, 120, 90, 70, "#10B981", "SW1"),
 
       // SW2
-      tplShape("vhop-sw2", "switch", 500, 128, 90, 70, "#10B981", "SW2"),
+      tplShape("vhop-sw2", "switch", 445, 120, 90, 70, "#10B981", "SW2"),
 
-      // Ziel-Zone
-      tplRect("vhop-zone-t", 650, 108, 130, 90, "#F1F5F9"),
-      tplText("vhop-tl1", 662, 114, "VLAN 20", "#1D4ED8", 10),
-      tplShape("vhop-target", "server", 670, 128, 65, 65, "#64748B", "Ziel-Server"),
+      // Ziel-Zone: Hintergrund-Rechteck (VLAN 20)
+      tplRect("vhop-zone-t", 612, 96, 165, 124, "#3B82F6"),
+      tplText("vhop-tl1", 620, 110, "VLAN 20", "#3B82F6", 10),
+      tplShape("vhop-target", "server", 635, 120, 65, 65, "#64748B", "Ziel-Server"),
 
-      // Schritt-Annotationen Bereich SW2
-      tplRect("vhop-step3", 448, 218, 242, 44, "#DBEAFE"),
-      tplText("vhop-s3a", 454, 225, "③ SW2 sieht [Tag VL20] → leitet an VLAN 20 weiter", "#1D4ED8", 11),
-      tplText("vhop-s3b", 454, 239, "④ Angreifer hat VLAN 20 erreicht — ohne Routing!", "#1D4ED8", 11),
+      // ── Zone 4: Schritt-Erklärungen unter SW1 und SW2 ───────────────
+      // Unter SW1 (x=255–345, Boxmitte ~300)
+      tplRect("vhop-step1", 50, 236, 350, 60, "#F59E0B"),
+      tplText("vhop-s1a", 58, 254, "① Frame an SW1: [Tag VL1][Tag VL20]", "#92400E", 11),
+      tplText("vhop-s1b", 58, 272, "② SW1 entfernt äußeren Tag (Native VLAN 1)", "#92400E", 11),
 
-      // Unidirektional-Hinweis
-      tplRect("vhop-uni", 50, 278, 720, 26, "#F0FDF4"),
-      tplText("vhop-uni-t", 56, 287,
+      // Unter SW2 (x=445–535, Boxmitte ~490)
+      tplRect("vhop-step3", 408, 236, 375, 60, "#38BDF8"),
+      tplText("vhop-s3a", 416, 254, "③ SW2 sieht [Tag VL20] → leitet an VLAN 20 weiter", "#1D4ED8", 11),
+      tplText("vhop-s3b", 416, 272, "④ Angreifer hat VLAN 20 erreicht — ohne Routing!", "#1D4ED8", 11),
+
+      // ── Zone 5: Unidirektional-Hinweis ──────────────────────────────
+      tplRect("vhop-uni", 50, 308, 740, 28, "#22C55E"),
+      tplText("vhop-uni-t", 58, 327,
         "⚠️  UNIDIREKTIONAL: Antwortframes kommen über normalen Gateway zurück (nicht über den Angriffspfad)",
         "#166534", 11),
 
-      // Gegenmaßnahmen-Box
-      tplRect("vhop-cm", 50, 318, 720, 88, "#EFF6FF"),
-      tplText("vhop-cm-h",  56, 326, "Gegenmaßnahmen:", "#1E293B", 13),
-      tplText("vhop-cm1",  56, 342,
+      // ── Zone 6: Gegenmaßnahmen-Block ────────────────────────────────
+      tplRect("vhop-cm", 50, 348, 740, 112, "#6366F1"),
+      tplText("vhop-cm-h",  58, 365, "Gegenmaßnahmen:", "#1E293B", 13),
+      tplText("vhop-cm1",  58, 387,
         "switchport trunk native vlan 999   (999 = unbenutztes VLAN ohne Hosts)",
         "#334155", 11),
-      tplText("vhop-cm2",  56, 358,
+      tplText("vhop-cm2",  58, 407,
         "vlan dot1q tag native               (Native VLAN wird ebenfalls getaggt)",
         "#334155", 11),
-      tplText("vhop-cm3",  56, 374,
+      tplText("vhop-cm3",  58, 427,
         "switchport trunk allowed vlan remove 1   (VLAN 1 vom Trunk entfernen)",
         "#334155", 11),
     ],
