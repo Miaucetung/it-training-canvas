@@ -1564,6 +1564,182 @@ export const QUIZ_HARDEN: Quiz = {
 };
 
 // ============================================================
+// QUIZ STP: Spanning Tree Protocol
+// ============================================================
+export const QUIZ_STP: Quiz = {
+  id: "ccna-quiz-stp",
+  title: "CCNA: Spanning Tree Protocol (STP / RSTP)",
+  description: "Root-Bridge-Wahl, Port-Rollen, Port-Zustände, STP-Timer, RSTP, BPDU Guard, PortFast, PVST+",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Wie wird die Root Bridge in STP gewählt?",
+      explanation: "Die Root Bridge ist der Switch mit der niedrigsten Bridge-ID. Die Bridge-ID besteht aus: Priority (16 Bit, Standard 32768) + MAC-Adresse. Zuerst wird die Priority verglichen; bei Gleichstand entscheidet die niedrigste MAC-Adresse.",
+      answers: [
+        { id: "a", text: "Der Switch mit der höchsten Priority-Zahl", isCorrect: false },
+        { id: "b", text: "Der Switch mit der niedrigsten Bridge-ID (Priority + MAC)", isCorrect: true },
+        { id: "c", text: "Der Switch mit den meisten Uplinks", isCorrect: false },
+        { id: "d", text: "Der Switch, der zuerst hochgefahren ist", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Auf welchen Wert muss die STP-Priority gesetzt werden, um einen Switch garantiert zur Root Bridge zu machen?",
+      explanation: "STP-Priority muss ein Vielfaches von 4096 sein (0, 4096, 8192, … 61440). Der Wert 0 ist die niedstmögliche Priority und macht diesen Switch zur bevorzugten Root Bridge.",
+      answers: [
+        { id: "a", text: "1", isCorrect: false },
+        { id: "b", text: "0", isCorrect: true },
+        { id: "c", text: "32768", isCorrect: false },
+        { id: "d", text: "4096", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Welche Port-Rolle erhält auf der Root Bridge jeder ihrer Ports?",
+      explanation: "Auf der Root Bridge sind alle Ports Designated Ports (immer im Forwarding-State). Die Root Bridge sendet BPDUs hinaus und leitet Traffic weiter.",
+      answers: [
+        { id: "a", text: "Root Port", isCorrect: false },
+        { id: "b", text: "Designated Port", isCorrect: true },
+        { id: "c", text: "Alternate Port", isCorrect: false },
+        { id: "d", text: "Blocked Port", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Was ist der Root Port eines Switches?",
+      explanation: "Der Root Port ist der Port mit dem niedrigsten Root-Path-Cost zur Root Bridge. Jeder Nicht-Root-Switch hat genau einen Root Port. Dieser Port ist im Forwarding-State.",
+      answers: [
+        { id: "a", text: "Jeder Port, der BPDUs sendet", isCorrect: false },
+        { id: "b", text: "Der Port mit dem günstigsten Pfad zur Root Bridge", isCorrect: true },
+        { id: "c", text: "Der Port, der gesperrt ist und keine Frames weiterleitet", isCorrect: false },
+        { id: "d", text: "Der Port, der auf der Root Bridge liegt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Welcher Port-Zustand in klassischem STP (802.1D) leitet weder Frames weiter noch lernt er MAC-Adressen?",
+      explanation: "Blocking-Zustand: Der Port empfängt BPDUs, leitet aber keine Frames weiter und lernt keine MAC-Adressen. Er dient als Loop-Prävention.",
+      answers: [
+        { id: "a", text: "Learning", isCorrect: false },
+        { id: "b", text: "Listening", isCorrect: false },
+        { id: "c", text: "Blocking", isCorrect: true },
+        { id: "d", text: "Disabled", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.3",
+      text: "In welchen STP-Port-Zuständen werden MAC-Adressen gelernt? (Mehrere Antworten möglich)",
+      explanation: "MAC-Adressen werden in den Zuständen Learning und Forwarding gelernt. In Blocking und Listening werden keine MAC-Adressen gelernt.",
+      answers: [
+        { id: "a", text: "Blocking", isCorrect: false },
+        { id: "b", text: "Listening", isCorrect: false },
+        { id: "c", text: "Learning", isCorrect: true },
+        { id: "d", text: "Forwarding", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Wie lange dauert es bei Standard-STP (802.1D), bis ein Port vom Blocking-Zustand in den Forwarding-Zustand wechselt?",
+      explanation: "Standard-STP Konvergenz: Blocking (Max-Age 20s) → Listening (15s Forward-Delay) → Learning (15s Forward-Delay) → Forwarding. Gesamt: bis zu 50 Sekunden.",
+      answers: [
+        { id: "a", text: "Ca. 15 Sekunden (nur Forward-Delay)", isCorrect: false },
+        { id: "b", text: "Ca. 30 Sekunden (2 × Forward-Delay)", isCorrect: false },
+        { id: "c", text: "Ca. 50 Sekunden (Max-Age + 2 × Forward-Delay)", isCorrect: true },
+        { id: "d", text: "Ca. 5 Sekunden (Hello-Timer)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Welche RSTP-Port-Rolle ersetzt den Blocked Port aus klassischem STP?",
+      explanation: "RSTP (802.1w) ersetzt den Blocked Port durch den Alternate Port (beste Alternative zur Root Bridge) und den Backup Port (Backup für Designated Port am selben Segment).",
+      answers: [
+        { id: "a", text: "Disabled Port", isCorrect: false },
+        { id: "b", text: "Alternate Port und Backup Port", isCorrect: true },
+        { id: "c", text: "Edge Port", isCorrect: false },
+        { id: "d", text: "Standby Port", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Wie schnell konvergiert RSTP (Rapid STP 802.1w) im Vergleich zu klassischem STP?",
+      explanation: "RSTP konvergiert in Sekunden (typisch < 1–2 Sekunden) statt bis zu 50 Sekunden bei 802.1D. RSTP nutzt aktiven Handshake-Mechanismus statt Timer.",
+      answers: [
+        { id: "a", text: "Gleich schnell wie 802.1D (ca. 50 Sekunden)", isCorrect: false },
+        { id: "b", text: "Sekunden (typisch < 2 Sekunden) statt 50 Sekunden", isCorrect: true },
+        { id: "c", text: "Ca. 30 Sekunden (halbiert)", isCorrect: false },
+        { id: "d", text: "Ca. 15 Sekunden (Forward-Delay wird halbiert)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Was macht BPDU Guard auf einem Switch-Port?",
+      explanation: "BPDU Guard deaktiviert (err-disabled) einen Port sofort, wenn ein BPDU empfangen wird. Typisch auf PortFast-Ports (Endgeräte-Ports) — verhindert, dass ein Endgerät fälschlicherweise als Switch agiert.",
+      answers: [
+        { id: "a", text: "Es filtert BPDUs und verhindert, dass sie weitergeleitet werden", isCorrect: false },
+        { id: "b", text: "Es blockiert den Port dauerhaft, wenn BPDUs empfangen werden (err-disabled)", isCorrect: true },
+        { id: "c", text: "Es sendet BPDUs schneller aus, um die Konvergenz zu beschleunigen", isCorrect: false },
+        { id: "d", text: "Es setzt die Root Bridge zurück, wenn ein ungültiges BPDU erkannt wird", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Für welche Ports ist PortFast geeignet und warum?",
+      explanation: "PortFast überspringt Listening und Learning und geht direkt in Forwarding — geeignet nur für Ports, an denen Endgeräte (kein Switch!) angeschlossen sind. Auf Trunk-/Switch-Ports würde es Schleifen riskieren.",
+      answers: [
+        { id: "a", text: "Für alle Switch-to-Switch-Verbindungen, um STP zu beschleunigen", isCorrect: false },
+        { id: "b", text: "Für Access-Ports mit Endgeräten — überspringt Listening/Learning", isCorrect: true },
+        { id: "c", text: "Für Trunk-Ports, um VLAN-Konfigurationen sofort anzuwenden", isCorrect: false },
+        { id: "d", text: "Für Root-Ports, um die Konvergenz zur Root Bridge zu beschleunigen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Was ist PVST+ (Per-VLAN Spanning Tree Plus)?",
+      explanation: "PVST+ ist eine Cisco-Erweiterung, die für jedes VLAN eine separate STP-Instanz betreibt. Dies erlaubt Load Balancing über verschiedene VLANs mit unterschiedlichen Root Bridges.",
+      answers: [
+        { id: "a", text: "Eine Erweiterung, die STP global deaktiviert", isCorrect: false },
+        { id: "b", text: "Eine separate STP-Instanz pro VLAN für Load Balancing", isCorrect: true },
+        { id: "c", text: "Ein Protokoll, das RSTP vollständig ersetzt", isCorrect: false },
+        { id: "d", text: "Eine Methode zur Beschleunigung von PortFast", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 10, blueprint: "2.3",
+      text: "Rapid PVST+ kombiniert die Vorteile von PVST+ (pro VLAN) mit der schnellen Konvergenz von RSTP.",
+      explanation: "Wahr. Rapid PVST+ = Per-VLAN RSTP. Cisco-Standard in modernen Netzwerken. Jedes VLAN hat eine eigene RSTP-Instanz mit < 2 Sekunden Konvergenz.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch — Rapid PVST+ nutzt klassisches STP pro VLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Ein Switch mit Priority 32768 und MAC 0011.2233.4455 konkurriert gegen einen Switch mit Priority 4096 und MAC 0022.3344.5566. Welcher wird Root Bridge?",
+      explanation: "Bridge-ID-Vergleich: Zuerst Priority. 4096 < 32768 → der zweite Switch gewinnt, unabhängig von der MAC-Adresse.",
+      answers: [
+        { id: "a", text: "Switch mit Priority 32768 und niedrigerer MAC", isCorrect: false },
+        { id: "b", text: "Switch mit Priority 4096 — niedrigere Priority gewinnt", isCorrect: true },
+        { id: "c", text: "Unentschieden — beide haben gleiche Rechte", isCorrect: false },
+        { id: "d", text: "Der Switch, der zuerst online war", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Welches Cisco IOS-Kommando konfiguriert einen Switch als Root Bridge für VLAN 10?",
+      explanation: "'spanning-tree vlan 10 root primary' setzt automatisch die Priority auf 24576 (oder niedriger als der aktuelle Root). Alternativ: 'spanning-tree vlan 10 priority 4096'.",
+      answers: [
+        { id: "a", text: "spanning-tree vlan 10 root-bridge", isCorrect: false },
+        { id: "b", text: "spanning-tree vlan 10 root primary", isCorrect: true },
+        { id: "c", text: "spanning-tree vlan 10 priority 32768", isCorrect: false },
+        { id: "d", text: "set spanning-tree vlan 10 root enable", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // QUIZ 8: DHCP Snooping & DAI
 // ============================================================
 export const QUIZ_DHCP_SNOOPING: Quiz = {
