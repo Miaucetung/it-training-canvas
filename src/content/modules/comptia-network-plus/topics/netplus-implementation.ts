@@ -528,6 +528,202 @@ const QUIZ_QUESTIONS_T2: Question[] = [
     explanation:
       "Patchpanels dienen der strukturierten Terminierung von Verlegekabeln und schaffen eine wartbare Trennung zwischen permanenter Verkabelung und aktiver Technik. Routing, VLAN-Vergabe oder PoE-Budget werden dadurch nicht direkt beeinflusst.",
   },
+  {
+    id: "np-impl-q12",
+    type: "single-choice",
+    text: "Welcher Standard beschreibt Link Aggregation Control Protocol (LACP)?",
+    points: 10,
+    answers: [
+      { id: "a", text: "IEEE 802.1X", isCorrect: false },
+      { id: "b", text: "IEEE 802.3ad", isCorrect: true },
+      { id: "c", text: "IEEE 802.11ax", isCorrect: false },
+      { id: "d", text: "RFC 4271", isCorrect: false },
+    ],
+    explanation:
+      "LACP ist in IEEE 802.3ad standardisiert und buendelt mehrere physische Links zu einem logischen Link mit Redundanz und hoeherer Bandbreite.",
+  },
+  {
+    id: "np-impl-q13",
+    type: "single-choice",
+    text: "Welche Aussage zu STP ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "STP wird nur in Layer-3-Netzen verwendet", isCorrect: false },
+      { id: "b", text: "STP verhindert Layer-2-Loops durch Blockieren redundanter Pfade", isCorrect: true },
+      { id: "c", text: "STP erhoeht die Anzahl nutzbarer VLAN-IDs", isCorrect: false },
+      { id: "d", text: "STP ersetzt OSPF in Campus-Netzen", isCorrect: false },
+    ],
+    explanation:
+      "STP (und RSTP/MSTP) arbeitet auf Layer 2 und verhindert Broadcast-Storms sowie MAC-Table-Instabilitaet durch Schleifen in redundanten Switching-Topologien.",
+  },
+  {
+    id: "np-impl-q14",
+    type: "multiple-choice",
+    text: "Welche ZWEI Aussagen zu WLAN-Frequenzbaendern sind korrekt? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "2,4 GHz bietet in der Regel bessere Reichweite als 5 GHz", isCorrect: true },
+      { id: "b", text: "5 GHz hat typischerweise mehr nicht ueberlappende Kanaele", isCorrect: true },
+      { id: "c", text: "6 GHz ist ausschliesslich fuer Bluetooth reserviert", isCorrect: false },
+      { id: "d", text: "2,4 GHz ist grundsaetzlich stoerungsfrei", isCorrect: false },
+    ],
+    explanation:
+      "2,4 GHz hat meist mehr Reichweite, aber auch mehr Interferenz. 5 GHz bietet mehr Kanaloptionen und oft bessere Kapazitaet. 6 GHz gehoert zu Wi-Fi 6E/7 und ist nicht fuer Bluetooth reserviert.",
+  },
+  {
+    id: "np-impl-q15",
+    type: "single-choice",
+    text: "Was ist die wichtigste Verbesserung von WPA3-Personal gegenueber WPA2-PSK?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Verwendung von SAE statt klassischem PSK-Handshake", isCorrect: true },
+      { id: "b", text: "Ausschliessliche Nutzung von WEP-Kompatibilitaet", isCorrect: false },
+      { id: "c", text: "Abschaffung jeglicher Verschluesselung", isCorrect: false },
+      { id: "d", text: "Verzicht auf Authentifizierung", isCorrect: false },
+    ],
+    explanation:
+      "WPA3-Personal nutzt SAE, was Offline-Woerterbuchangriffe deutlich erschwert und eine robustere Schluesselableitung bietet als der alte PSK-Ansatz.",
+  },
+  {
+    id: "np-impl-q16",
+    type: "single-choice",
+    text: "Welches Routing-Protokoll wird primaer fuer Inter-AS-Routing im Internet genutzt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "RIP", isCorrect: false },
+      { id: "b", text: "OSPF", isCorrect: false },
+      { id: "c", text: "BGP", isCorrect: true },
+      { id: "d", text: "STP", isCorrect: false },
+    ],
+    explanation:
+      "BGP ist das Path-Vector-Protokoll fuer Routing zwischen autonomen Systemen und bildet die Grundlage des globalen Internet-Routings.",
+  },
+  {
+    id: "np-impl-q17",
+    type: "single-choice",
+    text: "Welcher Porttyp ist fuer die Verbindung eines Endgeraets in genau ein VLAN vorgesehen?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Tagged/Trunk Port", isCorrect: false },
+      { id: "b", text: "Untagged/Access Port", isCorrect: true },
+      { id: "c", text: "Routed Port", isCorrect: false },
+      { id: "d", text: "Mirror Port", isCorrect: false },
+    ],
+    explanation:
+      "Endgeraete haengen klassisch an Untagged (Access) Ports. Tagged/Trunk Ports transportieren mehrere VLANs zwischen Infrastrukturkomponenten.",
+  },
+  {
+    id: "np-impl-q18",
+    type: "single-choice",
+    text: "Welcher Vorteil ist typisch fuer RSTP gegenueber klassischem STP?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Hoehere VLAN-Anzahl", isCorrect: false },
+      { id: "b", text: "Schnellere Konvergenz nach Topologieaenderungen", isCorrect: true },
+      { id: "c", text: "Ersetzt Routing-Protokolle", isCorrect: false },
+      { id: "d", text: "Nur fuer drahtlose Netze nutzbar", isCorrect: false },
+    ],
+    explanation:
+      "RSTP (802.1w) reduziert Umschaltzeiten im Vergleich zu STP (802.1D) und verbessert damit Verfuegbarkeit in redundanten Layer-2-Designs.",
+  },
+  {
+    id: "np-impl-q19",
+    type: "single-choice",
+    text: "Welche Aussage zu OSPF-Areas ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "OSPF nutzt keine hierarchische Struktur", isCorrect: false },
+      { id: "b", text: "Area 0 ist das Backbone in OSPF-Topologien", isCorrect: true },
+      { id: "c", text: "RIP und OSPF teilen dieselbe Area-Logik", isCorrect: false },
+      { id: "d", text: "Areas gibt es nur bei BGP", isCorrect: false },
+    ],
+    explanation:
+      "OSPF skaliert durch hierarchische Aufteilung in Areas; Area 0 bildet das Backbone und verbindet weitere Areas.",
+  },
+  {
+    id: "np-impl-q20",
+    type: "single-choice",
+    text: "Ein Team meldet, dass Access Points in dichter Umgebung unter Last ineffizient arbeiten. Welche Wi-Fi-6-Technik adressiert dieses Problem besonders?",
+    points: 10,
+    answers: [
+      { id: "a", text: "OFDMA", isCorrect: true },
+      { id: "b", text: "CSMA/CD", isCorrect: false },
+      { id: "c", text: "Spanning Tree", isCorrect: false },
+      { id: "d", text: "NAT64", isCorrect: false },
+    ],
+    explanation:
+      "OFDMA verbessert die Effizienz in dichten WLAN-Umgebungen, indem Kanalressourcen granularer auf viele Clients verteilt werden.",
+  },
+  {
+    id: "np-impl-q21",
+    type: "single-choice",
+    text: "Was ist ein typischer Zweck eines SVI auf einem Layer-3-Switch?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Physische Uplink-Bandbreite verdoppeln", isCorrect: false },
+      { id: "b", text: "Default-Gateway-Funktion fuer ein VLAN und Inter-VLAN-Routing", isCorrect: true },
+      { id: "c", text: "WLAN-Authentifizierung ersetzen", isCorrect: false },
+      { id: "d", text: "BGP im Internet erzwingen", isCorrect: false },
+    ],
+    explanation:
+      "SVIs geben VLANs Layer-3-Interfaces mit IP-Adresse und ermoeglichen Routing zwischen VLANs direkt am L3-Switch.",
+  },
+  {
+    id: "np-impl-q22",
+    type: "single-choice",
+    text: "Welche Aussage zu Native VLAN auf einem 802.1Q-Link ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Traffic im Native VLAN ist immer getaggt", isCorrect: false },
+      { id: "b", text: "Untagged Frames auf einem Trunk gehoeren zum Native VLAN", isCorrect: true },
+      { id: "c", text: "Native VLAN ist nur fuer OSPF relevant", isCorrect: false },
+      { id: "d", text: "Native VLAN ist mit VXLAN identisch", isCorrect: false },
+    ],
+    explanation:
+      "Auf 802.1Q-Trunks wird ungetaggter Verkehr dem Native VLAN zugeordnet. Inkonsistente Native-VLAN-Konfigurationen koennen zu Sicherheits- und Stabilitaetsproblemen fuehren.",
+  },
+  {
+    id: "np-impl-q23",
+    type: "single-choice",
+    text: "Welches Ziel verfolgt ein Channel Plan im WLAN-Betrieb primaer?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Minimierung von Co-Channel- und Adjacent-Channel-Interferenz", isCorrect: true },
+      { id: "b", text: "Automatisches Hinzufuegen von Routing-Routen", isCorrect: false },
+      { id: "c", text: "Ersetzen von AAA", isCorrect: false },
+      { id: "d", text: "Abschalten aller 5-GHz-Kanaele", isCorrect: false },
+    ],
+    explanation:
+      "Ein sauberer Kanalplan reduziert Interferenz und verbessert Performance/Capacity. Er ist zentral fuer stabile WLAN-Implementierungen.",
+  },
+  {
+    id: "np-impl-q24",
+    type: "single-choice",
+    text: "Welche Aussage zu Rack-Planung ist am sinnvollsten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Schwere Komponenten bevorzugt oben montieren", isCorrect: false },
+      { id: "b", text: "Schwere Komponenten unten und Luftstrom beachten", isCorrect: true },
+      { id: "c", text: "Strom und Daten im selben engen Kanal ohne Trennung", isCorrect: false },
+      { id: "d", text: "Dokumentation ist optional, wenn Labels vorhanden sind", isCorrect: false },
+    ],
+    explanation:
+      "Stabilitaet und Thermik sind Kernpunkte bei Rack-Design. Schwere Komponenten unten und kontrollierter Luftstrom reduzieren Risiko und Ausfallwahrscheinlichkeit.",
+  },
+  {
+    id: "np-impl-q25",
+    type: "single-choice",
+    text: "Welche Aussage zu RIP ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "RIP hat keine Hop-Begrenzung", isCorrect: false },
+      { id: "b", text: "RIP ist ein Distance-Vector-Protokoll mit max. 15 Hops", isCorrect: true },
+      { id: "c", text: "RIP nutzt Dijkstra als SPF-Algorithmus", isCorrect: false },
+      { id: "d", text: "RIP ist ein Exterior-Gateway-Protokoll", isCorrect: false },
+    ],
+    explanation:
+      "RIP ist ein klassisches Distance-Vector-Protokoll mit Hop-Count-Metrik und 15-Hop-Limit; dadurch fuer grosse Netze ungeeignet.",
+  },
 ];
 
 export const QUIZ_NETPLUS_IMPLEMENTATION: Quiz = {

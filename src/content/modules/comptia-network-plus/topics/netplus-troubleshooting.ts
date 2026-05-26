@@ -612,6 +612,146 @@ const QUIZ_QUESTIONS_T5: Question[] = [
     explanation:
       "'Err-disabled' bedeutet: Der Switch hat den Port automatisch gesperrt, weil eine Sicherheits- oder Konfigurationsregel verletzt wurde. Häufige Ursachen: Port-Security-Verletzung (fremde MAC-Adresse), BPDU-Guard-Auslösung (unerlaubter Switch angeschlossen), Loopback-Erkennung. Diagnose: Logs prüfen ('show log'), Ursache beheben, dann Port zurücksetzen ('shutdown' + 'no shutdown'). Einfach 'no shutdown' ohne Ursachenbehebung führt sofort wieder zu 'err-disabled'.",
   },
+  {
+    id: "np-trouble-q16",
+    type: "single-choice",
+    text: "Welcher Schritt kommt im 7-Schritte-Troubleshooting-Prozess direkt nach der Erstellung eines Aktionsplans?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Problem erneut identifizieren", isCorrect: false },
+      { id: "b", text: "Lösung implementieren", isCorrect: true },
+      { id: "c", text: "Dokumentation abschliessen", isCorrect: false },
+      { id: "d", text: "Backup-Konzept erstellen", isCorrect: false },
+    ],
+    explanation:
+      "Nach Schritt 4 (Aktionsplan) folgt Schritt 5: Umsetzung der Lösung. Erst danach werden Funktionalität validiert und Ergebnisse dokumentiert.",
+  },
+  {
+    id: "np-trouble-q17",
+    type: "single-choice",
+    text: "Ein Client erreicht lokale Hosts, aber keine externen Netze. Welcher Fehler ist am wahrscheinlichsten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Falscher Default Gateway", isCorrect: true },
+      { id: "b", text: "Defekter DNS-MX-Record", isCorrect: false },
+      { id: "c", text: "Zu hoher SNMP Polling-Intervall", isCorrect: false },
+      { id: "d", text: "Fehlendes VLAN-Tag auf Endgeraet", isCorrect: false },
+    ],
+    explanation:
+      "Wenn nur der Weg aus dem Subnetz fehlt, ist ein falscher oder fehlender Default Gateway ein klassischer Root Cause.",
+  },
+  {
+    id: "np-trouble-q18",
+    type: "single-choice",
+    text: "Was ist ein typisches Symptom fuer DHCP-Ausfall im Clientnetz?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Client erhaelt APIPA-Adresse 169.254.x.x", isCorrect: true },
+      { id: "b", text: "Client bekommt automatisch eine gueltige Public-IP", isCorrect: false },
+      { id: "c", text: "DNSSEC schaltet sich ab", isCorrect: false },
+      { id: "d", text: "ARP-Cache ist immer leer", isCorrect: false },
+    ],
+    explanation:
+      "Kann ein Host keinen DHCP-Server erreichen, vergibt er sich häufig eine APIPA-Adresse im Bereich 169.254.0.0/16.",
+  },
+  {
+    id: "np-trouble-q19",
+    type: "single-choice",
+    text: "Welches Tool ist fuer eine schnelle DNS-Aufloesungspruefung am direktesten geeignet?",
+    points: 10,
+    answers: [
+      { id: "a", text: "nslookup", isCorrect: true },
+      { id: "b", text: "tracert", isCorrect: false },
+      { id: "c", text: "arp", isCorrect: false },
+      { id: "d", text: "netstat -r", isCorrect: false },
+    ],
+    explanation:
+      "nslookup prueft Name-zu-IP-Aufloesung direkt und zeigt den verwendeten DNS-Server sowie das Antwortergebnis.",
+  },
+  {
+    id: "np-trouble-q20",
+    type: "multiple-choice",
+    text: "Welche ZWEI Ursachen koennen hohe Latenz und Paketverlust gemeinsam ausloesen? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "Ueberlasteter Uplink/Bottleneck", isCorrect: true },
+      { id: "b", text: "Interferenz und Retransmissions im WLAN", isCorrect: true },
+      { id: "c", text: "Korrekter NTP-Status", isCorrect: false },
+      { id: "d", text: "Aktiver DNS-Cache", isCorrect: false },
+    ],
+    explanation:
+      "Engpaesse verursachen Queueing und Drops, Interferenz fuehrt zu Retransmissions. Beides erhoeht Delay und kann Loss verschlimmern.",
+  },
+  {
+    id: "np-trouble-q21",
+    type: "single-choice",
+    text: "Welcher Ansatz startet typischerweise in der Mitte des OSI-Stacks, um den Fehlerbereich schnell einzugrenzen?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Bottom-up", isCorrect: false },
+      { id: "b", text: "Top-down", isCorrect: false },
+      { id: "c", text: "Divide and Conquer", isCorrect: true },
+      { id: "d", text: "Guess and Check", isCorrect: false },
+    ],
+    explanation:
+      "Divide-and-Conquer startet oft bei Layer 3/4 und arbeitet je nach Ergebnis nach oben oder unten weiter.",
+  },
+  {
+    id: "np-trouble-q22",
+    type: "single-choice",
+    text: "Welcher Befund passt am besten zu einem Duplex-Mismatch?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Viele CRC-Fehler und Runts trotz bestehendem Link", isCorrect: true },
+      { id: "b", text: "DNS-Antworten mit NXDOMAIN", isCorrect: false },
+      { id: "c", text: "Nur APIPA-Adressen auf allen Clients", isCorrect: false },
+      { id: "d", text: "Router verliert OSPF-Neighborship dauerhaft", isCorrect: false },
+    ],
+    explanation:
+      "CRC und Runts bei aktiver Verbindung sind ein klassischer Indikator fuer Duplex-Mismatch auf Ethernet-Links.",
+  },
+  {
+    id: "np-trouble-q23",
+    type: "single-choice",
+    text: "Welches Tool hilft primär bei der Erkennung von Kanalüberlappung und Signalqualitaet im WLAN?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Wi-Fi-Analysator", isCorrect: true },
+      { id: "b", text: "arp -a", isCorrect: false },
+      { id: "c", text: "route print", isCorrect: false },
+      { id: "d", text: "dig MX", isCorrect: false },
+    ],
+    explanation:
+      "Ein Wi-Fi-Analyser zeigt Belegung, RSSI und Interferenz je Kanal und ist damit zentral fuer WLAN-Performance-Troubleshooting.",
+  },
+  {
+    id: "np-trouble-q24",
+    type: "single-choice",
+    text: "Ein Host kann Ziele per IP erreichen, aber keine URL. Was ist die naechste zielfuehrende Pruefung?",
+    points: 10,
+    answers: [
+      { id: "a", text: "NS-/A-Record-Aufloesung mit nslookup pruefen", isCorrect: true },
+      { id: "b", text: "PoE-Budget am Switch reduzieren", isCorrect: false },
+      { id: "c", text: "VLAN-ID am Trunk erhoehen", isCorrect: false },
+      { id: "d", text: "Spanning Tree deaktivieren", isCorrect: false },
+    ],
+    explanation:
+      "IP-Konnektivitaet ohne URL-Aufruf deutet oft auf DNS-Probleme hin. Eine direkte DNS-Abfrage ist der schnellste naechste Diagnoseschritt.",
+  },
+  {
+    id: "np-trouble-q25",
+    type: "single-choice",
+    text: "Warum ist die Abschlussdokumentation im Troubleshooting-Prozess wichtig?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Nur fuer Audit-Teams, nicht fuer Betrieb", isCorrect: false },
+      { id: "b", text: "Sie reduziert Wiederholaufwand und verbessert kuenftige Root-Cause-Analysen", isCorrect: true },
+      { id: "c", text: "Sie ersetzt Monitoring-Systeme", isCorrect: false },
+      { id: "d", text: "Sie ist optional, wenn das Problem geloest wurde", isCorrect: false },
+    ],
+    explanation:
+      "Dokumentation schafft wiederverwendbares Betriebswissen, unterstuetzt Changes und beschleunigt Incident-Bearbeitung bei aehnlichen Stoerungen.",
+  },
 ];
 
 export const QUIZ_NETPLUS_TROUBLESHOOTING: Quiz = {

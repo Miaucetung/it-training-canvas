@@ -500,6 +500,146 @@ const QUIZ_QUESTIONS_T3: Question[] = [
     explanation:
       "Die DMZ isoliert oeffentlich erreichbare Systeme (z.B. Webserver) vom internen Netz und reduziert Risiko bei Kompromittierung. Sie ist ein klassisches Segmentierungsprinzip on-prem wie auch hybrid.",
   },
+  {
+    id: "np-security-q16",
+    type: "single-choice",
+    text: "Welche Bedrohung beschreibt ein gefaelschtes WLAN mit legitimer SSID, um Nutzer abzufangen?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Evil Twin", isCorrect: true },
+      { id: "b", text: "NAT Overload", isCorrect: false },
+      { id: "c", text: "Link Aggregation", isCorrect: false },
+      { id: "d", text: "SPF Loop", isCorrect: false },
+    ],
+    explanation:
+      "Ein Evil Twin ist ein Rogue Access Point mit täuschend aehnlicher SSID, ueber den Angreifer Traffic mitschneiden oder Credentials abgreifen koennen.",
+  },
+  {
+    id: "np-security-q17",
+    type: "single-choice",
+    text: "Welche Sicherheitsfunktion kann einen Switch-Port bei unbekannter MAC-Adresse automatisch in err-disabled versetzen?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Port Security", isCorrect: true },
+      { id: "b", text: "NTP", isCorrect: false },
+      { id: "c", text: "DHCP Relay", isCorrect: false },
+      { id: "d", text: "CDP", isCorrect: false },
+    ],
+    explanation:
+      "Port Security begrenzt erlaubte MAC-Adressen pro Port. Bei Verstoessen kann der Port abgeschaltet bzw. in err-disabled gesetzt werden.",
+  },
+  {
+    id: "np-security-q18",
+    type: "multiple-choice",
+    text: "Welche ZWEI Prinzipien gehoeren zur CIA-Triade? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "Confidentiality", isCorrect: true },
+      { id: "b", text: "Availability", isCorrect: true },
+      { id: "c", text: "Accountability", isCorrect: false },
+      { id: "d", text: "Nonrepudiation", isCorrect: false },
+    ],
+    explanation:
+      "Die CIA-Triade besteht aus Confidentiality, Integrity und Availability. Accountability/Nonrepudiation sind wichtige Security-Ziele, aber nicht Teil der Triade.",
+  },
+  {
+    id: "np-security-q19",
+    type: "single-choice",
+    text: "Welche Aussage zu ACL-Regeln ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Die letzte implizite Regel ist typischerweise deny any", isCorrect: true },
+      { id: "b", text: "ACLs werden nur auf Layer 1 angewendet", isCorrect: false },
+      { id: "c", text: "ACL-Reihenfolge spielt keine Rolle", isCorrect: false },
+      { id: "d", text: "ACLs koennen keine Ports filtern", isCorrect: false },
+    ],
+    explanation:
+      "ACLs werden sequenziell ausgewertet, first match wins. Ohne explizite Permit-Regel greift in vielen Plattformen ein implizites deny am Ende.",
+  },
+  {
+    id: "np-security-q20",
+    type: "single-choice",
+    text: "Welche Loesung ist am ehesten fuer HTTP/HTTPS-Anwendungsangriffe wie SQL Injection zustaendig?",
+    points: 10,
+    answers: [
+      { id: "a", text: "WAF", isCorrect: true },
+      { id: "b", text: "Layer-2 Switch", isCorrect: false },
+      { id: "c", text: "NTP Server", isCorrect: false },
+      { id: "d", text: "DHCP Server", isCorrect: false },
+    ],
+    explanation:
+      "Eine WAF ist auf Webanwendungsebene spezialisiert und erkennt/filtert typische Layer-7-Angriffsvektoren wie SQLi/XSS.",
+  },
+  {
+    id: "np-security-q21",
+    type: "single-choice",
+    text: "Welche Aussage trifft auf Geofencing in Sicherheitskonzepten zu?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Es blockiert oder erlaubt Zugriff basierend auf geografischem Kontext", isCorrect: true },
+      { id: "b", text: "Es ersetzt alle Identity- und MFA-Kontrollen", isCorrect: false },
+      { id: "c", text: "Es funktioniert nur fuer On-Prem-Netze", isCorrect: false },
+      { id: "d", text: "Es ist identisch mit VLAN-Tagging", isCorrect: false },
+    ],
+    explanation:
+      "Geofencing nutzt Standortinformationen (z.B. IP-Geolokation) als zusaetzliches Zugriffskriterium und wird oft mit weiteren Policies kombiniert.",
+  },
+  {
+    id: "np-security-q22",
+    type: "single-choice",
+    text: "Welcher Angriff manipuliert ARP-Zuordnungen, um sich als Gateway auszugeben?",
+    points: 10,
+    answers: [
+      { id: "a", text: "ARP Poisoning", isCorrect: true },
+      { id: "b", text: "BGP Communities", isCorrect: false },
+      { id: "c", text: "NAT64", isCorrect: false },
+      { id: "d", text: "Port Mirroring", isCorrect: false },
+    ],
+    explanation:
+      "ARP-Poisoning faelscht IP-zu-MAC-Zuordnungen und kann Man-in-the-Middle-Szenarien auf Layer 2 ermoeglichen.",
+  },
+  {
+    id: "np-security-q23",
+    type: "single-choice",
+    text: "Welche Kombination beschreibt AAA korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Authentication, Authorization, Accounting", isCorrect: true },
+      { id: "b", text: "Addressing, Aggregation, Availability", isCorrect: false },
+      { id: "c", text: "Alerting, Automation, Analytics", isCorrect: false },
+      { id: "d", text: "Availability, Access, Assurance", isCorrect: false },
+    ],
+    explanation:
+      "AAA bildet die Grundlage fuer kontrollierten Zugriff: Identitaet pruefen, Berechtigungen durchsetzen und Aktionen protokollieren.",
+  },
+  {
+    id: "np-security-q24",
+    type: "multiple-choice",
+    text: "Welche ZWEI Kontrollen sind primaer physische Sicherheitsmassnahmen? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "Schliesssysteme fuer Serverraeume", isCorrect: true },
+      { id: "b", text: "Kameraueberwachung", isCorrect: true },
+      { id: "c", text: "ACL-Regeln auf Routern", isCorrect: false },
+      { id: "d", text: "DNSSEC", isCorrect: false },
+    ],
+    explanation:
+      "Schloesser und Videoüberwachung adressieren physischen Zugangsschutz. ACLs und DNSSEC sind logische/technische Kontrollen.",
+  },
+  {
+    id: "np-security-q25",
+    type: "single-choice",
+    text: "Welche Aussage zu NGFW trifft am ehesten zu?",
+    points: 10,
+    answers: [
+      { id: "a", text: "NGFW kombiniert stateful Inspection mit erweiterten Funktionen wie App-Awareness und oft IDS/IPS", isCorrect: true },
+      { id: "b", text: "NGFW arbeitet ausschliesslich auf Layer 2", isCorrect: false },
+      { id: "c", text: "NGFW kann keine TLS-Policies abbilden", isCorrect: false },
+      { id: "d", text: "NGFW ersetzt jede Form von Segmentierung", isCorrect: false },
+    ],
+    explanation:
+      "NGFWs erweitern klassische stateful Firewalls um tiefere Sicht auf Anwendungen und integrierte Security-Funktionen, bleiben aber Teil eines Gesamt-Sicherheitsdesigns.",
+  },
 ];
 
 export const QUIZ_NETPLUS_SECURITY: Quiz = {

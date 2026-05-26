@@ -511,6 +511,216 @@ const QUIZ_QUESTIONS_T4: Question[] = [
     explanation:
       "802.1X ist der Standard fuer port-basierte Authentifizierung und Teil vieler NAC-Architekturen. 802.3ad bezieht sich auf Link Aggregation, 802.11h auf WLAN-Kanalregeln im 5-GHz-Band, RFC1918 auf private IPv4-Adressbereiche.",
   },
+  {
+    id: "np-ops-q11",
+    type: "single-choice",
+    text: "Welche SNMP-Version bietet native Authentifizierung und Verschluesselung?",
+    points: 10,
+    answers: [
+      { id: "a", text: "SNMPv1", isCorrect: false },
+      { id: "b", text: "SNMPv2c", isCorrect: false },
+      { id: "c", text: "SNMPv3", isCorrect: true },
+      { id: "d", text: "SNMPv0", isCorrect: false },
+    ],
+    explanation:
+      "SNMPv3 fuehrt Security-Features wie Authentifizierung und Verschluesselung ein. v1/v2c nutzen Community-Strings in Klartext und gelten als unsicher.",
+  },
+  {
+    id: "np-ops-q12",
+    type: "single-choice",
+    text: "Welcher Syslog-Severity-Level ist am kritischsten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "0 (Emergency)", isCorrect: true },
+      { id: "b", text: "7 (Debug)", isCorrect: false },
+      { id: "c", text: "4 (Warning)", isCorrect: false },
+      { id: "d", text: "6 (Informational)", isCorrect: false },
+    ],
+    explanation:
+      "In Syslog bedeutet ein niedrigerer numerischer Wert hoehere Kritikalitaet. Level 0 (Emergency) steht fuer nicht mehr nutzbare Systeme.",
+  },
+  {
+    id: "np-ops-q13",
+    type: "single-choice",
+    text: "Was beschreibt RPO im Disaster-Recovery-Kontext am besten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Maximal akzeptabler Datenverlust in der Zeit", isCorrect: true },
+      { id: "b", text: "Maximal akzeptable Ausfallzeit des Systems", isCorrect: false },
+      { id: "c", text: "Durchschnittliche Zeit zwischen Fehlern", isCorrect: false },
+      { id: "d", text: "Mindestanzahl redundanter Links", isCorrect: false },
+    ],
+    explanation:
+      "RPO (Recovery Point Objective) definiert, wie alt Daten im schlimmsten Fall sein duerfen. RTO beschreibt dagegen die erlaubte Ausfallzeit.",
+  },
+  {
+    id: "np-ops-q14",
+    type: "single-choice",
+    text: "Welcher DNS-Record verweist eine Domain auf den zustaendigen Mailserver?",
+    points: 10,
+    answers: [
+      { id: "a", text: "TXT", isCorrect: false },
+      { id: "b", text: "CNAME", isCorrect: false },
+      { id: "c", text: "MX", isCorrect: true },
+      { id: "d", text: "PTR", isCorrect: false },
+    ],
+    explanation:
+      "MX-Records definieren, welche Mailserver E-Mails fuer eine Domain empfangen. A/AAAA liefern Host-IP-Aufloesung, PTR ist Reverse DNS.",
+  },
+  {
+    id: "np-ops-q15",
+    type: "single-choice",
+    text: "Wofuer wird ein DHCP-Relay (IP Helper) in gerouteten Netzen benoetigt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Damit STP schneller konvergiert", isCorrect: false },
+      { id: "b", text: "Um DHCP-Broadcasts subnetzuebergreifend zum DHCP-Server weiterzuleiten", isCorrect: true },
+      { id: "c", text: "Um DNSSEC zu aktivieren", isCorrect: false },
+      { id: "d", text: "Um SNMP-Traps zu verschluesseln", isCorrect: false },
+    ],
+    explanation:
+      "DHCP Discover ist ein Broadcast und passiert Router standardmaessig nicht. Ein Relay-Agent kapselt/weiterleitet diese Anfragen zum zentralen DHCP-Server.",
+  },
+  {
+    id: "np-ops-q16",
+    type: "multiple-choice",
+    text: "Welche ZWEI Aussagen zu Flow-Daten sind korrekt? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "IPFIX ist ein vendor-neutraler Standard", isCorrect: true },
+      { id: "b", text: "NetFlow ist historisch Cisco-spezifisch", isCorrect: true },
+      { id: "c", text: "Flow-Daten enthalten immer den kompletten Paketinhalt", isCorrect: false },
+      { id: "d", text: "Flow-Daten ersetzen jede Form von Logging", isCorrect: false },
+    ],
+    explanation:
+      "IPFIX standardisiert den Export von Flow-Metadaten. NetFlow war urspruenglich Cisco-proprietaer. Flow-Records enthalten Metadaten statt Full-Packet-Payload.",
+  },
+  {
+    id: "np-ops-q17",
+    type: "single-choice",
+    text: "Welche DR-Site ermoeglicht typischerweise die schnellste Wiederaufnahme des Betriebs?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Cold Site", isCorrect: false },
+      { id: "b", text: "Warm Site", isCorrect: false },
+      { id: "c", text: "Hot Site", isCorrect: true },
+      { id: "d", text: "Offline Site", isCorrect: false },
+    ],
+    explanation:
+      "Hot Sites sind weitgehend betriebsbereit und bieten die kuerzesten Wiederanlaufzeiten. Warm/Cold Sites brauchen deutlich mehr Wiederherstellungszeit.",
+  },
+  {
+    id: "np-ops-q18",
+    type: "single-choice",
+    text: "Welcher Port wird standardmaessig fuer NTP verwendet?",
+    points: 10,
+    answers: [
+      { id: "a", text: "UDP 123", isCorrect: true },
+      { id: "b", text: "UDP 514", isCorrect: false },
+      { id: "c", text: "TCP 443", isCorrect: false },
+      { id: "d", text: "UDP 53", isCorrect: false },
+    ],
+    explanation:
+      "NTP nutzt UDP Port 123 fuer Zeitsynchronisation. Korrekte Zeit ist zentral fuer Logs, Zertifikatspruefung und Authentifizierungsprotokolle.",
+  },
+  {
+    id: "np-ops-q19",
+    type: "single-choice",
+    text: "Welcher Unterschied zwischen Full und Split Tunnel ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Split Tunnel leitet nur Unternehmensziele ueber das VPN", isCorrect: true },
+      { id: "b", text: "Full Tunnel reduziert immer VPN-Last", isCorrect: false },
+      { id: "c", text: "Beide sind funktional identisch", isCorrect: false },
+      { id: "d", text: "Full Tunnel ist nur fuer Site-to-Site relevant", isCorrect: false },
+    ],
+    explanation:
+      "Split Tunnel spart Kapazitaet, da nur Unternehmensverkehr durch das VPN geht. Full Tunnel zentralisiert Sicherheit, belastet aber VPN-Infrastruktur staerker.",
+  },
+  {
+    id: "np-ops-q20",
+    type: "single-choice",
+    text: "Welche Kennzahl beschreibt die durchschnittliche Reparaturdauer nach einem Ausfall?",
+    points: 10,
+    answers: [
+      { id: "a", text: "MTBF", isCorrect: false },
+      { id: "b", text: "RTO", isCorrect: false },
+      { id: "c", text: "RPO", isCorrect: false },
+      { id: "d", text: "MTTR", isCorrect: true },
+    ],
+    explanation:
+      "MTTR (Mean Time To Repair) misst, wie lange die Fehlerbehebung im Mittel dauert. MTBF misst Zeit zwischen Ausfaellen.",
+  },
+  {
+    id: "np-ops-q21",
+    type: "multiple-choice",
+    text: "Welche ZWEI Aussagen zu DNS-Sicherheit sind korrekt? (Waehle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "DNSSEC validiert Integritaet und Authentizitaet von DNS-Daten", isCorrect: true },
+      { id: "b", text: "DoH kapselt DNS-Anfragen in HTTPS", isCorrect: true },
+      { id: "c", text: "DNSSEC verschluesselt automatisch den gesamten DNS-Transport", isCorrect: false },
+      { id: "d", text: "DoH ersetzt alle DNS-Record-Typen", isCorrect: false },
+    ],
+    explanation:
+      "DNSSEC signiert Daten, DoH verschluesselt den Transport ueber HTTPS. Beide adressieren unterschiedliche Teile des Bedrohungsmodells.",
+  },
+  {
+    id: "np-ops-q22",
+    type: "single-choice",
+    text: "Welche Aussage zu Site-to-Site VPN ist zutreffend?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Es verbindet einzelne Nutzerkonten direkt mit einer App", isCorrect: false },
+      { id: "b", text: "Es verbindet komplette Netzsegmente ueber Tunnel auf Gateway-Ebene", isCorrect: true },
+      { id: "c", text: "Es benoetigt immer einen Browser-Plugin-Client", isCorrect: false },
+      { id: "d", text: "Es ersetzt Routing", isCorrect: false },
+    ],
+    explanation:
+      "Site-to-Site VPN verbindet Standorte/Netze transparent ueber Gateways. Client-to-Site ist fuer einzelne Remote-User gedacht.",
+  },
+  {
+    id: "np-ops-q23",
+    type: "single-choice",
+    text: "Welcher Syslog-Level ist weniger kritisch als Error, aber kritischer als Notice?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Warning (4)", isCorrect: true },
+      { id: "b", text: "Debug (7)", isCorrect: false },
+      { id: "c", text: "Emergency (0)", isCorrect: false },
+      { id: "d", text: "Informational (6)", isCorrect: false },
+    ],
+    explanation:
+      "Die Reihenfolge lautet ... Error (3), Warning (4), Notice (5). Warning liegt also zwischen Error und Notice.",
+  },
+  {
+    id: "np-ops-q24",
+    type: "single-choice",
+    text: "Welcher DNS-Record ordnet einen Alias einem kanonischen Namen zu?",
+    points: 10,
+    answers: [
+      { id: "a", text: "CNAME", isCorrect: true },
+      { id: "b", text: "MX", isCorrect: false },
+      { id: "c", text: "PTR", isCorrect: false },
+      { id: "d", text: "NS", isCorrect: false },
+    ],
+    explanation:
+      "CNAME definiert Alias-Namen. MX ist fuer Mailrouting, NS fuer autoritative Nameserver und PTR fuer Reverse-Lookups.",
+  },
+  {
+    id: "np-ops-q25",
+    type: "single-choice",
+    text: "Welche Beschreibung trifft auf AAA am besten zu?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Addressing, Aggregation, Availability", isCorrect: false },
+      { id: "b", text: "Authentication, Authorization, Accounting", isCorrect: true },
+      { id: "c", text: "Alerting, Analytics, Automation", isCorrect: false },
+      { id: "d", text: "Access, ACL, API", isCorrect: false },
+    ],
+    explanation:
+      "AAA steht fuer Authentication, Authorization und Accounting und bildet die Grundlage kontrollierter Netzwerkzugriffe.",
+  },
 ];
 
 export const QUIZ_NETPLUS_OPERATIONS: Quiz = {
