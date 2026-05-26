@@ -859,6 +859,10 @@ export const CONCEPT_VLAN_LAB_BRUECKE: Concept = {
 
 ---
 
+> 💡 **Cisco Packet Tracer**: Alle drei Lab-Szenarien (12.1, 12.2, 12.3) können kostenlos in Cisco Packet Tracer nachgebaut werden. Download unter [netacad.com](https://www.netacad.com) (Registrierung erforderlich, kostenlos). Empfehlung: Baue erst die Topologie auf, konfiguriere dann Schritt für Schritt — und mache am Ende jeden Schritt bewusst kaputt, um die Fehlerbehebung zu üben.
+
+---
+
 ## Kapitelabschluss-Lab — Bürogebäude "NetzTech GmbH"
 
 Dieses Lab verbindet alle Konzepte aus dem Modul in einer vollständigen, realen Konfiguration.
@@ -1072,6 +1076,30 @@ PC-SALES# ping 192.168.10.X    ! → direktes VLAN (Layer 2)
 > ⚠️ **Voice VLAN + CoS** — Ohne \`mls qos trust device cisco-phone\` wird QoS-Markierung des Telefons ignoriert.
 
 > ⚠️ **SVI bleibt down** — VLAN 99 muss existieren (vlan 99 anlegen) UND mindestens ein Port im VLAN aktiv sein (der Trunk-Port zählt).
+
+---
+
+## Übungsaufgabe (ROAS-Szenario)
+
+**Füge VLAN 40 (GÄSTE, 192.168.40.0/24) zur NetzTech-GmbH-Konfiguration hinzu:**
+
+1. Welche Befehle brauchst du auf **SW1** und **SW2**? (VLAN anlegen, Trunk erlauben)
+2. Welches Subinterface musst du auf **R1** hinzufügen?
+3. Wie stellst du sicher, dass GÄSTE-Hosts das Internet erreichen können, aber VLAN 10/20/30 **nicht** direkt erreichbar ist?
+4. Teste mit einem Ping von einem Gäste-Host zu 192.168.10.10 (SALES) — was erwartest du?
+
+*Hinweis: Auf dem Router kannst du eine Standard-ACL auf das ROAS-Subinterface anwenden, um VLAN-übergreifenden Traffic von VLAN 40 zu blockieren.*
+
+---
+
+## Abschluss-Reflexion
+
+> **"Wenn du diese drei Szenarien (Lab 12.1 ROAS, Lab 12.2 L3-Switch, Lab 12.3 WLAN-VLAN) aufgebaut und je einmal bewusst kaputtgemacht hast — ip routing entfernt, Native VLAN falsch gesetzt, VLAN aus dem Trunk entfernt — dann hast du VLANs wirklich verstanden."**
+
+Das Kapitelabschluss-Lab markiert den Übergang von Wissen zu Können. Ab jetzt bist du bereit für:
+- **STP Deep-Dive**: Was passiert, wenn du zwischen SW1 und SW2 einen zweiten Trunk-Link ziehst?
+- **OSPF Multi-Area**: Deine VLANs brauchen ein Routing-Protokoll, sobald mehrere Standorte verbunden werden.
+- **Wireless-Modul**: Wie verbindest du SSID "CORP-DATA" mit deinem VLAN 10?
   `.trim(),
 };
 
