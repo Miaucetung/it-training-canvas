@@ -42,6 +42,19 @@ Mehrere Sicherheitsschichten: Perimeter → Netzwerk → Host → Anwendung → 
 ### Cisco AAA (TACACS+ / RADIUS)
 - **TACACS+** (Cisco-proprietär): Trennt Auth/Author/Accounting, TCP 49, verschlüsselt
 - **RADIUS** (offen): Kombiniert Auth+Author, UDP 1812/1813
+
+### TACACS+ vs. RADIUS — Detaillierter Vergleich
+| Merkmal | TACACS+ | RADIUS |
+|---------|---------|--------|
+| **Transport** | TCP Port 49 | UDP Port 1812 (Auth), 1813 (Accounting) |
+| **Entwickler** | Cisco (proprietär) | RFC-Standard (offen) |
+| **Verschlüsselung** | Gesamter Payload (vollständig) | Nur Passwort-Feld |
+| **AAA-Trennung** | Vollständig getrennt (Auth / Author / Accounting) | Auth + Author kombiniert; Accounting separat |
+| **Primärer Einsatz** | **Device-Administration** (CLI-Zugriff auf Router/Switch) | **Network Access** (WLAN-Clients, 802.1X, VPN) |
+| **Fehlermeldungen** | Detailliert (separate Author-Antwort pro Befehl) | Begrenzt (Access-Accept / Access-Reject) |
+| **Command Authorization** | Ja — granulare Befehlserlaubnis pro Benutzer | Nein — nicht unterstützt |
+
+> **Merkregel**: **TACACS+ → Terminal (CLI/Device-Admin)**, **RADIUS → Remote-Access (WLAN/VPN/802.1X)**
   `.trim(),
 };
 
@@ -286,11 +299,161 @@ Die "MedData GmbH" (Medizinische Softwarelösungen, 150 Mitarbeiter) betreibt ei
   `.trim(),
 };
 
+export const CONCEPT_802_1X: Concept = {
+  id: "802.1x-authentication",
+  title: "802.1X Port-Based Network Access Control",
+  appliesTo: ["ccna"],
+  tags: ["security", "802.1x", "dot1x", "authentication", "radius", "eap", "nac"],
+  content: `
+## 802.1X – Portbasierte Netzwerkzugangskontrolle
+
+### Was ist 802.1X?
+IEEE 802.1X ist ein Standard für **portbasierte Netzwerkzugangskontrolle (NAC)**. Ein Switch-Port oder WLAN-Interface bleibt gesperrt, bis sich das Endgerät erfolgreich authentifiziert hat. Erst dann wird der Port geöffnet und Netzwerkzugang gewährt.
+
+### Die drei Rollen (EAP-Dreieck)
+
+| Rolle | Gerät | Aufgabe |
+|-------|-------|---------|
+| **Supplicant** | Endgerät (PC, Smartphone) | Hat 802.1X-Client-Software, initiiert Authentifizierung |
+| **Authenticator** | Switch oder WLAN-AP | Leitet EAP-Pakete zwischen Supplicant und Auth-Server weiter; öffnet/sperrt Port |
+| **Authentication Server** | RADIUS-Server (z.B. Cisco ISE) | Prüft Identität und sendet Access-Accept oder Access-Reject |
+
+### Authentifizierungs-Ablauf
+\`\`\`
+Supplicant       Authenticator (Switch)    Authentication Server (RADIUS)
+     |                    |                          |
+     |--- EAPOL-Start --→|                          |
+     |←-- EAP-Request ---| (Identity)               |
+     |--- EAP-Response →→|→→ RADIUS Access-Request →|
+     |                   |←← RADIUS Access-Accept ←-|
+     |←-- EAP-Success ---|                          |
+     |  (Port öffnet)    |                          |
+\`\`\`
+
+### Wichtige Begriffe
+| Begriff | Erklärung |
+|---------|----------|
+| **EAP** | Extensible Authentication Protocol — Framework für verschiedene Auth-Methoden |
+| **EAPOL** | EAP over LAN — Layer-2-Protokoll zwischen Supplicant und Authenticator |
+| **RADIUS** | Authentifizierungsprotokoll zwischen Authenticator und Auth-Server (UDP 1812/1813) |
+| **MAB** | MAC Authentication Bypass — für Geräte ohne 802.1X-Client (z.B. Drucker) |
+| **Guest VLAN** | VLAN für Geräte, die 802.1X nicht unterstützen |
+| **Auth-Fail VLAN** | VLAN für Geräte, die die Authentifizierung nicht bestehen |
+
+### EAP-Methoden (Prüfungsrelevant)
+| Methode | Authentifizierung | Sicherheit |
+|---------|------------------|-----------|
+| **EAP-TLS** | Zertifikate (Client + Server) | Sehr hoch — beidseitige Zertifikate |
+| **PEAP** | Server-Zertifikat + Username/Passwort | Hoch — in WPA2-Enterprise üblich |
+| **EAP-FAST** | Protected Access Credential (PAC) | Hoch — Cisco-proprietär |
+
+### Cisco IOS Konfiguration (802.1X auf Switch-Port)
+\`\`\`
+SW1(config)# aaa new-model
+SW1(config)# aaa authentication dot1x default group radius
+SW1(config)# dot1x system-auth-control
+SW1(config)# radius server ISE
+SW1(config-radius-server)# address ipv4 192.168.100.10 auth-port 1812 acct-port 1813
+SW1(config-radius-server)# key SecretKey123
+
+SW1(config)# interface GigabitEthernet0/1
+SW1(config-if)# switchport mode access
+SW1(config-if)# dot1x port-control auto     ! auto = 802.1X aktiviert
+SW1(config-if)# authentication host-mode single-host
+
+! Verifikation
+SW1# show dot1x all
+SW1# show authentication sessions
+\`\`\`
+
+### Port-Control-Modi
+| Modus | Verhalten |
+|-------|----------|
+| **force-authorized** | Port immer offen (802.1X deaktiviert) — Standard |
+| **force-unauthorized** | Port immer gesperrt |
+| **auto** | 802.1X aktiv — Port öffnet nur nach erfolgreicher Auth |
+
+### Zusammenfassung: Wo wird 802.1X eingesetzt?
+- **Kabelgebunden**: Switchports in Unternehmensnetzwerken (Büros, Konferenzräume)
+- **WLAN**: WPA2-Enterprise / WPA3-Enterprise nutzt 802.1X + EAP
+- Alternativ zur MAC-basierten Port-Security (sicherer, weil nicht fälschbar)
+  `.trim(),
+};
+
+export const CONCEPT_SECURITY_PROGRAM: Concept = {
+  id: "security-program",
+  title: "Security-Programme und Sicherheitsrichtlinien",
+  appliesTo: ["ccna"],
+  tags: ["security", "policy", "cvss", "incident-response", "vulnerability", "risk"],
+  content: `
+## Security-Programme und Sicherheitsrichtlinien
+
+### Grundbegriffe: Vulnerability – Threat – Risk
+| Begriff | Definition | Beispiel |
+|---------|-----------|----------|
+| **Vulnerability** | Schwachstelle in einem System oder Prozess | Ungepatchtes Betriebssystem |
+| **Threat** | Potenzielle Bedrohung, die eine Vulnerability ausnutzen kann | Malware-Angriff |
+| **Exploit** | Werkzeug oder Technik zum Ausnutzen einer Vulnerability | Metasploit-Modul |
+| **Risk** | Wahrscheinlichkeit × Schadensausmaß einer Bedrohung | Hohe Wahrscheinlichkeit + hoher Schaden = kritisch |
+
+### CVSS – Common Vulnerability Scoring System
+- Industriestandard zur Bewertung von Sicherheitslücken (**0.0 – 10.0**)
+- **Basis-Metriken**: Attack Vector, Attack Complexity, Privileges Required, User Interaction, CIA-Impact
+
+| CVSS-Score | Klassifikation |
+|-----------|---------------|
+| 0.0 | None |
+| 0.1 – 3.9 | Low |
+| 4.0 – 6.9 | Medium |
+| 7.0 – 8.9 | High |
+| 9.0 – 10.0 | Critical |
+
+### Sicherheitsrichtlinien (Security Policies)
+| Richtlinie | Inhalt |
+|-----------|-------|
+| **AUP** (Acceptable Use Policy) | Erlaubte und verbotene Nutzung von IT-Ressourcen |
+| **Password Policy** | Mindestlänge, Komplexität, Ablaufintervall, Wiederverwendung |
+| **Data Classification Policy** | Vertraulich / Intern / Öffentlich |
+| **Incident Response Policy** | Verfahren bei Sicherheitsvorfällen |
+| **BYOD Policy** | Regeln für private Geräte im Unternehmensnetz |
+
+### Passwort-Richtlinien (Best Practices)
+- Mindestlänge: **12 Zeichen** (empfohlen)
+- Komplexität: Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen
+- Kein Wiederverwenden von Passwörtern (Password-History)
+- **MFA** (Multi-Faktor-Authentifizierung) als zusätzliche Schicht
+- Cisco IOS: \`security passwords min-length 12\`
+
+### Security Awareness Training
+- Ziel: Mitarbeiter als **„Human Firewall"** schulen
+- Themen: Phishing-Erkennung, Social Engineering, sichere Passwortverwaltung, Datenschutz
+- Regelmäßige Wiederholung (mind. jährlich) + Phishing-Simulationen
+
+### Incident Response – 6 Phasen (NIST SP 800-61)
+| Phase | Name | Beschreibung |
+|-------|------|-------------|
+| 1 | **Preparation** | IR-Plan erstellen, Tools bereitstellen, Team schulen |
+| 2 | **Identification** | Vorfall erkennen, klassifizieren, Schwere beurteilen |
+| 3 | **Containment** | Ausbreitung stoppen (kurzfristig: Isolation; langfristig: Clean-up) |
+| 4 | **Eradication** | Ursache beseitigen (Malware entfernen, Patches einspielen) |
+| 5 | **Recovery** | Systeme wiederherstellen, Normalbetrieb verifizieren |
+| 6 | **Lessons Learned** | Post-Incident-Review, Dokumentation, Prozessverbesserung |
+
+> **Merkhilfe**: **P-I-C-E-R-L**
+
+### Schwachstellen-Management
+- **Vulnerability Scanning**: Automatisierte Suche nach Schwachstellen (z.B. Nessus, OpenVAS)
+- **Penetration Testing**: Autorisierter simulierter Angriff
+- **Patch Management**: Regelmäßiges Einspielen von Security-Patches
+- **CVE** (Common Vulnerabilities and Exposures): Standardisierte Kennung für Schwachstellen
+  `.trim(),
+};
+
 export const TOPIC_SECURITY: Topic = {
   id: "security",
   title: "Netzwerksicherheit",
   description:
-    "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI und 802.1X — Netzwerke absichern.",
+    "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI, 802.1X und Security-Programme — Netzwerke absichern.",
   conceptIds: [
     "security-fundamentals",
     "acl-standard",
@@ -298,6 +461,8 @@ export const TOPIC_SECURITY: Topic = {
     "acl-named",
     "acl-troubleshooting",
     "port-security",
+    "802.1x-authentication",
+    "security-program",
     "security-guide",
   ],
   quizIds: [
@@ -319,5 +484,7 @@ export const SECURITY_CONCEPTS: Record<string, Concept> = {
   "acl-named": CONCEPT_ACL_NAMED,
   "acl-troubleshooting": CONCEPT_ACL_TROUBLESHOOTING,
   "port-security": CONCEPT_PORT_SECURITY,
+  "802.1x-authentication": CONCEPT_802_1X,
+  "security-program": CONCEPT_SECURITY_PROGRAM,
   "security-guide": CONCEPT_SECURITY_GUIDE,
 };

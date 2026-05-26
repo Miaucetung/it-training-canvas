@@ -209,6 +209,80 @@ Die "Holding RheinTech AG" verwaltet 18 Standorte mit insgesamt 60 Cisco-Geräte
   `.trim(),
 };
 
+export const CONCEPT_NETCONF_YANG: Concept = {
+  id: "netconf-yang",
+  title: "NETCONF & YANG – Netzwerk-Automatisierung",
+  appliesTo: ["ccna"],
+  tags: ["automation", "netconf", "yang", "restconf", "programmability"],
+  content: `
+## NETCONF & YANG
+
+### Was ist NETCONF?
+**NETCONF** (Network Configuration Protocol, RFC 6241) ist ein standardisiertes Protokoll zur Konfiguration und Verwaltung von Netzwerkgeräten über ein strukturiertes API.
+
+| Merkmal | Wert |
+|---------|------|
+| **Protokoll** | SSH (TCP 830) |
+| **Datenformat** | XML |
+| **Standard** | RFC 6241 (IETF) |
+| **Operationen** | get-config, edit-config, commit, lock/unlock, delete-config |
+| **Alternativen** | RESTCONF (HTTPS + JSON/XML, RFC 8040) |
+
+### NETCONF-Architektur
+\`\`\`
+Manager (Controller / Ansible)
+  │  SSH TCP 830
+  ▼
+NETCONF Agent (Cisco IOS-XE / NX-OS)
+  │
+  ▼
+Datenspeicher (Running / Candidate / Startup)
+\`\`\`
+
+### NETCONF Datastores
+| Datastore | Beschreibung |
+|-----------|-------------|
+| **Running** | Aktive Konfiguration (sofort wirksam) |
+| **Candidate** | Entwurf — wird mit \`<commit/>\` in Running übernommen |
+| **Startup** | Konfiguration nach Neustart |
+
+### Was ist YANG?
+**YANG** (Yet Another Next Generation, RFC 7950) ist eine Datenmodellierungssprache für NETCONF/RESTCONF.
+- Beschreibt die **Struktur und Typen** von Konfigurationsdaten
+- Vergleichbar mit einem Schema/Blueprint für die Geräteconfig
+- Cisco, Juniper und andere Hersteller veröffentlichen YANG-Modelle
+
+### YANG-Modelltypen
+| Typ | Beschreibung |
+|-----|-------------|
+| **Native YANG** | Herstellerspezifisch (z.B. Cisco-IOS-XE-native) |
+| **OpenConfig** | Herstellerneutral (z.B. openconfig-interfaces) |
+| **IETF YANG** | IETF-Standards (z.B. ietf-interfaces) |
+
+### RESTCONF vs. NETCONF
+| Merkmal | NETCONF | RESTCONF |
+|---------|---------|---------|
+| Transport | SSH (TCP 830) | HTTPS |
+| Format | XML | JSON oder XML |
+| Standard | RFC 6241 | RFC 8040 |
+| Einsatz | Vollständige Config | Einfachere REST-ähnliche Abfragen |
+
+### Cisco IOS Konfiguration (NETCONF aktivieren)
+\`\`\`
+R1(config)# netconf-yang
+R1(config)# aaa new-model
+R1(config)# aaa authentication login default local
+R1# show netconf-yang status
+\`\`\`
+
+### Zusammenfassung: Warum NETCONF/YANG?
+- **Strukturiert**: XML-Schema statt Freitext-CLI
+- **Transaktional**: Candidate-Datastore + commit (atomarer Rollback möglich)
+- **Standardisiert**: Herstellerübergreifend (Cisco, Juniper, etc.)
+- **Automatisierbar**: Ansible (\`netconf\`-Modul), Python (\`ncclient\`-Bibliothek)
+  `.trim(),
+};
+
 export const TOPIC_AUTOMATION: Topic = {
   id: "automation",
   title: "Programmability & Automation",
@@ -217,6 +291,7 @@ export const TOPIC_AUTOMATION: Topic = {
   conceptIds: [
     "rest-json",
     "automation-tools",
+    "netconf-yang",
     "automation-guide",
   ],
   quizIds: ["ccna-quiz-automation"],
@@ -229,5 +304,6 @@ export const TOPIC_AUTOMATION: Topic = {
 export const AUTOMATION_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_REST_JSON.id]: CONCEPT_REST_JSON,
   [CONCEPT_AUTOMATION_TOOLS.id]: CONCEPT_AUTOMATION_TOOLS,
+  [CONCEPT_NETCONF_YANG.id]: CONCEPT_NETCONF_YANG,
   [CONCEPT_AUTOMATION_GUIDE.id]: CONCEPT_AUTOMATION_GUIDE,
 };

@@ -123,6 +123,116 @@ export const CONCEPT_WIRELESS_ARCHITECTURE: Concept = {
 - **Controller**: Management, Interfaces, Ports
 - **Wireless**: APs, RF-Profile, Channel Assignment
 - **Security**: AAA, ACLs, Rogue Detection
+
+---
+
+## WLC-Management-Zugriff — TACACS+ vs. RADIUS
+
+Auf dem Cisco WLC gibt es zwei verschiedene AAA-Anwendungsfälle, die unterschiedliche
+Protokolle verwenden:
+
+| Anwendungsfall | Protokoll | Begründung |
+|---------------|-----------|------------|
+| **WLC Device-Admin** (GUI/SSH-Zugriff von Netzwerktechnikern) | **TACACS+** | Command-Authorization: TACACS+ trennt Auth/Author/Accounting vollständig. Jeder CLI-Befehl kann per Policy erlaubt/verboten werden. TCP 49, gesamter Payload verschlüsselt. |
+| **WLAN-Client-Auth** (Endgeräte via 802.1X) | **RADIUS** | Network-Access-Protokoll: UDP 1812/1813, weit verbreitet, EAP-Unterstützung. Kein Command-Authorization nötig. |
+
+> **Merksatz (identisch security.ts)**: **TACACS+ → Terminal/Device-Admin**, **RADIUS → Remote-Access/WLAN-Clients**
+
+### WLC-Admin-Konfiguration (Cisco WLC GUI)
+\`\`\`
+Security → AAA → TACACS+ → New
+  Server IP: 10.0.100.20
+  Port: 49
+  Shared Secret: ****
+
+Security → Priority Order → Management User
+  Order: 1. TACACS+   2. LOCAL
+\`\`\`
+
+---
+
+## WLC WLAN-Konfiguration — GUI-Workflow (Schritt für Schritt)
+
+1. **WLANs → New** → Type: WLAN → SSID eingeben (z. B. \`Corp-WiFi\`) → WLAN-ID wählen
+2. **General-Tab** → Status: Enabled → Interface/Interface Group: VLAN-Mapping wählen (z. B. \`vlan10\`)
+3. **Security → Layer 2**
+   - Security: \`WPA+WPA2\` → WPA2 Policy: ✓ → Encryption: \`AES\` (CCMP)
+   - Auth Key Mgmt: **PSK** (WPA2-Personal, Pre-Shared Key eingeben)
+     **oder** **802.1X** (WPA2-Enterprise, weiter zu Schritt 4)
+4. **Security → AAA Servers** (nur bei 802.1X)
+   - Authentication Server: RADIUS-Server aus Dropdown wählen
+   - Accounting Server: optional
+5. **Apply → Save Configuration**
+
+### WPA3-Hinweis (CCNA v1.1)
+- **WPA3-Personal**: SAE (Simultaneous Authentication of Equals) statt PSK — schützt vor Offline-Dictionary-Attacks
+- **WPA3-Enterprise**: 192-Bit Security Mode mit Suite-B-Kryptografie
+  `.trim(),
+};
+
+export const CONCEPT_WLAN_AP_MODES: Concept = {
+  id: "wlan-ap-modes",
+  title: "WLAN AP-Betriebsmodi",
+  appliesTo: ["ccna"],
+  tags: ["wireless", "wlan", "ap", "flexconnect", "capwap", "lightweight"],
+  content: `
+## WLAN Access Point Betriebsmodi
+
+### Überblick: AP-Betriebsmodi im Vergleich
+
+| Modus | Beschreibung | Einsatz |
+|-------|-------------|---------|
+| **Autonomous** | Komplett selbstständig; jede Funktion lokal konfiguriert | Kleine Netze ohne WLC |
+| **Lightweight (Local)** | Alle Funktionen über WLC; Traffic wird durch CAPWAP-Tunnel zum WLC geleitet | Enterprise-Netze mit zentralem WLC |
+| **FlexConnect** | Lightweight AP, der bei WLC-Ausfall lokal weiterleitet | Filialen mit eingeschränkter WAN-Leitung |
+| **Monitor** | Nur passives Lauschen; kein Client-Traffic | Rogue-AP-Erkennung, IDS |
+| **Sniffer** | Captures frames für externe Analyse (z.B. Wireshark) | WLAN-Troubleshooting |
+| **Mesh** | APs als Backhaul-Mesh-Knoten (Outdoor/Indoor) | Schwer verkabelbare Bereiche |
+
+### Autonomous AP — Modus "Stand-alone"
+- Vollständige Funktionalität ohne WLC
+- Jeder AP wird **einzeln** konfiguriert (CLI oder Web-GUI)
+- Eignet sich für kleine Unternehmen oder Einzelinstallationen
+- **Nachteil**: Keine zentrale Verwaltung, kein einheitliches Roaming, keine dynamische RF-Verwaltung
+
+### Lightweight AP — Local Modus (Standard)
+- Minimale Logik im AP — WLC übernimmt alle Steuerungsentscheidungen
+- **Split MAC-Architektur**:
+  - AP: Sendet/empfängt RF, kümmert sich um Layer-1/2 Funktionen
+  - WLC: Authentifizierung, Verschlüsselung, SSID-Management, QoS
+- Client-Traffic wird durch CAPWAP-Tunnel zum WLC geleitet (**centralized forwarding**)
+- **Vorteil**: Zentrale Konfiguration, nahtloses Roaming, RF-Optimierung
+
+### FlexConnect (früher: H-REAP)
+- Hybrid: AP kann beim WLC-Ausfall **lokal weiterleiten** (local switching)
+- **Zwei Betriebszustände**:
+  - **Connected**: WLC ist erreichbar → zentrale Steuerung + lokales Forwarding möglich
+  - **Standalone**: WLC nicht erreichbar → AP leitet lokal weiter, Authentifizierung lokal
+- Ideal für **Filialen** mit schmaler WAN-Verbindung zum WLC
+- Konfiguration: WLC → WLAN → Advanced → FlexConnect Local Switching aktivieren
+
+### AP-Modus-Konfiguration (Cisco WLC GUI)
+\`\`\`
+WLC → Wireless → Access Points → [AP auswählen]
+  → General → AP Mode: Local / FlexConnect / Monitor / Sniffer
+\`\`\`
+
+### CAPWAP im Detail
+| Element | Wert |
+|---------|------|
+| Protokoll | UDP |
+| Control-Kanal | Port 5246 (verschlüsselt DTLS) |
+| Data-Kanal | Port 5247 (optional DTLS) |
+| Funktion | AP-Konfiguration, Software-Updates, Client-Daten |
+
+### Typische Prüfungsfrage: Welcher Modus für welches Szenario?
+| Szenario | Empfohlener Modus |
+|---------|-----------------|
+| Kleine Arztpraxis, kein WLC | Autonomous |
+| Unternehmensnetz mit zentralem WLC | Lightweight (Local) |
+| Filiale mit schlechter WAN-Verbindung | FlexConnect |
+| WLAN-Troubleshooting mit Wireshark | Sniffer |
+| Rogue-AP-Überwachung | Monitor |
   `.trim(),
 };
 
@@ -169,6 +279,7 @@ export const TOPIC_WLAN: Topic = {
     "wlan-standards",
     "wlan-security",
     "wireless-architecture",
+    "wlan-ap-modes",
     "wlan-guide",
   ],
   quizIds: ["ccna-quiz-wlan"],
@@ -182,5 +293,6 @@ export const WLAN_CONCEPTS: Record<string, Concept> = {
   "wlan-standards": CONCEPT_WLAN_STANDARDS,
   "wlan-security": CONCEPT_WLAN_SECURITY,
   "wireless-architecture": CONCEPT_WIRELESS_ARCHITECTURE,
+  "wlan-ap-modes": CONCEPT_WLAN_AP_MODES,
   "wlan-guide": CONCEPT_WLAN_GUIDE,
 };

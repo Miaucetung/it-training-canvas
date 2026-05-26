@@ -234,23 +234,136 @@ Das "Klinikum am Park" (3 Standorte, 22 Cisco-Switches, 8 Router) standardisiert
   `.trim(),
 };
 
+export const CONCEPT_TFTP_FTP: Concept = {
+  id: "tftp-ftp",
+  title: "TFTP, FTP & SCP — Cisco IOS Image Management",
+  appliesTo: ["ccna"],
+  tags: ["tftp", "ftp", "scp", "sftp", "ios", "device-management", "file-transfer"],
+  content: `
+## Dateiübertragungsprotokolle im Überblick
+
+| Protokoll | Transport | Port | Auth | Verschlüsselung | Einsatz |
+|-----------|-----------|------|------|----------------|---------|
+| **TFTP** | UDP | 69 | Nein | Nein | IOS-Images, Konfig-Backup |
+| **FTP** | TCP | 20 (Daten), 21 (Control) | Ja (User/Pass) | Nein | IOS-Images, größere Dateien |
+| **SCP** | TCP | 22 (SSH) | Ja (SSH) | Ja (SSH) | Sicheres Konfig-Backup |
+| **SFTP** | TCP | 22 (SSH) | Ja (SSH) | Ja (SSH) | Sichere Dateiübertragung |
+
+> **Prüfungstipp:** TFTP ist zustandslos und einfach, aber ohne Auth und Verschlüsselung.
+> FTP hat zwei Ports: TCP 21 (Kommandokanal) und TCP 20 (Datenkanal).
+
+---
+
+## TFTP — Trivial File Transfer Protocol (RFC 1350)
+
+- **Transport:** UDP Port 69
+- **Kein Auth, keine Verschlüsselung** — nur im vertrauenswürdigen Netz nutzen
+- Maximale Dateigröße: ältere Implementierungen begrenzt auf ~32 MB (Block-Size 512 Byte × 65535)
+- Cisco nutzt TFTP häufig für: IOS-Image-Backup, Konfig-Upload/Download, Bootloader-Recovery
+
+### Cisco IOS TFTP-Befehle
+
+\`\`\`
+! Konfiguration auf TFTP-Server sichern
+R1# copy running-config tftp:
+Address or name of remote host []? 192.168.1.100
+Destination filename [r1-confg]? backup-r1.cfg
+
+! IOS-Image von TFTP laden
+R1# copy tftp: flash:
+Address or name of remote host []? 192.168.1.100
+Source filename []? c2900-universalk9-mz.SPA.155-3.M8.bin
+Destination filename [c2900-universalk9-mz.SPA.155-3.M8.bin]?
+
+! Flash-Inhalt prüfen
+R1# show flash:
+\`\`\`
+
+---
+
+## FTP — File Transfer Protocol (RFC 959)
+
+- **Control Channel:** TCP Port 21 (Befehle: USER, PASS, LIST, RETR, STOR)
+- **Data Channel:** TCP Port 20 (aktiver Modus) oder ephemerer Port (passiver Modus)
+- Authentifizierung mit Benutzername/Passwort (Klartext!)
+- Cisco IOS kann als FTP-Client agieren
+
+### FTP-Modi
+
+| Modus | Beschreibung |
+|-------|-------------|
+| **Aktiv** | Server öffnet Datenkanal von TCP 20 zum Client |
+| **Passiv (PASV)** | Client öffnet Datenkanal zu einem Server-Port >1023 (firewall-freundlich) |
+
+### Cisco IOS FTP-Befehle
+
+\`\`\`
+R1(config)# ip ftp username cisco
+R1(config)# ip ftp password cisco123
+R1# copy ftp: flash:
+Address or name of remote host []? 192.168.1.100
+Source filename []? new-ios.bin
+\`\`\`
+
+---
+
+## SCP & SFTP — Sichere Alternativen
+
+**SCP (Secure Copy Protocol)**
+- Basiert auf SSH (TCP 22)
+- Authentifizierung über SSH (Passwort oder Public Key)
+- Dateiübertragung verschlüsselt
+
+\`\`\`
+! SCP auf Cisco aktivieren
+R1(config)# ip scp server enable
+
+! Datei via SCP übertragen (Linux-Client)
+$ scp ios-image.bin cisco@192.168.1.1:flash:/ios-image.bin
+\`\`\`
+
+**SFTP (SSH File Transfer Protocol)**
+- Ebenfalls SSH-basiert (TCP 22)
+- Modernere API als SCP, unterstützt Verzeichnisoperationen
+- Unterschied zu SCP: SFTP ist ein eigenständiges Protokoll über SSH, SCP nutzt nur SSH als Tunnel
+
+---
+
+## Cisco IOS Bootvorgang (Kurzübersicht)
+
+1. Power-On: POST (Power-On Self Test)
+2. Bootstrap (ROM): sucht IOS-Image
+3. Boot-Reihenfolge: Flash → TFTP (wenn konfiguriert) → ROM (ROMMON-Modus)
+4. IOS-Load aus Flash
+5. Startup-Config aus NVRAM laden
+6. Wenn keine Startup-Config: Setup-Dialog
+
+\`\`\`
+! Boot-Reihenfolge anpassen
+R1(config)# boot system flash c2900-universalk9-mz.SPA.155-3.M8.bin
+R1(config)# boot system tftp c2900-universalk9-mz.SPA.155-3.M8.bin 192.168.1.100
+\`\`\`
+`,
+};
+
 export const TOPIC_DEVICE_MANAGEMENT: Topic = {
   id: "device-management",
   title: "Device Management Protocols",
   description:
-    "CDP/LLDP-Discovery, NTP-Zeitsynchronisation, Syslog-Severity und SNMPv3 — die Operations-Werkzeuge.",
+    "CDP/LLDP-Discovery, NTP-Zeitsynchronisation, Syslog-Severity, SNMPv3 und TFTP/FTP/SCP-Dateiübertragung.",
   conceptIds: [
     "cdp-lldp",
     "ntp",
     "syslog",
     "snmp",
     "device-management-guide",
+    "tftp-ftp",
   ],
   quizIds: ["ccna-quiz-device-management"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ios-cli"],
   estimatedMinutes: 120,
-  tags: ["device-management", "cdp", "lldp", "ntp", "syslog", "snmp"],
+  tags: ["device-management", "cdp", "lldp", "ntp", "syslog", "snmp", "tftp", "ftp"],
 };
 
 export const DEVICE_MANAGEMENT_CONCEPTS: Record<string, Concept> = {
@@ -259,4 +372,5 @@ export const DEVICE_MANAGEMENT_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_SYSLOG.id]: CONCEPT_SYSLOG,
   [CONCEPT_SNMP.id]: CONCEPT_SNMP,
   [CONCEPT_DEVICE_MGMT_GUIDE.id]: CONCEPT_DEVICE_MGMT_GUIDE,
+  [CONCEPT_TFTP_FTP.id]: CONCEPT_TFTP_FTP,
 };

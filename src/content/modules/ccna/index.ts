@@ -47,6 +47,10 @@ import {
 } from "./topics/vlan-advanced";
 import { TOPIC_WLAN, WLAN_CONCEPTS } from "./topics/wlan";
 import {
+  TOPIC_VIRTUALIZATION,
+  VIRTUALIZATION_CONCEPTS,
+} from "./topics/virtualization";
+import {
   TOPIC_SUBNET_SEGMENTATION,
   SUBNET_SEGMENTATION_CONCEPTS,
 } from "./topics/subnet-segmentation";
@@ -512,6 +516,7 @@ const CCNA_MODULE: CertificationModule = {
     TOPIC_WAN,
     TOPIC_SDN,
     TOPIC_AUTOMATION,
+    TOPIC_VIRTUALIZATION,
     TOPIC_TROUBLESHOOTING,
   ],
 
@@ -534,6 +539,7 @@ const CCNA_MODULE: CertificationModule = {
     ...WAN_CONCEPTS,
     ...SDN_CONCEPTS,
     ...AUTOMATION_CONCEPTS,
+    ...VIRTUALIZATION_CONCEPTS,
     ...TROUBLESHOOTING_CONCEPTS,
   },
 

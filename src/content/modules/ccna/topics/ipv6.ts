@@ -131,12 +131,193 @@ Die "DataCenter Nord GmbH" betreibt in Hamburg einen Webserver mit der IPv4-Adre
   `.trim(),
 };
 
+export const CONCEPT_IPV6_ADDRESS_TYPES: Concept = {
+  id: "ipv6-address-types",
+  title: "IPv6 Adresstypen — GUA, ULA, Link-Local, Multicast",
+  appliesTo: ["ccna"],
+  tags: ["ipv6", "addressing", "unicast", "multicast", "link-local"],
+  content: `
+## IPv6 Adresstypen im Überblick
+
+| Typ | Präfix | Beschreibung | IPv4-Äquivalent |
+|-----|--------|-------------|----------------|
+| **Global Unicast (GUA)** | 2000::/3 | Öffentlich routbar, weltweit eindeutig | Öffentliche IPv4-Adresse |
+| **Unique Local (ULA)** | FC00::/7 | Privat, nicht global routbar | RFC 1918 (10.x, 172.16.x, 192.168.x) |
+| **Link-Local** | FE80::/10 | Nur im lokalen Segment gültig, nicht routbar | APIPA (169.254.x.x) |
+| **Multicast** | FF00::/8 | Eine-zu-viele-Kommunikation | 224.0.0.0/4 |
+| **Loopback** | ::1/128 | Loopback-Interface | 127.0.0.1 |
+| **Unspecified** | ::/128 | Noch keine Adresse (z. B. DAD) | 0.0.0.0 |
+| **Anycast** | (kein eigener Präfix) | Normale Unicast-Adresse auf mehreren Interfaces — Routing wählt den nächsten | Kein IPv4-Äquivalent |
+
+---
+
+## Anycast — One-to-Nearest
+
+Anycast ist **kein eigener Adresstyp mit reserviertem Präfix**, sondern eine normale
+Global-Unicast-Adresse, die **mehreren Geräten gleichzeitig zugewiesen** wird.
+Das Routing-Protokoll leitet Pakete automatisch zum **topologisch nächsten** Empfänger.
+
+### Funktionsprinzip
+\`\`\`
+Client ──→ [Anycast 2001:DB8::1/128]
+             ├── Server A (Frankfurt)   ← am nächsten → bekommt Paket
+             ├── Server B (Paris)
+             └── Server C (Amsterdam)
+\`\`\`
+
+### Subnet-Router Anycast (reservierter Standardfall)
+Bei jedem IPv6-Präfix ist die Adresse mit **Interface-ID = 0** als
+**Subnet-Router Anycast** reserviert:
+- Präfix: \`2001:DB8:CAFE:1::/64\` → Subnet-Router Anycast: \`2001:DB8:CAFE:1::\` (Interface-ID alle Nullen)
+- Bedeutung: Pakete an diese Adresse werden zum nächsten Router im Subnetz gesendet
+- Konfiguration: \`ipv6 address 2001:DB8:1::/64 anycast\`
+
+### Anycast vs. Multicast — Abgrenzung
+
+| Merkmal | Anycast | Multicast |
+|---------|---------|----------|
+| **Empfänger** | Einer (der nächste) | Alle Mitglieder der Multicast-Gruppe |
+| **Adress-Präfix** | Normaler Unicast-Bereich | FF00::/8 |
+| **Routing** | Unicast-Routing (IGP) wählt nächsten | Multicast-Routing (PIM) |
+| **Anwendung** | DNS-Root-Server, Anycast-CDN | OSPFv3, Video-Streaming |
+
+> **Prüfungshinweis**: Anycast-Adressen sind syntaktisch identisch mit GUA — der Unterschied
+> liegt ausschließlich in der Konfiguration (gleiche Adresse auf mehreren Interfaces).
+
+---
+
+## Wichtige Multicast-Gruppen
+
+| Multicast-Adresse | Bedeutung |
+|------------------|-----------|
+| **FF02::1** | All Nodes (alle IPv6-Hosts im Segment) |
+| **FF02::2** | All Routers (alle IPv6-Router im Segment) |
+| **FF02::5** | All OSPF Routers (OSPFv3) |
+| **FF02::6** | OSPF Designated Routers |
+| **FF02::1:2** | All DHCP Relay Agents/Server |
+
+---
+
+## Global Unicast Address (GUA) — Aufbau
+
+\`\`\`
+| Global Routing Prefix (48 Bit) | Subnet ID (16 Bit) | Interface ID (64 Bit) |
+|--------------------------------|--------------------|-----------------------|
+| Vom ISP zugewiesen             | Vom Admin          | EUI-64 oder zufällig  |
+\`\`\`
+
+Beispiel: **2001:0DB8:CAFE : 0001 : 0000:0000:0000:0001**
+- Global Routing Prefix: 2001:0DB8:CAFE
+- Subnet ID: 0001
+- Interface ID: 0000:0000:0000:0001
+
+---
+
+## Link-Local — automatische Konfiguration
+
+Jedes IPv6-Interface konfiguriert sich **automatisch** eine Link-Local-Adresse,
+auch ohne manuelle Konfiguration oder SLAAC/DHCPv6.
+
+- Präfix: **FE80::/10**
+- Interface-ID: EUI-64 aus MAC-Adresse oder zufällig
+- Nur im lokalen L2-Segment gültig
+- Wird von NDP, OSPFv3, EIGRP für IPv6 als Quelladresse genutzt
+
+> **Cisco IOS:** \`ipv6 address fe80::1 link-local\` setzt eine statische Link-Local-Adresse.
+`,
+};
+
+export const CONCEPT_IPV6_NDP_SLAAC: Concept = {
+  id: "ipv6-ndp-slaac",
+  title: "NDP & SLAAC — Neighbor Discovery und automatische Adresskonfiguration",
+  appliesTo: ["ccna"],
+  tags: ["ipv6", "ndp", "slaac", "dhcpv6", "neighbor-discovery"],
+  content: `
+## NDP — Neighbor Discovery Protocol (RFC 4861)
+
+NDP ist das IPv6-Äquivalent zu ARP und mehr. Es verwendet ICMPv6-Nachrichten
+und arbeitet über Multicast statt Broadcast.
+
+### NDP-Nachrichten
+
+| Nachricht | Abkürzung | Funktion | IPv4-Äquivalent |
+|-----------|-----------|---------|----------------|
+| **Router Solicitation** | RS | Host fragt nach Routern | — |
+| **Router Advertisement** | RA | Router teilt Präfix/Gateway mit | — |
+| **Neighbor Solicitation** | NS | Suche MAC-Adresse zu IPv6-Adresse | ARP Request |
+| **Neighbor Advertisement** | NA | Antwort mit eigener MAC-Adresse | ARP Reply |
+| **Redirect** | — | Besseren Next-Hop mitteilen | ICMP Redirect |
+
+### NDP-Ablauf (Adressauflösung)
+
+\`\`\`
+Host A möchte MAC von Host B (2001:DB8::2) ermitteln:
+
+Host A → [NS an FF02::1:FF00:0002 (Solicited-Node Multicast)]
+          "Wer hat 2001:DB8::2?"
+
+Host B → [NA an Host A (Unicast)]
+          "Ich! Meine MAC: AA:BB:CC:DD:EE:FF"
+\`\`\`
+
+---
+
+## SLAAC — Stateless Address Autoconfiguration (RFC 4862)
+
+SLAAC ermöglicht Hosts, sich ohne DHCPv6-Server eine vollständige IPv6-Adresse
+zu konfigurieren.
+
+### SLAAC-Prozess
+
+\`\`\`
+1. Host sendet RS (Router Solicitation) an FF02::2
+2. Router antwortet mit RA (Router Advertisement):
+   - IPv6-Präfix (z. B. 2001:DB8:1::/64)
+   - Default Gateway = Router's Link-Local-Adresse
+   - Flags: A-Flag (SLAAC), M-Flag (DHCPv6 Stateful), O-Flag (DHCPv6 Stateless)
+3. Host erstellt Interface-ID via EUI-64 oder Zufallswert
+4. DAD (Duplicate Address Detection) prüft, ob Adresse bereits vergeben
+5. Host konfiguriert Adresse: Präfix + Interface-ID
+\`\`\`
+
+### SLAAC-Flags im Router Advertisement
+
+| Flag | Bedeutung |
+|------|-----------|
+| **A-Flag = 1** | Nutze SLAAC für die Adresse |
+| **M-Flag = 1** | Nutze Stateful DHCPv6 für Adresse |
+| **O-Flag = 1** | Nutze Stateless DHCPv6 für andere Parameter (DNS) |
+
+---
+
+## DHCPv6 — Stateful vs. Stateless
+
+| Merkmal | Stateful DHCPv6 | Stateless DHCPv6 |
+|---------|----------------|-----------------|
+| Adressvergabe | Server vergibt IPv6-Adresse | Host nutzt SLAAC (eigene Adresse) |
+| DNS-Server | Ja, vom DHCPv6-Server | Ja, vom DHCPv6-Server |
+| Adress-Tracking | Ja (Server führt Lease-Tabelle) | Nein |
+| Router-Flag | M-Flag = 1 | O-Flag = 1, A-Flag = 1 |
+| Cisco IOS-Befehl | \`ipv6 dhcp server POOL\` | \`ipv6 nd other-config-flag\` |
+
+---
+
+## DAD — Duplicate Address Detection
+
+Bevor ein Host eine IPv6-Adresse nutzt, prüft er via **DAD**, ob sie bereits vergeben ist:
+
+1. Host sendet NS (Neighbor Solicitation) für die eigene Adresse an Solicited-Node Multicast
+2. Bleibt die NA-Antwort aus → Adresse ist eindeutig und wird genutzt
+3. Kommt eine NA-Antwort → Adresskonflikt! Host bricht Konfiguration ab
+`,
+};
+
 export const TOPIC_IPV6: Topic = {
   id: "ipv6",
   title: "IPv6",
   description:
     "IPv6-Adressierung, NDP, SLAAC, DHCPv6 und Routing — der Nachfolger von IPv4.",
-  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator"],
+  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator", "ipv6-address-types", "ipv6-ndp-slaac"],
   quizIds: ["ccna-quiz-ipv6"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
@@ -148,4 +329,6 @@ export const IPV6_CONCEPTS: Record<string, Concept> = {
   "ipv6-basics": CONCEPT_IPV6_BASICS,
   "ipv6-routing": CONCEPT_IPV6_ROUTING,
   "ipv6-guide": CONCEPT_IPV6_GUIDE,
+  "ipv6-address-types": CONCEPT_IPV6_ADDRESS_TYPES,
+  "ipv6-ndp-slaac": CONCEPT_IPV6_NDP_SLAAC,
 };

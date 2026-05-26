@@ -85,24 +85,36 @@ OSPF ist ein **Link-State-Routing-Protokoll** (IGP) mit Dijkstra SPF-Algorithmus
 - **SPF-Algorithmus**: Berechnet Shortest Path Tree
 
 ### OSPF-Metrik: Cost
-Cost = 100 Mbit/s ÷ Interface-Bandbreite
+Cost = Referenzbandbreite ÷ Interface-Bandbreite (Ergebnis auf ganze Zahl abgerundet, Minimum 1)
 
-| Interface | Cost |
-|-----------|------|
-| Serial (1.544 Mbit/s) | 64 |
-| FastEthernet (100 Mbit/s) | 1 |
-| GigabitEthernet (1 Gbit/s) | 1 (Auto-Cost Problem!) |
+**⚠️ Standard-Fallstrick: Default-Referenzbandbreite = 100 Mbit/s**
+Alle Links ab 100 Mbit/s aufwärts bekommen dieselbe Cost **1**:
 
-**Empfehlung**: \`auto-cost reference-bandwidth 10000\` (10 Gbit/s Referenz)
+| Interface | Bandbreite | Cost (Default ref-bw 100M) | Cost (ref-bw 100000 = 100G) |
+|-----------|-----------|---------------------------|----------------------------|
+| Serial | 1.544 Mbit/s | 64 | 64.772 → 64 |
+| FastEthernet | 100 Mbit/s | **1** | 1000 |
+| GigabitEthernet | 1 Gbit/s | **1** | 100 |
+| 10GigabitEthernet | 10 Gbit/s | **1** | 10 |
 
-### OSPF-Nachbar-Zustände
+→ OSPF kann standardmäßig nicht zwischen FastEthernet, GigE und 10GigE unterscheiden!
+
+**Lösung**: \`auto-cost reference-bandwidth 100000\` **konsistent auf allen Routern der Area**:
+\`\`\`
+R1(config-router)# auto-cost reference-bandwidth 100000
+\`\`\`
+Inkonsistente Werte über Routergrenzen hinweg führen zu asymmetrischem Routing.
+
+### OSPF-Nachbar-Zustände (Übersicht)
 Down → Init → 2-Way → ExStart → Exchange → Loading → **Full**
 
+Details siehe Konzept \`ospf-neighbor-states\`.
+
 ### Designated Router (DR) & Backup DR (BDR)
-Auf Broadcast-Netzen (Ethernet): Wahl von DR/BDR zur Reduzierung von Adjacencies
-- Höchste Priorität (default 1) → DR
-- Zweithöchste → BDR
+Details und Wahlkriterien → Konzept \`ospf-dr-bdr\`.
+- Höchste Priorität (default 1) → DR, Zweithöchste → BDR
 - \`ip ospf priority 0\` = niemals DR/BDR
+- **Non-Preemptive**: Neuer Router mit höherer Priorität verdrängt bestehenden DR **nicht** automatisch
 
 ### Single-Area OSPF (Area 0)
 \`\`\`
@@ -122,6 +134,183 @@ R1# show ip route ospf
 - **ABR (Area Border Router)**: Verbindet zwei Areas
 - **ASBR (Autonomous System Boundary Router)**: Redistributiert externe Routen
 - Reduziert LSDB-Größe, lokalisiert SPF-Berechnungen
+  `.trim(),
+};
+
+export const CONCEPT_OSPF_NEIGHBOR_STATES: Concept = {
+  id: "ospf-neighbor-states",
+  title: "OSPF Neighbor-States & Troubleshooting",
+  appliesTo: ["ccna"],
+  tags: ["ospf", "routing", "neighbor", "adjacency", "troubleshooting"],
+  content: `
+## OSPF Nachbar-Zustände (7 States)
+
+### Vollständige State-Machine
+\`\`\`
+Down → Init → 2-Way → ExStart → Exchange → Loading → Full
+\`\`\`
+
+| State | Beschreibung | Erwarteter Fortschritt |
+|-------|-------------|----------------------|
+| **Down** | Kein Hello empfangen (oder Interface down) | Sobald Interface up + Hello gesendet |
+| **Init** | Hello vom Nachbarn empfangen, eigene Router-ID aber noch nicht im Hello des Nachbarn | Nach nächstem Hello mit eigener RID |
+| **2-Way** | Beide Router sehen sich gegenseitig im Hello. DR/BDR-Wahl findet hier statt. DROther-Router bleiben hier stehen (normal!) | Nur DR/BDR bilden Full-Adjacency mit allen |
+| **ExStart** | Master/Slave-Aushandlung per DBD-Paketen (leerer Header). Höchste Router-ID = Master | Nach Einigung über Sequenznummer |
+| **Exchange** | DBD-Pakete (Database Description) werden ausgetauscht — enthält LSDB-Zusammenfassung | Nach vollständigem DBD-Austausch |
+| **Loading** | LSR / LSU für fehlende LSAs werden ausgetauscht | Nach vollständiger LSDB-Synchronisation |
+| **Full** | LSDB vollständig synchronisiert — SPF-Berechnung möglich | Stabil (Zielzustand) |
+
+### Wichtiger Sonderfall: 2-Way ist kein Fehler!
+- **DR/BDR** zu allen anderen Routern im Segment: Zustand **Full**
+- **DROther** zu anderen DROther-Routern: Zustand **2-Way** — das ist korrekt und gewollt
+- Prüfungsfrage: "Nachbar bleibt in 2-Way" → beide Router sind DROther (Priority 1, gleiche Priorität, kleinere Router-ID verliert)
+
+### Häufige Ursachen für blockierte Adjacency
+
+| Symptom | Wahrscheinliche Ursache | Diagnose |
+|---------|------------------------|---------|
+| Bleibt in **Init** | Firewall blockiert 224.0.0.5 (OSPF All-Routers-Multicast) | \`debug ip ospf hello\` |
+| Bleibt in **2-Way** | Beide sind DROther (normal) **oder** Priority 0 auf beiden | \`show ip ospf interface\` |
+| Bleibt in **ExStart** | Router-ID-Konflikt (zwei Router mit gleicher RID) | \`show ip ospf\` auf beiden |
+| Bleibt in **Exchange** | MTU-Mismatch — DBD-Paket passt nicht durch | \`show ip ospf interface\` → MTU prüfen |
+| Gar kein Hello | Hello/Dead-Timer-Mismatch, falsche Area-ID, Authentication | \`debug ip ospf adj\` |
+
+### Hello-Timer / Dead-Timer — beide Seiten MÜSSEN übereinstimmen
+- Standard Broadcast/P2P: Hello 10s, Dead 40s
+- Standard NBMA: Hello 30s, Dead 120s
+- Timer können manuell gesetzt werden — aber bei Mismatch: kein Adjacency!
+\`\`\`
+R1(config-if)# ip ospf hello-interval 5
+R1(config-if)# ip ospf dead-interval 20
+\`\`\`
+
+### Cisco IOS Command Reference
+\`\`\`
+show ip ospf neighbor              ! Zustand, Dead-Timer, DR/BDR pro Segment
+show ip ospf neighbor detail       ! Volldetails inkl. Timer, Interface, MTU
+show ip ospf interface Gi0/0       ! Timer, Netzwerktyp, Cost, DR/BDR-Info
+debug ip ospf adj                  ! Adjacency-Aufbau Echtzeit-Diagnose
+clear ip ospf process              ! OSPF-Prozess neu starten (alle Adjacencies reset)
+\`\`\`
+  `.trim(),
+};
+
+export const CONCEPT_OSPF_DR_BDR: Concept = {
+  id: "ospf-dr-bdr",
+  title: "OSPF DR/BDR-Wahl & Netzwerktypen",
+  appliesTo: ["ccna"],
+  tags: ["ospf", "dr", "bdr", "network-type", "broadcast", "point-to-point"],
+  content: `
+## OSPF Designated Router (DR) und Backup DR (BDR)
+
+### Warum DR/BDR?
+In einem Broadcast-Segment mit N Routern entstehen ohne DR/BDR: N×(N-1)/2 Adjacencies.
+Mit DR/BDR bildet jeder Router Adjacency nur mit DR und BDR → drastisch weniger Overhead.
+
+| Beispiel (5 Router) | Adjacencies |
+|---------------------|------------|
+| Ohne DR/BDR | 5×4/2 = **10** |
+| Mit DR/BDR | **4** (je Router zu DR und BDR) |
+
+### DR/BDR-Wahlkriterien (in dieser Reihenfolge)
+1. **Höchste OSPF-Priority** (Range 0–255, Standard: 1) → wird DR
+2. **Zweithöchste Priority** → wird BDR
+3. **Gleichstand**: Höchste Router-ID entscheidet
+
+\`\`\`
+R1(config-if)# ip ospf priority 100    ! Begünstigt DR-Wahl
+R1(config-if)# ip ospf priority 0      ! Schließt Router von DR/BDR aus
+\`\`\`
+
+### ⚠️ Non-Preemptive Wahl — der häufigste Prüfungs-Fallstrick!
+Wenn ein neuer Router mit höherer Priority ins Segment kommt:
+- Er wird **nicht** sofort DR — die Wahl ist **non-preemptive**
+- Bestehender DR bleibt bis zum nächsten Ausfall oder OSPF-Neustart
+- Nur wenn der aktuelle DR ausfällt, übernimmt der BDR die DR-Rolle und ein neuer BDR wird gewählt
+
+→ Ein neu hinzugefügter Router mit Priority 255 verdrängt den bestehenden DR nicht!
+
+### OSPF-Netzwerktypen
+| Typ | Beispiel | DR/BDR? | Hello-Interval |
+|-----|---------|---------|--------------|
+| **Broadcast** | Ethernet (Standard) | Ja | 10s / Dead 40s |
+| **Point-to-Point** | Serielle Leitung, GRE-Tunnel | Nein | 10s / Dead 40s |
+| **NBMA** | Frame Relay (Legacy) | Ja (manuell) | 30s / Dead 120s |
+| **Point-to-Multipoint** | Hub-and-Spoke ohne DR | Nein | 30s / Dead 120s |
+
+\`\`\`
+R1(config-if)# ip ospf network point-to-point    ! DR/BDR deaktivieren auf Ethernet
+R1(config-if)# ip ospf network broadcast         ! DR/BDR aktivieren auf seriell
+\`\`\`
+
+### OSPF-Multicast-Adressen
+| Adresse | Empfänger |
+|---------|----------|
+| **224.0.0.5** | All OSPF Routers — Hello, DBD, LSR, LSU |
+| **224.0.0.6** | All DR/BDR Routers — DROther sendet Updates nur an DR/BDR |
+
+### Cisco IOS Command Reference
+\`\`\`
+show ip ospf neighbor              ! DR/BDR pro Segment, State
+show ip ospf interface Gi0/0       ! Netzwerktyp, Priority, DR, BDR, Timer
+ip ospf priority <0-255>           ! Priority setzen
+ip ospf network point-to-point     ! Netzwerktyp überschreiben
+\`\`\`
+  `.trim(),
+};
+
+export const CONCEPT_OSPF_LSA_TYPES: Concept = {
+  id: "ospf-lsa-types",
+  title: "OSPF LSA-Typen & LSDB",
+  appliesTo: ["ccna"],
+  tags: ["ospf", "lsa", "lsdb", "routing", "area"],
+  content: `
+## OSPF Link State Advertisements (LSAs)
+
+Alle Router in einer Area haben **identische** LSDBs — das ist die Grundlage für konsistentes SPF-Routing.
+
+### LSA-Typen (CCNA-relevant: Type 1, 2, 3)
+
+| Typ | Name | Erzeugt von | Inhalt | Reichweite |
+|-----|------|-------------|--------|------------|
+| **Type 1** | Router LSA | Jeder OSPF-Router | Alle direkten Links, Interfaces, Kosten | Nur eigene Area |
+| **Type 2** | Network LSA | DR (Designated Router) | Liste aller Router im Broadcast-Segment | Nur eigene Area |
+| **Type 3** | Summary LSA | ABR | Inter-Area-Routen | Andere Areas |
+| **Type 5** | AS External LSA | ASBR | Redistributed externe Routen | Gesamte OSPF-Domain |
+| **Type 7** | NSSA External LSA | ASBR in NSSA | Externe Routen in Not-So-Stubby Area | Nur NSSA (ABR konvertiert zu Type 5) |
+
+### Type 1 — Router LSA
+- Jeder Router generiert genau eine Router-LSA für jede Area, der er angehört
+- Enthält alle OSPF-fähigen Interfaces des Routers mit ihren Netzwerkadressen und Kosten
+
+### Type 2 — Network LSA
+- Existiert **nur auf Broadcast-Segmenten** (Ethernet mit DR)
+- Generiert vom **DR** — nicht vom BDR oder anderen Routern
+- Fehlt auf Point-to-Point-Links: dort kein DR → kein Type-2-LSA
+
+### Type 3 — Summary LSA
+- ABR kündigt Routen aus einer Area in anderen Areas an
+- Ermöglicht Route Summarization: \`area X range <netz> <maske>\`
+- In Routing-Tabelle erkennbar als: **O IA** (OSPF inter-area)
+
+### Routing-Codes in der Routing-Tabelle
+\`\`\`
+show ip route
+O    192.168.1.0/24 [110/2]    → OSPF intra-area (Type-1/2-LSA)
+O IA 192.168.2.0/24 [110/20]   → OSPF inter-area (Type-3-LSA vom ABR)
+O E2 10.0.0.0/8    [110/20]    → OSPF externe Route Typ 2 (Type-5-LSA)
+O E1 10.1.0.0/16   [110/30]    → OSPF externe Route Typ 1 (akkumulierte Cost)
+\`\`\`
+
+### Cisco IOS Command Reference
+\`\`\`
+show ip ospf database               ! Alle LSA-Typen im Überblick
+show ip ospf database router        ! Type-1-LSAs (Router LSAs)
+show ip ospf database network       ! Type-2-LSAs (nur mit DR vorhanden)
+show ip ospf database summary       ! Type-3-LSAs (Inter-Area vom ABR)
+show ip ospf database external      ! Type-5-LSAs (externe Routen vom ASBR)
+area <id> range <netz> <maske>     ! Route Summarization am ABR konfigurieren
+\`\`\`
   `.trim(),
 };
 
@@ -216,6 +405,9 @@ export const TOPIC_ROUTING_OSPF: Topic = {
   conceptIds: [
     "routing-fundamentals",
     "ospf",
+    "ospf-neighbor-states",
+    "ospf-dr-bdr",
+    "ospf-lsa-types",
     "inter-vlan-routing",
     "routing-ospf-guide",
   ],
@@ -229,6 +421,9 @@ export const TOPIC_ROUTING_OSPF: Topic = {
 export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "routing-fundamentals": CONCEPT_ROUTING_FUNDAMENTALS,
   ospf: CONCEPT_OSPF,
+  "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
+  "ospf-dr-bdr": CONCEPT_OSPF_DR_BDR,
+  "ospf-lsa-types": CONCEPT_OSPF_LSA_TYPES,
   "inter-vlan-routing": CONCEPT_INTER_VLAN_ROUTING,
   "routing-ospf-guide": CONCEPT_ROUTING_OSPF_GUIDE,
 };
