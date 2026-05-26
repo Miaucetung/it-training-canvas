@@ -890,12 +890,22 @@ export function Canvas({
         .find((obj) => isPointInBounds(worldPos, obj));
 
       if (clickedObject) {
-        // If object is in a group, select all group members
+        // If object is in a group, select all group members.
+        // Exception: template groups (groupId starts with "tpl-group-") only
+        // select all members when clicking the anchor handle; individual clicks
+        // select just the clicked object so users can edit template elements.
         let objectsToSelect = [clickedObject.id];
         if (clickedObject.groupId) {
-          objectsToSelect = objects
-            .filter((o) => o.groupId === clickedObject.groupId)
-            .map((o) => o.id);
+          const isTplGroup = clickedObject.groupId.startsWith("tpl-group-");
+          const isAnchor =
+            isTplGroup &&
+            clickedObject.type === "text" &&
+            clickedObject.text?.startsWith("\u2725");
+          if (!isTplGroup || isAnchor) {
+            objectsToSelect = objects
+              .filter((o) => o.groupId === clickedObject.groupId)
+              .map((o) => o.id);
+          }
         }
 
         if (e.ctrlKey || e.metaKey) {

@@ -992,8 +992,6 @@ export function TerminalEmulator({
     inputRef.current?.focus();
   }, []);
 
-  if (!shape) return null;
-
   return (
     <div
       className={cn(
@@ -1010,7 +1008,7 @@ export function TerminalEmulator({
           <span className="text-sm font-medium text-white">
             {hostname}@terminal
           </span>
-          {shape.status && (
+          {shape?.status && (
             <span
               className={cn(
                 "w-2 h-2 rounded-full",
