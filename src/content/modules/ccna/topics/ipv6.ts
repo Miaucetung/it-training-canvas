@@ -325,10 +325,28 @@ export const TOPIC_IPV6: Topic = {
   tags: ["ipv6", "networking", "addressing"],
 };
 
+const CONCEPT_IPV6_CALCULATOR: Concept = {
+  id: "ipv6-calculator",
+  title: "IPv6-Adressrechner",
+  appliesTo: ["ccna"],
+  tags: ["ipv6", "calculator", "interactive", "addressing"],
+  content: `## IPv6-Adressrechner
+
+Der IPv6-Adressrechner hilft beim Zerlegen und Umrechnen von IPv6-Adressen:
+
+- Vollständige ↔ Kurzform (:: Notation)
+- Präfix / Interface-ID trennen
+- Adresstyp bestimmen (GUA / ULA / LLA / Multicast)
+- Solicited-Node Multicast-Adresse berechnen
+
+**Öffne den Rechner** über den Button im Topic-Bereich.`.trim(),
+};
+
 export const IPV6_CONCEPTS: Record<string, Concept> = {
   "ipv6-basics": CONCEPT_IPV6_BASICS,
   "ipv6-routing": CONCEPT_IPV6_ROUTING,
   "ipv6-guide": CONCEPT_IPV6_GUIDE,
+  "ipv6-calculator": CONCEPT_IPV6_CALCULATOR,
   "ipv6-address-types": CONCEPT_IPV6_ADDRESS_TYPES,
   "ipv6-ndp-slaac": CONCEPT_IPV6_NDP_SLAAC,
 };

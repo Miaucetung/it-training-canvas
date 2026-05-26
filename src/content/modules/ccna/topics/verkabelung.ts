@@ -819,6 +819,23 @@ export const TOPIC_VERKABELUNG: Topic = {
 
 // ── Exports ───────────────────────────────────────────────────
 
+const CONCEPT_VERKABELUNG_TRAINER: Concept = {
+  id: "verkabelung-trainer",
+  title: "Verkabelungs-Trainer",
+  appliesTo: ["ccna"],
+  tags: ["cabling", "layer-1", "trainer", "interactive"],
+  content: `## Verkabelungs-Trainer
+
+Der interaktive Verkabelungs-Trainer testet dein Wissen über Layer-1-Infrastruktur:
+
+- Kabeltypen und Einsatzbereiche (Straight-Through, Crossover, Rollover)
+- Stecker und Pinbelegungen (RJ-45, LC, SC, ST, MPO)
+- Glasfaser-Kategorien (SMF vs. MMF, OS2 vs. OM4)
+- SFP/QSFP-Transceiver-Auswahl für gegebene Distanz- und Bandbreitenanforderungen
+
+**Starte den Trainer** über den Button im Topic-Bereich.`.trim(),
+};
+
 export const VERKABELUNG_CONCEPTS: Record<string, Concept> = {
   "kupfer-twisted-pair": CONCEPT_KUPFER_TWISTED_PAIR,
   "kupfer-kategorien": CONCEPT_KUPFER_KATEGORIEN,
@@ -829,4 +846,5 @@ export const VERKABELUNG_CONCEPTS: Record<string, Concept> = {
   "glasfaser-reinigung-lszh": CONCEPT_GLASFASER_REINIGUNG_LSZH,
   "verkabelung-praxis": CONCEPT_VERKABELUNG_PRAXIS,
   "verkabelung-guide": CONCEPT_VERKABELUNG_GUIDE,
+  "verkabelung-trainer": CONCEPT_VERKABELUNG_TRAINER,
 };

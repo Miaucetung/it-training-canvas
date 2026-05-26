@@ -827,4 +827,5 @@ export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
   "vtp-dtp": CONCEPT_VTP_DTP,
   "vlan-sicherheit": CONCEPT_VLAN_SICHERHEIT,
   "vlan-advanced-guide": CONCEPT_VLAN_ADVANCED_GUIDE,
+  "vlan-simulator": { id: "vlan-simulator", title: "VLAN-Simulator", appliesTo: ["ccna"], tags: ["vlan", "simulator", "interactive"], content: "Siehe VLAN-Simulator im Topic Switching & VLANs." },
 };

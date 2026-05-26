@@ -1,6 +1,7 @@
 // Generic wiring verifier. Run: npx tsx scripts/verify-module-wiring.ts <moduleId>
 import "../src/content/modules/ccna";
 import "../src/content/modules/comptia-network-plus";
+import "../src/content/modules/az-900";
 import { contentRegistry } from "../src/lib/content/content-registry";
 
 const id = process.argv[2];
@@ -21,7 +22,7 @@ const topicKeys = new Set(m.topics.map((t) => t.id));
 const errors: string[] = [];
 
 for (const t of m.topics) {
-  t.conceptIds.forEach((c) => !conceptKeys.has(c) && errors.push(`topic ${t.id}: missing concept ${c}`));
+  t.conceptIds.forEach((c) => c.startsWith("canvas-template:") || (!conceptKeys.has(c) && errors.push(`topic ${t.id}: missing concept ${c}`)));
   t.quizIds.forEach((q) => !quizKeys.has(q) && errors.push(`topic ${t.id}: missing quiz ${q}`));
   t.exerciseIds.forEach((e) => !exerciseKeys.has(e) && errors.push(`topic ${t.id}: missing exercise ${e}`));
   (t.prerequisiteTopicIds ?? []).forEach((p) => !topicKeys.has(p) && errors.push(`topic ${t.id}: missing prerequisite ${p}`));

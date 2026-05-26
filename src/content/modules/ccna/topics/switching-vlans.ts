@@ -241,10 +241,27 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
   tags: ["switching", "vlan", "stp", "layer-2"],
 };
 
+export const CONCEPT_VLAN_SIMULATOR: Concept = {
+  id: "vlan-simulator",
+  title: "VLAN-Simulator",
+  appliesTo: ["ccna"],
+  tags: ["vlan", "802.1q", "simulator", "interactive"],
+  content: `## VLAN-Simulator
+
+Der VLAN-Simulator ermöglicht interaktives Experimentieren mit 802.1Q-Frames:
+
+- Schalte den VLAN-Tag ein/aus und beobachte den Frame-Aufbau auf Bit-Ebene
+- Konfiguriere Access- und Trunk-Ports
+- Simuliere Inter-VLAN-Routing via ROAS oder Layer-3-Switch
+
+**Starte den Simulator** über den Button im Topic-Bereich.`.trim(),
+};
+
 export const SWITCHING_CONCEPTS: Record<string, Concept> = {
   "switching-basics": CONCEPT_SWITCHING_BASICS,
   vlans: CONCEPT_VLANS,
   stp: CONCEPT_STP,
   etherchannel: CONCEPT_ETHERCHANNEL,
   "switching-vlans-guide": CONCEPT_SWITCHING_VLANS_GUIDE,
+  "vlan-simulator": CONCEPT_VLAN_SIMULATOR,
 };

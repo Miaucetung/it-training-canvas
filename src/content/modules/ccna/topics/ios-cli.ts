@@ -238,9 +238,25 @@ export const TOPIC_IOS_CLI: Topic = {
   tags: ["ios", "cli", "cisco", "ssh", "configuration"],
 };
 
+const CONCEPT_IOS_TERMINAL: Concept = {
+  id: "ios-terminal",
+  title: "IOS Terminal Emulator",
+  appliesTo: ["ccna"],
+  tags: ["ios", "cli", "terminal", "interactive"],
+  content: `## IOS Terminal Emulator
+
+Der integrierte Terminal-Emulator ermöglicht die interaktive Eingabe von Cisco IOS-Befehlen direkt im Browser — ohne physischen Router oder Switch.
+
+**Starte den Emulator** über den Button im Topic-Bereich, um IOS-Konfigurationsbefehle zu üben:
+- Modi wechseln (User / Privileged / Global Config)
+- SSH konfigurieren
+- Interface-Befehle eingeben und Feedback erhalten`.trim(),
+};
+
 export const IOS_CLI_CONCEPTS: Record<string, Concept> = {
   [CONCEPT_IOS_CLI_BASICS.id]: CONCEPT_IOS_CLI_BASICS,
   [CONCEPT_IOS_DEVICE_ACCESS.id]: CONCEPT_IOS_DEVICE_ACCESS,
   [CONCEPT_IOS_INTERFACE_CONFIG.id]: CONCEPT_IOS_INTERFACE_CONFIG,
   [CONCEPT_IOS_GUIDE.id]: CONCEPT_IOS_GUIDE,
+  [CONCEPT_IOS_TERMINAL.id]: CONCEPT_IOS_TERMINAL,
 };

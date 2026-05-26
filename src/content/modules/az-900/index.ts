@@ -4,7 +4,7 @@
 // ============================================================
 
 import { contentRegistry } from "@/lib/content/content-registry";
-import type { CertificationModule } from "@/lib/content/types";
+import type { CertificationModule, Exercise } from "@/lib/content/types";
 import type { LearningPath, Quiz } from "@/lib/types";
 
 // ── Topic-Imports ─────────────────────────────────────────────
@@ -240,7 +240,28 @@ const AZ900_MODULE: CertificationModule = {
     [QUIZ_AZURE_COST_SLA.id]: QUIZ_AZURE_COST_SLA,
   } as Record<string, Quiz>,
 
-  exercises: {},
+  exercises: {
+    "exercise-az900-architecture-diagram": {
+      id: "exercise-az900-architecture-diagram",
+      title: "Azure-Architektur Canvas-Diagramm",
+      description:
+        "Erstelle ein Canvas-Diagramm der Azure-Ressourcen-Hierarchie: Management Group → Subscription → Resource Group → Ressource. Verbinde Availability Zones mit einem Azure-Rechenzentrum und beschrifte Region, AZ und die 3-Zonen-Hochverfügbarkeits-Architektur.",
+      learningPathId: "az-900-full-path",
+      estimatedMinutes: 30,
+      difficulty: "beginner",
+      conceptIds: ["azure-regions", "azure-availability-zones", "azure-resource-hierarchy"],
+    } satisfies Exercise,
+    "exercise-az900-network-diagram": {
+      id: "exercise-az900-network-diagram",
+      title: "Azure-Netzwerk Canvas-Diagramm",
+      description:
+        "Zeichne eine Azure-Hub-Spoke-Netzwerktopologie: Hub VNet mit Azure Firewall und VPN Gateway, zwei Spoke VNets (App + DB) mit VNet Peering. Beschrifte Subnetze, NSGs und den ausgehenden Internetverkehr durch die Firewall.",
+      learningPathId: "az-900-full-path",
+      estimatedMinutes: 30,
+      difficulty: "beginner",
+      conceptIds: ["vnet-subnet", "azure-connectivity"],
+    } satisfies Exercise,
+  },
   learningPaths: AZ900_LEARNING_PATHS,
 
   metadata: {
