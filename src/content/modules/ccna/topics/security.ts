@@ -286,11 +286,92 @@ Die "MedData GmbH" (Medizinische Softwarelösungen, 150 Mitarbeiter) betreibt ei
   `.trim(),
 };
 
+export const CONCEPT_802_1X: Concept = {
+  id: "802.1x-authentication",
+  title: "802.1X Port-Based Network Access Control",
+  appliesTo: ["ccna"],
+  tags: ["security", "802.1x", "dot1x", "authentication", "radius", "eap", "nac"],
+  content: `
+## 802.1X – Portbasierte Netzwerkzugangskontrolle
+
+### Was ist 802.1X?
+IEEE 802.1X ist ein Standard für **portbasierte Netzwerkzugangskontrolle (NAC)**. Ein Switch-Port oder WLAN-Interface bleibt gesperrt, bis sich das Endgerät erfolgreich authentifiziert hat. Erst dann wird der Port geöffnet und Netzwerkzugang gewährt.
+
+### Die drei Rollen (EAP-Dreieck)
+
+| Rolle | Gerät | Aufgabe |
+|-------|-------|---------|
+| **Supplicant** | Endgerät (PC, Smartphone) | Hat 802.1X-Client-Software, initiiert Authentifizierung |
+| **Authenticator** | Switch oder WLAN-AP | Leitet EAP-Pakete zwischen Supplicant und Auth-Server weiter; öffnet/sperrt Port |
+| **Authentication Server** | RADIUS-Server (z.B. Cisco ISE) | Prüft Identität und sendet Access-Accept oder Access-Reject |
+
+### Authentifizierungs-Ablauf
+\`\`\`
+Supplicant       Authenticator (Switch)    Authentication Server (RADIUS)
+     |                    |                          |
+     |--- EAPOL-Start --→|                          |
+     |←-- EAP-Request ---| (Identity)               |
+     |--- EAP-Response →→|→→ RADIUS Access-Request →|
+     |                   |←← RADIUS Access-Accept ←-|
+     |←-- EAP-Success ---|                          |
+     |  (Port öffnet)    |                          |
+\`\`\`
+
+### Wichtige Begriffe
+| Begriff | Erklärung |
+|---------|----------|
+| **EAP** | Extensible Authentication Protocol — Framework für verschiedene Auth-Methoden |
+| **EAPOL** | EAP over LAN — Layer-2-Protokoll zwischen Supplicant und Authenticator |
+| **RADIUS** | Authentifizierungsprotokoll zwischen Authenticator und Auth-Server (UDP 1812/1813) |
+| **MAB** | MAC Authentication Bypass — für Geräte ohne 802.1X-Client (z.B. Drucker) |
+| **Guest VLAN** | VLAN für Geräte, die 802.1X nicht unterstützen |
+| **Auth-Fail VLAN** | VLAN für Geräte, die die Authentifizierung nicht bestehen |
+
+### EAP-Methoden (Prüfungsrelevant)
+| Methode | Authentifizierung | Sicherheit |
+|---------|------------------|-----------|
+| **EAP-TLS** | Zertifikate (Client + Server) | Sehr hoch — beidseitige Zertifikate |
+| **PEAP** | Server-Zertifikat + Username/Passwort | Hoch — in WPA2-Enterprise üblich |
+| **EAP-FAST** | Protected Access Credential (PAC) | Hoch — Cisco-proprietär |
+
+### Cisco IOS Konfiguration (802.1X auf Switch-Port)
+\`\`\`
+SW1(config)# aaa new-model
+SW1(config)# aaa authentication dot1x default group radius
+SW1(config)# dot1x system-auth-control
+SW1(config)# radius server ISE
+SW1(config-radius-server)# address ipv4 192.168.100.10 auth-port 1812 acct-port 1813
+SW1(config-radius-server)# key SecretKey123
+
+SW1(config)# interface GigabitEthernet0/1
+SW1(config-if)# switchport mode access
+SW1(config-if)# dot1x port-control auto     ! auto = 802.1X aktiviert
+SW1(config-if)# authentication host-mode single-host
+
+! Verifikation
+SW1# show dot1x all
+SW1# show authentication sessions
+\`\`\`
+
+### Port-Control-Modi
+| Modus | Verhalten |
+|-------|----------|
+| **force-authorized** | Port immer offen (802.1X deaktiviert) — Standard |
+| **force-unauthorized** | Port immer gesperrt |
+| **auto** | 802.1X aktiv — Port öffnet nur nach erfolgreicher Auth |
+
+### Zusammenfassung: Wo wird 802.1X eingesetzt?
+- **Kabelgebunden**: Switchports in Unternehmensnetzwerken (Büros, Konferenzräume)
+- **WLAN**: WPA2-Enterprise / WPA3-Enterprise nutzt 802.1X + EAP
+- Alternativ zur MAC-basierten Port-Security (sicherer, weil nicht fälschbar)
+  `.trim(),
+};
+
 export const TOPIC_SECURITY: Topic = {
   id: "security",
   title: "Netzwerksicherheit",
   description:
-    "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI und 802.1X — Netzwerke absichern.",
+    "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI, 802.1X und Security-Programme — Netzwerke absichern.",
   conceptIds: [
     "security-fundamentals",
     "acl-standard",
@@ -298,6 +379,7 @@ export const TOPIC_SECURITY: Topic = {
     "acl-named",
     "acl-troubleshooting",
     "port-security",
+    "802.1x-authentication",
     "security-guide",
   ],
   quizIds: [
@@ -319,5 +401,6 @@ export const SECURITY_CONCEPTS: Record<string, Concept> = {
   "acl-named": CONCEPT_ACL_NAMED,
   "acl-troubleshooting": CONCEPT_ACL_TROUBLESHOOTING,
   "port-security": CONCEPT_PORT_SECURITY,
+  "802.1x-authentication": CONCEPT_802_1X,
   "security-guide": CONCEPT_SECURITY_GUIDE,
 };

@@ -1278,6 +1278,93 @@ export const QUIZ_SECURITY: Quiz = {
         { id: "e", text: "Switchport Security", isCorrect: true },
       ],
     },
+    // ── 8 neue Fragen (M-5 802.1X Gap-Plan) ─────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Welche drei Rollen sind am 802.1X-Authentifizierungsprozess beteiligt?",
+      explanation: "802.1X hat drei klar definierte Rollen: Supplicant (Endgerät mit 802.1X-Client), Authenticator (Switch/AP, leitet EAP weiter), Authentication Server (RADIUS, prüft Identität).",
+      answers: [
+        { id: "a", text: "Client, Server, Gateway", isCorrect: false },
+        { id: "b", text: "Supplicant, Authenticator, Authentication Server", isCorrect: true },
+        { id: "c", text: "Initiator, Responder, Validator", isCorrect: false },
+        { id: "d", text: "Host, Switch, Firewall", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Was ist die Aufgabe des Authenticators in 802.1X?",
+      explanation: "Der Authenticator (Switch oder WLAN-AP) hält den Port gesperrt bis zur Authentifizierung und leitet EAP-Pakete zwischen Supplicant und Authentication Server weiter. Der Switch selbst überprüft Credentials NICHT — das macht der RADIUS-Server.",
+      answers: [
+        { id: "a", text: "Der Authenticator prüft Username/Passwort direkt", isCorrect: false },
+        { id: "b", text: "Der Authenticator leitet EAP-Pakete weiter und öffnet/sperrt den Port", isCorrect: true },
+        { id: "c", text: "Der Authenticator generiert Zertifikate für den Supplicant", isCorrect: false },
+        { id: "d", text: "Der Authenticator ist das Endgerät mit 802.1X-Client-Software", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Welches Transport-Protokoll wird zwischen Authenticator und Authentication Server bei 802.1X verwendet?",
+      explanation: "Zwischen dem Authenticator (Switch) und dem Authentication Server (RADIUS) wird RADIUS verwendet — UDP Port 1812 (Authentication) und 1813 (Accounting). Das Protokoll zwischen Supplicant und Authenticator ist EAPOL (EAP over LAN).",
+      answers: [
+        { id: "a", text: "TACACS+ (TCP 49)", isCorrect: false },
+        { id: "b", text: "RADIUS (UDP 1812/1813)", isCorrect: true },
+        { id: "c", text: "LDAP (TCP 389)", isCorrect: false },
+        { id: "d", text: "Kerberos (UDP 88)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Welcher Cisco IOS Befehl aktiviert 802.1X auf einem Switch-Port?",
+      explanation: "'dot1x port-control auto' aktiviert 802.1X auf dem Interface. Der Port bleibt gesperrt bis zur erfolgreichen Authentifizierung. Zusätzlich müssen 'aaa new-model' und 'dot1x system-auth-control' global konfiguriert sein.",
+      answers: [
+        { id: "a", text: "switchport dot1x enable", isCorrect: false },
+        { id: "b", text: "authentication port-control enable", isCorrect: false },
+        { id: "c", text: "dot1x port-control auto", isCorrect: true },
+        { id: "d", text: "aaa dot1x port auto", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Was ist MAB (MAC Authentication Bypass) bei 802.1X?",
+      explanation: "MAB ermöglicht Authentifizierung über MAC-Adresse für Geräte ohne 802.1X-Supplicant (Drucker, VoIP-Telefone, ältere Geräte). Der Switch sendet die MAC-Adresse als RADIUS-Request. Weniger sicher als 802.1X, aber Fallback-Option.",
+      answers: [
+        { id: "a", text: "Eine Methode zur MAC-Adressfilterung ohne RADIUS-Server", isCorrect: false },
+        { id: "b", text: "Authentifizierung über MAC-Adresse für Geräte ohne 802.1X-Client", isCorrect: true },
+        { id: "c", text: "Ein Angriff, der 802.1X durch gefälschte MACs umgeht", isCorrect: false },
+        { id: "d", text: "Ein VLAN für nicht-authentifizierte Geräte", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "5.6",
+      text: "Welche EAP-Methoden sind für die CCNA-Prüfung relevant? (Mehrere Antworten möglich)",
+      explanation: "CCNA-relevante EAP-Methoden: EAP-TLS (beidseitige Zertifikate, höchste Sicherheit), PEAP (Server-Zertifikat + Username/Passwort, häufig in WPA2-Enterprise), EAP-FAST (Cisco, nutzt PAC). EAP-MD5 ist veraltet.",
+      answers: [
+        { id: "a", text: "EAP-TLS (beidseitige Zertifikate)", isCorrect: true },
+        { id: "b", text: "PEAP (Server-Zertifikat + Username/Passwort)", isCorrect: true },
+        { id: "c", text: "EAP-FAST (Cisco, nutzt PAC)", isCorrect: true },
+        { id: "d", text: "EAP-MD5 (aktueller Standard)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 10, blueprint: "5.6",
+      text: "Bei 802.1X bleibt ein Switch-Port im Modus 'dot1x port-control auto' vollständig gesperrt, bis die Authentifizierung erfolgreich war.",
+      explanation: "Wahr. Im Modus 'auto' ist der Port blocked bis zur Authentifizierung. Nur EAPOL-Pakete (für 802.1X) passieren den gesperrten Port — kein anderer Traffic.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch — der Port ist teilweise offen für alle Protokolle", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "In welchem Szenario wird ein 'Guest VLAN' bei 802.1X eingesetzt?",
+      explanation: "Ein Guest VLAN empfängt Geräte, die 802.1X nicht unterstützen (kein Supplicant). Sie landen in einem eingeschränkten VLAN (z.B. nur Internet, kein Unternehmensnetz). Unterschied zum 'Auth-Fail VLAN' (für Geräte, die authentifiziert haben, aber scheitern).",
+      answers: [
+        { id: "a", text: "Für Besucher, die sich erfolgreich authentifiziert haben", isCorrect: false },
+        { id: "b", text: "Für Geräte ohne 802.1X-Supplicant-Unterstützung", isCorrect: true },
+        { id: "c", text: "Für Geräte, die die Authentifizierung bestanden haben aber keine Berechtigung haben", isCorrect: false },
+        { id: "d", text: "Guest VLAN ist identisch mit Auth-Fail VLAN", isCorrect: false },
+      ],
+    },
   ],
 };
 
