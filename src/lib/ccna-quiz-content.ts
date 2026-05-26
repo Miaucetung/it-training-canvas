@@ -4088,6 +4088,105 @@ export const QUIZ_SDN: Quiz = {
 };
 
 // ============================================================
+// QUIZ 18b: Virtualization & Cloud (Blueprint 1.2)
+// ============================================================
+export const QUIZ_VIRTUALIZATION: Quiz = {
+  id: "ccna-quiz-virtualization",
+  title: "CCNA: Virtualisierung & Cloud",
+  description: "Hypervisoren Typ 1/2, VMs vs. Container, NFV, vSwitch und Cloud-Servicemodelle",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Was ist der Hauptunterschied zwischen einem Typ-1- und einem Typ-2-Hypervisor?",
+      explanation: "Typ-1 (Bare-Metal) läuft direkt auf der Hardware ohne Host-OS, z. B. VMware ESXi. Typ-2 läuft als Anwendung auf einem Host-OS, z. B. VirtualBox. Typ-1 ist effizienter und wird in Rechenzentren bevorzugt.",
+      answers: [
+        { id: "a", text: "Typ-1 läuft auf einem Host-OS, Typ-2 direkt auf Hardware", isCorrect: false },
+        { id: "b", text: "Typ-1 läuft direkt auf Hardware (Bare-Metal), Typ-2 als App auf einem Host-OS", isCorrect: true },
+        { id: "c", text: "Typ-1 unterstützt nur Windows-VMs, Typ-2 nur Linux-VMs", isCorrect: false },
+        { id: "d", text: "Typ-2 benötigt keine CPU-Virtualisierungsunterstützung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Welcher Vorteil zeichnet Container im Vergleich zu VMs aus?",
+      explanation: "Container teilen den Kernel des Host-OS und benötigen kein vollständiges OS-Image. Dadurch starten sie in Sekunden und benötigen nur MBs statt GBs.",
+      answers: [
+        { id: "a", text: "Stärkere Isolation durch eigenen Kernel", isCorrect: false },
+        { id: "b", text: "Geringerer Overhead und schnellerer Start durch Teilen des Host-Kernels", isCorrect: true },
+        { id: "c", text: "Bessere Unterstützung für GUI-Anwendungen", isCorrect: false },
+        { id: "d", text: "Container können ohne Host-Betriebssystem laufen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Was beschreibt NFV (Network Functions Virtualization)?",
+      explanation: "NFV ersetzt dedizierte Netzwerk-Hardware (Firewall, Router, Load Balancer) durch Software-Instanzen (VNFs), die auf Standard-x86-Servern laufen.",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur Verwaltung von physischen Netzwerkgeräten per REST API", isCorrect: false },
+        { id: "b", text: "Die Verlagerung von Netzwerkfunktionen (Firewall, Router) von dedizierter HW auf Standard-Server", isCorrect: true },
+        { id: "c", text: "Ein Cloud-Dienst von Cisco für SD-WAN", isCorrect: false },
+        { id: "d", text: "Ein Hypervisor-Typ speziell für Netzwerkgeräte", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Ein Unternehmen möchte eigene Server nutzen, aber auch bei Lastspitzen auf Public-Cloud-Ressourcen zurückgreifen. Welches Deployment-Modell ist das?",
+      explanation: "Hybrid Cloud kombiniert On-Premises (Private Cloud) und Public Cloud. Die Verbindung erfolgt meist über Site-to-Site-VPN oder dedizierte Leitungen (AWS Direct Connect, Azure ExpressRoute).",
+      answers: [
+        { id: "a", text: "Private Cloud", isCorrect: false },
+        { id: "b", text: "Community Cloud", isCorrect: false },
+        { id: "c", text: "Public Cloud", isCorrect: false },
+        { id: "d", text: "Hybrid Cloud", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Welches Cloud-Service-Modell überlässt dem Kunden nur die Anwendung selbst — der Anbieter verwaltet Hardware, OS, Middleware und Runtime?",
+      explanation: "PaaS (Platform as a Service) stellt eine Laufzeitumgebung bereit. Der Kunde deployt nur seine Anwendung und verwaltet die Daten — alles darunter (OS, Middleware, Runtime) übernimmt der Anbieter.",
+      answers: [
+        { id: "a", text: "IaaS", isCorrect: false },
+        { id: "b", text: "PaaS", isCorrect: true },
+        { id: "c", text: "SaaS", isCorrect: false },
+        { id: "d", text: "FaaS (Function as a Service)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "1.2",
+      text: "VMware vSwitch ist ein physischer Switch, der in ESXi-Hosts eingebaut ist.",
+      explanation: "Falsch. VMware vSwitch ist ein rein softwarebasierter virtueller Switch innerhalb des ESXi-Hypervisors. Er verbindet VMs intern und mit den physischen NICs — es gibt keine dedizierte Hardware-Komponente.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Was ist Cisco NFVIS?",
+      explanation: "NFVIS (Enterprise NFV Infrastructure Software) ist Ciscos Plattform, die VNFs (virtuelle Netzwerkfunktionen wie vRouter, vFirewall) auf einem einzigen Branch-Router (z. B. ISR 4000) hostet und über REST/DNA-Center verwaltet.",
+      answers: [
+        { id: "a", text: "Ein SDN-Controller für Cisco Catalyst-Switches", isCorrect: false },
+        { id: "b", text: "Ein Cisco-Hypervisor zum Hosten von VNFs auf Branch-Routern", isCorrect: true },
+        { id: "c", text: "Ein Monitoring-Tool für virtuelle Maschinen in der Public Cloud", isCorrect: false },
+        { id: "d", text: "Eine virtuelle Cisco ASA Firewall-Instanz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Bei IaaS (Infrastructure as a Service) — welche Komponente verwaltet der Kunde selbst?",
+      explanation: "Bei IaaS stellt der Anbieter Hardware, Hypervisor und Netzwerk bereit. Der Kunde verwaltet ab dem Betriebssystem aufwärts: OS, Middleware, Laufzeit, Anwendungen und Daten.",
+      answers: [
+        { id: "a", text: "Nur die Daten, alles andere übernimmt der Anbieter", isCorrect: false },
+        { id: "b", text: "Hardware und Hypervisor", isCorrect: false },
+        { id: "c", text: "Betriebssystem, Middleware, Laufzeit, Anwendungen und Daten", isCorrect: true },
+        { id: "d", text: "Nur die Anwendung und Daten", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // QUIZ 19: Programmability & Automation
 // ============================================================
 export const QUIZ_AUTOMATION: Quiz = {
@@ -4998,4 +5097,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_STP.id]: QUIZ_STP,
   [QUIZ_SWITCHING.id]: QUIZ_SWITCHING,
   [QUIZ_ETHERCHANNEL.id]: QUIZ_ETHERCHANNEL,
+  [QUIZ_VIRTUALIZATION.id]: QUIZ_VIRTUALIZATION,
 };
