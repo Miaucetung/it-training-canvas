@@ -1005,20 +1005,112 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
       tplShape("ris-pc10b", "computer", 545, 450, 65, 65, "#3B82F6", "PC2-Sales"),
       tplText("ris-l10c", 525, 435, "VLAN 10", "#1D4ED8", 10),
 
+      // Voice-VLAN-Zone
+      tplRect("ris-zone-voice", 490, 420, 145, 110, "#FED7AA"),
+      tplText("ris-l-voice",  492, 425, "Voice VLAN 100", "#92400E", 11),
+      tplText("ris-l-voice2", 492, 438, "Data  VLAN 10",  "#92400E", 10),
+      tplShape("ris-phone1", "server",   510, 450, 55, 55, "#F97316", "IP-Phone"),
+      tplShape("ris-pcv1",   "computer", 575, 450, 55, 55, "#94A3B8", "PC (hinter Phone)"),
+
       // Hinweis
-      tplText("ris-tip1", 60, 560, "Trunk-Port: switchport mode trunk  |  switchport trunk allowed vlan 10,20,30", "#334155", 12),
-      tplText("ris-tip2", 60, 578, "Access-Port: switchport mode access  |  switchport access vlan <ID>", "#334155", 12),
-      tplText("ris-tip3", 60, 596, "Router: interface Gi0/0.10  |  encapsulation dot1Q 10  |  ip address 192.168.10.1 255.255.255.0", "#334155", 12),
+      tplText("ris-tip1", 60, 570, "Trunk-Port: switchport mode trunk  |  switchport trunk allowed vlan 10,20,30,100", "#334155", 12),
+      tplText("ris-tip2", 60, 588, "Access-Port: switchport mode access  |  switchport access vlan <ID>", "#334155", 12),
+      tplText("ris-tip3", 60, 606, "Router: interface Gi0/0.10  |  encapsulation dot1Q 10  |  ip address 192.168.10.1 255.255.255.0", "#334155", 12),
+      tplText("ris-tip4", 60, 622, "Voice VLAN: switchport voice vlan 100  |  mls qos trust device cisco-phone", "#92400E", 12),
     ],
     connections: [
-      tplConn("ris-c1", "ris-r1",  "ris-sw1",  "Gi0/0 Trunk 802.1Q",  "#F59E0B"),
-      tplConn("ris-c2", "ris-sw1", "ris-sw2",  "Trunk 802.1Q (Gi0/24)", "#F59E0B"),
-      tplConn("ris-c3", "ris-sw1", "ris-pc10", "Gi0/1 Access VLAN10", "#3B82F6"),
-      tplConn("ris-c4", "ris-sw1", "ris-pc20", "Gi0/2 Access VLAN20", "#10B981"),
-      tplConn("ris-c5", "ris-sw1", "ris-pc30", "Gi0/3 Access VLAN30", "#8B5CF6"),
-      tplConn("ris-c6", "ris-sw2", "ris-pc10b","Gi0/1 Access VLAN10", "#3B82F6"),
+      tplConn("ris-c1", "ris-r1",    "ris-sw1",   "Gi0/0 Trunk 802.1Q",              "#F59E0B"),
+      tplConn("ris-c2", "ris-sw1",   "ris-sw2",   "Trunk 802.1Q (Gi0/24)",           "#F59E0B"),
+      tplConn("ris-c3", "ris-sw1",   "ris-pc10",  "Gi0/1 Access VLAN10",             "#3B82F6"),
+      tplConn("ris-c4", "ris-sw1",   "ris-pc20",  "Gi0/2 Access VLAN20",             "#10B981"),
+      tplConn("ris-c5", "ris-sw1",   "ris-pc30",  "Gi0/3 Access VLAN30",             "#8B5CF6"),
+      tplConn("ris-c6", "ris-sw2",   "ris-pc10b", "Gi0/1 Access VLAN10",             "#3B82F6"),
+      tplConn("ris-c7", "ris-sw1",   "ris-phone1","Gi0/4 Access VLAN10 + Voice 100", "#F97316"),
     ],
     estimatedTime: "20 min",
+    downloads: 0,
+    rating: 4.9,
+  },
+
+  // ── tpl-edu-vlan-hopping: VLAN-Hopping Double-Tagging Attack ──
+  {
+    id: "tpl-edu-vlan-hopping",
+    name: "VLAN-Hopping: Double-Tagging Attack",
+    description:
+      "Visualisiert den Double-Tagging-Angriff: Angreifer im Native VLAN sendet doppelt-getaggten Frame, überwindet VLAN-Grenzen ohne Routing. Zeigt Angriffsschritte und Gegenmaßnahmen. CCNA Blueprint 2.1.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["VLAN", "Security", "Double-Tagging", "VLAN-Hopping", "Native-VLAN", "Didaktik"],
+    difficulty: "intermediate",
+    objects: [
+      // Header
+      tplText("vhop-h1", 60, 20, "VLAN-Hopping: Double-Tagging Attack", "#991B1B", 18),
+      tplText("vhop-h2", 60, 46,
+        "Angreifer in Native VLAN sendet doppelt-getaggten Frame → erreicht VLAN 20 ohne Routing",
+        "#475569", 12),
+
+      // Warnung-Banner
+      tplRect("vhop-warn", 50, 68, 720, 26, "#FEE2E2"),
+      tplText("vhop-warn-t", 56, 77,
+        "⚠️  Funktioniert NUR wenn Native VLAN = Angreifer-VLAN  |  Gegenmaßnahme: Native VLAN 999 (keine Hosts)",
+        "#991B1B", 11),
+
+      // Angreifer-Zone (rot)
+      tplRect("vhop-zone-a", 40, 108, 130, 90, "#FECACA"),
+      tplText("vhop-al1", 52, 114, "VLAN 1 (Native)", "#991B1B", 10),
+      tplShape("vhop-attacker", "computer", 65, 128, 65, 65, "#EF4444", "Angreifer"),
+
+      // SW1
+      tplShape("vhop-sw1", "switch", 275, 128, 90, 70, "#10B981", "SW1"),
+
+      // Schritt-Annotationen Bereich SW1
+      tplRect("vhop-step1", 188, 218, 220, 44, "#FEF3C7"),
+      tplText("vhop-s1a", 194, 225, "① Frame an SW1: [Tag VL1][Tag VL20]", "#92400E", 11),
+      tplText("vhop-s1b", 194, 239, "② SW1 entfernt äußeren Tag (Native VLAN 1)", "#92400E", 11),
+
+      // SW2
+      tplShape("vhop-sw2", "switch", 500, 128, 90, 70, "#10B981", "SW2"),
+
+      // Ziel-Zone
+      tplRect("vhop-zone-t", 650, 108, 130, 90, "#F1F5F9"),
+      tplText("vhop-tl1", 662, 114, "VLAN 20", "#1D4ED8", 10),
+      tplShape("vhop-target", "server", 670, 128, 65, 65, "#64748B", "Ziel-Server"),
+
+      // Schritt-Annotationen Bereich SW2
+      tplRect("vhop-step3", 448, 218, 242, 44, "#DBEAFE"),
+      tplText("vhop-s3a", 454, 225, "③ SW2 sieht [Tag VL20] → leitet an VLAN 20 weiter", "#1D4ED8", 11),
+      tplText("vhop-s3b", 454, 239, "④ Angreifer hat VLAN 20 erreicht — ohne Routing!", "#1D4ED8", 11),
+
+      // Unidirektional-Hinweis
+      tplRect("vhop-uni", 50, 278, 720, 26, "#F0FDF4"),
+      tplText("vhop-uni-t", 56, 287,
+        "⚠️  UNIDIREKTIONAL: Antwortframes kommen über normalen Gateway zurück (nicht über den Angriffspfad)",
+        "#166534", 11),
+
+      // Gegenmaßnahmen-Box
+      tplRect("vhop-cm", 50, 318, 720, 88, "#EFF6FF"),
+      tplText("vhop-cm-h",  56, 326, "Gegenmaßnahmen:", "#1E293B", 13),
+      tplText("vhop-cm1",  56, 342,
+        "switchport trunk native vlan 999   (999 = unbenutztes VLAN ohne Hosts)",
+        "#334155", 11),
+      tplText("vhop-cm2",  56, 358,
+        "vlan dot1q tag native               (Native VLAN wird ebenfalls getaggt)",
+        "#334155", 11),
+      tplText("vhop-cm3",  56, 374,
+        "switchport trunk allowed vlan remove 1   (VLAN 1 vom Trunk entfernen)",
+        "#334155", 11),
+    ],
+    connections: [
+      tplConn("vhop-c1", "vhop-attacker", "vhop-sw1",
+        "[Tag VL1][Tag VL20]", "#EF4444", { animated: true }),
+      tplConn("vhop-c2", "vhop-sw1", "vhop-sw2",
+        "[Tag VL20] (äußerer Tag entfernt)", "#F59E0B", { animated: true }),
+      tplConn("vhop-c3", "vhop-sw2", "vhop-target",
+        "VLAN 20 Zustellung", "#3B82F6", { animated: true }),
+    ],
+    estimatedTime: "15 min",
     downloads: 0,
     rating: 4.9,
   },

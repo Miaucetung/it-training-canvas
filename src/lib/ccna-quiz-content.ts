@@ -6322,6 +6322,183 @@ export const QUIZ_CCNA_EXAM_2: Quiz = {
 };
 
 // ============================================================
+// QUIZ: VLAN Vertiefung (Blueprint 2.1, 2.2, 3.3)
+// ============================================================
+export const QUIZ_VLAN_ADVANCED: Quiz = {
+  id: "quiz-vlan-advanced",
+  title: "CCNA: VLAN Vertiefung — 802.1Q, Sicherheit & Konfiguration",
+  description: "802.1Q Frame-Aufbau, Native VLAN, Voice VLAN, Inter-VLAN Routing, VTP/DTP-Risiken und VLAN-Sicherheit (Hopping, Double-Tagging)",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was bedeutet der Wert 0x8100 im Ethernet-Frame-Header?",
+      explanation: "0x8100 ist der TPID-Wert (Tag Protocol Identifier) und kennzeichnet einen 802.1Q-getaggten Frame. Jeder Switch der diesen Wert liest, weiß: Die nächsten 2 Byte sind TCI (PCP + DEI + VID), nicht der Ethertype des Payloads.",
+      answers: [
+        { id: "a", text: "Der Frame ist ein IPv6-Paket", isCorrect: false },
+        { id: "b", text: "Der Frame enthält einen 802.1Q-Tag (TPID = Tag Protocol Identifier)", isCorrect: true },
+        { id: "c", text: "Der Frame ist für Management-Traffic reserviert", isCorrect: false },
+        { id: "d", text: "Der Frame stammt aus dem Native VLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Wie viele Bits hat das VID-Feld im 802.1Q-Tag, und wie viele VLANs sind damit nutzbar?",
+      explanation: "Das VID-Feld ist 12 Bit breit → 2^12 = 4096 theoretische VLANs. VID 0 (Priority-Only) und VID 4095 (IEEE-reserviert) sind nicht nutzbar → 4094 nutzbare VLAN-IDs.",
+      answers: [
+        { id: "a", text: "8 Bit → 256 VLANs", isCorrect: false },
+        { id: "b", text: "10 Bit → 1024 VLANs", isCorrect: false },
+        { id: "c", text: "12 Bit → 4094 nutzbare VLANs", isCorrect: true },
+        { id: "d", text: "16 Bit → 65534 nutzbare VLANs", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Ein ungetaggter Frame kommt auf einem konfigurierten Cisco-Trunk-Port an. Wie behandelt der Switch diesen Frame?",
+      explanation: "Das Native VLAN ist das einzige VLAN, dessen Frames auf Trunk-Ports ohne 802.1Q-Tag übertragen werden. Standard ist VLAN 1, aber es ist mit 'switchport trunk native vlan <id>' konfigurierbar.",
+      answers: [
+        { id: "a", text: "Er wird verworfen — kein Tag, kein Service", isCorrect: false },
+        { id: "b", text: "Er wird dem Default VLAN (immer VLAN 1) zugewiesen", isCorrect: false },
+        { id: "c", text: "Er wird dem Native VLAN des Trunk-Ports zugewiesen", isCorrect: true },
+        { id: "d", text: "Er wird an alle VLANs weitergeflutet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.1",
+      text: "Welche zwei Maßnahmen verhindern Double-Tagging-Angriffe wirksam? (Mehrere Antworten möglich)",
+      explanation: "Double-Tagging nutzt das Native VLAN aus: Angreifer in Native VLAN sendet Frames mit doppeltem Tag. Gegenmaßnahmen: (1) Native VLAN auf unbenutztes VLAN ohne Hosts → kein Angreifer kann dort sitzen; (2) 'vlan dot1q tag native' → alle Frames inkl. Native VLAN werden getaggt, äußerer Tag wird nicht einfach entfernt.",
+      answers: [
+        { id: "a", text: "Native VLAN auf ein unbenutztes, isoliertes VLAN setzen (z. B. 999)", isCorrect: true },
+        { id: "b", text: "DTP auf allen Access-Ports deaktivieren (schützt gegen DTP-Hopping, nicht Double-Tagging)", isCorrect: false },
+        { id: "c", text: "'vlan dot1q tag native' aktivieren — Native VLAN wird ebenfalls getaggt", isCorrect: true },
+        { id: "d", text: "VTP im Transparent-Modus betreiben", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Welche Befehls-Kombination stellt sicher, dass ein Cisco-Access-Port weder DTP sendet noch zum Trunk werden kann?",
+      explanation: "'switchport mode access' setzt explizit den Access-Modus. 'switchport nonegotiate' unterdrückt DTP-Frames vollständig. Beides zusammen ist Best Practice und verhindert DTP-basiertes VLAN-Hopping.",
+      answers: [
+        { id: "a", text: "switchport mode access + switchport nonegotiate", isCorrect: true },
+        { id: "b", text: "switchport mode dynamic auto", isCorrect: false },
+        { id: "c", text: "no vtp mode", isCorrect: false },
+        { id: "d", text: "spanning-tree portfast allein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.1",
+      text: "VLAN 1 kann auf Cisco-IOS-Switches mit dem Befehl 'no vlan 1' gelöscht werden.",
+      explanation: "Falsch. VLAN 1 ist das Default VLAN und kann auf Cisco-Switches weder gelöscht noch umbenannt werden. Best Practice: VLAN 1 leer lassen und alle Ports in dedizierte VLANs verschieben.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Du konfigurierst SVIs auf einem Cisco Catalyst 3650 — aber Hosts in VLAN 10 können VLAN 20 nicht erreichen. Was fehlt höchstwahrscheinlich?",
+      explanation: "Auf Layer-3-Switches muss 'ip routing' explizit aktiviert werden. SVIs können ohne diesen Befehl erstellt werden — Routing zwischen den VLANs findet aber trotzdem nicht statt. Der häufigste Fehler im Lab!",
+      answers: [
+        { id: "a", text: "'no shutdown' wurde auf den SVIs vergessen", isCorrect: false },
+        { id: "b", text: "'ip routing' ist nicht aktiviert", isCorrect: true },
+        { id: "c", text: "'switchport trunk allowed vlan 10,20' fehlt", isCorrect: false },
+        { id: "d", text: "'spanning-tree mode rapid-pvst' ist nicht konfiguriert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Welcher IOS-Befehl setzt das Native VLAN eines Trunk-Ports auf VLAN 999?",
+      explanation: "Die vollständige Syntax lautet 'switchport trunk native vlan <id>' und wird im Interface-Configuration-Mode eingegeben. Native VLAN Mismatch zwischen zwei Switches erzeugt CDP-Fehlermeldungen.",
+      answers: [
+        { id: "a", text: "switchport native vlan 999", isCorrect: false },
+        { id: "b", text: "vlan 999 native", isCorrect: false },
+        { id: "c", text: "switchport trunk native vlan 999", isCorrect: true },
+        { id: "d", text: "encapsulation dot1q 999 native", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.1",
+      text: "Was gilt für einen Cisco-Switchport mit konfiguriertem Voice VLAN? (Mehrere Antworten möglich)",
+      explanation: "Ein Voice-VLAN-Port bleibt im Access-Modus (kein Trunk). Data-Frames für den PC werden ungetaggt übertragen; VoIP-Frames erhalten das Voice VLAN mit CoS 5 (Priority Code Point) — nicht CoS 3. Der Port agiert wie ein Mini-Trunk für genau 2 VLANs.",
+      answers: [
+        { id: "a", text: "Der Port bleibt im Access-Modus (wird kein Trunk-Port)", isCorrect: true },
+        { id: "b", text: "Er wird automatisch zum Trunk-Port konfiguriert", isCorrect: false },
+        { id: "c", text: "Data-Frames für den PC werden ungetaggt übertragen", isCorrect: true },
+        { id: "d", text: "VoIP-Frames erhalten CoS 3 im 802.1Q-Tag", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "In welchem VTP-Modus werden VLANs lokal gespeichert UND VTP-Advertisements weitergeleitet, ohne die eigene VLAN-Datenbank zu ändern?",
+      explanation: "VTP Transparent: lokale VLAN-Datenbank (nicht synchronisiert mit anderen), leitet VTP-Advertisements durch. VTP Client synchronisiert sich; VTP Server sendet Updates; VTP Off (v3) leitet nicht durch.",
+      answers: [
+        { id: "a", text: "VTP Server", isCorrect: false },
+        { id: "b", text: "VTP Client", isCorrect: false },
+        { id: "c", text: "VTP Transparent", isCorrect: true },
+        { id: "d", text: "VTP Off (VTP v3)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Was ist der hauptsächliche Performance-Nachteil von Router-on-a-Stick (ROAS)?",
+      explanation: "Bei ROAS läuft aller Inter-VLAN-Traffic über einen einzigen physischen Trunk-Link zwischen Switch und Router. Bei vielen VLANs oder hohem Traffic wird dieser Link zum Engpass. Ein Layer-3-Switch mit SVIs routet dagegen in Hardware (Wire-Speed).",
+      answers: [
+        { id: "a", text: "Router unterstützen keine 802.1Q-Encapsulation", isCorrect: false },
+        { id: "b", text: "Der einzelne Trunk-Link zwischen Router und Switch wird zum Engpass", isCorrect: true },
+        { id: "c", text: "Subinterfaces können keine IP-Adressen erhalten", isCorrect: false },
+        { id: "d", text: "ROAS erfordert 'ip routing' auf dem Switch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Port A ist 'dynamic auto', Port B ist 'dynamic desirable'. Was ist das Ergebnis der DTP-Aushandlung?",
+      explanation: "'dynamic desirable' initiiert aktiv eine Trunk-Aushandlung; 'dynamic auto' akzeptiert passiv. Ergebnis: Trunk. Merke: 'auto' + 'auto' = Access (kein aktiver Initiator). 'desirable' + 'desirable' = Trunk.",
+      answers: [
+        { id: "a", text: "Beide Ports bleiben im Access-Modus", isCorrect: false },
+        { id: "b", text: "Ein Trunk wird ausgehandelt", isCorrect: true },
+        { id: "c", text: "Der Port geht in err-disabled", isCorrect: false },
+        { id: "d", text: "CDP meldet einen Mismatch, kein Trunk wird gebildet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Warum ist ein Double-Tagging-Angriff unidirektional (der Angreifer kann keine Antwortframes empfangen)?",
+      explanation: "Das Zielgerät antwortet über seinen normalen Default-Gateway — nicht über den manipulierten Angriffspfad. Die Antwort läuft durch normale IP-Routing-Pfade zurück. Der Angreifer empfängt die Antwort nicht, da er im anderen VLAN sitzt.",
+      answers: [
+        { id: "a", text: "802.1Q erlaubt immer nur einen Tag pro Frame", isCorrect: false },
+        { id: "b", text: "Der zweite Switch re-taggt den Frame mit dem ursprünglichen VLAN", isCorrect: false },
+        { id: "c", text: "Antwortframes kommen über den normalen Gateway zurück, nicht über den Angriffspfad", isCorrect: true },
+        { id: "d", text: "Der Angreifer kann nur einen Frame pro Sekunde senden", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "2.1",
+      text: "Welche drei Felder enthält der TCI-Teil des 802.1Q-Tags? (Mehrere Antworten möglich)",
+      explanation: "Der 802.1Q-Tag ist 4 Byte: TPID (2 Byte, immer 0x8100) + TCI (2 Byte). TCI besteht aus: PCP — Priority Code Point (3 Bit, CoS für QoS); DEI — Drop Eligible Indicator (1 Bit); VID — VLAN Identifier (12 Bit). TPID gehört nicht zu TCI.",
+      answers: [
+        { id: "a", text: "PCP — Priority Code Point (3 Bit)", isCorrect: true },
+        { id: "b", text: "TPID — Tag Protocol Identifier (16 Bit)", isCorrect: false },
+        { id: "c", text: "DEI — Drop Eligible Indicator (1 Bit)", isCorrect: true },
+        { id: "d", text: "VID — VLAN Identifier (12 Bit)", isCorrect: true },
+        { id: "e", text: "FCS — Frame Check Sequence", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was empfiehlt Cisco als Best Practice für das Native VLAN auf Trunk-Ports?",
+      explanation: "Das Native VLAN sollte ein dediziertes, unbenutztes VLAN (z. B. 999) ohne zugewiesene Hosts sein. So kann kein Angreifer im Native VLAN sitzen und einen Double-Tagging-Angriff durchführen. VLAN 1 als Native VLAN ist ein bekanntes Sicherheitsrisiko.",
+      answers: [
+        { id: "a", text: "VLAN 1 verwenden (Standard, empfohlen von Cisco)", isCorrect: false },
+        { id: "b", text: "Dasselbe VLAN wie das Management VLAN verwenden", isCorrect: false },
+        { id: "c", text: "Ein dediziertes, unbenutztes VLAN (z. B. 999) ohne zugewiesene Hosts", isCorrect: true },
+        { id: "d", text: "Das Native VLAN per 'no switchport trunk native vlan' deaktivieren", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -6352,4 +6529,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_ETHERCHANNEL.id]: QUIZ_ETHERCHANNEL,
   [QUIZ_VIRTUALIZATION.id]: QUIZ_VIRTUALIZATION,
   [QUIZ_CCNA_EXAM_2.id]: QUIZ_CCNA_EXAM_2,
+  [QUIZ_VLAN_ADVANCED.id]: QUIZ_VLAN_ADVANCED,
 };

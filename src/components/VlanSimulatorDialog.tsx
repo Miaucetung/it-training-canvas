@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Tab = "frame" | "topology" | "trunk";
+type Tab = "frame" | "topology" | "trunk" | "packet-walk";
 
 // ── 802.1Q Frame Vivisektor ────────────────────────────────────
 
@@ -1119,15 +1119,259 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
   );
 }
 
+// ── Packet-Walk Simulator ─────────────────────────────────────
+
+type WalkLocation = "pc-a" | "sw1" | "trunk" | "sw2" | "pc-b";
+
+const WALK_STEPS: Array<{
+  title: string;
+  description: string;
+  location: WalkLocation;
+  hasTag: boolean;
+  tagVid?: number;
+}> = [
+  {
+    title: "PC-A sendet Frame (ungetaggt)",
+    description:
+      "PC-A (VLAN 10) erstellt einen Ethernet-Frame für PC-B. Der Frame trägt KEINEN 802.1Q-Tag — PC-A kennt keine VLANs. Der Frame verlässt den Port in Richtung SW1.",
+    location: "pc-a",
+    hasTag: false,
+  },
+  {
+    title: "SW1 empfängt Frame am Access-Port",
+    description:
+      "SW1 empfängt den ungetaggten Frame auf Port Gi0/1 (Access VLAN 10). Die CAM-Tabelle zeigt: Ziel-MAC liegt hinter dem Trunk-Port Gi0/24 → Frame muss getaggt weitergeleitet werden.",
+    location: "sw1",
+    hasTag: false,
+  },
+  {
+    title: "SW1 taggt Frame für den Trunk",
+    description:
+      "SW1 fügt einen 802.1Q-Tag ein: TPID=0x8100, VID=10, CoS=0. Der getaggte Frame wird auf dem Trunk-Port Gi0/24 gesendet. Frames für das Native VLAN (z. B. VLAN 999) würden KEINEN Tag erhalten.",
+    location: "trunk",
+    hasTag: true,
+    tagVid: 10,
+  },
+  {
+    title: "SW2 empfängt getaggten Frame",
+    description:
+      "SW2 empfängt den Frame auf seinem Trunk-Port. TPID=0x8100 erkannt → TCI lesen: VID=10. SW2 konsultiert die CAM-Tabelle für VLAN 10 und findet PC-B an Port Gi0/2.",
+    location: "sw2",
+    hasTag: true,
+    tagVid: 10,
+  },
+  {
+    title: "SW2 entfernt Tag und sendet an Access-Port",
+    description:
+      "SW2 entfernt den 802.1Q-Tag komplett und sendet den Frame ungetaggt an Port Gi0/2 (Access VLAN 10). PC-B erwartet ungetaggte Frames — es ist sich keiner VLANs bewusst.",
+    location: "sw2",
+    hasTag: false,
+  },
+  {
+    title: "PC-B empfängt Frame (ungetaggt)",
+    description:
+      "PC-B empfängt einen normalen Ethernet-Frame ohne 802.1Q-Tag. Die gesamte VLAN-Tagging-Operation war für beide Endgeräte vollständig transparent. Layer-2-Kommunikation abgeschlossen.",
+    location: "pc-b",
+    hasTag: false,
+  },
+];
+
+const NODE_LABELS: Record<WalkLocation, string> = {
+  "pc-a": "PC-A\n(VLAN 10)",
+  "sw1":  "SW1",
+  "trunk": "Trunk",
+  "sw2":  "SW2",
+  "pc-b": "PC-B\n(VLAN 10)",
+};
+
+function PacketWalkSimulator({ dark }: { dark: boolean }) {
+  const [step, setStep] = useState(0);
+  const current = WALK_STEPS[step];
+  const nodes: WalkLocation[] = ["pc-a", "sw1", "trunk", "sw2", "pc-b"];
+
+  const nodeColor = (loc: WalkLocation) => {
+    if (current.location === loc) return "#6366f1";
+    return dark ? "#334155" : "#e2e8f0";
+  };
+  const textColor = (loc: WalkLocation) =>
+    current.location === loc ? "#fff" : dark ? "#94a3b8" : "#475569";
+
+  return (
+    <div className="space-y-5">
+      {/* Network topology diagram */}
+      <div className="overflow-x-auto">
+        <div className="flex items-center gap-1 min-w-[480px]">
+          {nodes.map((loc, i) => (
+            <>
+              <div
+                key={loc}
+                className="flex flex-col items-center gap-1 flex-shrink-0"
+              >
+                <div
+                  style={{ background: nodeColor(loc), transition: "background 0.3s" }}
+                  className="w-16 h-14 rounded-xl flex items-center justify-center shadow text-center"
+                >
+                  <span
+                    className="text-[10px] font-bold leading-tight whitespace-pre-line"
+                    style={{ color: textColor(loc) }}
+                  >
+                    {NODE_LABELS[loc]}
+                  </span>
+                </div>
+                {/* Frame indicator below active node */}
+                {current.location === loc && (
+                  <div
+                    className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${
+                      current.hasTag
+                        ? "border-amber-400 text-amber-600 bg-amber-50"
+                        : dark
+                        ? "border-slate-500 text-slate-400 bg-slate-800"
+                        : "border-slate-300 text-slate-500 bg-white"
+                    }`}
+                  >
+                    {current.hasTag ? `Tag VID=${current.tagVid}` : "kein Tag"}
+                  </div>
+                )}
+              </div>
+              {i < nodes.length - 1 && (
+                <div
+                  key={`arrow-${i}`}
+                  className={`flex-1 h-0.5 ${
+                    dark ? "bg-slate-600" : "bg-slate-300"
+                  }`}
+                />
+              )}
+            </>
+          ))}
+        </div>
+      </div>
+
+      {/* Step indicator */}
+      <div className="flex items-center gap-1 justify-center">
+        {WALK_STEPS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setStep(i)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              i === step
+                ? "w-5 bg-indigo-500"
+                : dark
+                ? "bg-slate-600 hover:bg-slate-500"
+                : "bg-slate-300 hover:bg-slate-400"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Step content */}
+      <div
+        className={`rounded-xl border p-4 space-y-2 ${
+          dark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-slate-50"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-xs font-mono px-2 py-0.5 rounded-full ${
+              dark ? "bg-indigo-900 text-indigo-300" : "bg-indigo-100 text-indigo-700"
+            }`}
+          >
+            Schritt {step + 1} / {WALK_STEPS.length}
+          </span>
+          <span
+            className={`text-sm font-semibold ${
+              dark ? "text-slate-100" : "text-slate-800"
+            }`}
+          >
+            {current.title}
+          </span>
+        </div>
+        <p className={`text-xs leading-relaxed ${
+          dark ? "text-slate-300" : "text-slate-600"
+        }`}>
+          {current.description}
+        </p>
+
+        {/* Frame state box */}
+        <div
+          className={`mt-2 rounded-lg p-3 font-mono text-xs border ${
+            current.hasTag
+              ? dark
+                ? "border-amber-700 bg-amber-900/30 text-amber-300"
+                : "border-amber-300 bg-amber-50 text-amber-800"
+              : dark
+              ? "border-slate-600 bg-slate-700/50 text-slate-400"
+              : "border-slate-200 bg-white text-slate-500"
+          }`}
+        >
+          {current.hasTag ? (
+            <span>
+              [ Ziel-MAC | Quell-MAC |{" "}
+              <span className={dark ? "text-amber-300" : "text-amber-700"}>
+                0x8100 VID={current.tagVid}
+              </span>{" "}
+              | Ethertype | Daten | FCS ]
+            </span>
+          ) : (
+            <span>[ Ziel-MAC | Quell-MAC | Ethertype | Daten | FCS ]</span>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex gap-2 justify-between">
+        <button
+          disabled={step === 0}
+          onClick={() => setStep(step - 1)}
+          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+            step === 0
+              ? dark
+                ? "bg-slate-800 text-slate-600 cursor-not-allowed"
+                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              : dark
+              ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
+              : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+          }`}
+        >
+          ← Zurück
+        </button>
+        <button
+          disabled={step === WALK_STEPS.length - 1}
+          onClick={() => setStep(step + 1)}
+          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+            step === WALK_STEPS.length - 1
+              ? dark
+                ? "bg-slate-800 text-slate-600 cursor-not-allowed"
+                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              : "bg-indigo-600 text-white hover:bg-indigo-700"
+          }`}
+        >
+          Weiter →
+        </button>
+      </div>
+
+      {step === WALK_STEPS.length - 1 && (
+        <div
+          className={`text-center text-xs py-2 px-4 rounded-lg ${
+            dark ? "bg-green-900/30 text-green-300" : "bg-green-50 text-green-700"
+          }`}
+        >
+          ✓ Packet-Walk abgeschlossen — Frame erfolgreich zugestellt!
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Dialog ────────────────────────────────────────────────
 
 export function VlanSimulatorDialog({ dark, onClose }: Props) {
   const [tab, setTab] = useState<Tab>("frame");
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: "frame",    label: "Frame-Vivisektor" },
-    { id: "topology", label: "Topologie-Simulator" },
-    { id: "trunk",    label: "Trunk-Animation" },
+    { id: "frame",       label: "Frame-Vivisektor" },
+    { id: "topology",   label: "Topologie-Simulator" },
+    { id: "trunk",      label: "Trunk-Animation" },
+    { id: "packet-walk", label: "Packet-Walk" },
   ];
 
   return (
@@ -1145,7 +1389,7 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
           <div className="flex-1">
             <h2 className="font-bold text-base">🌐 VLAN-Simulator</h2>
             <p className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}>
-              802.1Q Frame-Vivisektor · Switch-Simulator · Trunk-Animation
+              802.1Q Frame-Vivisektor · Switch-Simulator · Trunk-Animation · Packet-Walk
             </p>
           </div>
           <button
@@ -1176,9 +1420,10 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
-          {tab === "frame"  && <FrameVivisektor dark={dark} />}
-          {tab === "topology" && <TopologySimulator dark={dark} />}
-          {tab === "trunk"  && <TrunkAnimation dark={dark} />}
+          {tab === "frame"       && <FrameVivisektor dark={dark} />}
+          {tab === "topology"    && <TopologySimulator dark={dark} />}
+          {tab === "trunk"       && <TrunkAnimation dark={dark} />}
+          {tab === "packet-walk" && <PacketWalkSimulator dark={dark} />}
         </div>
       </div>
     </div>

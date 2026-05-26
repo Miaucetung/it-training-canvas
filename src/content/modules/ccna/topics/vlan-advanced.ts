@@ -791,13 +791,297 @@ interface GigabitEthernet 1/0/24
   `.trim(),
 };
 
+// ── Concept 9: VLAN-Simulator ─────────────────────────────────
+
+export const CONCEPT_VLAN_SIMULATOR: Concept = {
+  id: "vlan-simulator",
+  title: "Interaktiver VLAN-Simulator — Frame-Walk & Konfigurationsübung",
+  appliesTo: ["ccna"],
+  tags: ["vlan", "simulator", "interactive", "802.1q", "trunk", "frame-walk"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1 | ⏱️ 20 Min
+
+---
+
+## Was der Simulator zeigt
+
+Der VLAN-Simulator (Button unten) hat 5 Tabs:
+
+| Tab | Funktion |
+|-----|---------|
+| **Topologie** | Switch + PCs, Konnektivitätstest per Klick |
+| **VLAN-Konfig** | Access- und Trunk-Ports konfigurieren |
+| **Trunk-Konfig** | Native VLAN, Allowed VLANs anpassen |
+| **802.1Q Frame** | Tag-Felder interaktiv — TPID / PCP / DEI / VID |
+| **Packet-Walk** | Schritt-für-Schritt durch Trunk: Tag hinzufügen → übertragen → entfernen |
+
+---
+
+## Empfohlene Übungsreihenfolge
+
+1. **Tab Topologie** → Starte ohne VLAN-Konfiguration: Was passiert beim Ping zwischen VLANs?
+2. **Tab VLAN-Konfig** → Port 1+2 auf VLAN 10, Port 3+4 auf VLAN 20
+3. **Tab Trunk-Konfig** → Native VLAN 999, Allowed VLANs 10,20
+4. **Tab 802.1Q Frame** → Klicke auf jedes Feld (TPID, PCP, DEI, VID) für die Bit-Erklärung
+5. **Tab Packet-Walk** → Klicke "Senden" und beobachte den Frame Schritt für Schritt
+
+---
+
+## Lernkontrolle nach dem Simulator
+
+- Welches VLAN bekommt ein ungetaggter Frame auf dem Trunk-Port?
+- Was ändert sich im Frame-Header wenn der Switch den Frame auf den Trunk weiterleitet?
+- Warum kann PC in VLAN 10 nicht direkt mit PC in VLAN 20 kommunizieren?
+- Was bedeutet der Wert 0x8100 im Frame-Header?
+  `.trim(),
+};
+
+// ── Concept 10: Lab-Brücke ────────────────────────────────────
+
+export const CONCEPT_VLAN_LAB_BRUECKE: Concept = {
+  id: "vlan-lab-bruecke",
+  title: "Lab-Brücke: Vollständige VLAN-Konfiguration von Null",
+  appliesTo: ["ccna"],
+  tags: [
+    "vlan",
+    "lab",
+    "trunk",
+    "voice-vlan",
+    "inter-vlan",
+    "roas",
+    "svi",
+    "security",
+    "layer-2",
+    "layer-3",
+  ],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.1, 3.3 | ⏱️ 45 Min
+
+---
+
+## Kapitelabschluss-Lab — Bürogebäude "NetzTech GmbH"
+
+Dieses Lab verbindet alle Konzepte aus dem Modul in einer vollständigen, realen Konfiguration.
+
+**Topologie**: 2 Switches (SW1 = Distribution, SW2 = Access) + 1 Router (R1 = ROAS)
+
+**Anforderungen**:
+- 3 Abteilungs-VLANs + Voice VLAN + Management VLAN + Native VLAN
+- Inter-VLAN-Routing über Router-on-a-Stick
+- 1 IP-Telefon-Arbeitsplatz (Voice VLAN)
+- Management-Zugang zum Switch (SSH via SVI)
+- Sicherheits-Härtung: Nicht genutzte Ports abschalten, DTP deaktivieren
+
+**VLAN-Plan**:
+
+| VLAN-ID | Name | Subnetz | Verwendung |
+|---------|------|---------|-----------|
+| 10 | SALES | 192.168.10.0/24 | Vertrieb |
+| 20 | IT | 192.168.20.0/24 | IT-Abteilung |
+| 30 | MGMT-DEPT | 192.168.30.0/24 | Management-Abteilung |
+| 100 | VOICE | 192.168.100.0/24 | IP-Telefonie |
+| 99 | MANAGEMENT | 192.168.99.0/28 | Switch-Management (SVI) |
+| 999 | NATIVE | — | Native VLAN (keine Hosts) |
+
+---
+
+## Schritt 1 — VLANs anlegen (beide Switches)
+
+\`\`\`
+SW(config)# vlan 10
+SW(config-vlan)# name SALES
+SW(config)# vlan 20
+SW(config-vlan)# name IT
+SW(config)# vlan 30
+SW(config-vlan)# name MGMT-DEPT
+SW(config)# vlan 100
+SW(config-vlan)# name VOICE
+SW(config)# vlan 99
+SW(config-vlan)# name MANAGEMENT
+SW(config)# vlan 999
+SW(config-vlan)# name NATIVE
+
+SW# show vlan brief    ! Prüfen: alle 6 VLANs vorhanden
+\`\`\`
+
+---
+
+## Schritt 2 — Access-Ports zuweisen (SW2)
+
+\`\`\`
+! PC Sales (Gi0/1 → VLAN 10)
+SW2(config)# interface GigabitEthernet 0/1
+SW2(config-if)# switchport mode access
+SW2(config-if)# switchport access vlan 10
+SW2(config-if)# switchport nonegotiate
+SW2(config-if)# spanning-tree portfast
+
+! PC IT (Gi0/2 → VLAN 20)
+SW2(config)# interface GigabitEthernet 0/2
+SW2(config-if)# switchport mode access
+SW2(config-if)# switchport access vlan 20
+SW2(config-if)# switchport nonegotiate
+SW2(config-if)# spanning-tree portfast
+
+! PC MGMT-Dept (Gi0/3 → VLAN 30)
+SW2(config)# interface GigabitEthernet 0/3
+SW2(config-if)# switchport mode access
+SW2(config-if)# switchport access vlan 30
+SW2(config-if)# switchport nonegotiate
+SW2(config-if)# spanning-tree portfast
+\`\`\`
+
+---
+
+## Schritt 3 — Voice VLAN konfigurieren (SW2 Gi0/5)
+
+\`\`\`
+! IP-Telefon + PC dahinter
+SW2(config)# interface GigabitEthernet 0/5
+SW2(config-if)# switchport mode access
+SW2(config-if)# switchport access vlan 10          ! Data VLAN für PC hinter Telefon
+SW2(config-if)# switchport voice vlan 100          ! Voice VLAN für IP-Phone
+SW2(config-if)# mls qos trust device cisco-phone   ! CoS-Markierung vom Cisco-Phone vertrauen
+SW2(config-if)# spanning-tree portfast
+SW2(config-if)# switchport nonegotiate
+
+SW2# show interfaces GigabitEthernet 0/5 switchport | include Voice
+! Erwartetes Ergebnis: Voice VLAN: 100 (VOICE)
+\`\`\`
+
+---
+
+## Schritt 4 — Trunk-Link SW1 ↔ SW2
+
+\`\`\`
+! Auf beiden Switches (Gi0/24)
+SW(config)# interface GigabitEthernet 0/24
+SW(config-if)# switchport mode trunk
+SW(config-if)# switchport trunk native vlan 999
+SW(config-if)# switchport trunk allowed vlan 10,20,30,99,100,999
+SW(config-if)# switchport nonegotiate
+
+SW# show interfaces GigabitEthernet 0/24 trunk
+! Prüfen: Status = trunking, Native = 999, Allowed VLANs korrekt
+\`\`\`
+
+---
+
+## Schritt 5 — Management SVI (SW1)
+
+\`\`\`
+! SVI für SSH-Zugang
+SW1(config)# interface Vlan 99
+SW1(config-if)# ip address 192.168.99.10 255.255.255.240
+SW1(config-if)# no shutdown
+
+! Default-Gateway
+SW1(config)# ip default-gateway 192.168.99.1
+
+! SSH aktivieren
+SW1(config)# ip domain-name netztech.local
+SW1(config)# crypto key generate rsa modulus 2048
+SW1(config)# ip ssh version 2
+SW1(config)# line vty 0 4
+SW1(config-line)# transport input ssh
+SW1(config-line)# login local
+\`\`\`
+
+---
+
+## Schritt 6 — Router-on-a-Stick (R1)
+
+\`\`\`
+! Trunk-Port zum Switch (Gi0/24 → R1 Gi0/0)
+SW1(config)# interface GigabitEthernet 0/24
+SW1(config-if)# switchport mode trunk
+SW1(config-if)# switchport trunk native vlan 999
+SW1(config-if)# switchport trunk allowed vlan 10,20,30,99,100,999
+SW1(config-if)# switchport nonegotiate
+
+! Router-Konfiguration
+R1(config)# interface GigabitEthernet 0/0
+R1(config-if)# no ip address
+R1(config-if)# no shutdown
+
+R1(config)# interface GigabitEthernet 0/0.10
+R1(config-subif)# encapsulation dot1q 10
+R1(config-subif)# ip address 192.168.10.1 255.255.255.0
+
+R1(config)# interface GigabitEthernet 0/0.20
+R1(config-subif)# encapsulation dot1q 20
+R1(config-subif)# ip address 192.168.20.1 255.255.255.0
+
+R1(config)# interface GigabitEthernet 0/0.30
+R1(config-subif)# encapsulation dot1q 30
+R1(config-subif)# ip address 192.168.30.1 255.255.255.0
+
+R1(config)# interface GigabitEthernet 0/0.99
+R1(config-subif)# encapsulation dot1q 99
+R1(config-subif)# ip address 192.168.99.1 255.255.255.240
+
+R1(config)# interface GigabitEthernet 0/0.100
+R1(config-subif)# encapsulation dot1q 100
+R1(config-subif)# ip address 192.168.100.1 255.255.255.0
+\`\`\`
+
+---
+
+## Schritt 7 — Sicherheits-Härtung
+
+\`\`\`
+! Ungenutzte Ports deaktivieren und in "Quarantäne-VLAN" schieben
+SW(config)# interface range GigabitEthernet 0/10-23
+SW(config-if-range)# switchport mode access
+SW(config-if-range)# switchport access vlan 999
+SW(config-if-range)# switchport nonegotiate
+SW(config-if-range)# shutdown
+
+! VLAN 1 vom Trunk entfernen
+SW(config)# interface GigabitEthernet 0/24
+SW(config-if)# switchport trunk allowed vlan remove 1
+\`\`\`
+
+---
+
+## Schritt 8 — Verifikation
+
+\`\`\`
+! Gesamtüberblick
+SW# show vlan brief
+SW# show interfaces trunk
+SW# show interfaces GigabitEthernet 0/5 switchport
+
+! Routing
+R1# show ip route
+R1# ping 192.168.20.1 source 192.168.10.1
+
+! Konnektivität PC-Ebene (vom Simulator oder realen Lab)
+PC-SALES# ping 192.168.20.X    ! → soll funktionieren (via Router)
+PC-SALES# ping 192.168.10.X    ! → direktes VLAN (Layer 2)
+\`\`\`
+
+---
+
+## Häufige Fehler in diesem Lab
+
+> ⚠️ **Trunk erlaubt alle VLANs** — Standard-Trunk trägt VLANs 1–4094. Immer explizit einschränken.
+
+> ⚠️ **Native VLAN Mismatch** — SW1 und SW2 müssen dasselbe Native VLAN haben. CDP meldet Mismatch.
+
+> ⚠️ **Voice VLAN + CoS** — Ohne \`mls qos trust device cisco-phone\` wird QoS-Markierung des Telefons ignoriert.
+
+> ⚠️ **SVI bleibt down** — VLAN 99 muss existieren (vlan 99 anlegen) UND mindestens ein Port im VLAN aktiv sein (der Trunk-Port zählt).
+  `.trim(),
+};
+
 // ── Topic ─────────────────────────────────────────────────────
 
 export const TOPIC_VLAN_ADVANCED: Topic = {
   id: "vlan-advanced",
   title: "VLANs — Tiefenwissen & Sicherheit",
   description:
-    "802.1Q-Frame-Aufbau, Port-Typen, Inter-VLAN-Routing (ROAS & L3-Switch), VTP/DTP-Risiken und VLAN-Hopping-Angriffe mit Gegenmaßnahmen.",
+    "802.1Q-Frame-Aufbau, Port-Typen, Inter-VLAN-Routing (ROAS & L3-Switch), VTP/DTP-Risiken, VLAN-Hopping-Angriffe mit Gegenmaßnahmen und vollständiges Praxislab.",
   conceptIds: [
     "vlan-broadcast-problem",
     "dot1q-tagging",
@@ -808,11 +1092,12 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-sicherheit",
     "vlan-advanced-guide",
     "vlan-simulator",
+    "vlan-lab-bruecke",
   ],
-  quizIds: [],
+  quizIds: ["quiz-vlan-advanced"],
   exerciseIds: [],
   prerequisiteTopicIds: ["switching-vlans", "networking-fundamentals"],
-  estimatedMinutes: 150,
+  estimatedMinutes: 180,
   tags: ["vlan", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
 };
 
@@ -827,5 +1112,6 @@ export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
   "vtp-dtp": CONCEPT_VTP_DTP,
   "vlan-sicherheit": CONCEPT_VLAN_SICHERHEIT,
   "vlan-advanced-guide": CONCEPT_VLAN_ADVANCED_GUIDE,
-  "vlan-simulator": { id: "vlan-simulator", title: "VLAN-Simulator", appliesTo: ["ccna"], tags: ["vlan", "simulator", "interactive"], content: "Siehe VLAN-Simulator im Topic Switching & VLANs." },
+  "vlan-simulator": CONCEPT_VLAN_SIMULATOR,
+  "vlan-lab-bruecke": CONCEPT_VLAN_LAB_BRUECKE,
 };
