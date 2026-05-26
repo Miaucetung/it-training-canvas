@@ -49,6 +49,12 @@ import {
   OPERATIONS_CONCEPTS,
 } from "./topics/netplus-operations";
 
+import {
+  TOPIC_NETPLUS_TROUBLESHOOTING,
+  QUIZ_NETPLUS_TROUBLESHOOTING,
+  TROUBLESHOOTING_CONCEPTS,
+} from "./topics/netplus-troubleshooting";
+
 // ── Learning Path ─────────────────────────────────────────────
 
 const NETPLUS_LEARNING_PATHS: Record<string, LearningPath> = {
@@ -100,6 +106,15 @@ const NETPLUS_LEARNING_PATHS: Record<string, LearningPath> = {
         completed: false,
         hints: [],
       },
+      {
+        id: "netplus-step-5",
+        title: "Netzwerkfehlerbehebung",
+        description: "7-Schritte-Methodik, Kabel/Physical, Switching/Routing/DNS/DHCP, Performance, CLI- und Hardware-Tools.",
+        type: "info",
+        order: 5,
+        completed: false,
+        hints: [],
+      },
     ],
   },
 };
@@ -124,6 +139,7 @@ const NETPLUS_MODULE: CertificationModule = {
     TOPIC_NETPLUS_IMPLEMENTATION,
     TOPIC_NETPLUS_SECURITY,
     TOPIC_NETPLUS_OPERATIONS,
+    TOPIC_NETPLUS_TROUBLESHOOTING,
   ],
 
   concepts: {
@@ -131,6 +147,7 @@ const NETPLUS_MODULE: CertificationModule = {
     ...IMPLEMENTATION_CONCEPTS,
     ...SECURITY_NP_CONCEPTS,
     ...OPERATIONS_CONCEPTS,
+    ...TROUBLESHOOTING_CONCEPTS,
   },
 
   quizzes: {
@@ -138,6 +155,7 @@ const NETPLUS_MODULE: CertificationModule = {
     [QUIZ_NETPLUS_IMPLEMENTATION.id]: QUIZ_NETPLUS_IMPLEMENTATION,
     [QUIZ_NETPLUS_SECURITY.id]: QUIZ_NETPLUS_SECURITY,
     [QUIZ_NETPLUS_OPERATIONS.id]: QUIZ_NETPLUS_OPERATIONS,
+    [QUIZ_NETPLUS_TROUBLESHOOTING.id]: QUIZ_NETPLUS_TROUBLESHOOTING,
   } as Record<string, Quiz>,
 
   exercises: {},

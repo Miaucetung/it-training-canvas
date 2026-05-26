@@ -5,7 +5,7 @@
  * Absicherung:
  * a) Rendert Topic-Liste für CCNA mit allen 8 Topics
  * b) Rendert Topic-Liste für AZ-900 mit genau 10 Topics
- * c) Rendert Topic-Liste für Network+ mit genau 4 Topics
+ * c) Rendert Topic-Liste für Network+ mit genau 5 Topics
  * d) Zeigt Ladezustand während async load
  * e) Zeigt Fehlerzustand für unbekannte moduleId
  * f) (App-Ebene) Klick auf AZ-900 → TopicListPanel erscheint
@@ -77,7 +77,7 @@ const CCNA_TOPICS = Array.from({ length: 8 }, (_, i) =>
 const AZ900_TOPICS = Array.from({ length: 10 }, (_, i) =>
   makeTopic(`az-topic-${i + 1}`, `AZ-900 Topic ${i + 1}`),
 );
-const NETPLUS_TOPICS = Array.from({ length: 4 }, (_, i) =>
+const NETPLUS_TOPICS = Array.from({ length: 5 }, (_, i) =>
   makeTopic(`np-topic-${i + 1}`, `Network+ Topic ${i + 1}`),
 );
 
@@ -143,9 +143,9 @@ describe("b) AZ-900 — genau 10 Topics", () => {
   });
 });
 
-// ── c) Network+: genau 4 Topics ──────────────────────────────
-describe("c) Network+ — genau 4 Topics", () => {
-  it("rendert genau 4 Network+-Topic-Titel", async () => {
+// ── c) Network+: genau 5 Topics ──────────────────────────────
+describe("c) Network+ — genau 5 Topics", () => {
+  it("rendert genau 5 Network+-Topic-Titel", async () => {
     mockLoadModule.mockResolvedValue(
       makeModule("comptia-network-plus", "CompTIA Network+ N10-009", NETPLUS_TOPICS),
     );
@@ -154,19 +154,19 @@ describe("c) Network+ — genau 4 Topics", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Network+ Topic 1")).toBeTruthy();
-      expect(screen.getByText("Network+ Topic 4")).toBeTruthy();
+      expect(screen.getByText("Network+ Topic 5")).toBeTruthy();
     });
 
-    expect(screen.getByText("4")).toBeTruthy();
-    expect(screen.queryByText("5")).toBeNull();
+    expect(screen.getByText("5")).toBeTruthy();
+    expect(screen.queryByText("6")).toBeNull();
   });
 
-  it("zeigt '4 Topics' im Stats-Bereich", async () => {
+  it("zeigt '5 Topics' im Stats-Bereich", async () => {
     mockLoadModule.mockResolvedValue(
       makeModule("comptia-network-plus", "CompTIA Network+ N10-009", NETPLUS_TOPICS),
     );
     render(<TopicListPanel moduleId="comptia-network-plus" theme="dark" />);
-    await waitFor(() => expect(screen.getByText("4 Topics")).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("5 Topics")).toBeTruthy());
   });
 });
 
