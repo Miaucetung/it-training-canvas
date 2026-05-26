@@ -2348,6 +2348,40 @@ export const QUIZ_QOS: Quiz = {
         { id: "d", text: "ICMP-Datenverkehr", isCorrect: false },
       ],
     },
+    // ── 3 neue Fragen (T-5 QoS Gap-Plan, blueprint: "4.1") ────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.1",
+      text: "Welcher DSCP-Wert (EF — Expedited Forwarding) wird typischerweise für VoIP-Sprachverkehr verwendet?",
+      explanation: "EF (Expedited Forwarding) hat den DSCP-Wert 46 (Binär 101110) und entspricht IP Precedence 5. EF garantiert minimale Latenz, Jitter und Verlust — ideal für VoIP. Per Hop Behavior: Bits werden bevorzugt weitergeleitet.",
+      answers: [
+        { id: "a", text: "DSCP 0 (Best Effort)", isCorrect: false },
+        { id: "b", text: "DSCP 46 (EF — Expedited Forwarding)", isCorrect: true },
+        { id: "c", text: "DSCP 26 (AF31)", isCorrect: false },
+        { id: "d", text: "DSCP 10 (AF11)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.1",
+      text: "Was ist der Unterschied zwischen Traffic Policing und Traffic Shaping?",
+      explanation: "Policing: Überschreitender Traffic wird sofort verworfen (drop) — kein Delay, aber Paketverlust. Shaping: Überschreitender Traffic wird gepuffert (buffer) und verzögert gesendet — kein Verlust, aber erhöhter Delay. Shaping erzeugt eine glattere Sendecharakteristik.",
+      answers: [
+        { id: "a", text: "Policing puffert Traffic; Shaping verwirft ihn", isCorrect: false },
+        { id: "b", text: "Beide verwerfen Traffic über dem Limit", isCorrect: false },
+        { id: "c", text: "Policing verwirft Traffic über dem Limit; Shaping puffert ihn für späteres Senden", isCorrect: true },
+        { id: "d", text: "Policing und Shaping sind identische Mechanismen mit unterschiedlichen Namen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.1",
+      text: "Was ist LLQ (Low Latency Queuing) und für welchen Traffic wird es eingesetzt?",
+      explanation: "LLQ fügt CBWFQ eine streng priorisierte Warteschlange (Priority Queue) hinzu. VoIP-Traffic wird in diese PQ eingereiht und immer zuerst bedient — bevor andere Queues Traffic senden. Dies garantiert minimalen Jitter und Delay für Sprachverkehr.",
+      answers: [
+        { id: "a", text: "LLQ ist eine Congestion-Avoidance-Methode für TCP-Traffic", isCorrect: false },
+        { id: "b", text: "LLQ ergänzt CBWFQ mit einer Priority Queue für delay-sensitiven Traffic (z. B. VoIP)", isCorrect: true },
+        { id: "c", text: "LLQ verteilt Bandbreite gleichmäßig auf alle Queues (Round Robin)", isCorrect: false },
+        { id: "d", text: "LLQ puffert alle Pakete, bis die Leitung frei ist", isCorrect: false },
+      ],
+    },
   ],
 };
 
