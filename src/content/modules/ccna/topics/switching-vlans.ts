@@ -231,6 +231,8 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
     "etherchannel",
     "switching-vlans-guide",
     "vlan-simulator",
+    "canvas-template:tpl-edu-vlan-trunk-ris",
+    "canvas-template:tpl-edu-stp-root-bridge",
   ],
   quizIds: ["ccna-quiz-stp", "ccna-quiz-switching", "ccna-quiz-etherchannel"],
   exerciseIds: [],
