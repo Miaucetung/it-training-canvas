@@ -5233,6 +5233,1073 @@ export const QUIZ_ETHERCHANNEL: Quiz = {
 };
 
 // ============================================================
+// QUIZ: CCNA Exam-Simulation 2 (200-301 v1.1)
+// 100 neue Fragen — alle Blueprint-Bereiche abgedeckt
+// ============================================================
+export const QUIZ_CCNA_EXAM_2: Quiz = {
+  id: "ccna-quiz-gesamtpruefung-2",
+  title: "CCNA 200-301 Prüfungssimulation 2",
+  description: "Zweite vollständige Prüfungssimulation mit 100 neuen Fragen — alle Blueprint-Domains der CCNA 200-301 v1.1",
+  passingScore: 82,
+  shuffleQuestions: true,
+  timeLimit: 120,
+  questions: [
+    // ── Domain 1: Network Fundamentals (20 Q) ────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.1",
+      text: "Auf welchem OSI-Layer arbeitet ein Router primär?",
+      explanation: "Router arbeiten auf Layer 3 (Network Layer). Sie treffen Weiterleitungsentscheidungen basierend auf IP-Adressen in der Routing-Tabelle.",
+      answers: [
+        { id: "a", text: "Layer 1 (Physical)", isCorrect: false },
+        { id: "b", text: "Layer 2 (Data Link)", isCorrect: false },
+        { id: "c", text: "Layer 3 (Network)", isCorrect: true },
+        { id: "d", text: "Layer 4 (Transport)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.1",
+      text: "Was ist die Funktion des TCP-Three-Way-Handshakes?",
+      explanation: "Der TCP-3-Wege-Handshake (SYN, SYN-ACK, ACK) etabliert eine verbindungsorientierte Sitzung zwischen Client und Server, bevor Nutzdaten gesendet werden.",
+      answers: [
+        { id: "a", text: "Prüfsummen für Datenpakete berechnen", isCorrect: false },
+        { id: "b", text: "Eine verbindungsorientierte TCP-Sitzung aufbauen", isCorrect: true },
+        { id: "c", text: "IP-Adressen dynamisch zuweisen", isCorrect: false },
+        { id: "d", text: "DNS-Auflösung durchführen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.1",
+      text: "Welches Protokoll sendet auf UDP Port 53?",
+      explanation: "DNS (Domain Name System) nutzt primär UDP Port 53 für Abfragen. Bei Antworten >512 Byte oder für Zonentransfers wird TCP 53 verwendet.",
+      answers: [
+        { id: "a", text: "DHCP", isCorrect: false },
+        { id: "b", text: "DNS", isCorrect: true },
+        { id: "c", text: "SNMP", isCorrect: false },
+        { id: "d", text: "NTP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.1",
+      text: "Was ist der Unterschied zwischen einem Hub und einem Switch?",
+      explanation: "Ein Hub leitet alle Frames an alle Ports weiter (Broadcast-Domäne = alle Ports). Ein Switch lernt MAC-Adressen und leitet Frames nur an den Ziel-Port — separate Kollisionsdomänen pro Port.",
+      answers: [
+        { id: "a", text: "Hubs arbeiten auf Layer 3, Switches auf Layer 2", isCorrect: false },
+        { id: "b", text: "Hubs leiten Frames an alle Ports; Switches nur an den Ziel-Port (MAC-Lernen)", isCorrect: true },
+        { id: "c", text: "Switches sind langsamer als Hubs", isCorrect: false },
+        { id: "d", text: "Hubs und Switches sind funktional identisch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.1",
+      text: "Was ist eine Kollisionsdomäne?",
+      explanation: "Eine Kollisionsdomäne umfasst alle Geräte, die gleichzeitig senden und dadurch Kollisionen verursachen können. Switches trennen Kollisionsdomänen pro Port — im Gegensatz zu Hubs.",
+      answers: [
+        { id: "a", text: "Ein Bereich, in dem Broadcasts empfangen werden", isCorrect: false },
+        { id: "b", text: "Ein Bereich, in dem gleichzeitige Übertragungen kollidieren können", isCorrect: true },
+        { id: "c", text: "Ein Subnetz mit mehr als 254 Hosts", isCorrect: false },
+        { id: "d", text: "Eine VLAN-Broadcast-Domäne", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.2",
+      text: "Welches Cloud-Servicemodell stellt dem Nutzer eine komplette Anwendung bereit — ohne Verwaltung von OS oder Infrastruktur?",
+      explanation: "SaaS (Software as a Service) liefert eine fertige Anwendung über das Internet. Der Nutzer verwaltet nur seine Daten und Einstellungen. Beispiel: Microsoft 365, Google Workspace.",
+      answers: [
+        { id: "a", text: "IaaS", isCorrect: false },
+        { id: "b", text: "PaaS", isCorrect: false },
+        { id: "c", text: "SaaS", isCorrect: true },
+        { id: "d", text: "FaaS", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.3",
+      text: "Auf welcher OSI-Schicht arbeitet das Ethernet-Protokoll?",
+      explanation: "Ethernet arbeitet auf Layer 1 (Physical — Signale, Kabel, Bit-Übertragung) und Layer 2 (Data Link — Frames, MAC-Adressen, CSMA/CD).",
+      answers: [
+        { id: "a", text: "Nur Layer 1", isCorrect: false },
+        { id: "b", text: "Layer 2 und Layer 3", isCorrect: false },
+        { id: "c", text: "Layer 1 und Layer 2", isCorrect: true },
+        { id: "d", text: "Nur Layer 2", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.3",
+      text: "Was ist die maximale Kabellänge für Gigabit-Ethernet über Cat6-Kupferkabel (1000BASE-T)?",
+      explanation: "Gigabit-Ethernet (1000BASE-T) über Cat5e/Cat6-Kupferkabel unterstützt maximal 100 Meter — wie alle anderen 1000BASE-T-Implementierungen auf UTP.",
+      answers: [
+        { id: "a", text: "55 Meter", isCorrect: false },
+        { id: "b", text: "100 Meter", isCorrect: true },
+        { id: "c", text: "185 Meter", isCorrect: false },
+        { id: "d", text: "500 Meter", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welche IPv4-Adressklasse ist für 192.168.1.0/24 gültig?",
+      explanation: "192.168.0.0 bis 192.168.255.255 gehört zu Klasse C (192.0.0.0 – 223.255.255.255). /24 = 254 nutzbare Hosts.",
+      answers: [
+        { id: "a", text: "Klasse A", isCorrect: false },
+        { id: "b", text: "Klasse B", isCorrect: false },
+        { id: "c", text: "Klasse C", isCorrect: true },
+        { id: "d", text: "Klasse D (Multicast)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.4",
+      text: "Welche Subnetzmaske entspricht /26?",
+      explanation: "/26 = 26 Einsen: 11111111.11111111.11111111.11000000 = 255.255.255.192. Das ergibt 64 Adressen pro Subnetz (62 nutzbare Hosts).",
+      answers: [
+        { id: "a", text: "255.255.255.128", isCorrect: false },
+        { id: "b", text: "255.255.255.192", isCorrect: true },
+        { id: "c", text: "255.255.255.224", isCorrect: false },
+        { id: "d", text: "255.255.255.240", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.5",
+      text: "Was ist die Funktion von ARP (Address Resolution Protocol)?",
+      explanation: "ARP löst IPv4-Adressen in MAC-Adressen auf. Ein Host sendet einen ARP-Broadcast ('Wer hat IP X?'); der Zielhost antwortet mit seiner MAC-Adresse.",
+      answers: [
+        { id: "a", text: "IP-Adressen in Domainnamen auflösen", isCorrect: false },
+        { id: "b", text: "IPv4-Adressen in MAC-Adressen auflösen", isCorrect: true },
+        { id: "c", text: "Subnetzmasken automatisch berechnen", isCorrect: false },
+        { id: "d", text: "Routing-Tabellen zwischen Routern austauschen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.6",
+      text: "Was ist der Loopback-Address-Bereich in IPv4?",
+      explanation: "127.0.0.0/8 ist für Loopback reserviert. 127.0.0.1 ist die bekannteste Adresse und zeigt auf das eigene Gerät. Diese Adressen verlassen niemals das Gerät.",
+      answers: [
+        { id: "a", text: "10.0.0.0/8", isCorrect: false },
+        { id: "b", text: "127.0.0.0/8", isCorrect: true },
+        { id: "c", text: "169.254.0.0/16", isCorrect: false },
+        { id: "d", text: "192.168.0.0/16", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.6",
+      text: "Was bedeutet APIPA (169.254.x.x)?",
+      explanation: "APIPA (Automatic Private IP Addressing) wird von Windows-Geräten vergeben, wenn kein DHCP-Server erreichbar ist. Bereich: 169.254.0.0/16. Nur zur lokalen Kommunikation geeignet.",
+      answers: [
+        { id: "a", text: "Eine ISP-zugewiesene öffentliche Adresse", isCorrect: false },
+        { id: "b", text: "Eine privat zugewiesene Adresse wenn kein DHCP-Server erreichbar ist", isCorrect: true },
+        { id: "c", text: "Ein IPv6-Tunnelprotokoll-Adressbereich", isCorrect: false },
+        { id: "d", text: "Ein Cisco-eigener Adressbereich für Management", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.7",
+      text: "Wie viele nutzbare Hosts hat ein /28-Subnetz?",
+      explanation: "/28 = 4 Host-Bits → 2^4 = 16 Adressen. Davon 2 reserviert (Netz + Broadcast) = 14 nutzbare Hosts.",
+      answers: [
+        { id: "a", text: "12", isCorrect: false },
+        { id: "b", text: "14", isCorrect: true },
+        { id: "c", text: "16", isCorrect: false },
+        { id: "d", text: "30", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.7",
+      text: "Was ist die Broadcast-Adresse des Subnetzes 192.168.10.64/27?",
+      explanation: "/27 = 32 Adressen pro Block. Blöcke: 0, 32, 64, 96... Das Subnetz 192.168.10.64 endet bei .95 (64+32-1=95). Broadcast: 192.168.10.95.",
+      answers: [
+        { id: "a", text: "192.168.10.79", isCorrect: false },
+        { id: "b", text: "192.168.10.95", isCorrect: true },
+        { id: "c", text: "192.168.10.127", isCorrect: false },
+        { id: "d", text: "192.168.10.63", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.8",
+      text: "Welche IPv6-Adresse entspricht dem IPv4-Loopback 127.0.0.1?",
+      explanation: "Der IPv6-Loopback ist ::1/128 (vollständig: 0000:0000:0000:0000:0000:0000:0000:0001) — das Pendant zu 127.0.0.1 in IPv4.",
+      answers: [
+        { id: "a", text: "FE80::1", isCorrect: false },
+        { id: "b", text: "FF02::1", isCorrect: false },
+        { id: "c", text: "::1", isCorrect: true },
+        { id: "d", text: "2001::1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.9",
+      text: "Was ist der Hauptzweck von ICMP?",
+      explanation: "ICMP (Internet Control Message Protocol) dient zur Fehlerberichterstattung und Diagnose im IP-Netz. Bekannte Nutzungen: ping (Echo Request/Reply), traceroute (Time Exceeded), Destination Unreachable.",
+      answers: [
+        { id: "a", text: "Zuverlässige Datenübertragung sicherstellen", isCorrect: false },
+        { id: "b", text: "IP-Adressvergabe automatisieren", isCorrect: false },
+        { id: "c", text: "Fehlermeldungen und Netzwerkdiagnose", isCorrect: true },
+        { id: "d", text: "Routing-Tabellen synchronisieren", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "1.9",
+      text: "Welches Transportprotokoll verwendet HTTPS?",
+      explanation: "HTTPS (HTTP Secure) nutzt TLS/SSL zur Verschlüsselung und läuft über TCP Port 443. HTTP (unverschlüsselt) läuft über TCP Port 80.",
+      answers: [
+        { id: "a", text: "UDP Port 443", isCorrect: false },
+        { id: "b", text: "TCP Port 80", isCorrect: false },
+        { id: "c", text: "TCP Port 443", isCorrect: true },
+        { id: "d", text: "UDP Port 80", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "1.1",
+      text: "UDP bietet Zuverlässigkeit durch Sequenznummern und Bestätigungen (ACKs).",
+      explanation: "Falsch. UDP (User Datagram Protocol) ist verbindungslos und bietet keine Zuverlässigkeit, Reihenfolgegarantie oder Flusskontrolle. TCP bietet diese Mechanismen. UDP ist schneller und wird für VoIP, DNS, DHCP genutzt.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "1.3",
+      text: "Multimode-Glasfaserkabel unterstützen längere Distanzen als Singlemode-Glasfaser.",
+      explanation: "Falsch. Singlemode-Glasfaser (SMF) unterstützt Distanzen von mehreren Kilometern bis über 100 km (mit Verstärkern). Multimode (MMF) ist auf 300-550 m begrenzt, aber günstiger für kurze Distanzen.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    // ── Domain 2: Network Access (20 Q) ──────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Auf welchem VLAN sind alle Ports nach dem Einschalten eines neuen Cisco-Switches standardmäßig?",
+      explanation: "Alle Ports sind standardmäßig in VLAN 1 (dem Default-VLAN). VLAN 1 kann nicht gelöscht oder umbenannt werden.",
+      answers: [
+        { id: "a", text: "VLAN 0", isCorrect: false },
+        { id: "b", text: "VLAN 1", isCorrect: true },
+        { id: "c", text: "VLAN 100", isCorrect: false },
+        { id: "d", text: "VLAN 4094", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.1",
+      text: "Was ist ein Native VLAN bei einem 802.1Q-Trunk?",
+      explanation: "Das Native VLAN ist das einzige VLAN, dessen Frames auf einem Trunk ohne 802.1Q-Tag gesendet werden. Standardmäßig VLAN 1. Cisco empfiehlt, das Native VLAN zu ändern (z. B. auf VLAN 999) aus Sicherheitsgründen.",
+      answers: [
+        { id: "a", text: "Das VLAN mit der höchsten ID auf dem Trunk", isCorrect: false },
+        { id: "b", text: "Das VLAN, dessen Frames auf dem Trunk untagged übertragen werden", isCorrect: true },
+        { id: "c", text: "Das Management-VLAN für Cisco-Geräte", isCorrect: false },
+        { id: "d", text: "Ein VLAN, das nur Routing-Updates trägt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.2",
+      text: "Was macht DTP (Dynamic Trunking Protocol)?",
+      explanation: "DTP verhandelt automatisch zwischen benachbarten Cisco-Switches, ob ein Link als Trunk konfiguriert werden soll. Aus Sicherheitsgründen empfiehlt Cisco: DTP deaktivieren ('switchport nonegotiate') und Trunks manuell konfigurieren.",
+      answers: [
+        { id: "a", text: "Verteilt VLAN-Informationen zwischen Switches (wie VTP)", isCorrect: false },
+        { id: "b", text: "Verhandelt automatisch Trunk-Konfiguration zwischen Cisco-Switches", isCorrect: true },
+        { id: "c", text: "Erkennt Duplex-Mismatches auf Access-Ports", isCorrect: false },
+        { id: "d", text: "Synchronisiert Spanning-Tree-Topologien", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.2",
+      text: "Welche VTP-Modi gibt es auf einem Cisco-Switch? (Richtige Kombination)",
+      explanation: "VTP-Modi: Server (erstellt/bearbeitet/löscht VLANs, sendet Updates), Client (empfängt Updates, kann keine Änderungen machen), Transparent (leitet Updates weiter, nutzt eigene lokale VLAN-DB), Off (VTP deaktiviert).",
+      answers: [
+        { id: "a", text: "Master, Slave, Passive", isCorrect: false },
+        { id: "b", text: "Server, Client, Transparent (und Off)", isCorrect: true },
+        { id: "c", text: "Primary, Secondary, Observer", isCorrect: false },
+        { id: "d", text: "Active, Standby, Monitor", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Was ist der Zweck von STP (Spanning Tree Protocol)?",
+      explanation: "STP (IEEE 802.1D) verhindert Layer-2-Loops (Broadcast-Storms) in redundanten Switch-Netzwerken, indem es redundante Ports in den Blocking-Zustand versetzt.",
+      answers: [
+        { id: "a", text: "VLANs über mehrere Switches synchronisieren", isCorrect: false },
+        { id: "b", text: "Layer-2-Loops in redundanten Switch-Netzwerken verhindern", isCorrect: true },
+        { id: "c", text: "Trunks automatisch konfigurieren", isCorrect: false },
+        { id: "d", text: "IP-Routing zwischen VLANs ermöglichen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Wie wird der Root Bridge in STP ausgewählt?",
+      explanation: "Der Switch mit der niedrigsten Bridge-ID (Priority + MAC) wird Root Bridge. Default-Priority: 32768. Bei gleicher Priority gewinnt die niedrigste MAC-Adresse.",
+      answers: [
+        { id: "a", text: "Der Switch mit der höchsten Bridge-ID wird Root Bridge", isCorrect: false },
+        { id: "b", text: "Der Switch mit der niedrigsten Bridge-ID (Priority + MAC) wird Root Bridge", isCorrect: true },
+        { id: "c", text: "Der erste Switch, der das Netzwerk bootet, wird Root Bridge", isCorrect: false },
+        { id: "d", text: "Der Administrator wählt die Root Bridge durch VLAN-Konfiguration", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.3",
+      text: "Was ist PortFast bei Cisco STP?",
+      explanation: "PortFast lässt einen STP-Port sofort in den Forwarding-State wechseln, ohne die normalen STP-Zustände (Listening, Learning) zu durchlaufen. Nur für Access-Ports zu Endgeräten geeignet — nie auf Trunk-Ports!",
+      answers: [
+        { id: "a", text: "Beschleunigt die Root-Bridge-Wahl", isCorrect: false },
+        { id: "b", text: "Ermöglicht sofortigen Forwarding-State für Access-Ports ohne STP-Wartezeit", isCorrect: true },
+        { id: "c", text: "Erhöht die STP-Priority eines Ports", isCorrect: false },
+        { id: "d", text: "Deaktiviert STP auf bestimmten VLANs", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.4",
+      text: "Was ist EtherChannel und welchen Vorteil bietet es?",
+      explanation: "EtherChannel (IEEE 802.3ad / LACP) bündelt mehrere physische Links zu einem logischen Link. Vorteile: höhere Bandbreite (2-8 Links), Redundanz (kein STP-Blocking), Load-Balancing.",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur VLAN-Segmentierung über mehrere Switches", isCorrect: false },
+        { id: "b", text: "Bündelung mehrerer physischer Links zu einem logischen Link für mehr Bandbreite und Redundanz", isCorrect: true },
+        { id: "c", text: "Eine QoS-Technik zur Priorisierung von Ethernet-Frames", isCorrect: false },
+        { id: "d", text: "Ein Sicherheitsmerkmal zur Authentifizierung von Switch-zu-Switch-Links", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.5",
+      text: "Was ist Rapid PVST+ (IEEE 802.1w)?",
+      explanation: "Rapid PVST+ ist Ciscos Implementierung von Rapid Spanning Tree (802.1w) — eine pro-VLAN STP-Instanz. Konvergenz in ~1-2 Sekunden statt 30-50 Sekunden bei klassischem STP (802.1D).",
+      answers: [
+        { id: "a", text: "Ein EtherChannel-Protokoll für Cisco-Switches", isCorrect: false },
+        { id: "b", text: "Rapid Spanning Tree per VLAN — Konvergenz in ~1-2 Sekunden", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur automatischen VLAN-Erkennung", isCorrect: false },
+        { id: "d", text: "Ein Cisco-proprietäres Trunk-Protokoll", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Welcher 802.11-Standard nutzt ausschließlich das 5-GHz-Band?",
+      explanation: "802.11a arbeitet nur im 5-GHz-Band (bis 54 Mbps). 802.11n und 802.11ac/ax unterstützen auch 5 GHz, aber 802.11a ist der einzige Standard, der ausschließlich 5 GHz nutzt.",
+      answers: [
+        { id: "a", text: "802.11b", isCorrect: false },
+        { id: "b", text: "802.11g", isCorrect: false },
+        { id: "c", text: "802.11a", isCorrect: true },
+        { id: "d", text: "802.11n", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.6",
+      text: "Was ist der Unterschied zwischen WPA2 Personal und WPA2 Enterprise?",
+      explanation: "WPA2 Personal: Pre-Shared Key (PSK) — alle Nutzer teilen dasselbe Passwort. WPA2 Enterprise: 802.1X-Authentifizierung mit RADIUS-Server — individuelle Credentials pro Nutzer, sicherer für Unternehmen.",
+      answers: [
+        { id: "a", text: "WPA2 Personal bietet stärkere Verschlüsselung als Enterprise", isCorrect: false },
+        { id: "b", text: "WPA2 Personal nutzt PSK; Enterprise nutzt 802.1X mit RADIUS", isCorrect: true },
+        { id: "c", text: "WPA2 Enterprise ist nur für öffentliche WLAN-Netze", isCorrect: false },
+        { id: "d", text: "WPA2 Personal unterstützt mehr Geräte gleichzeitig", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.1",
+      text: "Bei einem 802.1Q-Trunk werden Frames des Native VLAN mit einem Tag versehen.",
+      explanation: "Falsch. Das Native VLAN ist das einzige VLAN, dessen Frames auf einem 802.1Q-Trunk ohne Tag (untagged) übertragen werden. Alle anderen VLANs erhalten einen 802.1Q-Tag.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.3",
+      text: "Ein STP-Designated Port ist immer im Forwarding-State.",
+      explanation: "Wahr. Designated Ports sind im Forwarding-State und leiten Traffic weiter. Root Ports ebenfalls. Nur Non-Designated (Alternate) Ports sind im Blocking-State.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.7",
+      text: "Welchen Befehl nutzt man, um ein Interface als Access-Port für VLAN 20 zu konfigurieren?",
+      explanation: "'switchport mode access' setzt den Port auf Access-Mode. 'switchport access vlan 20' weist VLAN 20 zu. Diese Befehle werden im Interface-Konfigurationsmodus eingegeben.",
+      answers: [
+        { id: "a", text: "switchport vlan 20 access", isCorrect: false },
+        { id: "b", text: "switchport mode access; switchport access vlan 20", isCorrect: true },
+        { id: "c", text: "vlan 20 mode access; interface assigned", isCorrect: false },
+        { id: "d", text: "interface access-vlan 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.7",
+      text: "Wie konfiguriert man einen Cisco-Switch-Port als Trunk?",
+      explanation: "'switchport mode trunk' erzwingt Trunk-Mode. Optional: 'switchport trunk encapsulation dot1q' (auf älteren Switches). Danach: 'switchport trunk allowed vlan' zur VLAN-Einschränkung.",
+      answers: [
+        { id: "a", text: "switchport trunk enable", isCorrect: false },
+        { id: "b", text: "switchport mode trunk", isCorrect: true },
+        { id: "c", text: "trunk mode on", isCorrect: false },
+        { id: "d", text: "switchport dot1q trunk", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.9",
+      text: "Was ist DHCP Snooping?",
+      explanation: "DHCP Snooping schützt vor Rogue-DHCP-Servern. Trusted Ports (Uplink) dürfen DHCP-Angebote weiterleiten; Untrusted Ports (Endgeräte) nur DHCP-Discover/Request. DHCP-Angebote von Untrusted Ports werden verworfen.",
+      answers: [
+        { id: "a", text: "Eine Methode zur DHCP-Adresspool-Überwachung", isCorrect: false },
+        { id: "b", text: "Schutz vor Rogue-DHCP-Servern durch Trusted/Untrusted Port-Klassifizierung", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur DHCP-Relay-Konfiguration", isCorrect: false },
+        { id: "d", text: "Automatische VLAN-Zuweisung basierend auf DHCP-Antworten", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.9",
+      text: "Was ist Dynamic ARP Inspection (DAI)?",
+      explanation: "DAI schützt vor ARP-Poisoning/Spoofing. Es prüft ARP-Pakete gegen die DHCP Snooping Binding Table: nur ARP-Pakete mit übereinstimmender IP/MAC-Zuordnung werden weitergeleitet.",
+      answers: [
+        { id: "a", text: "Eine Technik zur ARP-Cache-Beschleunigung", isCorrect: false },
+        { id: "b", text: "Schutz vor ARP-Spoofing durch Validierung gegen DHCP Snooping Binding Table", isCorrect: true },
+        { id: "c", text: "Dynamische MAC-Adresszuweisung für neue Geräte", isCorrect: false },
+        { id: "d", text: "Ein Protokoll zur Layer-2-Loop-Erkennung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "2.9",
+      text: "Was macht Port Security 'sticky' auf einem Cisco-Switch?",
+      explanation: "Mit 'switchport port-security mac-address sticky' lernt der Switch dynamisch die erste MAC-Adresse und speichert sie als statische Secure MAC. Diese Adresse bleibt auch nach Neustart erhalten (wird in die running-config gespeichert).",
+      answers: [
+        { id: "a", text: "Der Port bleibt dauerhaft im err-disabled-Zustand", isCorrect: false },
+        { id: "b", text: "Dynamisch gelernte MACs werden als statische Secure MACs gespeichert", isCorrect: true },
+        { id: "c", text: "Der Port akzeptiert alle MAC-Adressen ohne Limit", isCorrect: false },
+        { id: "d", text: "Der Port sendet BPDU-Guard-Benachrichtigungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.6",
+      text: "802.11ac (Wi-Fi 5) arbeitet nur im 5-GHz-Frequenzband.",
+      explanation: "Wahr. 802.11ac arbeitet ausschließlich im 5-GHz-Band. Für Dual-Band (2,4 + 5 GHz) müssen Access Points zusätzlich 802.11n oder 802.11ax (Wi-Fi 6) unterstützen.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "2.4",
+      text: "LACP (Link Aggregation Control Protocol) ist ein Cisco-proprietäres Protokoll.",
+      explanation: "Falsch. LACP ist ein IEEE-Standard (802.3ad). Das Cisco-proprietäre Pendant heißt PAgP (Port Aggregation Protocol). Beide werden für EtherChannel genutzt.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    // ── Domain 3: IP Connectivity / Routing (20 Q) ───────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.1",
+      text: "Was ist der Unterschied zwischen einer statischen und einer dynamischen Route?",
+      explanation: "Statische Routen werden manuell vom Administrator konfiguriert und ändern sich nicht automatisch. Dynamische Routen werden durch Routing-Protokolle (OSPF, EIGRP, BGP) automatisch gelernt und aktualisiert.",
+      answers: [
+        { id: "a", text: "Statische Routen sind schneller als dynamische Routen", isCorrect: false },
+        { id: "b", text: "Statische Routen sind manuell konfiguriert; dynamische werden durch Routing-Protokolle gelernt", isCorrect: true },
+        { id: "c", text: "Dynamische Routen haben immer eine höhere Administrative Distance", isCorrect: false },
+        { id: "d", text: "Statische Routen werden automatisch nach 24h gelöscht", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.1",
+      text: "Welche Administrative Distance hat OSPF standardmäßig auf Cisco-Routern?",
+      explanation: "Administrative Distance (AD) bei Cisco: Connected=0, Static=1, EIGRP=90, OSPF=110, IS-IS=115, RIP=120. Niedrigere AD = höhere Vertrauenswürdigkeit.",
+      answers: [
+        { id: "a", text: "90", isCorrect: false },
+        { id: "b", text: "100", isCorrect: false },
+        { id: "c", text: "110", isCorrect: true },
+        { id: "d", text: "120", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.2",
+      text: "Was ist der Unterschied zwischen einem Link-State- und einem Distance-Vector-Routing-Protokoll?",
+      explanation: "Link-State (OSPF, IS-IS): Jeder Router hat vollständige Topologiekarte (LSDB), berechnet kürzeste Pfade via Dijkstra. Distance Vector (RIP, EIGRP): Router kennen nur Entfernungen zu Zielen, lernen von Nachbarn ('Routing by Rumor').",
+      answers: [
+        { id: "a", text: "Distance-Vector-Protokolle sind immer schneller konvergent", isCorrect: false },
+        { id: "b", text: "Link-State-Router haben vollständige Topologiekarte; Distance-Vector-Router nur Entfernungen", isCorrect: true },
+        { id: "c", text: "Link-State-Protokolle sind Cisco-proprietär", isCorrect: false },
+        { id: "d", text: "Distance-Vector-Protokolle unterstützen kein VLSM", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.3",
+      text: "Was beschreibt die 'longest prefix match' Regel beim IP-Routing?",
+      explanation: "Wenn mehrere Routen auf ein Ziel passen, wählt der Router die Route mit dem längsten (spezifischsten) Präfix. Beispiel: 192.168.1.0/24 gewinnt über 0.0.0.0/0 (Default Route) für Pakete an 192.168.1.x.",
+      answers: [
+        { id: "a", text: "Der Router wählt die Route mit der niedrigsten Metrik", isCorrect: false },
+        { id: "b", text: "Der Router wählt die spezifischste (längste Präfixlänge) passende Route", isCorrect: true },
+        { id: "c", text: "Der Router verteilt Traffic gleichmäßig auf alle passenden Routen", isCorrect: false },
+        { id: "d", text: "Der Router wählt die Route mit der niedrigsten Administrative Distance", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.4",
+      text: "Was ist eine Floating Static Route?",
+      explanation: "Eine Floating Static Route ist eine statische Route mit absichtlich hoher Administrative Distance (z. B. 200), die als Backup dient. Sie wird nur aktiv, wenn die bevorzugte dynamische Route (z. B. OSPF AD=110) ausfällt.",
+      answers: [
+        { id: "a", text: "Eine statische Route, die sich automatisch anpasst", isCorrect: false },
+        { id: "b", text: "Eine Backup-Route mit hoher AD, die nur bei Ausfall der primären Route aktiv wird", isCorrect: true },
+        { id: "c", text: "Eine Route für DHCP-floating-Adressen", isCorrect: false },
+        { id: "d", text: "Eine default-Route für Internet-Traffic", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.5",
+      text: "Welche OSPF-Nachbarschaftsbedingungen müssen auf zwei Routern übereinstimmen? (Hauptbedingungen)",
+      explanation: "OSPF-Nachbarn müssen übereinstimmen bei: gleiche Area-ID, gleicher Hello/Dead-Timer, gleiches MTU (für Full-Adjacency), gleicher Stub-Area-Flag, gleiche Authentifizierung. Router-ID muss eindeutig sein, aber nicht übereinstimmen.",
+      answers: [
+        { id: "a", text: "Router-ID, AS-Nummer, Bandbreite", isCorrect: false },
+        { id: "b", text: "Area-ID, Hello/Dead-Timer, MTU (und Stub-Flag, Auth)", isCorrect: true },
+        { id: "c", text: "VLAN-ID, Subnetzmaske, Prozess-ID", isCorrect: false },
+        { id: "d", text: "Hostname, IP-Adresse, Gateway", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.5",
+      text: "Was ist eine OSPF Designated Router (DR)?",
+      explanation: "Auf Multi-Access-Netzwerken (Ethernet) wird ein DR gewählt, um LSA-Flooding zu reduzieren. Alle OSPF-Router bauen Adjacency zum DR (und BDR) auf statt untereinander — das reduziert die Anzahl der Adjacencies von n(n-1)/2 auf n.",
+      answers: [
+        { id: "a", text: "Der Router mit der höchsten OSPF-Metrik wird DR", isCorrect: false },
+        { id: "b", text: "Der DR reduziert LSA-Flooding auf Multi-Access-Netzwerken", isCorrect: true },
+        { id: "c", text: "Der DR ist der einzige Router, der in eine andere OSPF-Area routen kann", isCorrect: false },
+        { id: "d", text: "Der DR synchronisiert NTP für alle OSPF-Router", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.5",
+      text: "Wie berechnet OSPF die Kosten (Cost) einer Route?",
+      explanation: "OSPF Cost = Referenzbandbreite / Interface-Bandbreite. Default-Referenz: 100 Mbps. FastEthernet (100 Mbps) = Cost 1. Gigabit (1000 Mbps) = Cost 1 (gerundet). Um GigE/10GigE zu unterscheiden: 'auto-cost reference-bandwidth 10000' auf allen Routern setzen.",
+      answers: [
+        { id: "a", text: "Hop-Count (Anzahl der Router bis zum Ziel)", isCorrect: false },
+        { id: "b", text: "Referenzbandbreite / Interface-Bandbreite", isCorrect: true },
+        { id: "c", text: "Latenz + Bandbreite + Zuverlässigkeit (Composite Metric)", isCorrect: false },
+        { id: "d", text: "Manuell konfigurierte Administrative Distance", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.6",
+      text: "Was ist Inter-VLAN-Routing und welche Methoden gibt es?",
+      explanation: "Inter-VLAN-Routing verbindet Geräte aus verschiedenen VLANs auf Layer 3. Methoden: (1) Router-on-a-Stick (Subinterfaces auf Trunk), (2) Layer-3-Switch mit SVIs (Switched Virtual Interfaces), (3) separater Router pro VLAN.",
+      answers: [
+        { id: "a", text: "Routing zwischen IPv4 und IPv6 (Dual Stack)", isCorrect: false },
+        { id: "b", text: "Layer-3-Verbindung zwischen verschiedenen VLANs via Router oder L3-Switch", isCorrect: true },
+        { id: "c", text: "Verbindung von VLANs ohne Router durch Trunks", isCorrect: false },
+        { id: "d", text: "VLAN-Übertragung zwischen verschiedenen Rechenzentren via WAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.6",
+      text: "Welche Cisco IOS-Konfiguration aktiviert Router-on-a-Stick für VLAN 10?",
+      explanation: "Subinterface auf dem physischen Interface: 'interface Gi0/0.10' → 'encapsulation dot1Q 10' → 'ip address 192.168.10.1 255.255.255.0'. Das physische Interface braucht kein 'ip address'.",
+      answers: [
+        { id: "a", text: "interface Gi0/0; ip address 192.168.10.1/24; vlan 10", isCorrect: false },
+        { id: "b", text: "interface Gi0/0.10; encapsulation dot1Q 10; ip address 192.168.10.1 255.255.255.0", isCorrect: true },
+        { id: "c", text: "interface vlan10; ip address 192.168.10.1 255.255.255.0", isCorrect: false },
+        { id: "d", text: "ip routing vlan 10 gateway 192.168.10.1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "3.1",
+      text: "Eine Default-Route (0.0.0.0/0) entspricht dem kürzesten Präfix und wird nur gewählt, wenn keine spezifischere Route existiert.",
+      explanation: "Wahr. 0.0.0.0/0 hat das kürzeste Präfix und passt auf alle Ziele. Durch Longest-Prefix-Match werden spezifischere Routen bevorzugt. Die Default-Route wird nur als 'letzter Ausweg' genutzt.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "3.5",
+      text: "OSPF-Router in verschiedenen Areas können nur über Area 0 (Backbone Area) kommunizieren.",
+      explanation: "Wahr. In OSPF muss jede Non-Backbone-Area direkt mit Area 0 verbunden sein (oder über einen Virtual Link). Inter-Area-Traffic wird immer über Area 0 geleitet.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.4",
+      text: "Was ist HSRP (Hot Standby Router Protocol)?",
+      explanation: "HSRP ist ein Cisco-proprietäres FHRP, das eine virtuelle IP und MAC für Default-Gateway-Redundanz bereitstellt. Active Router verarbeitet Traffic; Standby-Router übernimmt bei Ausfall. Virtual MAC: 0000.0C07.ACxx (xx=HSRP-Gruppe).",
+      answers: [
+        { id: "a", text: "Ein Cisco-Protokoll zur automatischen Router-Konfiguration", isCorrect: false },
+        { id: "b", text: "Ein FHRP für Default-Gateway-Redundanz mit Active/Standby-Routern", isCorrect: true },
+        { id: "c", text: "Ein Routing-Protokoll für kleine Netzwerke", isCorrect: false },
+        { id: "d", text: "Eine Methode zur NAT-Redundanz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.4",
+      text: "Welcher Befehl zeigt die IPv4-Routing-Tabelle auf einem Cisco-Router?",
+      explanation: "'show ip route' zeigt die vollständige IPv4-Routing-Tabelle mit Quellen (C=Connected, S=Static, O=OSPF, D=EIGRP, R=RIP) und Metriken.",
+      answers: [
+        { id: "a", text: "show routing-table ipv4", isCorrect: false },
+        { id: "b", text: "show ip route", isCorrect: true },
+        { id: "c", text: "display ip routing", isCorrect: false },
+        { id: "d", text: "show routes all", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.4",
+      text: "Welche OSPF-Nachbarschaftszustände gibt es in der richtigen Reihenfolge?",
+      explanation: "OSPF-Zustände: Down → Init → 2-Way → ExStart → Exchange → Loading → Full. 2-Way: Hellos empfangen. Full: alle LSAs ausgetauscht, vollständige Adjacency.",
+      answers: [
+        { id: "a", text: "Down → Attempt → Init → 2-Way → Full", isCorrect: false },
+        { id: "b", text: "Down → Init → 2-Way → ExStart → Exchange → Loading → Full", isCorrect: true },
+        { id: "c", text: "Init → Establish → Learn → Active → Full", isCorrect: false },
+        { id: "d", text: "Start → Connect → OpenConfirm → Established", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.5",
+      text: "Was ist eine OSPF Stub Area?",
+      explanation: "Eine Stub Area akzeptiert keine External LSAs (Type 5) aus dem OSPF-Netz. Stattdessen injiziert der ABR eine Default-Route in die Stub Area. Vorteil: kleinere LSDB, weniger Speicher für Access-Router.",
+      answers: [
+        { id: "a", text: "Eine Area ohne Router-Adjacencies (nur Hosts)", isCorrect: false },
+        { id: "b", text: "Eine Area, die keine externen LSAs akzeptiert und stattdessen eine Default-Route nutzt", isCorrect: true },
+        { id: "c", text: "Eine verschlüsselte OSPF-Area für sichere Kommunikation", isCorrect: false },
+        { id: "d", text: "Eine temporäre Area während der OSPF-Konvergenz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "3.2",
+      text: "Was ist 'Summarization' (Route Aggregation) in OSPF?",
+      explanation: "Route Summarization fasst mehrere spezifische Routen zu einer aggregierten Route zusammen. Vorteil: kleinere Routing-Tabellen, weniger LSA-Updates, schnellere Konvergenz. In OSPF: ABR kann Inter-Area Summary LSAs (Type 3) senden.",
+      answers: [
+        { id: "a", text: "Das Zusammenführen von zwei OSPF-Prozessen", isCorrect: false },
+        { id: "b", text: "Das Zusammenfassen mehrerer spezifischer Routen zu einer aggregierten Route", isCorrect: true },
+        { id: "c", text: "Die OSPF-Authentifizierungsmethode", isCorrect: false },
+        { id: "d", text: "Die Berechnung der OSPF-Metrik", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "3.6",
+      text: "Eine SVI (Switched Virtual Interface) auf einem Layer-3-Switch kann für Inter-VLAN-Routing genutzt werden.",
+      explanation: "Wahr. SVIs sind virtuelle Layer-3-Interfaces für VLANs auf einem L3-Switch. Mit 'ip routing' aktiviert man das Routing zwischen SVIs — effizienter als Router-on-a-Stick.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    // ── Domain 4: IP Services (15 Q) ─────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.1",
+      text: "Was ist PAT (Port Address Translation)?",
+      explanation: "PAT (auch NAT Overload) übersetzt viele private IP-Adressen auf eine öffentliche IP durch Nutzung verschiedener Quell-TCP/UDP-Ports. Der Router erstellt eine NAT-Tabelle mit IP:Port-Mappings.",
+      answers: [
+        { id: "a", text: "Eine 1:1-Übersetzung von privaten auf öffentliche IP-Adressen", isCorrect: false },
+        { id: "b", text: "Übersetzung vieler privater IPs auf eine öffentliche IP via Quell-Port-Multiplexing", isCorrect: true },
+        { id: "c", text: "Dynamische Zuweisung öffentlicher IPs aus einem Pool", isCorrect: false },
+        { id: "d", text: "Übersetzung von IPv4 auf IPv6-Adressen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.1",
+      text: "Was ist der Cisco IOS-Befehl für NAT Overload (PAT) auf dem Outside-Interface?",
+      explanation: "'ip nat inside source list [ACL] interface [outside-if] overload' aktiviert PAT. Das 'overload' Keyword aktiviert Port-Multiplexing auf der Outside-IP.",
+      answers: [
+        { id: "a", text: "ip nat overload outside interface", isCorrect: false },
+        { id: "b", text: "ip nat inside source list ACL interface Gi0/1 overload", isCorrect: true },
+        { id: "c", text: "nat pat enable outside Gi0/1", isCorrect: false },
+        { id: "d", text: "ip nat pool outside overload", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.2",
+      text: "Was ist NTP (Network Time Protocol) und warum ist es wichtig?",
+      explanation: "NTP synchronisiert Uhrzeiten zwischen Netzwerkgeräten. Wichtig für: Syslog-Korrelation (korrekte Zeitstempel), Kerberos-Auth, Zertifikatsgültigkeit, Forensik. NTP nutzt UDP Port 123.",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur Netzwerk-Topologie-Entdeckung", isCorrect: false },
+        { id: "b", text: "Synchronisiert Uhrzeiten zwischen Geräten (wichtig für Logs und Auth) via UDP 123", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur automatischen VLAN-Konfiguration", isCorrect: false },
+        { id: "d", text: "Ein Monitoring-Protokoll für Interface-Statistiken", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.3",
+      text: "Was ist SNMP und welche Version wird für sichere Kommunikation empfohlen?",
+      explanation: "SNMP (Simple Network Management Protocol) überwacht und verwaltet Netzwerkgeräte. SNMPv1/v2c nutzen Community-Strings (Klartext). SNMPv3 bietet Auth (MD5/SHA) und Verschlüsselung (DES/AES) — empfohlen für Produktionsumgebungen.",
+      answers: [
+        { id: "a", text: "SNMP dient zur Adressvergabe; SNMPv2c ist am sichersten", isCorrect: false },
+        { id: "b", text: "SNMP überwacht Netzwerkgeräte; SNMPv3 wird für sichere Kommunikation empfohlen", isCorrect: true },
+        { id: "c", text: "SNMPv1 bietet die stärkste Verschlüsselung", isCorrect: false },
+        { id: "d", text: "SNMP arbeitet auf TCP Port 161", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Welche DHCP-Nachrichten werden beim DORA-Prozess ausgetauscht (richtige Reihenfolge)?",
+      explanation: "DORA: Discover (Broadcast vom Client) → Offer (Unicast/Broadcast vom Server) → Request (Broadcast vom Client) → Acknowledge (Unicast/Broadcast vom Server). Erst nach Ack hat der Client die Adresse.",
+      answers: [
+        { id: "a", text: "Discover → Request → Offer → Acknowledge", isCorrect: false },
+        { id: "b", text: "Discover → Offer → Request → Acknowledge", isCorrect: true },
+        { id: "c", text: "Request → Offer → Discover → Acknowledge", isCorrect: false },
+        { id: "d", text: "Offer → Discover → Acknowledge → Request", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Was ist ein DHCP-Relay-Agent (ip helper-address)?",
+      explanation: "'ip helper-address' auf einem Router-Interface leitet DHCP-Broadcast-Anfragen als Unicast an den DHCP-Server weiter — ermöglicht einen zentralen DHCP-Server für mehrere Subnetze.",
+      answers: [
+        { id: "a", text: "Ein Redundanz-DHCP-Server für Ausfallsicherheit", isCorrect: false },
+        { id: "b", text: "Leitet DHCP-Broadcasts als Unicast an einen entfernten DHCP-Server weiter", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur DHCP-Adresspool-Erweiterung", isCorrect: false },
+        { id: "d", text: "Eine Methode zur statischen IP-Reservierung per MAC-Adresse", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.5",
+      text: "Was ist Syslog und auf welchem Protokoll/Port arbeitet es?",
+      explanation: "Syslog ist ein Standard für Logging-Nachrichten (RFC 5424). Es nutzt UDP Port 514 (traditionell) oder TCP 6514 (sicheres Syslog über TLS). Geräte senden Meldungen an einen zentralen Syslog-Server.",
+      answers: [
+        { id: "a", text: "Ein Datenbankprotokoll für Konfig-Backups auf TCP 443", isCorrect: false },
+        { id: "b", text: "Ein Logging-Standard; UDP Port 514 (oder TCP 6514 für sicheres Syslog)", isCorrect: true },
+        { id: "c", text: "Ein Netzwerkdiagnoseprotokoll auf UDP 161", isCorrect: false },
+        { id: "d", text: "Ein Protokoll zur Zeitsynchronisation auf UDP 123", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "4.1",
+      text: "Static NAT bildet eine öffentliche IP-Adresse dauerhaft auf eine private Adresse ab.",
+      explanation: "Wahr. Static NAT (1:1-Mapping) ordnet eine öffentliche IP dauerhaft einer privaten IP zu. Wird für Server genutzt, die aus dem Internet erreichbar sein müssen (z. B. Webserver).",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.6",
+      text: "Was ist NetFlow und wofür wird es eingesetzt?",
+      explanation: "NetFlow ist ein Cisco-Protokoll zur Netzwerkverkehrsanalyse. Es exportiert Datenfluss-Metadaten (IP-Adressen, Ports, Byte-Zähler) an einen NetFlow-Collector für Kapazitätsplanung, Security-Analyse und Troubleshooting.",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur VLAN-Konfiguration", isCorrect: false },
+        { id: "b", text: "Cisco-Protokoll zur Netzwerkverkehrsanalyse — exportiert Flussdaten an Collector", isCorrect: true },
+        { id: "c", text: "Ein Routing-Protokoll für IP-Datenflüsse", isCorrect: false },
+        { id: "d", text: "Ein Protokoll zur Bandbreitenreservierung (QoS)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.7",
+      text: "Welche Syslog-Severity gibt es für kritische Systemfehler (Severity 2)?",
+      explanation: "Syslog-Severity-Level: 0=Emergency, 1=Alert, 2=Critical, 3=Error, 4=Warning, 5=Notice, 6=Informational, 7=Debug. Merkhilfe: 'Every Awful Crisis Exists Warning Notice Information Debug'.",
+      answers: [
+        { id: "a", text: "Error (3)", isCorrect: false },
+        { id: "b", text: "Alert (1)", isCorrect: false },
+        { id: "c", text: "Critical (2)", isCorrect: true },
+        { id: "d", text: "Emergency (0)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "4.4",
+      text: "Der Cisco IOS-Befehl 'ip dhcp excluded-address' verhindert, dass bestimmte Adressen aus dem DHCP-Pool vergeben werden.",
+      explanation: "Wahr. 'ip dhcp excluded-address 192.168.1.1 192.168.1.10' schließt einen Adressbereich von der automatischen Vergabe aus — typischerweise für Router-IPs, Server und Drucker, die statische Adressen haben.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "4.2",
+      text: "NTP Stratum 1 Server sind direkt mit einer Referenzuhr (z. B. GPS, Atomuhr) verbunden.",
+      explanation: "Wahr. Stratum 0 = Referenzuhr (GPS, Atomuhr — nicht im Netz). Stratum 1 = NTP-Server direkt an Stratum-0-Gerät. Stratum 2 = synchronisiert von Stratum 1. Je höher der Stratum, desto ungenauer.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.8",
+      text: "Welche Protokolle gehören zu FHRP (First Hop Redundancy Protocol)?",
+      explanation: "FHRP-Protokolle: HSRP (Cisco-proprietär), VRRP (IEEE-Standard, RFC 5798), GLBP (Cisco-proprietär, unterstützt Load Balancing). Alle stellen eine virtuelle Gateway-IP/MAC bereit.",
+      answers: [
+        { id: "a", text: "OSPF, EIGRP, BGP", isCorrect: false },
+        { id: "b", text: "HSRP, VRRP, GLBP", isCorrect: true },
+        { id: "c", text: "LACP, PAgP, STP", isCorrect: false },
+        { id: "d", text: "CDP, LLDP, NTP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.8",
+      text: "Was ist der Unterschied zwischen HSRP und VRRP?",
+      explanation: "HSRP ist Cisco-proprietär (RFC 2281). VRRP ist ein offener IEEE-Standard (RFC 5798). Beide bieten Default-Gateway-Redundanz. Hauptunterschiede: VRRP-Master heißt 'Master' (HSRP: Active), VRRP hat keine separate Standby-Wahl-Nachricht.",
+      answers: [
+        { id: "a", text: "VRRP bietet Load Balancing; HSRP nicht", isCorrect: false },
+        { id: "b", text: "HSRP ist Cisco-proprietär; VRRP ist ein offener IEEE-Standard", isCorrect: true },
+        { id: "c", text: "HSRP unterstützt IPv6; VRRP nur IPv4", isCorrect: false },
+        { id: "d", text: "VRRP ist schneller als HSRP bei Failover", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "4.4",
+      text: "Was ist ein Cisco IOS-Befehl zur Überprüfung des DHCP-Lease-Status?",
+      explanation: "'show ip dhcp binding' zeigt alle aktuellen DHCP-Leases (IP, MAC, Ablaufzeit). 'show ip dhcp pool' zeigt Pool-Konfiguration und Statistiken.",
+      answers: [
+        { id: "a", text: "show dhcp leases active", isCorrect: false },
+        { id: "b", text: "show ip dhcp binding", isCorrect: true },
+        { id: "c", text: "display dhcp clients", isCorrect: false },
+        { id: "d", text: "show ip dhcp clients all", isCorrect: false },
+      ],
+    },
+    // ── Domain 5: Security Fundamentals (15 Q) ───────────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.1",
+      text: "Was ist das CIA-Triad-Modell in der Informationssicherheit?",
+      explanation: "CIA = Confidentiality (Vertraulichkeit), Integrity (Integrität), Availability (Verfügbarkeit). Diese drei Prinzipien bilden das Fundament der Informationssicherheit.",
+      answers: [
+        { id: "a", text: "Cisco, Internet, Access — die drei Netzwerkebenen", isCorrect: false },
+        { id: "b", text: "Confidentiality, Integrity, Availability — die drei Sicherheitsprinzipien", isCorrect: true },
+        { id: "c", text: "Control, Inspect, Allow — ACL-Grundprinzipien", isCorrect: false },
+        { id: "d", text: "Certificate, Identity, Authentication — PKI-Konzepte", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.2",
+      text: "Was ist ein Phishing-Angriff?",
+      explanation: "Phishing ist ein Social-Engineering-Angriff, bei dem Angreifer gefälschte E-Mails/Websites nutzen, um Nutzer zur Preisgabe von Credentials, Kreditkartendaten oder anderen sensiblen Informationen zu verleiten.",
+      answers: [
+        { id: "a", text: "Ein Angriff auf Netzwerkinfrastruktur durch Packet-Flooding", isCorrect: false },
+        { id: "b", text: "Social-Engineering-Angriff via gefälschte E-Mails/Websites zur Credential-Diebstahl", isCorrect: true },
+        { id: "c", text: "Eine Methode zur Umgehung von Firewalls durch verschlüsselte Tunnel", isCorrect: false },
+        { id: "d", text: "Ein Angriff auf DNS-Server zur Umlenkung von Traffic", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.3",
+      text: "Was ist der Unterschied zwischen einer Stateful und einer Stateless Firewall?",
+      explanation: "Stateless: Prüft jedes Paket einzeln gegen ACL-Regeln ohne Verbindungskontext. Stateful: Verfolgt den Verbindungszustand (Connection State Table) und erlaubt Rückverkehr automatisch für erlaubte Verbindungen.",
+      answers: [
+        { id: "a", text: "Stateful Firewalls sind immer schneller", isCorrect: false },
+        { id: "b", text: "Stateful verfolgt Verbindungszustände; Stateless prüft Pakete ohne Kontext", isCorrect: true },
+        { id: "c", text: "Stateless Firewalls können VPNs, Stateful nicht", isCorrect: false },
+        { id: "d", text: "Der Begriff 'Stateful' bezieht sich auf Firewall-Redundanz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Welcher Cisco IOS-Befehl legt ein lokales Benutzerkonto mit Passwort und Privilege Level 15 an?",
+      explanation: "'username admin privilege 15 secret cisco123' erstellt einen lokalen User mit verschlüsseltem Passwort und Privilege Level 15 (voller Zugriff). 'secret' nutzt MD5-Hash, 'password' Klartext.",
+      answers: [
+        { id: "a", text: "user admin password cisco123 privilege 15", isCorrect: false },
+        { id: "b", text: "username admin privilege 15 secret cisco123", isCorrect: true },
+        { id: "c", text: "create user admin priv 15 password cisco123", isCorrect: false },
+        { id: "d", text: "set user admin level 15 password cisco123", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.5",
+      text: "Was ist eine ACL (Access Control List) und wo wird sie angewendet?",
+      explanation: "ACLs filtern Traffic auf Router-Interfaces. Standard-ACLs filtern nur nach Quell-IP (nahe am Ziel platzieren). Extended ACLs filtern nach Quell-IP, Ziel-IP, Protokoll und Port (nahe an der Quelle platzieren).",
+      answers: [
+        { id: "a", text: "Eine Liste autorisierter Benutzer für SSH-Zugriff", isCorrect: false },
+        { id: "b", text: "Regelwerk zum Filtern von IP-Traffic auf Router-Interfaces (Standard: Quell-IP; Extended: Src+Dst+Port)", isCorrect: true },
+        { id: "c", text: "Ein Protokoll zur sicheren VLAN-Verwaltung", isCorrect: false },
+        { id: "d", text: "Eine Methode zur NAT-Konfiguration", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.5",
+      text: "Welche implicit rule gilt am Ende jeder Cisco-ACL?",
+      explanation: "Am Ende jeder Cisco-ACL gilt die implizite 'deny any' (deny all) Regel. Jeder Traffic, der keiner permit-Regel entspricht, wird verworfen. Diese Regel ist unsichtbar, aber immer vorhanden.",
+      answers: [
+        { id: "a", text: "permit any any", isCorrect: false },
+        { id: "b", text: "deny any (implizites deny-all)", isCorrect: true },
+        { id: "c", text: "log any", isCorrect: false },
+        { id: "d", text: "forward any", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.6",
+      text: "Was ist der Unterschied zwischen IDS und IPS?",
+      explanation: "IDS (Intrusion Detection System): Erkennt Angriffe und sendet Alerts — kein aktives Eingreifen. IPS (Intrusion Prevention System): Erkennt und blockiert Angriffe in Echtzeit (inline im Datenpfad). IPS bietet aktiven Schutz.",
+      answers: [
+        { id: "a", text: "IDS blockiert Angriffe; IPS nur erkennt", isCorrect: false },
+        { id: "b", text: "IDS erkennt und alarmiert; IPS erkennt und blockiert in Echtzeit", isCorrect: true },
+        { id: "c", text: "IPS wird für WLAN, IDS für kabelgebundene Netze eingesetzt", isCorrect: false },
+        { id: "d", text: "IDS und IPS sind identisch — nur verschiedene Bezeichnungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.7",
+      text: "Was ist AAA in der Netzwerksicherheit?",
+      explanation: "AAA = Authentication (Identitätsprüfung), Authorization (Zugriffsberechtigungen), Accounting (Protokollierung). TACACS+ und RADIUS sind Protokolle zur Implementierung von AAA in Cisco-Netzwerken.",
+      answers: [
+        { id: "a", text: "Access, Authenticate, Audit — drei Firewall-Funktionen", isCorrect: false },
+        { id: "b", text: "Authentication, Authorization, Accounting — Sicherheitsframework für Netzwerkzugang", isCorrect: true },
+        { id: "c", text: "Area, Address, Association — OSPF-Grundbegriffe", isCorrect: false },
+        { id: "d", text: "Administer, Allow, Audit — Cisco TACACS+-Funktionen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.7",
+      text: "Welches Protokoll bietet verschlüsselte Übertragung des gesamten Nutzdaten-Pakets bei AAA?",
+      explanation: "TACACS+ verschlüsselt das gesamte Paket (inkl. Authorization und Accounting-Daten). RADIUS verschlüsselt nur das Passwort. TACACS+ ist daher sicherer, aber Cisco-proprietär.",
+      answers: [
+        { id: "a", text: "RADIUS", isCorrect: false },
+        { id: "b", text: "TACACS+", isCorrect: true },
+        { id: "c", text: "LDAP", isCorrect: false },
+        { id: "d", text: "Kerberos", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.8",
+      text: "Was ist VPN (Virtual Private Network) und welche Typen gibt es?",
+      explanation: "VPN schafft einen verschlüsselten Tunnel über ein unsicheres Netz. Haupttypen: Site-to-Site VPN (Router-zu-Router, permanente Verbindung), Remote Access VPN (Client-zu-Router, für mobile Mitarbeiter), SSL-VPN (über Browser/HTTPS).",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur VLAN-Segmentierung über WAN-Leitungen", isCorrect: false },
+        { id: "b", text: "Verschlüsselter Tunnel über unsicheres Netz: Site-to-Site und Remote Access VPN", isCorrect: true },
+        { id: "c", text: "Eine Methode zur IP-Adressübersetzung für private Netze", isCorrect: false },
+        { id: "d", text: "Ein SD-WAN-Protokoll für Cisco-Router", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "5.5",
+      text: "Eine Extended ACL sollte möglichst nah an der Quelle des Traffics platziert werden.",
+      explanation: "Wahr. Extended ACLs können nach Quell-IP, Ziel-IP und Port filtern — nahe an der Quelle platziert, blockieren sie unerwünschten Traffic früh, bevor er das Netz belastet. Standard-ACLs (nur Quell-IP) nahe am Ziel.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "5.4",
+      text: "SSH Version 2 ist sicherer als SSHv1 und sollte bevorzugt werden.",
+      explanation: "Wahr. SSHv1 hat bekannte Sicherheitslücken (Protokoll-Schwächen). SSHv2 bietet stärkere Kryptografie, bessere Schlüsselaustausch-Mechanismen und ist heute Standard. Cisco IOS: 'ip ssh version 2'.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.3",
+      text: "Was ist ein Rogue Access Point?",
+      explanation: "Ein Rogue AP ist ein nicht autorisierter WLAN-Access-Point, der ohne Wissen des Netzwerkadministrators im Netzwerk betrieben wird. Er kann als Evil-Twin für Man-in-the-Middle-Angriffe genutzt werden.",
+      answers: [
+        { id: "a", text: "Ein AP, der zu viele WLAN-Clients ablehnt", isCorrect: false },
+        { id: "b", text: "Ein nicht autorisierter Access Point im Netzwerk — potenzielle Sicherheitsbedrohung", isCorrect: true },
+        { id: "c", text: "Ein AP im FlexConnect-Modus ohne WLC-Verbindung", isCorrect: false },
+        { id: "d", text: "Ein veralteter AP mit WEP-Verschlüsselung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.3",
+      text: "Was ist eine DoS (Denial of Service) Attacke?",
+      explanation: "DoS-Angriffe überfluten ein Ziel mit Traffic oder Anfragen, um legitime Nutzer zu blockieren. DDoS (Distributed DoS) verwendet viele kompromittierte Geräte (Botnetz). Cisco-Gegenmassnahmen: CoPP (Control Plane Policing), Rate Limiting.",
+      answers: [
+        { id: "a", text: "Ein Angriff zur Verschlüsselung von Netzwerktraffic", isCorrect: false },
+        { id: "b", text: "Überflutung eines Ziels mit Traffic um legitime Nutzer zu blockieren", isCorrect: true },
+        { id: "c", text: "Diebstahl von Authentifizierungsdaten via Man-in-the-Middle", isCorrect: false },
+        { id: "d", text: "Angriff auf DNS-Server zur Umlenkung von Nutzern", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.2",
+      text: "Was ist ein Man-in-the-Middle (MitM) Angriff?",
+      explanation: "Bei einem MitM-Angriff positioniert sich der Angreifer zwischen zwei kommunizierende Parteien und kann Traffic mitlesen (Eavesdropping) oder modifizieren. Methoden: ARP-Poisoning, DNS-Spoofing. Schutz: TLS/SSL, HTTPS, VPN.",
+      answers: [
+        { id: "a", text: "Ein Angriff, bei dem Passwörter durch Brute-Force geknackt werden", isCorrect: false },
+        { id: "b", text: "Angreifer positioniert sich zwischen zwei Kommunikationsparteien zum Mitlesen/Modifizieren", isCorrect: true },
+        { id: "c", text: "Ein Angriff auf Netzwerkgeräte via kompromittierte Management-Software", isCorrect: false },
+        { id: "d", text: "Übernahme eines Benutzerkontos durch gestohlene Session-Cookies", isCorrect: false },
+      ],
+    },
+    // ── Domain 6: Automation & Programmability (10 Q) ────────
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.1",
+      text: "Was ist der Hauptvorteil von Netzwerkautomatisierung gegenüber manueller CLI-Konfiguration?",
+      explanation: "Netzwerkautomatisierung bietet: Konsistenz (keine menschlichen Fehler), Geschwindigkeit (1000 Devices in Sekunden), Skalierbarkeit (Infrastructure as Code), Wiederholbarkeit und Dokumentierbarkeit.",
+      answers: [
+        { id: "a", text: "Automatisierung ist immer günstiger in der Anschaffung", isCorrect: false },
+        { id: "b", text: "Konsistenz, Geschwindigkeit, Skalierbarkeit und Fehlerreduktion", isCorrect: true },
+        { id: "c", text: "Automatisierungstools erfordern weniger Netzwerkkenntnisse", isCorrect: false },
+        { id: "d", text: "Nur Automatisierung unterstützt IPv6", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.2",
+      text: "Was sind die HTTP-Methoden einer REST API für CRUD-Operationen?",
+      explanation: "REST CRUD → HTTP: Create=POST, Read=GET, Update=PUT/PATCH, Delete=DELETE. GET ist idempotent und sicher (ändert nichts). POST/PUT/DELETE modifizieren Ressourcen.",
+      answers: [
+        { id: "a", text: "GET, SET, PUSH, REMOVE", isCorrect: false },
+        { id: "b", text: "GET (Read), POST (Create), PUT/PATCH (Update), DELETE (Delete)", isCorrect: true },
+        { id: "c", text: "READ, WRITE, UPDATE, DELETE", isCorrect: false },
+        { id: "d", text: "FETCH, POST, MODIFY, REMOVE", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.3",
+      text: "Was ist der Unterschied zwischen NETCONF und RESTCONF?",
+      explanation: "NETCONF: SSH (TCP 830), XML, vollständige Transaktionskontrolle mit Candidate-Datastore. RESTCONF (RFC 8040): HTTPS, JSON oder XML, vereinfachter REST-ähnlicher Zugriff. Beide verwenden YANG-Datenmodelle.",
+      answers: [
+        { id: "a", text: "NETCONF ist neuer und ersetzt RESTCONF vollständig", isCorrect: false },
+        { id: "b", text: "NETCONF nutzt SSH/XML; RESTCONF nutzt HTTPS/JSON — beide mit YANG-Modellen", isCorrect: true },
+        { id: "c", text: "RESTCONF kann keine Konfiguration ändern", isCorrect: false },
+        { id: "d", text: "Nur NETCONF unterstützt YANG-Datenmodelle", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.4",
+      text: "Was ist Ansible und wie unterscheidet es sich von Terraform?",
+      explanation: "Ansible: Agentless, Konfigurationsmanagement/Task-Automation, Push-basiert, YAML Playbooks. Terraform: Infrastructure-as-Code (IaC), provisioniert Infrastruktur (VMs, Netzwerke), HCL-Sprache, State-basiert. Ansible konfiguriert bestehende Systeme, Terraform erstellt Infrastruktur.",
+      answers: [
+        { id: "a", text: "Ansible und Terraform sind identische Tools für dasselbe Einsatzgebiet", isCorrect: false },
+        { id: "b", text: "Ansible: Konfigurationsmanagement (agentless, YAML); Terraform: Infrastruktur-Provisionierung (HCL, State)", isCorrect: true },
+        { id: "c", text: "Terraform konfiguriert Netzwerkgeräte; Ansible nur Cloud-Ressourcen", isCorrect: false },
+        { id: "d", text: "Ansible ist nur für Linux, Terraform nur für Windows", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.5",
+      text: "Was ist SDN (Software-Defined Networking)?",
+      explanation: "SDN trennt Control Plane (Routing-Entscheidungen) von der Data Plane (Forwarding). Eine zentrale Controller-Software programmiert die Weiterleitung in den Switches via Southbound APIs (z. B. OpenFlow, NETCONF).",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur automatischen Switch-Konfiguration", isCorrect: false },
+        { id: "b", text: "Trennung von Control und Data Plane — zentraler Controller programmiert Forwarding-Regeln", isCorrect: true },
+        { id: "c", text: "Ein Cisco-Protokoll zur VLAN-Verwaltung", isCorrect: false },
+        { id: "d", text: "Ein WAN-Optimierungsprotokoll für SD-WAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.5",
+      text: "Was ist Cisco DNA Center?",
+      explanation: "Cisco DNA Center (Digital Network Architecture) ist Ciscos SDN-Controller für das Campus-Netzwerk. Es bietet: Intent-based Networking, automatische Konfiguration, Netzwerkanalyse, SD-Access (Fabric) und AI/ML-basierte Troubleshooting.",
+      answers: [
+        { id: "a", text: "Ein Cisco-WLAN-Controller für kleine Unternehmen", isCorrect: false },
+        { id: "b", text: "Ciscos SDN-Controller für Campus-Netzwerke — Intent-based Networking, SD-Access", isCorrect: true },
+        { id: "c", text: "Ein Cloud-basiertes NAT-Gateway", isCorrect: false },
+        { id: "d", text: "Ein Cisco-Protokoll für OSPF-Automatisierung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.6",
+      text: "Was ist JSON (JavaScript Object Notation) und wie wird es im Netzwerkkontext genutzt?",
+      explanation: "JSON ist ein leichtgewichtiges Datenaustauschformat (Text, menschenlesbar). Im Netzwerk: REST-API-Antworten, RESTCONF-Konfigurationen, Ansible-Variablen. Struktur: Key-Value-Paare in geschweiften Klammern.",
+      answers: [
+        { id: "a", text: "Eine Programmiersprache für Netzwerkautomatisierung", isCorrect: false },
+        { id: "b", text: "Leichtgewichtiges Datenaustauschformat für REST APIs, Konfigurationsdaten", isCorrect: true },
+        { id: "c", text: "Ein Cisco-proprietäres Konfigurationsformat für IOS-XE", isCorrect: false },
+        { id: "d", text: "Ein Protokoll zur Netzwerküberwachung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "6.2",
+      text: "Eine REST API ist immer zustandslos (stateless) — der Server speichert keinen Client-Sitzungsstatus.",
+      explanation: "Wahr. REST (Representational State Transfer) ist per Definition stateless. Jede Anfrage muss alle nötigen Informationen enthalten. Kein Sitzungskontext auf dem Server. Authentifizierung wird bei jeder Anfrage mitgegeben (z. B. API-Token im HTTP-Header).",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5, blueprint: "6.4",
+      text: "Ansible verwendet Agenten auf den verwalteten Geräten für die Kommunikation.",
+      explanation: "Falsch. Ansible ist agentless — es nutzt SSH (Linux) oder WinRM (Windows) für die Kommunikation. Kein Agent-Software auf den Zielgeräten nötig. Das vereinfacht das Deployment und Patch-Management.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "6.1",
+      text: "Was beschreibt 'Infrastructure as Code' (IaC)?",
+      explanation: "IaC verwaltet und provisioniert IT-Infrastruktur (Server, Netzwerke, Konfigurationen) durch Code/Konfigurationsdateien statt manueller Prozesse. Vorteile: Versionskontrolle (Git), Wiederholbarkeit, Peer-Review, automatisierte Tests.",
+      answers: [
+        { id: "a", text: "Das Schreiben von Netzwerkdokumentation in Code-Formaten", isCorrect: false },
+        { id: "b", text: "Verwaltung und Provisionierung von Infrastruktur durch Code/Konfigurationsdateien (z. B. Terraform)", isCorrect: true },
+        { id: "c", text: "Eine Methode zur Netzwerküberwachung via Skripte", isCorrect: false },
+        { id: "d", text: "Cisco-IOS-Konfiguration im Python-Format", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -5262,4 +6329,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_SWITCHING.id]: QUIZ_SWITCHING,
   [QUIZ_ETHERCHANNEL.id]: QUIZ_ETHERCHANNEL,
   [QUIZ_VIRTUALIZATION.id]: QUIZ_VIRTUALIZATION,
+  [QUIZ_CCNA_EXAM_2.id]: QUIZ_CCNA_EXAM_2,
 };
