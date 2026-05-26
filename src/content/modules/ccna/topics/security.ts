@@ -367,6 +367,75 @@ SW1# show authentication sessions
   `.trim(),
 };
 
+export const CONCEPT_SECURITY_PROGRAM: Concept = {
+  id: "security-program",
+  title: "Security-Programme und Sicherheitsrichtlinien",
+  appliesTo: ["ccna"],
+  tags: ["security", "policy", "cvss", "incident-response", "vulnerability", "risk"],
+  content: `
+## Security-Programme und Sicherheitsrichtlinien
+
+### Grundbegriffe: Vulnerability – Threat – Risk
+| Begriff | Definition | Beispiel |
+|---------|-----------|----------|
+| **Vulnerability** | Schwachstelle in einem System oder Prozess | Ungepatchtes Betriebssystem |
+| **Threat** | Potenzielle Bedrohung, die eine Vulnerability ausnutzen kann | Malware-Angriff |
+| **Exploit** | Werkzeug oder Technik zum Ausnutzen einer Vulnerability | Metasploit-Modul |
+| **Risk** | Wahrscheinlichkeit × Schadensausmaß einer Bedrohung | Hohe Wahrscheinlichkeit + hoher Schaden = kritisch |
+
+### CVSS – Common Vulnerability Scoring System
+- Industriestandard zur Bewertung von Sicherheitslücken (**0.0 – 10.0**)
+- **Basis-Metriken**: Attack Vector, Attack Complexity, Privileges Required, User Interaction, CIA-Impact
+
+| CVSS-Score | Klassifikation |
+|-----------|---------------|
+| 0.0 | None |
+| 0.1 – 3.9 | Low |
+| 4.0 – 6.9 | Medium |
+| 7.0 – 8.9 | High |
+| 9.0 – 10.0 | Critical |
+
+### Sicherheitsrichtlinien (Security Policies)
+| Richtlinie | Inhalt |
+|-----------|-------|
+| **AUP** (Acceptable Use Policy) | Erlaubte und verbotene Nutzung von IT-Ressourcen |
+| **Password Policy** | Mindestlänge, Komplexität, Ablaufintervall, Wiederverwendung |
+| **Data Classification Policy** | Vertraulich / Intern / Öffentlich |
+| **Incident Response Policy** | Verfahren bei Sicherheitsvorfällen |
+| **BYOD Policy** | Regeln für private Geräte im Unternehmensnetz |
+
+### Passwort-Richtlinien (Best Practices)
+- Mindestlänge: **12 Zeichen** (empfohlen)
+- Komplexität: Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen
+- Kein Wiederverwenden von Passwörtern (Password-History)
+- **MFA** (Multi-Faktor-Authentifizierung) als zusätzliche Schicht
+- Cisco IOS: \`security passwords min-length 12\`
+
+### Security Awareness Training
+- Ziel: Mitarbeiter als **„Human Firewall"** schulen
+- Themen: Phishing-Erkennung, Social Engineering, sichere Passwortverwaltung, Datenschutz
+- Regelmäßige Wiederholung (mind. jährlich) + Phishing-Simulationen
+
+### Incident Response – 6 Phasen (NIST SP 800-61)
+| Phase | Name | Beschreibung |
+|-------|------|-------------|
+| 1 | **Preparation** | IR-Plan erstellen, Tools bereitstellen, Team schulen |
+| 2 | **Identification** | Vorfall erkennen, klassifizieren, Schwere beurteilen |
+| 3 | **Containment** | Ausbreitung stoppen (kurzfristig: Isolation; langfristig: Clean-up) |
+| 4 | **Eradication** | Ursache beseitigen (Malware entfernen, Patches einspielen) |
+| 5 | **Recovery** | Systeme wiederherstellen, Normalbetrieb verifizieren |
+| 6 | **Lessons Learned** | Post-Incident-Review, Dokumentation, Prozessverbesserung |
+
+> **Merkhilfe**: **P-I-C-E-R-L**
+
+### Schwachstellen-Management
+- **Vulnerability Scanning**: Automatisierte Suche nach Schwachstellen (z.B. Nessus, OpenVAS)
+- **Penetration Testing**: Autorisierter simulierter Angriff
+- **Patch Management**: Regelmäßiges Einspielen von Security-Patches
+- **CVE** (Common Vulnerabilities and Exposures): Standardisierte Kennung für Schwachstellen
+  `.trim(),
+};
+
 export const TOPIC_SECURITY: Topic = {
   id: "security",
   title: "Netzwerksicherheit",
@@ -380,6 +449,7 @@ export const TOPIC_SECURITY: Topic = {
     "acl-troubleshooting",
     "port-security",
     "802.1x-authentication",
+    "security-program",
     "security-guide",
   ],
   quizIds: [
@@ -402,5 +472,6 @@ export const SECURITY_CONCEPTS: Record<string, Concept> = {
   "acl-troubleshooting": CONCEPT_ACL_TROUBLESHOOTING,
   "port-security": CONCEPT_PORT_SECURITY,
   "802.1x-authentication": CONCEPT_802_1X,
+  "security-program": CONCEPT_SECURITY_PROGRAM,
   "security-guide": CONCEPT_SECURITY_GUIDE,
 };

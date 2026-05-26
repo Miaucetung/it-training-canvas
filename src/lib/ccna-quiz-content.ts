@@ -1473,6 +1473,93 @@ export const QUIZ_HARDEN: Quiz = {
         { id: "d", text: "UDB", isCorrect: false },
       ],
     },
+    // ── 8 neue Fragen (M-4 Security-Program-Elemente Gap-Plan) ──
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Was beschreibt der Begriff 'Risk' im Kontext der Informationssicherheit am besten?",
+      explanation: "Risk = Wahrscheinlichkeit × Schadensausmaß. Eine Vulnerability allein ist noch kein Risiko — erst in Kombination mit einer realen Threat und möglichem Schaden entsteht ein Risiko.",
+      answers: [
+        { id: "a", text: "Eine Schwachstelle in einem System (Vulnerability)", isCorrect: false },
+        { id: "b", text: "Ein Werkzeug zum Ausnutzen einer Schwachstelle (Exploit)", isCorrect: false },
+        { id: "c", text: "Die Wahrscheinlichkeit und das Ausmaß eines Schadens durch eine Bedrohung", isCorrect: true },
+        { id: "d", text: "Eine aktive Bedrohung (Threat)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Welche CVSS-Score-Spanne kennzeichnet eine 'High'-Schwachstelle?",
+      explanation: "CVSS: None=0.0, Low=0.1–3.9, Medium=4.0–6.9, High=7.0–8.9, Critical=9.0–10.0. Eine 'High'-Schwachstelle liegt zwischen 7.0 und 8.9.",
+      answers: [
+        { id: "a", text: "4.0 – 6.9", isCorrect: false },
+        { id: "b", text: "7.0 – 8.9", isCorrect: true },
+        { id: "c", text: "8.0 – 9.9", isCorrect: false },
+        { id: "d", text: "9.0 – 10.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Was legt eine Acceptable Use Policy (AUP) fest?",
+      explanation: "Eine AUP (Acceptable Use Policy) definiert die erlaubte und verbotene Nutzung von IT-Ressourcen eines Unternehmens durch Mitarbeiter — z.B. Internetzugang, E-Mail-Nutzung, Installation von Software.",
+      answers: [
+        { id: "a", text: "Mindeststärke für Passwörter und Sperrfristen", isCorrect: false },
+        { id: "b", text: "Erlaubte und verbotene Nutzung von IT-Ressourcen des Unternehmens", isCorrect: true },
+        { id: "c", text: "Verfahren bei einem Sicherheitsvorfall", isCorrect: false },
+        { id: "d", text: "Verschlüsselungsstandards für gespeicherte Daten", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "In welcher Phase des NIST Incident-Response-Prozesses werden Systeme nach einem Angriff wiederhergestellt und der Normalbetrieb geprüft?",
+      explanation: "Phase 5 'Recovery': Betroffene Systeme werden gereinigt, neu aufgesetzt oder aus Backups wiederhergestellt. Anschließend wird verifiziert, dass der Normalbetrieb sicher läuft.",
+      answers: [
+        { id: "a", text: "Containment", isCorrect: false },
+        { id: "b", text: "Eradication", isCorrect: false },
+        { id: "c", text: "Recovery", isCorrect: true },
+        { id: "d", text: "Lessons Learned", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Wie lautet die korrekte Reihenfolge der 6 NIST-Incident-Response-Phasen?",
+      explanation: "NIST SP 800-61: Preparation → Identification → Containment → Eradication → Recovery → Lessons Learned. Merkhilfe: P-I-C-E-R-L.",
+      answers: [
+        { id: "a", text: "Identification → Containment → Preparation → Eradication → Recovery → Lessons Learned", isCorrect: false },
+        { id: "b", text: "Preparation → Identification → Containment → Eradication → Recovery → Lessons Learned", isCorrect: true },
+        { id: "c", text: "Preparation → Containment → Identification → Eradication → Recovery → Lessons Learned", isCorrect: false },
+        { id: "d", text: "Identification → Preparation → Containment → Recovery → Eradication → Lessons Learned", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 10, blueprint: "5.4",
+      text: "Security Awareness Training richtet sich ausschließlich an IT-Mitarbeiter und nicht an reguläre Mitarbeiter eines Unternehmens.",
+      explanation: "Falsch. Security Awareness Training richtet sich an ALLE Mitarbeiter — besonders an nicht-technisches Personal, da Social Engineering (Phishing, Pretexting) häufig diese Zielgruppe angreift.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch — es richtet sich an alle Mitarbeiter", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10, blueprint: "5.4",
+      text: "Welches Cisco IOS-Kommando erzwingt eine Mindestpasswortlänge von 12 Zeichen?",
+      explanation: "'security passwords min-length 12' setzt global eine Mindestpasswortlänge. Passwörter, die kürzer als der konfigurierte Wert sind, werden abgelehnt.",
+      answers: [
+        { id: "a", text: "enable password-length 12", isCorrect: false },
+        { id: "b", text: "password minimum-length 12", isCorrect: false },
+        { id: "c", text: "security passwords min-length 12", isCorrect: true },
+        { id: "d", text: "aaa password min-length 12", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15, blueprint: "5.4",
+      text: "Welche der folgenden Maßnahmen gehören zum Vulnerability Management? (Mehrere Antworten möglich)",
+      explanation: "Vulnerability Management umfasst: Vulnerability Scanning (automatisiert, z.B. Nessus), Penetration Testing (autorisierter Angriff), Patch Management (Einspielen von Security-Patches). Phishing-Simulationen gehören zu Security Awareness Training.",
+      answers: [
+        { id: "a", text: "Vulnerability Scanning mit Tools wie Nessus oder OpenVAS", isCorrect: true },
+        { id: "b", text: "Penetration Testing (autorisierter simulierter Angriff)", isCorrect: true },
+        { id: "c", text: "Patch Management", isCorrect: true },
+        { id: "d", text: "Phishing-Simulationen für Mitarbeiter", isCorrect: false },
+      ],
+    },
   ],
 };
 
