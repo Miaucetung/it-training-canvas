@@ -388,6 +388,118 @@ const QUIZ_QUESTIONS_T3: Question[] = [
     explanation:
       "ACLs (Network+/CCNA-Kontext) filtern IP-Traffic: Welche Pakete dürfen passieren? — Data Plane, Layer 3-4. Azure RBAC (AZ-900) kontrolliert, welche Azure-API-Aktionen ein Benutzer ausführen darf — Management Plane, Berechtigungsmodell. Beide sind Zugangskontrolle, aber auf fundamental unterschiedlichen Ebenen: Netzwerk-Paket vs. Cloud-API-Aktion.",
   },
+  {
+    id: "np-security-q8",
+    type: "single-choice",
+    text: "Welcher Angriff versucht typischerweise, die MAC-Adress-Tabelle eines Switches mit vielen gefälschten Einträgen zu überlasten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "DNS-Poisoning", isCorrect: false },
+      { id: "b", text: "MAC-Flooding", isCorrect: true },
+      { id: "c", text: "Tailgating", isCorrect: false },
+      { id: "d", text: "Shoulder Surfing", isCorrect: false },
+    ],
+    explanation:
+      "Beim MAC-Flooding wird die CAM/MAC-Tabelle mit Fake-Quellen geflutet. Der Switch kann in ein fail-open Verhalten rutschen und Frames breiter weiterleiten, was Abhoeren erleichtert.",
+  },
+  {
+    id: "np-security-q9",
+    type: "single-choice",
+    text: "Welche Sicherheitsmaßnahme segmentiert ein Netzwerk am konsequentesten auf Layer 3/4 und reduziert lateral movement?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Flaches /16-Netz ohne ACLs", isCorrect: false },
+      { id: "b", text: "Mikrosegmentierung mit restriktiven ACL-/Firewall-Regeln", isCorrect: true },
+      { id: "c", text: "Nur Broadcast deaktivieren", isCorrect: false },
+      { id: "d", text: "Ausschliesslich SNMPv2c einsetzen", isCorrect: false },
+    ],
+    explanation:
+      "Mikrosegmentierung begrenzt Ost-West-Traffic und erzwingt Least Privilege zwischen Workloads. Damit wird die seitliche Ausbreitung nach Kompromittierung deutlich erschwert.",
+  },
+  {
+    id: "np-security-q10",
+    type: "single-choice",
+    text: "Welcher Firewall-Typ bewertet Verbindungsstatus und Rueckverkehr kontextbezogen, ohne komplette L7-Inspektion einer WAF?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Stateless Packet Filter", isCorrect: false },
+      { id: "b", text: "Stateful Firewall", isCorrect: true },
+      { id: "c", text: "Transparent Hub", isCorrect: false },
+      { id: "d", text: "DNS Resolver", isCorrect: false },
+    ],
+    explanation:
+      "Stateful Firewalls fuehren eine Session-Tabelle und koennen Antworten einer bestehenden Verbindung erlauben, ohne jedes Paket isoliert zu beurteilen. Stateless Filter betrachten Pakete einzeln.",
+  },
+  {
+    id: "np-security-q11",
+    type: "single-choice",
+    text: "Welche Aussage zu 802.1X ist korrekt?",
+    points: 10,
+    answers: [
+      { id: "a", text: "802.1X ist ein VLAN-Tagging-Standard", isCorrect: false },
+      { id: "b", text: "802.1X implementiert port-basierte Zugriffskontrolle mit Supplicant, Authenticator und RADIUS-Server", isCorrect: true },
+      { id: "c", text: "802.1X ersetzt alle ACLs", isCorrect: false },
+      { id: "d", text: "802.1X ist nur fuer WLAN und nicht fuer Switch-Ports nutzbar", isCorrect: false },
+    ],
+    explanation:
+      "802.1X arbeitet sowohl kabelgebunden als auch drahtlos mit den Rollen Supplicant, Authenticator und Authentication Server. Damit wird Zugang vor Freischaltung eines Ports/SSID kontrolliert.",
+  },
+  {
+    id: "np-security-q12",
+    type: "multiple-choice",
+    text: "Welche ZWEI Angriffe zielen primaer auf Verfuegbarkeit (Availability)? (Wähle 2)",
+    points: 10,
+    answers: [
+      { id: "a", text: "DDoS", isCorrect: true },
+      { id: "b", text: "Ransomware mit Verschluesselung produktiver Systeme", isCorrect: true },
+      { id: "c", text: "ARP-Spoofing", isCorrect: false },
+      { id: "d", text: "DNS-Spoofing", isCorrect: false },
+    ],
+    explanation:
+      "DDoS macht Dienste unerreichbar. Ransomware trifft oft primaer Availability, da Systeme nicht mehr nutzbar sind. ARP-/DNS-Spoofing betreffen hauptsaechlich Integritaet/Vertraulichkeit.",
+  },
+  {
+    id: "np-security-q13",
+    type: "single-choice",
+    text: "Ein Benutzer folgt einem Angreifer durch eine gesicherte Tuere ohne eigene Authentifizierung. Wie heisst dieser Angriff?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Tailgating", isCorrect: true },
+      { id: "b", text: "Dumpster Diving", isCorrect: false },
+      { id: "c", text: "Evil Twin", isCorrect: false },
+      { id: "d", text: "VLAN Hopping", isCorrect: false },
+    ],
+    explanation:
+      "Tailgating ist physisches Social Engineering: Unbefugte gelangen durch Mitgehen in geschuetzte Bereiche. Technische Kontrollen muessen durch physische Sicherheitsprozesse ergaenzt werden.",
+  },
+  {
+    id: "np-security-q14",
+    type: "single-choice",
+    text: "Welcher Mechanismus schuetzt DNS-Antworten primaer durch kryptografische Signaturen gegen Manipulation?",
+    points: 10,
+    answers: [
+      { id: "a", text: "NAT", isCorrect: false },
+      { id: "b", text: "DNSSEC", isCorrect: true },
+      { id: "c", text: "PAT", isCorrect: false },
+      { id: "d", text: "SNMPv3", isCorrect: false },
+    ],
+    explanation:
+      "DNSSEC signiert Zonendaten und erlaubt die Validierung der Integritaet von DNS-Antworten. Dadurch werden Spoofing/Poisoning-Angriffe erschwert.",
+  },
+  {
+    id: "np-security-q15",
+    type: "single-choice",
+    text: "Welche Aussage zur DMZ in einer Sicherheitsarchitektur ist am zutreffendsten?",
+    points: 10,
+    answers: [
+      { id: "a", text: "Die DMZ ersetzt interne Segmentierung", isCorrect: false },
+      { id: "b", text: "In der DMZ stehen typischerweise externe erreichbare Dienste, getrennt vom internen LAN", isCorrect: true },
+      { id: "c", text: "DMZ-Systeme haben identische Vertrauensstufe wie interne Domain-Controller", isCorrect: false },
+      { id: "d", text: "Eine DMZ ist nur fuer Cloud-Umgebungen relevant", isCorrect: false },
+    ],
+    explanation:
+      "Die DMZ isoliert oeffentlich erreichbare Systeme (z.B. Webserver) vom internen Netz und reduziert Risiko bei Kompromittierung. Sie ist ein klassisches Segmentierungsprinzip on-prem wie auch hybrid.",
+  },
 ];
 
 export const QUIZ_NETPLUS_SECURITY: Quiz = {
