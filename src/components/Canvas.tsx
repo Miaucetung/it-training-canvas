@@ -1607,27 +1607,29 @@ export function Canvas({
         </>
       )}
 
-      {/* Tool hints */}
-      <div
-        className={`absolute top-4 left-4 px-3 py-2 rounded-lg text-xs ${
-          theme === "dark"
-            ? "bg-slate-800/80 text-slate-400"
-            : "bg-white/80 text-slate-600 shadow-md"
-        } backdrop-blur-sm pointer-events-none`}
-      >
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w-md">
-          <span>Linke Maustaste auf leerer Fläche: Verschieben</span>
-          <span>Scrollrad: Zoom (zum Cursor)</span>
-          <span>Shift+Scroll: Schwenken</span>
-          <span>Eckpunkt ziehen: Größe ändern</span>
-          <span>Shift: Snap</span>
-          <span>Ctrl+C/V: Kopieren</span>
-          <span>R: Drehen</span>
-          <span>S: Schatten</span>
-          <span>Ctrl+G: Gruppieren</span>
-          <span>Del: Löschen</span>
+      {/* Tool hints — nur wenn Canvas leer (UX-QW-1) */}
+      {objects.length === 0 && (
+        <div
+          className={`absolute top-4 left-4 px-3 py-2 rounded-lg text-xs ${
+            theme === "dark"
+              ? "bg-slate-800/80 text-slate-400"
+              : "bg-white/80 text-slate-600 shadow-md"
+          } backdrop-blur-sm pointer-events-none`}
+        >
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w-md">
+            <span>Linke Maustaste auf leerer Fläche: Verschieben</span>
+            <span>Scrollrad: Zoom (zum Cursor)</span>
+            <span>Shift+Scroll: Schwenken</span>
+            <span>Eckpunkt ziehen: Größe ändern</span>
+            <span>Shift: Snap</span>
+            <span>Ctrl+C/V: Kopieren</span>
+            <span>R: Drehen</span>
+            <span>S: Schatten</span>
+            <span>Ctrl+G: Gruppieren</span>
+            <span>Del: Löschen</span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

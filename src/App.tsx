@@ -1716,78 +1716,60 @@ function App() {
             />
           )}
 
-          {/* Welcome Overlay */}
+          {/* Welcome Overlay — UX-QW-1 */}
           {showWelcome && canvasState.objects.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div
-                className={`text-center p-8 rounded-2xl ${
+                className={`text-center p-6 rounded-2xl ${
                   theme === "dark" ? "bg-slate-900/80" : "bg-white/80"
-                } backdrop-blur-sm max-w-md pointer-events-auto`}
+                } backdrop-blur-sm max-w-sm w-full mx-4 pointer-events-auto`}
               >
-                <div
-                  className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
-                  style={{ backgroundColor: currentConfig?.color || "#6366F1" }}
-                >
-                  <Info size={32} className="text-white" weight="fill" />
-                </div>
-                <h3
-                  className={`text-xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-slate-900"}`}
-                >
-                  Willkommen bei {currentConfig?.name || currentSubject}
-                </h3>
                 <p
-                  className={`text-sm mb-4 ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}
-                >
-                  Beginne mit dem Zeichnen, um deine IT-Konzepte zu
-                  visualisieren. Nutze die Werkzeugleiste unten oder
-                  Tastenkürzel für schnellen Zugriff.
-                </p>
-                <div
-                  className={`grid grid-cols-2 gap-2 text-xs ${theme === "dark" ? "text-slate-500" : "text-slate-500"}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <kbd
-                      className={`px-2 py-1 rounded ${theme === "dark" ? "bg-slate-800" : "bg-slate-100"}`}
-                    >
-                      P
-                    </kbd>
-                    <span>Stift</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <kbd
-                      className={`px-2 py-1 rounded ${theme === "dark" ? "bg-slate-800" : "bg-slate-100"}`}
-                    >
-                      E
-                    </kbd>
-                    <span>Radierer</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <kbd
-                      className={`px-2 py-1 rounded ${theme === "dark" ? "bg-slate-800" : "bg-slate-100"}`}
-                    >
-                      R
-                    </kbd>
-                    <span>Rechteck</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <kbd
-                      className={`px-2 py-1 rounded ${theme === "dark" ? "bg-slate-800" : "bg-slate-100"}`}
-                    >
-                      T
-                    </kbd>
-                    <span>Text</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowWelcome(false)}
-                  className={`mt-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    theme === "dark"
-                      ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
+                    theme === "dark" ? "text-slate-500" : "text-slate-400"
                   }`}
                 >
-                  Verstanden
-                </button>
+                  Canvas ist leer
+                </p>
+                <p
+                  className={`text-sm mb-5 ${
+                    theme === "dark" ? "text-slate-300" : "text-slate-600"
+                  }`}
+                >
+                  Womit möchtest du beginnen?
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setShowTemplateGallery(true)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                      theme === "dark"
+                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30"
+                        : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
+                    }`}
+                  >
+                    Template laden
+                  </button>
+                  <button
+                    onClick={() => setShowShapePicker(true)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                      theme === "dark"
+                        ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
+                        : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    Shape platzieren
+                  </button>
+                  <button
+                    onClick={() => setSidebarCollapsed(false)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                      theme === "dark"
+                        ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
+                        : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    Aus Topic starten
+                  </button>
+                </div>
               </div>
             </div>
           )}
