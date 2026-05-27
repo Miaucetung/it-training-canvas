@@ -584,12 +584,202 @@ Ziel: Persistenz ohne MAC-Trackbarkeit.
   `.trim(),
 };
 
+export const CONCEPT_IPV6_HEADER_ANALYSE: Concept = {
+  id: "ipv6-header-analyse",
+  title: "IPv6 Header-Analyse & Hex-Werkzeuge",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["ipv6", "ipv4", "header", "hex", "packet-analysis", "wireshark", "icmpv6", "prüfung"],
+  content: `
+## Wie liest man einen Netzwerk-Header?
+
+**Methode:** Gehe Byte für Byte durch und mappe die Bytes auf die Felder des Header-Diagramms.
+
+- 1 Byte = 2 Hex-Ziffern = 8 Bit
+- 1 Nibble (halbes Byte) = 1 Hex-Ziffer = 4 Bit
+
+---
+
+## IPv6 Header — Feldübersicht
+
+Der IPv6-Header ist **fest 40 Byte** lang (kein Optionsfeld wie bei IPv4).
+
+| Byte(s) | Feld | Größe | Beschreibung |
+|---------|------|-------|-------------|
+| 1 (obere 4 Bit) | Version | 4 Bit | Wert 6 → IPv6 |
+| 1 (untere 4 Bit) + 2 (obere 4 Bit) | Traffic Class | 8 Bit | QoS/DSCP |
+| 2 (untere 4 Bit) + 3–4 | Flow Label | 20 Bit | Flow-Kennung für QoS |
+| 5–6 | Payload Length | 16 Bit | Nutzdatenlänge (nach den 40 Byte Header) |
+| 7 | Next Header | 8 Bit | Nächstes Protokoll (0x3A = 58 = ICMPv6) |
+| 8 | Hop Limit | 8 Bit | Wie TTL bei IPv4 — sinkt um 1 je Hop |
+| 9–24 | Source Address | 128 Bit | Quelladresse (16 Byte) |
+| 25–40 | Destination Address | 128 Bit | Zieladresse (16 Byte) |
+
+---
+
+## Trace 1 — IPv6-Paket Byte für Byte
+
+\`\`\`
+60 00 00 00  00 40 3A 40  FE C0 00 01  00 00 00 00
+00 00 AF C1  00 B4 00 01  FE C0 00 01  00 00 00 00
+00 00 00 00  BE FE 30 01  ...
+\`\`\`
+
+| Byte(s) | Hex | Feld | Bedeutung |
+|---------|-----|------|-----------|
+| 1 (obere 4 Bit) | 6 | Version | IPv6 |
+| 1 (untere 4 Bit) + 2 (obere 4 Bit) | 0 00 | Traffic Class | QoS = 0 (Best Effort) |
+| 2 (untere 4 Bit) + 3–4 | 0 00 00 | Flow Label | kein aktiver Flow |
+| 5–6 | 00 40 | Payload Length | 64 Byte Nutzdaten |
+| 7 | 3A | Next Header | 0x3A = 58 = ICMPv6 |
+| 8 | 40 | Hop Limit | 64 (typische TTL) |
+| 9–24 | FE C0 00 01 … 00 B4 00 01 | Source Address | fec0:1::afc1:b4:1 |
+| 25–40 | FE C0 00 01 … BE FE 30 01 | Destination Address | fec0:1::befe:3001 |
+
+Ab Byte 41 beginnt die Payload — da Next Header = 0x3A, folgt ein ICMPv6-Header.
+
+### Adressverkürzung (Prüfungsrelevant)
+
+**Source:** FE C0 00 01 00 00 00 00 00 00 AF C1 00 B4 00 01
+\`\`\`
+Ausgeschrieben:       fec0:0001:0000:0000:0000:afc1:00b4:0001
+Führende Nullen weg:  fec0:1:0:0:0:afc1:b4:1
+Längste Null-Gruppe:  fec0:1::afc1:b4:1
+\`\`\`
+
+**Destination:** FE C0 00 01 00 00 00 00 00 00 00 00 BE FE 30 01
+\`\`\`
+Ausgeschrieben:       fec0:0001:0000:0000:0000:0000:befe:3001
+Führende Nullen weg:  fec0:1:0:0:0:0:befe:3001
+Längste Null-Gruppe:  fec0:1::befe:3001
+\`\`\`
+
+> ℹ️ **fec0::/10** war das „Site-Local"-Präfix — seit RFC 3879 **deprecated**, ersetzt durch ULA (fc00::/7). In Prüfungsaufgaben taucht fec0:: trotzdem noch auf.
+
+---
+
+## Trace 2 — IPv4 zum Vergleich
+
+\`\`\`
+45 00 00 54  A1 1B 00 00  41 01 55 52  C0 A8 01 02
+C0 A8 01 E9  ...
+\`\`\`
+
+| Byte(s) | Hex | Feld | Bedeutung |
+|---------|-----|------|-----------|
+| 1 (obere 4 Bit) | 4 | Version | IPv4 |
+| 1 (untere 4 Bit) | 5 | IHL | Headerlänge 5 × 4 Byte = 20 Byte |
+| 2 | 00 | Type of Service | Best Effort |
+| 3–4 | 00 54 | Total Length | 84 Byte Gesamtpaket |
+| 5–6 | A1 1B | Identification | Fragment-ID |
+| 7–8 | 00 00 | Flags + Fragment Offset | nicht fragmentiert |
+| 9 | 41 | TTL | 65 |
+| 10 | 01 | Protocol | 1 = ICMP |
+| 11–12 | 55 52 | Header Checksum | 0x5552 |
+| 13–16 | C0 A8 01 02 | Source Address | 192.168.1.2 |
+| 17–20 | C0 A8 01 E9 | Destination Address | 192.168.1.233 |
+
+Hex → Dezimal: C0=192, A8=168, 01=1, E9=233 (E=14 → 14×16 + 9 = 233)
+
+### Gegenüberstellung beider Traces
+
+| | Trace 1 | Trace 2 |
+|--|---------|---------|
+| Version | IPv6 | IPv4 |
+| Sender | fec0:1::afc1:b4:1 | 192.168.1.2 |
+| Empfänger | fec0:1::befe:3001 | 192.168.1.233 |
+| Protokoll | ICMPv6 (0x3A = 58) | ICMP (0x01 = 1) |
+| Hop Limit / TTL | 64 | 65 |
+| Paketgröße | 40 + 64 = 104 Byte | 84 Byte gesamt |
+
+---
+
+## Header-Byte-Positionen — Eselsbrücke
+
+| | Source-Adresse | Destination-Adresse |
+|--|----------------|---------------------|
+| **IPv6** | Byte 9–24 (nach 8 Byte Fixheader) | Byte 25–40 |
+| **IPv4** | Byte 13–16 | Byte 17–20 |
+
+---
+
+## Hex ↔ Dezimal Spickzettel für Netzwerktechnik
+
+### Die 16er-Reihe (auswendig lernen)
+
+| × 16 | Ergebnis | Hex-Ziffer |
+|------|---------|------------|
+| 1 | 16 | 1 |
+| 2 | 32 | 2 |
+| 3 | 48 | 3 |
+| 4 | 64 | 4 |
+| 5 | 80 | 5 |
+| 6 | 96 | 6 |
+| 7 | 112 | 7 |
+| 8 | 128 | 8 |
+| 9 | 144 | 9 |
+| 10 | 160 | A |
+| 11 | 176 | B |
+| 12 | 192 | C |
+| 13 | 208 | D |
+| 14 | 224 | E |
+| 15 | 240 | F |
+
+**Formel:** \`C0\` = C × 16 + 0 = 12 × 16 + 0 = **192**
+
+**Dezimal → Hex:** 200 ÷ 16 = 12 Rest 8 → **C8** · 233 ÷ 16 = 14 Rest 9 → **E9**
+
+### Wichtige Netzwerkwerte in Hex
+
+| Hex | Dez | Kontext |
+|-----|-----|---------|
+| 01 | 1 | ICMP (IPv4 Protocol-Nummer) |
+| 06 | 6 | TCP |
+| 11 | 17 | UDP |
+| 3A | 58 | ICMPv6 (IPv6 Next Header) |
+| 40 | 64 | Typische TTL / Hop Limit (Linux/Cisco) |
+| 80 | 128 | TTL Windows-Default / halbe 256 |
+| C0 | 192 | „192" in privaten IPv4-Adressen |
+| A8 | 168 | „168" in 192.168.x.x |
+| 0A | 10 | 10.0.0.0/8 privates Netz (RFC 1918) |
+| AC | 172 | 172.16.0.0/12 privates Netz |
+| FE | 254 | FE80:: = IPv6 Link-Local Präfix |
+| FF | 255 | Maximum / Broadcast |
+
+### IP-Adresskombinationen in Hex erkennen
+
+| Hex | IPv4 / IPv6 | Bedeutung |
+|-----|-------------|-----------|
+| C0 A8 xx xx | 192.168.x.x | RFC 1918 privat |
+| 0A xx xx xx | 10.x.x.x | RFC 1918 privat |
+| AC 1x xx xx | 172.16–31.x.x | RFC 1918 privat |
+| 7F 00 00 01 | 127.0.0.1 | Loopback |
+| FE 80 … | fe80:: | IPv6 Link-Local |
+| FC / FD … | fc00::/7 | IPv6 ULA (privat) |
+| FF 02 … | ff02:: | IPv6 Multicast (Link-Local Scope) |
+| 20 01 … | 2001:: | IPv6 Global Unicast (GUA) |
+
+---
+
+## Prüfungstipps Header-Analyse
+
+1. **Beide Schreibweisen angeben** (vollständig + verkürzt) → sichert alle Teilpunkte
+2. **Herleitung sichtbar machen:**
+   \`\`\`
+   Bytes 9–24:    FE C0 00 01 00 00 00 00 00 00 AF C1 00 B4 00 01
+   Vollständig:   fec0:0001:0000:0000:0000:afc1:00b4:0001
+   Verkürzt:      fec0:1::afc1:b4:1
+   \`\`\`
+3. **IPv4 dezimal angeben**, IPv6 hexadezimal verkürzt — sofern nicht anders gefordert
+4. **Protocol/Next Header auswendig:** 1=ICMP, 6=TCP, 17=UDP, 58=ICMPv6
+  `.trim(),
+};
+
 export const TOPIC_IPV6: Topic = {
   id: "ipv6",
   title: "IPv6",
   description:
     "IPv6-Adressierung, NDP, SLAAC, DHCPv6 und Routing — der Nachfolger von IPv4.",
-  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator", "ipv6-address-types", "ipv6-ndp-slaac", "ipv6-privacy"],
+  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator", "ipv6-address-types", "ipv6-ndp-slaac", "ipv6-privacy", "ipv6-header-analyse"],
   quizIds: ["ccna-quiz-ipv6"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
@@ -622,4 +812,5 @@ export const IPV6_CONCEPTS: Record<string, Concept> = {
   "ipv6-address-types": CONCEPT_IPV6_ADDRESS_TYPES,
   "ipv6-ndp-slaac": CONCEPT_IPV6_NDP_SLAAC,
   "ipv6-privacy": CONCEPT_IPV6_PRIVACY,
+  "ipv6-header-analyse": CONCEPT_IPV6_HEADER_ANALYSE,
 };

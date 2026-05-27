@@ -45,35 +45,97 @@ PC-A (10.0.0.1) möchte PC-B (10.0.0.2) erreichen:
 
 export const CONCEPT_ICMP: Concept = {
   id: "icmp",
-  title: "ICMP & Netzwerk-Diagnose",
+  title: "ICMP & ICMPv6 — Fehlermeldungen und Diagnose",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["networking", "icmp", "ping", "traceroute", "troubleshooting"],
+  tags: ["networking", "icmp", "icmpv6", "ping", "traceroute", "ndp", "troubleshooting", "firewall"],
   content: `
 ## ICMP — Internet Control Message Protocol
 
-ICMP (RFC 792) ist ein Hilfsprotokoll für Fehlermeldungen und Diagnose auf Layer 3.
+ICMP ist ein Hilfsprotokoll für Fehlermeldungen und Diagnose auf Layer 3.
+Es läuft **direkt auf IP** — keine Port-Nummern, kein TCP/UDP.
 
-### Wichtige ICMP-Typen
-| Typ | Code | Bedeutung |
-|-----|------|-----------|
-| 0 | 0 | Echo Reply (ping Antwort) |
+### ICMP vs. ICMPv6
+
+| | ICMP (IPv4) | ICMPv6 (IPv6) |
+|--|-------------|---------------|
+| Protocol/Next Header | 1 (0x01) | 58 (0x3A) |
+| RFC | 792 | 4443 |
+| Aufgaben | Fehler, Ping, Traceroute | Fehler, Ping, **NDP** (ARP-Ersatz + Router-Discovery) |
+
+### ICMP-Header (Grundaufbau)
+
+| Byte | Feld | Bedeutung |
+|------|------|-----------|
+| 1 | Type | Art der Nachricht |
+| 2 | Code | Unterart (Präzisierung) |
+| 3–4 | Checksum | Prüfsumme |
+| ab 5 | Rest | Typ-abhängig (Identifier, Sequence Number, …) |
+
+### ICMP-Types (IPv4, RFC 792)
+
+| Type | Code | Bedeutung |
+|------|------|-----------|
+| 0 | 0 | Echo Reply (Ping-Antwort) |
 | 3 | 0 | Destination Network Unreachable |
 | 3 | 1 | Destination Host Unreachable |
 | 3 | 3 | Destination Port Unreachable |
-| 3 | 4 | Fragmentation Needed (PMTUD) |
+| 3 | 4 | Fragmentation Needed — DF-Bit gesetzt (Path MTU Discovery) |
 | 5 | 0 | Redirect |
-| 8 | 0 | Echo Request (ping) |
-| 11 | 0 | TTL Exceeded (traceroute) |
+| 8 | 0 | Echo Request (Ping) |
+| 11 | 0 | Time Exceeded — TTL abgelaufen (→ Traceroute) |
+| 12 | 0 | Parameter Problem — Fehler im IP-Header |
 
-### ping
-- Sendet ICMP Echo Request, wartet auf Echo Reply
-- Misst RTT (Round-Trip Time) und Paketverlust
-- \`ping 8.8.8.8\` | \`ping -c 4 8.8.8.8\` (Linux)
+### ICMPv6-Types (RFC 4443)
 
-### traceroute / tracert
-- Nutzt TTL-Expiry (ICMP Type 11) um jeden Hop zu identifizieren
-- Startet mit TTL=1 → Router gibt ICMP Time Exceeded zurück
-- Erhöht TTL bei jedem Schritt bis Ziel erreicht
+ICMPv6 übernimmt zusätzlich die Aufgaben von ARP und IGMP.
+
+| Type | Bedeutung |
+|------|-----------|
+| 1 | Destination Unreachable |
+| 2 | Packet Too Big (Path MTU Discovery für IPv6) |
+| 3 | Time Exceeded (wie ICMP Type 11) |
+| 4 | Parameter Problem |
+| 128 | Echo Request (Ping IPv6) |
+| 129 | Echo Reply |
+| 133 | Router Solicitation (RS) — Host fragt nach Router |
+| 134 | Router Advertisement (RA) — Router teilt Präfix mit |
+| 135 | Neighbor Solicitation (NS) — ARP-Äquivalent Anfrage |
+| 136 | Neighbor Advertisement (NA) — ARP-Äquivalent Antwort |
+| 137 | Redirect |
+
+> **Merksatz:** Types 1–4 = Fehler · 128/129 = Ping · 133–137 = NDP (Neighbor Discovery)
+
+### ICMP in Diagnose-Tools
+
+| Tool | Verwendetes ICMP | Ablauf |
+|------|-----------------|--------|
+| **ping** | Echo Request (8/128) + Echo Reply (0/129) | Sendet Request, misst RTT bis Reply |
+| **traceroute** | Time Exceeded (11 / Typ 3) — TTL-Trick | TTL=1 → Router 1 antwortet; TTL=2 → Router 2; … |
+| **Path MTU Discovery** | Type 3 Code 4 (IPv4) / Type 2 (IPv6) | Router meldet max. erlaubte Paketgröße |
+| **DAD (IPv6)** | NS (135) + NA (136) | Host prüft ob neue Adresse schon vergeben ist |
+
+### traceroute im Detail
+- Startet mit TTL=1 → Router 1 gibt ICMP Time Exceeded zurück (seine IP ist sichtbar)
+- TTL=2 → Router 2 antwortet; so wird der Pfad Hop für Hop aufgedeckt
+- Ziel antwortet mit Echo Reply (oder Port Unreachable bei UDP-Probe)
+
+### Firewall & RFC 4890
+
+> ⚠️ **ICMPv6 darf in einer Firewall NICHT pauschal blockiert werden.**
+
+Zwei kritische Gründe:
+1. **Neighbor Discovery** (NS/NA Type 135/136) funktioniert sonst nicht — keine Adressauflösung im LAN → IPv6-Kommunikation vollständig unterbrochen
+2. **Path MTU Discovery** (Type 2 "Packet Too Big") funktioniert sonst nicht — IPv6-Router dürfen **nicht fragmentieren**, der Sender muss Type 2 erhalten, sonst gehen große Pakete **still verloren**
+
+RFC 4890 gibt konkrete Empfehlungen: Types 1–4, 128–136 müssen passieren dürfen.
+
+### Prüfungsknackpunkte
+
+- ICMP läuft **direkt auf IP** — keine Port-Nummern, kein TCP/UDP
+- Protocol-Nummer: ICMP = **1 (0x01)**, ICMPv6 = **58 (0x3A)** — auswendig!
+- Traceroute: TTL-Trick → Time Exceeded (Type 11 IPv4 / Type 3 IPv6)
+- ICMPv6 Types 133–137 = Neighbor Discovery Protocol (NDP) = ersetzt ARP + Router-Discovery
+- ICMPv6 blockieren = NDP kaputt = IPv6 im LAN funktioniert nicht mehr
   `.trim(),
 };
 
