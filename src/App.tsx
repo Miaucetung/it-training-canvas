@@ -1,5 +1,5 @@
 import { AnnotationLayer } from "@/components/AnnotationLayer";
-import { Canvas } from "@/components/Canvas";
+import { ReactFlowCanvas } from "@/components/ReactFlowCanvas";
 import { CanvasContextMenu } from "@/components/CanvasContextMenu";
 import { ConnectionPropertiesPanel } from "@/components/ConnectionPropertiesPanel";
 import { CostCalculator } from "@/components/CostCalculator";
@@ -1619,7 +1619,7 @@ function App() {
                   <span>Themen</span>
                 </button>
               )}
-          <Canvas
+          <ReactFlowCanvas
             objects={canvasState.objects}
             onObjectsChange={updateCanvasState}
             onSelectionChange={(selectedObjs) => {
