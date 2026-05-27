@@ -28,6 +28,27 @@ export const CONCEPT_IPV6_BASICS: Concept = {
 2. Eine aufeinanderfolgende Folge von Null-Gruppen durch \`::\` ersetzen (nur einmal!)
    - 2001:DB8:0:0:0:0:0:1 → **2001:DB8::1**
 
+#### Diagramm 1 — Verkürzung Schritt für Schritt
+\`\`\`
+Vollform:   2001:0DB8:0000:0001:0000:0000:0000:0001
+
+Schritt 1 — führende Nullen entfernen:
+            2001:DB8:0:1:0:0:0:1
+
+Schritt 2 — längste Null-Sequenz durch :: ersetzen (nur einmal!):
+            2001:DB8:0:1::1
+
+         ┌─ Regel: Bei Gleichstand die ERSTE Sequenz wählen ─┐
+         │  2001:0:0:1:0:0:0:1                               │
+         │       ^^^^        ^^^ zwei Sequenzen               │
+         │  längste = 0:0:0 (3) → :: setzen → 2001:0:0:1::1  │
+         └───────────────────────────────────────────────────┘
+\`\`\`
+
+> ⚠️ **Merke:** \`::\` darf in einer Adresse **nur einmal** vorkommen.
+> \`2001::DB8::1\` ist **ungültig** — kein Mensch kann rekonstruieren,
+> wie viele Null-Gruppen wo fehlen.
+
 ### IPv6-Adresstypen
 | Typ | Präfix | Beschreibung |
 |-----|--------|-------------|
@@ -38,12 +59,46 @@ export const CONCEPT_IPV6_BASICS: Concept = {
 | Loopback | ::1/128 | Loopback (wie 127.0.0.1) |
 
 ### EUI-64 (Interface ID)
-Automatische Generierung der Interface-ID aus MAC-Adresse:
-1. MAC-Adresse (48 Bit) in zwei 24-Bit-Hälften teilen
-2. \`FF:FE\` in die Mitte einfügen (64 Bit)
-3. Siebtes Bit des ersten Oktetts invertieren (Universal/Local Bit)
 
-Beispiel: MAC \`AA:BB:CC:DD:EE:FF\` → \`A8BB:CCFF:FEDD:EEFF\`
+#### Methoden zur Interface-ID-Bildung
+| Methode | Beschreibung | RFC |
+|---------|-------------|-----|
+| **EUI-64** | Interface-ID aus MAC-Adresse abgeleitet | RFC 4291 |
+| **Zufällig (Privacy Ext.)** | Kryptografisch zufällige, temporäre Interface-ID | RFC 4941, RFC 8981 |
+| **Stable Opaque** | Stabiler, aber nicht MAC-basierter Bezeichner | RFC 7217 |
+| **Manuell** | Vom Admin statisch gesetzt (z. B. \`fe80::1\`) | — |
+
+#### Diagramm 3 — MAC → EUI-64 Transformation
+\`\`\`
+ Original MAC (EUI-48):
+ ┌──────────┬──────────┐
+ │  OUI     │ Geräte-ID│
+ │ AA:BB:CC │ DD:EE:FF │  ← 48 Bit
+ └──────────┴──────────┘
+
+ Schritt 1 — FF:FE in die Mitte einfügen:
+ ┌──────────┬───────────┬──────────┐
+ │  OUI     │  FF:FE    │ Geräte-ID│
+ │ AA:BB:CC │ FF:FE     │ DD:EE:FF │  ← 64 Bit (EUI-64)
+ └──────────┴───────────┴──────────┘
+
+ Schritt 2 — U/L-Bit (Bit 7 von Byte 1) invertieren:
+   AA = 1010 1010
+        ↑ Bit 7 = 0 (universell zugewiesen)
+   XOR  0000 0010  (0x02)
+      = 1010 1000 = A8
+
+ Ergebnis Interface-ID:
+ A8:BB:CC:FF:FE:DD:EE:FF → A8BB:CCFF:FEDD:EEFF
+
+ Vollständige SLAAC-Adresse (Präfix 2001:DB8:1::/64):
+ 2001:DB8:1::A8BB:CCFF:FEDD:EEFF/64
+\`\`\`
+
+> 🔒 **Datenschutz-Hinweis:** EUI-64-Interface-IDs sind MAC-basiert und
+> damit **global nachverfolgbar**. Moderne Betriebssysteme nutzen daher
+> standardmäßig **Privacy Extensions (RFC 4941/8981)** oder
+> **RFC 7217 Stable Opaque IDs**.
 
 ### IPv6 Konfiguration (Cisco)
 \`\`\`
@@ -200,16 +255,23 @@ Bei jedem IPv6-Präfix ist die Adresse mit **Interface-ID = 0** als
 
 ## Global Unicast Address (GUA) — Aufbau
 
-\`\`\`
-| Global Routing Prefix (48 Bit) | Subnet ID (16 Bit) | Interface ID (64 Bit) |
-|--------------------------------|--------------------|-----------------------|
-| Vom ISP zugewiesen             | Vom Admin          | EUI-64 oder zufällig  |
-\`\`\`
+#### Diagramm 2 — GUA-Struktur mit Bit-Breiten
 
-Beispiel: **2001:0DB8:CAFE : 0001 : 0000:0000:0000:0001**
-- Global Routing Prefix: 2001:0DB8:CAFE
-- Subnet ID: 0001
-- Interface ID: 0000:0000:0000:0001
+\`\`\`
+ ←──────────────────────── 128 Bit ──────────────────────────────────────────→
+ ┌────────────────────────────┬──────────────┬──────────────────────────────┐
+ │   Global Routing Prefix    │  Subnet ID   │       Interface ID           │
+ │         48 Bit             │   16 Bit     │          64 Bit              │
+ ├────────────────────────────┼──────────────┼──────────────────────────────┤
+ │ Vom ISP zugewiesen         │ Vom Admin    │ EUI-64 / Zufällig / RFC 7217 │
+ │ RIR-Block   → /23          │ Subnetting   │                              │
+ │ ISP-Allok   → /32          │ innerhalb    │                              │
+ │ Site-Allok  → /48          │ der Site     │                              │
+ └────────────────────────────┴──────────────┴──────────────────────────────┘
+ Beispiel: 2001:0DB8:CAFE:0001:A8BB:CCFF:FEDD:EEFF/64
+           └────────────────┘└────┘└────────────────┘
+            GRP (48 Bit)    Sn-ID   Interface-ID (64 Bit)
+\`\`\`
 
 ---
 
@@ -224,6 +286,29 @@ auch ohne manuelle Konfiguration oder SLAAC/DHCPv6.
 - Wird von NDP, OSPFv3, EIGRP für IPv6 als Quelladresse genutzt
 
 > **Cisco IOS:** \`ipv6 address fe80::1 link-local\` setzt eine statische Link-Local-Adresse.
+
+---
+
+## Diagramm 6 — Mehrere Adressen gleichzeitig am Interface
+
+Ein IPv6-Interface kann gleichzeitig mehrere Adressen verschiedener Typen tragen:
+
+\`\`\`
+ Interface GigabitEthernet0/0/0
+ ┌────────────────────────────────────────────────────────────────────┐
+ │  Typ               Adresse                      Quelle            │
+ │  ────────────────────────────────────────────────────────────────   │
+ │  Link-Local        fe80::1/10                   Automatisch (NDP) │
+ │  GUA (statisch)    2001:db8:cafe:1::1/64        Admin konfig.     │
+ │  GUA (SLAAC)       2001:db8:cafe:1::a8bb:.../64 RA + EUI-64       │
+ │  GUA (Privacy)     2001:db8:cafe:1::d4e9:.../64 RFC 8981 temp.    │
+ │  IPv4              192.168.1.1/24               Dual-Stack        │
+ └────────────────────────────────────────────────────────────────────┘
+\`\`\`
+
+> **Merke:** NDP und OSPFv3 nutzen immer die **Link-Local-Adresse** als
+> Quelladresse — diese ist auf jedem IPv6-fähigen Interface vorhanden,
+> unabhängig davon, ob SLAAC oder DHCPv6 aktiv ist.
 `,
 };
 
