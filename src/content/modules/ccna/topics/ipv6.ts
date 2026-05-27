@@ -440,12 +440,156 @@ Bevor ein Host eine IPv6-Adresse nutzt, prüft er via **DAD**, ob sie bereits ve
 `,
 };
 
+export const CONCEPT_IPV6_PRIVACY: Concept = {
+  id: "ipv6-privacy",
+  title: "Privacy Extensions — RFC 4941, RFC 8981, RFC 7217",
+  appliesTo: ["ccna"],
+  tags: ["ipv6", "privacy", "security", "slaac"],
+  content: `
+## 3.1 Das EUI-64-Tracking-Problem
+
+Bei SLAAC mit EUI-64 wird die Interface-ID direkt aus der MAC-Adresse abgeleitet
+(XOR + FF:FE-Infix). Das hat einen kritischen Nachteil:
+
+\`\`\`
+ MAC:          AA:BB:CC:DD:EE:FF  ← physische Hardware-Adresse
+ Interface-ID: A8BB:CCFF:FEDD:EEFF  ← MAC direkt erkennbar
+
+ Konsequenz:
+ ┌────────────────────────────────────────────────────────────────┐
+ │ Host wechselt WLAN:                                         │
+ │ Netz A: 2001:db8:cafe:1::A8BB:CCFF:FEDD:EEFF/64            │
+ │ Netz B: 2001:db8:dead:2::A8BB:CCFF:FEDD:EEFF/64            │
+ │                         ═════════════════════                 │
+ │ Interface-ID identisch → Gerät netzwerkübergreifend         │
+ │ verfolgbar (Tracking, Profiling)                            │
+ └────────────────────────────────────────────────────────────────┘
+\`\`\`
+
+---
+
+## 3.2 RFC 4941 / RFC 8981 — Temporäre Adressen (Privacy Extensions)
+
+| RFC | Jahr | Inhalt |
+|-----|------|--------|
+| **RFC 4941** | 2007 | Erste Privacy Extensions: zufällige Interface-ID, periodische Rotation |
+| **RFC 8981** | 2021 | Ablösung von RFC 4941: präziseres Stable/Temporary-Modell, OS-Anforderungen |
+
+---
+
+## 3.3 Stabile vs. Temporäre Adressen
+
+\`\`\`
+ Interface GigabitEthernet0 (Linux/Windows mit RFC 8981)
+ ┌────────────────────────────────────────────────────────────────┐
+ │  Stabile Adresse   (permanent, für eingehende Verbindungen)  │
+ │  2001:db8:1::a8bb:ccff:fedd:eeff/64  ← EUI-64 ODER RFC 7217 │
+ │                                                              │
+ │  Temporäre Adresse (kurzlebig, für ausgehende Verbindungen)  │
+ │  2001:db8:1::d4e9:f123:8a72:1b3c/64  ← kryptografisch zuf.  │
+ │  Gültig: ~24h     Bevorzugt: ~4h (Default RFC 8981)          │
+ └────────────────────────────────────────────────────────────────┘
+
+ Ablauf temporäre Adresse:
+  [Neue temp. ID] → [Bevorzugt ~4h: ausgehende Verbindungen]
+                 → [Deprecation: neue temp. ID erstellt, alte bleibt für offene Sessions]
+                 → [Expire ~24h: alte Adresse gelöscht]
+\`\`\`
+
+| Merkmal | Stabile Adresse | Temporäre Adresse (RFC 8981) |
+|---------|-----------------|------------------------------|
+| Interface-ID-Quelle | EUI-64 oder RFC 7217 | Kryptografisch zufällig |
+| Lebensdauer | Permanent | ~24h (konfigurierbar) |
+| Verwendung | Eingehende Verbindungen, Server | Ausgehende Verbindungen (Browser, Apps) |
+| Tracking-Risiko | Mittel (RFC 7217) bis hoch (EUI-64) | Sehr gering |
+| Standard in | Servern, Routern | Desktop, Smartphones (default ON) |
+
+---
+
+## 3.4 RFC 7217 — Stable Opaque Interface Identifier
+
+RFC 7217 (2014) definiert **stabile, aber nicht MAC-basierte** Interface-IDs.
+Ziel: Persistenz ohne MAC-Trackbarkeit.
+
+\`\`\`
+ RFC 7217 Interface-ID-Generierung:
+ ┌─────────────────────────────────────────────────────────────┐
+ │ Input:                                                      │
+ │  • Netzwerk-Präfix  (z. B. 2001:db8:1::/64)               │
+ │  • Interface-Index  (z. B. eth0 = 2)                       │
+ │  • Netzwerk-ID      (z. B. SSID oder Interface-Name)       │
+ │  • Geheimschlüssel  (lokal, nie übertragen)               │
+ │                                                             │
+ │ Output: SHA-256 → stabile Interface-ID (pro Netz eindeutig) │
+ │ 2001:db8:cafe:1::f3a2:b19c:7e4d:aa82/64                    │
+ │                                                             │
+ │ Wechselt das Netz → andere ID (Tracking unmöglich)         │
+ │ Bleibt im gleichen Netz → gleiche ID (Stabilität OK)       │
+ └─────────────────────────────────────────────────────────────┘
+\`\`\`
+
+| Eigenschaft | EUI-64 | RFC 7217 Stable | RFC 8981 Temporär |
+|-------------|--------|-----------------|-------------------|
+| MAC-basiert | Ja ❌ | Nein ✅ | Nein ✅ |
+| Netzwerkübergr. gleich | Ja ❌ | Nein ✅ | Nein ✅ |
+| Stabil im gleichen Netz | Ja ✅ | Ja ✅ | Nein ❌ (rotiert) |
+| Tracking-Risiko | Hoch | Gering | Sehr gering |
+| Empfehlung | Legacy/Server | Server, Infrastruktur | Clients, Browser |
+
+---
+
+## 3.5 Sicherheit & Datenschutz-Block
+
+\`\`\`
+┌───────────────── IPv6 Privacy Threat Model ──────────────────┐
+│                                                            │
+│ Bedrohung 1: Geräte-Tracking via EUI-64-Interface-ID      │
+│  → Mitigation: RFC 7217 (stabil) oder RFC 8981 (temporär) │
+│                                                            │
+│ Bedrohung 2: Adress-Scanning im /64-Subnetz               │
+│  → 2^64 mögliche Adressen = Port-Scan praktisch unmöglich │
+│  → Schutz durch die /64-Größe bereits inhärent           │
+│                                                            │
+│ Bedrohung 3: RA-Spoofing (Rogue Router Advertisement)     │
+│  → Gefälschter RA mit M=1 oder bösartiger Gateway-Adresse │
+│  → Mitigation: IPv6 RA-Guard (RFC 6105)                   │
+│                                                            │
+│ Bedrohung 4: Adress-Korrelation via DNS/Zertifikate        │
+│  → Temporäre Adressen helfen nur auf Transport-Ebene      │
+│  → DNS-Reverse-Lookup kann stabile Adresse preisgeben     │
+└──────────────────────────────────────────────────────────────┘
+\`\`\`
+
+**OS-Standardverhalten (Stand 2024):**
+
+| Betriebssystem | Standard |
+|----------------|----------|
+| **Linux** | RFC 8981 aktiv (\`net.ipv6.conf.all.use_tempaddr=2\`) |
+| **Windows** | RFC 8981 aktiv (seit Vista) |
+| **macOS / iOS** | RFC 8981 + RFC 7217 stable aktiv |
+| **Android** | RFC 8981 aktiv (seit Android 8) |
+| **Cisco IOS** | EUI-64 default; Privacy optional via \`ipv6 address autoconfig\` |
+
+---
+
+## 3.6 Fallstricke
+
+| Fallstrick | Erklärung |
+|-----------|----------|
+| ⚠️ **Temporäre Adressen = kein Server-Betrieb** | Eingehende Verbindungen brauchen stabile Adressen. Ein Server mit temporärer RFC 8981-Adresse ist nach ~24h unter alter Adresse nicht mehr erreichbar. |
+| ⚠️ **RFC 7217 ≠ anonym** | RFC 7217 verhindert netzwerkübergreifendes Tracking, aber im gleichen Netz ist die Adresse stabil und identifizierbar. |
+| ⚠️ **RFC 4941 vs. RFC 8981** | RFC 8981 ist der aktuelle Standard (2021). RFC 4941 war unschärfer. In der Prüfung: RFC 8981 nennen. |
+| ⚠️ **DAD-Overhead bei Rotation** | Jede neue temporäre Adresse löst DAD aus. In dichten Netzen erhöht das den ICMPv6-Traffic. |
+| ⚠️ **Log-Korrelation erschwert** | Mehrere rotierende Adressen pro Host erschweren die Netzwerk-Forensik — NDP-Cache, Firewall und Syslog müssen alle Adressen eines Hosts erfassen. |
+  `.trim(),
+};
+
 export const TOPIC_IPV6: Topic = {
   id: "ipv6",
   title: "IPv6",
   description:
     "IPv6-Adressierung, NDP, SLAAC, DHCPv6 und Routing — der Nachfolger von IPv4.",
-  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator", "ipv6-address-types", "ipv6-ndp-slaac"],
+  conceptIds: ["ipv6-basics", "ipv6-routing", "ipv6-guide", "ipv6-calculator", "ipv6-address-types", "ipv6-ndp-slaac", "ipv6-privacy"],
   quizIds: ["ccna-quiz-ipv6"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
@@ -477,4 +621,5 @@ export const IPV6_CONCEPTS: Record<string, Concept> = {
   "ipv6-calculator": CONCEPT_IPV6_CALCULATOR,
   "ipv6-address-types": CONCEPT_IPV6_ADDRESS_TYPES,
   "ipv6-ndp-slaac": CONCEPT_IPV6_NDP_SLAAC,
+  "ipv6-privacy": CONCEPT_IPV6_PRIVACY,
 };
