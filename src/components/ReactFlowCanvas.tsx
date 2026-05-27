@@ -17,19 +17,21 @@
  *   - Edge label fade in
  */
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ReactFlow,
   Background,
   BackgroundVariant,
   Controls,
   Handle,
+  NodeResizer,
   Position,
   ReactFlowProvider,
   applyEdgeChanges,
   applyNodeChanges,
   useEdgesState,
   useNodesState,
+  useReactFlow,
   type Connection,
   type Edge,
   type EdgeChange,
@@ -81,7 +83,9 @@ interface CanvasProps {
   }) => void;
 }
 
-// ── Status colours ────────────────────────────────────────────────────────
+// ── Node data type ────────────────────────────────────────────────────────
+type ResizeCb = (id: string, w: number, h: number) => void;
+type NodeData = { obj: DrawingObject; onResize?: ResizeCb };
 const STATUS_COLOR: Record<string, string> = {
   running: "#22c55e",
   stopped: "#94a3b8",
@@ -90,11 +94,10 @@ const STATUS_COLOR: Record<string, string> = {
   pending: "#38bdf8",
 };
 
-// ── Custom node: NetworkDeviceNode ────────────────────────────────────────
-type NodeData = { obj: DrawingObject };
+// ── Status colours ────────────────────────────────────────────────────────
 
 function NetworkDeviceNode({ data, selected }: NodeProps & { data: NodeData }) {
-  const { obj } = data;
+  const { obj, onResize } = data;
   const w = obj.shapeWidth ?? 64;
   const h = obj.shapeHeight ?? 64;
 
@@ -112,6 +115,13 @@ function NetworkDeviceNode({ data, selected }: NodeProps & { data: NodeData }) {
         borderRadius: 4,
       }}
     >
+      <NodeResizer
+        color="#38bdf8"
+        isVisible={selected}
+        minWidth={24}
+        minHeight={24}
+        onResizeEnd={(_, params) => onResize?.(obj.id, params.width, params.height)}
+      />
       <Handle type="target" id="top"    position={Position.Top}    style={{ opacity: 0, width: 8, height: 8, background: "#38bdf8" }} />
       <Handle type="target" id="left"   position={Position.Left}   style={{ opacity: 0, width: 8, height: 8, background: "#38bdf8" }} />
       <Handle type="source" id="right"  position={Position.Right}  style={{ opacity: 0, width: 8, height: 8, background: "#38bdf8" }} />
@@ -209,7 +219,7 @@ function TextLabelNode({ data, selected }: NodeProps & { data: NodeData }) {
 
 // ── Custom node: ZoneRectNode ─────────────────────────────────────────────
 function ZoneRectNode({ data, selected }: NodeProps & { data: NodeData }) {
-  const { obj } = data;
+  const { obj, onResize } = data;
   const w = obj.endPoint ? obj.endPoint.x - (obj.startPoint?.x ?? 0) : 120;
   const h = obj.endPoint ? obj.endPoint.y - (obj.startPoint?.y ?? 0) : 80;
   return (
@@ -225,9 +235,16 @@ function ZoneRectNode({ data, selected }: NodeProps & { data: NodeData }) {
         borderRadius: 4,
         outline: selected ? "1px solid #38bdf8" : "none",
         outlineOffset: 2,
-        pointerEvents: "none",
       }}
-    />
+    >
+      <NodeResizer
+        color={obj.color}
+        isVisible={selected}
+        minWidth={40}
+        minHeight={20}
+        onResizeEnd={(_, params) => onResize?.(obj.id, params.width, params.height)}
+      />
+    </motion.div>
   );
 }
 
@@ -238,13 +255,13 @@ const NODE_TYPES = {
 } as const;
 
 // ── Converters ────────────────────────────────────────────────────────────
-function objToNode(obj: DrawingObject): Node | null {
+function objToNode(obj: DrawingObject, onResize?: ResizeCb): Node | null {
   if (!obj.startPoint) return null;
 
   const base = {
     id: obj.id,
     position: { x: obj.startPoint.x, y: obj.startPoint.y },
-    data: { obj } as NodeData,
+    data: { obj, onResize } as NodeData,
     selected: obj.selected ?? false,
     draggable: !obj.locked,
   };
@@ -299,8 +316,34 @@ function ReactFlowCanvasInner({
   selectedShape,
   onViewportChange,
 }: CanvasProps) {
+  const { fitView } = useReactFlow();
+  const hasFitRef = useRef(false);
+
+  // Resize callback — updates shapeWidth/shapeHeight (shapes) or endPoint (rects)
+  const handleNodeResize = useCallback(
+    (id: string, w: number, h: number) => {
+      onObjectsChange(
+        objects.map((obj) => {
+          if (obj.id !== id) return obj;
+          if (obj.type === "shape") {
+            return { ...obj, shapeWidth: w, shapeHeight: h };
+          }
+          if (obj.type === "rectangle" && obj.startPoint) {
+            return { ...obj, endPoint: { x: obj.startPoint.x + w, y: obj.startPoint.y + h } };
+          }
+          return obj;
+        }),
+      );
+    },
+    [objects, onObjectsChange],
+  );
+
   // Derive RF nodes/edges from props
-  const rfNodes = useMemo(() => objects.flatMap((o) => objToNode(o) ?? []), [objects]);
+  const rfNodes = useMemo(
+    () => objects.flatMap((o) => objToNode(o, handleNodeResize) ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [objects, handleNodeResize],
+  );
   const rfEdges = useMemo(() => connections.map(connToEdge), [connections]);
 
   const [nodes, setNodes] = useNodesState(rfNodes);
@@ -309,6 +352,15 @@ function ReactFlowCanvasInner({
   // Keep ReactFlow in sync when external state changes
   useEffect(() => { setNodes(rfNodes); }, [rfNodes, setNodes]);
   useEffect(() => { setEdges(rfEdges); }, [rfEdges, setEdges]);
+
+  // fitView after nodes first become non-empty (data loads asynchronously from localStorage)
+  useEffect(() => {
+    if (nodes.length > 0 && !hasFitRef.current) {
+      hasFitRef.current = true;
+      // Small delay ensures ReactFlow has measured node dimensions
+      setTimeout(() => fitView({ padding: 0.15, duration: 400 }), 80);
+    }
+  }, [nodes.length, fitView]);
 
   // Node changes: drag end → update DrawingObject positions; select; delete
   const handleNodesChange = useCallback(
@@ -430,12 +482,12 @@ function ReactFlowCanvasInner({
         onConnect={handleConnect}
         onPaneClick={handlePaneClick}
         nodeTypes={NODE_TYPES}
-        fitView
-        fitViewOptions={{ padding: 0.15 }}
         proOptions={{ hideAttribution: true }}
         deleteKeyCode="Delete"
         multiSelectionKeyCode="Shift"
-        panOnDrag={[2]}
+        panOnDrag={true}
+        panOnScroll={false}
+        zoomOnScroll={true}
         selectionOnDrag={tool === "select"}
         connectOnClick={false}
         style={{ background: bgColor }}
