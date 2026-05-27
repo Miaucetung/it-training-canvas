@@ -1,5 +1,5 @@
 import { AnnotationLayer } from "@/components/AnnotationLayer";
-import { ReactFlowCanvas } from "@/components/ReactFlowCanvas";
+import { Canvas } from "@/components/Canvas";
 import { CanvasContextMenu } from "@/components/CanvasContextMenu";
 import { ConnectionPropertiesPanel } from "@/components/ConnectionPropertiesPanel";
 import { CostCalculator } from "@/components/CostCalculator";
@@ -18,11 +18,14 @@ import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
-import { SimulationControls, useSimulation } from "@/components/SimulationControls";
-import { TopicDetailPanel } from "@/components/TopicDetailPanel";
-import { TopicListPanel } from "@/components/TopicListPanel";
+import {
+  SimulationControls,
+  useSimulation,
+} from "@/components/SimulationControls";
 import { TemplateGallery } from "@/components/TemplateGallery";
 import { TerminalEmulator } from "@/components/TerminalEmulator";
+import { TopicDetailPanel } from "@/components/TopicDetailPanel";
+import { TopicListPanel } from "@/components/TopicListPanel";
 import { TopologyValidator } from "@/components/TopologyValidator";
 import {
   downloadJSON,
@@ -31,12 +34,12 @@ import {
   importFromJSON,
 } from "@/lib/canvas-utils";
 import { createTemplate } from "@/lib/collaboration-engine";
+import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
+import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   DEFAULT_LEARNING_PATHS,
   DEFAULT_QUIZZES,
 } from "@/lib/default-learning-content";
-import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
-import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   Annotation,
   CanvasConnection,
@@ -70,7 +73,6 @@ import {
   Export,
   FolderOpen,
   GraduationCap,
-  Info,
   Keyboard,
   Lightning,
   Notepad,
@@ -86,23 +88,23 @@ import { toast, Toaster } from "sonner";
 // ── Phase 6c-1: Catalog → Subject-ID mapping ─────────────────
 // Maps CATALOG_PREVIEW slugs to SUBJECT_CONFIGS keys.
 const CATALOG_SLUG_TO_SUBJECT: Record<string, string> = {
-  "ccna": "CCNA",
+  ccna: "CCNA",
   "az-900": "AZ-900",
   "comptia-network-plus": "NetworkPlus",
 };
 
 // Reverse map: Subject-ID → module ID (for TopicListPanel, Phase 6c-2)
 export const SUBJECT_TO_MODULE_ID: Record<string, string> = {
-  "CCNA": "ccna",
+  CCNA: "ccna",
   "AZ-900": "az-900",
-  "NetworkPlus": "comptia-network-plus",
+  NetworkPlus: "comptia-network-plus",
 };
 
 // New subjects from the catalog that aren't already in DEFAULT_SUBJECTS.
 // These are injected alongside legacy subjects so catalog modules appear in the Sidebar.
-const CATALOG_SUBJECTS: string[] = CATALOG_PREVIEW
-  .map((m) => CATALOG_SLUG_TO_SUBJECT[m.slug])
-  .filter((s): s is string => !!s && !DEFAULT_SUBJECTS.includes(s));
+const CATALOG_SUBJECTS: string[] = CATALOG_PREVIEW.map(
+  (m) => CATALOG_SLUG_TO_SUBJECT[m.slug],
+).filter((s): s is string => !!s && !DEFAULT_SUBJECTS.includes(s));
 
 // Custom hook to replace useKV with localStorage fallback
 function useLocalStorage<T>(
@@ -220,7 +222,9 @@ function App() {
   const [showShareExport, setShowShareExport] = useState(false);
   const [showTemplateGallery, setShowTemplateGallery] = useState(false);
   // QW-4: Template-ID die beim Öffnen der Gallery vorausgewählt wird (von Topic-CTA)
-  const [pendingTemplateId, setPendingTemplateId] = useState<string | undefined>(undefined);
+  const [pendingTemplateId, setPendingTemplateId] = useState<
+    string | undefined
+  >(undefined);
   const [annotations, setAnnotations] = useLocalStorage<
     Record<string, Annotation[]>
   >("canvas-annotations", {});
@@ -1289,11 +1293,11 @@ function App() {
         subjects={subjects}
         currentSubject={currentSubject}
         onSubjectChange={(s) => {
-            setCurrentSubject(s);
-            setSelectedTopic(null);
-            setSelectedTopicModule(null);
-            setCatalogPanelOpen(true);
-          }}
+          setCurrentSubject(s);
+          setSelectedTopic(null);
+          setSelectedTopicModule(null);
+          setCatalogPanelOpen(true);
+        }}
         onAddSubject={handleAddSubject}
         onRemoveSubject={handleRemoveSubject}
         collapsed={sidebarCollapsed}
@@ -1619,160 +1623,160 @@ function App() {
                   <span>Themen</span>
                 </button>
               )}
-          <ReactFlowCanvas
-            objects={canvasState.objects}
-            onObjectsChange={updateCanvasState}
-            onSelectionChange={(selectedObjs) => {
-              setSelectedObjects(selectedObjs);
-              if (selectedObjs.length === 1) {
-                setSelectedObjectForProperties(selectedObjs[0]);
-                setShowPropertiesPanel(true);
-              } else if (selectedObjs.length === 0) {
-                setSelectedObjectForProperties(null);
-                setShowPropertiesPanel(false);
-                setSelectionToolbarPosition(null);
-              } else {
-                // Multiple selection - close properties panel but keep selection toolbar
-                setSelectedObjectForProperties(null);
-                setShowPropertiesPanel(false);
-              }
-              // Calculate toolbar position above selection
-              if (selectedObjs.length > 0 && tool === "select") {
-                let minX = Infinity,
-                  minY = Infinity,
-                  maxX = -Infinity,
-                  maxY = -Infinity;
-                selectedObjs.forEach((obj) => {
-                  const bounds = getObjectBounds(obj);
-                  if (bounds.x < minX) minX = bounds.x;
-                  if (bounds.y < minY) minY = bounds.y;
-                  if (bounds.x + bounds.width > maxX)
-                    maxX = bounds.x + bounds.width;
-                  if (bounds.y + bounds.height > maxY)
-                    maxY = bounds.y + bounds.height;
-                });
-                // Transform to screen coordinates
-                const screenX =
-                  (minX + (maxX - minX) / 2 - viewportInfo.x) *
-                  viewportInfo.zoom;
-                const screenY =
-                  (minY - viewportInfo.y) * viewportInfo.zoom - 60;
-                setSelectionToolbarPosition({
-                  x: Math.max(150, screenX),
-                  y: Math.max(60, screenY),
-                });
-              }
-            }}
-            connections={canvasState.connections}
-            onConnectionsChange={(newConnections) => {
-              setAppData((prev) => {
-                if (!prev) return {};
-                const current = prev[currentSubject];
-                if (!current) return prev;
+              <Canvas
+                objects={canvasState.objects}
+                onObjectsChange={updateCanvasState}
+                onSelectionChange={(selectedObjs) => {
+                  setSelectedObjects(selectedObjs);
+                  if (selectedObjs.length === 1) {
+                    setSelectedObjectForProperties(selectedObjs[0]);
+                    setShowPropertiesPanel(true);
+                  } else if (selectedObjs.length === 0) {
+                    setSelectedObjectForProperties(null);
+                    setShowPropertiesPanel(false);
+                    setSelectionToolbarPosition(null);
+                  } else {
+                    // Multiple selection - close properties panel but keep selection toolbar
+                    setSelectedObjectForProperties(null);
+                    setShowPropertiesPanel(false);
+                  }
+                  // Calculate toolbar position above selection
+                  if (selectedObjs.length > 0 && tool === "select") {
+                    let minX = Infinity,
+                      minY = Infinity,
+                      maxX = -Infinity,
+                      maxY = -Infinity;
+                    selectedObjs.forEach((obj) => {
+                      const bounds = getObjectBounds(obj);
+                      if (bounds.x < minX) minX = bounds.x;
+                      if (bounds.y < minY) minY = bounds.y;
+                      if (bounds.x + bounds.width > maxX)
+                        maxX = bounds.x + bounds.width;
+                      if (bounds.y + bounds.height > maxY)
+                        maxY = bounds.y + bounds.height;
+                    });
+                    // Transform to screen coordinates
+                    const screenX =
+                      (minX + (maxX - minX) / 2 - viewportInfo.x) *
+                      viewportInfo.zoom;
+                    const screenY =
+                      (minY - viewportInfo.y) * viewportInfo.zoom - 60;
+                    setSelectionToolbarPosition({
+                      x: Math.max(150, screenX),
+                      y: Math.max(60, screenY),
+                    });
+                  }
+                }}
+                connections={canvasState.connections}
+                onConnectionsChange={(newConnections) => {
+                  setAppData((prev) => {
+                    if (!prev) return {};
+                    const current = prev[currentSubject];
+                    if (!current) return prev;
 
-                return {
-                  ...prev,
-                  [currentSubject]: {
-                    ...current,
-                    canvasState: {
-                      ...current.canvasState,
-                      connections: newConnections,
-                    },
-                    lastModified: Date.now(),
-                  },
-                };
-              });
-            }}
-            onConnectionSelect={handleConnectionSelect}
-            onContextMenu={handleContextMenu}
-            tool={tool}
-            color={color}
-            penWidth={PEN_WIDTHS[penWidth]}
-            fontSize={TEXT_SIZES[textSize]}
-            fontFamily={fontFamily}
-            theme={theme}
-            showGrid={showGrid}
-            gridSize={GRID_SIZES[gridSize]}
-            gridPattern={gridPattern}
-            gridColor={gridColor}
-            gridAccentColor={gridAccentColor}
-            gridOpacity={gridOpacity}
-            selectedShape={selectedShape}
-            onViewportChange={setViewportInfo}
-          />
+                    return {
+                      ...prev,
+                      [currentSubject]: {
+                        ...current,
+                        canvasState: {
+                          ...current.canvasState,
+                          connections: newConnections,
+                        },
+                        lastModified: Date.now(),
+                      },
+                    };
+                  });
+                }}
+                onConnectionSelect={handleConnectionSelect}
+                onContextMenu={handleContextMenu}
+                tool={tool}
+                color={color}
+                penWidth={PEN_WIDTHS[penWidth]}
+                fontSize={TEXT_SIZES[textSize]}
+                fontFamily={fontFamily}
+                theme={theme}
+                showGrid={showGrid}
+                gridSize={GRID_SIZES[gridSize]}
+                gridPattern={gridPattern}
+                gridColor={gridColor}
+                gridAccentColor={gridAccentColor}
+                gridOpacity={gridOpacity}
+                selectedShape={selectedShape}
+                onViewportChange={setViewportInfo}
+              />
 
-          {/* MiniMap */}
-          {showMiniMap && canvasState.objects.length > 0 && (
-            <MiniMap
-              objects={canvasState.objects}
-              canvasWidth={viewportInfo.width}
-              canvasHeight={viewportInfo.height}
-              viewportOffset={{
-                x: -viewportInfo.x * viewportInfo.zoom,
-                y: -viewportInfo.y * viewportInfo.zoom,
-              }}
-              viewportScale={viewportInfo.zoom}
-              theme={theme}
-            />
-          )}
+              {/* MiniMap */}
+              {showMiniMap && canvasState.objects.length > 0 && (
+                <MiniMap
+                  objects={canvasState.objects}
+                  canvasWidth={viewportInfo.width}
+                  canvasHeight={viewportInfo.height}
+                  viewportOffset={{
+                    x: -viewportInfo.x * viewportInfo.zoom,
+                    y: -viewportInfo.y * viewportInfo.zoom,
+                  }}
+                  viewportScale={viewportInfo.zoom}
+                  theme={theme}
+                />
+              )}
 
-          {/* Welcome Overlay — UX-QW-1 */}
-          {showWelcome && canvasState.objects.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div
-                className={`text-center p-6 rounded-2xl ${
-                  theme === "dark" ? "bg-slate-900/80" : "bg-white/80"
-                } backdrop-blur-sm max-w-sm w-full mx-4 pointer-events-auto`}
-              >
-                <p
-                  className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
-                    theme === "dark" ? "text-slate-500" : "text-slate-400"
-                  }`}
-                >
-                  Canvas ist leer
-                </p>
-                <p
-                  className={`text-sm mb-5 ${
-                    theme === "dark" ? "text-slate-300" : "text-slate-600"
-                  }`}
-                >
-                  Womit möchtest du beginnen?
-                </p>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => setShowTemplateGallery(true)}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                      theme === "dark"
-                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30"
-                        : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
-                    }`}
+              {/* Welcome Overlay — UX-QW-1 */}
+              {showWelcome && canvasState.objects.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div
+                    className={`text-center p-6 rounded-2xl ${
+                      theme === "dark" ? "bg-slate-900/80" : "bg-white/80"
+                    } backdrop-blur-sm max-w-sm w-full mx-4 pointer-events-auto`}
                   >
-                    Template laden
-                  </button>
-                  <button
-                    onClick={() => setShowShapePicker(true)}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                      theme === "dark"
-                        ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
-                        : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    Shape platzieren
-                  </button>
-                  <button
-                    onClick={() => setSidebarCollapsed(false)}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                      theme === "dark"
-                        ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
-                        : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    Aus Topic starten
-                  </button>
+                    <p
+                      className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
+                        theme === "dark" ? "text-slate-500" : "text-slate-400"
+                      }`}
+                    >
+                      Canvas ist leer
+                    </p>
+                    <p
+                      className={`text-sm mb-5 ${
+                        theme === "dark" ? "text-slate-300" : "text-slate-600"
+                      }`}
+                    >
+                      Womit möchtest du beginnen?
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => setShowTemplateGallery(true)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                          theme === "dark"
+                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30"
+                            : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100"
+                        }`}
+                      >
+                        Template laden
+                      </button>
+                      <button
+                        onClick={() => setShowShapePicker(true)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                          theme === "dark"
+                            ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
+                            : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        Shape platzieren
+                      </button>
+                      <button
+                        onClick={() => setSidebarCollapsed(false)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                          theme === "dark"
+                            ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
+                            : "bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        Aus Topic starten
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
             </>
           )}
         </div>
