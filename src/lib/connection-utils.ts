@@ -225,7 +225,7 @@ export function drawConnection(
   // Draw label if present
   if (connection.label) {
     const midX = (sourcePos.x + targetPos.x) / 2;
-    const midY = (sourcePos.y + targetPos.y) / 2;
+    const midY = (sourcePos.y + targetPos.y) / 2 + (connection.labelOffsetY ?? 0);
 
     ctx.font = 'bold 10px "IBM Plex Mono", monospace';
     ctx.textAlign = "center";

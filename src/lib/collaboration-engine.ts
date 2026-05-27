@@ -351,7 +351,7 @@ function tplConn(
   targetId: string,
   label: string,
   color: string,
-  options?: { animated?: boolean; protocol?: string },
+  options?: { animated?: boolean; protocol?: string; labelOffsetY?: number },
 ): CanvasConnection {
   return {
     id,
@@ -363,6 +363,7 @@ function tplConn(
     status: "active",
     animated: options?.animated ?? false,
     label,
+    labelOffsetY: options?.labelOffsetY,
     color,
     protocol: options?.protocol,
   };
@@ -1094,24 +1095,24 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
 
       // ── Zone 6: Gegenmaßnahmen-Block ────────────────────────────────
       tplRect("vhop-cm", 50, 348, 740, 112, "#6366F1"),
-      tplText("vhop-cm-h",  58, 365, "Gegenmaßnahmen:", "#1E293B", 13),
+      tplText("vhop-cm-h",  58, 365, "Gegenmaßnahmen:", "#E2E8F0", 13),
       tplText("vhop-cm1",  58, 387,
         "switchport trunk native vlan 999   (999 = unbenutztes VLAN ohne Hosts)",
-        "#334155", 11),
+        "#94A3B8", 11),
       tplText("vhop-cm2",  58, 407,
         "vlan dot1q tag native               (Native VLAN wird ebenfalls getaggt)",
-        "#334155", 11),
+        "#94A3B8", 11),
       tplText("vhop-cm3",  58, 427,
         "switchport trunk allowed vlan remove 1   (VLAN 1 vom Trunk entfernen)",
-        "#334155", 11),
+        "#94A3B8", 11),
     ],
     connections: [
       tplConn("vhop-c1", "vhop-attacker", "vhop-sw1",
-        "[VL1][VL20] doppelt getaggt", "#EF4444", { animated: true }),
+        "[VL1][VL20] doppelt getaggt", "#EF4444", { animated: true, labelOffsetY: 55 }),
       tplConn("vhop-c2", "vhop-sw1", "vhop-sw2",
-        "[VL20] äußerer Tag entfernt", "#F59E0B", { animated: true }),
+        "[VL20] äußerer Tag entfernt", "#F59E0B", { animated: true, labelOffsetY: 55 }),
       tplConn("vhop-c3", "vhop-sw2", "vhop-target",
-        "[VL20] Zustellung", "#3B82F6", { animated: true }),
+        "[VL20] Zustellung", "#3B82F6", { animated: true, labelOffsetY: 55 }),
     ],
     estimatedTime: "15 min",
     downloads: 0,

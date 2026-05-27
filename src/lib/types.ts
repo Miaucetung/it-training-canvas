@@ -582,6 +582,7 @@ export interface CanvasConnection {
   animated?: boolean;
   bidirectional?: boolean;
   label?: string;
+  labelOffsetY?: number;
   color?: string;
   protocol?: string;
   bandwidth?: string;
