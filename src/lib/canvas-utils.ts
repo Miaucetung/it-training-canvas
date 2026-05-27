@@ -218,6 +218,9 @@ export function drawObject(
       if (obj.startPoint && obj.endPoint) {
         const width = obj.endPoint.x - obj.startPoint.x;
         const height = obj.endPoint.y - obj.startPoint.y;
+        // Semi-transparent fill so zone rects are visible on dark canvas
+        ctx.fillStyle = obj.color + "20";
+        ctx.fillRect(obj.startPoint.x, obj.startPoint.y, width, height);
         ctx.strokeRect(obj.startPoint.x, obj.startPoint.y, width, height);
       }
       break;
