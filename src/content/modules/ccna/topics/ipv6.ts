@@ -347,31 +347,62 @@ Host B → [NA an Host A (Unicast)]
 
 ---
 
-## SLAAC — Stateless Address Autoconfiguration (RFC 4862)
+## SLAAC — Stateless Address Autoconfiguration (RFC 4862, RFC 4861, RFC 4291)
 
 SLAAC ermöglicht Hosts, sich ohne DHCPv6-Server eine vollständige IPv6-Adresse
-zu konfigurieren.
+zu konfigurieren. Die drei zentralen RFCs:
 
-### SLAAC-Prozess
+| RFC | Inhalt |
+|-----|--------|
+| **RFC 4862** | SLAAC — Adresskonfigurationsablauf auf dem Host |
+| **RFC 4861** | NDP — Router Advertisements und Neighbor Discovery |
+| **RFC 4291** | IPv6-Adressarchitektur — Adresstypen, Präfixe, Interface-ID |
+
+### SLAAC-Ablauf in 5 Schritten
+
+#### Diagramm 4 — SLAAC Sequenz (Host ↔ Router)
 
 \`\`\`
-1. Host sendet RS (Router Solicitation) an FF02::2
-2. Router antwortet mit RA (Router Advertisement):
-   - IPv6-Präfix (z. B. 2001:DB8:1::/64)
-   - Default Gateway = Router's Link-Local-Adresse
-   - Flags: A-Flag (SLAAC), M-Flag (DHCPv6 Stateful), O-Flag (DHCPv6 Stateless)
-3. Host erstellt Interface-ID via EUI-64 oder Zufallswert
-4. DAD (Duplicate Address Detection) prüft, ob Adresse bereits vergeben
-5. Host konfiguriert Adresse: Präfix + Interface-ID
+ Host (noch kein Präfix)               Router (2001:DB8:1::/64)
+      │                                      │
+ [1]  │ Link-Local bilden                    │
+      │ fe80::A8BB:CCFF:FEDD:EEFF/10         │
+      │                                      │
+ [2]  │ DAD für Link-Local:                  │
+      │ NS → ff02::1:FFDD:EEFF               │
+      │ [kein Konflikt → Link-Local aktiv]   │
+      │                                      │
+ [3]  │──── RS ──────────────────────────>│  an ff02::2 (All Routers)
+      │     "Gibt es einen Router?"          │
+      │                                      │
+ [4]  │<──── RA ───────────────────────────│  von fe80::1 (Router LLA)
+      │     Präfix: 2001:DB8:1::/64          │
+      │     Flags:  A=1, M=0, O=0, L=1       │
+      │     Gateway: fe80::1                 │
+      │                                      │
+ [5]  │ GUA bilden + DAD:                    │
+      │ 2001:DB8:1::A8BB:CCFF:FEDD:EEFF/64   │
+      │ NS → ff02::1:FFDD:EEFF               │
+      │ [kein Konflikt → GUA aktiv ✓]        │
 \`\`\`
 
 ### SLAAC-Flags im Router Advertisement
 
-| Flag | Bedeutung |
-|------|-----------|
-| **A-Flag = 1** | Nutze SLAAC für die Adresse |
-| **M-Flag = 1** | Nutze Stateful DHCPv6 für Adresse |
-| **O-Flag = 1** | Nutze Stateless DHCPv6 für andere Parameter (DNS) |
+#### Diagramm 5 — RA-Flag-Entscheidungstabelle
+
+| M | O | A | L | Ergebnis |
+|---|---|---|---|----------|
+| 0 | 0 | 1 | 1 | **Reines SLAAC** — Adresse via SLAAC, kein DHCPv6 |
+| 0 | 1 | 1 | 1 | **SLAAC + Stateless DHCPv6** — Adresse via SLAAC, DNS vom Server |
+| 1 | 1 | 0 | 1 | **Stateful DHCPv6** — Server vergibt Adresse + alle Parameter |
+| 1 | 1 | 1 | 1 | **Parallel** — Stateful DHCPv6 UND SLAAC (selten) |
+
+| Flag | Vollname | Bedeutung |
+|------|----------|-----------|
+| **A-Flag** | Autonomous Address Configuration | 1 = Host darf SLAAC nutzen |
+| **M-Flag** | Managed Address Configuration | 1 = Stateful DHCPv6 für Adresse nutzen |
+| **O-Flag** | Other Configuration | 1 = Stateless DHCPv6 für weitere Params (DNS) |
+| **L-Flag** | On-Link | 1 = Präfix ist direkt im Segment erreichbar |
 
 ---
 
@@ -394,6 +425,18 @@ Bevor ein Host eine IPv6-Adresse nutzt, prüft er via **DAD**, ob sie bereits ve
 1. Host sendet NS (Neighbor Solicitation) für die eigene Adresse an Solicited-Node Multicast
 2. Bleibt die NA-Antwort aus → Adresse ist eindeutig und wird genutzt
 3. Kommt eine NA-Antwort → Adresskonflikt! Host bricht Konfiguration ab
+
+---
+
+## SLAAC-Fallstricke
+
+| Fallstrick | Erklärung |
+|-----------|----------|
+| ⚠️ **A-Flag = 0** | Kein SLAAC möglich — Host muss DHCPv6 oder manuelle Konfiguration nutzen |
+| ⚠️ **M=1 schließt SLAAC nicht aus** | M=1 bedeutet Stateful DHCPv6 *soll* genutzt werden — SLAAC (A=1) kann parallel aktiv sein |
+| ⚠️ **Default-Gateway nur via RA** | Gateway kommt ausschließlich aus dem RA (Router's Link-Local). DHCPv6 kennt keinen Gateway-Parameter |
+| ⚠️ **Link-Local immer konfiguriert** | FE80::/10 wird automatisch auf jedem IPv6-Interface gebildet — unabhängig von SLAAC oder DHCPv6 |
+| ⚠️ **RA-Spoofing** | Angreifer können gefälschte RAs senden. In Produktionsnetzen: **IPv6 RA-Guard** (RFC 6105) einsetzen |
 `,
 };
 
