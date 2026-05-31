@@ -61,7 +61,7 @@ jobs:
 
   deploy:
     needs: docker
-    runs-on: self-hosted
+    runs-on: [self-hosted, k3s]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
