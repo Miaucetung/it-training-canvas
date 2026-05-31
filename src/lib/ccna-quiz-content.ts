@@ -6611,6 +6611,688 @@ export const QUIZ_VLAN_ADVANCED: Quiz = {
 };
 
 // ============================================================
+// QUIZ: Wiederholung Tag 1 — Switching, Ethernet, IOS, VLAN, STP
+// 60 MC-Fragen (Fragenpool aus Pohlmann/Cisco-Block Tag 1)
+// ============================================================
+export const QUIZ_TAG1_WIEDERHOLUNG: Quiz = {
+  id: "ccna-quiz-tag1-wiederholung",
+  title: "CCNA: Wiederholung Tag 1 (L2, IOS, VLAN, STP)",
+  description:
+    "60 Multiple-Choice-Fragen: Switches & Ethernet, Cisco IOS, VLAN & VTP, Spanning Tree Protocol",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    // ── Switches & Ethernet (1–20) ─────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aufgabe hat ein Switch hauptsächlich?",
+      explanation: "Ein Switch leitet Ethernet-Frames anhand der Ziel-MAC-Adresse an den richtigen Port weiter (Layer 2).",
+      answers: [
+        { id: "a", text: "Übersetzung von IP-Adressen", isCorrect: false },
+        { id: "b", text: "Weiterleitung von Frames anhand von MAC-Adressen", isCorrect: true },
+        { id: "c", text: "Verschlüsselung von Daten", isCorrect: false },
+        { id: "d", text: "DNS-Auflösung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Auf welcher OSI-Schicht arbeitet ein klassischer Layer-2-Switch?",
+      explanation: "Layer-2-Switches arbeiten auf der Sicherungsschicht (Data Link, Schicht 2).",
+      answers: [
+        { id: "a", text: "Schicht 1", isCorrect: false },
+        { id: "b", text: "Schicht 2", isCorrect: true },
+        { id: "c", text: "Schicht 3", isCorrect: false },
+        { id: "d", text: "Schicht 7", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was speichert ein Switch in seiner MAC-Adress-Tabelle?",
+      explanation: "Die CAM-Tabelle speichert MAC-Adressen und den dazugehörigen physischen Port (sowie das VLAN).",
+      answers: [
+        { id: "a", text: "IP-Adressen", isCorrect: false },
+        { id: "b", text: "VLAN-Passwörter", isCorrect: false },
+        { id: "c", text: "MAC-Adressen und Ports", isCorrect: true },
+        { id: "d", text: "DNS-Namen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Ethernet-Standard unterstützt 1 Gbit/s über Twisted Pair?",
+      explanation: "1000BASE-T = Gigabit Ethernet über Cat5e/Cat6 Kupferkabel.",
+      answers: [
+        { id: "a", text: "10BASE-T", isCorrect: false },
+        { id: "b", text: "100BASE-TX", isCorrect: false },
+        { id: "c", text: "1000BASE-T", isCorrect: true },
+        { id: "d", text: "10GBASE-SR", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was passiert, wenn ein Switch die Ziel-MAC-Adresse nicht kennt?",
+      explanation: "Unbekannte Unicast-Frames werden geflutet: an alle Ports außer dem Eingangsport weitergeleitet.",
+      answers: [
+        { id: "a", text: "Der Frame wird verworfen", isCorrect: false },
+        { id: "b", text: "Der Frame wird geflutet", isCorrect: true },
+        { id: "c", text: "Der Switch startet neu", isCorrect: false },
+        { id: "d", text: "Die Verbindung wird getrennt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche MAC-Adresse wird für Broadcasts verwendet?",
+      explanation: "Die Layer-2-Broadcast-Adresse lautet FF:FF:FF:FF:FF:FF (alle 48 Bit auf 1).",
+      answers: [
+        { id: "a", text: "00:00:00:00:00:00", isCorrect: false },
+        { id: "b", text: "FF:FF:FF:FF:FF:FF", isCorrect: true },
+        { id: "c", text: "11:11:11:11:11:11", isCorrect: false },
+        { id: "d", text: "AA:AA:AA:AA:AA:AA", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Duplex-Einstellung ermöglicht gleichzeitiges Senden und Empfangen?",
+      explanation: "Full Duplex erlaubt simultanes Senden und Empfangen — keine Kollisionen mehr.",
+      answers: [
+        { id: "a", text: "Half Duplex", isCorrect: false },
+        { id: "b", text: "Simplex", isCorrect: false },
+        { id: "c", text: "Full Duplex", isCorrect: true },
+        { id: "d", text: "Broadcast Duplex", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welches Medium wird bei 1000BASE-T verwendet?",
+      explanation: "1000BASE-T nutzt Twisted-Pair-Kupferkabel (Cat5e/Cat6).",
+      answers: [
+        { id: "a", text: "Glasfaser", isCorrect: false },
+        { id: "b", text: "Koaxialkabel", isCorrect: false },
+        { id: "c", text: "Twisted Pair", isCorrect: true },
+        { id: "d", text: "Funk", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aufgabe hat CSMA/CD?",
+      explanation: "Carrier Sense Multiple Access / Collision Detection erkennt und behandelt Kollisionen in Half-Duplex-Ethernet (heute kaum noch relevant).",
+      answers: [
+        { id: "a", text: "Routing", isCorrect: false },
+        { id: "b", text: "Vermeidung und Erkennung von Kollisionen", isCorrect: true },
+        { id: "c", text: "VLAN-Zuweisung", isCorrect: false },
+        { id: "d", text: "Verschlüsselung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zu Full Duplex ist korrekt?",
+      explanation: "Im Full-Duplex-Betrieb gibt es keine Kollisionen, da getrennte Sende- und Empfangspfade verwendet werden.",
+      answers: [
+        { id: "a", text: "Kollisionen sind möglich", isCorrect: false },
+        { id: "b", text: "Nur Senden ist erlaubt", isCorrect: false },
+        { id: "c", text: "Kollisionen treten nicht auf", isCorrect: true },
+        { id: "d", text: "Broadcasts werden blockiert", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Adresse verwendet Ethernet auf Layer 2?",
+      explanation: "Ethernet adressiert auf Layer 2 ausschließlich über MAC-Adressen.",
+      answers: [
+        { id: "a", text: "IP-Adresse", isCorrect: false },
+        { id: "b", text: "Portnummer", isCorrect: false },
+        { id: "c", text: "MAC-Adresse", isCorrect: true },
+        { id: "d", text: "DNS-Adresse", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was bedeutet die Abkürzung MTU?",
+      explanation: "Maximum Transmission Unit — die größte erlaubte Nutzdatengröße pro Frame (Ethernet-Default: 1500 Byte).",
+      answers: [
+        { id: "a", text: "Maximum Transmission Unit", isCorrect: true },
+        { id: "b", text: "Main Transmission Utility", isCorrect: false },
+        { id: "c", text: "Managed Trunk Unit", isCorrect: false },
+        { id: "d", text: "Media Transfer Usage", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welches Gerät trennt Kollisionsdomänen?",
+      explanation: "Ein Switch erstellt pro Port eine eigene Kollisionsdomäne — anders als ein Hub, der nur eine gemeinsame Domäne hat.",
+      answers: [
+        { id: "a", text: "Hub", isCorrect: false },
+        { id: "b", text: "Repeater", isCorrect: false },
+        { id: "c", text: "Switch", isCorrect: true },
+        { id: "d", text: "Koaxialkabel", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Wie viele Bits besitzt eine MAC-Adresse?",
+      explanation: "MAC-Adressen sind 48 Bit lang (6 Byte / 12 Hex-Zeichen).",
+      answers: [
+        { id: "a", text: "32 Bit", isCorrect: false },
+        { id: "b", text: "48 Bit", isCorrect: true },
+        { id: "c", text: "64 Bit", isCorrect: false },
+        { id: "d", text: "128 Bit", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Topologie wird heute häufig in Ethernet-Netzwerken genutzt?",
+      explanation: "Moderne Ethernet-LANs sind sternförmig aufgebaut — alle Hosts hängen an einem zentralen Switch.",
+      answers: [
+        { id: "a", text: "Ring", isCorrect: false },
+        { id: "b", text: "Stern", isCorrect: true },
+        { id: "c", text: "Bus", isCorrect: false },
+        { id: "d", text: "Mesh", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was ist ein Unicast?",
+      explanation: "Unicast bezeichnet die Kommunikation zwischen genau zwei Geräten (1:1).",
+      answers: [
+        { id: "a", text: "Kommunikation an alle Geräte", isCorrect: false },
+        { id: "b", text: "Kommunikation an eine Gruppe", isCorrect: false },
+        { id: "c", text: "Kommunikation an ein einzelnes Gerät", isCorrect: true },
+        { id: "d", text: "Kommunikation ohne Zieladresse", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zu einem Hub ist korrekt?",
+      explanation: "Ein Hub (Layer 1) leitet jeden eingehenden Frame an alle anderen Ports weiter — keine MAC-Tabelle, keine Trennung von Kollisionsdomänen.",
+      answers: [
+        { id: "a", text: "Arbeitet auf Layer 3", isCorrect: false },
+        { id: "b", text: "Trennt Broadcast-Domänen", isCorrect: false },
+        { id: "c", text: "Sendet Frames an alle Ports", isCorrect: true },
+        { id: "d", text: "Nutzt MAC-Tabellen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Funktion besitzt Auto-MDIX?",
+      explanation: "Auto-MDIX erkennt automatisch ob ein Crossover- oder Straight-Through-Kabel verwendet wird und passt die Pin-Belegung an.",
+      answers: [
+        { id: "a", text: "VLAN-Zuweisung", isCorrect: false },
+        { id: "b", text: "Automatische Kabelerkennung (Straight vs. Crossover)", isCorrect: true },
+        { id: "c", text: "Routing", isCorrect: false },
+        { id: "d", text: "QoS-Konfiguration", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was beschreibt die Bandbreite?",
+      explanation: "Bandbreite = maximal übertragbare Datenmenge pro Zeiteinheit (z. B. Mbit/s).",
+      answers: [
+        { id: "a", text: "Signalstärke", isCorrect: false },
+        { id: "b", text: "Datenmenge pro Zeit", isCorrect: true },
+        { id: "c", text: "Paketanzahl", isCorrect: false },
+        { id: "d", text: "MAC-Adressenanzahl", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Ethernet-Geschwindigkeit entspricht Fast Ethernet?",
+      explanation: "Fast Ethernet = 100 Mbit/s (IEEE 802.3u, 100BASE-TX).",
+      answers: [
+        { id: "a", text: "10 Mbit/s", isCorrect: false },
+        { id: "b", text: "100 Mbit/s", isCorrect: true },
+        { id: "c", text: "1 Gbit/s", isCorrect: false },
+        { id: "d", text: "10 Gbit/s", isCorrect: false },
+      ],
+    },
+
+    // ── Cisco IOS (21–35) ──────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Mit welchem Befehl wechselt man in den privilegierten EXEC-Modus?",
+      explanation: "`enable` führt vom User-EXEC (Switch>) in den Privileged-EXEC-Modus (Switch#).",
+      answers: [
+        { id: "a", text: "configure terminal", isCorrect: false },
+        { id: "b", text: "enable", isCorrect: true },
+        { id: "c", text: "login", isCorrect: false },
+        { id: "d", text: "privilege", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Prompt zeigt den privilegierten EXEC-Modus?",
+      explanation: "Im Privileged-EXEC-Modus endet der Prompt auf `#` (z. B. `Switch#`).",
+      answers: [
+        { id: "a", text: ">", isCorrect: false },
+        { id: "b", text: "$", isCorrect: false },
+        { id: "c", text: "#", isCorrect: true },
+        { id: "d", text: "%", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl zeigt die aktuelle (laufende) Konfiguration an?",
+      explanation: "`show running-config` zeigt die Konfiguration im RAM. `show startup-config` zeigt die persistierte Konfiguration im NVRAM.",
+      answers: [
+        { id: "a", text: "show startup-config", isCorrect: false },
+        { id: "b", text: "show running-config", isCorrect: true },
+        { id: "c", text: "show vlan", isCorrect: false },
+        { id: "d", text: "reload config", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Wie gelangt man in den globalen Konfigurationsmodus?",
+      explanation: "`configure terminal` (kurz `conf t`) wechselt aus dem Privileged-EXEC in den Global-Config-Modus.",
+      answers: [
+        { id: "a", text: "terminal mode", isCorrect: false },
+        { id: "b", text: "configure terminal", isCorrect: true },
+        { id: "c", text: "global mode", isCorrect: false },
+        { id: "d", text: "conf switch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl speichert die laufende Konfiguration dauerhaft?",
+      explanation: "`write memory` (alternativ `copy running-config startup-config`) sichert die running-config in den NVRAM.",
+      answers: [
+        { id: "a", text: "save running", isCorrect: false },
+        { id: "b", text: "write memory", isCorrect: true },
+        { id: "c", text: "store config", isCorrect: false },
+        { id: "d", text: "startup save", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl zeigt Informationen zu Interfaces?",
+      explanation: "`show interfaces` listet Status, Counter, Duplex/Speed und Fehler aller Interfaces.",
+      answers: [
+        { id: "a", text: "show interfaces", isCorrect: true },
+        { id: "b", text: "show ports", isCorrect: false },
+        { id: "c", text: "show media", isCorrect: false },
+        { id: "d", text: "show ethernet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Wie beendet man den Konfigurationsmodus direkt (zurück zum Privileged-EXEC)?",
+      explanation: "`end` springt aus jedem Sub-Konfigurationsmodus direkt zum Privileged-EXEC. `exit` geht nur eine Ebene zurück.",
+      answers: [
+        { id: "a", text: "logout", isCorrect: false },
+        { id: "b", text: "close", isCorrect: false },
+        { id: "c", text: "end", isCorrect: true },
+        { id: "d", text: "stop", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl zeigt die VLAN-Konfiguration?",
+      explanation: "`show vlan brief` zeigt VLAN-IDs, Namen, Status und zugeordnete Access-Ports.",
+      answers: [
+        { id: "a", text: "show vlan brief", isCorrect: true },
+        { id: "b", text: "show switch", isCorrect: false },
+        { id: "c", text: "show trunk ports", isCorrect: false },
+        { id: "d", text: "show spanning", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Speicher enthält die Startup-Config?",
+      explanation: "Die startup-config liegt im NVRAM (Non-Volatile RAM) und bleibt nach Neustart erhalten.",
+      answers: [
+        { id: "a", text: "RAM", isCorrect: false },
+        { id: "b", text: "ROM", isCorrect: false },
+        { id: "c", text: "NVRAM", isCorrect: true },
+        { id: "d", text: "Flash", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Speicher enthält das Cisco IOS-Image?",
+      explanation: "Das IOS-Image (.bin) wird im Flash-Speicher abgelegt und beim Boot in den RAM geladen.",
+      answers: [
+        { id: "a", text: "RAM", isCorrect: false },
+        { id: "b", text: "Flash", isCorrect: true },
+        { id: "c", text: "CPU", isCorrect: false },
+        { id: "d", text: "NVRAM", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Tastenkombination vervollständigt Befehle in der Cisco CLI?",
+      explanation: "Mit `Tab` werden eindeutige Befehle automatisch vervollständigt.",
+      answers: [
+        { id: "a", text: "Strg+C", isCorrect: false },
+        { id: "b", text: "Tab", isCorrect: true },
+        { id: "c", text: "Esc", isCorrect: false },
+        { id: "d", text: "Alt+F", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl zeigt die IOS-Version?",
+      explanation: "`show version` zeigt IOS-Version, Uptime, Hardware-Modell, Seriennummer und Konfigurationsregister.",
+      answers: [
+        { id: "a", text: "show version", isCorrect: true },
+        { id: "b", text: "show system", isCorrect: false },
+        { id: "c", text: "show ios", isCorrect: false },
+        { id: "d", text: "version info", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was bewirkt der Befehl `hostname SW1` im Global-Config-Modus?",
+      explanation: "Setzt den Gerätenamen auf `SW1` — der Prompt ändert sich entsprechend (`SW1(config)#`).",
+      answers: [
+        { id: "a", text: "Setzt ein Passwort", isCorrect: false },
+        { id: "b", text: "Konfiguriert VLAN 1", isCorrect: false },
+        { id: "c", text: "Vergibt den Gerätenamen", isCorrect: true },
+        { id: "d", text: "Aktiviert SSH", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zur running-config ist korrekt?",
+      explanation: "Die running-config liegt im flüchtigen RAM — Änderungen sind sofort aktiv, gehen aber bei Reboot verloren, wenn nicht gespeichert.",
+      answers: [
+        { id: "a", text: "Wird im Flash gespeichert", isCorrect: false },
+        { id: "b", text: "Liegt im RAM", isCorrect: true },
+        { id: "c", text: "Enthält das IOS", isCorrect: false },
+        { id: "d", text: "Ist schreibgeschützt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl startet ein Cisco-Gerät neu?",
+      explanation: "`reload` löst einen Neustart aus. Vorher fragt das IOS, ob nicht gespeicherte Änderungen gesichert werden sollen.",
+      answers: [
+        { id: "a", text: "reset", isCorrect: false },
+        { id: "b", text: "restart", isCorrect: false },
+        { id: "c", text: "reload", isCorrect: true },
+        { id: "d", text: "reboot now", isCorrect: false },
+      ],
+    },
+
+    // ── VLAN & VTP (36–50) ─────────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Wozu dient ein VLAN?",
+      explanation: "VLANs segmentieren ein physisches Netzwerk in logische Broadcast-Domänen — bessere Sicherheit und weniger Broadcast-Last.",
+      answers: [
+        { id: "a", text: "Erhöhung der Spannung", isCorrect: false },
+        { id: "b", text: "Segmentierung von Netzwerken in Broadcast-Domänen", isCorrect: true },
+        { id: "c", text: "Verschlüsselung", isCorrect: false },
+        { id: "d", text: "Routing ins Internet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche VLAN-ID ist standardmäßig auf Cisco Switches vorhanden?",
+      explanation: "VLAN 1 ist das Default-VLAN, in dem sich alle Ports nach Werkseinstellung befinden.",
+      answers: [
+        { id: "a", text: "VLAN 0", isCorrect: false },
+        { id: "b", text: "VLAN 1", isCorrect: true },
+        { id: "c", text: "VLAN 100", isCorrect: false },
+        { id: "d", text: "VLAN 4096", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zu Access-Ports ist korrekt?",
+      explanation: "Ein Access-Port gehört genau einem VLAN an und überträgt ungetaggten Traffic.",
+      answers: [
+        { id: "a", text: "Sie transportieren mehrere VLANs", isCorrect: false },
+        { id: "b", text: "Sie gehören nur zu einem VLAN", isCorrect: true },
+        { id: "c", text: "Sie routen Pakete", isCorrect: false },
+        { id: "d", text: "Sie nutzen OSPF", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was transportiert ein Trunk-Port?",
+      explanation: "Ein Trunk-Port überträgt Frames mehrerer VLANs gleichzeitig — getaggt nach IEEE 802.1Q.",
+      answers: [
+        { id: "a", text: "Nur ein VLAN", isCorrect: false },
+        { id: "b", text: "Keine VLANs", isCorrect: false },
+        { id: "c", text: "Mehrere VLANs", isCorrect: true },
+        { id: "d", text: "Nur Broadcasts", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welches Protokoll wird für VLAN-Tagging auf Trunks verwendet?",
+      explanation: "IEEE 802.1Q fügt einen 4-Byte-Tag (inkl. 12-Bit VLAN-ID) in den Ethernet-Frame ein.",
+      answers: [
+        { id: "a", text: "STP", isCorrect: false },
+        { id: "b", text: "ARP", isCorrect: false },
+        { id: "c", text: "IEEE 802.1Q", isCorrect: true },
+        { id: "d", text: "CDP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher VLAN-Typ wird auf einem Trunk NICHT getaggt übertragen?",
+      explanation: "Das Native VLAN (standardmäßig VLAN 1) überträgt seine Frames ohne 802.1Q-Tag.",
+      answers: [
+        { id: "a", text: "Native VLAN", isCorrect: true },
+        { id: "b", text: "Voice VLAN", isCorrect: false },
+        { id: "c", text: "Data VLAN", isCorrect: false },
+        { id: "d", text: "Management VLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl erstellt VLAN 10 im Global-Config-Modus?",
+      explanation: "`vlan 10` erstellt VLAN 10 und wechselt in den VLAN-Config-Modus (z. B. für `name STAFF`).",
+      answers: [
+        { id: "a", text: "vlan add 10", isCorrect: false },
+        { id: "b", text: "create vlan 10", isCorrect: false },
+        { id: "c", text: "vlan 10", isCorrect: true },
+        { id: "d", text: "switch vlan 10", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was ist VTP?",
+      explanation: "VLAN Trunking Protocol — synchronisiert VLAN-Datenbanken zwischen Cisco-Switches in einer VTP-Domain.",
+      answers: [
+        { id: "a", text: "Routing-Protokoll", isCorrect: false },
+        { id: "b", text: "VLAN-Verwaltungsprotokoll", isCorrect: true },
+        { id: "c", text: "Verschlüsselungsdienst", isCorrect: false },
+        { id: "d", text: "Redundanzprotokoll", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche VTP-Modi gibt es?",
+      explanation: "Server (kann VLANs ändern + verteilen), Client (übernimmt nur), Transparent (eigene DB, leitet nur weiter).",
+      answers: [
+        { id: "a", text: "Server, Client, Transparent", isCorrect: true },
+        { id: "b", text: "Root, Backup, Secondary", isCorrect: false },
+        { id: "c", text: "Access, Trunk, Hybrid", isCorrect: false },
+        { id: "d", text: "Static, Dynamic, Mixed", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher VTP-Modus kann VLANs erstellen UND verteilen?",
+      explanation: "Nur ein VTP-Server kann VLANs erstellen, ändern oder löschen und an alle Switches der Domain verteilen.",
+      answers: [
+        { id: "a", text: "Client", isCorrect: false },
+        { id: "b", text: "Transparent", isCorrect: false },
+        { id: "c", text: "Server", isCorrect: true },
+        { id: "d", text: "Access", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Gefahr besteht bei falscher VTP-Konfiguration?",
+      explanation: "Ein neu hinzugefügter Switch mit höherer VTP-Revision-Nummer kann die VLAN-Datenbank aller Switches überschreiben — Totalverlust aller VLANs.",
+      answers: [
+        { id: "a", text: "Verlust aller VLANs in der Domain", isCorrect: true },
+        { id: "b", text: "CPU-Defekt", isCorrect: false },
+        { id: "c", text: "DHCP-Ausfall", isCorrect: false },
+        { id: "d", text: "Kabelbruch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was ist die Aufgabe eines Native VLANs?",
+      explanation: "Das Native VLAN überträgt untagged Traffic auf einem 802.1Q-Trunk — wichtig für ältere Geräte ohne VLAN-Unterstützung.",
+      answers: [
+        { id: "a", text: "Verwaltung von STP", isCorrect: false },
+        { id: "b", text: "Untagged Traffic transportieren", isCorrect: true },
+        { id: "c", text: "QoS steuern", isCorrect: false },
+        { id: "d", text: "MAC-Adressen speichern", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Befehl weist einem Switchport VLAN 20 zu?",
+      explanation: "`switchport access vlan 20` ordnet den Port als Access-Port dem VLAN 20 zu.",
+      answers: [
+        { id: "a", text: "switchport access vlan 20", isCorrect: true },
+        { id: "b", text: "vlan member 20", isCorrect: false },
+        { id: "c", text: "interface vlan 20", isCorrect: false },
+        { id: "d", text: "access-mode 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche VLAN-ID ist reserviert und kann nicht verwendet werden?",
+      explanation: "VLAN 4095 (und 4096 im 12-Bit-Bereich) ist reserviert. VLAN 1002–1005 sind ebenfalls reserviert (Token Ring/FDDI Legacy).",
+      answers: [
+        { id: "a", text: "1", isCorrect: false },
+        { id: "b", text: "100", isCorrect: false },
+        { id: "c", text: "4095", isCorrect: true },
+        { id: "d", text: "20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zu VLANs ist korrekt?",
+      explanation: "VLANs reduzieren Broadcast-Traffic, indem sie ein physisches Netz in mehrere logische Broadcast-Domänen aufteilen.",
+      answers: [
+        { id: "a", text: "VLANs reduzieren Broadcasts", isCorrect: true },
+        { id: "b", text: "VLANs erhöhen Kabelwege", isCorrect: false },
+        { id: "c", text: "VLANs ersetzen Router", isCorrect: false },
+        { id: "d", text: "VLANs deaktivieren STP", isCorrect: false },
+      ],
+    },
+
+    // ── Spanning Tree (51–60) ──────────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welches Problem verhindert STP?",
+      explanation: "STP verhindert Layer-2-Schleifen (Broadcast-Storms, MAC-Flapping) in redundant verkabelten Netzwerken.",
+      answers: [
+        { id: "a", text: "Routing-Schleifen", isCorrect: false },
+        { id: "b", text: "Layer-2-Schleifen", isCorrect: true },
+        { id: "c", text: "DNS-Fehler", isCorrect: false },
+        { id: "d", text: "VLAN-Tagging", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher IEEE-Standard beschreibt klassisches STP?",
+      explanation: "IEEE 802.1D ist der ursprüngliche STP-Standard (1990).",
+      answers: [
+        { id: "a", text: "802.1D", isCorrect: true },
+        { id: "b", text: "802.11", isCorrect: false },
+        { id: "c", text: "802.3af", isCorrect: false },
+        { id: "d", text: "802.1Q", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Was ist die Aufgabe der Root Bridge?",
+      explanation: "Die Root Bridge ist der zentrale Referenz-Switch — alle anderen Switches berechnen ihren besten Pfad zu ihr.",
+      answers: [
+        { id: "a", text: "DHCP bereitstellen", isCorrect: false },
+        { id: "b", text: "Zentraler Referenz-Switch für die Pfadberechnung", isCorrect: true },
+        { id: "c", text: "Routing übernehmen", isCorrect: false },
+        { id: "d", text: "VLANs verschlüsseln", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Bridge-ID gewinnt die Root-Bridge-Wahl?",
+      explanation: "Der Switch mit der kleinsten Bridge-ID (Priority + MAC) wird Root Bridge.",
+      answers: [
+        { id: "a", text: "Höchste ID", isCorrect: false },
+        { id: "b", text: "Kleinste ID", isCorrect: true },
+        { id: "c", text: "Schnellster Port", isCorrect: false },
+        { id: "d", text: "Höchste MAC-Adresse", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Portrolle besitzt der beste Pfad zur Root Bridge?",
+      explanation: "Pro Non-Root-Switch gibt es genau einen Root Port — der Port mit den niedrigsten Pfadkosten zur Root Bridge.",
+      answers: [
+        { id: "a", text: "Blocking Port", isCorrect: false },
+        { id: "b", text: "Root Port", isCorrect: true },
+        { id: "c", text: "Disabled Port", isCorrect: false },
+        { id: "d", text: "Backup Port", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher STP-Portstatus leitet Frames weiter?",
+      explanation: "Nur im Status `Forwarding` werden Daten-Frames weitergeleitet — alle anderen Status (Blocking, Listening, Learning) leiten nicht weiter.",
+      answers: [
+        { id: "a", text: "Blocking", isCorrect: false },
+        { id: "b", text: "Listening", isCorrect: false },
+        { id: "c", text: "Forwarding", isCorrect: true },
+        { id: "d", text: "Disabled", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher Portstatus lernt MAC-Adressen, leitet aber noch keine Daten weiter?",
+      explanation: "Im Status `Learning` lernt der Port MAC-Adressen, leitet aber noch keine User-Daten weiter (Übergang vor Forwarding).",
+      answers: [
+        { id: "a", text: "Listening", isCorrect: false },
+        { id: "b", text: "Learning", isCorrect: true },
+        { id: "c", text: "Blocking", isCorrect: false },
+        { id: "d", text: "Shutdown", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche STP-Variante ist schneller als klassisches STP?",
+      explanation: "RSTP (Rapid Spanning Tree Protocol, IEEE 802.1w) konvergiert in Sekunden statt 30–50 s wie 802.1D.",
+      answers: [
+        { id: "a", text: "PVST", isCorrect: false },
+        { id: "b", text: "RSTP", isCorrect: true },
+        { id: "c", text: "VTP", isCorrect: false },
+        { id: "d", text: "DTP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welcher IEEE-Standard beschreibt RSTP?",
+      explanation: "IEEE 802.1w definiert Rapid STP. Eingegangen in 802.1D-2004.",
+      answers: [
+        { id: "a", text: "802.1Q", isCorrect: false },
+        { id: "b", text: "802.1w", isCorrect: true },
+        { id: "c", text: "802.3u", isCorrect: false },
+        { id: "d", text: "802.11ac", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zu PortFast ist korrekt?",
+      explanation: "PortFast überspringt die STP-Phasen Listening/Learning und versetzt einen Access-Port (z. B. für Endgeräte) sofort in Forwarding.",
+      answers: [
+        { id: "a", text: "Deaktiviert VLANs", isCorrect: false },
+        { id: "b", text: "Verkürzt die Portaktivierung (sofort Forwarding)", isCorrect: true },
+        { id: "c", text: "Aktiviert Routing", isCorrect: false },
+        { id: "d", text: "Deaktiviert MAC-Learning", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -6642,4 +7324,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_VIRTUALIZATION.id]: QUIZ_VIRTUALIZATION,
   [QUIZ_CCNA_EXAM_2.id]: QUIZ_CCNA_EXAM_2,
   [QUIZ_VLAN_ADVANCED.id]: QUIZ_VLAN_ADVANCED,
+  [QUIZ_TAG1_WIEDERHOLUNG.id]: QUIZ_TAG1_WIEDERHOLUNG,
 };
