@@ -7293,6 +7293,754 @@ export const QUIZ_TAG1_WIEDERHOLUNG: Quiz = {
 };
 
 // ============================================================
+// QUIZ: Tag 1 — Grundlagen Wiederholung (70 Fragen)
+// 40 Multiple-Choice + 20 Fill-in-the-Blank + 10 Erklärfragen
+// Quelle: Fragenpool_Tag1.txt
+// ============================================================
+export const QUIZ_TAG1_GRUNDLAGEN: Quiz = {
+  id: "ccna-quiz-tag1-grundlagen",
+  title: "CCNA: Wiederholung Tag 1 (Grundlagen)",
+  description:
+    "70 Fragen zum Auffrischen: Netzwerkgeräte, Adressen, Topologien, LAN/WAN/PAN/MAN/GAN, Lückentexte und Erklärfragen.",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    // ── Teil 1: Multiple Choice (1–40) ───────────────────────
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist ein Server?",
+      explanation: "Ein Server ist ein System, das Dienste (Web, Datei, Auth …) im Netzwerk bereitstellt.",
+      answers: [
+        { id: "a", text: "Ein Kabel", isCorrect: false },
+        { id: "b", text: "Ein Gerät ohne Software", isCorrect: false },
+        { id: "c", text: "Ein System, das Dienste im Netzwerk bereitstellt", isCorrect: true },
+        { id: "d", text: "Ein Switch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was macht ein Hub?",
+      explanation: "Ein Hub (Layer 1) leitet jeden eingehenden Frame stumpf an alle anderen Ports weiter.",
+      answers: [
+        { id: "a", text: "Filtert Daten", isCorrect: false },
+        { id: "b", text: "Leitet Daten an alle Ports weiter", isCorrect: true },
+        { id: "c", text: "Arbeitet mit IP-Adressen", isCorrect: false },
+        { id: "d", text: "Speichert Daten", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Womit arbeitet ein Switch?",
+      explanation: "Ein Switch trifft Forwarding-Entscheidungen anhand der MAC-Adressen (Layer 2).",
+      answers: [
+        { id: "a", text: "IP-Adresse", isCorrect: false },
+        { id: "b", text: "MAC-Adresse", isCorrect: true },
+        { id: "c", text: "DNS", isCorrect: false },
+        { id: "d", text: "Ports", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Womit arbeitet ein Router?",
+      explanation: "Ein Router routet Pakete zwischen Netzwerken auf Basis der IP-Adresse (Layer 3).",
+      answers: [
+        { id: "a", text: "MAC-Adresse", isCorrect: false },
+        { id: "b", text: "IP-Adresse", isCorrect: true },
+        { id: "c", text: "Portnummern", isCorrect: false },
+        { id: "d", text: "Kabel", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist ein Layer-3-Switch?",
+      explanation: "Ein Layer-3-Switch kombiniert klassisches Switching (L2) mit Routing-Funktionen (L3).",
+      answers: [
+        { id: "a", text: "Nur ein Switch", isCorrect: false },
+        { id: "b", text: "Nur ein Router", isCorrect: false },
+        { id: "c", text: "Kombination aus Switch und Router", isCorrect: true },
+        { id: "d", text: "Firewall", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist Unicast?",
+      explanation: "Unicast = 1:1-Kommunikation zwischen genau zwei Geräten.",
+      answers: [
+        { id: "a", text: "Kommunikation mit allen", isCorrect: false },
+        { id: "b", text: "Kommunikation mit einer Gruppe", isCorrect: false },
+        { id: "c", text: "Kommunikation zwischen zwei Geräten", isCorrect: true },
+        { id: "d", text: "Broadcast", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist Broadcast?",
+      explanation: "Broadcast = Nachricht an alle Geräte derselben Broadcast-Domäne.",
+      answers: [
+        { id: "a", text: "Kommunikation zu einem Gerät", isCorrect: false },
+        { id: "b", text: "Kommunikation zu allen Geräten", isCorrect: true },
+        { id: "c", text: "Kommunikation zu Gruppen", isCorrect: false },
+        { id: "d", text: "Kommunikation über WAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Wie lang ist eine MAC-Adresse?",
+      explanation: "MAC-Adressen sind 48 Bit lang (6 Byte, 12 Hex-Zeichen).",
+      answers: [
+        { id: "a", text: "32 Bit", isCorrect: false },
+        { id: "b", text: "64 Bit", isCorrect: false },
+        { id: "c", text: "48 Bit", isCorrect: true },
+        { id: "d", text: "128 Bit", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Aus wie vielen Bit besteht eine IPv4-Adresse?",
+      explanation: "IPv4 = 32 Bit (4 Oktette à 8 Bit).",
+      answers: [
+        { id: "a", text: "48 Bit", isCorrect: false },
+        { id: "b", text: "32 Bit", isCorrect: true },
+        { id: "c", text: "64 Bit", isCorrect: false },
+        { id: "d", text: "128 Bit", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Aus wie vielen Bit besteht eine IPv6-Adresse?",
+      explanation: "IPv6 = 128 Bit (8 Gruppen à 16 Bit hexadezimal).",
+      answers: [
+        { id: "a", text: "32 Bit", isCorrect: false },
+        { id: "b", text: "48 Bit", isCorrect: false },
+        { id: "c", text: "64 Bit", isCorrect: false },
+        { id: "d", text: "128 Bit", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was beschreibt ein Protokoll?",
+      explanation: "Ein Protokoll = vereinbarte Regeln für Kommunikation zwischen Systemen.",
+      answers: [
+        { id: "a", text: "Hardware", isCorrect: false },
+        { id: "b", text: "Regeln der Kommunikation", isCorrect: true },
+        { id: "c", text: "Kabel", isCorrect: false },
+        { id: "d", text: "Geschwindigkeit", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist ein RFC?",
+      explanation: "Request for Comments — offizielle Standardbeschreibung für Internet-Protokolle (IETF).",
+      answers: [
+        { id: "a", text: "Router-Konfiguration", isCorrect: false },
+        { id: "b", text: "Standardbeschreibung für Protokolle", isCorrect: true },
+        { id: "c", text: "Netzwerkgerät", isCorrect: false },
+        { id: "d", text: "Betriebssystem", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welche Reichweite hat ein PAN?",
+      explanation: "Personal Area Network = wenige Meter (Bluetooth, USB-Tethering).",
+      answers: [
+        { id: "a", text: "1 km", isCorrect: false },
+        { id: "b", text: "10 m", isCorrect: true },
+        { id: "c", text: "100 km", isCorrect: false },
+        { id: "d", text: "global", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was beschreibt ein LAN?",
+      explanation: "Local Area Network = Netzwerk innerhalb eines Gebäudes / Standorts.",
+      answers: [
+        { id: "a", text: "Weltweites Netzwerk", isCorrect: false },
+        { id: "b", text: "Netzwerk innerhalb eines Gebäudes", isCorrect: true },
+        { id: "c", text: "Satellitennetz", isCorrect: false },
+        { id: "d", text: "Mobilfunk", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet MAN?",
+      explanation: "Metropolitan Area Network = stadtweites Netz (z. B. Glasfaser-Backbone einer Großstadt).",
+      answers: [
+        { id: "a", text: "Kleines Netzwerk", isCorrect: false },
+        { id: "b", text: "Stadtnetz", isCorrect: true },
+        { id: "c", text: "Globales Netz", isCorrect: false },
+        { id: "d", text: "Heimnetz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was beschreibt ein WAN?",
+      explanation: "Wide Area Network = länderübergreifendes Netz (z. B. das Internet, MPLS).",
+      answers: [
+        { id: "a", text: "Raum", isCorrect: false },
+        { id: "b", text: "Gebäude", isCorrect: false },
+        { id: "c", text: "Länderübergreifend", isCorrect: true },
+        { id: "d", text: "Bluetooth", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was umfasst ein GAN?",
+      explanation: "Global Area Network = weltweite Verbindung von WANs (Satellit, See-Kabel).",
+      answers: [
+        { id: "a", text: "Gebäude", isCorrect: false },
+        { id: "b", text: "Stadt", isCorrect: false },
+        { id: "c", text: "Weltweit", isCorrect: true },
+        { id: "d", text: "Büro", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist ein VPN?",
+      explanation: "Virtual Private Network = verschlüsselter Tunnel über ein unsicheres Netz (meist Internet).",
+      answers: [
+        { id: "a", text: "Offenes Netzwerk", isCorrect: false },
+        { id: "b", text: "Gesicherte Verbindung", isCorrect: true },
+        { id: "c", text: "Switch", isCorrect: false },
+        { id: "d", text: "Kabel", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Wofür steht SAN?",
+      explanation: "Storage Area Network = dediziertes Hochgeschwindigkeitsnetz für Massenspeicher (Fibre Channel, iSCSI).",
+      answers: [
+        { id: "a", text: "Storage Area Network", isCorrect: true },
+        { id: "b", text: "Secure Area Network", isCorrect: false },
+        { id: "c", text: "Small Area Network", isCorrect: false },
+        { id: "d", text: "System Area Network", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet Intranet?",
+      explanation: "Intranet = nicht-öffentliches Firmen-Netz, nur intern (oder via VPN) erreichbar.",
+      answers: [
+        { id: "a", text: "Öffentlich", isCorrect: false },
+        { id: "b", text: "Intern ohne externen Zugriff", isCorrect: true },
+        { id: "c", text: "Global", isCorrect: false },
+        { id: "d", text: "WLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was beeinflusst den Datendurchsatz am stärksten?",
+      explanation: "Bandbreite und Latenz bestimmen, wie viele Nutzdaten effektiv pro Sekunde übertragen werden.",
+      answers: [
+        { id: "a", text: "Farbe des Kabels", isCorrect: false },
+        { id: "b", text: "Latenz", isCorrect: true },
+        { id: "c", text: "Bildschirmgröße", isCorrect: false },
+        { id: "d", text: "Tastatur", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welche Topologie nutzt ein gemeinsames Medium?",
+      explanation: "Die Bus-Topologie verbindet alle Geräte über ein einziges gemeinsames Kabel.",
+      answers: [
+        { id: "a", text: "Stern", isCorrect: false },
+        { id: "b", text: "Bus", isCorrect: true },
+        { id: "c", text: "Mesh", isCorrect: false },
+        { id: "d", text: "Baum", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welche Topologie nutzt einen zentralen Switch?",
+      explanation: "In der Stern-Topologie sind alle Hosts sternförmig an einem zentralen Knoten (Switch) angebunden.",
+      answers: [
+        { id: "a", text: "Ring", isCorrect: false },
+        { id: "b", text: "Bus", isCorrect: false },
+        { id: "c", text: "Stern", isCorrect: true },
+        { id: "d", text: "Linie", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welche Topologie ist heute am häufigsten?",
+      explanation: "Klassische Ethernet-Netze sind sternförmig (Switch im Zentrum).",
+      answers: [
+        { id: "a", text: "Bus", isCorrect: false },
+        { id: "b", text: "Stern", isCorrect: true },
+        { id: "c", text: "Ring", isCorrect: false },
+        { id: "d", text: "Linie", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welche Topologie ist besonders ausfallsicher?",
+      explanation: "Mesh: jedes Gerät hat mehrere Verbindungen → Ausfall einzelner Pfade kompensierbar.",
+      answers: [
+        { id: "a", text: "Bus", isCorrect: false },
+        { id: "b", text: "Linie", isCorrect: false },
+        { id: "c", text: "Mesh", isCorrect: true },
+        { id: "d", text: "Stern", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist der Nachteil der Bus-Topologie?",
+      explanation: "Ein einziger Defekt am Hauptkabel legt das gesamte Segment lahm.",
+      answers: [
+        { id: "a", text: "teuer", isCorrect: false },
+        { id: "b", text: "wenig Kabel", isCorrect: false },
+        { id: "c", text: "Ausfall des Hauptkabels betrifft alle", isCorrect: true },
+        { id: "d", text: "zu schnell", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Die Ring-Topologie nutzt häufig:",
+      explanation: "Token-Passing (Token Ring) regelt den Zugriff auf das Medium kollisionsfrei.",
+      answers: [
+        { id: "a", text: "Token", isCorrect: true },
+        { id: "b", text: "DNS", isCorrect: false },
+        { id: "c", text: "HTTP", isCorrect: false },
+        { id: "d", text: "VLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet Mesh?",
+      explanation: "Vermaschtes Netz = mehrere parallele Verbindungen zwischen den Knoten.",
+      answers: [
+        { id: "a", text: "ein Kabel", isCorrect: false },
+        { id: "b", text: "mehrere Verbindungen", isCorrect: true },
+        { id: "c", text: "kein Netzwerk", isCorrect: false },
+        { id: "d", text: "WLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was ist eine Baum-Topologie?",
+      explanation: "Baum = hierarchische Erweiterung mehrerer Stern-Topologien (Core/Distribution/Access).",
+      answers: [
+        { id: "a", text: "Mischung aus Ring", isCorrect: false },
+        { id: "b", text: "Erweiterung der Stern-Topologie", isCorrect: true },
+        { id: "c", text: "Bus", isCorrect: false },
+        { id: "d", text: "Linie", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet eine Linien-Topologie?",
+      explanation: "Linie = Verkettung (Daisy-Chain) von Geräten in Reihe.",
+      answers: [
+        { id: "a", text: "Kreis", isCorrect: false },
+        { id: "b", text: "Verkettung", isCorrect: true },
+        { id: "c", text: "Stern", isCorrect: false },
+        { id: "d", text: "Mesh", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet Hybrid-Topologie?",
+      explanation: "Hybrid = Kombination mehrerer Topologien (z. B. Stern + Mesh im Backbone).",
+      answers: [
+        { id: "a", text: "nur eine Topologie", isCorrect: false },
+        { id: "b", text: "Kombination mehrerer Topologien", isCorrect: true },
+        { id: "c", text: "kein Netzwerk", isCorrect: false },
+        { id: "d", text: "WLAN", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welcher Vorteil ist typisch für die Stern-Topologie?",
+      explanation: "Fehler sind leicht lokalisierbar — ein defekter Port betrifft nur ein Gerät.",
+      answers: [
+        { id: "a", text: "keine Kabel nötig", isCorrect: false },
+        { id: "b", text: "einfache Fehlersuche", isCorrect: true },
+        { id: "c", text: "langsam", isCorrect: false },
+        { id: "d", text: "teuer", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welcher Nachteil ist typisch für die Stern-Topologie?",
+      explanation: "Der zentrale Switch ist ein Single Point of Failure.",
+      answers: [
+        { id: "a", text: "kein Switch nötig", isCorrect: false },
+        { id: "b", text: "zentraler Punkt ist kritisch", isCorrect: true },
+        { id: "c", text: "keine Geräte", isCorrect: false },
+        { id: "d", text: "langsam", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welcher Vorteil ist typisch für die Mesh-Topologie?",
+      explanation: "Mehrere Pfade → sehr ausfallsicher.",
+      answers: [
+        { id: "a", text: "günstig", isCorrect: false },
+        { id: "b", text: "ausfallsicher", isCorrect: true },
+        { id: "c", text: "wenig Kabel", isCorrect: false },
+        { id: "d", text: "langsam", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welcher Nachteil ist typisch für die Mesh-Topologie?",
+      explanation: "Hoher Verkabelungsaufwand → teuer in Material und Wartung.",
+      answers: [
+        { id: "a", text: "teuer", isCorrect: true },
+        { id: "b", text: "langsam", isCorrect: false },
+        { id: "c", text: "einfach", isCorrect: false },
+        { id: "d", text: "klein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Welches ist ein klassisches Beispiel für ein WAN?",
+      explanation: "Das Internet ist das größte WAN — länderübergreifend.",
+      answers: [
+        { id: "a", text: "Heimnetz", isCorrect: false },
+        { id: "b", text: "Internet", isCorrect: true },
+        { id: "c", text: "Bluetooth", isCorrect: false },
+        { id: "d", text: "USB", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Auf welchem OSI-Layer arbeitet ein Switch?",
+      explanation: "Klassische Switches arbeiten auf Layer 2 (Data Link, MAC-Adressen).",
+      answers: [
+        { id: "a", text: "Layer 1", isCorrect: false },
+        { id: "b", text: "Layer 2", isCorrect: true },
+        { id: "c", text: "Layer 7", isCorrect: false },
+        { id: "d", text: "Layer 4", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Auf welchem OSI-Layer arbeitet ein Router?",
+      explanation: "Router arbeiten auf Layer 3 (Network, IP-Adressen).",
+      answers: [
+        { id: "a", text: "Layer 3", isCorrect: true },
+        { id: "b", text: "Layer 1", isCorrect: false },
+        { id: "c", text: "Layer 2", isCorrect: false },
+        { id: "d", text: "Layer 7", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet Peer-to-Peer?",
+      explanation: "Alle Teilnehmer sind gleichberechtigt — kein zentraler Server.",
+      answers: [
+        { id: "a", text: "Server notwendig", isCorrect: false },
+        { id: "b", text: "gleichberechtigte Geräte", isCorrect: true },
+        { id: "c", text: "kein Netzwerk", isCorrect: false },
+        { id: "d", text: "Router", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 3,
+      text: "Was bedeutet Client-Server?",
+      explanation: "Ein zentraler Server stellt Dienste bereit; Clients greifen darauf zu.",
+      answers: [
+        { id: "a", text: "alle gleich", isCorrect: false },
+        { id: "b", text: "Server stellt Dienste bereit", isCorrect: true },
+        { id: "c", text: "kein Server", isCorrect: false },
+        { id: "d", text: "nur WLAN", isCorrect: false },
+      ],
+    },
+
+    // ── Teil 2: Fill in the Blank (41–60) ────────────────────
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Eine MAC-Adresse hat ___ Bit.",
+      explanation: "MAC-Adressen sind 48 Bit lang.",
+      answers: [
+        { id: "a", text: "48", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "IPv4 hat ___ Bit.",
+      explanation: "IPv4 = 32 Bit.",
+      answers: [
+        { id: "a", text: "32", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "IPv6 hat ___ Bit.",
+      explanation: "IPv6 = 128 Bit.",
+      answers: [
+        { id: "a", text: "128", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein Router arbeitet mit ___-Adressen.",
+      explanation: "Router routen anhand der IP-Adresse (Layer 3).",
+      answers: [
+        { id: "a", text: "IP", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein Switch arbeitet mit ___-Adressen.",
+      explanation: "Switches forwarden anhand der MAC-Adresse (Layer 2).",
+      answers: [
+        { id: "a", text: "MAC", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein Hub sendet an ___ Ports.",
+      explanation: "Ein Hub flutet jeden Frame an alle Ports.",
+      answers: [
+        { id: "a", text: "alle", isCorrect: true },
+        { id: "b", text: "alle ports", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein LAN ist auf einen ___ Bereich begrenzt.",
+      explanation: "LAN = Local Area Network — lokal, meist auf ein Gebäude.",
+      answers: [
+        { id: "a", text: "lokalen", isCorrect: true },
+        { id: "b", text: "lokal", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein WAN verbindet Netzwerke ___.",
+      explanation: "WAN = Wide Area Network — weltweit / länderübergreifend.",
+      answers: [
+        { id: "a", text: "weltweit", isCorrect: true },
+        { id: "b", text: "länderübergreifend", isCorrect: true },
+        { id: "c", text: "global", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein VPN ist eine ___ Verbindung.",
+      explanation: "VPN = verschlüsselte / geschützte / sichere Verbindung über ein unsicheres Netz.",
+      answers: [
+        { id: "a", text: "geschützte", isCorrect: true },
+        { id: "b", text: "sichere", isCorrect: true },
+        { id: "c", text: "verschlüsselte", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein SAN ist ein ___-Netzwerk.",
+      explanation: "Storage Area Network — dediziert für Massenspeicher.",
+      answers: [
+        { id: "a", text: "Speicher", isCorrect: true },
+        { id: "b", text: "Storage", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Ein Intranet ist nur ___ zugänglich.",
+      explanation: "Intranet = nur intern zugänglich.",
+      answers: [
+        { id: "a", text: "intern", isCorrect: true },
+        { id: "b", text: "innerhalb", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Der Datendurchsatz hängt von ___ und Latenz ab.",
+      explanation: "Bandbreite + Latenz bestimmen den effektiven Durchsatz.",
+      answers: [
+        { id: "a", text: "Bandbreite", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Die Stern-Topologie hat einen ___ Punkt.",
+      explanation: "Zentraler Knoten (Switch) — Single Point of Failure.",
+      answers: [
+        { id: "a", text: "zentralen", isCorrect: true },
+        { id: "b", text: "zentral", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Die Bus-Topologie nutzt ein ___ Medium.",
+      explanation: "Alle Geräte teilen sich ein gemeinsames Kabel.",
+      answers: [
+        { id: "a", text: "gemeinsames", isCorrect: true },
+        { id: "b", text: "geteiltes", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Die Ring-Topologie nutzt oft ein ___.",
+      explanation: "Token-Passing für kollisionsfreien Medienzugriff.",
+      answers: [
+        { id: "a", text: "Token", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Mesh bietet ___ Wege zwischen den Knoten.",
+      explanation: "Mehrere Pfade → hohe Redundanz.",
+      answers: [
+        { id: "a", text: "mehrere", isCorrect: true },
+        { id: "b", text: "viele", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Die Baum-Topologie ist ___ aufgebaut.",
+      explanation: "Hierarchisch — Wurzel, Verteilung, Blätter.",
+      answers: [
+        { id: "a", text: "hierarchisch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Linie ist eine ___ von Geräten.",
+      explanation: "Daisy-Chain / Verkettung.",
+      answers: [
+        { id: "a", text: "Verkettung", isCorrect: true },
+        { id: "b", text: "Kette", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "Hybrid ist eine ___ von Topologien.",
+      explanation: "Kombination mehrerer Topologien.",
+      answers: [
+        { id: "a", text: "Kombination", isCorrect: true },
+        { id: "b", text: "Mischung", isCorrect: true },
+        { id: "c", text: "Kombi", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "text-input", points: 4,
+      text: "GAN steht ausgeschrieben für ___ Area Network.",
+      explanation: "Global Area Network — weltweiter Zusammenschluss.",
+      answers: [
+        { id: "a", text: "Global", isCorrect: true },
+      ],
+    },
+
+    // ── Teil 3: Erklärfragen (61–70) — als Single-Choice
+    //         (jeweils 4 Antwortvarianten, die richtige ist die
+    //          vollständige Erklärung; Distraktoren sind häufige
+    //          Verwechslungen aus den Lektionen.)
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Erkläre den Unterschied zwischen Hub und Switch.",
+      explanation: "Hub = Layer 1, blind an alle Ports. Switch = Layer 2, gezielt anhand MAC-Tabelle.",
+      answers: [
+        { id: "a", text: "Hub und Switch sind dasselbe — nur unterschiedliche Hersteller.", isCorrect: false },
+        { id: "b", text: "Hub sendet an alle Ports (Layer 1). Switch leitet gezielt anhand MAC-Adressen weiter (Layer 2).", isCorrect: true },
+        { id: "c", text: "Hub arbeitet mit IP-Adressen, Switch mit Portnummern.", isCorrect: false },
+        { id: "d", text: "Hub ist ein moderner Switch mit Routing-Funktion.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Beschreibe die Aufgabe eines Routers.",
+      explanation: "Router verbinden Netzwerke und entscheiden anhand IP-Adressen über den besten Pfad.",
+      answers: [
+        { id: "a", text: "Ein Router verteilt Strom an Endgeräte.", isCorrect: false },
+        { id: "b", text: "Ein Router verbindet Netzwerke und leitet Pakete anhand von IP-Adressen weiter (Layer 3).", isCorrect: true },
+        { id: "c", text: "Ein Router arbeitet mit MAC-Adressen auf Layer 2.", isCorrect: false },
+        { id: "d", text: "Ein Router ist nur für WLAN-Geräte zuständig.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Welche Aussage zum Unterschied MAC- vs. IP-Adresse stimmt?",
+      explanation: "MAC = Hardware-gebunden (Layer 2). IP = logisch, zugewiesen (Layer 3).",
+      answers: [
+        { id: "a", text: "Beide sind logische Adressen auf Layer 3.", isCorrect: false },
+        { id: "b", text: "MAC ist hardwaregebunden (Layer 2), IP ist eine logische Adresse (Layer 3).", isCorrect: true },
+        { id: "c", text: "MAC ist 32 Bit, IP ist 48 Bit lang.", isCorrect: false },
+        { id: "d", text: "IP-Adressen sind weltweit eindeutig, MAC-Adressen werden dynamisch zugewiesen.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Beschreibe das Client-Server-Modell.",
+      explanation: "Server stellt Dienste bereit, Clients konsumieren sie.",
+      answers: [
+        { id: "a", text: "Alle Teilnehmer sind gleichberechtigt und ohne Zentralinstanz.", isCorrect: false },
+        { id: "b", text: "Ein zentraler Server stellt Dienste (Web, Datei, Auth) bereit; Clients greifen darauf zu.", isCorrect: true },
+        { id: "c", text: "Mehrere Server tauschen ohne Clients Daten aus.", isCorrect: false },
+        { id: "d", text: "Clients stellen Dienste bereit; der Server konsumiert sie.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Erkläre den Unterschied zwischen LAN und WAN.",
+      explanation: "LAN = lokales Netz. WAN = verbindet mehrere LANs über große Entfernung.",
+      answers: [
+        { id: "a", text: "LAN ist weltweit, WAN nur lokal.", isCorrect: false },
+        { id: "b", text: "LAN = lokales Netz (Gebäude/Standort). WAN verbindet mehrere LANs über große Entfernungen (z. B. Internet).", isCorrect: true },
+        { id: "c", text: "LAN nutzt nur WLAN, WAN nur Kabel.", isCorrect: false },
+        { id: "d", text: "WAN ist immer kabellos, LAN immer verkabelt.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Beschreibe Vor- und Nachteile der Bus-Topologie.",
+      explanation: "Wenig Kabel, aber ein einzelner Kabelausfall legt alle lahm.",
+      answers: [
+        { id: "a", text: "Sehr ausfallsicher und teuer in der Verkabelung.", isCorrect: false },
+        { id: "b", text: "Vorteil: wenig Verkabelung. Nachteil: Defekt am Hauptkabel legt das gesamte Netz lahm.", isCorrect: true },
+        { id: "c", text: "Jedes Gerät hat einen eigenen Switch.", isCorrect: false },
+        { id: "d", text: "Sehr hohe Redundanz dank mehrerer Pfade.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Erkläre die Stern-Topologie.",
+      explanation: "Zentrum = Switch. Vorteil: leichte Fehlersuche. Nachteil: SPoF.",
+      answers: [
+        { id: "a", text: "Geräte teilen sich ein einziges Kabel ohne zentralen Knoten.", isCorrect: false },
+        { id: "b", text: "Alle Geräte sind an einen zentralen Switch angebunden. Vorteil: leichte Fehlersuche. Nachteil: zentraler Ausfallpunkt.", isCorrect: true },
+        { id: "c", text: "Geräte sind ringförmig verkettet und nutzen ein Token.", isCorrect: false },
+        { id: "d", text: "Jedes Gerät ist mit jedem anderen direkt verbunden.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Beschreibe die Mesh-Topologie und ihre Vorteile.",
+      explanation: "Mehrfachverbindungen → sehr ausfallsicher, aber teuer.",
+      answers: [
+        { id: "a", text: "Alle Geräte hängen an einem zentralen Hub — einfache Fehlersuche.", isCorrect: false },
+        { id: "b", text: "Geräte sind mehrfach miteinander verbunden — sehr hohe Ausfallsicherheit und Redundanz.", isCorrect: true },
+        { id: "c", text: "Linienförmige Verkettung mit minimalem Kabelaufwand.", isCorrect: false },
+        { id: "d", text: "Genau zwei Geräte sind direkt verbunden, ohne weitere Pfade.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Erkläre die Baum-Topologie und ihren Einsatz.",
+      explanation: "Hierarchische Erweiterung mehrerer Stern-Netze — klassisches Enterprise-Design (Core/Distribution/Access).",
+      answers: [
+        { id: "a", text: "Geräte teilen sich ein gemeinsames Buskabel.", isCorrect: false },
+        { id: "b", text: "Hierarchische Struktur aus mehreren Stern-Netzen — Einsatz in großen Unternehmensnetzwerken.", isCorrect: true },
+        { id: "c", text: "Vollvermaschtes Netz mit maximaler Redundanz.", isCorrect: false },
+        { id: "d", text: "Ringförmiger Aufbau mit Token-Passing.", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 5,
+      text: "Warum sind Hybrid-Topologien heute der Standard?",
+      explanation: "Sie kombinieren Vorteile (Skalierbarkeit + Ausfallsicherheit + Kosten).",
+      answers: [
+        { id: "a", text: "Sie sind die billigste Variante.", isCorrect: false },
+        { id: "b", text: "Sie kombinieren die Vorteile mehrerer Topologien (z. B. Skalierbarkeit + Ausfallsicherheit).", isCorrect: true },
+        { id: "c", text: "Sie benötigen keine Switches oder Router.", isCorrect: false },
+        { id: "d", text: "Sie funktionieren nur in sehr kleinen Heimnetzen.", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -7325,4 +8073,5 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_CCNA_EXAM_2.id]: QUIZ_CCNA_EXAM_2,
   [QUIZ_VLAN_ADVANCED.id]: QUIZ_VLAN_ADVANCED,
   [QUIZ_TAG1_WIEDERHOLUNG.id]: QUIZ_TAG1_WIEDERHOLUNG,
+  [QUIZ_TAG1_GRUNDLAGEN.id]: QUIZ_TAG1_GRUNDLAGEN,
 };
