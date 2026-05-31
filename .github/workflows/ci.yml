@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["**"]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -29,16 +33,37 @@ jobs:
       - name: Run tests
         run: npm test
 
-  deploy:
+  docker:
     needs: ci
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to k3s
-        run: kubectl apply -k k8s/overlays/prod/
-        env:
-          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+
+  deploy:
+    needs: docker
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Rollout restart
+        run: kubectl rollout restart deployment/it-training-canvas -n apps
