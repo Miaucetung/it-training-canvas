@@ -1055,7 +1055,7 @@ export function TerminalEmulator({
       </div>
 
       {/* Terminal Content */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0 p-4" ref={scrollRef}>
         <div className="font-mono text-sm text-green-400 space-y-2">
           {/* Welcome message */}
           {history.length === 0 && (
