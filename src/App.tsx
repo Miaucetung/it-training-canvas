@@ -20,6 +20,7 @@ import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { LabScenariosDialog } from "@/components/LabScenariosDialog";
 import {
   SimulationControls,
   useSimulation,
@@ -70,6 +71,7 @@ import {
   UserProgress,
 } from "@/lib/types";
 import {
+  BookOpen,
   ChartLine,
   CurrencyDollar,
   Export,
@@ -219,6 +221,7 @@ function App() {
   const [showSimulationHUD, setShowSimulationHUD] = useState(false);
   const [showPingScenario, setShowPingScenario] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showLabScenarios, setShowLabScenarios] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
@@ -1421,6 +1424,20 @@ function App() {
               CLI
             </button>
             <button
+              onClick={() => setShowLabScenarios(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                showLabScenarios
+                  ? "bg-violet-500/20 text-violet-300"
+                  : theme === "dark"
+                    ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
+                    : "text-slate-500 hover:text-violet-600 hover:bg-violet-50"
+              }`}
+              title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
+            >
+              <BookOpen size={16} />
+              Labs
+            </button>
+            <button
               onClick={() => setShowPingScenario(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
@@ -1907,6 +1924,12 @@ function App() {
         onClose={() => setShowPingScenario(false)}
         objects={canvasState.objects}
         connections={canvasState.connections}
+      />
+
+      <LabScenariosDialog
+        open={showLabScenarios}
+        onClose={() => setShowLabScenarios(false)}
+        theme={theme}
       />
 
       <OnboardingTour
