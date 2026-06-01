@@ -6,6 +6,8 @@ import {
   Check,
   Copy,
   Desktop,
+  FilePdf,
+  FileText,
   Globe,
   HardDrives,
   Info,
@@ -1523,6 +1525,250 @@ function CommandBlockView({ block }: { block: CommandBlock }) {
   );
 }
 
+// ── Export-Funktionen ────────────────────────────────────────
+
+function buildLabText(lab: LabScenario): string {
+  const sep = "═".repeat(60);
+  const line = "─".repeat(60);
+  let out = `${sep}\nCisco IOS Lab-Szenario\n${sep}\n`;
+  out += `Titel:       ${lab.title}\n`;
+  out += `Geräte:      ${lab.subtitle}\n`;
+  out += `Schwierigkeit: ${lab.difficulty}  |  Dauer: ${lab.duration}\n`;
+  out += `${sep}\n\n`;
+
+  // Topologie
+  out += `① TOPOLOGIE (Drag & Drop in Packet Tracer)\n${line}\n`;
+  out += `${lab.topology.description}\n\n`;
+  out += `Geräte:\n`;
+  lab.topology.devices.forEach((d) => {
+    out += `  ${d.count}x ${d.type}  (${d.label})\n`;
+  });
+  out += `\nVerbindungen:\n`;
+  lab.topology.connections.forEach((c) => out += `  ↳ ${c}\n`);
+  out += `\nHinweis: ${lab.topology.hint}\n\n`;
+
+  // CLI-Schritte
+  out += `② CLI-KONFIGURATION\n${line}\n`;
+  lab.steps.forEach((step, si) => {
+    out += `\n[Schritt ${si + 1}] ${step.title}\n`;
+    step.blocks.forEach((block) => {
+      out += `\n  Gerät: ${block.device}  (${block.modeLabel})\n`;
+      block.commands.forEach((c) => {
+        const cmdLines = c.cmd.split("\n");
+        cmdLines.forEach((cl) => out += `  ${block.modeLabel} ${cl}\n`);
+        out += `  → ${c.explanation}\n\n`;
+      });
+    });
+  });
+
+  // Verifikation
+  out += `③ VERIFIKATION\n${line}\n`;
+  lab.verifyCommands.forEach((v) => {
+    out += `  $ ${v.cmd}\n    → Erwartet: ${v.expected}\n\n`;
+  });
+
+  out += `${sep}\nGeneriert von IT Training Canvas – ${new Date().toLocaleDateString("de-DE")}\n${sep}\n`;
+  return out;
+}
+
+function downloadText(lab: LabScenario) {
+  const content = buildLabText(lab);
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `lab_${lab.id}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function printLabAsPdf(lab: LabScenario) {
+  const content = buildLabText(lab);
+  const printWindow = window.open("", "_blank", "width=900,height=700");
+  if (!printWindow) return;
+  printWindow.document.write(`
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>${lab.title} — Cisco IOS Lab</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      color: #111;
+      padding: 20mm 18mm;
+      background: #fff;
+    }
+    h1 { font-size: 16px; margin-bottom: 4px; }
+    h2 { font-size: 13px; margin: 14px 0 4px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+    h3 { font-size: 11px; margin: 10px 0 3px; color: #444; }
+    .meta { font-size: 10px; color: #555; margin-bottom: 12px; }
+    .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+    .badge-easy   { background:#d1fae5; color:#065f46; }
+    .badge-medium { background:#fef3c7; color:#92400e; }
+    .badge-hard   { background:#fee2e2; color:#991b1b; }
+    .section { margin-top: 14px; }
+    .topology-box {
+      border: 1px solid #0891b2;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      background: #f0f9ff;
+    }
+    .hint-box {
+      border: 1px solid #d97706;
+      border-radius: 4px;
+      padding: 6px 10px;
+      background: #fffbeb;
+      font-size: 10px;
+      margin-top: 8px;
+      color: #78350f;
+    }
+    .device-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+    .device-badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 10px;
+    }
+    .conn-line { font-size: 10px; color: #475569; margin: 2px 0 2px 12px; }
+    .step-header {
+      background: #e0f2fe;
+      border-left: 3px solid #0284c7;
+      padding: 4px 8px;
+      margin: 10px 0 6px;
+      font-weight: bold;
+      font-size: 11px;
+    }
+    .block {
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .block-header {
+      background: #f8fafc;
+      padding: 3px 8px;
+      font-size: 10px;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .cmd-row {
+      display: flex;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .cmd-row:last-child { border-bottom: none; }
+    .cmd-cell {
+      width: 44%;
+      padding: 4px 8px;
+      background: #0f172a;
+      color: #86efac;
+      font-size: 10px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .exp-cell {
+      flex: 1;
+      padding: 4px 8px;
+      font-size: 10px;
+      color: #334155;
+      background: #fff;
+    }
+    .verify-box {
+      border: 1px solid #10b981;
+      border-radius: 5px;
+      padding: 8px 12px;
+      background: #f0fdf4;
+      margin-top: 10px;
+    }
+    .verify-row { margin: 4px 0; font-size: 10px; }
+    .verify-cmd { font-family: monospace; color: #065f46; font-weight: bold; }
+    .verify-exp { color: #374151; margin-left: 8px; }
+    .footer {
+      margin-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+      font-size: 9px;
+      color: #94a3b8;
+      text-align: center;
+    }
+    @media print {
+      body { padding: 15mm 12mm; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>${lab.title}</h1>
+  <div class="meta">
+    <span class="badge ${lab.difficulty === 'Anfänger' ? 'badge-easy' : lab.difficulty === 'Mittel' ? 'badge-medium' : 'badge-hard'}">${lab.difficulty}</span>
+    ${lab.subtitle} &nbsp;|&nbsp; ⏱ ${lab.duration}
+  </div>
+
+  <div class="section topology-box">
+    <strong>① Topologie aufbauen (Drag &amp; Drop in Packet Tracer)</strong><br/>
+    <span style="font-size:10px;color:#374151">${lab.topology.description}</span>
+    <div class="device-list">
+      ${lab.topology.devices.map(d => `<span class="device-badge"><strong>${d.count}×</strong> ${d.type} (${d.label})</span>`).join("")}
+    </div>
+    ${lab.topology.connections.map(c => `<div class="conn-line">↳ ${c}</div>`).join("")}
+    <div class="hint-box">💡 ${lab.topology.hint}</div>
+  </div>
+
+  <h2>② CLI-Konfiguration</h2>
+  ${lab.steps.map((step, si) => `
+    <div class="step-header">Schritt ${si + 1}: ${step.title}</div>
+    ${step.blocks.map(block => `
+      <div class="block">
+        <div class="block-header">
+          <span><strong>${block.device}</strong></span>
+          <span style="color:#64748b">${block.modeLabel}</span>
+        </div>
+        ${block.commands.map(c => `
+          <div class="cmd-row">
+            <div class="cmd-cell">${c.cmd.replace(/\n/g, "<br/>")}</div>
+            <div class="exp-cell">${c.explanation}</div>
+          </div>
+        `).join("")}
+      </div>
+    `).join("")}
+  `).join("")}
+
+  <div class="verify-box">
+    <strong style="color:#065f46">③ Verifikation — Lab erfolgreich wenn:</strong><br/>
+    ${lab.verifyCommands.map(v => `
+      <div class="verify-row">
+        <span class="verify-cmd">${v.cmd}</span>
+        <span class="verify-exp">→ ${v.expected}</span>
+      </div>
+    `).join("")}
+  </div>
+
+  <div class="footer">IT Training Canvas &mdash; ${new Date().toLocaleDateString("de-DE")} &mdash; ${lab.title}</div>
+
+  <script>
+    window.onload = function() { window.print(); };
+  </script>
+</body>
+</html>`);
+  printWindow.document.close();
+}
+
 // ── Haupt-Dialog ──────────────────────────────────────────────
 
 interface LabScenariosDialogProps {
@@ -1560,12 +1806,31 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => downloadText(lab)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+              title="Als .txt herunterladen"
+            >
+              <FileText size={15} />
+              TXT
+            </button>
+            <button
+              onClick={() => printLabAsPdf(lab)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-400 hover:text-white hover:bg-rose-500/20 transition-colors"
+              title="Als PDF drucken / speichern"
+            >
+              <FilePdf size={15} />
+              PDF
+            </button>
+            <div className="w-px h-5 bg-slate-700 mx-1" />
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-white p-1 rounded"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* ── Body ── */}
