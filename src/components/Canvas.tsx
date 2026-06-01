@@ -190,6 +190,8 @@ export function Canvas({
     redraw();
   }, [
     objects,
+    connections,
+    simulationPackets,
     theme,
     showGrid,
     gridSize,
@@ -204,6 +206,7 @@ export function Canvas({
     selectedShape,
     tool,
     hoveredObjectId,
+    showConnectionLabels,
   ]);
 
   // Report viewport changes to parent
