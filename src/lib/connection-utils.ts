@@ -108,6 +108,7 @@ export function drawConnection(
   shapes: Map<string, DrawingObject>,
   animated: boolean = false,
   animationOffset: number = 0,
+  showLabel: boolean = true,
 ) {
   const sourceShape = shapes.get(connection.sourceShapeId);
   const targetShape = shapes.get(connection.targetShapeId);
@@ -223,9 +224,23 @@ export function drawConnection(
   }
 
   // Draw label if present
-  if (connection.label) {
-    const midX = (sourcePos.x + targetPos.x) / 2;
-    const midY = (sourcePos.y + targetPos.y) / 2 + (connection.labelOffsetY ?? 0);
+  if (showLabel && connection.label) {
+    // Sample the cubic bezier at t (default midpoint) so converging
+    // connections can fan out their labels along the curve.
+    const t = Math.max(0, Math.min(1, connection.labelOffsetT ?? 0.5));
+    const omt = 1 - t;
+    const labelX =
+      omt * omt * omt * sourcePos.x +
+      3 * omt * omt * t * cp1.x +
+      3 * omt * t * t * cp2.x +
+      t * t * t * targetPos.x;
+    const labelY =
+      omt * omt * omt * sourcePos.y +
+      3 * omt * omt * t * cp1.y +
+      3 * omt * t * t * cp2.y +
+      t * t * t * targetPos.y;
+    const midX = labelX;
+    const midY = labelY + (connection.labelOffsetY ?? 0);
 
     ctx.font = 'bold 10px "IBM Plex Mono", monospace';
     ctx.textAlign = "center";

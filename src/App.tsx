@@ -217,6 +217,8 @@ function App() {
   const [showMetrics, setShowMetrics] = useState(false);
   const [showSimulationHUD, setShowSimulationHUD] = useState(false);
   const [showPingScenario, setShowPingScenario] = useState(false);
+  /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
+  const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
 
   // Phase 5: Collaboration State
@@ -1637,6 +1639,33 @@ function App() {
                   <span>Themen</span>
                 </button>
               )}
+
+              {/* Floating View-Density toggle (Simple ↔ Detail) */}
+              <div
+                className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
+                title="Anzeige-Dichte umschalten — Simple blendet Verbindungs-Labels aus für klare Übersicht"
+              >
+                <button
+                  onClick={() => setViewDensity("simple")}
+                  className={`px-3 py-1.5 font-medium transition-colors ${
+                    viewDensity === "simple"
+                      ? "bg-cyan-500/30 text-cyan-200"
+                      : "text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                  }`}
+                >
+                  Simple
+                </button>
+                <button
+                  onClick={() => setViewDensity("detail")}
+                  className={`px-3 py-1.5 font-medium transition-colors ${
+                    viewDensity === "detail"
+                      ? "bg-cyan-500/30 text-cyan-200"
+                      : "text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                  }`}
+                >
+                  Detail
+                </button>
+              </div>
               <Canvas
                 objects={canvasState.objects}
                 onObjectsChange={updateCanvasState}
@@ -1716,6 +1745,7 @@ function App() {
                 gridAccentColor={gridAccentColor}
                 gridOpacity={gridOpacity}
                 selectedShape={selectedShape}
+                showConnectionLabels={viewDensity === "detail"}
                 onViewportChange={setViewportInfo}
               />
 

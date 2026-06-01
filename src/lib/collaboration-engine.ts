@@ -351,7 +351,12 @@ function tplConn(
   targetId: string,
   label: string,
   color: string,
-  options?: { animated?: boolean; protocol?: string; labelOffsetY?: number },
+  options?: {
+    animated?: boolean;
+    protocol?: string;
+    labelOffsetY?: number;
+    labelOffsetT?: number;
+  },
 ): CanvasConnection {
   return {
     id,
@@ -364,6 +369,7 @@ function tplConn(
     animated: options?.animated ?? false,
     label,
     labelOffsetY: options?.labelOffsetY,
+    labelOffsetT: options?.labelOffsetT,
     color,
     protocol: options?.protocol,
   };
@@ -973,60 +979,64 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     difficulty: "beginner",
     objects: [
       // Header
-      tplText("ris-h1", 60, 30, "Router-on-a-Stick — Inter-VLAN Routing", "#1E293B", 18),
-      tplText("ris-h2", 60, 55, "R1 terminiert alle 3 VLANs via Subinterfaces (Gi0/0.10 / .20 / .30)", "#475569", 12),
+      tplText("ris-h1", 80, 30, "Router-on-a-Stick — Inter-VLAN Routing", "#1E293B", 18),
+      tplText("ris-h2", 80, 55, "R1 terminiert alle 3 VLANs via Subinterfaces (Gi0/0.10 / .20 / .30)", "#475569", 12),
 
-      // Router
-      tplShape("ris-r1", "router", 390, 90, 80, 80, "#F59E0B", "R1 (RoaS)"),
-      tplText("ris-r1-sub", 340, 180, "Gi0/0.10  .20  .30", "#B45309", 11),
+      // Router (top, centered)
+      tplShape("ris-r1", "router", 520, 110, 80, 80, "#F59E0B", "R1 (RoaS)"),
+      tplText("ris-r1-sub", 470, 200, "Gi0/0.10  .20  .30", "#B45309", 11),
 
-      // Switches
-      tplShape("ris-sw1", "switch", 230, 290, 90, 70, "#10B981", "SW1"),
-      tplShape("ris-sw2", "switch", 550, 290, 90, 70, "#10B981", "SW2"),
+      // Switches (more horizontal breathing room)
+      tplShape("ris-sw1", "switch", 220, 340, 90, 70, "#10B981", "SW1"),
+      tplShape("ris-sw2", "switch", 820, 340, 90, 70, "#10B981", "SW2"),
 
-      // VLAN-Zone Hintergründe (SW1-Seite)
-      tplRect("ris-zone10", 50, 420, 130, 110, "#BFDBFE"),
-      tplRect("ris-zone20", 200, 420, 130, 110, "#BBF7D0"),
-      tplRect("ris-zone30", 350, 420, 130, 110, "#DDD6FE"),
+      // VLAN-Zonen unter SW1 (deutlich auseinander, 140px Breite, 30px Abstand)
+      tplRect("ris-zone10", 40,  500, 140, 140, "#BFDBFE"),
+      tplRect("ris-zone20", 210, 500, 140, 140, "#BBF7D0"),
+      tplRect("ris-zone30", 380, 500, 140, 140, "#DDD6FE"),
 
-      // PCs an SW1
-      tplShape("ris-pc10",  "computer", 85,  450, 65, 65, "#3B82F6", "PC-Sales"),
-      tplShape("ris-pc20",  "computer", 235, 450, 65, 65, "#10B981", "PC-IT"),
-      tplShape("ris-pc30",  "computer", 385, 450, 65, 65, "#8B5CF6", "PC-Mgmt"),
+      // PCs an SW1 (zentriert in ihren Zonen)
+      tplShape("ris-pc10",  "computer",  78,  545, 65, 65, "#3B82F6", "PC-Sales"),
+      tplShape("ris-pc20",  "computer", 248,  545, 65, 65, "#10B981", "PC-IT"),
+      tplShape("ris-pc30",  "computer", 418,  545, 65, 65, "#8B5CF6", "PC-Mgmt"),
 
-      // VLAN-Labels
-      tplText("ris-l10", 58,  425, "VLAN 10 — Sales", "#1D4ED8", 11),
-      tplText("ris-l20", 208, 425, "VLAN 20 — IT", "#15803D", 11),
-      tplText("ris-l30", 358, 425, "VLAN 30 — Mgmt", "#6D28D9", 11),
-      tplText("ris-l10b", 58,  438, "192.168.10.0/24", "#1D4ED8", 10),
-      tplText("ris-l20b", 208, 438, "192.168.20.0/24", "#15803D", 10),
-      tplText("ris-l30b", 358, 438, "192.168.30.0/24", "#6D28D9", 10),
+      // VLAN-Labels (über den Zonen, klar getrennt)
+      tplText("ris-l10",  48,  510, "VLAN 10 — Sales", "#1D4ED8", 11),
+      tplText("ris-l10b", 48,  525, "192.168.10.0/24", "#1D4ED8", 10),
+      tplText("ris-l20",  218, 510, "VLAN 20 — IT",    "#15803D", 11),
+      tplText("ris-l20b", 218, 525, "192.168.20.0/24", "#15803D", 10),
+      tplText("ris-l30",  388, 510, "VLAN 30 — Mgmt",  "#6D28D9", 11),
+      tplText("ris-l30b", 388, 525, "192.168.30.0/24", "#6D28D9", 10),
 
-      // PC an SW2
-      tplShape("ris-pc10b", "computer", 545, 450, 65, 65, "#3B82F6", "PC2-Sales"),
-      tplText("ris-l10c", 525, 435, "VLAN 10", "#1D4ED8", 10),
+      // Voice-VLAN-Zone (eigener Bereich, weit weg von VLAN30)
+      tplRect("ris-zone-voice", 580, 500, 200, 140, "#FED7AA"),
+      tplText("ris-l-voice",  590, 510, "Voice VLAN 100", "#92400E", 11),
+      tplText("ris-l-voice2", 590, 525, "Data  VLAN 10",  "#92400E", 10),
+      tplShape("ris-phone1", "server",   600, 545, 55, 55, "#F97316", "IP-Phone"),
+      tplShape("ris-pcv1",   "computer", 695, 545, 55, 55, "#94A3B8", "PC (hinter Phone)"),
 
-      // Voice-VLAN-Zone
-      tplRect("ris-zone-voice", 490, 420, 145, 110, "#FED7AA"),
-      tplText("ris-l-voice",  492, 425, "Voice VLAN 100", "#92400E", 11),
-      tplText("ris-l-voice2", 492, 438, "Data  VLAN 10",  "#92400E", 10),
-      tplShape("ris-phone1", "server",   510, 450, 55, 55, "#F97316", "IP-Phone"),
-      tplShape("ris-pcv1",   "computer", 575, 450, 55, 55, "#94A3B8", "PC (hinter Phone)"),
+      // PC an SW2 (eigene Zone)
+      tplRect("ris-zone10b", 810, 500, 140, 140, "#BFDBFE"),
+      tplText("ris-l10c",    818, 510, "VLAN 10 — Sales", "#1D4ED8", 11),
+      tplShape("ris-pc10b", "computer", 848, 545, 65, 65, "#3B82F6", "PC2-Sales"),
 
-      // Hinweis
-      tplText("ris-tip1", 60, 570, "Trunk-Port: switchport mode trunk  |  switchport trunk allowed vlan 10,20,30,100", "#334155", 12),
-      tplText("ris-tip2", 60, 588, "Access-Port: switchport mode access  |  switchport access vlan <ID>", "#334155", 12),
-      tplText("ris-tip3", 60, 606, "Router: interface Gi0/0.10  |  encapsulation dot1Q 10  |  ip address 192.168.10.1 255.255.255.0", "#334155", 12),
-      tplText("ris-tip4", 60, 622, "Voice VLAN: switchport voice vlan 100  |  mls qos trust device cisco-phone", "#92400E", 12),
+      // Hinweise (unten, klar abgegrenzt)
+      tplText("ris-tip1", 80, 680, "Trunk-Port:  switchport mode trunk  |  switchport trunk allowed vlan 10,20,30,100", "#334155", 12),
+      tplText("ris-tip2", 80, 700, "Access-Port: switchport mode access  |  switchport access vlan <ID>", "#334155", 12),
+      tplText("ris-tip3", 80, 720, "Router:      interface Gi0/0.10  |  encapsulation dot1Q 10  |  ip address 192.168.10.1 255.255.255.0", "#334155", 12),
+      tplText("ris-tip4", 80, 740, "Voice VLAN:  switchport voice vlan 100  |  mls qos trust device cisco-phone", "#92400E", 12),
     ],
     connections: [
-      tplConn("ris-c1", "ris-r1",    "ris-sw1",   "Gi0/0 Trunk 802.1Q",              "#F59E0B"),
-      tplConn("ris-c2", "ris-sw1",   "ris-sw2",   "Trunk 802.1Q (Gi0/24)",           "#F59E0B"),
-      tplConn("ris-c3", "ris-sw1",   "ris-pc10",  "Gi0/1 Access VLAN10",             "#3B82F6"),
-      tplConn("ris-c4", "ris-sw1",   "ris-pc20",  "Gi0/2 Access VLAN20",             "#10B981"),
-      tplConn("ris-c5", "ris-sw1",   "ris-pc30",  "Gi0/3 Access VLAN30",             "#8B5CF6"),
-      tplConn("ris-c6", "ris-sw2",   "ris-pc10b", "Gi0/1 Access VLAN10",             "#3B82F6"),
-      tplConn("ris-c7", "ris-sw1",   "ris-phone1","Gi0/4 Access VLAN10 + Voice 100", "#F97316"),
+      // Trunks (labels nahe der Quelle = fanned out)
+      tplConn("ris-c1", "ris-r1",    "ris-sw1",   "Gi0/0 Trunk 802.1Q",              "#F59E0B", { labelOffsetT: 0.45 }),
+      tplConn("ris-c2", "ris-sw1",   "ris-sw2",   "Trunk 802.1Q (Gi0/24)",           "#F59E0B", { labelOffsetT: 0.5 }),
+      // Access-Ports von SW1 — labels entlang der Kurve verteilen (0.25–0.45)
+      tplConn("ris-c3", "ris-sw1",   "ris-pc10",  "Gi0/1 Access VLAN10",             "#3B82F6", { labelOffsetT: 0.25 }),
+      tplConn("ris-c4", "ris-sw1",   "ris-pc20",  "Gi0/2 Access VLAN20",             "#10B981", { labelOffsetT: 0.35 }),
+      tplConn("ris-c5", "ris-sw1",   "ris-pc30",  "Gi0/3 Access VLAN30",             "#8B5CF6", { labelOffsetT: 0.45 }),
+      tplConn("ris-c7", "ris-sw1",   "ris-phone1","Gi0/4 Access VLAN10 + Voice 100", "#F97316", { labelOffsetT: 0.55 }),
+      // SW2 → PC2-Sales
+      tplConn("ris-c6", "ris-sw2",   "ris-pc10b", "Gi0/1 Access VLAN10",             "#3B82F6", { labelOffsetT: 0.4 }),
     ],
     estimatedTime: "20 min",
     downloads: 0,

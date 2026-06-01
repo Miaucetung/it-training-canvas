@@ -583,6 +583,8 @@ export interface CanvasConnection {
   bidirectional?: boolean;
   label?: string;
   labelOffsetY?: number;
+  /** Position along the connection (0=source, 1=target, 0.5=midpoint). Default 0.5. */
+  labelOffsetT?: number;
   color?: string;
   protocol?: string;
   bandwidth?: string;

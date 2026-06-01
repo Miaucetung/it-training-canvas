@@ -52,6 +52,8 @@ interface CanvasProps {
   gridAccentColor?: string;
   gridOpacity?: number;
   selectedShape?: ShapeDefinition | null;
+  /** When false, hides per-connection labels (Simple/clean mode). */
+  showConnectionLabels?: boolean;
   onViewportChange?: (viewport: {
     x: number;
     y: number;
@@ -90,6 +92,7 @@ export function Canvas({
   gridAccentColor,
   gridOpacity = 1,
   selectedShape,
+  showConnectionLabels = true,
   onViewportChange,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -550,8 +553,17 @@ export function Canvas({
         animated: conn.animated,
         bidirectional: conn.bidirectional,
         label: conn.label,
+        labelOffsetY: conn.labelOffsetY,
+        labelOffsetT: conn.labelOffsetT,
       };
-      drawConnection(ctx, shapeConnection, shapesMap, conn.animated);
+      drawConnection(
+        ctx,
+        shapeConnection,
+        shapesMap,
+        conn.animated,
+        0,
+        showConnectionLabels,
+      );
     });
 
     // Draw simulation packets
@@ -658,6 +670,7 @@ export function Canvas({
     hoveredObjectId,
     connectionStart,
     hoveredPort,
+    showConnectionLabels,
   ]);
 
   // Set callback for SVG image loading to trigger canvas redraw

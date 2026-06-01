@@ -176,6 +176,10 @@ export interface ShapeConnection {
   status: "active" | "inactive" | "error";
   animated?: boolean;
   label?: string;
+  /** Vertical offset (px) applied to label position. */
+  labelOffsetY?: number;
+  /** Position along the connection (0=source, 1=target, 0.5=midpoint). Default 0.5. */
+  labelOffsetT?: number;
   bidirectional?: boolean;
   protocol?: NetworkProtocol;
   color?: string;
