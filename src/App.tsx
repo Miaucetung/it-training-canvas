@@ -18,6 +18,7 @@ import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
+import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import {
   SimulationControls,
   useSimulation,
@@ -215,6 +216,7 @@ function App() {
   } | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   const [showSimulationHUD, setShowSimulationHUD] = useState(false);
+  const [showPingScenario, setShowPingScenario] = useState(false);
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
 
   // Phase 5: Collaboration State
@@ -1415,6 +1417,18 @@ function App() {
               CLI
             </button>
             <button
+              onClick={() => setShowPingScenario(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                theme === "dark"
+                  ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
+                  : "bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
+              }`}
+              title="Ping testen – geführte Schritt-für-Schritt-Analyse mit klarer Erklärung"
+            >
+              <Lightning size={16} weight="fill" />
+              Ping testen
+            </button>
+            <button
               onClick={() => setShowPacketFlow(!showPacketFlow)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showPacketFlow
@@ -1423,7 +1437,7 @@ function App() {
                     ? "text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10"
                     : "text-slate-500 hover:text-emerald-600 hover:bg-emerald-50"
               }`}
-              title="Paketfluss-Simulation – Pakete zwischen Geräten visualisieren"
+              title="Paketfluss-Simulation – Pakete zwischen Geräten visualisieren (Detailansicht)"
             >
               <Lightning size={16} />
               Paketfluss
@@ -1845,6 +1859,13 @@ function App() {
         open={showKeyboardShortcuts}
         onOpenChange={setShowKeyboardShortcuts}
         theme={theme}
+      />
+
+      <PingScenarioDialog
+        open={showPingScenario}
+        onClose={() => setShowPingScenario(false)}
+        objects={canvasState.objects}
+        connections={canvasState.connections}
       />
 
       {/* Shape Properties Panel */}
