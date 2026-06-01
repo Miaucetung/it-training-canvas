@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { simulatePacketTrace } from "@/lib/network-simulator";
 import { CanvasConnection, DrawingObject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -437,44 +438,83 @@ export function useSimulation(
 
   const sendPacket = useCallback(
     (sourceId: string, targetId: string, data: string) => {
-      // Find connection between source and target
-      const connection = connections.find(
-        (c) =>
-          (c.sourceShapeId === sourceId && c.targetShapeId === targetId) ||
-          (c.bidirectional &&
-            c.sourceShapeId === targetId &&
-            c.targetShapeId === sourceId),
-      );
-
-      const newPacket: PacketData = {
-        id: `packet-${Date.now()}-${Math.random()}`,
+      // ─── Single source of truth: shared trace engine ───
+      // Both PacketFlowVisualizer and SimulationControls now agree on
+      // whether a ping really succeeds (VLAN/Trunk/L3/ARP-aware).
+      const trace = simulatePacketTrace(
         sourceId,
         targetId,
-        connectionId: connection?.id || "",
-        protocol: data,
         data,
-        progress: 0,
-        status: "sending",
-      };
+        objects,
+        connections,
+      );
 
-      const newLog: SimulationLog = {
-        id: `log-${Date.now()}`,
-        timestamp: Date.now(),
-        type: connection ? "info" : "warning",
-        source: sourceId,
-        target: targetId,
-        message: connection
-          ? `${data} Paket gesendet von ${sourceId.slice(0, 8)}...`
-          : `Keine direkte Verbindung gefunden`,
-      };
+      const sourceLabel =
+        objects.find((o) => o.id === sourceId)?.label || sourceId.slice(0, 8);
+      const targetLabel =
+        objects.find((o) => o.id === targetId)?.label || targetId.slice(0, 8);
+
+      const logs: SimulationLog[] = [];
+      const packets: PacketData[] = [];
+      const now = Date.now();
+
+      if (trace.steps.length === 0) {
+        logs.push({
+          id: `log-${now}-nopath`,
+          timestamp: now,
+          type: "error",
+          source: sourceId,
+          target: targetId,
+          message: `${data}: Kein Pfad von ${sourceLabel} nach ${targetLabel} (keine Verbindung / falsche L2/L3-Konfig)`,
+        });
+      } else {
+        // Per-hop packet animations and per-hop logs
+        trace.steps.forEach((step, idx) => {
+          packets.push({
+            id: `packet-${now}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+            sourceId: step.fromShapeId,
+            targetId: step.toShapeId,
+            connectionId: step.connectionId,
+            protocol: data,
+            data,
+            progress: 0,
+            status: step.status === "dropped" ? "dropped" : "sending",
+          });
+
+          if (step.status === "dropped") {
+            logs.push({
+              id: `log-${now}-${idx}-drop`,
+              timestamp: now + idx,
+              type: "error",
+              source: step.fromShapeId,
+              target: step.toShapeId,
+              message: `Hop ${idx + 1}: ${step.data.detail || "Paket verworfen"}`,
+            });
+          }
+        });
+
+        logs.push({
+          id: `log-${now}-final`,
+          timestamp: now + trace.steps.length,
+          type: trace.success ? "success" : "error",
+          source: sourceId,
+          target: targetId,
+          message: trace.success
+            ? `${data} ${sourceLabel} → ${targetLabel}: ${trace.steps.length} Hop(s) erfolgreich`
+            : `${data} ${sourceLabel} → ${targetLabel} FEHLGESCHLAGEN: ${
+                trace.steps[trace.steps.length - 1]?.data.detail ||
+                "Ziel nicht erreichbar"
+              }`,
+        });
+      }
 
       setSimulationState((prev) => ({
         ...prev,
-        packets: [...prev.packets, newPacket],
-        logs: [...prev.logs, newLog].slice(-50),
+        packets: [...prev.packets, ...packets],
+        logs: [...prev.logs, ...logs].slice(-50),
       }));
     },
-    [connections],
+    [objects, connections],
   );
 
   return {
