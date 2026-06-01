@@ -19,6 +19,7 @@ import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import {
   SimulationControls,
   useSimulation,
@@ -217,6 +218,7 @@ function App() {
   const [showMetrics, setShowMetrics] = useState(false);
   const [showSimulationHUD, setShowSimulationHUD] = useState(false);
   const [showPingScenario, setShowPingScenario] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
@@ -1666,6 +1668,15 @@ function App() {
                   Detail
                 </button>
               </div>
+
+              {/* Floating help / tour button */}
+              <button
+                onClick={() => setShowOnboarding(true)}
+                title="Tour erneut öffnen — die wichtigsten Funktionen kurz erklärt"
+                className="absolute bottom-4 right-4 z-30 w-9 h-9 flex items-center justify-center rounded-full bg-cyan-600/90 hover:bg-cyan-500 text-white text-base font-bold shadow-lg backdrop-blur-sm transition-colors"
+              >
+                ?
+              </button>
               <Canvas
                 objects={canvasState.objects}
                 onObjectsChange={updateCanvasState}
@@ -1896,6 +1907,11 @@ function App() {
         onClose={() => setShowPingScenario(false)}
         objects={canvasState.objects}
         connections={canvasState.connections}
+      />
+
+      <OnboardingTour
+        forceOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
       />
 
       {/* Shape Properties Panel */}
