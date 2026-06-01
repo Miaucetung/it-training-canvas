@@ -1567,7 +1567,7 @@ function buildLabText(lab: LabScenario): string {
     out += `  $ ${v.cmd}\n    → Erwartet: ${v.expected}\n\n`;
   });
 
-  out += `${sep}\nGeneriert von IT Training Canvas – ${new Date().toLocaleDateString("de-DE")}\n${sep}\n`;
+  out += `${sep}\nGeneriert von ccna.ajti.online – ${new Date().toLocaleDateString("de-DE")}\n${sep}\n`;
   return out;
 }
 
@@ -1759,7 +1759,7 @@ function printLabAsPdf(lab: LabScenario) {
     `).join("")}
   </div>
 
-  <div class="footer">IT Training Canvas &mdash; ${new Date().toLocaleDateString("de-DE")} &mdash; ${lab.title}</div>
+  <div class="footer">ccna.ajti.online &mdash; ${new Date().toLocaleDateString("de-DE")} &mdash; ${lab.title}</div>
 
   <script>
     window.onload = function() { window.print(); };
