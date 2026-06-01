@@ -153,7 +153,7 @@ export function FloatingToolbar({
   selectedShape,
 }: FloatingToolbarProps) {
   const subjectColor = SUBJECT_CONFIGS[currentSubject]?.color || "#6366F1";
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(true);
 
   return (
     <TooltipProvider delayDuration={200}>

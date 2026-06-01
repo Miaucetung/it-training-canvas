@@ -171,7 +171,7 @@ function App() {
     ...DEFAULT_SUBJECTS,
     ...CATALOG_SUBJECTS,
   ]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   // Phase 6c-3: selected topic for detail panel
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
