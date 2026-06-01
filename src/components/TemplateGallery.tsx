@@ -9,6 +9,7 @@ import type {
   TemplateCategory,
 } from "@/lib/types";
 import { TEMPLATE_CATEGORY_LABELS } from "@/lib/types";
+import { normalizeTemplate } from "@/lib/template-normalizer";
 import {
   Clock,
   CloudArrowDown,
@@ -183,7 +184,10 @@ export function TemplateGallery({
         targetShapeId: idMap.get(conn.targetShapeId) || conn.targetShapeId,
       }));
 
-      onApplyTemplate(newObjects, newConnections);
+      // Auto-tidy: spread converging labels + enforce min spacing
+      const normalized = normalizeTemplate(newObjects, newConnections);
+
+      onApplyTemplate(normalized.objects, normalized.connections);
       toast.success(`Template "${template.name}" angewendet`);
       onClose();
     },
