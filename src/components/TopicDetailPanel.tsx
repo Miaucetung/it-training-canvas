@@ -32,6 +32,7 @@ import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
 import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
 import { TopologieExplorerDialog } from "./TopologieExplorerDialog";
 import { CliGlossaryDialog } from "./CliGlossaryDialog";
+import { StpSimulatorDialog } from "./StpSimulatorDialog";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -100,6 +101,7 @@ export function TopicDetailPanel({
   const [vlanSimOpen, setVlanSimOpen] = useState(false);
   const [topologyExplorerOpen, setTopologyExplorerOpen] = useState(false);
   const [cliGlossaryOpen, setCliGlossaryOpen] = useState(false);
+  const [stpSimOpen, setStpSimOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
@@ -109,6 +111,7 @@ export function TopicDetailPanel({
     "verkabelung-trainer",
   );
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
+  const hasStpSimulator = topic.conceptIds.includes("stp-simulator");
   const hasTopologyExplorer = topic.conceptIds.includes("topology-explorer");
   const hasCliGlossary = topic.conceptIds.includes("ios-cli-glossary");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
@@ -359,6 +362,44 @@ export function TopicDetailPanel({
               </div>
               <span
                 className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}
+              >
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── STP-Simulator CTA ── */}
+        {hasStpSimulator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setStpSimOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-200"
+                  : "bg-amber-50 border-amber-200 hover:bg-amber-100 text-amber-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark
+                    ? "bg-amber-500/30 text-amber-200"
+                    : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                ⚡
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">
+                  STP &amp; RSTP Simulator
+                </div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  Root-Wahl · Port-Rollen · Konvergenz · PortFast/BPDU Guard
+                </div>
+              </div>
+              <span
+                className={`text-xs ${dark ? "text-amber-300" : "text-amber-600"}`}
               >
                 Starten →
               </span>
@@ -903,6 +944,13 @@ export function TopicDetailPanel({
         <VlanSimulatorDialog
           dark={dark}
           onClose={() => setVlanSimOpen(false)}
+        />
+      )}
+
+      {hasStpSimulator && stpSimOpen && (
+        <StpSimulatorDialog
+          dark={dark}
+          onClose={() => setStpSimOpen(false)}
         />
       )}
 

@@ -102,43 +102,240 @@ SW# show interfaces trunk
 
 export const CONCEPT_STP: Concept = {
   id: "stp",
-  title: "STP — Spanning Tree Protocol",
+  title: "STP & RSTP — Spanning Tree verstehen",
   appliesTo: ["ccna", "comptia-network-plus"],
-  tags: ["networking", "stp", "layer-2", "redundancy", "loops"],
+  tags: ["networking", "stp", "rstp", "layer-2", "redundancy", "loops"],
   content: `
-## Spanning Tree Protocol (IEEE 802.1D)
+## 🎯 Was du nach dieser Lektion kannst
 
-### Problem: Layer-2-Schleifen
-Ohne STP → Broadcast-Sturm, MAC-Tabelleninstabilität, Frame-Duplikate
+- Erklären, **warum** Layer-2 ohne STP zusammenbricht (Broadcast-Storm).
+- Die **Wahl der Root Bridge** Schritt für Schritt durchführen.
+- Für jeden Switch-Port die richtige **Rolle** (Root / Designated / Blocked) bestimmen.
+- Den Unterschied zwischen **STP (802.1D)** und **RSTP (802.1w)** in einem Satz erklären.
+- **PortFast** und **BPDU Guard** sinnvoll einsetzen.
 
-### STP-Ablauf
-1. **Root Bridge wählen**: Niedrigste Bridge-ID (Priorität + MAC)
-2. **Root Ports wählen**: Pro Nicht-Root-Switch, Port mit kleinstem Root Path Cost
-3. **Designated Ports wählen**: Pro Segment, bester Port (kleinste Root Path Cost)
-4. **Alle anderen Ports**: Blocking-State
+> 💡 **Tipp:** Öffne nach der Theorie den **interaktiven STP-Simulator** unten – dort wählst du selbst die Root Bridge, beobachtest die BPDU-Wahl und siehst, wie RSTP in <1 s konvergiert.
 
-### STP-Port-Zustände (802.1D)
-| Zustand | Forwarding | Learning | Dauer |
-|---------|-----------|---------|-------|
-| Blocking | Nein | Nein | – |
-| Listening | Nein | Nein | 15 s |
-| Learning | Nein | Ja | 15 s |
-| Forwarding | Ja | Ja | – |
-| Disabled | Nein | Nein | – |
+---
 
-**Konvergenzzeit**: bis zu 50 Sekunden (Problem!)
+## 1. Das Problem — warum brauchen wir STP überhaupt?
 
-### RSTP (802.1W)
-- Rapid Spanning Tree → Konvergenz in < 1 Sekunde
-- Port-Rollen: Root, Designated, Alternate, Backup
-- Cisco: PVST+, Rapid-PVST+ (per VLAN)
+Stell dir vor, du verbindest drei Switches zu einem **Dreieck** (für Redundanz – fällt ein Kabel aus, gibt es noch einen Weg). Ohne STP passiert in Sekunden ein **Layer-2-Meltdown**:
 
-### PortFast & BPDU Guard
+| Symptom | Was passiert |
+|---|---|
+| 🌪 **Broadcast-Storm** | Ein einziger ARP-Broadcast kreist endlos im Ring – CPU geht auf 100 %. |
+| 🔀 **MAC-Flapping** | Switches sehen dieselbe Quell-MAC abwechselnd auf zwei Ports → MAC-Tabelle instabil. |
+| 👯 **Frame-Duplikate** | Empfänger erhalten jedes Paket 2× / 3× / N× – TCP bricht ein. |
+
+> ⚠️ **Wichtig:** Ethernet-Frames haben **keine TTL** wie IP. Ein Loop ist deshalb ewig. Genau diese Lücke schließt STP.
+
+**Lösung in einem Satz:** STP schaltet so viele Ports auf „Blocking", dass aus dem physischen Maschen­netz ein logischer **Baum** ohne Kreise wird – fällt ein Link aus, wird ein blockierter Port automatisch aktiviert.
+
+---
+
+## 2. Die Wahl der Root Bridge — wie der „Chef" entsteht
+
+Jeder Switch hat eine **Bridge-ID** (8 Byte): \`Priority (2B) | MAC-Adresse (6B)\`.
+
 \`\`\`
-SW(config-if)# spanning-tree portfast          ! Access-Ports: sofort Forwarding
-SW(config-if)# spanning-tree bpduguard enable  ! Deaktiviert Port bei BPDU-Empfang
+Default-Priority = 32768
+Schritt 1: Vergleiche Priority — niedrigste gewinnt.
+Schritt 2: Bei Gleichstand vergleiche MAC — niedrigste gewinnt.
 \`\`\`
+
+📖 **Eselsbrücke:** *„Der Sparsamste (niedrigste Zahl) wird Chef."*
+
+**Best Practice:** Setze den Core-Switch manuell als Root:
+
+\`\`\`
+SW(config)# spanning-tree vlan 1 priority 4096
+\`\`\`
+
+Priority wird in Schritten von **4096** vergeben (4096, 8192, 12288 …). Sonst akzeptiert IOS den Wert nicht.
+
+---
+
+## 3. Port-Rollen — wer macht was?
+
+Sobald die Root Bridge feststeht, bekommt **jeder Port** genau eine Rolle:
+
+| Rolle | Symbol | Wahl-Regel |
+|---|---|---|
+| **Root Port (RP)** | 🟦 | *Jeder Nicht-Root-Switch* hat genau einen — der mit den **niedrigsten Kosten zur Root**. |
+| **Designated Port (DP)** | 🟩 | *Pro Netzsegment* gibt es genau einen — der mit den niedrigsten Kosten Richtung Root. Alle Root-Ports der Root Bridge sind automatisch DP. |
+| **Blocked / Alternate (BLK)** | 🟥 | Alle übrigen — kein Forwarding, hört aber BPDUs. Springt bei Ausfall ein. |
+
+**STP-Pfadkosten (IEEE 802.1D-2004):**
+
+| Bandbreite | Cost |
+|---|---|
+| 10 Mbit/s | 100 |
+| 100 Mbit/s | 19 |
+| 1 Gbit/s | **4** |
+| 10 Gbit/s | 2 |
+| 100 Gbit/s | 1 |
+
+> 📝 **Merke:** Cost wird über jeden Hop **addiert**, nicht multipliziert.
+
+### Tie-Breaker — was, wenn zwei Pfade gleich teuer sind?
+
+1. Niedrigste **Sender-Bridge-ID**
+2. Niedrigste **Sender-Port-ID** (Priority + Portnummer)
+3. Niedrigste **eigene Port-ID**
+
+---
+
+## 4. Port-Zustände — der Konvergenz-Tanz (802.1D)
+
+Wenn ein Switch hochfährt, durchläuft jeder Port diese Phasen:
+
+\`\`\`
+ Blocking ─►  Listening ─►  Learning ─►  Forwarding
+   (∞)         (15 s)        (15 s)        (∞)
+            ◄────── 30 s Forward-Delay ──────►
+            ◄─── + 20 s Max-Age bei Fehler ──►   = bis zu 50 s 😱
+\`\`\`
+
+| Zustand | BPDU senden | BPDU empfangen | MAC lernen | Daten weiterleiten |
+|---|---|---|---|---|
+| Blocking | ❌ | ✅ | ❌ | ❌ |
+| Listening | ✅ | ✅ | ❌ | ❌ |
+| Learning | ✅ | ✅ | ✅ | ❌ |
+| **Forwarding** | ✅ | ✅ | ✅ | ✅ |
+
+> ⏱ **50 Sekunden** sind in modernen Netzen **inakzeptabel** – deshalb RSTP.
+
+---
+
+## 5. RSTP (802.1w) — Spanning Tree für die Realität
+
+RSTP ist *abwärtskompatibel* zu STP, aber konvergiert in **< 1 Sekunde** statt 50.
+
+### Was ist neu?
+
+| | STP (802.1D) | RSTP (802.1w) |
+|---|---|---|
+| Port-Zustände | 5 (Disabled, Blocking, Listening, Learning, Forwarding) | **3** (Discarding, Learning, Forwarding) |
+| Port-Rollen | Root, Designated, Blocked | Root, Designated, **Alternate**, **Backup** |
+| Konvergenz | 30–50 s | **< 1 s** |
+| BPDU | nur Root sendet | **jeder** Switch sendet (Keep-Alive alle 2 s) |
+| Edge-Port | extra konfigurieren (PortFast) | nativ unterstützt |
+
+### Der Trick: Proposal / Agreement Handshake
+
+Statt auf Timer zu warten, **fragen** zwei Switches sich direkt:
+
+\`\`\`
+SW-A ──(Proposal: „Ich bin Designated")──► SW-B
+SW-B  ─(Agreement: „OK, du bist Designated")─► SW-A
+                                              → Port sofort Forwarding ⚡
+\`\`\`
+
+**Alternate Port:** Ein zweitbester Weg zur Root, der schon vor-konfiguriert ist. Fällt der Root Port aus → **Alternate übernimmt in Millisekunden**, ohne neue Wahl.
+
+📖 **Eselsbrücke:** *„STP fragt nach 50 s, RSTP fragt sofort."*
+
+---
+
+## 6. PortFast & BPDU Guard — die Helfer für Access-Ports
+
+**Problem:** Ein PC, der bootet, will **sofort** Netzwerk – darf aber nicht 30 s in Listening/Learning hängen.
+
+**Lösung — PortFast:** Access-Port überspringt Listening/Learning und geht direkt auf Forwarding.
+
+\`\`\`cisco
+SW(config-if)# switchport mode access
+SW(config-if)# spanning-tree portfast
+\`\`\`
+
+> ⚠️ **Gefahr:** Steckt jemand statt eines PCs einen *Switch* in den PortFast-Port → sofortiger Loop!
+
+**Lösung — BPDU Guard:** Empfängt der Port jemals eine BPDU (also: hängt da ein Switch), wird er sofort *err-disabled*:
+
+\`\`\`cisco
+SW(config-if)# spanning-tree bpduguard enable
+\`\`\`
+
+| Feature | Wofür | Wo aktivieren |
+|---|---|---|
+| **PortFast** | Schnelles Forwarding | Access-Ports (PC, Drucker, AP) |
+| **BPDU Guard** | Schutz vor versehentlichen Switches | **Immer** zusammen mit PortFast |
+| **Root Guard** | Schutz vor unerlaubter neuer Root | Edge-Ports Richtung Fremd-Switches |
+| **Loop Guard** | Schutz vor unidirektionalen Links | Trunk-Ports zw. Switches |
+
+### Globale Aktivierung (empfohlen):
+
+\`\`\`cisco
+SW(config)# spanning-tree portfast default
+SW(config)# spanning-tree portfast bpduguard default
+SW(config)# spanning-tree mode rapid-pvst
+\`\`\`
+
+---
+
+## 7. Cisco-Spezialitäten — PVST+ und Rapid-PVST+
+
+Standard-STP kennt **einen** Spanning Tree für alle VLANs. Cisco macht es besser:
+
+- **PVST+** *(per VLAN Spanning Tree Plus)* — ein STP pro VLAN → unterschiedliche Root Bridges pro VLAN möglich → **Load-Balancing**.
+- **Rapid-PVST+** — dasselbe, aber mit RSTP-Geschwindigkeit. **Heute Default auf allen Catalyst-Switches.**
+
+\`\`\`cisco
+SW(config)# spanning-tree mode rapid-pvst
+SW(config)# spanning-tree vlan 10 root primary    ! VLAN 10 → diese Switch ist Root
+SW(config)# spanning-tree vlan 20 root secondary  ! VLAN 20 → Backup-Root
+\`\`\`
+
+---
+
+## 8. Troubleshooting-Cheatsheet
+
+\`\`\`cisco
+SW# show spanning-tree                       ! Übersicht alle VLANs
+SW# show spanning-tree vlan 10               ! Detail VLAN 10
+SW# show spanning-tree root                  ! Wer ist Root?
+SW# show spanning-tree interface Gi0/1       ! Port-Rolle & -Status
+SW# show spanning-tree summary               ! PortFast, BPDU Guard global
+\`\`\`
+
+| Symptom | Wahrscheinliche Ursache |
+|---|---|
+| Falscher Switch ist Root | Default-Priority überall — manuelle Priority setzen |
+| Port hängt in *Listening* | Klassisches 802.1D — auf \`rapid-pvst\` umstellen |
+| Port plötzlich *err-disabled* | BPDU Guard hat zugeschlagen → da hängt ein Switch |
+| Pakete kommen 2× an | STP läuft nicht / Bridge ohne STP im Pfad |
+
+---
+
+## 🧪 Selbsttest — kannst du das jetzt erklären?
+
+1. **Warum** explodiert ein L2-Loop, ein L3-Loop aber nicht?
+2. Du hast 3 Switches mit Priority 32768. Wer wird Root?
+3. RSTP — wie heißen die 3 Port-Zustände?
+4. Wann genau setzt du **BPDU Guard** ein?
+5. Auf welchem Cost-Pfad würdest du Gigabit über zwei 100-Mbit-Links bevorzugen?
+
+> 👉 Öffne danach den **STP-Simulator** und überprüfe deine Antworten interaktiv!
   `.trim(),
+};
+
+export const CONCEPT_STP_SIMULATOR: Concept = {
+  id: "stp-simulator",
+  title: "STP-Simulator",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["stp", "rstp", "simulator", "interactive", "layer-2"],
+  content: `## Interaktiver STP/RSTP-Simulator
+
+Visualisiert die komplette Spanning-Tree-Logik:
+
+- 🏆 **Root-Bridge-Wahl** anhand frei wählbarer Priorities & MACs
+- 🟦 **Root / Designated / Blocked Ports** automatisch berechnet
+- ⏱ **Konvergenzvergleich STP vs. RSTP** (50 s vs. <1 s) in Echtzeit
+- 💥 **Ausfall-Simulation:** Link kappen → Failover live beobachten
+- 🛡 **PortFast / BPDU Guard** Demo
+
+Starte den Simulator über den Button im Topic-Bereich.`.trim(),
 };
 
 export const CONCEPT_ETHERCHANNEL: Concept = {
@@ -228,6 +425,7 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
     "switching-basics",
     "vlans",
     "stp",
+    "stp-simulator",
     "etherchannel",
     "switching-vlans-guide",
     "vlan-simulator",
@@ -261,6 +459,7 @@ export const SWITCHING_CONCEPTS: Record<string, Concept> = {
   "switching-basics": CONCEPT_SWITCHING_BASICS,
   vlans: CONCEPT_VLANS,
   stp: CONCEPT_STP,
+  "stp-simulator": CONCEPT_STP_SIMULATOR,
   etherchannel: CONCEPT_ETHERCHANNEL,
   "switching-vlans-guide": CONCEPT_SWITCHING_VLANS_GUIDE,
   "vlan-simulator": CONCEPT_VLAN_SIMULATOR,

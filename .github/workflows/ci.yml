@@ -65,6 +65,12 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Apply k8s manifests
+        run: kubectl apply -k k8s/base
+
       - name: Rollout restart
         run: kubectl rollout restart deployment/it-training-canvas -n apps
 
