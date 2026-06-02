@@ -342,6 +342,7 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
   conceptIds: [
     "osi-model",
     "encapsulation",
+    "osi-simulator",
     "network-topologies",
     "network-types-by-scope",
     "network-components",
@@ -358,9 +359,29 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
   tags: ["osi", "tcp-ip", "networking", "fundamentals", "enterprise", "design"],
 };
 
+export const CONCEPT_OSI_SIMULATOR: Concept = {
+  id: "osi-simulator",
+  title: "OSI-Simulator (Encapsulation)",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["osi", "encapsulation", "simulator", "interactive", "headers"],
+  content: `## Interaktiver OSI Encapsulation-Simulator
+
+Visualisiert Schritt für Schritt, wie ein HTTP-Request <code>GET /index.html</code> durch alle 7 OSI-Schichten gekapselt und auf der Gegenseite wieder ausgepackt wird:
+
+- 📦 **Encapsulation (Send)** — jede Schicht hängt ihren Header an
+- 📥 **Decapsulation (Receive)** — jede Schicht streift ihren Header ab
+- 🧠 **Logischer** vs. ⚙ **physikalischer** Ablauf pro Schicht
+- 🧮 **Header-Felder im Detail** (Bytes, Beispielwerte, Bedeutung)
+- 💠 **Hex-Dump** — so sehen die Bytes auf dem Kabel aus
+- ⚡ Cisco-Geräte × Protokoll-Mapping pro Schicht
+
+Starte den Simulator über den Button im Topic-Bereich.`.trim(),
+};
+
 export const NETWORKING_FUNDAMENTALS_CONCEPTS: Record<string, Concept> = {
   "osi-model": CONCEPT_OSI_MODEL,
   encapsulation: CONCEPT_ENCAPSULATION,
+  "osi-simulator": CONCEPT_OSI_SIMULATOR,
   "network-topologies": CONCEPT_NETWORK_TOPOLOGIES,
   "network-types-by-scope": CONCEPT_NETWORK_TYPES_BY_SCOPE,
   "network-components": CONCEPT_NETWORK_COMPONENTS,
