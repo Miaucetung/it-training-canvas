@@ -16,6 +16,8 @@ import {
   ArrowLeft,
   BookOpen,
   Calculator,
+  FilePdf,
+  FileText,
   Link,
   Question,
   X,
@@ -35,6 +37,10 @@ import { CliGlossaryDialog } from "./CliGlossaryDialog";
 import { StpSimulatorDialog } from "./StpSimulatorDialog";
 import { OsiSimulatorDialog } from "./OsiSimulatorDialog";
 import { RoutingSimulatorDialog } from "./RoutingSimulatorDialog";
+import {
+  exportLessonAsMarkdown,
+  exportLessonAsPdf,
+} from "@/lib/content/lesson-exporter";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -199,6 +205,46 @@ export function TopicDetailPanel({
               ` · ${topicQuizzes.reduce((s, q) => s + q.questions.length, 0)} Fragen`}
           </p>
         </div>
+
+        {/* Export-Buttons */}
+        <button
+          onClick={() =>
+            exportLessonAsPdf({
+              topic,
+              concepts,
+              moduleLabel: getModLabel(module.id),
+              org: "ccna.ajti.online",
+            })
+          }
+          aria-label="Lektion als PDF exportieren"
+          title="Als PDF exportieren (Druck-Dialog)"
+          className={`p-1.5 rounded-lg transition-colors ${
+            dark
+              ? "text-slate-400 hover:text-rose-300 hover:bg-slate-700"
+              : "text-slate-500 hover:text-rose-700 hover:bg-slate-100"
+          }`}
+        >
+          <FilePdf size={18} weight="duotone" />
+        </button>
+        <button
+          onClick={() =>
+            exportLessonAsMarkdown({
+              topic,
+              concepts,
+              moduleLabel: getModLabel(module.id),
+              org: "ccna.ajti.online",
+            })
+          }
+          aria-label="Lektion als Markdown exportieren"
+          title="Als Markdown (.md) herunterladen"
+          className={`p-1.5 rounded-lg transition-colors ${
+            dark
+              ? "text-slate-400 hover:text-sky-300 hover:bg-slate-700"
+              : "text-slate-500 hover:text-sky-700 hover:bg-slate-100"
+          }`}
+        >
+          <FileText size={18} weight="duotone" />
+        </button>
 
         <button
           onClick={onClose}
