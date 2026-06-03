@@ -397,6 +397,30 @@ Die "LogiSpeed GmbH" (Logistik, 3 Standorte: Hamburg, Berlin, München) möchte 
   `.trim(),
 };
 
+export const CONCEPT_ROUTING_SIMULATOR: Concept = {
+  id: "routing-simulator",
+  title: "Interaktiver Routing- & OSPF-Simulator",
+  appliesTo: ["ccna"],
+  tags: ["routing", "ospf", "simulator", "interactive", "layer-3"],
+  content: `
+## Interaktiver Routing- & OSPF-Simulator
+
+Vier zusammenhängende Visualisierungen — eigenständig verständlich, ohne Vorwissen:
+
+1. **Paketreise (Hop-by-Hop)** — verfolge ein Paket PC1 → R1 → R2 → R3 → PC2 und sieh live, wie an jedem Router
+   die Routing-Tabelle befragt, die TTL dekrementiert und die MAC-Adressen neu geschrieben werden — die IP
+   bleibt dabei konstant.
+2. **Routing-Tabelle & Administrative Distance** — Toggle Connected/Static/EIGRP/OSPF/RIP für denselben Zielprefix
+   und sieh, welche Quelle die RIB gewinnt (niedrigste AD wins).
+3. **OSPF Neighbor-States** — klick dich durch Down → Init → 2-Way → ExStart → Exchange → Loading → Full mit
+   Paket-Animation und Troubleshooting-Hinweis je State.
+4. **OSPF SPF / Cost** — Dijkstra-Visualisierung mit 4 Routern. Verschiebe Link-Kosten und sieh, wie sich der
+   beste Pfad sofort neu berechnet.
+
+→ Direkt im Topic-Detail über den CTA "Routing- & OSPF-Simulator" starten.
+  `.trim(),
+};
+
 export const TOPIC_ROUTING_OSPF: Topic = {
   id: "routing-ospf",
   title: "Routing & OSPF",
@@ -404,6 +428,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "Routing-Grundlagen, statische Routen, OSPF Single- und Multi-Area, Inter-VLAN Routing — Layer-3-Vermittlung meistern.",
   conceptIds: [
     "routing-fundamentals",
+    "routing-simulator",
     "ospf",
     "ospf-neighbor-states",
     "ospf-dr-bdr",
@@ -420,6 +445,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
 
 export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "routing-fundamentals": CONCEPT_ROUTING_FUNDAMENTALS,
+  "routing-simulator": CONCEPT_ROUTING_SIMULATOR,
   ospf: CONCEPT_OSPF,
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
   "ospf-dr-bdr": CONCEPT_OSPF_DR_BDR,

@@ -34,6 +34,7 @@ import { TopologieExplorerDialog } from "./TopologieExplorerDialog";
 import { CliGlossaryDialog } from "./CliGlossaryDialog";
 import { StpSimulatorDialog } from "./StpSimulatorDialog";
 import { OsiSimulatorDialog } from "./OsiSimulatorDialog";
+import { RoutingSimulatorDialog } from "./RoutingSimulatorDialog";
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -104,6 +105,7 @@ export function TopicDetailPanel({
   const [cliGlossaryOpen, setCliGlossaryOpen] = useState(false);
   const [stpSimOpen, setStpSimOpen] = useState(false);
   const [osiSimOpen, setOsiSimOpen] = useState(false);
+  const [routingSimOpen, setRoutingSimOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
@@ -115,6 +117,7 @@ export function TopicDetailPanel({
   const hasVlanSimulator = topic.conceptIds.includes("vlan-simulator");
   const hasStpSimulator = topic.conceptIds.includes("stp-simulator");
   const hasOsiSimulator = topic.conceptIds.includes("osi-simulator");
+  const hasRoutingSimulator = topic.conceptIds.includes("routing-simulator");
   const hasTopologyExplorer = topic.conceptIds.includes("topology-explorer");
   const hasCliGlossary = topic.conceptIds.includes("ios-cli-glossary");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
@@ -441,6 +444,44 @@ export function TopicDetailPanel({
               </div>
               <span
                 className={`text-xs ${dark ? "text-amber-300" : "text-amber-600"}`}
+              >
+                Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── Routing- & OSPF-Simulator CTA ── */}
+        {hasRoutingSimulator && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setRoutingSimOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-sky-500/10 border-sky-500/30 hover:bg-sky-500/20 text-sky-200"
+                  : "bg-sky-50 border-sky-200 hover:bg-sky-100 text-sky-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark
+                    ? "bg-sky-500/30 text-sky-200"
+                    : "bg-sky-100 text-sky-700"
+                }`}
+              >
+                🛣️
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">
+                  Routing &amp; OSPF Simulator
+                </div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  Paketreise · Routing-Tabelle &amp; AD · Neighbor-States · SPF/Cost
+                </div>
+              </div>
+              <span
+                className={`text-xs ${dark ? "text-sky-300" : "text-sky-600"}`}
               >
                 Starten →
               </span>
@@ -999,6 +1040,13 @@ export function TopicDetailPanel({
         <OsiSimulatorDialog
           dark={dark}
           onClose={() => setOsiSimOpen(false)}
+        />
+      )}
+
+      {hasRoutingSimulator && routingSimOpen && (
+        <RoutingSimulatorDialog
+          dark={dark}
+          onClose={() => setRoutingSimOpen(false)}
         />
       )}
 
