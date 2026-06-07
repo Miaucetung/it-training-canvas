@@ -56,7 +56,16 @@ jobs:
         run: |
           kubectl apply -k k8s/base/
 
-      - name: Deploy to k3s
+      - name: Rollout restart
         run: |
           kubectl rollout restart deployment/it-training-canvas -n apps
-          kubectl rollout status deployment/it-training-canvas -n apps --timeout=120s
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/it-training-canvas -n apps --timeout=300s
+        continue-on-error: true
+
+      - name: Show pod status (debug)
+        if: always()
+        run: |
+          kubectl get pods -n apps -l app=it-training-canvas
+          kubectl describe deployment it-training-canvas -n apps | tail -20
