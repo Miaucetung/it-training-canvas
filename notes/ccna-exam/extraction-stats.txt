@@ -3,8 +3,8 @@ Images          : 632
 With exhibits   : 548
 Drag-drop       : 84
 Multi-select    : 157
-Answered        : 495
-Needs review    : 717
+Answered        : 1072
+Needs review    : 140
 
 By category:
   General                         : 397
