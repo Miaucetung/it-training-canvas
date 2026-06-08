@@ -21,6 +21,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { LabScenariosDialog } from "@/components/LabScenariosDialog";
+import ExamPrepDialog from "@/components/ExamPrepDialog";
 import {
   SimulationControls,
   useSimulation,
@@ -84,6 +85,7 @@ import {
   Pulse,
   SidebarSimple,
   Stethoscope,
+  Target,
   Terminal,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -222,6 +224,7 @@ function App() {
   const [showPingScenario, setShowPingScenario] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLabScenarios, setShowLabScenarios] = useState(false);
+  const [showExamPrep, setShowExamPrep] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
@@ -1438,6 +1441,18 @@ function App() {
               Labs
             </button>
             <button
+              onClick={() => setShowExamPrep(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                theme === "dark"
+                  ? "bg-sky-500/15 text-sky-300 hover:bg-sky-500/25"
+                  : "bg-sky-50 text-sky-700 hover:bg-sky-100"
+              }`}
+              title="CCNA Prüfungsvorbereitung — 1200+ echte Prüfungsfragen"
+            >
+              <Target size={16} weight="fill" />
+              Prüfung
+            </button>
+            <button
               onClick={() => setShowPingScenario(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
@@ -1931,6 +1946,13 @@ function App() {
         onClose={() => setShowLabScenarios(false)}
         theme={theme}
       />
+
+      {showExamPrep && (
+        <ExamPrepDialog
+          dark={theme === "dark"}
+          onClose={() => setShowExamPrep(false)}
+        />
+      )}
 
       <OnboardingTour
         forceOpen={showOnboarding}

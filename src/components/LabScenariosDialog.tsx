@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
@@ -13,6 +14,7 @@ import {
   Key,
   Lightning,
   Network,
+  Router,
   Shield,
   Shuffle,
   Stack,
@@ -23,9 +25,9 @@ import { useState } from "react";
 // ── Types ─────────────────────────────────────────────────────
 
 interface CommandBlock {
-  device: string; // z. B. "Router0"
-  mode: string; // z. B. "privileged" | "global" | "interface"
-  modeLabel: string; // z. B. "Router#" | "Router(config)#"
+  device: string;      // z. B. "Router0"
+  mode: string;        // z. B. "privileged" | "global" | "interface"
+  modeLabel: string;   // z. B. "Router#" | "Router(config)#"
   commands: Array<{
     cmd: string;
     explanation: string;
@@ -326,8 +328,7 @@ const LABS: LabScenario[] = [
               },
               {
                 cmd: "interface FastEthernet0/1\nswitchport mode access\nswitchport access vlan 10\ninterface FastEthernet0/2\nswitchport mode access\nswitchport access vlan 20",
-                explanation:
-                  "Access-Ports für PC2 (VLAN 10) und PC3 (VLAN 20) setzen.",
+                explanation: "Access-Ports für PC2 (VLAN 10) und PC3 (VLAN 20) setzen.",
               },
               {
                 cmd: "interface GigabitEthernet0/1\nswitchport mode trunk\nswitchport trunk allowed vlan 10,20",
@@ -349,7 +350,7 @@ const LABS: LabScenario[] = [
   // ─────────────────────────────────────────────────────────────
   {
     id: "roas",
-    icon: <Network size={20} />,
+    icon: <Router size={20} />,
     title: "Inter-VLAN Routing (RoaS)",
     subtitle: "Router · Switch · 2 PCs",
     difficulty: "Mittel",
@@ -458,8 +459,7 @@ const LABS: LabScenario[] = [
             commands: [
               {
                 cmd: "IP:      192.168.10.10\nMask:    255.255.255.0\nGateway: 192.168.10.1",
-                explanation:
-                  "PC0 in VLAN 10 — Gateway ist das Subinterface .10 des Routers.",
+                explanation: "PC0 in VLAN 10 — Gateway ist das Subinterface .10 des Routers.",
               },
             ],
           },
@@ -478,14 +478,8 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "ping 192.168.20.10 (von PC0)",
-        expected: "5/5 erfolgreich — Inter-VLAN Routing funktioniert",
-      },
-      {
-        cmd: "show ip route",
-        expected: "C 192.168.10.0/24, C 192.168.20.0/24",
-      },
+      { cmd: "ping 192.168.20.10 (von PC0)", expected: "5/5 erfolgreich — Inter-VLAN Routing funktioniert" },
+      { cmd: "show ip route", expected: "C 192.168.10.0/24, C 192.168.20.0/24" },
     ],
   },
 
@@ -583,10 +577,7 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "ping 192.168.2.10 (von PC0)",
-        expected: "Pakete kommen durch beide Router",
-      },
+      { cmd: "ping 192.168.2.10 (von PC0)", expected: "Pakete kommen durch beide Router" },
       { cmd: "show ip route", expected: "S 192.168.2.0/24 via 10.0.0.2" },
       { cmd: "traceroute 192.168.2.10", expected: "Hops: R1 WAN → R2 → Ziel" },
     ],
@@ -723,14 +714,8 @@ const LABS: LabScenario[] = [
     ],
     verifyCommands: [
       { cmd: "show ip ospf neighbor", expected: "Alle Nachbarn im FULL-State" },
-      {
-        cmd: "show ip route ospf",
-        expected: "O 192.168.2.0, O 192.168.3.0 in Routing-Tabelle",
-      },
-      {
-        cmd: "ping 192.168.3.10 (von PC-LAN1)",
-        expected: "Automatisch geroutet über OSPF",
-      },
+      { cmd: "show ip route ospf", expected: "O 192.168.2.0, O 192.168.3.0 in Routing-Tabelle" },
+      { cmd: "ping 192.168.3.10 (von PC-LAN1)", expected: "Automatisch geroutet über OSPF" },
     ],
   },
 
@@ -752,7 +737,10 @@ const LABS: LabScenario[] = [
         { type: "switch", label: "Switch0", count: 1 },
         { type: "pc", label: "PC0 / PC1 (DHCP)", count: 2 },
       ],
-      connections: ["PC0 / PC1 → Switch0", "Switch0 → Router0 Gi0/0"],
+      connections: [
+        "PC0 / PC1 → Switch0",
+        "Switch0 → Router0 Gi0/0",
+      ],
       hint: "Gleiche Topologie wie Basic-IP. PCs auf 'DHCP' stellen in IP Configuration.",
     },
     steps: [
@@ -787,8 +775,7 @@ const LABS: LabScenario[] = [
               },
               {
                 cmd: "network 192.168.1.0 255.255.255.0",
-                explanation:
-                  "Definiert das Subnetz, aus dem IPs vergeben werden.",
+                explanation: "Definiert das Subnetz, aus dem IPs vergeben werden.",
               },
               {
                 cmd: "default-router 192.168.1.1",
@@ -830,10 +817,7 @@ const LABS: LabScenario[] = [
     verifyCommands: [
       { cmd: "show ip dhcp pool", expected: "LAN_POOL, Leases: 2" },
       { cmd: "show ip dhcp binding", expected: "192.168.1.11 → PC0 MAC" },
-      {
-        cmd: "ipconfig (auf PC)",
-        expected: "IP aus Pool 192.168.1.11 oder .12",
-      },
+      { cmd: "ipconfig (auf PC)", expected: "IP aus Pool 192.168.1.11 oder .12" },
     ],
   },
 
@@ -909,10 +893,7 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip nat translations",
-        expected: "Pro PC eine Zeile mit privat:port → öffentlich:port",
-      },
+      { cmd: "show ip nat translations", expected: "Pro PC eine Zeile mit privat:port → öffentlich:port" },
       { cmd: "show ip nat statistics", expected: "Hits steigen bei ping" },
       { cmd: "ping 200.0.0.2 (von PC0)", expected: "Pakete werden übersetzt" },
     ],
@@ -1110,10 +1091,7 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip access-lists",
-        expected: "Permit-/Deny-Zähler steigen bei Traffic",
-      },
+      { cmd: "show ip access-lists", expected: "Permit-/Deny-Zähler steigen bei Traffic" },
       { cmd: "ping 192.168.3.100 (von PC0)", expected: "!!!!!  — erlaubt" },
       { cmd: "ping 192.168.3.100 (von PC1)", expected: "UUUUU — geblockt" },
     ],
@@ -1186,14 +1164,8 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip access-lists BLOCK_PC1_HTTP",
-        expected: "deny: Treffer-Zähler > 0",
-      },
-      {
-        cmd: "ping 192.168.2.100 (von PC1)",
-        expected: "ping funktioniert (ICMP, nicht HTTP)",
-      },
+      { cmd: "show ip access-lists BLOCK_PC1_HTTP", expected: "deny: Treffer-Zähler > 0" },
+      { cmd: "ping 192.168.2.100 (von PC1)", expected: "ping funktioniert (ICMP, nicht HTTP)" },
     ],
   },
 
@@ -1210,7 +1182,9 @@ const LABS: LabScenario[] = [
     topology: {
       description:
         "Zwei physische Links zwischen Switches werden zu einem logischen Port-Channel gebündelt.",
-      devices: [{ type: "switch", label: "SW1 / SW2", count: 2 }],
+      devices: [
+        { type: "switch", label: "SW1 / SW2", count: 2 },
+      ],
       connections: [
         "SW1 Fa0/1 ↔ SW2 Fa0/1  (Link 1)",
         "SW1 Fa0/2 ↔ SW2 Fa0/2  (Link 2)",
@@ -1273,14 +1247,8 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show etherchannel summary",
-        expected: "Po1 (SU) — S=Layer2, U=in use",
-      },
-      {
-        cmd: "show interfaces Port-channel1",
-        expected: "Bandbreite = 2× Fa0 = 200Mbit/s",
-      },
+      { cmd: "show etherchannel summary", expected: "Po1 (SU) — S=Layer2, U=in use" },
+      { cmd: "show interfaces Port-channel1", expected: "Bandbreite = 2× Fa0 = 200Mbit/s" },
     ],
   },
 
@@ -1295,7 +1263,8 @@ const LABS: LabScenario[] = [
     difficulty: "Mittel",
     duration: "15 min",
     topology: {
-      description: "IPv6 unicast routing zwischen zwei Routern und ihren LANs.",
+      description:
+        "IPv6 unicast routing zwischen zwei Routern und ihren LANs.",
       devices: [
         { type: "router", label: "R1 / R2", count: 2 },
         { type: "pc", label: "PC0 / PC1", count: 2 },
@@ -1466,14 +1435,8 @@ const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show spanning-tree",
-        expected: "SW1: Root Bridge, SW2: Port blocked",
-      },
-      {
-        cmd: "show spanning-tree vlan 1 detail",
-        expected: "Root ID Priority 4096 SW1 MAC",
-      },
+      { cmd: "show spanning-tree", expected: "SW1: Root Bridge, SW2: Port blocked" },
+      { cmd: "show spanning-tree vlan 1 detail", expected: "Root ID Priority 4096 SW1 MAC" },
     ],
   },
 
@@ -1514,33 +1477,12 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "interface Fa0/1",
-                explanation: "Port des Endgeräts/möglichen Angreifers.",
-              },
-              {
-                cmd: "switchport mode access",
-                explanation:
-                  "Explizit Access — kein DTP-Aushandeln mehr möglich.",
-              },
-              {
-                cmd: "switchport access vlan 10",
-                explanation: "Statisch VLAN 10 zugewiesen.",
-              },
-              {
-                cmd: "switchport nonegotiate",
-                explanation:
-                  "Deaktiviert DTP komplett. Port verschickt keine DTP-Frames mehr.",
-              },
-              {
-                cmd: "spanning-tree portfast",
-                explanation: "Sofort Forwarding für Endgeräte.",
-              },
-              {
-                cmd: "spanning-tree bpduguard enable",
-                explanation:
-                  "Bei BPDU-Empfang → err-disabled. Schutz wenn jemand einen Switch ansteckt.",
-              },
+              { cmd: "interface Fa0/1", explanation: "Port des Endgeräts/möglichen Angreifers." },
+              { cmd: "switchport mode access", explanation: "Explizit Access — kein DTP-Aushandeln mehr möglich." },
+              { cmd: "switchport access vlan 10", explanation: "Statisch VLAN 10 zugewiesen." },
+              { cmd: "switchport nonegotiate", explanation: "Deaktiviert DTP komplett. Port verschickt keine DTP-Frames mehr." },
+              { cmd: "spanning-tree portfast", explanation: "Sofort Forwarding für Endgeräte." },
+              { cmd: "spanning-tree bpduguard enable", explanation: "Bei BPDU-Empfang → err-disabled. Schutz wenn jemand einen Switch ansteckt." },
             ],
           },
         ],
@@ -1553,25 +1495,11 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "interface Gi0/1",
-                explanation: "Trunk zwischen den Switches.",
-              },
-              {
-                cmd: "switchport mode trunk",
-                explanation: "Hart Trunk — kein Auto/Desirable.",
-              },
+              { cmd: "interface Gi0/1", explanation: "Trunk zwischen den Switches." },
+              { cmd: "switchport mode trunk", explanation: "Hart Trunk — kein Auto/Desirable." },
               { cmd: "switchport nonegotiate", explanation: "Kein DTP." },
-              {
-                cmd: "switchport trunk native vlan 999",
-                explanation:
-                  "Native VLAN ändern (nicht VLAN 1)! Double-Tag-Angriff nutzt das Default-Native-VLAN.",
-              },
-              {
-                cmd: "switchport trunk allowed vlan 10,20",
-                explanation:
-                  "Nur erlaubte VLANs auf dem Trunk — kein VLAN 1 für User-Daten.",
-              },
+              { cmd: "switchport trunk native vlan 999", explanation: "Native VLAN ändern (nicht VLAN 1)! Double-Tag-Angriff nutzt das Default-Native-VLAN." },
+              { cmd: "switchport trunk allowed vlan 10,20", explanation: "Nur erlaubte VLANs auf dem Trunk — kein VLAN 1 für User-Daten." },
             ],
           },
           {
@@ -1579,35 +1507,19 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "vlan 999",
-                explanation: "Black-Hole-VLAN für Native VLAN anlegen.",
-              },
-              {
-                cmd: "name BLACKHOLE-NATIVE",
-                explanation: "Klar dokumentieren.",
-              },
+              { cmd: "vlan 999", explanation: "Black-Hole-VLAN für Native VLAN anlegen." },
+              { cmd: "name BLACKHOLE-NATIVE", explanation: "Klar dokumentieren." },
               { cmd: "exit", explanation: "" },
               { cmd: "interface Gi0/1", explanation: "Zurück zum Trunk." },
-              {
-                cmd: "switchport trunk native vlan tag",
-                explanation:
-                  "(Optional) zwingt den Switch, auch Native VLAN zu taggen → killt Double-Tag-Angriff sicher.",
-              },
+              { cmd: "switchport trunk native vlan tag", explanation: "(Optional) zwingt den Switch, auch Native VLAN zu taggen → killt Double-Tag-Angriff sicher." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show interfaces switchport",
-        expected: "Operational Mode: static access, Negotiation: Off",
-      },
-      {
-        cmd: "show interfaces trunk",
-        expected: "Native vlan: 999, Allowed: 10,20",
-      },
+      { cmd: "show interfaces switchport", expected: "Operational Mode: static access, Negotiation: Off" },
+      { cmd: "show interfaces trunk", expected: "Native vlan: 999, Allowed: 10,20" },
     ],
   },
 
@@ -1625,11 +1537,7 @@ const LABS: LabScenario[] = [
       description:
         "3 Switches im Triangle. Wir definieren bewusst die Root Bridge, schützen sie gegen unerlaubte Übernahme und sichern alle Trunk-Links gegen Loops.",
       devices: [{ type: "switch", label: "Core, Dist1, Dist2", count: 3 }],
-      connections: [
-        "Core ↔ Dist1 (Gi0/1)",
-        "Core ↔ Dist2 (Gi0/2)",
-        "Dist1 ↔ Dist2 (Gi0/3) — wird per STP blockiert",
-      ],
+      connections: ["Core ↔ Dist1 (Gi0/1)", "Core ↔ Dist2 (Gi0/2)", "Dist1 ↔ Dist2 (Gi0/3) — wird per STP blockiert"],
       hint: "Core MUSS Root sein. Falls ein Mitarbeiter versehentlich einen Heim-Switch ansteckt, darf er NIE Root werden.",
     },
     steps: [
@@ -1641,21 +1549,9 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "Core(config)#",
             commands: [
-              {
-                cmd: "spanning-tree mode rapid-pvst",
-                explanation:
-                  "RSTP (802.1w) statt klassisches STP → Konvergenz <1s.",
-              },
-              {
-                cmd: "spanning-tree vlan 1-100 priority 4096",
-                explanation:
-                  "Niedrigste Priority = garantiert Root für alle VLANs 1-100.",
-              },
-              {
-                cmd: "spanning-tree vlan 1-100 root primary",
-                explanation:
-                  "Alternative Schreibweise — setzt Priority auf 24576 (oder niedriger als der bisherige Root).",
-              },
+              { cmd: "spanning-tree mode rapid-pvst", explanation: "RSTP (802.1w) statt klassisches STP → Konvergenz <1s." },
+              { cmd: "spanning-tree vlan 1-100 priority 4096", explanation: "Niedrigste Priority = garantiert Root für alle VLANs 1-100." },
+              { cmd: "spanning-tree vlan 1-100 root primary", explanation: "Alternative Schreibweise — setzt Priority auf 24576 (oder niedriger als der bisherige Root)." },
             ],
           },
         ],
@@ -1668,15 +1564,8 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "Dist1(config)#",
             commands: [
-              {
-                cmd: "spanning-tree mode rapid-pvst",
-                explanation: "Gleicher Mode wie Core.",
-              },
-              {
-                cmd: "spanning-tree vlan 1-100 root secondary",
-                explanation:
-                  "Priority 28672 — übernimmt sofort, falls Core ausfällt.",
-              },
+              { cmd: "spanning-tree mode rapid-pvst", explanation: "Gleicher Mode wie Core." },
+              { cmd: "spanning-tree vlan 1-100 root secondary", explanation: "Priority 28672 — übernimmt sofort, falls Core ausfällt." },
             ],
           },
         ],
@@ -1689,24 +1578,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "Core(config)#",
             commands: [
-              {
-                cmd: "spanning-tree portfast default",
-                explanation:
-                  "PortFast automatisch für alle Access-Ports → sofortiges Forwarding.",
-              },
-              {
-                cmd: "spanning-tree portfast bpduguard default",
-                explanation:
-                  "BPDU Guard global — alle PortFast-Ports gehen bei BPDU-Empfang err-disabled.",
-              },
-              {
-                cmd: "errdisable recovery cause bpduguard",
-                explanation: "Auto-Recovery nach Default 5 Min.",
-              },
-              {
-                cmd: "errdisable recovery interval 300",
-                explanation: "Recovery-Interval explizit auf 5 Min.",
-              },
+              { cmd: "spanning-tree portfast default", explanation: "PortFast automatisch für alle Access-Ports → sofortiges Forwarding." },
+              { cmd: "spanning-tree portfast bpduguard default", explanation: "BPDU Guard global — alle PortFast-Ports gehen bei BPDU-Empfang err-disabled." },
+              { cmd: "errdisable recovery cause bpduguard", explanation: "Auto-Recovery nach Default 5 Min." },
+              { cmd: "errdisable recovery interval 300", explanation: "Recovery-Interval explizit auf 5 Min." },
             ],
           },
         ],
@@ -1719,38 +1594,18 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "Core(config)#",
             commands: [
-              {
-                cmd: "interface range Gi0/1 - 2",
-                explanation: "Trunks zu Dist1 und Dist2.",
-              },
-              {
-                cmd: "spanning-tree guard root",
-                explanation:
-                  "Root Guard: Verhindert, dass über diesen Port ein 'überlegener' BPDU akzeptiert wird → wenn jemand am Trunk eine 'bessere' Switch ansteckt: root-inconsistent.",
-              },
-              {
-                cmd: "spanning-tree guard loop",
-                explanation:
-                  "Loop Guard: Wenn BPDUs auf einem RP/AP plötzlich ausbleiben (unidirektionaler Link) → loop-inconsistent statt versehentlich Forwarding.",
-              },
+              { cmd: "interface range Gi0/1 - 2", explanation: "Trunks zu Dist1 und Dist2." },
+              { cmd: "spanning-tree guard root", explanation: "Root Guard: Verhindert, dass über diesen Port ein 'überlegener' BPDU akzeptiert wird → wenn jemand am Trunk eine 'bessere' Switch ansteckt: root-inconsistent." },
+              { cmd: "spanning-tree guard loop", explanation: "Loop Guard: Wenn BPDUs auf einem RP/AP plötzlich ausbleiben (unidirektionaler Link) → loop-inconsistent statt versehentlich Forwarding." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show spanning-tree root",
-        expected: "Root ID Priority 4096, This bridge IS the root",
-      },
-      {
-        cmd: "show spanning-tree summary",
-        expected: "PortFast Default ON, BPDU Guard Default ON",
-      },
-      {
-        cmd: "show spanning-tree interface Gi0/1 detail",
-        expected: "Root guard: enabled",
-      },
+      { cmd: "show spanning-tree root", expected: "Root ID Priority 4096, This bridge IS the root" },
+      { cmd: "show spanning-tree summary", expected: "PortFast Default ON, BPDU Guard Default ON" },
+      { cmd: "show spanning-tree interface Gi0/1 detail", expected: "Root guard: enabled" },
     ],
   },
 
@@ -1772,10 +1627,7 @@ const LABS: LabScenario[] = [
         { type: "router", label: "R1 (DHCP-Server)", count: 1 },
         { type: "pc", label: "PC1, PC2, Angreifer", count: 3 },
       ],
-      connections: [
-        "R1 (DHCP) → SW1 Gi0/1 (UPLINK = TRUSTED)",
-        "PC1-3 → SW1 Fa0/1-3 (UNTRUSTED)",
-      ],
+      connections: ["R1 (DHCP) → SW1 Gi0/1 (UPLINK = TRUSTED)", "PC1-3 → SW1 Fa0/1-3 (UNTRUSTED)"],
       hint: "Trusted = Switch akzeptiert DHCP-Replies und ARP. Untrusted = alle Spoofing-Versuche werden gedroppt.",
     },
     steps: [
@@ -1787,19 +1639,9 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "ip dhcp snooping",
-                explanation: "Globaler Switch — Feature an.",
-              },
-              {
-                cmd: "ip dhcp snooping vlan 10,20",
-                explanation: "Nur in diesen VLANs aktiv.",
-              },
-              {
-                cmd: "no ip dhcp snooping information option",
-                explanation:
-                  "Option-82 deaktivieren falls DHCP-Server kein 'option 82' versteht (häufige Fehlerquelle).",
-              },
+              { cmd: "ip dhcp snooping", explanation: "Globaler Switch — Feature an." },
+              { cmd: "ip dhcp snooping vlan 10,20", explanation: "Nur in diesen VLANs aktiv." },
+              { cmd: "no ip dhcp snooping information option", explanation: "Option-82 deaktivieren falls DHCP-Server kein 'option 82' versteht (häufige Fehlerquelle)." },
             ],
           },
           {
@@ -1807,15 +1649,8 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "interface Gi0/1",
-                explanation: "Uplink zum echten DHCP-Server.",
-              },
-              {
-                cmd: "ip dhcp snooping trust",
-                explanation:
-                  "TRUSTED — DHCP-Replies erlaubt. Default ist UNTRUSTED auf allen Ports.",
-              },
+              { cmd: "interface Gi0/1", explanation: "Uplink zum echten DHCP-Server." },
+              { cmd: "ip dhcp snooping trust", explanation: "TRUSTED — DHCP-Replies erlaubt. Default ist UNTRUSTED auf allen Ports." },
             ],
           },
         ],
@@ -1828,11 +1663,7 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "ip arp inspection vlan 10,20",
-                explanation:
-                  "DAI in diesen VLANs aktiv. Prüft jeden ARP-Reply gegen die DHCP-Snooping-Binding-Table.",
-              },
+              { cmd: "ip arp inspection vlan 10,20", explanation: "DAI in diesen VLANs aktiv. Prüft jeden ARP-Reply gegen die DHCP-Snooping-Binding-Table." },
             ],
           },
           {
@@ -1841,11 +1672,7 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "interface Gi0/1", explanation: "Uplink." },
-              {
-                cmd: "ip arp inspection trust",
-                explanation:
-                  "Trusted für ARP (sonst würden auch legitime Gateway-ARPs gedroppt).",
-              },
+              { cmd: "ip arp inspection trust", explanation: "Trusted für ARP (sonst würden auch legitime Gateway-ARPs gedroppt)." },
             ],
           },
         ],
@@ -1858,37 +1685,18 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "interface range Fa0/1 - 3",
-                explanation: "Endgeräte-Ports.",
-              },
-              {
-                cmd: "ip verify source",
-                explanation:
-                  "IP Source Guard: Endgerät darf nur Frames mit der per DHCP zugewiesenen IP/MAC senden.",
-              },
-              {
-                cmd: "ip arp inspection limit rate 15",
-                explanation: "Maximal 15 ARPs/s pro Port — gegen ARP-Flood.",
-              },
+              { cmd: "interface range Fa0/1 - 3", explanation: "Endgeräte-Ports." },
+              { cmd: "ip verify source", explanation: "IP Source Guard: Endgerät darf nur Frames mit der per DHCP zugewiesenen IP/MAC senden." },
+              { cmd: "ip arp inspection limit rate 15", explanation: "Maximal 15 ARPs/s pro Port — gegen ARP-Flood." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip dhcp snooping",
-        expected: "Switch DHCP snooping: enabled, Trusted Gi0/1",
-      },
-      {
-        cmd: "show ip dhcp snooping binding",
-        expected: "MAC ↔ IP ↔ Lease ↔ VLAN ↔ Port",
-      },
-      {
-        cmd: "show ip arp inspection",
-        expected: "Source Mac Validation: enabled",
-      },
+      { cmd: "show ip dhcp snooping", expected: "Switch DHCP snooping: enabled, Trusted Gi0/1" },
+      { cmd: "show ip dhcp snooping binding", expected: "MAC ↔ IP ↔ Lease ↔ VLAN ↔ Port" },
+      { cmd: "show ip arp inspection", expected: "Source Mac Validation: enabled" },
     ],
   },
 
@@ -1922,39 +1730,13 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "interface Fa0/1", explanation: "Endgerät-Port." },
-              {
-                cmd: "switchport mode access",
-                explanation:
-                  "Port Security funktioniert NUR auf Access- oder statischen Trunk-Ports.",
-              },
-              {
-                cmd: "switchport port-security",
-                explanation: "Feature aktivieren. Default-Limit = 1 MAC.",
-              },
-              {
-                cmd: "switchport port-security maximum 2",
-                explanation: "Erlaubt bis zu 2 MACs (z.B. PC + VoIP-Phone).",
-              },
-              {
-                cmd: "switchport port-security mac-address sticky",
-                explanation:
-                  "Sticky: dynamisch gelernte MACs werden in die running-config geschrieben.",
-              },
-              {
-                cmd: "switchport port-security violation restrict",
-                explanation:
-                  "Violation-Modi: protect (silent drop) | restrict (drop + log + counter) | shutdown (default, err-disable).",
-              },
-              {
-                cmd: "switchport port-security aging time 60",
-                explanation:
-                  "Aging: gelernte MAC wird nach 60 Min vergessen, falls Port inaktiv.",
-              },
-              {
-                cmd: "switchport port-security aging type inactivity",
-                explanation:
-                  "Aging zählt nur bei Inaktivität, nicht absolute Zeit.",
-              },
+              { cmd: "switchport mode access", explanation: "Port Security funktioniert NUR auf Access- oder statischen Trunk-Ports." },
+              { cmd: "switchport port-security", explanation: "Feature aktivieren. Default-Limit = 1 MAC." },
+              { cmd: "switchport port-security maximum 2", explanation: "Erlaubt bis zu 2 MACs (z.B. PC + VoIP-Phone)." },
+              { cmd: "switchport port-security mac-address sticky", explanation: "Sticky: dynamisch gelernte MACs werden in die running-config geschrieben." },
+              { cmd: "switchport port-security violation restrict", explanation: "Violation-Modi: protect (silent drop) | restrict (drop + log + counter) | shutdown (default, err-disable)." },
+              { cmd: "switchport port-security aging time 60", explanation: "Aging: gelernte MAC wird nach 60 Min vergessen, falls Port inaktiv." },
+              { cmd: "switchport port-security aging type inactivity", explanation: "Aging zählt nur bei Inaktivität, nicht absolute Zeit." },
             ],
           },
         ],
@@ -1967,33 +1749,17 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "errdisable recovery cause psecure-violation",
-                explanation:
-                  "Automatisches Wiederhochfahren des Ports nach Verletzung.",
-              },
-              {
-                cmd: "errdisable recovery interval 300",
-                explanation: "Recovery alle 5 Minuten.",
-              },
+              { cmd: "errdisable recovery cause psecure-violation", explanation: "Automatisches Wiederhochfahren des Ports nach Verletzung." },
+              { cmd: "errdisable recovery interval 300", explanation: "Recovery alle 5 Minuten." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show port-security interface Fa0/1",
-        expected: "Port Security: Enabled, Max: 2, Sticky MACs: 1",
-      },
-      {
-        cmd: "show port-security address",
-        expected: "VLAN, MAC, Type=SecureSticky, Port",
-      },
-      {
-        cmd: "show errdisable recovery",
-        expected: "psecure-violation: Enabled, Interval 300s",
-      },
+      { cmd: "show port-security interface Fa0/1", expected: "Port Security: Enabled, Max: 2, Sticky MACs: 1" },
+      { cmd: "show port-security address", expected: "VLAN, MAC, Type=SecureSticky, Port" },
+      { cmd: "show errdisable recovery", expected: "psecure-violation: Enabled, Interval 300s" },
     ],
   },
 
@@ -2011,10 +1777,7 @@ const LABS: LabScenario[] = [
       description:
         "3 Router: R1 in Area 0, R2 ist ABR (Area Border Router) zwischen Area 0 und Area 1, R3 in Area 1. Area 1 wird als Stub konfiguriert.",
       devices: [{ type: "router", label: "R1, R2, R3", count: 3 }],
-      connections: [
-        "R1 ↔ R2 Gi0/0 (10.0.0.0/30, Area 0)",
-        "R2 ↔ R3 Gi0/1 (10.0.0.4/30, Area 1)",
-      ],
+      connections: ["R1 ↔ R2 Gi0/0 (10.0.0.0/30, Area 0)", "R2 ↔ R3 Gi0/1 (10.0.0.4/30, Area 1)"],
       hint: "ABR (R2) hat Interfaces in MEHREREN Areas. Er generiert LSA Type 3 (Summary), um Routen zwischen Areas zu propagieren.",
     },
     steps: [
@@ -2026,29 +1789,11 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "router ospf 1",
-                explanation:
-                  "Process-ID 1 (lokal bedeutsam, muss nicht überall gleich sein).",
-              },
-              {
-                cmd: "router-id 1.1.1.1",
-                explanation:
-                  "Explizite Router-ID — sonst wählt OSPF die höchste Loopback-IP.",
-              },
-              {
-                cmd: "network 10.0.0.0 0.0.0.3 area 0",
-                explanation:
-                  "Backbone-Link in Area 0 (Wildcard-Maske 0.0.0.3 = /30).",
-              },
-              {
-                cmd: "network 192.168.1.0 0.0.0.255 area 0",
-                explanation: "Lokales User-Netz auch in Area 0.",
-              },
-              {
-                cmd: "passive-interface Gi0/2",
-                explanation: "Kein OSPF-Hello auf User-Interface — Sicherheit.",
-              },
+              { cmd: "router ospf 1", explanation: "Process-ID 1 (lokal bedeutsam, muss nicht überall gleich sein)." },
+              { cmd: "router-id 1.1.1.1", explanation: "Explizite Router-ID — sonst wählt OSPF die höchste Loopback-IP." },
+              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Backbone-Link in Area 0 (Wildcard-Maske 0.0.0.3 = /30)." },
+              { cmd: "network 192.168.1.0 0.0.0.255 area 0", explanation: "Lokales User-Netz auch in Area 0." },
+              { cmd: "passive-interface Gi0/2", explanation: "Kein OSPF-Hello auf User-Interface — Sicherheit." },
             ],
           },
         ],
@@ -2063,19 +1808,9 @@ const LABS: LabScenario[] = [
             commands: [
               { cmd: "router ospf 1", explanation: "" },
               { cmd: "router-id 2.2.2.2", explanation: "" },
-              {
-                cmd: "network 10.0.0.0 0.0.0.3 area 0",
-                explanation: "Link zu R1 in Area 0.",
-              },
-              {
-                cmd: "network 10.0.0.4 0.0.0.3 area 1",
-                explanation: "Link zu R3 in Area 1. R2 ist jetzt ABR.",
-              },
-              {
-                cmd: "area 1 stub",
-                explanation:
-                  "Area 1 als Stub: keine externen Routen (LSA 5) — R2 sendet stattdessen Default-Route nach Area 1.",
-              },
+              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Link zu R1 in Area 0." },
+              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Link zu R3 in Area 1. R2 ist jetzt ABR." },
+              { cmd: "area 1 stub", explanation: "Area 1 als Stub: keine externen Routen (LSA 5) — R2 sendet stattdessen Default-Route nach Area 1." },
             ],
           },
         ],
@@ -2090,39 +1825,18 @@ const LABS: LabScenario[] = [
             commands: [
               { cmd: "router ospf 1", explanation: "" },
               { cmd: "router-id 3.3.3.3", explanation: "" },
-              {
-                cmd: "network 10.0.0.4 0.0.0.3 area 1",
-                explanation: "Eigenes Backbone-Interface in Area 1.",
-              },
-              {
-                cmd: "area 1 stub",
-                explanation:
-                  "PFLICHT: Stub-Konfiguration muss auf ALLEN Routern der Area gleich sein, sonst keine Adjacency.",
-              },
-              {
-                cmd: "network 192.168.3.0 0.0.0.255 area 1",
-                explanation: "Lokales User-Netz in Area 1.",
-              },
+              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Eigenes Backbone-Interface in Area 1." },
+              { cmd: "area 1 stub", explanation: "PFLICHT: Stub-Konfiguration muss auf ALLEN Routern der Area gleich sein, sonst keine Adjacency." },
+              { cmd: "network 192.168.3.0 0.0.0.255 area 1", explanation: "Lokales User-Netz in Area 1." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip ospf neighbor",
-        expected: "R1: FULL/BDR (auf R2), R3: FULL/BDR",
-      },
-      {
-        cmd: "show ip ospf database",
-        expected:
-          "Type-1 (Router), Type-2 (Network), Type-3 (Summary) sichtbar",
-      },
-      {
-        cmd: "show ip route ospf",
-        expected:
-          "O IA 192.168.1.0/24 (Inter-Area), O*IA 0.0.0.0/0 (Default in Stub)",
-      },
+      { cmd: "show ip ospf neighbor", expected: "R1: FULL/BDR (auf R2), R3: FULL/BDR" },
+      { cmd: "show ip ospf database", expected: "Type-1 (Router), Type-2 (Network), Type-3 (Summary) sichtbar" },
+      { cmd: "show ip route ospf", expected: "O IA 192.168.1.0/24 (Inter-Area), O*IA 0.0.0.0/0 (Default in Stub)" },
     ],
   },
 
@@ -2152,11 +1866,7 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "ipv6 unicast-routing",
-                explanation:
-                  "PFLICHT: aktiviert IPv6-Forwarding auf dem Router.",
-              },
+              { cmd: "ipv6 unicast-routing", explanation: "PFLICHT: aktiviert IPv6-Forwarding auf dem Router." },
             ],
           },
           {
@@ -2165,15 +1875,8 @@ const LABS: LabScenario[] = [
             modeLabel: "R1(config)#",
             commands: [
               { cmd: "interface Gi0/0", explanation: "" },
-              {
-                cmd: "ipv6 address 2001:db8::1/64",
-                explanation: "Globale Unicast-Adresse.",
-              },
-              {
-                cmd: "ipv6 ospf 1 area 0",
-                explanation:
-                  "OSPFv3 direkt am Interface aktivieren — keine 'network'-Statements wie bei OSPFv2!",
-              },
+              { cmd: "ipv6 address 2001:db8::1/64", explanation: "Globale Unicast-Adresse." },
+              { cmd: "ipv6 ospf 1 area 0", explanation: "OSPFv3 direkt am Interface aktivieren — keine 'network'-Statements wie bei OSPFv2!" },
             ],
           },
         ],
@@ -2186,42 +1889,19 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "ipv6 router ospf 1",
-                explanation:
-                  "Separater Process für IPv6 (kann gleiche oder andere Process-ID wie IPv4 haben).",
-              },
-              {
-                cmd: "router-id 1.1.1.1",
-                explanation:
-                  "Router-ID ist trotz IPv6 ein 32-Bit-Wert (IPv4-Notation) — muss manuell gesetzt werden, falls keine IPv4-Adresse vorhanden!",
-              },
-              {
-                cmd: "passive-interface default",
-                explanation: "Alle Interfaces passiv per Default.",
-              },
-              {
-                cmd: "no passive-interface Gi0/0",
-                explanation: "Nur auf Gi0/0 aktiv.",
-              },
+              { cmd: "ipv6 router ospf 1", explanation: "Separater Process für IPv6 (kann gleiche oder andere Process-ID wie IPv4 haben)." },
+              { cmd: "router-id 1.1.1.1", explanation: "Router-ID ist trotz IPv6 ein 32-Bit-Wert (IPv4-Notation) — muss manuell gesetzt werden, falls keine IPv4-Adresse vorhanden!" },
+              { cmd: "passive-interface default", explanation: "Alle Interfaces passiv per Default." },
+              { cmd: "no passive-interface Gi0/0", explanation: "Nur auf Gi0/0 aktiv." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ipv6 ospf neighbor",
-        expected: "Neighbor ID 2.2.2.2 — FULL, Interface ID, Address fe80::...",
-      },
-      {
-        cmd: "show ipv6 route ospf",
-        expected: "O   2001:db8:1::/64 [110/2] via FE80::...",
-      },
-      {
-        cmd: "show ipv6 ospf interface brief",
-        expected: "Gi0/0 1 0 fe80::... 1",
-      },
+      { cmd: "show ipv6 ospf neighbor", expected: "Neighbor ID 2.2.2.2 — FULL, Interface ID, Address fe80::..." },
+      { cmd: "show ipv6 route ospf", expected: "O   2001:db8:1::/64 [110/2] via FE80::..." },
+      { cmd: "show ipv6 ospf interface brief", expected: "Gi0/0 1 0 fe80::... 1" },
     ],
   },
 
@@ -2230,7 +1910,7 @@ const LABS: LabScenario[] = [
   // ─────────────────────────────────────────────────────────────
   {
     id: "floating-static",
-    icon: <Network size={20} />,
+    icon: <Router size={20} />,
     title: "Floating Static Route",
     subtitle: "Backup-Route über Admin-Distance",
     difficulty: "Mittel",
@@ -2254,15 +1934,8 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1",
-                explanation: "Default-Route via MPLS, Default-AD = 1 (Static).",
-              },
-              {
-                cmd: "ip route 0.0.0.0 0.0.0.0 10.2.2.1 200",
-                explanation:
-                  "FLOATING: gleiche Route, aber AD 200 → wird NUR aktiv, wenn die AD-1-Route verschwindet (Interface down).",
-              },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Default-Route via MPLS, Default-AD = 1 (Static)." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.2.2.1 200", explanation: "FLOATING: gleiche Route, aber AD 200 → wird NUR aktiv, wenn die AD-1-Route verschwindet (Interface down)." },
             ],
           },
         ],
@@ -2276,48 +1949,22 @@ const LABS: LabScenario[] = [
             modeLabel: "R1(config)#",
             commands: [
               { cmd: "ip sla 1", explanation: "Anlegen eines SLA-Probes." },
-              {
-                cmd: "icmp-echo 8.8.8.8 source-interface Gi0/0",
-                explanation:
-                  "Pingt 8.8.8.8 über MPLS — fällt der Ping aus, wird die Route entfernt.",
-              },
+              { cmd: "icmp-echo 8.8.8.8 source-interface Gi0/0", explanation: "Pingt 8.8.8.8 über MPLS — fällt der Ping aus, wird die Route entfernt." },
               { cmd: "frequency 5", explanation: "Alle 5 Sek." },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "ip sla schedule 1 life forever start-time now",
-                explanation: "Sofort starten, dauerhaft laufen.",
-              },
-              {
-                cmd: "track 1 ip sla 1 reachability",
-                explanation: "Track-Objekt 1 verfolgt Erreichbarkeit.",
-              },
-              {
-                cmd: "no ip route 0.0.0.0 0.0.0.0 10.1.1.1",
-                explanation: "Alte Route weg.",
-              },
-              {
-                cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1 track 1",
-                explanation:
-                  "Route nur aktiv, wenn track 1 'up' ist → echtes End-to-End-Failover.",
-              },
+              { cmd: "ip sla schedule 1 life forever start-time now", explanation: "Sofort starten, dauerhaft laufen." },
+              { cmd: "track 1 ip sla 1 reachability", explanation: "Track-Objekt 1 verfolgt Erreichbarkeit." },
+              { cmd: "no ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Alte Route weg." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1 track 1", explanation: "Route nur aktiv, wenn track 1 'up' ist → echtes End-to-End-Failover." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ip route",
-        expected: "S* 0.0.0.0/0 [1/0] via 10.1.1.1 (nur primär sichtbar)",
-      },
-      {
-        cmd: "show ip sla statistics",
-        expected: "Return Code: OK, Latest RTT: 12ms",
-      },
-      {
-        cmd: "show track",
-        expected: "Track 1 IP SLA 1 reachability  Reachability is Up",
-      },
+      { cmd: "show ip route", expected: "S* 0.0.0.0/0 [1/0] via 10.1.1.1 (nur primär sichtbar)" },
+      { cmd: "show ip sla statistics", expected: "Return Code: OK, Latest RTT: 12ms" },
+      { cmd: "show track", expected: "Track 1 IP SLA 1 reachability  Reachability is Up" },
     ],
   },
 
@@ -2352,41 +1999,14 @@ const LABS: LabScenario[] = [
             modeLabel: "R1(config)#",
             commands: [
               { cmd: "interface Gi0/0", explanation: "" },
-              {
-                cmd: "ip address 192.168.1.2 255.255.255.0",
-                explanation: "Eigene IP.",
-              },
-              {
-                cmd: "standby version 2",
-                explanation:
-                  "HSRPv2 (statt Default v1) — unterstützt IPv6 und größere Group-IDs.",
-              },
-              {
-                cmd: "standby 1 ip 192.168.1.1",
-                explanation: "Gruppen-ID 1, virtuelle Gateway-IP.",
-              },
-              {
-                cmd: "standby 1 priority 110",
-                explanation: "Priorität (Default 100). Höhere wins.",
-              },
-              {
-                cmd: "standby 1 preempt",
-                explanation:
-                  "Übernimmt SOFORT die Active-Rolle, wenn online (sonst bleibt der bisherige Active).",
-              },
-              {
-                cmd: "standby 1 timers msec 200 msec 750",
-                explanation: "Hello 200ms, Hold 750ms → schnelles Failover.",
-              },
-              {
-                cmd: "standby 1 track Gi0/1 30",
-                explanation:
-                  "Wenn Uplink Gi0/1 ausfällt → Priority sinkt um 30 (110→80) → R2 (100) übernimmt.",
-              },
-              {
-                cmd: "standby 1 authentication md5 key-string CCNAhsrp",
-                explanation: "MD5-Auth gegen Rogue-HSRP-Spoofing.",
-              },
+              { cmd: "ip address 192.168.1.2 255.255.255.0", explanation: "Eigene IP." },
+              { cmd: "standby version 2", explanation: "HSRPv2 (statt Default v1) — unterstützt IPv6 und größere Group-IDs." },
+              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gruppen-ID 1, virtuelle Gateway-IP." },
+              { cmd: "standby 1 priority 110", explanation: "Priorität (Default 100). Höhere wins." },
+              { cmd: "standby 1 preempt", explanation: "Übernimmt SOFORT die Active-Rolle, wenn online (sonst bleibt der bisherige Active)." },
+              { cmd: "standby 1 timers msec 200 msec 750", explanation: "Hello 200ms, Hold 750ms → schnelles Failover." },
+              { cmd: "standby 1 track Gi0/1 30", explanation: "Wenn Uplink Gi0/1 ausfällt → Priority sinkt um 30 (110→80) → R2 (100) übernimmt." },
+              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "MD5-Auth gegen Rogue-HSRP-Spoofing." },
             ],
           },
         ],
@@ -2402,38 +2022,18 @@ const LABS: LabScenario[] = [
               { cmd: "interface Gi0/0", explanation: "" },
               { cmd: "ip address 192.168.1.3 255.255.255.0", explanation: "" },
               { cmd: "standby version 2", explanation: "Muss übereinstimmen." },
-              {
-                cmd: "standby 1 ip 192.168.1.1",
-                explanation: "Gleiche Virtual-IP.",
-              },
-              {
-                cmd: "standby 1 preempt",
-                explanation:
-                  "Damit es bei R1-Recovery die Rolle auch wieder zurückgeben kann.",
-              },
-              {
-                cmd: "standby 1 authentication md5 key-string CCNAhsrp",
-                explanation: "Gleiches Auth-Pass.",
-              },
+              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gleiche Virtual-IP." },
+              { cmd: "standby 1 preempt", explanation: "Damit es bei R1-Recovery die Rolle auch wieder zurückgeben kann." },
+              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "Gleiches Auth-Pass." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show standby brief",
-        expected:
-          "Grp 1, State Active (R1) / Standby (R2), Virtual IP 192.168.1.1",
-      },
-      {
-        cmd: "show standby Gi0/0 1",
-        expected: "Hellos sent, Priority 110, Track Gi0/1 line-protocol Up",
-      },
-      {
-        cmd: "ping 192.168.1.1 (vom PC)",
-        expected: "Antwortet, MAC = 0000.0c9f.f001",
-      },
+      { cmd: "show standby brief", expected: "Grp 1, State Active (R1) / Standby (R2), Virtual IP 192.168.1.1" },
+      { cmd: "show standby Gi0/0 1", expected: "Hellos sent, Priority 110, Track Gi0/1 line-protocol Up" },
+      { cmd: "ping 192.168.1.1 (vom PC)", expected: "Antwortet, MAC = 0000.0c9f.f001" },
     ],
   },
 
@@ -2466,27 +2066,12 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "clock timezone CET 1",
-                explanation: "Zeitzone Mitteleuropa = UTC+1.",
-              },
-              {
-                cmd: "clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00",
-                explanation: "Sommerzeit-Regel automatisch.",
-              },
-              {
-                cmd: "ntp authentication-key 1 md5 CCNAntpKey",
-                explanation: "Authentication-Key 1, MD5-Hash.",
-              },
-              {
-                cmd: "ntp authenticate",
-                explanation: "Server-Auth einschalten.",
-              },
+              { cmd: "clock timezone CET 1", explanation: "Zeitzone Mitteleuropa = UTC+1." },
+              { cmd: "clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00", explanation: "Sommerzeit-Regel automatisch." },
+              { cmd: "ntp authentication-key 1 md5 CCNAntpKey", explanation: "Authentication-Key 1, MD5-Hash." },
+              { cmd: "ntp authenticate", explanation: "Server-Auth einschalten." },
               { cmd: "ntp trusted-key 1", explanation: "Erlaubte Key-IDs." },
-              {
-                cmd: "ntp server 10.0.0.10 key 1 prefer",
-                explanation: "Primärer NTP-Server, signiert mit Key 1.",
-              },
+              { cmd: "ntp server 10.0.0.10 key 1 prefer", explanation: "Primärer NTP-Server, signiert mit Key 1." },
               { cmd: "ntp source Loopback0", explanation: "Stabile Quell-IP." },
             ],
           },
@@ -2501,29 +2086,11 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "logging host 10.0.0.20", explanation: "Syslog-Server." },
-              {
-                cmd: "logging trap informational",
-                explanation:
-                  "Severity 6 — alles ab informational (0-7: emerg/alert/crit/err/warn/notif/info/debug).",
-              },
-              {
-                cmd: "logging facility local6",
-                explanation:
-                  "Facility (Default local7) — hilft Server beim Sortieren.",
-              },
-              {
-                cmd: "logging source-interface Loopback0",
-                explanation: "Quell-IP konstant halten.",
-              },
-              {
-                cmd: "service timestamps log datetime msec localtime show-timezone",
-                explanation: "Logs mit Millisekunden-Zeitstempel + Zeitzone.",
-              },
-              {
-                cmd: "service sequence-numbers",
-                explanation:
-                  "Jede Log-Zeile nummerieren — keine Logs verloren.",
-              },
+              { cmd: "logging trap informational", explanation: "Severity 6 — alles ab informational (0-7: emerg/alert/crit/err/warn/notif/info/debug)." },
+              { cmd: "logging facility local6", explanation: "Facility (Default local7) — hilft Server beim Sortieren." },
+              { cmd: "logging source-interface Loopback0", explanation: "Quell-IP konstant halten." },
+              { cmd: "service timestamps log datetime msec localtime show-timezone", explanation: "Logs mit Millisekunden-Zeitstempel + Zeitzone." },
+              { cmd: "service sequence-numbers", explanation: "Jede Log-Zeile nummerieren — keine Logs verloren." },
             ],
           },
         ],
@@ -2536,48 +2103,21 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "snmp-server view RO-VIEW iso included",
-                explanation: "View definieren — was darf gelesen werden.",
-              },
-              {
-                cmd: "snmp-server group MONGRP v3 priv read RO-VIEW",
-                explanation:
-                  "Gruppe MONGRP mit SNMPv3 priv (auth + encryption).",
-              },
-              {
-                cmd: "snmp-server user monitor MONGRP v3 auth sha CcnaAuth1! priv aes 128 CcnaPriv1!",
-                explanation:
-                  "User 'monitor' mit SHA-Auth + AES-128-Encryption.",
-              },
-              {
-                cmd: "snmp-server host 10.0.0.30 version 3 priv monitor",
-                explanation: "Trap-Empfänger.",
-              },
-              {
-                cmd: "snmp-server enable traps",
-                explanation: "Alle Standard-Traps senden.",
-              },
+              { cmd: "snmp-server view RO-VIEW iso included", explanation: "View definieren — was darf gelesen werden." },
+              { cmd: "snmp-server group MONGRP v3 priv read RO-VIEW", explanation: "Gruppe MONGRP mit SNMPv3 priv (auth + encryption)." },
+              { cmd: "snmp-server user monitor MONGRP v3 auth sha CcnaAuth1! priv aes 128 CcnaPriv1!", explanation: "User 'monitor' mit SHA-Auth + AES-128-Encryption." },
+              { cmd: "snmp-server host 10.0.0.30 version 3 priv monitor", explanation: "Trap-Empfänger." },
+              { cmd: "snmp-server enable traps", explanation: "Alle Standard-Traps senden." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show ntp status",
-        expected: "Clock is synchronized, stratum 4, reference is 10.0.0.10",
-      },
+      { cmd: "show ntp status", expected: "Clock is synchronized, stratum 4, reference is 10.0.0.10" },
       { cmd: "show ntp associations", expected: "*~10.0.0.10  (* = sys.peer)" },
-      {
-        cmd: "show logging",
-        expected:
-          "Trap logging: level informational, 0 messages lost, Logging to 10.0.0.20",
-      },
-      {
-        cmd: "show snmp user",
-        expected: "User name: monitor, Auth Protocol: SHA, Privacy: AES128",
-      },
+      { cmd: "show logging", expected: "Trap logging: level informational, 0 messages lost, Logging to 10.0.0.20" },
+      { cmd: "show snmp user", expected: "User name: monitor, Auth Protocol: SHA, Privacy: AES128" },
     ],
   },
 
@@ -2610,15 +2150,8 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "username localadmin privilege 15 secret StrongP@ss1",
-                explanation:
-                  "Lokaler User mit höchster Privilege-Stufe — Fallback wenn TACACS+ unerreichbar.",
-              },
-              {
-                cmd: "enable secret EnableP@ss2",
-                explanation: "Enable-Passwort gehasht (Type 5/9).",
-              },
+              { cmd: "username localadmin privilege 15 secret StrongP@ss1", explanation: "Lokaler User mit höchster Privilege-Stufe — Fallback wenn TACACS+ unerreichbar." },
+              { cmd: "enable secret EnableP@ss2", explanation: "Enable-Passwort gehasht (Type 5/9)." },
             ],
           },
         ],
@@ -2631,20 +2164,11 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "tacacs server TACSRV",
-                explanation: "Server-Objekt anlegen.",
-              },
+              { cmd: "tacacs server TACSRV", explanation: "Server-Objekt anlegen." },
               { cmd: "address ipv4 10.0.0.50", explanation: "Server-IP." },
-              {
-                cmd: "key 7 CCNAtacKey",
-                explanation: "Shared Secret (gleiches auf Server-Seite).",
-              },
+              { cmd: "key 7 CCNAtacKey", explanation: "Shared Secret (gleiches auf Server-Seite)." },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "aaa group server tacacs+ TAC-GRP",
-                explanation: "Gruppe für Load-Balancing/Failover.",
-              },
+              { cmd: "aaa group server tacacs+ TAC-GRP", explanation: "Gruppe für Load-Balancing/Failover." },
               { cmd: "server name TACSRV", explanation: "" },
             ],
           },
@@ -2658,36 +2182,13 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "aaa new-model",
-                explanation:
-                  "AAA-Framework einschalten — überschreibt alte 'login local'-Logik.",
-              },
-              {
-                cmd: "aaa authentication login default group TAC-GRP local",
-                explanation: "Login: erst TACACS+, bei Server-Down → lokal.",
-              },
-              {
-                cmd: "aaa authentication enable default group TAC-GRP enable",
-                explanation: "Enable-Pass: TACACS+, dann lokal.",
-              },
-              {
-                cmd: "aaa authorization exec default group TAC-GRP local if-authenticated",
-                explanation: "Authorization (welche Privilege-Stufe).",
-              },
-              {
-                cmd: "aaa authorization commands 15 default group TAC-GRP local",
-                explanation:
-                  "Pro Befehl in Level 15 prüfen — granulare Kontrolle.",
-              },
-              {
-                cmd: "aaa accounting exec default start-stop group TAC-GRP",
-                explanation: "Accounting — wer hat sich wann eingeloggt.",
-              },
-              {
-                cmd: "aaa accounting commands 15 default start-stop group TAC-GRP",
-                explanation: "Audit-Log aller privilegierten Befehle.",
-              },
+              { cmd: "aaa new-model", explanation: "AAA-Framework einschalten — überschreibt alte 'login local'-Logik." },
+              { cmd: "aaa authentication login default group TAC-GRP local", explanation: "Login: erst TACACS+, bei Server-Down → lokal." },
+              { cmd: "aaa authentication enable default group TAC-GRP enable", explanation: "Enable-Pass: TACACS+, dann lokal." },
+              { cmd: "aaa authorization exec default group TAC-GRP local if-authenticated", explanation: "Authorization (welche Privilege-Stufe)." },
+              { cmd: "aaa authorization commands 15 default group TAC-GRP local", explanation: "Pro Befehl in Level 15 prüfen — granulare Kontrolle." },
+              { cmd: "aaa accounting exec default start-stop group TAC-GRP", explanation: "Accounting — wer hat sich wann eingeloggt." },
+              { cmd: "aaa accounting commands 15 default start-stop group TAC-GRP", explanation: "Audit-Log aller privilegierten Befehle." },
             ],
           },
         ],
@@ -2701,14 +2202,8 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "line vty 0 15", explanation: "Alle 16 VTY-Lines." },
-              {
-                cmd: "transport input ssh",
-                explanation: "Nur SSH erlaubt — kein Telnet.",
-              },
-              {
-                cmd: "login authentication default",
-                explanation: "Verwendet die oben definierte Methodenliste.",
-              },
+              { cmd: "transport input ssh", explanation: "Nur SSH erlaubt — kein Telnet." },
+              { cmd: "login authentication default", explanation: "Verwendet die oben definierte Methodenliste." },
               { cmd: "authorization exec default", explanation: "" },
             ],
           },
@@ -2717,14 +2212,8 @@ const LABS: LabScenario[] = [
     ],
     verifyCommands: [
       { cmd: "show tacacs", expected: "Server-Status alive, 0 errors" },
-      {
-        cmd: "test aaa group tacacs+ user01 Cisco123 legacy",
-        expected: "User successfully authenticated",
-      },
-      {
-        cmd: "show running-config | section aaa",
-        expected: "AAA-Block komplett sichtbar",
-      },
+      { cmd: "test aaa group tacacs+ user01 Cisco123 legacy", expected: "User successfully authenticated" },
+      { cmd: "show running-config | section aaa", expected: "AAA-Block komplett sichtbar" },
     ],
   },
 
@@ -2745,10 +2234,7 @@ const LABS: LabScenario[] = [
         { type: "router", label: "R1", count: 1 },
         { type: "server", label: "Flow-Collector", count: 1 },
       ],
-      connections: [
-        "R1 Gi0/0 (LAN) — wird beobachtet",
-        "R1 Mgmt → Collector 10.0.0.60:9996",
-      ],
+      connections: ["R1 Gi0/0 (LAN) — wird beobachtet", "R1 Mgmt → Collector 10.0.0.60:9996"],
       hint: "Flexible NetFlow (FNF) ist der moderne Nachfolger von Traditional NetFlow. Definiere selbst, WELCHE Felder du erfassen willst.",
     },
     steps: [
@@ -2760,43 +2246,16 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "flow record FNF-RECORD",
-                explanation: "Eigenes Record-Template anlegen.",
-              },
-              {
-                cmd: "match ipv4 source address",
-                explanation: "Key-Field: Quell-IP.",
-              },
-              {
-                cmd: "match ipv4 destination address",
-                explanation: "Key-Field: Ziel-IP.",
-              },
+              { cmd: "flow record FNF-RECORD", explanation: "Eigenes Record-Template anlegen." },
+              { cmd: "match ipv4 source address", explanation: "Key-Field: Quell-IP." },
+              { cmd: "match ipv4 destination address", explanation: "Key-Field: Ziel-IP." },
               { cmd: "match transport source-port", explanation: "Key-Field." },
-              {
-                cmd: "match transport destination-port",
-                explanation: "Key-Field.",
-              },
-              {
-                cmd: "match ipv4 protocol",
-                explanation: "TCP/UDP/ICMP unterscheiden.",
-              },
-              {
-                cmd: "collect counter bytes",
-                explanation: "Non-Key: Bytes pro Flow.",
-              },
-              {
-                cmd: "collect counter packets",
-                explanation: "Non-Key: Pakete pro Flow.",
-              },
-              {
-                cmd: "collect timestamp sys-uptime first",
-                explanation: "Wann Flow gestartet.",
-              },
-              {
-                cmd: "collect timestamp sys-uptime last",
-                explanation: "Wann letzter Paket des Flows.",
-              },
+              { cmd: "match transport destination-port", explanation: "Key-Field." },
+              { cmd: "match ipv4 protocol", explanation: "TCP/UDP/ICMP unterscheiden." },
+              { cmd: "collect counter bytes", explanation: "Non-Key: Bytes pro Flow." },
+              { cmd: "collect counter packets", explanation: "Non-Key: Pakete pro Flow." },
+              { cmd: "collect timestamp sys-uptime first", explanation: "Wann Flow gestartet." },
+              { cmd: "collect timestamp sys-uptime last", explanation: "Wann letzter Paket des Flows." },
             ],
           },
         ],
@@ -2812,15 +2271,8 @@ const LABS: LabScenario[] = [
               { cmd: "flow exporter FNF-EXP", explanation: "Exporter-Konfig." },
               { cmd: "destination 10.0.0.60", explanation: "Collector-IP." },
               { cmd: "source Loopback0", explanation: "Stabile Quell-IP." },
-              {
-                cmd: "transport udp 9996",
-                explanation: "UDP-Port. Standard 2055 oder 9996.",
-              },
-              {
-                cmd: "template data timeout 60",
-                explanation:
-                  "Templates alle 60s neu senden — Collector vergisst sonst.",
-              },
+              { cmd: "transport udp 9996", explanation: "UDP-Port. Standard 2055 oder 9996." },
+              { cmd: "template data timeout 60", explanation: "Templates alle 60s neu senden — Collector vergisst sonst." },
             ],
           },
         ],
@@ -2833,20 +2285,11 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "flow monitor FNF-MON",
-                explanation: "Verknüpft Record + Exporter.",
-              },
+              { cmd: "flow monitor FNF-MON", explanation: "Verknüpft Record + Exporter." },
               { cmd: "record FNF-RECORD", explanation: "" },
               { cmd: "exporter FNF-EXP", explanation: "" },
-              {
-                cmd: "cache timeout active 60",
-                explanation: "Lange Flows alle 60s exportieren.",
-              },
-              {
-                cmd: "cache timeout inactive 15",
-                explanation: "Inaktive Flows nach 15s exportieren.",
-              },
+              { cmd: "cache timeout active 60", explanation: "Lange Flows alle 60s exportieren." },
+              { cmd: "cache timeout inactive 15", explanation: "Inaktive Flows nach 15s exportieren." },
             ],
           },
           {
@@ -2854,36 +2297,18 @@ const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "interface Gi0/0",
-                explanation: "Beobachtetes Interface.",
-              },
-              {
-                cmd: "ip flow monitor FNF-MON input",
-                explanation: "Ingress-Flow erfassen.",
-              },
-              {
-                cmd: "ip flow monitor FNF-MON output",
-                explanation: "Egress-Flow erfassen — beidseitige Sicht.",
-              },
+              { cmd: "interface Gi0/0", explanation: "Beobachtetes Interface." },
+              { cmd: "ip flow monitor FNF-MON input", explanation: "Ingress-Flow erfassen." },
+              { cmd: "ip flow monitor FNF-MON output", explanation: "Egress-Flow erfassen — beidseitige Sicht." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show flow monitor FNF-MON cache",
-        expected: "Flow-Liste mit Bytes/Packets pro Flow",
-      },
-      {
-        cmd: "show flow exporter FNF-EXP statistics",
-        expected: "Records sent, errors 0",
-      },
-      {
-        cmd: "show flow monitor FNF-MON cache aggregate ipv4 source address sort highest counter bytes top 10",
-        expected: "Top-Talker Liste",
-      },
+      { cmd: "show flow monitor FNF-MON cache", expected: "Flow-Liste mit Bytes/Packets pro Flow" },
+      { cmd: "show flow exporter FNF-EXP statistics", expected: "Records sent, errors 0" },
+      { cmd: "show flow monitor FNF-MON cache aggregate ipv4 source address sort highest counter bytes top 10", expected: "Top-Talker Liste" },
     ],
   },
 
@@ -2901,9 +2326,7 @@ const LABS: LabScenario[] = [
       description:
         "Standalone Switch SW1 oder Router R1 — Erstkonfiguration in einem 'sicher per Default'-Setup.",
       devices: [{ type: "switch", label: "SW1 / R1", count: 1 }],
-      connections: [
-        "Standalone — gleichzeitig auf jedem Cisco-Gerät anwendbar",
-      ],
+      connections: ["Standalone — gleichzeitig auf jedem Cisco-Gerät anwendbar"],
       hint: "Das hier ist die 'Day-1 Checkliste' für jedes neue Cisco-Gerät vor Produktivnahme.",
     },
     steps: [
@@ -2915,19 +2338,9 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "banner motd ^\n*** AUTHORIZED ACCESS ONLY ***\nAll activities are monitored and logged.\nUnauthorized access will be prosecuted.\n^",
-                explanation:
-                  "MOTD-Banner — wichtig für Gerichtsfähigkeit gegen Eindringlinge. '^' ist Delimiter (beliebiges, nicht im Text vorkommendes Zeichen).",
-              },
-              {
-                cmd: "banner login ^\nPlease enter your credentials.\n^",
-                explanation: "Erscheint nach MOTD vor dem Username-Prompt.",
-              },
-              {
-                cmd: "banner exec ^\nWelcome — type ? for help.\n^",
-                explanation: "Nach erfolgreichem Login.",
-              },
+              { cmd: "banner motd ^\n*** AUTHORIZED ACCESS ONLY ***\nAll activities are monitored and logged.\nUnauthorized access will be prosecuted.\n^", explanation: "MOTD-Banner — wichtig für Gerichtsfähigkeit gegen Eindringlinge. '^' ist Delimiter (beliebiges, nicht im Text vorkommendes Zeichen)." },
+              { cmd: "banner login ^\nPlease enter your credentials.\n^", explanation: "Erscheint nach MOTD vor dem Username-Prompt." },
+              { cmd: "banner exec ^\nWelcome — type ? for help.\n^", explanation: "Nach erfolgreichem Login." },
             ],
           },
         ],
@@ -2940,23 +2353,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "service password-encryption",
-                explanation:
-                  "Verschlüsselt alle Klartext-Passwörter in der config mit Type-7 (schwach, aber besser als nichts).",
-              },
-              {
-                cmd: "security passwords min-length 12",
-                explanation: "Mindestens 12 Zeichen für neue Passwörter.",
-              },
-              {
-                cmd: "enable algorithm-type scrypt secret EnablePass!2024",
-                explanation: "Type-9 (scrypt) — sehr stark, nicht reversibel.",
-              },
-              {
-                cmd: "username admin algorithm-type scrypt secret AdminPass!2024",
-                explanation: "User mit scrypt-Hash.",
-              },
+              { cmd: "service password-encryption", explanation: "Verschlüsselt alle Klartext-Passwörter in der config mit Type-7 (schwach, aber besser als nichts)." },
+              { cmd: "security passwords min-length 12", explanation: "Mindestens 12 Zeichen für neue Passwörter." },
+              { cmd: "enable algorithm-type scrypt secret EnablePass!2024", explanation: "Type-9 (scrypt) — sehr stark, nicht reversibel." },
+              { cmd: "username admin algorithm-type scrypt secret AdminPass!2024", explanation: "User mit scrypt-Hash." },
             ],
           },
         ],
@@ -2969,23 +2369,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "login block-for 120 attempts 5 within 60",
-                explanation:
-                  "Bei 5 fehlgeschlagenen Logins in 60s → 120s Komplett-Block aller VTYs.",
-              },
-              {
-                cmd: "login delay 3",
-                explanation: "3 Sekunden Verzögerung zwischen Login-Versuchen.",
-              },
-              {
-                cmd: "login on-failure log every 1",
-                explanation: "Jeden Fehlversuch loggen.",
-              },
-              {
-                cmd: "login on-success log",
-                explanation: "Erfolgreiche Logins auch loggen.",
-              },
+              { cmd: "login block-for 120 attempts 5 within 60", explanation: "Bei 5 fehlgeschlagenen Logins in 60s → 120s Komplett-Block aller VTYs." },
+              { cmd: "login delay 3", explanation: "3 Sekunden Verzögerung zwischen Login-Versuchen." },
+              { cmd: "login on-failure log every 1", explanation: "Jeden Fehlversuch loggen." },
+              { cmd: "login on-success log", explanation: "Erfolgreiche Logins auch loggen." },
             ],
           },
         ],
@@ -2998,32 +2385,12 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "SW1(config)#",
             commands: [
-              {
-                cmd: "no ip http server",
-                explanation: "HTTP-Webserver aus (unverschlüsselt).",
-              },
-              {
-                cmd: "ip http secure-server",
-                explanation: "Falls Web-UI nötig: nur HTTPS.",
-              },
-              {
-                cmd: "no service pad",
-                explanation: "Veraltetes X.25 PAD — deaktivieren.",
-              },
-              {
-                cmd: "no ip source-route",
-                explanation: "Source-Routing deaktivieren — gegen IP-Spoofing.",
-              },
-              {
-                cmd: "no cdp run",
-                explanation:
-                  "(Optional) CDP global aus oder nur an Trunks erlauben.",
-              },
-              {
-                cmd: "no ip domain-lookup",
-                explanation:
-                  "Verhindert lästige DNS-Lookups bei Tippfehlern in der CLI.",
-              },
+              { cmd: "no ip http server", explanation: "HTTP-Webserver aus (unverschlüsselt)." },
+              { cmd: "ip http secure-server", explanation: "Falls Web-UI nötig: nur HTTPS." },
+              { cmd: "no service pad", explanation: "Veraltetes X.25 PAD — deaktivieren." },
+              { cmd: "no ip source-route", explanation: "Source-Routing deaktivieren — gegen IP-Spoofing." },
+              { cmd: "no cdp run", explanation: "(Optional) CDP global aus oder nur an Trunks erlauben." },
+              { cmd: "no ip domain-lookup", explanation: "Verhindert lästige DNS-Lookups bei Tippfehlern in der CLI." },
             ],
           },
         ],
@@ -3037,38 +2404,18 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "line vty 0 15", explanation: "Alle 16 VTY-Lines." },
-              {
-                cmd: "transport input ssh",
-                explanation: "Nur SSH, kein Telnet.",
-              },
-              {
-                cmd: "exec-timeout 10 0",
-                explanation: "Auto-Logout nach 10 Min Inaktivität.",
-              },
-              {
-                cmd: "logging synchronous",
-                explanation:
-                  "Verhindert, dass Log-Messages deine Eingabe überschreiben.",
-              },
-              {
-                cmd: "access-class MGMT-ACL in",
-                explanation:
-                  "Nur erlaubte Source-IPs dürfen sich verbinden (ACL muss vorher definiert sein).",
-              },
+              { cmd: "transport input ssh", explanation: "Nur SSH, kein Telnet." },
+              { cmd: "exec-timeout 10 0", explanation: "Auto-Logout nach 10 Min Inaktivität." },
+              { cmd: "logging synchronous", explanation: "Verhindert, dass Log-Messages deine Eingabe überschreiben." },
+              { cmd: "access-class MGMT-ACL in", explanation: "Nur erlaubte Source-IPs dürfen sich verbinden (ACL muss vorher definiert sein)." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show running-config | section line vty",
-        expected: "transport input ssh, exec-timeout 10",
-      },
-      {
-        cmd: "show login",
-        expected: "Login Block-for 120 seconds, 5 attempts within 60s",
-      },
+      { cmd: "show running-config | section line vty", expected: "transport input ssh, exec-timeout 10" },
+      { cmd: "show login", expected: "Login Block-for 120 seconds, 5 attempts within 60s" },
       { cmd: "show users", expected: "Aktive Sessions" },
     ],
   },
@@ -3091,10 +2438,7 @@ const LABS: LabScenario[] = [
         { type: "ap", label: "Lightweight AP (CAPWAP)", count: 1 },
         { type: "switch", label: "Access-Switch SW1", count: 1 },
       ],
-      connections: [
-        "AP → SW1 Fa0/1 (Access VLAN 50, PoE)",
-        "SW1 → WLC Mgmt Gi0/1 (Trunk)",
-      ],
+      connections: ["AP → SW1 Fa0/1 (Access VLAN 50, PoE)", "SW1 → WLC Mgmt Gi0/1 (Trunk)"],
       hint: "AP findet WLC über: 1) DHCP Option 43, 2) DNS 'cisco-capwap-controller.local', 3) Broadcast. Option 43 ist die zuverlässigste Methode.",
     },
     steps: [
@@ -3107,23 +2451,10 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "interface Fa0/1", explanation: "AP-Port." },
-              {
-                cmd: "switchport mode access",
-                explanation: "AP läuft im Local-Mode als Access-Port.",
-              },
-              {
-                cmd: "switchport access vlan 50",
-                explanation: "AP-Management-VLAN.",
-              },
-              {
-                cmd: "spanning-tree portfast",
-                explanation: "Schnelles Forwarding für AP-Boot.",
-              },
-              {
-                cmd: "power inline auto",
-                explanation:
-                  "PoE automatisch — AP zieht ~15W (802.3af) bzw. 30W (802.3at).",
-              },
+              { cmd: "switchport mode access", explanation: "AP läuft im Local-Mode als Access-Port." },
+              { cmd: "switchport access vlan 50", explanation: "AP-Management-VLAN." },
+              { cmd: "spanning-tree portfast", explanation: "Schnelles Forwarding für AP-Boot." },
+              { cmd: "power inline auto", explanation: "PoE automatisch — AP zieht ~15W (802.3af) bzw. 30W (802.3at)." },
             ],
           },
         ],
@@ -3136,20 +2467,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R-DHCP(config)#",
             commands: [
-              {
-                cmd: "ip dhcp pool AP-POOL",
-                explanation: "DHCP-Pool für VLAN 50.",
-              },
-              {
-                cmd: "network 192.168.50.0 255.255.255.0",
-                explanation: "Subnet.",
-              },
+              { cmd: "ip dhcp pool AP-POOL", explanation: "DHCP-Pool für VLAN 50." },
+              { cmd: "network 192.168.50.0 255.255.255.0", explanation: "Subnet." },
               { cmd: "default-router 192.168.50.1", explanation: "" },
-              {
-                cmd: "option 43 hex f104.c0a8.0a01",
-                explanation:
-                  "Option 43 (Vendor-Specific): Type=f1, Length=04, Value=192.168.10.1 (WLC-IP in hex). AP nutzt das direkt für CAPWAP-Discovery.",
-              },
+              { cmd: "option 43 hex f104.c0a8.0a01", explanation: "Option 43 (Vendor-Specific): Type=f1, Length=04, Value=192.168.10.1 (WLC-IP in hex). AP nutzt das direkt für CAPWAP-Discovery." },
             ],
           },
         ],
@@ -3162,20 +2483,11 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "WLC(config)#",
             commands: [
-              {
-                cmd: "wlan CORP-WLAN 1 CORP-WLAN",
-                explanation: "Profile-Name | WLAN-ID 1 | SSID 'CORP-WLAN'.",
-              },
-              {
-                cmd: "security wpa psk set-key ascii 0 CorpW1FiP@ss",
-                explanation: "PSK setzen (ascii Klartext).",
-              },
+              { cmd: "wlan CORP-WLAN 1 CORP-WLAN", explanation: "Profile-Name | WLAN-ID 1 | SSID 'CORP-WLAN'." },
+              { cmd: "security wpa psk set-key ascii 0 CorpW1FiP@ss", explanation: "PSK setzen (ascii Klartext)." },
               { cmd: "no security wpa akm dot1x", explanation: "Kein 802.1X." },
               { cmd: "security wpa akm psk", explanation: "AKM = PSK." },
-              {
-                cmd: "security wpa2 ciphers aes",
-                explanation: "AES-CCMP (CCMP-128). TKIP NICHT mehr verwenden!",
-              },
+              { cmd: "security wpa2 ciphers aes", explanation: "AES-CCMP (CCMP-128). TKIP NICHT mehr verwenden!" },
               { cmd: "no shutdown", explanation: "WLAN aktivieren." },
             ],
           },
@@ -3189,32 +2501,12 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "WLC(config)#",
             commands: [
-              {
-                cmd: "wlan CORP-WPA3 2 CORP-WPA3",
-                explanation: "Zweites WLAN auf WLAN-ID 2.",
-              },
-              {
-                cmd: "security wpa psk set-key ascii 0 SaeP@ssword123",
-                explanation: "Passphrase.",
-              },
-              {
-                cmd: "security wpa akm sae",
-                explanation:
-                  "AKM = SAE (Simultaneous Authentication of Equals — der WPA3-Handshake).",
-              },
-              {
-                cmd: "security wpa transition-disable",
-                explanation: "Verhindert Downgrade auf WPA2 — nur echtes WPA3.",
-              },
-              {
-                cmd: "security pmf mandatory",
-                explanation:
-                  "Protected Management Frames PFLICHT bei WPA3 — Schutz gegen Deauth-Angriffe.",
-              },
-              {
-                cmd: "no security wpa wpa2",
-                explanation: "WPA2 deaktivieren — pure WPA3.",
-              },
+              { cmd: "wlan CORP-WPA3 2 CORP-WPA3", explanation: "Zweites WLAN auf WLAN-ID 2." },
+              { cmd: "security wpa psk set-key ascii 0 SaeP@ssword123", explanation: "Passphrase." },
+              { cmd: "security wpa akm sae", explanation: "AKM = SAE (Simultaneous Authentication of Equals — der WPA3-Handshake)." },
+              { cmd: "security wpa transition-disable", explanation: "Verhindert Downgrade auf WPA2 — nur echtes WPA3." },
+              { cmd: "security pmf mandatory", explanation: "Protected Management Frames PFLICHT bei WPA3 — Schutz gegen Deauth-Angriffe." },
+              { cmd: "no security wpa wpa2", explanation: "WPA2 deaktivieren — pure WPA3." },
               { cmd: "security wpa wpa3", explanation: "WPA3 aktivieren." },
               { cmd: "no shutdown", explanation: "" },
             ],
@@ -3229,39 +2521,18 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "WLC(config)#",
             commands: [
-              {
-                cmd: "wireless profile policy CORP-POLICY",
-                explanation: "Policy-Profile.",
-              },
-              {
-                cmd: "vlan 60",
-                explanation: "Client-Traffic landet in VLAN 60.",
-              },
+              { cmd: "wireless profile policy CORP-POLICY", explanation: "Policy-Profile." },
+              { cmd: "vlan 60", explanation: "Client-Traffic landet in VLAN 60." },
               { cmd: "no shutdown", explanation: "" },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "wireless tag policy CORP-POLICY-TAG",
-                explanation: "Policy-Tag.",
-              },
-              {
-                cmd: "wlan CORP-WLAN policy CORP-POLICY",
-                explanation: "WLAN ↔ Policy-Profile verknüpfen.",
-              },
-              {
-                cmd: "wlan CORP-WPA3 policy CORP-POLICY",
-                explanation: "Beide WLANs auf gleiche Policy.",
-              },
+              { cmd: "wireless tag policy CORP-POLICY-TAG", explanation: "Policy-Tag." },
+              { cmd: "wlan CORP-WLAN policy CORP-POLICY", explanation: "WLAN ↔ Policy-Profile verknüpfen." },
+              { cmd: "wlan CORP-WPA3 policy CORP-POLICY", explanation: "Beide WLANs auf gleiche Policy." },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "ap location-tag-name CORP-LOC",
-                explanation: "Location-Tag.",
-              },
+              { cmd: "ap location-tag-name CORP-LOC", explanation: "Location-Tag." },
               { cmd: "ap site-tag-name CORP-SITE", explanation: "Site-Tag." },
               { cmd: "ap CORP-AP", explanation: "AP zuweisen." },
-              {
-                cmd: "policy-tag CORP-POLICY-TAG",
-                explanation: "Tag dem AP zuweisen.",
-              },
+              { cmd: "policy-tag CORP-POLICY-TAG", explanation: "Tag dem AP zuweisen." },
             ],
           },
         ],
@@ -3269,18 +2540,9 @@ const LABS: LabScenario[] = [
     ],
     verifyCommands: [
       { cmd: "show ap summary", expected: "AP-Name, IP, State Registered" },
-      {
-        cmd: "show wlan summary",
-        expected: "CORP-WLAN (1) UP, CORP-WPA3 (2) UP",
-      },
-      {
-        cmd: "show wireless client summary",
-        expected: "MAC, State Run, WLAN, AP",
-      },
-      {
-        cmd: "show capwap client rcb (am AP)",
-        expected: "AP Mode: Local, Controller IP: 192.168.10.1",
-      },
+      { cmd: "show wlan summary", expected: "CORP-WLAN (1) UP, CORP-WPA3 (2) UP" },
+      { cmd: "show wireless client summary", expected: "MAC, State Run, WLAN, AP" },
+      { cmd: "show capwap client rcb (am AP)", expected: "AP Mode: Local, Controller IP: 192.168.10.1" },
     ],
   },
 
@@ -3301,11 +2563,7 @@ const LABS: LabScenario[] = [
         { type: "router", label: "R1 (Edge)", count: 1 },
         { type: "server", label: "Webserver in DMZ", count: 1 },
       ],
-      connections: [
-        "Gi0/0 = INSIDE (192.168.1.0/24)",
-        "Gi0/1 = OUTSIDE (Internet)",
-        "Gi0/2 = DMZ (192.168.99.0/24)",
-      ],
+      connections: ["Gi0/0 = INSIDE (192.168.1.0/24)", "Gi0/1 = OUTSIDE (Internet)", "Gi0/2 = DMZ (192.168.99.0/24)"],
       hint: "ZBFW: ohne explizites Zone-Pair → ALLES verboten. 'Default deny' — viel sicherer als ACLs.",
     },
     steps: [
@@ -3317,15 +2575,9 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "zone security INSIDE",
-                explanation: "Zone für vertrauenswürdiges LAN.",
-              },
+              { cmd: "zone security INSIDE", explanation: "Zone für vertrauenswürdiges LAN." },
               { cmd: "zone security OUTSIDE", explanation: "Internet." },
-              {
-                cmd: "zone security DMZ",
-                explanation: "Halbvertrauenswürdig.",
-              },
+              { cmd: "zone security DMZ", explanation: "Halbvertrauenswürdig." },
             ],
           },
           {
@@ -3334,10 +2586,7 @@ const LABS: LabScenario[] = [
             modeLabel: "R1(config)#",
             commands: [
               { cmd: "interface Gi0/0", explanation: "LAN-Interface." },
-              {
-                cmd: "zone-member security INSIDE",
-                explanation: "Interface der Zone INSIDE zuweisen.",
-              },
+              { cmd: "zone-member security INSIDE", explanation: "Interface der Zone INSIDE zuweisen." },
               { cmd: "exit", explanation: "" },
               { cmd: "interface Gi0/1", explanation: "Internet-Interface." },
               { cmd: "zone-member security OUTSIDE", explanation: "" },
@@ -3356,19 +2605,13 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "class-map type inspect match-any LAN-TO-NET",
-                explanation: "Class für LAN→Internet (HTTP, HTTPS, DNS, ICMP).",
-              },
+              { cmd: "class-map type inspect match-any LAN-TO-NET", explanation: "Class für LAN→Internet (HTTP, HTTPS, DNS, ICMP)." },
               { cmd: "match protocol http", explanation: "" },
               { cmd: "match protocol https", explanation: "" },
               { cmd: "match protocol dns", explanation: "" },
               { cmd: "match protocol icmp", explanation: "" },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "class-map type inspect match-any NET-TO-DMZ-WEB",
-                explanation: "Class für Internet→DMZ:80/443.",
-              },
+              { cmd: "class-map type inspect match-any NET-TO-DMZ-WEB", explanation: "Class für Internet→DMZ:80/443." },
               { cmd: "match protocol http", explanation: "" },
               { cmd: "match protocol https", explanation: "" },
             ],
@@ -3383,28 +2626,12 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "policy-map type inspect LAN-NET-POLICY",
-                explanation: "Policy für LAN→Internet.",
-              },
-              {
-                cmd: "class type inspect LAN-TO-NET",
-                explanation: "Verwendet die Class von oben.",
-              },
-              {
-                cmd: "inspect",
-                explanation:
-                  "Stateful Inspection — Return-Traffic wird automatisch erlaubt. Alternativen: pass (keine State-Table), drop, log.",
-              },
+              { cmd: "policy-map type inspect LAN-NET-POLICY", explanation: "Policy für LAN→Internet." },
+              { cmd: "class type inspect LAN-TO-NET", explanation: "Verwendet die Class von oben." },
+              { cmd: "inspect", explanation: "Stateful Inspection — Return-Traffic wird automatisch erlaubt. Alternativen: pass (keine State-Table), drop, log." },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "class class-default",
-                explanation: "Alle nicht-erwähnten Pakete.",
-              },
-              {
-                cmd: "drop",
-                explanation: "Silently droppen (Default-Verhalten).",
-              },
+              { cmd: "class class-default", explanation: "Alle nicht-erwähnten Pakete." },
+              { cmd: "drop", explanation: "Silently droppen (Default-Verhalten)." },
             ],
           },
         ],
@@ -3417,42 +2644,20 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "zone-pair security INSIDE-TO-OUTSIDE source INSIDE destination OUTSIDE",
-                explanation: "Definiert: Traffic von INSIDE nach OUTSIDE.",
-              },
-              {
-                cmd: "service-policy type inspect LAN-NET-POLICY",
-                explanation: "Wendet die Policy an.",
-              },
+              { cmd: "zone-pair security INSIDE-TO-OUTSIDE source INSIDE destination OUTSIDE", explanation: "Definiert: Traffic von INSIDE nach OUTSIDE." },
+              { cmd: "service-policy type inspect LAN-NET-POLICY", explanation: "Wendet die Policy an." },
               { cmd: "exit", explanation: "" },
-              {
-                cmd: "zone-pair security OUTSIDE-TO-DMZ source OUTSIDE destination DMZ",
-                explanation: "Internet → DMZ.",
-              },
-              {
-                cmd: "service-policy type inspect NET-DMZ-POLICY",
-                explanation:
-                  "(Diese Policy analog zu LAN-NET-POLICY, aber mit class NET-TO-DMZ-WEB)",
-              },
+              { cmd: "zone-pair security OUTSIDE-TO-DMZ source OUTSIDE destination DMZ", explanation: "Internet → DMZ." },
+              { cmd: "service-policy type inspect NET-DMZ-POLICY", explanation: "(Diese Policy analog zu LAN-NET-POLICY, aber mit class NET-TO-DMZ-WEB)" },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show zone security",
-        expected: "Zone INSIDE, OUTSIDE, DMZ mit Member-Interfaces",
-      },
-      {
-        cmd: "show zone-pair security",
-        expected: "INSIDE-TO-OUTSIDE / OUTSIDE-TO-DMZ",
-      },
-      {
-        cmd: "show policy-map type inspect zone-pair sessions",
-        expected: "Aktive Inspection-Sessions",
-      },
+      { cmd: "show zone security", expected: "Zone INSIDE, OUTSIDE, DMZ mit Member-Interfaces" },
+      { cmd: "show zone-pair security", expected: "INSIDE-TO-OUTSIDE / OUTSIDE-TO-DMZ" },
+      { cmd: "show policy-map type inspect zone-pair sessions", expected: "Aktive Inspection-Sessions" },
     ],
   },
 
@@ -3485,20 +2690,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "ip http secure-server",
-                explanation:
-                  "HTTPS-Webserver aktivieren — RESTCONF läuft darüber.",
-              },
-              {
-                cmd: "ip http authentication local",
-                explanation: "Lokale User-DB für Auth.",
-              },
+              { cmd: "ip http secure-server", explanation: "HTTPS-Webserver aktivieren — RESTCONF läuft darüber." },
+              { cmd: "ip http authentication local", explanation: "Lokale User-DB für Auth." },
               { cmd: "restconf", explanation: "RESTCONF-Feature aktivieren." },
-              {
-                cmd: "username admin privilege 15 secret AdminP@ss",
-                explanation: "User für API-Zugriff.",
-              },
+              { cmd: "username admin privilege 15 secret AdminP@ss", explanation: "User für API-Zugriff." },
             ],
           },
         ],
@@ -3511,16 +2706,8 @@ const LABS: LabScenario[] = [
             mode: "shell",
             modeLabel: "$ curl",
             commands: [
-              {
-                cmd: "curl -k -u admin:AdminP@ss \\\n  -H 'Accept: application/yang-data+json' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces",
-                explanation:
-                  "Holt alle Interfaces als JSON. '-k' = unsicheres SSL akzeptieren (Self-Signed). Response: { 'ietf-interfaces:interfaces': { 'interface': [...] } }",
-              },
-              {
-                cmd: "curl -k -u admin:AdminP@ss \\\n  -H 'Accept: application/yang-data+json' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces-state/interface=GigabitEthernet0%2F0",
-                explanation:
-                  "Live-State eines einzelnen Interfaces. '%2F' ist URL-encoded '/'.",
-              },
+              { cmd: "curl -k -u admin:AdminP@ss \\\n  -H 'Accept: application/yang-data+json' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces", explanation: "Holt alle Interfaces als JSON. '-k' = unsicheres SSL akzeptieren (Self-Signed). Response: { 'ietf-interfaces:interfaces': { 'interface': [...] } }" },
+              { cmd: "curl -k -u admin:AdminP@ss \\\n  -H 'Accept: application/yang-data+json' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces-state/interface=GigabitEthernet0%2F0", explanation: "Live-State eines einzelnen Interfaces. '%2F' ist URL-encoded '/'." },
             ],
           },
         ],
@@ -3533,29 +2720,16 @@ const LABS: LabScenario[] = [
             mode: "shell",
             modeLabel: "$ curl",
             commands: [
-              {
-                cmd: 'curl -k -u admin:AdminP@ss -X PUT \\\n  -H \'Content-Type: application/yang-data+json\' \\\n  -d \'{"ietf-interfaces:interface":{"name":"GigabitEthernet0/0","description":"Uplink to Core","type":"iana-if-type:ethernetCsmacd","enabled":true}}\' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet0%2F0',
-                explanation:
-                  "PUT ersetzt das komplette Objekt. PATCH = nur Teil ändern. POST = neues Objekt erstellen.",
-              },
+              { cmd: "curl -k -u admin:AdminP@ss -X PUT \\\n  -H 'Content-Type: application/yang-data+json' \\\n  -d '{\"ietf-interfaces:interface\":{\"name\":\"GigabitEthernet0/0\",\"description\":\"Uplink to Core\",\"type\":\"iana-if-type:ethernetCsmacd\",\"enabled\":true}}' \\\n  https://10.0.0.1/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet0%2F0", explanation: "PUT ersetzt das komplette Objekt. PATCH = nur Teil ändern. POST = neues Objekt erstellen." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show running-config | include restconf",
-        expected: "restconf",
-      },
-      {
-        cmd: "show platform software yang-management process",
-        expected: "ncsshd, confd, syncfd: Running",
-      },
-      {
-        cmd: "Browser: https://10.0.0.1/restconf/data?depth=2",
-        expected: "JSON-Response mit Top-Level YANG-Modulen",
-      },
+      { cmd: "show running-config | include restconf", explanation: "restconf", expected: "restconf" },
+      { cmd: "show platform software yang-management process", expected: "ncsshd, confd, syncfd: Running" },
+      { cmd: "Browser: https://10.0.0.1/restconf/data?depth=2", expected: "JSON-Response mit Top-Level YANG-Modulen" },
     ],
   },
 
@@ -3588,23 +2762,10 @@ const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              {
-                cmd: "netconf-yang",
-                explanation:
-                  "NETCONF-Server aktivieren — lauscht auf Port 830.",
-              },
-              {
-                cmd: "username netops privilege 15 secret NetOpsP@ss",
-                explanation: "User für NETCONF.",
-              },
-              {
-                cmd: "aaa new-model",
-                explanation: "PFLICHT für NETCONF in IOS-XE.",
-              },
-              {
-                cmd: "aaa authentication login default local",
-                explanation: "Lokale Auth.",
-              },
+              { cmd: "netconf-yang", explanation: "NETCONF-Server aktivieren — lauscht auf Port 830." },
+              { cmd: "username netops privilege 15 secret NetOpsP@ss", explanation: "User für NETCONF." },
+              { cmd: "aaa new-model", explanation: "PFLICHT für NETCONF in IOS-XE." },
+              { cmd: "aaa authentication login default local", explanation: "Lokale Auth." },
               { cmd: "aaa authorization exec default local", explanation: "" },
             ],
           },
@@ -3618,15 +2779,8 @@ const LABS: LabScenario[] = [
             mode: "shell",
             modeLabel: "$ python3",
             commands: [
-              {
-                cmd: "pip install ncclient",
-                explanation: "Library installieren.",
-              },
-              {
-                cmd: "from ncclient import manager\n\nwith manager.connect(\n    host='10.0.0.1', port=830,\n    username='netops', password='NetOpsP@ss',\n    hostkey_verify=False, device_params={'name':'iosxe'}\n) as m:\n    filter = '''\n    <filter>\n      <native xmlns=\"http://cisco.com/ns/yang/Cisco-IOS-XE-native\">\n        <hostname/>\n      </native>\n    </filter>'''\n    reply = m.get_config(source='running', filter=filter)\n    print(reply.xml)",
-                explanation:
-                  "Holt den Hostname aus der running-config via NETCONF. Filter im XML mit Cisco-IOS-XE-native YANG-Modell.",
-              },
+              { cmd: "pip install ncclient", explanation: "Library installieren." },
+              { cmd: "from ncclient import manager\n\nwith manager.connect(\n    host='10.0.0.1', port=830,\n    username='netops', password='NetOpsP@ss',\n    hostkey_verify=False, device_params={'name':'iosxe'}\n) as m:\n    filter = '''\n    <filter>\n      <native xmlns=\"http://cisco.com/ns/yang/Cisco-IOS-XE-native\">\n        <hostname/>\n      </native>\n    </filter>'''\n    reply = m.get_config(source='running', filter=filter)\n    print(reply.xml)", explanation: "Holt den Hostname aus der running-config via NETCONF. Filter im XML mit Cisco-IOS-XE-native YANG-Modell." },
             ],
           },
         ],
@@ -3639,29 +2793,16 @@ const LABS: LabScenario[] = [
             mode: "shell",
             modeLabel: "$ python3",
             commands: [
-              {
-                cmd: "config = '''\n<config>\n  <native xmlns=\"http://cisco.com/ns/yang/Cisco-IOS-XE-native\">\n    <hostname>R1-NEW</hostname>\n  </native>\n</config>'''\nm.edit_config(target='running', config=config)\nprint('Hostname updated!')",
-                explanation:
-                  "edit_config schreibt direkt in running-config. Alternativ: target='candidate' + m.commit() für transaktionale Änderung.",
-              },
+              { cmd: "config = '''\n<config>\n  <native xmlns=\"http://cisco.com/ns/yang/Cisco-IOS-XE-native\">\n    <hostname>R1-NEW</hostname>\n  </native>\n</config>'''\nm.edit_config(target='running', config=config)\nprint('Hostname updated!')", explanation: "edit_config schreibt direkt in running-config. Alternativ: target='candidate' + m.commit() für transaktionale Änderung." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show netconf-yang sessions",
-        expected: "Active sessions: 1, User: netops",
-      },
-      {
-        cmd: "show platform software yang-management process",
-        expected: "ncsshd: Running",
-      },
-      {
-        cmd: "show running-config | include hostname",
-        expected: "hostname R1-NEW",
-      },
+      { cmd: "show netconf-yang sessions", expected: "Active sessions: 1, User: netops" },
+      { cmd: "show platform software yang-management process", expected: "ncsshd: Running" },
+      { cmd: "show running-config | include hostname", expected: "hostname R1-NEW" },
     ],
   },
 
@@ -3691,35 +2832,12 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "#",
             commands: [
-              {
-                cmd: "show ip interface brief",
-                explanation:
-                  "Quick-Check: alle Interfaces, IP, Status. 'administratively down' = no shutdown vergessen. 'up/down' = Layer 1 ok, Layer 2 down (z. B. Speed/Duplex Mismatch).",
-              },
-              {
-                cmd: "show interfaces status",
-                explanation:
-                  "Switch-Spezifisch: Port-Status, VLAN, Duplex, Speed, Type.",
-              },
-              {
-                cmd: "show interfaces counters errors",
-                explanation:
-                  "CRC-Errors → schlechtes Kabel. Late-Collisions → Duplex-Mismatch. Input-Errors → Hardware-Defekt.",
-              },
-              {
-                cmd: "show cdp neighbors detail",
-                explanation:
-                  "Zeigt direkt verbundene Cisco-Geräte mit IP und Port — perfekt für 'wo bin ich angeschlossen?'.",
-              },
-              {
-                cmd: "show lldp neighbors detail",
-                explanation: "Wie CDP, aber Vendor-neutral (802.1AB).",
-              },
-              {
-                cmd: "show mac address-table dynamic",
-                explanation:
-                  "MAC-Adresstabelle des Switches — wo ist welche MAC gelernt.",
-              },
+              { cmd: "show ip interface brief", explanation: "Quick-Check: alle Interfaces, IP, Status. 'administratively down' = no shutdown vergessen. 'up/down' = Layer 1 ok, Layer 2 down (z. B. Speed/Duplex Mismatch)." },
+              { cmd: "show interfaces status", explanation: "Switch-Spezifisch: Port-Status, VLAN, Duplex, Speed, Type." },
+              { cmd: "show interfaces counters errors", explanation: "CRC-Errors → schlechtes Kabel. Late-Collisions → Duplex-Mismatch. Input-Errors → Hardware-Defekt." },
+              { cmd: "show cdp neighbors detail", explanation: "Zeigt direkt verbundene Cisco-Geräte mit IP und Port — perfekt für 'wo bin ich angeschlossen?'." },
+              { cmd: "show lldp neighbors detail", explanation: "Wie CDP, aber Vendor-neutral (802.1AB)." },
+              { cmd: "show mac address-table dynamic", explanation: "MAC-Adresstabelle des Switches — wo ist welche MAC gelernt." },
             ],
           },
         ],
@@ -3732,25 +2850,10 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "SW#",
             commands: [
-              {
-                cmd: "show vlan brief",
-                explanation:
-                  "Welche VLANs existieren, welche Ports sind zugeordnet.",
-              },
-              {
-                cmd: "show interfaces trunk",
-                explanation:
-                  "Welche Ports sind Trunk, welche VLANs erlaubt, Native VLAN.",
-              },
-              {
-                cmd: "show spanning-tree",
-                explanation:
-                  "Wer ist Root, welche Ports sind Blocked/Forwarding.",
-              },
-              {
-                cmd: "show spanning-tree blockedports",
-                explanation: "Schnellcheck blockierter Ports.",
-              },
+              { cmd: "show vlan brief", explanation: "Welche VLANs existieren, welche Ports sind zugeordnet." },
+              { cmd: "show interfaces trunk", explanation: "Welche Ports sind Trunk, welche VLANs erlaubt, Native VLAN." },
+              { cmd: "show spanning-tree", explanation: "Wer ist Root, welche Ports sind Blocked/Forwarding." },
+              { cmd: "show spanning-tree blockedports", explanation: "Schnellcheck blockierter Ports." },
             ],
           },
         ],
@@ -3763,31 +2866,11 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "R#",
             commands: [
-              {
-                cmd: "show ip route",
-                explanation:
-                  "Routing-Tabelle — fehlt die Default-Route? Welche Routen sind dynamisch (O/D/B)?",
-              },
-              {
-                cmd: "show ip route 8.8.8.8",
-                explanation:
-                  "Longest-Match für eine spezifische IP — über welches Interface geht das?",
-              },
-              {
-                cmd: "show ip arp",
-                explanation:
-                  "ARP-Tabelle — MAC ↔ IP. Wenn leer für ein Ziel: Layer-2-Problem oder Ziel nicht im selben Subnetz.",
-              },
-              {
-                cmd: "ping 8.8.8.8 source Loopback0",
-                explanation:
-                  "Explizite Source-IP — wichtig bei NAT/Routing-Tests.",
-              },
-              {
-                cmd: "traceroute 8.8.8.8",
-                explanation:
-                  "Wo bleibt der Pfad hängen? '* * *' = Router antwortet nicht (ICMP rate-limit oder Firewall).",
-              },
+              { cmd: "show ip route", explanation: "Routing-Tabelle — fehlt die Default-Route? Welche Routen sind dynamisch (O/D/B)?" },
+              { cmd: "show ip route 8.8.8.8", explanation: "Longest-Match für eine spezifische IP — über welches Interface geht das?" },
+              { cmd: "show ip arp", explanation: "ARP-Tabelle — MAC ↔ IP. Wenn leer für ein Ziel: Layer-2-Problem oder Ziel nicht im selben Subnetz." },
+              { cmd: "ping 8.8.8.8 source Loopback0", explanation: "Explizite Source-IP — wichtig bei NAT/Routing-Tests." },
+              { cmd: "traceroute 8.8.8.8", explanation: "Wo bleibt der Pfad hängen? '* * *' = Router antwortet nicht (ICMP rate-limit oder Firewall)." },
             ],
           },
         ],
@@ -3800,44 +2883,19 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "R#",
             commands: [
-              {
-                cmd: "telnet 10.0.0.20 80",
-                explanation:
-                  "TCP-Connection-Test ohne Browser. '%Open' = Port erreichbar. Verbindungsabbruch = Port zu/Firewall.",
-              },
-              {
-                cmd: "show ip nat translations",
-                explanation: "Aktive NAT-Sessions — bei Internet-Problemen.",
-              },
-              {
-                cmd: "show ip access-lists",
-                explanation:
-                  "ACL-Counter — werden Pakete von einer Deny-Regel getroffen?",
-              },
-              {
-                cmd: "debug ip icmp",
-                explanation:
-                  "Live-Debug von ICMP. ACHTUNG: hohe CPU-Last → nach Test sofort 'undebug all'!",
-              },
-              {
-                cmd: "undebug all",
-                explanation:
-                  "Alle Debugs abschalten — PFLICHT nach jedem Debug.",
-              },
+              { cmd: "telnet 10.0.0.20 80", explanation: "TCP-Connection-Test ohne Browser. '%Open' = Port erreichbar. Verbindungsabbruch = Port zu/Firewall." },
+              { cmd: "show ip nat translations", explanation: "Aktive NAT-Sessions — bei Internet-Problemen." },
+              { cmd: "show ip access-lists", explanation: "ACL-Counter — werden Pakete von einer Deny-Regel getroffen?" },
+              { cmd: "debug ip icmp", explanation: "Live-Debug von ICMP. ACHTUNG: hohe CPU-Last → nach Test sofort 'undebug all'!" },
+              { cmd: "undebug all", explanation: "Alle Debugs abschalten — PFLICHT nach jedem Debug." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show tech-support",
-        expected: "Komplett-Snapshot — sendest du an TAC bei Eskalation",
-      },
-      {
-        cmd: "show logging | last 50",
-        expected: "Letzte 50 Log-Zeilen — oft steht das Problem direkt drin",
-      },
+      { cmd: "show tech-support", expected: "Komplett-Snapshot — sendest du an TAC bei Eskalation" },
+      { cmd: "show logging | last 50", expected: "Letzte 50 Log-Zeilen — oft steht das Problem direkt drin" },
     ],
   },
 
@@ -3867,15 +2925,8 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "SW1#",
             commands: [
-              {
-                cmd: "show interfaces Fa0/5",
-                explanation:
-                  "Vollständiger Counter-Block — wir interpretieren die Felder unten.",
-              },
-              {
-                cmd: "show interfaces Fa0/5 counters errors",
-                explanation: "Übersichtliche Fehler-Tabelle.",
-              },
+              { cmd: "show interfaces Fa0/5", explanation: "Vollständiger Counter-Block — wir interpretieren die Felder unten." },
+              { cmd: "show interfaces Fa0/5 counters errors", explanation: "Übersichtliche Fehler-Tabelle." },
             ],
           },
           {
@@ -3883,44 +2934,14 @@ const LABS: LabScenario[] = [
             mode: "info",
             modeLabel: "Counter-Interpretation",
             commands: [
-              {
-                cmd: "Input errors          ← Summe aller Empfangsfehler",
-                explanation:
-                  "Wenn > 0: Hardware/Kabel-Problem auf Empfangsseite.",
-              },
-              {
-                cmd: "CRC                   ← Cyclic Redundancy Check failed",
-                explanation:
-                  "Frame angekommen, aber CRC-Prüfsumme falsch. URSACHEN: defektes Kabel, schlechter Transceiver, EMV-Störung, defekter Switch-Port.",
-              },
-              {
-                cmd: "Frame                 ← Frame mit nicht-ganzzahligen Bytes",
-                explanation: "Kabel-/Hardware-Problem auf Layer 1.",
-              },
-              {
-                cmd: "Giants/Runts          ← Frame > 1518 B / < 64 B",
-                explanation:
-                  "Selten — meist VLAN-Tagging falsch oder Driver-Bug.",
-              },
-              {
-                cmd: "Output errors         ← Summe aller Sendefehler",
-                explanation: "Wenn > 0: ausgehende Probleme.",
-              },
-              {
-                cmd: "Collisions            ← Halb-Duplex normal",
-                explanation:
-                  "Bei Full-Duplex IMMER 0. Wenn > 0 → Duplex-Mismatch!",
-              },
-              {
-                cmd: "Late collisions       ← KRITISCH (Full-Duplex)",
-                explanation:
-                  "Collision NACH 64 Byte Übertragung. URSACHE: Duplex-Mismatch (eine Seite Full, andere Half) oder Kabellänge > 100m.",
-              },
-              {
-                cmd: "Excessive collisions  ← > 16 collisions",
-                explanation:
-                  "Stark überlastetes Half-Duplex-Segment oder Hardware-Defekt.",
-              },
+              { cmd: "Input errors          ← Summe aller Empfangsfehler", explanation: "Wenn > 0: Hardware/Kabel-Problem auf Empfangsseite." },
+              { cmd: "CRC                   ← Cyclic Redundancy Check failed", explanation: "Frame angekommen, aber CRC-Prüfsumme falsch. URSACHEN: defektes Kabel, schlechter Transceiver, EMV-Störung, defekter Switch-Port." },
+              { cmd: "Frame                 ← Frame mit nicht-ganzzahligen Bytes", explanation: "Kabel-/Hardware-Problem auf Layer 1." },
+              { cmd: "Giants/Runts          ← Frame > 1518 B / < 64 B", explanation: "Selten — meist VLAN-Tagging falsch oder Driver-Bug." },
+              { cmd: "Output errors         ← Summe aller Sendefehler", explanation: "Wenn > 0: ausgehende Probleme." },
+              { cmd: "Collisions            ← Halb-Duplex normal", explanation: "Bei Full-Duplex IMMER 0. Wenn > 0 → Duplex-Mismatch!" },
+              { cmd: "Late collisions       ← KRITISCH (Full-Duplex)", explanation: "Collision NACH 64 Byte Übertragung. URSACHE: Duplex-Mismatch (eine Seite Full, andere Half) oder Kabellänge > 100m." },
+              { cmd: "Excessive collisions  ← > 16 collisions", explanation: "Stark überlastetes Half-Duplex-Segment oder Hardware-Defekt." },
             ],
           },
         ],
@@ -3933,14 +2954,8 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "SW1#",
             commands: [
-              {
-                cmd: "show interfaces Fa0/5 | include duplex",
-                explanation: "Aktueller Duplex-Status.",
-              },
-              {
-                cmd: "show interface Fa0/5 status",
-                explanation: "Status, VLAN, Duplex, Speed, Type.",
-              },
+              { cmd: "show interfaces Fa0/5 | include duplex", explanation: "Aktueller Duplex-Status." },
+              { cmd: "show interface Fa0/5 status", explanation: "Status, VLAN, Duplex, Speed, Type." },
             ],
           },
           {
@@ -3949,16 +2964,10 @@ const LABS: LabScenario[] = [
             modeLabel: "SW1(config)#",
             commands: [
               { cmd: "interface Fa0/5", explanation: "Problem-Port." },
-              {
-                cmd: "duplex full",
-                explanation: "FEST auf Full-Duplex (statt 'auto').",
-              },
+              { cmd: "duplex full", explanation: "FEST auf Full-Duplex (statt 'auto')." },
               { cmd: "speed 100", explanation: "FEST auf 100 Mbit/s." },
               { cmd: "shutdown", explanation: "Interface aus..." },
-              {
-                cmd: "no shutdown",
-                explanation: "...und wieder an — Counter werden ggf. resettet.",
-              },
+              { cmd: "no shutdown", explanation: "...und wieder an — Counter werden ggf. resettet." },
             ],
           },
         ],
@@ -3971,15 +2980,8 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "SW1#",
             commands: [
-              {
-                cmd: "clear counters Fa0/5",
-                explanation:
-                  "Setzt nur die Counter auf 0 — Interface bleibt up. Dann 10 Min warten und neu prüfen.",
-              },
-              {
-                cmd: "clear counters",
-                explanation: "Counter ALLER Interfaces zurücksetzen.",
-              },
+              { cmd: "clear counters Fa0/5", explanation: "Setzt nur die Counter auf 0 — Interface bleibt up. Dann 10 Min warten und neu prüfen." },
+              { cmd: "clear counters", explanation: "Counter ALLER Interfaces zurücksetzen." },
             ],
           },
         ],
@@ -3992,36 +2994,17 @@ const LABS: LabScenario[] = [
             mode: "privileged",
             modeLabel: "SW1#",
             commands: [
-              {
-                cmd: "test cable-diagnostics tdr interface Gi0/1",
-                explanation:
-                  "Nur auf moderneren Catalysts. Sendet Signal-Impuls, misst Reflexion → erkennt Kabelbruch und exakte Position in Metern!",
-              },
-              {
-                cmd: "show cable-diagnostics tdr interface Gi0/1",
-                explanation:
-                  "Ergebnis: 'Pair A: OK', 'Pair B: Open at 47 meters' — defektes Adernpaar lokalisiert.",
-              },
+              { cmd: "test cable-diagnostics tdr interface Gi0/1", explanation: "Nur auf moderneren Catalysts. Sendet Signal-Impuls, misst Reflexion → erkennt Kabelbruch und exakte Position in Metern!" },
+              { cmd: "show cable-diagnostics tdr interface Gi0/1", explanation: "Ergebnis: 'Pair A: OK', 'Pair B: Open at 47 meters' — defektes Adernpaar lokalisiert." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      {
-        cmd: "show interfaces Fa0/5 | include error|collision|CRC",
-        expected: "Alle Counter sollten 0 oder konstant niedrig sein",
-      },
-      {
-        cmd: "show interfaces status err-disabled",
-        expected:
-          "Liste err-disabled Ports — z. B. nach BPDU Guard oder Port Security",
-      },
-      {
-        cmd: "show platform pm port-data Fa0/5",
-        expected:
-          "Detaillierter Port-Manager-Status (interne Cisco-Debug-Info)",
-      },
+      { cmd: "show interfaces Fa0/5 | include error|collision|CRC", expected: "Alle Counter sollten 0 oder konstant niedrig sein" },
+      { cmd: "show interfaces status err-disabled", expected: "Liste err-disabled Ports — z. B. nach BPDU Guard oder Port Security" },
+      { cmd: "show platform pm port-data Fa0/5", expected: "Detaillierter Port-Manager-Status (interne Cisco-Debug-Info)" },
     ],
   },
 ];
@@ -4049,15 +3032,9 @@ function CopyButton({ text }: { text: string }) {
       title="Befehle kopieren"
     >
       {copied ? (
-        <>
-          <Check size={13} className="text-emerald-400" />
-          <span className="text-emerald-400">Kopiert</span>
-        </>
+        <><Check size={13} className="text-emerald-400" /><span className="text-emerald-400">Kopiert</span></>
       ) : (
-        <>
-          <Copy size={13} />
-          <span>Kopieren</span>
-        </>
+        <><Copy size={13} /><span>Kopieren</span></>
       )}
     </button>
   );
@@ -4077,9 +3054,7 @@ function CommandBlockView({ block }: { block: CommandBlock }) {
           <span className="text-xs font-bold text-cyan-400 font-mono">
             {block.device}
           </span>
-          <span className="text-xs text-slate-500 font-mono">
-            {block.modeLabel}
-          </span>
+          <span className="text-xs text-slate-500 font-mono">{block.modeLabel}</span>
         </div>
         <div className="flex items-center gap-1">
           <CopyButton text={allCommands} />
@@ -4137,7 +3112,7 @@ function buildLabText(lab: LabScenario): string {
     out += `  ${d.count}x ${d.type}  (${d.label})\n`;
   });
   out += `\nVerbindungen:\n`;
-  lab.topology.connections.forEach((c) => (out += `  ↳ ${c}\n`));
+  lab.topology.connections.forEach((c) => out += `  ↳ ${c}\n`);
   out += `\nHinweis: ${lab.topology.hint}\n\n`;
 
   // CLI-Schritte
@@ -4148,7 +3123,7 @@ function buildLabText(lab: LabScenario): string {
       out += `\n  Gerät: ${block.device}  (${block.modeLabel})\n`;
       block.commands.forEach((c) => {
         const cmdLines = c.cmd.split("\n");
-        cmdLines.forEach((cl) => (out += `  ${block.modeLabel} ${cl}\n`));
+        cmdLines.forEach((cl) => out += `  ${block.modeLabel} ${cl}\n`);
         out += `  → ${c.explanation}\n\n`;
       });
     });
@@ -4309,7 +3284,7 @@ function printLabAsPdf(lab: LabScenario) {
 <body>
   <h1>${lab.title}</h1>
   <div class="meta">
-    <span class="badge ${lab.difficulty === "Anfänger" ? "badge-easy" : lab.difficulty === "Mittel" ? "badge-medium" : "badge-hard"}">${lab.difficulty}</span>
+    <span class="badge ${lab.difficulty === 'Anfänger' ? 'badge-easy' : lab.difficulty === 'Mittel' ? 'badge-medium' : 'badge-hard'}">${lab.difficulty}</span>
     ${lab.subtitle} &nbsp;|&nbsp; ⏱ ${lab.duration}
   </div>
 
@@ -4317,55 +3292,39 @@ function printLabAsPdf(lab: LabScenario) {
     <strong>① Topologie aufbauen (Drag &amp; Drop in Packet Tracer)</strong><br/>
     <span style="font-size:10px;color:#374151">${lab.topology.description}</span>
     <div class="device-list">
-      ${lab.topology.devices.map((d) => `<span class="device-badge"><strong>${d.count}×</strong> ${d.type} (${d.label})</span>`).join("")}
+      ${lab.topology.devices.map(d => `<span class="device-badge"><strong>${d.count}×</strong> ${d.type} (${d.label})</span>`).join("")}
     </div>
-    ${lab.topology.connections.map((c) => `<div class="conn-line">↳ ${c}</div>`).join("")}
+    ${lab.topology.connections.map(c => `<div class="conn-line">↳ ${c}</div>`).join("")}
     <div class="hint-box">💡 ${lab.topology.hint}</div>
   </div>
 
   <h2>② CLI-Konfiguration</h2>
-  ${lab.steps
-    .map(
-      (step, si) => `
+  ${lab.steps.map((step, si) => `
     <div class="step-header">Schritt ${si + 1}: ${step.title}</div>
-    ${step.blocks
-      .map(
-        (block) => `
+    ${step.blocks.map(block => `
       <div class="block">
         <div class="block-header">
           <span><strong>${block.device}</strong></span>
           <span style="color:#64748b">${block.modeLabel}</span>
         </div>
-        ${block.commands
-          .map(
-            (c) => `
+        ${block.commands.map(c => `
           <div class="cmd-row">
             <div class="cmd-cell">${c.cmd.replace(/\n/g, "<br/>")}</div>
             <div class="exp-cell">${c.explanation}</div>
           </div>
-        `,
-          )
-          .join("")}
+        `).join("")}
       </div>
-    `,
-      )
-      .join("")}
-  `,
-    )
-    .join("")}
+    `).join("")}
+  `).join("")}
 
   <div class="verify-box">
     <strong style="color:#065f46">③ Verifikation — Lab erfolgreich wenn:</strong><br/>
-    ${lab.verifyCommands
-      .map(
-        (v) => `
+    ${lab.verifyCommands.map(v => `
       <div class="verify-row">
         <span class="verify-cmd">${v.cmd}</span>
         <span class="verify-exp">→ ${v.expected}</span>
       </div>
-    `,
-      )
-      .join("")}
+    `).join("")}
   </div>
 
   <div class="footer">ccna.ajti.online &mdash; ${new Date().toLocaleDateString("de-DE")} &mdash; ${lab.title}</div>
@@ -4386,11 +3345,7 @@ interface LabScenariosDialogProps {
   theme?: "light" | "dark";
 }
 
-export function LabScenariosDialog({
-  open,
-  onClose,
-  theme = "dark",
-}: LabScenariosDialogProps) {
+export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenariosDialogProps) {
   const [selectedId, setSelectedId] = useState(LABS[0].id);
   const lab = LABS.find((l) => l.id === selectedId) ?? LABS[0];
 
@@ -4462,12 +3417,7 @@ export function LabScenariosDialog({
                 )}
               >
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span
-                    className={cn(
-                      "shrink-0",
-                      l.id === selectedId ? "text-cyan-400" : "text-slate-400",
-                    )}
-                  >
+                  <span className={cn("shrink-0", l.id === selectedId ? "text-cyan-400" : "text-slate-400")}>
                     {l.icon}
                   </span>
                   <span className="text-xs font-semibold text-white leading-tight">
@@ -4475,17 +3425,10 @@ export function LabScenariosDialog({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 pl-7">
-                  <span
-                    className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded font-medium",
-                      difficultyColor(l.difficulty),
-                    )}
-                  >
+                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-medium", difficultyColor(l.difficulty))}>
                     {l.difficulty}
                   </span>
-                  <span className="text-[10px] text-slate-500">
-                    {l.duration}
-                  </span>
+                  <span className="text-[10px] text-slate-500">{l.duration}</span>
                 </div>
               </button>
             ))}
@@ -4501,12 +3444,7 @@ export function LabScenariosDialog({
                   <p className="text-sm text-slate-400">{lab.subtitle}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span
-                    className={cn(
-                      "text-xs px-2 py-1 rounded font-medium",
-                      difficultyColor(lab.difficulty),
-                    )}
-                  >
+                  <span className={cn("text-xs px-2 py-1 rounded font-medium", difficultyColor(lab.difficulty))}>
                     {lab.difficulty}
                   </span>
                   <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
@@ -4518,26 +3456,15 @@ export function LabScenariosDialog({
               {/* ── Schritt 0: Topologie-Aufbau ── */}
               <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-cyan-400 text-sm font-bold">
-                    ① Topologie im Canvas aufbauen (Drag & Drop)
-                  </span>
+                  <span className="text-cyan-400 text-sm font-bold">① Topologie im Canvas aufbauen (Drag & Drop)</span>
                 </div>
-                <p className="text-sm text-slate-300 mb-3">
-                  {lab.topology.description}
-                </p>
+                <p className="text-sm text-slate-300 mb-3">{lab.topology.description}</p>
 
                 {/* Geräte */}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {lab.topology.devices.map((d, i) => (
-                    <span
-                      key={i}
-                      className="text-xs bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-300"
-                    >
-                      <span className="text-cyan-400 font-bold">
-                        {d.count}×
-                      </span>{" "}
-                      {d.type}{" "}
-                      <span className="text-slate-500">({d.label})</span>
+                    <span key={i} className="text-xs bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-300">
+                      <span className="text-cyan-400 font-bold">{d.count}×</span> {d.type} <span className="text-slate-500">({d.label})</span>
                     </span>
                   ))}
                 </div>
@@ -4545,10 +3472,7 @@ export function LabScenariosDialog({
                 {/* Verbindungen */}
                 <div className="space-y-1 mb-3">
                   {lab.topology.connections.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-2 text-xs text-slate-400"
-                    >
+                    <div key={i} className="flex items-start gap-2 text-xs text-slate-400">
                       <span className="text-slate-600 mt-0.5 shrink-0">↳</span>
                       <span className="font-mono">{c}</span>
                     </div>
@@ -4565,9 +3489,7 @@ export function LabScenariosDialog({
               {/* ── CLI-Schritte ── */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-white text-sm font-bold">
-                    ② CLI-Konfiguration
-                  </span>
+                  <span className="text-white text-sm font-bold">② CLI-Konfiguration</span>
                 </div>
 
                 {lab.steps.map((step, si) => (
@@ -4576,9 +3498,7 @@ export function LabScenariosDialog({
                       <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 text-xs flex items-center justify-center font-bold shrink-0">
                         {si + 1}
                       </span>
-                      <span className="text-sm font-semibold text-white">
-                        {step.title}
-                      </span>
+                      <span className="text-sm font-semibold text-white">{step.title}</span>
                     </div>
                     {step.blocks.map((block, bi) => (
                       <CommandBlockView key={bi} block={block} />
@@ -4590,25 +3510,16 @@ export function LabScenariosDialog({
               {/* ── Verifikation ── */}
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-emerald-400 text-sm font-bold">
-                    ③ Verifikation — Lab erfolgreich wenn:
-                  </span>
+                  <span className="text-emerald-400 text-sm font-bold">③ Verifikation — Lab erfolgreich wenn:</span>
                 </div>
                 <div className="space-y-2">
                   {lab.verifyCommands.map((v, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
-                    >
+                    <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                       <div className="flex items-center gap-2 bg-slate-950 rounded px-2 py-1">
                         <CopyButton text={v.cmd} />
-                        <code className="text-green-300 font-mono text-xs">
-                          {v.cmd}
-                        </code>
+                        <code className="text-green-300 font-mono text-xs">{v.cmd}</code>
                       </div>
-                      <span className="text-xs text-slate-400">
-                        → {v.expected}
-                      </span>
+                      <span className="text-xs text-slate-400">→ {v.expected}</span>
                     </div>
                   ))}
                 </div>

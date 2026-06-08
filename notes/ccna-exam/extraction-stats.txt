@@ -1,0 +1,21 @@
+Total questions : 1212
+Images          : 632
+With exhibits   : 548
+Drag-drop       : 84
+Multi-select    : 157
+Answered        : 495
+Needs review    : 717
+
+By category:
+  General                         : 397
+  Switching/VLAN                  : 201
+  Wireless                        : 135
+  Routing                         : 78
+  Network Fundamentals            : 77
+  OSPF                            : 73
+  Automation/SDN                  : 66
+  IPv4/Subnetting                 : 54
+  IPv6                            : 47
+  Security                        : 43
+  NAT/DHCP                        : 33
+  Architecture                    : 8
