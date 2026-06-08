@@ -397,9 +397,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0013-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 7,
     "needsReview": false
@@ -495,7 +493,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0016-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 7,
     "needsReview": false
@@ -1159,9 +1159,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0036-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 13,
     "needsReview": false
@@ -1206,7 +1204,9 @@
     "text": "#TCPUDP\n#UDPTCP",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0038-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 13,
     "needsReview": true
@@ -1336,9 +1336,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0042-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 16,
     "needsReview": false
@@ -1383,7 +1381,9 @@
     "text": "#TCPUDP\n#UDPTCP",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0044-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 16,
     "needsReview": true
@@ -1419,9 +1419,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0045-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 17,
     "needsReview": false
@@ -1475,7 +1473,9 @@
     "text": "#connectionoriented #Connectionless",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0047-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 17,
     "needsReview": true
@@ -1650,9 +1650,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0052-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 19,
     "needsReview": false
@@ -1688,7 +1686,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0053-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 19,
     "needsReview": false
@@ -2284,9 +2284,7 @@
       "C",
       "E"
     ],
-    "exhibitImages": [
-      "Q0070-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 24,
     "needsReview": false
@@ -2299,7 +2297,9 @@
     "text": "#TCPUDP\n#UDPTCP",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0071-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 24,
     "needsReview": true
@@ -2687,9 +2687,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0084-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 29,
     "needsReview": false
@@ -2721,7 +2719,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0085-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 29,
     "needsReview": false
@@ -3070,9 +3070,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0097-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 34,
     "needsReview": false
@@ -3117,7 +3115,9 @@
     "text": "#globallinkmulti #globalmultilink #linkglobalmulti\n#multicast #globalunicast #linklocalunicast #multicast",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0099-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 34,
     "needsReview": true
@@ -3149,9 +3149,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0100-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 35,
     "needsReview": false
@@ -3183,7 +3181,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0101-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 35,
     "needsReview": false
@@ -3215,9 +3215,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0102-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 36,
     "needsReview": false
@@ -3249,7 +3247,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0103-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 36,
     "needsReview": false
@@ -3409,9 +3409,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0108-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 38,
     "needsReview": false
@@ -3443,7 +3441,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0109-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 38,
     "needsReview": false
@@ -3847,9 +3847,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0122-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 42,
     "needsReview": false
@@ -3881,7 +3879,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0123-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 42,
     "needsReview": false
@@ -4181,9 +4181,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0133-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 48,
     "needsReview": false
@@ -4197,7 +4195,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0134-1.png"
+      "Q0134-1.png",
+      "Q0134-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 48,
@@ -4357,9 +4356,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0140-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 51,
     "needsReview": false
@@ -4372,7 +4369,9 @@
     "text": "#tcpudp\n#udptcp",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0141-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 51,
     "needsReview": true
@@ -4404,9 +4403,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0142-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 52,
     "needsReview": false
@@ -4438,7 +4435,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0143-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 52,
     "needsReview": false
@@ -4507,9 +4506,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0145-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 53,
     "needsReview": false
@@ -4522,7 +4519,9 @@
     "text": "#tcpudp\n#udptcp",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0146-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 53,
     "needsReview": true
@@ -4573,7 +4572,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0148-1.png"
+      "Q0148-1.png",
+      "Q0148-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 54,
@@ -4622,9 +4622,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0149-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 54,
     "needsReview": false
@@ -4967,9 +4965,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0162-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 61,
     "needsReview": false
@@ -5097,7 +5093,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0166-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 61,
     "needsReview": false
@@ -5294,9 +5292,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0172-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 63,
     "needsReview": false
@@ -5328,7 +5324,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0173-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 63,
     "needsReview": false
@@ -5389,7 +5387,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0176-1.png"
+      "Q0176-1.png",
+      "Q0176-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 65,
@@ -5437,9 +5436,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0177-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 65,
     "needsReview": false
@@ -5471,9 +5468,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0178-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 66,
     "needsReview": false
@@ -5569,7 +5564,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0181-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 66,
     "needsReview": false
@@ -5633,9 +5630,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0183-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 69,
     "needsReview": false
@@ -5667,7 +5662,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0184-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 69,
     "needsReview": false
@@ -5781,9 +5778,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0188-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 72,
     "needsReview": false
@@ -5815,7 +5810,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0189-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 72,
     "needsReview": false
@@ -5916,9 +5913,7 @@
       "C",
       "D"
     ],
-    "exhibitImages": [
-      "Q0192-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 73,
     "needsReview": false
@@ -5982,7 +5977,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0194-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 73,
     "needsReview": false
@@ -6112,9 +6109,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0198-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 75,
     "needsReview": false
@@ -6146,7 +6141,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0199-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 75,
     "needsReview": false
@@ -6183,9 +6180,7 @@
       "C",
       "D"
     ],
-    "exhibitImages": [
-      "Q0200-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 76,
     "needsReview": false
@@ -6256,7 +6251,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0202-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 76,
     "needsReview": false
@@ -6390,9 +6387,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0206-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 78,
     "needsReview": false
@@ -6406,7 +6401,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0207-1.png"
+      "Q0207-1.png",
+      "Q0207-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 78,
@@ -6588,9 +6584,7 @@
       "A",
       "E"
     ],
-    "exhibitImages": [
-      "Q0212-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 80,
     "needsReview": false
@@ -6623,7 +6617,9 @@
       "B",
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0213-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 80,
     "needsReview": false
@@ -7624,9 +7620,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0244-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 90,
     "needsReview": false
@@ -7722,7 +7716,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0247-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 90,
     "needsReview": false
@@ -8101,9 +8097,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0259-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 97,
     "needsReview": false
@@ -8136,7 +8130,8 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0260-1.png"
+      "Q0260-1.png",
+      "Q0260-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 97,
@@ -8176,9 +8171,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0262-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 99,
     "needsReview": false
@@ -8210,7 +8203,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0263-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 99,
     "needsReview": false
@@ -8332,9 +8327,7 @@
       "A",
       "E"
     ],
-    "exhibitImages": [
-      "Q0267-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 101,
     "needsReview": false
@@ -8366,7 +8359,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0268-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 101,
     "needsReview": false
@@ -8505,9 +8500,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0273-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 104,
     "needsReview": false
@@ -8539,7 +8532,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0274-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 104,
     "needsReview": false
@@ -8756,9 +8751,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0281-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 108,
     "needsReview": false
@@ -8790,7 +8783,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0282-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 108,
     "needsReview": false
@@ -8822,9 +8817,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0283-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 109,
     "needsReview": false
@@ -8838,7 +8831,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0284-1.png"
+      "Q0284-1.png",
+      "Q0284-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 109,
@@ -8871,9 +8865,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0285-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 110,
     "needsReview": false
@@ -8937,7 +8929,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0287-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 110,
     "needsReview": false
@@ -9022,7 +9016,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0290-1.png"
+      "Q0290-1.png",
+      "Q0290-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 112,
@@ -9055,9 +9050,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0291-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 112,
     "needsReview": false
@@ -9520,9 +9513,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0305-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 118,
     "needsReview": false
@@ -9554,7 +9545,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0306-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 118,
     "needsReview": false
@@ -9857,11 +9850,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0318-1.png",
-      "Q0318-2.png",
-      "Q0318-3.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 127,
     "needsReview": false
@@ -9876,7 +9865,10 @@
     "correctAnswer": null,
     "exhibitImages": [
       "Q0319-1.png",
-      "Q0319-2.png"
+      "Q0319-2.png",
+      "Q0319-3.png",
+      "Q0319-4.png",
+      "Q0319-5.png"
     ],
     "needsExhibit": true,
     "sourcePage": 127,
@@ -10034,7 +10026,8 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0324-1.png"
+      "Q0324-1.png",
+      "Q0324-2.png"
     ],
     "needsExhibit": true,
     "sourcePage": 132,
@@ -10084,9 +10077,7 @@
       "A",
       "B"
     ],
-    "exhibitImages": [
-      "Q0325-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": true,
     "sourcePage": 132,
     "needsReview": false
@@ -10153,9 +10144,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0328-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 134,
     "needsReview": false
@@ -10187,7 +10176,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0329-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 134,
     "needsReview": false
@@ -10631,9 +10622,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0344-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 141,
     "needsReview": false
@@ -10729,7 +10718,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0347-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 141,
     "needsReview": false
@@ -10766,9 +10757,7 @@
       "A",
       "C"
     ],
-    "exhibitImages": [
-      "Q0348-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 142,
     "needsReview": false
@@ -10839,7 +10828,9 @@
       "A",
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0350-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 142,
     "needsReview": false
@@ -11183,9 +11174,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0360-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 148,
     "needsReview": false
@@ -11249,7 +11238,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0362-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 148,
     "needsReview": false
@@ -11777,9 +11768,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0378-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 155,
     "needsReview": false
@@ -11811,7 +11800,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0379-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 155,
     "needsReview": false
@@ -12790,9 +12781,7 @@
       "A",
       "C"
     ],
-    "exhibitImages": [
-      "Q0406-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 169,
     "needsReview": false
@@ -12898,7 +12887,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0409-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 169,
     "needsReview": false
@@ -12935,9 +12926,7 @@
       "A",
       "B"
     ],
-    "exhibitImages": [
-      "Q0410-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 170,
     "needsReview": false
@@ -12969,7 +12958,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0411-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 170,
     "needsReview": false
@@ -13712,9 +13703,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0433-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 182,
     "needsReview": false
@@ -13783,7 +13772,9 @@
       "A",
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0435-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 182,
     "needsReview": false
@@ -13847,9 +13838,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0437-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 183,
     "needsReview": false
@@ -13881,7 +13870,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0438-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 183,
     "needsReview": false
@@ -13981,9 +13972,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0441-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 185,
     "needsReview": false
@@ -14015,7 +14004,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0442-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 185,
     "needsReview": false
@@ -16120,9 +16111,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0505-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 228,
     "needsReview": false
@@ -16154,7 +16143,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0506-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 228,
     "needsReview": false
@@ -16186,9 +16177,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0507-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 229,
     "needsReview": false
@@ -16284,7 +16273,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0510-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 229,
     "needsReview": false
@@ -16316,9 +16307,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0511-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 230,
     "needsReview": false
@@ -16382,7 +16371,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0513-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 230,
     "needsReview": false
@@ -17002,9 +16993,7 @@
       "D",
       "E"
     ],
-    "exhibitImages": [
-      "Q0531-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 235,
     "needsReview": false
@@ -17036,7 +17025,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0532-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 235,
     "needsReview": false
@@ -17068,9 +17059,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0533-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 236,
     "needsReview": false
@@ -17083,7 +17072,9 @@
     "text": "",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0534-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 236,
     "needsReview": true,
@@ -17440,9 +17431,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0544-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 239,
     "needsReview": false
@@ -17456,7 +17445,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0545-1.png"
+      "Q0545-1.png",
+      "Q0545-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 239,
@@ -18329,9 +18319,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0571-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 249,
     "needsReview": false
@@ -18395,7 +18383,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0573-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 249,
     "needsReview": false
@@ -18427,9 +18417,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0574-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 250,
     "needsReview": false
@@ -18461,7 +18449,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0575-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 250,
     "needsReview": false
@@ -18853,9 +18843,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0587-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 257,
     "needsReview": false
@@ -18869,7 +18857,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0588-1.png"
+      "Q0588-1.png",
+      "Q0588-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 257,
@@ -18992,9 +18981,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0591-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 260,
     "needsReview": false
@@ -19008,7 +18995,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0592-1.png"
+      "Q0592-1.png",
+      "Q0592-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 260,
@@ -19162,9 +19150,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0596-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 262,
     "needsReview": false
@@ -19228,7 +19214,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0598-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 262,
     "needsReview": false
@@ -19260,9 +19248,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0599-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 263,
     "needsReview": false
@@ -19326,7 +19312,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0601-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 263,
     "needsReview": false
@@ -19839,9 +19827,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0616-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 270,
     "needsReview": false
@@ -19854,7 +19840,9 @@
     "text": "security mechanism categories on the right.\n#Layer2securitymechanisms #Layer3securitymechanisms",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0617-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 270,
     "needsReview": true,
@@ -20407,11 +20395,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0634-1.png",
-      "Q0634-2.png",
-      "Q0634-3.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 278,
     "needsReview": false
@@ -20426,7 +20410,10 @@
     "correctAnswer": null,
     "exhibitImages": [
       "Q0635-1.png",
-      "Q0635-2.png"
+      "Q0635-2.png",
+      "Q0635-3.png",
+      "Q0635-4.png",
+      "Q0635-5.png"
     ],
     "needsExhibit": true,
     "sourcePage": 278,
@@ -20759,9 +20746,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0645-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 282,
     "needsReview": false
@@ -20825,7 +20810,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0647-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 282,
     "needsReview": false
@@ -21102,9 +21089,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0656-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 286,
     "needsReview": false
@@ -21190,7 +21175,9 @@
       "B",
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0658-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 286,
     "needsReview": false
@@ -22889,9 +22876,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0713-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 307,
     "needsReview": false
@@ -22936,7 +22921,9 @@
     "text": "right.\n#controllerbasednetworking #traditionalnetworking",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0715-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 307,
     "needsReview": true,
@@ -23129,10 +23116,7 @@
       "C",
       "D"
     ],
-    "exhibitImages": [
-      "Q0720-1.png",
-      "Q0720-2.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 309,
     "needsReview": false
@@ -23169,9 +23153,7 @@
       "C",
       "E"
     ],
-    "exhibitImages": [
-      "Q0721-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 309,
     "needsReview": false
@@ -23185,7 +23167,10 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0722-1.png"
+      "Q0722-1.png",
+      "Q0722-2.png",
+      "Q0722-3.png",
+      "Q0722-4.png"
     ],
     "needsExhibit": false,
     "sourcePage": 309,
@@ -23354,9 +23339,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0728-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 312,
     "needsReview": false
@@ -23369,7 +23352,9 @@
     "text": "tracks activity updates session attributes verifies access rights verifies identity\n1. #accounting\n2. #CoA\n3. #Authorization\n4. #authentication",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0729-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 312,
     "needsReview": true
@@ -23401,9 +23386,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0730-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 313,
     "needsReview": false
@@ -23435,9 +23418,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0731-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 313,
     "needsReview": false
@@ -23450,7 +23431,10 @@
     "text": "#multitenancy #ondemand #resiliency #scalability #workloadmovement",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0732-1.png",
+      "Q0732-2.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 313,
     "needsReview": true
@@ -24043,9 +24027,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0751-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 319,
     "needsReview": false
@@ -24090,7 +24072,9 @@
     "text": "#controllerbasednetworking #traditionalnetworking",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0753-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 319,
     "needsReview": true
@@ -24494,9 +24478,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0767-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 326,
     "needsReview": false
@@ -24577,7 +24559,9 @@
       "A",
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0769-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 326,
     "needsReview": false
@@ -25055,9 +25039,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0788-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 336,
     "needsReview": false
@@ -25121,7 +25103,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0790-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 336,
     "needsReview": false
@@ -25153,9 +25137,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0791-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 337,
     "needsReview": false
@@ -25219,7 +25201,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0794-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 337,
     "needsReview": false
@@ -26211,9 +26195,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0830-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 350,
     "needsReview": false
@@ -26245,7 +26227,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0831-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 350,
     "needsReview": false
@@ -26259,7 +26243,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0832-1.png"
+      "Q0832-1.png",
+      "Q0832-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 351,
@@ -26292,9 +26277,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0833-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 351,
     "needsReview": false
@@ -26503,9 +26486,7 @@
       "A",
       "B"
     ],
-    "exhibitImages": [
-      "Q0839-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 357,
     "needsReview": false
@@ -26553,7 +26534,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0840-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 357,
     "needsReview": false
@@ -26775,9 +26758,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0848-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 362,
     "needsReview": false
@@ -26809,7 +26790,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0850-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 362,
     "needsReview": false
@@ -26855,7 +26838,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0852-1.png"
+      "Q0852-1.png",
+      "Q0852-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 363,
@@ -26888,9 +26872,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0853-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 363,
     "needsReview": false
@@ -27285,9 +27267,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0865-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 369,
     "needsReview": false
@@ -27351,7 +27331,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0867-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 369,
     "needsReview": false
@@ -27744,9 +27726,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0879-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 379,
     "needsReview": false
@@ -27778,7 +27758,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0880-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 379,
     "needsReview": false
@@ -28009,9 +27991,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0887-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 382,
     "needsReview": false
@@ -28075,7 +28055,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0889-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 382,
     "needsReview": false
@@ -28107,9 +28089,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q0890-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 383,
     "needsReview": false
@@ -28141,7 +28121,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0891-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 383,
     "needsReview": false
@@ -28986,9 +28968,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q0918-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 403,
     "needsReview": false
@@ -29020,7 +29000,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0919-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 403,
     "needsReview": false
@@ -29403,9 +29385,7 @@
       "C",
       "D"
     ],
-    "exhibitImages": [
-      "Q0931-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 409,
     "needsReview": false
@@ -29469,7 +29449,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0933-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 409,
     "needsReview": false
@@ -29630,9 +29612,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0939-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 414,
     "needsReview": false
@@ -29664,7 +29644,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0940-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 414,
     "needsReview": false
@@ -29966,9 +29948,7 @@
       "C",
       "D"
     ],
-    "exhibitImages": [
-      "Q0949-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 419,
     "needsReview": false
@@ -29981,7 +29961,9 @@
     "text": "-\n#MIB\n#Manageddevice\n#NMS\n#Agent",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0950-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 419,
     "needsReview": true,
@@ -30231,7 +30213,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0958-1.png"
+      "Q0958-1.png",
+      "Q0958-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 424,
@@ -30292,9 +30275,7 @@
       "D",
       "E"
     ],
-    "exhibitImages": [
-      "Q0959-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 424,
     "needsReview": false
@@ -30347,9 +30328,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q0961-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 426,
     "needsReview": false
@@ -30381,7 +30360,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0962-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 426,
     "needsReview": false
@@ -30906,9 +30887,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0978-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 436,
     "needsReview": false
@@ -30972,7 +30951,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0980-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 436,
     "needsReview": false
@@ -31248,9 +31229,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q0988-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 441,
     "needsReview": false
@@ -31264,7 +31243,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0989-1.png"
+      "Q0989-1.png",
+      "Q0989-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 441,
@@ -31782,9 +31762,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1006-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 449,
     "needsReview": false
@@ -31816,7 +31794,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1006-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 449,
     "needsReview": false
@@ -32156,9 +32136,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q1017-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 454,
     "needsReview": false
@@ -32172,7 +32150,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1018-1.png"
+      "Q1018-1.png",
+      "Q1018-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 454,
@@ -32210,9 +32189,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1019-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 455,
     "needsReview": false
@@ -32244,7 +32221,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1020-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 455,
     "needsReview": false
@@ -32258,7 +32237,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1021-1.png"
+      "Q1021-1.png",
+      "Q1021-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 456,
@@ -32317,9 +32297,7 @@
       "A",
       "E"
     ],
-    "exhibitImages": [
-      "Q1022-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 456,
     "needsReview": false
@@ -32365,7 +32343,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1024-1.png"
+      "Q1024-1.png",
+      "Q1024-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 458,
@@ -32412,9 +32391,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q1025-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 458,
     "needsReview": false
@@ -32446,9 +32423,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1026-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 459,
     "needsReview": false
@@ -32480,7 +32455,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1027-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 459,
     "needsReview": false
@@ -32838,9 +32815,7 @@
       "A",
       "D"
     ],
-    "exhibitImages": [
-      "Q1038-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 466,
     "needsReview": false
@@ -32872,7 +32847,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1039-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 466,
     "needsReview": false
@@ -33706,9 +33683,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1073-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 481,
     "needsReview": false
@@ -33740,7 +33715,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1074-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 481,
     "needsReview": false
@@ -33905,9 +33882,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1079-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 483,
     "needsReview": false
@@ -33939,7 +33914,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1080-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 483,
     "needsReview": false
@@ -34040,9 +34017,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1083-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 485,
     "needsReview": false
@@ -34074,7 +34049,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1084-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 485,
     "needsReview": false
@@ -34426,9 +34403,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1097-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 495,
     "needsReview": false
@@ -34492,7 +34467,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1099-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 495,
     "needsReview": false
@@ -34524,9 +34501,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q1100-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 497,
     "needsReview": false
@@ -34540,7 +34515,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1101-1.png"
+      "Q1101-1.png",
+      "Q1101-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 497,
@@ -34593,7 +34569,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1103-1.png"
+      "Q1103-1.png",
+      "Q1103-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 499,
@@ -34644,9 +34621,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1104-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 499,
     "needsReview": false
@@ -34806,9 +34781,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1109-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 501,
     "needsReview": false
@@ -34872,7 +34845,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1111-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 501,
     "needsReview": false
@@ -34886,7 +34861,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1112-1.png"
+      "Q1112-1.png",
+      "Q1112-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 502,
@@ -34930,9 +34906,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1113-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 502,
     "needsReview": false
@@ -34979,7 +34953,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1115-1.png"
+      "Q1115-1.png",
+      "Q1115-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 504,
@@ -35019,9 +34994,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1116-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 504,
     "needsReview": false
@@ -35087,9 +35060,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1118-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 506,
     "needsReview": false
@@ -35103,7 +35074,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1119-1.png"
+      "Q1119-1.png",
+      "Q1119-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 506,
@@ -35342,9 +35314,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1126-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 512,
     "needsReview": false
@@ -35357,7 +35327,9 @@
     "text": "-\n#anycast #multicast\nanycast :\nassigned to multiple devices\nrouted to the nearest interface\nmulticast:\ncant be used as a source address\nprovides communication one to many",
     "options": [],
     "correctAnswer": null,
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1127-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 512,
     "needsReview": true,
@@ -35394,9 +35366,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1128-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 513,
     "needsReview": false
@@ -35428,7 +35398,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1129-1.png"
+    ],
     "needsExhibit": false,
     "sourcePage": 513,
     "needsReview": false
@@ -35721,9 +35693,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q1143-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 522,
     "needsReview": false
@@ -35737,7 +35707,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1144-1.png"
+      "Q1144-1.png",
+      "Q1144-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 522,
@@ -35968,7 +35939,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1153-1.png"
+      "Q1153-1.png",
+      "Q1153-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 529,
@@ -36015,9 +35987,7 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [
-      "Q1154-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 529,
     "needsReview": false
@@ -36275,9 +36245,7 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [
-      "Q1168-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 535,
     "needsReview": false
@@ -36291,7 +36259,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1170-1.png"
+      "Q1170-1.png",
+      "Q1170-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 535,
@@ -36334,9 +36303,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1173-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 536,
     "needsReview": false
@@ -36368,7 +36335,9 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1174-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 536,
     "needsReview": false
@@ -36565,8 +36534,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1184-1.png",
-      "Q1184-2.png"
+      "Q1184-1.png"
     ],
     "needsExhibit": false,
     "sourcePage": 540,
@@ -36581,7 +36549,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1188-1.png"
+      "Q1188-1.png",
+      "Q1188-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 540,
@@ -36909,9 +36878,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1200-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 547,
     "needsReview": false
@@ -36975,7 +36942,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1202-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 547,
     "needsReview": false
@@ -37351,9 +37320,7 @@
       "A",
       "C"
     ],
-    "exhibitImages": [
-      "Q1213-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 555,
     "needsReview": false
@@ -37417,7 +37384,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1215-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 555,
     "needsReview": false
@@ -38052,9 +38021,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1239-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 563,
     "needsReview": false
@@ -38086,7 +38053,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1240-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 563,
     "needsReview": false
@@ -38482,8 +38451,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1254-1.png",
-      "Q1254-2.png"
+      "Q1254-1.png"
     ],
     "needsExhibit": false,
     "sourcePage": 568,
@@ -38498,7 +38466,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1256-1.png"
+      "Q1256-1.png",
+      "Q1256-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 568,
@@ -38626,7 +38595,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1263-1.png"
+      "Q1263-1.png",
+      "Q1263-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 571,
@@ -38667,9 +38637,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1264-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 571,
     "needsReview": false
@@ -38764,9 +38732,7 @@
       "A",
       "C"
     ],
-    "exhibitImages": [
-      "Q1268-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 573,
     "needsReview": false
@@ -38798,7 +38764,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1269-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 573,
     "needsReview": false
@@ -38830,9 +38798,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1270-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 574,
     "needsReview": false
@@ -38864,7 +38830,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1273-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 574,
     "needsReview": false
@@ -38964,9 +38932,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1278-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 576,
     "needsReview": false
@@ -38998,7 +38964,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1279-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 576,
     "needsReview": false
@@ -39030,9 +38998,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1280-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 577,
     "needsReview": false
@@ -39064,7 +39030,9 @@
     "correctAnswer": [
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1281-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 577,
     "needsReview": false
@@ -39206,7 +39174,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1289-1.png"
+      "Q1289-1.png",
+      "Q1289-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 580,
@@ -39250,9 +39219,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1290-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 580,
     "needsReview": false
@@ -39406,9 +39373,7 @@
     "correctAnswer": [
       "C"
     ],
-    "exhibitImages": [
-      "Q1315-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 584,
     "needsReview": false
@@ -39440,7 +39405,9 @@
     "correctAnswer": [
       "B"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q1320-1.png"
+    ],
     "needsExhibit": true,
     "sourcePage": 584,
     "needsReview": false
@@ -39550,7 +39517,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1325-1.png"
+      "Q1325-1.png",
+      "Q1325-2.png"
     ],
     "needsExhibit": false,
     "sourcePage": 586,
@@ -39598,9 +39566,7 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [
-      "Q1326-1.png"
-    ],
+    "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 586,
     "needsReview": false
