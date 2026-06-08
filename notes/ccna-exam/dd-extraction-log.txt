@@ -1,0 +1,356 @@
+Processing 84 drag-drop questions...
+
+Page 2: ['Q0003']
+  Q0003: items=4 targets=3 mapping=0  state=Q0003-state.png answer=None
+    drag: ['provides reliability upon', 'does not require user aut', 'uses port 69', 'uses ports 20 and 21']
+
+Page 3: ['Q0005']
+  Q0005: items=0 targets=0 mapping=0  state=Q0005-state.png answer=Q0005-answer.png
+
+Page 6: ['Q0012']
+  Q0012: items=0 targets=0 mapping=0  state=Q0012-state.png answer=Q0012-answer.png
+
+Page 47: ['Q0132']
+  Q0132: items=3 targets=3 mapping=1  state=Q0132-state.png answer=Q0132-answer.png
+    drag: ['ISP a, i1/0', 'GiLo . DC-1 Sa Gil/1 / Gi', 'a5']
+    mapping: ['|ip address 192.168.3.14 ']
+
+Page 48: ['Q0134']
+  Q0134: items=4 targets=1 mapping=3  state=Q0134-state.png answer=Q0134-answer.png
+    drag: ['2001:DB8::bced:1234:456d ', '153-3992-a1 FD00:0000-000', 'FE80--abcdffiff-42de-3992', 'FFO5::23:becf:22:1111']
+    mapping: ['. cere. . 12de:3992', 'FD00:0000:0000:1a2d:a 153', '2001:DB8::bced:1234:456d ']
+
+Page 54: ['Q0148']
+  Q0148: items=4 targets=5 mapping=0  state=Q0148-state.png answer=Q0148-answer.png
+    drag: ['[om', 'CNAME', 'NS', 'SOA']
+
+Page 65: ['Q0176']
+  Q0176: items=0 targets=3 mapping=5  state=Q0176-state.png answer=Q0176-answer.png
+    mapping: ['from Wi-Fi are different ', 'directly or Wi-Fi more wi', 'WI-FI or option more base', 'that identifies alphanume', 'and entire the wireless l']
+
+Page 67: ['Q0182']
+  Q0182: items=0 targets=0 mapping=9  state=Q0182-state.png answer=Q0182-answer.png
+    mapping: ['Inspiron15', 'Mixed', '12:', 'Media disconnected', 'Yes Yes Microsoft 1A-76-3', 'Dell B8-76-3F-7C-57-DF Wi', 'Yes 6255.255.255.0 192.16', '263747135 00-01-00-01-18-', 'Enabled 192.168.1.15 192.']
+
+Page 97: ['Q0260']
+  Q0260: items=0 targets=0 mapping=1  state=None answer=Q0260-answer.png
+    mapping: ['HQ_DC3992-38488']
+
+Page 174: ['Q0416']
+  Q0416: items=2 targets=1 mapping=0  state=Q0416-state.png answer=None
+    drag: ['IP address', 'OSPF process ID']
+
+Page 210: ['Q0480']
+  Q0480: items=1 targets=5 mapping=0  state=Q0480-state.png answer=Q0480-answer.png
+    drag: ['= Internet 2 ÔÇö \\ MPLS 2 a']
+
+Page 233: ['Q0523']
+  Q0523: items=1 targets=3 mapping=0  state=Q0523-state.png answer=None
+    drag: ['SNMP']
+
+Page 236: ['Q0534']
+  Q0534: items=5 targets=7 mapping=0  state=Q0534-state.png answer=None
+    drag: ['resolves web URLs to IP a', 'assigns a default gateway', 'holds the TCP/IP settings', 'stores a list of IP addre', 'assigns IP addresses to e']
+
+Page 239: ['Q0545']
+  Q0545: items=3 targets=4 mapping=3  state=Q0545-state.png answer=Q0545-answer.png
+    drag: ['SNMP agent', 'SNMP manager', 'SNMP trap']
+    mapping: ['SNMP trap', 'SNMP agent', 'SNMP manager']
+
+Page 242: ['Q0552']
+  Q0552: items=3 targets=4 mapping=5  state=Q0552-state.png answer=Q0552-answer.png
+    drag: ['ip address 172.16.1.1 255', 'ip address 45.83.2.214 25', 'ip nat overload inside so']
+    mapping: ['ip address 172.16.1.1 255', 'ip address 45.83.2.214 25', 'ip nat outside', 'ip 80 nat 45.83.2.214 ins', 'ip nat overload inside so']
+
+Page 254: ['Q0583']
+  Q0583: items=3 targets=5 mapping=1  state=Q0583-state.png answer=Q0583-answer.png
+    drag: ['show snmp enginelD', 'show snmp group', 'show snmp host']
+    mapping: ['| show snmp chassis |']
+
+Page 256: ['Q0586']
+  Q0586: items=4 targets=5 mapping=2  state=Q0586-state.png answer=Q0586-answer.png
+    drag: ['cloud-based fair queueing', 'Classification', 'g congestion', 'shaping']
+    mapping: ['classification', 'queueing']
+
+Page 257: ['Q0588']
+  Q0588: items=5 targets=5 mapping=4  state=Q0588-state.png answer=Q0588-answer.png
+    drag: ['event aggregation correla', 'fault detection .', 'fault diagnosis and isola', 'bl VES luti IIT', ': :']
+    mapping: ['problem resolution', 'event aggregation correla', 'fault detection', 'fault diagnosis and isola']
+
+Page 260: ['Q0592']
+  Q0592: items=7 targets=4 mapping=4  state=Q0592-state.png answer=Q0592-answer.png
+    drag: ['provides using local a co', 'uses authoritative server', 'maintains an address pool', 'associates hostnames to I', 'offers domain name server', 'reduces the administrativ', 'assigns IP configurable a']
+    mapping: ['maintains nie an address ', 'provides using local a co', 'reduces the administrativ', 'assigns IP : configurable']
+
+Page 269: ['Q0614']
+  Q0614: items=5 targets=8 mapping=0  state=Q0614-state.png answer=None
+    drag: ['controls the ; actions th', 'provides analytical admin', 'restricts the services th', 'verifies the password ass', 'identifies the user']
+
+Page 270: ['Q0617']
+  Q0617: items=4 targets=5 mapping=0  state=Q0617-state.png answer=None
+    drag: ['web policy :', 'Passthrough', 'WPA+WPA2', '802.1X']
+
+Page 273: ['Q0623']
+  Q0623: items=0 targets=0 mapping=0  state=None answer=Q0623-answer.png
+
+Page 290: ['Q0667']
+  Q0667: items=6 targets=4 mapping=0  state=Q0667-state.png answer=None
+    drag: ['It enables the device to ', 'It leverages to a a RADIU', 'It records accesses the t', 'It restricts the CLI p er', 'It commands uses TACACS e', 'It verifies the user acce']
+
+Page 302: ['Q0700']
+  Q0700: items=0 targets=0 mapping=0  state=None answer=Q0700-answer.png
+
+Page 307: ['Q0715']
+  Q0715: items=4 targets=7 mapping=0  state=Q0715-state.png answer=None
+    drag: ['focused on network Contro', 'user input is a configura', 'uses block list security ', 'uses block']
+
+Page 343: ['Q0811']
+  Q0811: items=0 targets=0 mapping=2  state=None answer=Q0811-answer.png
+    mapping: ['J Non-Overlapping pping C', 'eee 2) Non-Overlapping Ch']
+
+Page 370: ['Q0868']
+  Q0868: items=5 targets=7 mapping=0  state=Q0868-state.png answer=None
+    drag: ['Appropriate for a small-b', 'Work is divided between c', 'The access points transmi', 'Supports per device confi', 'Uses the CAPWAP tunneling']
+
+Page 371: ['Q0871']
+  Q0871: items=0 targets=0 mapping=3  state=None answer=Q0871-answer.png
+    mapping: ['provides connection Wi-Fi', 'used for out-of-band mana', 'applied to the WLAN commu']
+
+Page 390: ['Q0900']
+  Q0900: items=0 targets=0 mapping=1  state=None answer=Q0900-answer.png
+    mapping: ['to network 0.0.0.0 10.10.']
+
+Page 394: ['Q0905']
+  Q0905: items=0 targets=0 mapping=3  state=None answer=Q0905-answer.png
+    mapping: ['Active', 'AEST', 'Standby']
+
+Page 397: ['Q0909']
+  Q0909: items=3 targets=3 mapping=1  state=Q0909-state.png answer=Q0909-answer.png
+    drag: ['ÔÇö- 7', 'Host 10.10.14.10/24 A R1 ', '10.10.10.0/30']
+    mapping: ['R1 | R2 Po Po =']
+
+Page 407: ['Q0928']
+  Q0928: items=5 targets=3 mapping=8  state=Q0928-state.png answer=Q0928-answer.png
+    drag: ['Router2 Site B > wD =', 'Gateway Router2#show', 'Site A C C C O 10.0.0.0/8', 'C O', 'S* 0.0.0.0/0']
+    mapping: ['Internet', '10.10.10.16', 'SSS]', '10.10.13.129', '10.10.100.128', 'Router1', '10.10.13.1', '10.10.13.150']
+
+Page 411: ['Q0936']
+  Q0936: items=0 targets=0 mapping=1  state=Q0936-state.png answer=Q0936-answer.png
+    mapping: ['subnetted, connected, con']
+
+Page 413: ['Q0938']
+  Q0938: items=2 targets=1 mapping=8  state=Q0938-state.png answer=Q0938-answer.png
+    drag: ['gx gf', '10.10.10.0/24']
+    mapping: ['eBGP', 'The static route and EIGR', 'The static route and OSPF', 'EIGRP', 'The static ; route and eB', 'Static :', 'All protocols are up.', 'OSPF and eBGP are down.']
+
+Page 419: ['Q0950']
+  Q0950: items=0 targets=0 mapping=3  state=None answer=Q0950-answer.png
+    mapping: ['collection of can be uniq', 'system that runs monitori', 'SNMP component and that n']
+
+Page 421: ['Q0956']
+  Q0956: items=0 targets=0 mapping=2  state=None answer=Q0956-answer.png
+    mapping: ['applies a maximum specifi', 'group distributing reduce']
+
+Page 424: ['Q0958']
+  Q0958: items=5 targets=5 mapping=5  state=Q0958-state.png answer=Q0958-answer.png
+    drag: ['An endpoint submits a dom', 'The DNS submits a request', 'The DNS receives a reply ', 'The DNS responds to the e', 'The DNS submits a request']
+    mapping: ['An endpoint submits a dom', 'The DNS submits a request', 'The DNS submits a request', 'The DNS receives a reply ', 'The DNS responds to the e']
+
+Page 425: ['Q0960']
+  Q0960: items=0 targets=0 mapping=0  state=Q0960-state.png answer=Q0960-answer.png
+
+Page 427: ['Q0963']
+  Q0963: items=3 targets=3 mapping=0  state=Q0963-state.png answer=Q0963-answer.png
+    drag: ['ip domain list', 'ip domain lookup source-i', 'ip host']
+
+Page 431: ['Q0970']
+  Q0970: items=0 targets=0 mapping=4  state=None answer=Q0970-answer.png
+    mapping: ['attack 802.1q double-tagg', 'MAC flooding attack', 'man-in-the-middle spoofin', 'switch-spoofing VLAN-hopp']
+
+Page 434: ['Q0975']
+  Q0975: items=4 targets=2 mapping=6  state=Q0975-state.png answer=Q0975-answer.png
+    drag: ['It grants access to netwo', 'It restricts the CLI comm', 'It performs user validati', 'It verifies ÔÇ£who you areÔÇØ']
+    mapping: ['4 Authentication', 'It performs user validati', 'It verifies ÔÇ£who you areÔÇØ', 'Authorization', 'It grants access to netwo', 'It restricts the CLI comm']
+
+Page 441: ['Q0989']
+  Q0989: items=5 targets=2 mapping=5  state=Q0989-state.png answer=Q0989-answer.png
+    drag: ['It assigns per-user attri', 'It reaches the CLI comman', 'It permits and derives lo', 'It records the amount of ', 'lt tracks the services th']
+    mapping: ['It permits and derives lo', 'It supports local, PPP, R', 'Authorization', 'It assigns per-user attri', 'It reaches the CLI comman']
+
+Page 443: ['Q0992']
+  Q0992: items=0 targets=0 mapping=2  state=None answer=Q0992-answer.png
+    mapping: ['Accountin oY', 'Authorization']
+
+Page 447: ['Q1000']
+  Q1000: items=5 targets=0 mapping=4  state=Q1000-state.png answer=Q1000-answer.png
+    drag: ['communicates between the ', 'communicates between the ', 'supports network virtuali', 'supports REST-based requi', 'uses OpenFlow to control ']
+    mapping: ['supports automation', 'communicates between the ', 'supports data sharing bet', 'supports REST-based requi']
+
+Page 450: ['Q1008']
+  Q1008: items=0 targets=0 mapping=2  state=None answer=Q1008-answer.png
+    mapping: ['Camels Fs elie', 'Fs Cisco DNA Center']
+
+Page 454: ['Q1018']
+  Q1018: items=0 targets=0 mapping=0  state=Q1018-state.png answer=Q1018-answer.png
+
+Page 456: ['Q1021']
+  Q1021: items=3 targets=2 mapping=8  state=Q1021-state.png answer=Q1021-answer.png
+    drag: ['; ;', 'ÔÇöÔÇö', 'VLAN and HSRP configurati']
+    mapping: ['Cisco DNA Center', 'overlay and underlay conf', 'routed access deployment', 'VXLAN and LISP configurat', 'Traditional', 'STP deployment', 'VLAN and HSRP configurati', 'configuration via console']
+
+Page 458: ['Q1024']
+  Q1024: items=3 targets=1 mapping=2  state=Q1024-state.png answer=Q1024-answer.png
+    drag: ['It uses multiple tools an', 'It manages device configu', 'It provides a single inte']
+    mapping: ['Cisco DNA Center Device M', 'Security is with managed ']
+
+Page 460: ['Q1028']
+  Q1028: items=0 targets=0 mapping=1  state=None answer=Q1028-answer.png
+    mapping: ['daemon that has determine']
+
+Page 479: ['Q1068']
+  Q1068: items=0 targets=0 mapping=0  state=Q1068-state.png answer=Q1068-answer.png
+
+Page 484: ['Q1081']
+  Q1081: items=3 targets=2 mapping=6  state=Q1081-state.png answer=Q1081-answer.png
+    drag: ['ÔÇöÔÇöÔÇö', 'is typically used for DWD', 'eliminates distortion fro']
+    mapping: ['CO pper', 'contains a single solid c', 'is affected by electrical', 'je fiber', 'is typically used for DWD', 'eliminates distortion fro']
+
+Page 487: ['Q1086']
+  Q1086: items=3 targets=1 mapping=6  state=Q1086-state.png answer=Q1086-answer.png
+    drag: ['contains a single solid c', 'is typically used for DWD', 'uses a single wavelength ']
+    mapping: ['copper', 'contains a single solid c', 'transmits data in the for', 'gingl fe fiber', 'is typically used for DWD', 'uses a single wavelength ']
+
+Page 488: ['Q1087']
+  Q1087: items=3 targets=1 mapping=6  state=Q1087-state.png answer=Q1087-answer.png
+    drag: ['is typically used in smal', 'is typically used for int', 'has increased attenuation']
+    mapping: ['copper', 'is typically used in smal', 'Is comprised of shielded ', 'fiber', 'is typically used for int', 'has increased attenuation']
+
+Page 489: ['Q1088']
+  Q1088: items=0 targets=0 mapping=4  state=Q1088-state.png answer=Q1088-answer.png
+    mapping: ['ng single-mode fiber is i', 'copper', 'is not easily broken', 'contains a single solid c']
+
+Page 490: ['Q1089']
+  Q1089: items=2 targets=2 mapping=6  state=Q1089-state.png answer=Q1089-answer.png
+    drag: ['transmits data up to 100 ', 'has minimal light reflect']
+    mapping: ['single-mode fiber', 'uses a single wavelength ', 'has minimal light reflect', '[multimode fiber', 'becomes distorted at long', 'transmits data up to 100 ']
+
+Page 492: ['Q1091']
+  Q1091: items=4 targets=1 mapping=6  state=Q1091-state.png answer=Q1091-answer.png
+    drag: ['ÔÇöÔÇö', 'is comprised of shielded ', 'contains a conductor, bed', 'has a core diameter of 9 ']
+    mapping: ['single-mode fiber', 'uses a single wavelength ', 'has a core diameter of 9 ', 'copper', 'is comprised of shielded ', 'contains a conductor, bed']
+
+Page 493: ['Q1093']
+  Q1093: items=0 targets=0 mapping=3  state=None answer=Q1093-answer.png
+    mapping: ['single-mode fiber Pe', 'multimode fiber', 'PO']
+
+Page 497: ['Q1101']
+  Q1101: items=0 targets=0 mapping=0  state=Q1101-state.png answer=Q1101-answer.png
+
+Page 498: ['Q1102']
+  Q1102: items=4 targets=1 mapping=4  state=Q1102-state.png answer=Q1102-answer.png
+    drag: ['may be used at by the sam', 'sends rather packets than', 'provides one-to-many comm', 'allows sites to address b']
+    mapping: ['Unique Local may be used ', 'allows sites to address b', 'Multicast sends rather pa', 'provides one-to-many comm']
+
+Page 499: ['Q1103']
+  Q1103: items=3 targets=2 mapping=5  state=Q1103-state.png answer=Q1103-answer.png
+    drag: ['may be used at by the sam', 'required on all IPv6 devi', 'is a counterpart of priva']
+    mapping: ['Unique Local', 'may be used at by the sam', 'is a counterpart of priva', '| Link-Local attached Add', 'required on all IPv6 devi']
+
+Page 502: ['Q1112']
+  Q1112: items=3 targets=1 mapping=0  state=Q1112-state.png answer=Q1112-answer.png
+    drag: ['server', 'spurious . DHCP server', 'trusted']
+
+Page 503: ['Q1114']
+  Q1114: items=4 targets=1 mapping=4  state=Q1114-state.png answer=Q1114-answer.png
+    drag: ['is a counterpart addresse', 'sends rather packets than', 'has a unicast source sent', 'allows sites to address b']
+    mapping: ['Unique Local is a counter', 'allows sites to address b', 'Multicast sends rather pa', 'has a unicast source sent']
+
+Page 504: ['Q1115']
+  Q1115: items=0 targets=0 mapping=1  state=Q1115-state.png answer=Q1115-answer.png
+    mapping: ['[ multimode is typically ']
+
+Page 506: ['Q1119']
+  Q1119: items=0 targets=0 mapping=0  state=Q1119-state.png answer=Q1119-answer.png
+
+Page 511: ['Q1125']
+  Q1125: items=1 targets=2 mapping=4  state=Q1125-state.png answer=Q1125-answer.png
+    drag: ['See ee)']
+    mapping: ['uses multiple wavelengths', 'Se', 'a ESE Eo :', '| ÔÇöÔÇöÔÇö uses a single wavel']
+
+Page 512: ['Q1127']
+  Q1127: items=0 targets=0 mapping=0  state=None answer=Q1127-answer.png
+
+Page 514: ['Q1130']
+  Q1130: items=0 targets=2 mapping=1  state=Q1130-state.png answer=Q1130-answer.png
+    mapping: ['| | ff ÔÇö It It records su']
+
+Page 516: ['Q1132']
+  Q1132: items=0 targets=0 mapping=0  state=Q1132-state.png answer=Q1132-answer.png
+
+Page 518: ['Q1135']
+  Q1135: items=0 targets=0 mapping=2  state=None answer=Q1135-answer.png
+    mapping: ['__', 'eee eee']
+
+Page 522: ['Q1144']
+  Q1144: items=0 targets=1 mapping=2  state=Q1144-state.png answer=Q1144-answer.png
+    mapping: ['allows sites to be combin', 'sends packets to a group ']
+
+Page 524: ['Q1147']
+  Q1147: items=0 targets=0 mapping=1  state=None answer=Q1147-answer.png
+    mapping: ['best effort']
+
+Page 529: ['Q1153']
+  Q1153: items=1 targets=1 mapping=4  state=Q1153-state.png answer=Q1153-answer.png
+    drag: ['is used typically for DWD']
+    mapping: [') ) contains a conductor,', 'is typically used in smal', 'is typically used for DWD', 'eliminates distortion fro']
+
+Page 530: ['Q1155']
+  Q1155: items=0 targets=0 mapping=1  state=None answer=Q1155-answer.png
+    mapping: ['with new content from the']
+
+Page 534: ['Q1165']
+  Q1165: items=0 targets=1 mapping=2  state=Q1165-state.png answer=Q1165-answer.png
+    mapping: ['| | is Is easy to by tap ', '| transmits data of up to']
+
+Page 535: ['Q1170']
+  Q1170: items=0 targets=2 mapping=1  state=Q1170-state.png answer=Q1170-answer.png
+    mapping: ['| allows sites to be comb']
+
+Page 540: ['Q1188']
+  Q1188: items=0 targets=0 mapping=0  state=Q1188-state.png answer=Q1188-answer.png
+
+Page 542: ['Q1190']
+  Q1190: items=3 targets=2 mapping=6  state=Q1190-state.png answer=Q1190-answer.png
+    drag: ['eee eee', 'allows sites to be combin', 'has 2 unicast source sent']
+    mapping: ['que Local', 'may be used by multiple o', 'allows sites to be combin', 'ticast', 'cannot be used as a sourc', 'has a unicast source sent']
+
+Page 568: ['Q1256']
+  Q1256: items=1 targets=1 mapping=3  state=Q1256-state.png answer=Q1256-answer.png
+    drag: ['a |']
+    mapping: ['communications', 'without address conflicts', 'on the internet']
+
+Page 571: ['Q1263']
+  Q1263: items=0 targets=0 mapping=2  state=Q1263-state.png answer=Q1263-answer.png
+    mapping: ['organizations at the same', 'same way as IPv4 addresse']
+
+Page 572: ['Q1267']
+  Q1267: items=0 targets=1 mapping=2  state=Q1267-state.png answer=Q1267-answer.png
+    mapping: ['obtain secure information', 'a using pulses of light |']
+
+Page 580: ['Q1289']
+  Q1289: items=0 targets=1 mapping=3  state=Q1289-state.png answer=Q1289-answer.png
+    mapping: ['addresses in IGP', 'a single link', 'sent to a group']
+
+Page 581: ['Q1292']
+  Q1292: items=0 targets=0 mapping=0  state=Q1292-state.png answer=Q1292-answer.png
+
+Page 586: ['Q1325']
+  Q1325: items=2 targets=2 mapping=3  state=Q1325-state.png answer=Q1325-answer.png
+    drag: ['ae', 'eee']
+    mapping: ['private IPv4 addresses', 'organizations at the same', 'communications']
+
+Page 587: ['Q1327']
+  Q1327: items=0 targets=0 mapping=1  state=None answer=Q1327-answer.png
+    mapping: ['a _ ÔÇö']
+
+=== Done: 24/84 questions with full interactive data ===

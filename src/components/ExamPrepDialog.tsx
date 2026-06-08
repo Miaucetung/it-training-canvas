@@ -16,6 +16,8 @@ import {
   BookOpen,
   CheckCircle,
   Clock,
+  DotsSixVertical,
+  Eye,
   FireSimple,
   Gauge,
   ListChecks,
@@ -45,6 +47,12 @@ interface ExamQuestion {
   needsExhibit: boolean;
   sourcePage: number;
   needsReview: boolean;
+  // Drag-drop specific (from OCR extraction)
+  dragItems?: string[];
+  dropTargets?: string[];
+  correctMapping?: string[];  // correctMapping[i] = correct item for dropTargets[i]
+  questionStateImage?: string | null;  // before answering
+  answerStateImage?: string | null;    // after answering (correct answer shown)
 }
 
 interface SessionResult {
@@ -105,6 +113,42 @@ function saveWeakIds(ids: Set<string>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
 }
 
+// ── Drag-drop helpers ────────────────────────────────────────
+/** Loose match: does the user's choice approximate the correct answer? */
+function fuzzyMatch(userText: string, correctText: string): boolean {
+  const u = userText.toLowerCase().replace(/[^a-z0-9]/g, " ").trim();
+  const c = correctText.toLowerCase().replace(/[^a-z0-9]/g, " ").trim();
+  if (!u || !c) return false;
+  // exact
+  if (u === c) return true;
+  // containment (at least 10 chars match)
+  const minLen = 10;
+  const short = u.length < c.length ? u : c;
+  const long = u.length < c.length ? c : u;
+  if (short.length >= minLen && long.includes(short)) return true;
+  // word-overlap >= 60%
+  const uWords = u.split(/\s+/).filter((w) => w.length > 2);
+  const cWords = c.split(/\s+/).filter((w) => w.length > 2);
+  if (uWords.length === 0 || cWords.length === 0) return false;
+  const overlap = uWords.filter((w) => cWords.includes(w)).length;
+  return overlap / Math.max(uWords.length, cWords.length) >= 0.6;
+}
+
+/** Score a drag-drop submission: returns fraction of correct slot assignments */
+function scoreDragDrop(
+  userSlots: (string | null)[],
+  correctMapping: string[],
+): number {
+  let correct = 0;
+  const total = correctMapping.filter((m) => m).length;
+  if (total === 0) return 0;
+  correctMapping.forEach((expected, i) => {
+    const placed = userSlots[i];
+    if (expected && placed && fuzzyMatch(placed, expected)) correct++;
+  });
+  return total > 0 ? correct / total : 0;
+}
+
 // ─── Sub-components ──────────────────────────────────────────
 function ExhibitImage({ src, dark }: { src: string; dark: boolean }) {
   const [failed, setFailed] = useState(false);
@@ -150,11 +194,273 @@ function CategoryBadge({ category, dark }: { category: string; dark: boolean }) 
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{category}</span>;
 }
 
+// ─── Drag-Drop Card ──────────────────────────────────────────
+interface DragDropCardProps {
+  question: ExamQuestion;
+  userSlots: (string | null)[];
+  onUpdateSlots: (slots: (string | null)[]) => void;
+  revealed: boolean;
+  dark: boolean;
+}
+
+function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: DragDropCardProps) {
+  const base = dark
+    ? "bg-zinc-800 border-zinc-700 text-zinc-200"
+    : "bg-white border-zinc-200 text-zinc-800";
+
+  const items = question.dragItems ?? [];
+  const targets = question.dropTargets ?? [];
+  const correctMapping = question.correctMapping ?? [];
+  const hasInteractive = items.length >= 2 && targets.length >= 1;
+
+  // draggedItem: text of currently dragged item
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  // Items still in the pool (not placed in any slot)
+  const placedItems = new Set(userSlots.filter(Boolean) as string[]);
+  const poolItems = items.filter((item) => !placedItems.has(item));
+
+  function handleDragStart(item: string) {
+    setDraggedItem(item);
+  }
+
+  function handleDropOnSlot(slotIdx: number) {
+    if (!draggedItem || revealed) return;
+    const next = [...userSlots];
+    // If this item was already placed somewhere else, remove it
+    const prevIdx = next.indexOf(draggedItem);
+    if (prevIdx !== -1) next[prevIdx] = null;
+    next[slotIdx] = draggedItem;
+    onUpdateSlots(next);
+    setDraggedItem(null);
+  }
+
+  function handleDropOnPool() {
+    if (!draggedItem || revealed) return;
+    const next = [...userSlots];
+    const prevIdx = next.indexOf(draggedItem);
+    if (prevIdx !== -1) next[prevIdx] = null;
+    onUpdateSlots(next);
+    setDraggedItem(null);
+  }
+
+  function handleRemoveFromSlot(slotIdx: number) {
+    if (revealed) return;
+    const next = [...userSlots];
+    next[slotIdx] = null;
+    onUpdateSlots(next);
+  }
+
+  const score = revealed ? scoreDragDrop(userSlots, correctMapping) : null;
+
+  if (!hasInteractive) {
+    // Image-only fallback: show question-state + toggle answer image
+    return (
+      <div className={`rounded-xl border p-4 shadow-sm ${base}`}>
+        <p className="mb-3 text-sm font-medium text-fuchsia-500">Drag &amp; Drop</p>
+        {question.questionStateImage && (
+          <div className="mb-3">
+            <p className={`mb-1 text-xs ${dark ? "text-zinc-500" : "text-zinc-400"}`}>Aufgabe:</p>
+            <ExhibitImage
+              src={`/exam-images/${question.questionStateImage}`}
+              dark={dark}
+            />
+          </div>
+        )}
+        {(question.exhibitImages ?? []).filter((img) =>
+          img !== question.questionStateImage && img !== question.answerStateImage
+        ).map((img) => (
+          <ExhibitImage key={img} src={`/exam-images/${img}`} dark={dark} />
+        ))}
+        {(question.answerStateImage || revealed) && (
+          <>
+            <button
+              onClick={() => setShowAnswer((v) => !v)}
+              className={`mt-3 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs ${
+                dark ? "border-zinc-600 text-zinc-400 hover:bg-zinc-700" : "border-zinc-300 text-zinc-500 hover:bg-zinc-100"
+              }`}
+            >
+              <Eye size={14} />
+              {showAnswer ? "Antwort verbergen" : "Antwort anzeigen"}
+            </button>
+            {showAnswer && question.answerStateImage && (
+              <div className="mt-3">
+                <p className={`mb-1 text-xs ${dark ? "text-zinc-500" : "text-zinc-400"}`}>Korrekte Antwort:</p>
+                <ExhibitImage
+                  src={`/exam-images/${question.answerStateImage}`}
+                  dark={dark}
+                />
+              </div>
+            )}
+          </>
+        )}
+        {!question.questionStateImage && !question.answerStateImage && (
+          <div className={`rounded-lg border border-dashed p-4 text-sm ${
+            dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
+          }`}>
+            Drag &amp; Drop — Antwort im PDF-Exhibit sichtbar (Seite {question.sourcePage}).
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-xl border p-4 shadow-sm ${base}`}>
+      <p className="mb-2 text-sm font-medium text-fuchsia-500">Drag &amp; Drop</p>
+
+      {/* Question exhibit image if present */}
+      {question.questionStateImage && !revealed && (
+        <div className="mb-3">
+          <ExhibitImage src={`/exam-images/${question.questionStateImage}`} dark={dark} />
+        </div>
+      )}
+
+      {revealed && question.answerStateImage && (
+        <div className="mb-3">
+          <p className={`mb-1 text-xs font-medium ${dark ? "text-zinc-400" : "text-zinc-500"}`}>Korrekte Lösung:</p>
+          <ExhibitImage src={`/exam-images/${question.answerStateImage}`} dark={dark} />
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        {/* Left: drag source pool */}
+        <div className="w-2/5">
+          <p className={`mb-2 text-xs font-semibold uppercase tracking-wide ${
+            dark ? "text-zinc-500" : "text-zinc-400"
+          }`}>Items</p>
+          <div
+            className={`min-h-20 rounded-lg border border-dashed p-2 ${
+              dark ? "border-zinc-600" : "border-zinc-300"
+            }`}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDropOnPool}
+          >
+            {poolItems.map((item) => (
+              <div
+                key={item}
+                draggable={!revealed}
+                onDragStart={() => handleDragStart(item)}
+                className={`mb-1.5 flex cursor-grab items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs active:cursor-grabbing ${
+                  revealed
+                    ? dark ? "border-zinc-600 bg-zinc-700 opacity-60" : "border-zinc-200 bg-zinc-100 opacity-60"
+                    : dark
+                    ? "border-zinc-500 bg-zinc-700 hover:border-zinc-300"
+                    : "border-zinc-200 bg-white hover:border-zinc-400"
+                }`}
+              >
+                <DotsSixVertical size={12} className="shrink-0 opacity-40" />
+                <span className="leading-tight">{item}</span>
+              </div>
+            ))}
+            {poolItems.length === 0 && !revealed && (
+              <p className={`text-center text-xs ${
+                dark ? "text-zinc-600" : "text-zinc-400"
+              }`}>Alle Items platziert</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right: drop targets */}
+        <div className="w-3/5">
+          <p className={`mb-2 text-xs font-semibold uppercase tracking-wide ${
+            dark ? "text-zinc-500" : "text-zinc-400"
+          }`}>Ziele</p>
+          <div className="flex flex-col gap-2">
+            {targets.map((target, i) => {
+              const placed = userSlots[i] ?? null;
+              const expectedItem = correctMapping[i] ?? null;
+              const isCorrect = revealed && placed !== null && expectedItem !== null && fuzzyMatch(placed, expectedItem);
+              const isWrong = revealed && placed !== null && expectedItem !== null && !fuzzyMatch(placed, expectedItem);
+              const isMissed = revealed && placed === null && expectedItem !== null;
+
+              return (
+                <div key={i} className="flex items-stretch gap-2">
+                  {/* Target description */}
+                  <div className={`flex-1 rounded-lg border px-2 py-1.5 text-xs leading-tight ${
+                    dark ? "border-zinc-600 bg-zinc-700/50 text-zinc-300" : "border-zinc-200 bg-zinc-50 text-zinc-600"
+                  }`}>
+                    {target}
+                  </div>
+                  {/* Drop slot */}
+                  <div
+                    onDragOver={(e) => { if (!revealed) e.preventDefault(); }}
+                    onDrop={() => handleDropOnSlot(i)}
+                    className={`w-36 shrink-0 rounded-lg border-2 border-dashed transition-colors ${
+                      isCorrect
+                        ? "border-green-400 bg-green-500/10"
+                        : isWrong
+                        ? "border-red-400 bg-red-500/10"
+                        : isMissed
+                        ? "border-yellow-400 bg-yellow-500/10"
+                        : placed
+                        ? dark ? "border-sky-500 bg-sky-900/30" : "border-sky-400 bg-sky-50"
+                        : dark ? "border-zinc-600 bg-zinc-700/20" : "border-zinc-300 bg-zinc-50"
+                    }`}
+                  >
+                    {placed ? (
+                      <div
+                        draggable={!revealed}
+                        onDragStart={() => handleDragStart(placed)}
+                        className="flex h-full min-h-9 cursor-grab items-center justify-between gap-1 px-2 py-1 active:cursor-grabbing"
+                      >
+                        <span className="text-xs leading-tight">{placed}</span>
+                        {!revealed && (
+                          <button
+                            onClick={() => handleRemoveFromSlot(i)}
+                            className="shrink-0 opacity-40 hover:opacity-100"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                        {isCorrect && <CheckCircle size={14} className="shrink-0 text-green-500" />}
+                        {isWrong && <XCircle size={14} className="shrink-0 text-red-500" />}
+                      </div>
+                    ) : (
+                      <div className="flex min-h-9 items-center justify-center">
+                        {isMissed ? (
+                          <span className="px-2 text-center text-xs text-yellow-500">{expectedItem}</span>
+                        ) : (
+                          <span className={`text-xs ${
+                            dark ? "text-zinc-600" : "text-zinc-400"
+                          }`}>←</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Score feedback */}
+      {revealed && score !== null && (
+        <div className={`mt-4 rounded-lg p-3 text-sm ${
+          score >= 0.8
+            ? dark ? "bg-green-900/30 text-green-300" : "bg-green-50 text-green-700"
+            : score >= 0.5
+            ? dark ? "bg-yellow-900/30 text-yellow-300" : "bg-yellow-50 text-yellow-700"
+            : dark ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-700"
+        }`}>
+          {score >= 0.8 ? "✓ " : "✗ "}
+          <span className="font-semibold">{Math.round(score * 100)}% korrekt</span>
+          {score < 1 && " — Gelbe Slots zeigen die fehlenden richtigen Antworten"}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Question Card ────────────────────────────────────────────
 interface QuestionCardProps {
   question: ExamQuestion;
   userAnswer: string[];
   onToggle: (letter: string) => void;
+  userSlots: (string | null)[];
+  onUpdateSlots: (slots: (string | null)[]) => void;
   revealed: boolean;
   dark: boolean;
   index: number;
@@ -165,6 +471,8 @@ function QuestionCard({
   question,
   userAnswer,
   onToggle,
+  userSlots,
+  onUpdateSlots,
   revealed,
   dark,
   index,
@@ -177,6 +485,10 @@ function QuestionCard({
   const correct = question.correctAnswer;
   const isMulti = question.type === "multi-select" || (correct && correct.length > 1);
   const isDragDrop = question.type === "drag-drop";
+  const hasInteractiveDragDrop =
+    isDragDrop &&
+    (question.dragItems?.length ?? 0) >= 2 &&
+    (question.dropTargets?.length ?? 0) >= 1;
 
   function optionCls(letter: string): string {
     const selected = userAnswer.includes(letter);
@@ -241,8 +553,16 @@ function QuestionCard({
       {/* Question text */}
       <p className="mb-4 text-base leading-relaxed">{question.text}</p>
 
-      {/* Options */}
-      {question.options.length > 0 && !isDragDrop ? (
+      {/* Options or Drag-Drop */}
+      {isDragDrop ? (
+        <DragDropCard
+          question={question}
+          userSlots={userSlots}
+          onUpdateSlots={onUpdateSlots}
+          revealed={revealed}
+          dark={dark}
+        />
+      ) : question.options.length > 0 ? (
         <div className="flex flex-col gap-2">
           {question.options.map((opt) => (
             <button
@@ -272,14 +592,6 @@ function QuestionCard({
             </button>
           ))}
         </div>
-      ) : isDragDrop ? (
-        <div
-          className={`rounded-lg border border-dashed p-4 text-sm ${
-            dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
-          }`}
-        >
-          Drag &amp; Drop — Antwort im Exhibit sichtbar. Nutze das Bild oben zur Orientierung.
-        </div>
       ) : (
         <div
           className={`rounded-lg border border-dashed p-4 text-sm ${
@@ -290,7 +602,7 @@ function QuestionCard({
         </div>
       )}
 
-      {/* Revealed feedback */}
+      {/* Revealed feedback (MC only — drag-drop has its own) */}
       {revealed && correct && question.options.length > 0 && !isDragDrop && (
         <div
           className={`mt-4 rounded-lg p-3 text-sm ${
@@ -422,6 +734,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const [timeLeft, setTimeLeft] = useState(EXAM_TIME_SECONDS);
   const [examFinished, setExamFinished] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [dragDropSlots, setDragDropSlots] = useState<Map<string, (string | null)[]>>(new Map());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Load questions from public/exam-questions.json
@@ -465,15 +778,20 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     return ["all", ...Array.from(cats).sort()];
   }, [questions]);
 
-  // Filtered pool
+  // Filtered pool: MC questions (existing filter) + drag-drop questions with images or items
   const filteredPool = useMemo(() => {
     let pool = questions.filter(
       (q) =>
-        q.options.length > 0 &&
-        q.type !== "drag-drop" &&
-        q.correctAnswer !== null &&
-        q.correctAnswer.length > 0 &&
-        !q.needsReview
+        ((q.options.length > 0 &&
+          q.type !== "drag-drop" &&
+          q.correctAnswer !== null &&
+          q.correctAnswer.length > 0 &&
+          !q.needsReview) ||
+         (q.type === "drag-drop" &&
+          ((q.dragItems?.length ?? 0) >= 2 ||
+           q.questionStateImage != null ||
+           q.answerStateImage != null ||
+           q.exhibitImages.length > 0)))
     );
     if (selectedCategory !== "all") {
       pool = pool.filter((q) => q.category === selectedCategory);
@@ -486,6 +804,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setSessionQ(pool);
     setQIndex(0);
     setUserAnswers(new Map());
+    setDragDropSlots(new Map());
     setRevealed(new Set());
     setResults([]);
     setMode("learn");
@@ -496,6 +815,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setSessionQ(pool);
     setQIndex(0);
     setUserAnswers(new Map());
+    setDragDropSlots(new Map());
     setRevealed(new Set());
     setResults([]);
     setTimeLeft(EXAM_TIME_SECONDS);
@@ -506,7 +826,9 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   function startDrill() {
     const pool = shuffle(
       questions.filter(
-        (q) => weakIds.has(q.id) && q.options.length > 0 && q.type !== "drag-drop"
+        (q) => weakIds.has(q.id) &&
+          (q.options.length > 0 ||
+           (q.type === "drag-drop" && ((q.dragItems?.length ?? 0) >= 2 || q.questionStateImage != null)))
       )
     );
     if (pool.length === 0) {
@@ -516,6 +838,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setSessionQ(pool);
     setQIndex(0);
     setUserAnswers(new Map());
+    setDragDropSlots(new Map());
     setRevealed(new Set());
     setResults([]);
     setMode("drill");
@@ -546,29 +869,33 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     const q = sessionQ[qIndex];
     if (!q) return;
     setRevealed((prev) => new Set([...prev, q.id]));
-    const ua = userAnswers.get(q.id) ?? [];
-    const ca = q.correctAnswer ?? [];
-    const isCorrect = ca.length > 0 && answersEqual(ua, ca);
+
+    let isCorrect = false;
+    let ua: string[] = [];
+    let ca: string[] = [];
+
+    if (q.type === "drag-drop") {
+      const slots = dragDropSlots.get(q.id) ?? [];
+      const mapping = q.correctMapping ?? [];
+      const score = scoreDragDrop(slots, mapping);
+      isCorrect = score >= 0.8;
+      // encode drag-drop answer as sorted placed items
+      ua = slots.filter(Boolean) as string[];
+      ca = mapping.filter(Boolean);
+    } else {
+      ua = userAnswers.get(q.id) ?? [];
+      ca = q.correctAnswer ?? [];
+      isCorrect = ca.length > 0 && answersEqual(ua, ca);
+    }
+
     setResults((prev) => {
-      // avoid duplicates
       if (prev.find((r) => r.questionId === q.id)) return prev;
       return [...prev, { questionId: q.id, correct: isCorrect, userAnswer: ua, correctAnswer: ca }];
     });
-    // Track weak questions
-    if (!isCorrect && ca.length > 0) {
-      setWeakIds((prev) => {
-        const next = new Set(prev);
-        next.add(q.id);
-        saveWeakIds(next);
-        return next;
-      });
-    } else if (isCorrect) {
-      setWeakIds((prev) => {
-        const next = new Set(prev);
-        next.delete(q.id);
-        saveWeakIds(next);
-        return next;
-      });
+    if (!isCorrect) {
+      setWeakIds((prev) => { const next = new Set(prev); next.add(q.id); saveWeakIds(next); return next; });
+    } else {
+      setWeakIds((prev) => { const next = new Set(prev); next.delete(q.id); saveWeakIds(next); return next; });
     }
   }
 
@@ -586,10 +913,20 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
   function finishExam() {
     if (mode === "exam") {
-      // Auto-score all unanswered
       const finalResults: SessionResult[] = sessionQ.map((q) => {
         const existing = results.find((r) => r.questionId === q.id);
         if (existing) return existing;
+        if (q.type === "drag-drop") {
+          const slots = dragDropSlots.get(q.id) ?? [];
+          const mapping = q.correctMapping ?? [];
+          const score = scoreDragDrop(slots, mapping);
+          return {
+            questionId: q.id,
+            correct: score >= 0.8,
+            userAnswer: slots.filter(Boolean) as string[],
+            correctAnswer: mapping.filter(Boolean),
+          };
+        }
         const ua = userAnswers.get(q.id) ?? [];
         const ca = q.correctAnswer ?? [];
         const isCorrect = ca.length > 0 && answersEqual(ua, ca);
@@ -605,8 +942,18 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const headerBg = dark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-50 border-zinc-200";
   const currentQ = sessionQ[qIndex];
   const currentAnswer = currentQ ? (userAnswers.get(currentQ.id) ?? []) : [];
+  const currentSlots = currentQ ? (dragDropSlots.get(currentQ.id) ?? []) : [];
   const isRevealed = currentQ ? revealed.has(currentQ.id) : false;
-  const canReveal = currentAnswer.length > 0 && !isRevealed;
+  const isDragDropQ = currentQ?.type === "drag-drop";
+  const dragDropHasInput =
+    isDragDropQ &&
+    (currentSlots.some(Boolean) ||
+      // image-only drag-drop: always allow reveal
+      ((currentQ?.dragItems?.length ?? 0) < 2 &&
+        (currentQ?.questionStateImage != null || currentQ?.exhibitImages.length > 0)));
+  const canReveal =
+    !isRevealed &&
+    (isDragDropQ ? dragDropHasInput : currentAnswer.length > 0);
   const progress = sessionQ.length > 0 ? (qIndex / sessionQ.length) * 100 : 0;
   const answeredCount = results.length;
 
@@ -738,14 +1085,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                   {categories
                     .filter((c) => c !== "all")
                     .map((c) => {
-                      const cnt = questions.filter(
-                        (q) =>
-                          q.category === c &&
-                          q.options.length > 0 &&
-                          q.type !== "drag-drop" &&
-                          q.correctAnswer !== null &&
-                          !q.needsReview
-                      ).length;
+                      const cnt = filteredPool.filter((q) => q.category === c).length;
                       return (
                         <option key={c} value={c}>
                           {c} ({cnt} Fragen)
@@ -813,6 +1153,14 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                 question={currentQ}
                 userAnswer={currentAnswer}
                 onToggle={toggleAnswer}
+                userSlots={currentSlots}
+                onUpdateSlots={(slots) => {
+                  setDragDropSlots((prev) => {
+                    const next = new Map(prev);
+                    next.set(currentQ.id, slots);
+                    return next;
+                  });
+                }}
                 revealed={isRevealed || examFinished}
                 dark={dark}
                 index={qIndex}
@@ -837,10 +1185,11 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                   {mode !== "exam" && !isRevealed && (
                     <button
                       onClick={revealAnswer}
-                      disabled={currentAnswer.length === 0}
+                      disabled={!canReveal}
                       className="flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      <CheckCircle size={16} /> Prüfen
+                      <CheckCircle size={16} />
+                      {isDragDropQ ? "Auflösen" : "Prüfen"}
                     </button>
                   )}
                   {mode === "exam" && (

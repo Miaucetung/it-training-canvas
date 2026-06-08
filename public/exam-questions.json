@@ -80,7 +80,21 @@
     ],
     "needsExhibit": false,
     "sourcePage": 2,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "provides reliability upon when boot loading up an IOS image",
+      "does not require user authentication",
+      "uses port 69",
+      "uses ports 20 and 21"
+    ],
+    "dropTargets": [
+      "FTP",
+      "uses ports 20 and 21",
+      "provides reliability upon when boot loading up an lOS image | TFIP —————————— SSS uses SSS TCP"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0003-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0004",
@@ -130,7 +144,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 3,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q0005-state.png",
+    "answerStateImage": "Q0005-answer.png"
   },
   {
     "id": "Q0006",
@@ -344,7 +363,12 @@
     ],
     "needsExhibit": true,
     "sourcePage": 6,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q0012-state.png",
+    "answerStateImage": "Q0012-answer.png"
   },
   {
     "id": "Q0013",
@@ -4113,7 +4137,22 @@
     ],
     "needsExhibit": true,
     "sourcePage": 47,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "ISP a, i1/0",
+      "GiLo . DC-1 Sa Gil/1 / Gil2",
+      "a5"
+    ],
+    "dropTargets": [
+      "cin & <= HQ-1 == a Gil/3",
+      "HQ-SW1 ra |",
+      "Administrator"
+    ],
+    "correctMapping": [
+      "|ip address 192.168.3.14 255.255.255.240 _|"
+    ],
+    "questionStateImage": "Q0132-state.png",
+    "answerStateImage": "Q0132-answer.png"
   },
   {
     "id": "Q0133",
@@ -4162,7 +4201,23 @@
     ],
     "needsExhibit": false,
     "sourcePage": 48,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "2001:DB8::bced:1234:456d -aacc",
+      "153-3992-a1 FD00:0000-0000-1a2d-a Qd-ccca.",
+      "FE80--abcdffiff-42de-3992 :",
+      "FFO5::23:becf:22:1111"
+    ],
+    "dropTargets": [
+      "only multicast locally within address the used site is address created enabled on that a on is link an when automatically interface IPv6 from address routing that to is the prohibited Internet reserved address for that purposes is unique documentation and"
+    ],
+    "correctMapping": [
+      ". cere. . 12de:3992",
+      "FD00:0000:0000:1a2d:a 153:3992:a19d:-ccca",
+      "2001:DB8::bced:1234:456d “aacc"
+    ],
+    "questionStateImage": "Q0134-state.png",
+    "answerStateImage": "Q0134-answer.png"
   },
   {
     "id": "Q0135",
@@ -4522,7 +4577,23 @@
     ],
     "needsExhibit": false,
     "sourcePage": 54,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "[om",
+      "CNAME",
+      "NS",
+      "SOA"
+    ],
+    "dropTargets": [
+      "aliases one name to",
+      "serial associates number the with its domain owner",
+      "correlates authoritative a name domain with servers its",
+      "correlates a host name",
+      "supports lookups reverse name"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0148-state.png",
+    "answerStateImage": "Q0148-answer.png"
   },
   {
     "id": "Q0149",
@@ -5322,7 +5393,22 @@
     ],
     "needsExhibit": false,
     "sourcePage": 65,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "distribution system",
+      "infrastructure mode",
+      "extended service set"
+    ],
+    "correctMapping": [
+      "from Wi-Fi are different option linked in access which together cells points",
+      "directly or Wi-Fi more without option clients a that to central enables communicate access two point",
+      "WI-FI or option more based access around points one",
+      "that identifies alphanumeric a wireless text string network",
+      "and entire the wireless linkage cell to of the an wired access network point"
+    ],
+    "questionStateImage": "Q0176-state.png",
+    "answerStateImage": "Q0176-answer.png"
   },
   {
     "id": "Q0177",
@@ -5503,7 +5589,22 @@
     ],
     "needsExhibit": true,
     "sourcePage": 67,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "Inspiron15",
+      "Mixed",
+      "12:",
+      "Media disconnected",
+      "Yes Yes Microsoft 1A-76-3F-7C-57-DF Wi-Fi Direct Virtual Adapter",
+      "Dell B8-76-3F-7C-57-DF Wireless 1703 802.11b/g/n <2.4GHz>",
+      "Yes 6255.255.255.0 192.168.1.20<Preferred> fe80::e09f:9839:6e86:£755%12<Preferred>",
+      "263747135 00-01-00-01-18-E6-32-43-B8-76-3F-7C-57-DF",
+      "Enabled 192.168.1.15 192.168.1.16"
+    ],
+    "questionStateImage": "Q0182-state.png",
+    "answerStateImage": "Q0182-answer.png"
   },
   {
     "id": "Q0183",
@@ -8039,7 +8140,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 97,
-    "needsReview": false
+    "needsReview": false,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "HQ_DC3992-38488"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0260-answer.png"
   },
   {
     "id": "Q0262",
@@ -13015,7 +13123,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 174,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "IP address",
+      "OSPF process ID"
+    ],
+    "dropTargets": [
+      "must be unique"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0416-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0417",
@@ -15171,7 +15289,20 @@
     ],
     "needsExhibit": true,
     "sourcePage": 210,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "= Internet 2 — \\ MPLS 2 a Router1 Routert#show of Gateway last ip resort is route 10.10.11.2 to network Cc Cc Cc B B B [e) fe) 10) oO oO S* =. =: =: 209 10.0.0.0/8 0.0.0.0/0 10.10.13. 209.165.200.0/27 209.165.202.0/27 10.10.10.0/28 10.10.11.0/30 10.10.12.0/30 10.10.13.0/25 165.201.0/27 209.165.200.224 209.165.202.128 10.10.13.208/29 is [1/0] 144/28 variably via ts is is is is is [20/0] [110/2] directly directly [20/0] [20/0] directly [110/2] [110/2] [110/2] [110/2] 10.10.11.2 via subnetted, subnetted, subnetted, via subnetted, via via via via via via 1 1 1 connected, connected, connected, 8 10.10.12.2, 10.10.10.1, 10.10.12 10.10.12.2, 10.10.10.1, 10.10.10.1, 10.10.10.1, 10.10.10.1, subnets subnets subnets subnets, 2,"
+    ],
+    "dropTargets": [
+      "Switch1 Host 10.10.13.214 A",
+      "0.0.0.0",
+      "03:22:14",
+      "02:26:33",
+      "4 00:00:04, 02:26:03 FastEthemet2/0 00:00:04, 00:00:04, 00:00:04, 00:00:04, GigabitEthernet0/1 GigabitEthernet0/0 masks GigabitEthernet0/0 GigabitEthernet0/0 GigabitEthemet0/0 GigabitEthernet0/0 GigabitEthernet0/0"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0480-state.png",
+    "answerStateImage": "Q0480-answer.png"
   },
   {
     "id": "Q0481",
@@ -16590,7 +16721,18 @@
     ],
     "needsExhibit": false,
     "sourcePage": 233,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "SNMP"
+    ],
+    "dropTargets": [
+      "Connection Oriented",
+      "SSH | Connectionless",
+      "VoIP | |"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0523-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0524",
@@ -16944,7 +17086,26 @@
     "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 236,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "resolves web URLs to IP addresses",
+      "assigns a default gateway to a client",
+      "holds the TCP/IP settings clients to be distributed to the",
+      "stores a list of IP addresses mapped to names",
+      "assigns IP addresses to enabled clients"
+    ],
+    "dropTargets": [
+      "DHCP Server",
+      "assigns a default gateway to a client",
+      "holds the TCP/IP settings SEIS to be distributed to the",
+      "assigns IP addresses to enabled clients",
+      "DNS Server",
+      "resolves web URLs to IP addresses",
+      "stores a list of IP addresses mapped to names"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0534-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0535",
@@ -17299,7 +17460,25 @@
     ],
     "needsExhibit": false,
     "sourcePage": 239,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "SNMP agent",
+      "SNMP manager",
+      "SNMP trap"
+    ],
+    "dropTargets": [
+      "collection of variables that can be monitored",
+      "unsolicited message",
+      "responds information to about status a device requests and requests for",
+      "resides on an NMS"
+    ],
+    "correctMapping": [
+      "SNMP trap",
+      "SNMP agent",
+      "SNMP manager"
+    ],
+    "questionStateImage": "Q0545-state.png",
+    "answerStateImage": "Q0545-answer.png"
   },
   {
     "id": "Q0546",
@@ -17504,7 +17683,27 @@
     ],
     "needsExhibit": true,
     "sourcePage": 242,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "ip address 172.16.1.1 255.255.255.0",
+      "ip address 45.83.2.214 255.255.255.240",
+      "ip nat overload inside source list 1 interface sO ip 80 nat 45.83.2.214 inside 80 source static extendable tcp 172.16.1.2"
+    ],
+    "dropTargets": [
+      "position A",
+      "position B",
+      "position wa: D",
+      "position wa: E"
+    ],
+    "correctMapping": [
+      "ip address 172.16.1.1 255.255.255.0",
+      "ip address 45.83.2.214 255.255.255.240",
+      "ip nat outside",
+      "ip 80 nat 45.83.2.214 inside 80 source static extendable tcp 172.16.1.2",
+      "ip nat overload inside source list 1 interface sO"
+    ],
+    "questionStateImage": "Q0552-state.png",
+    "answerStateImage": "Q0552-answer.png"
   },
   {
     "id": "Q0553",
@@ -18509,7 +18708,24 @@
     ],
     "needsExhibit": false,
     "sourcePage": 254,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "show snmp enginelD",
+      "show snmp group",
+      "show snmp host"
+    ],
+    "dropTargets": [
+      "displays information about",
+      "of the displays remote the IP SNMP address device",
+      "displays the model in SNMP use security",
+      "displays the string SNMP access",
+      "displays serial the SNMP number server"
+    ],
+    "correctMapping": [
+      "| show snmp chassis |"
+    ],
+    "questionStateImage": "Q0583-state.png",
+    "answerStateImage": "Q0583-answer.png"
   },
   {
     "id": "Q0584",
@@ -18589,7 +18805,26 @@
     ],
     "needsExhibit": false,
     "sourcePage": 256,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "cloud-based fair queueing weighted",
+      "Classification",
+      "g congestion",
+      "shaping"
+    ],
+    "dropTargets": [
+      "on the categorizes value of a packets traffic based descriptor",
+      "to an guarantees specific interface traffic minimum is classes congested bandwidth when",
+      "prevents the flow of congestion outbound by traffic reducing",
+      "outcome of overutilization",
+      "the uses transmission defined classes of of criteria traffic one to or limit more"
+    ],
+    "correctMapping": [
+      "classification",
+      "queueing"
+    ],
+    "questionStateImage": "Q0586-state.png",
+    "answerStateImage": "Q0586-answer.png"
   },
   {
     "id": "Q0587",
@@ -18638,7 +18873,29 @@
     ],
     "needsExhibit": false,
     "sourcePage": 257,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "event aggregation correlation and",
+      "fault detection .",
+      "fault diagnosis and isolation",
+      "bl VES luti IIT",
+      ": :"
+    ],
+    "dropTargets": [
+      "The intervene at administrator the source can of the manually fault.",
+      "The launches to network a restore management preconfigured functionality. script system",
+      "The from system related groups issues. alarms",
+      "or The performance service system interruption. identifies degradation",
+      "The system reports on the source"
+    ],
+    "correctMapping": [
+      "problem resolution",
+      "event aggregation correlation and",
+      "fault detection",
+      "fault diagnosis and isolation"
+    ],
+    "questionStateImage": "Q0588-state.png",
+    "answerStateImage": "Q0588-answer.png"
   },
   {
     "id": "Q0589",
@@ -18755,7 +19012,30 @@
     ],
     "needsExhibit": false,
     "sourcePage": 260,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "provides using local a control client-server for network scheme segments",
+      "uses authoritative servers for record keeping",
+      "maintains an address pool",
+      "associates hostnames to IP address",
+      "offers domain name server configuration",
+      "reduces the administrative burden for onboarding end users",
+      "assigns IP configurable addresses to lease local time hosts for a"
+    ],
+    "dropTargets": [
+      "function",
+      "function",
+      "function",
+      "function"
+    ],
+    "correctMapping": [
+      "maintains nie an address pool",
+      "provides using local a control client-server for network scheme segments",
+      "reduces the administrative burden for onboarding end users",
+      "assigns IP : configurable addresses to lease local time hosts for a"
+    ],
+    "questionStateImage": "Q0592-state.png",
+    "answerStateImage": "Q0592-answer.png"
   },
   {
     "id": "Q0593",
@@ -19473,7 +19753,27 @@
     ],
     "needsExhibit": false,
     "sourcePage": 269,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "controls the ; actions that a user can perform",
+      "provides analytical administrator information for the network",
+      "restricts the services that are available to a user",
+      "verifies the password associated with a user",
+      "identifies the user"
+    ],
+    "dropTargets": [
+      "Authentication | verifies the password associated with a user |",
+      "identifies the user",
+      "Authorization",
+      "controls the actions that a user can perform",
+      "restricts the services that are available to a user",
+      "Accounting",
+      "provides analytical administrator information for the network",
+      "records user activities |"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0614-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0615",
@@ -19557,7 +19857,23 @@
     "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 270,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "web policy :",
+      "Passthrough",
+      "WPA+WPA2",
+      "802.1X"
+    ],
+    "dropTargets": [
+      "| Layer 2 Security Mechanisms WPA+WPA2 |",
+      "802.1X",
+      "Layer 3 Security Mechanisms (for WLAN)",
+      "web policy",
+      "Passthrough"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0617-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0618",
@@ -19739,7 +20055,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 273,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": null,
+    "answerStateImage": "Q0623-answer.png"
   },
   {
     "id": "Q0624",
@@ -21113,7 +21434,24 @@
     ],
     "needsExhibit": false,
     "sourcePage": 290,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "It enables the device to allow user- or group-based|",
+      "It leverages to a a RADIUS reverse server Telnet to session. grant user access",
+      "It records accesses the the amount network of on time a for remote which a server. user",
+      "It restricts the CLI p erform. commands that a user can",
+      "It commands uses TACACS entered + by to a log network the configuration administrator.",
+      "It verifies the user access and to the password device. before granting"
+    ],
+    "dropTargets": [
+      "It records accesses the the amount network of on time a for remote which a server. user",
+      "It commands uses TACACS+ entered by to a log network the configuration administrator.",
+      "It leverages to a a RADIUS reverse server Telnet to session. grant user access",
+      "It restricts the CLI perform. commands that a user can"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0667-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0668",
@@ -22151,7 +22489,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 302,
-    "needsReview": false
+    "needsReview": false,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": null,
+    "answerStateImage": "Q0700-answer.png"
   },
   {
     "id": "Q0702",
@@ -22596,7 +22939,25 @@
     "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 307,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "focused on network Controller-Based",
+      "user input is a configuration uses user allow user input Is a policy Traditional",
+      "uses block list security model user",
+      "uses block"
+    ],
+    "dropTargets": [
+      "Networking",
+      "focused on network",
+      "input is a policy",
+      "list security model",
+      "Networking",
+      "input is a configuration",
+      "list security model"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0715-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0716",
@@ -25259,7 +25620,15 @@
     ],
     "needsExhibit": false,
     "sourcePage": 343,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "J Non-Overlapping pping Channels Po",
+      "eee 2) Non-Overlapping Channels"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0811-answer.png"
   },
   {
     "id": "Q0812",
@@ -27000,7 +27369,26 @@
     ],
     "needsExhibit": false,
     "sourcePage": 370,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "Appropriate for a small-business environment.",
+      "Work is divided between controller. the access point and the",
+      "The access points transmit beacon frames.",
+      "Supports per device configuration and management.",
+      "Uses the CAPWAP tunneling protocol."
+    ],
+    "dropTargets": [
+      "P Split-MAC",
+      "Work is divided between controller. the access point and the",
+      "Uses the CAPWAP tunneling protocol.",
+      "The access points transmit beacon frames.",
+      "Autonomous",
+      "Appropriate for a small-business environment.",
+      "Supports per device configuration and management."
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0868-state.png",
+    "answerStateImage": null
   },
   {
     "id": "Q0869",
@@ -27079,7 +27467,16 @@
     ],
     "needsExhibit": false,
     "sourcePage": 371,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "provides connection Wi-Fi to a wired devices network witha",
+      "used for out-of-band management",
+      "applied to the WLAN communication for wireless client"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0871-answer.png"
   },
   {
     "id": "Q0872",
@@ -27994,7 +28391,14 @@
     ],
     "needsExhibit": true,
     "sourcePage": 390,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "to network 0.0.0.0 10.10.12.2, connected, connected, connected, 10.10.10.1, 9 10.10.12.2, 10.10.12.2, 10.10.10.1, 10.10.10.1, 10.10.10.1, 10.10.10.1, 10.10.10.1, subnets subnets subnets subnets, 05:13:18 00:00:03, 4 05:12:48 06:08:59 00:00:03, 00:00:03, 00:00:04, 00:00:04, 00:00:04, FastEthernet2/0 GigabitEthernet0/1 GigabitEthernet0/0 masks GigabitEthernet0/0 GigabitEthernet0/0 GigabitEthernet0/0 GigabitEthernet0/0 GigabitEthernet0/0 GigabitEthernet0/0"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0900-answer.png"
   },
   {
     "id": "Q0901",
@@ -28145,7 +28549,16 @@
     ],
     "needsExhibit": false,
     "sourcePage": 394,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "Active",
+      "AEST",
+      "Standby"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0905-answer.png"
   },
   {
     "id": "Q0906",
@@ -28263,7 +28676,22 @@
     ],
     "needsExhibit": false,
     "sourcePage": 397,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "—- 7",
+      "Host 10.10.14.10/24 A R1 R2",
+      "10.10.10.0/30"
+    ],
+    "dropTargets": [
+      "yl ~~ |",
+      "R3 Host 10.10.13.10/25 B",
+      "10.10.10.4/30"
+    ],
+    "correctMapping": [
+      "R1 | R2 Po Po ="
+    ],
+    "questionStateImage": "Q0909-state.png",
+    "answerStateImage": "Q0909-answer.png"
   },
   {
     "id": "Q0910",
@@ -28851,7 +29279,31 @@
     ],
     "needsExhibit": true,
     "sourcePage": 407,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "Router2 Site B > wD =",
+      "Gateway Router2#show",
+      "Site A C C C O 10.0.0.0/8",
+      "C O",
+      "S* 0.0.0.0/0"
+    ],
+    "dropTargets": [
+      "Internet",
+      "of last ip resort is route 10.10.10.13 to network 0.0.0.0",
+      "10.10.10.8/30 10.10.13.0/25 10.10.13.144/28 is [1/0] [110/110] [110/110] [110/6576] [110/6576] variably via is is is is via via via via directly directly directly [110/6576] directly [110/110] 10.10.10.13 subnetted, 10.10.10.5, 10.10.10.1, 10.10.10.5, 10.10.10.1, via via connected, connected, connected, 6 connected, subnets, 10.10.10.9, 00:01:39, 00:01:38, 00:01:38, 00:01:38, 10.10.10.9, 3 FastEthernet0/1 FastEthernet0/3 FastEthernet0/2 FastEthernet0/4 masks 00:01:38, 00:01:39, FastEthernet0/1 FastEthernet0/2 FastEthernet0/1 FastEthernet0/2 FastEthernet0/3 FastEthernet0/3"
+    ],
+    "correctMapping": [
+      "Internet",
+      "10.10.10.16",
+      "SSS]",
+      "10.10.13.129",
+      "10.10.100.128",
+      "Router1",
+      "10.10.13.1",
+      "10.10.13.150"
+    ],
+    "questionStateImage": "Q0928-state.png",
+    "answerStateImage": "Q0928-answer.png"
   },
   {
     "id": "Q0929",
@@ -29073,7 +29525,14 @@
     ],
     "needsExhibit": true,
     "sourcePage": 411,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "subnetted, connected, connected, connected, connected, 5 207.165.200.250, 4 207.165.200.250, 207.165.200.250, 207.165.200.250, 207.165.200.250, subnets, subnets, Serial0/0/0 Serial0/0/0 Serial0/0/1 Serial0/0/1 5 2 masks 00:00:25, 00:00:25, 00:00:25, 00:00:25, 00:00:25, masks Serial0/0/0 Serial0/0/0 Serial0/0/0 Serial0/0/0 Serial0/0/0"
+    ],
+    "questionStateImage": "Q0936-state.png",
+    "answerStateImage": "Q0936-answer.png"
   },
   {
     "id": "Q0937",
@@ -29123,7 +29582,26 @@
     ],
     "needsExhibit": true,
     "sourcePage": 413,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "gx gf",
+      "10.10.10.0/24"
+    ],
+    "dropTargets": [
+      "Gets \\ ~"
+    ],
+    "correctMapping": [
+      "eBGP",
+      "The static route and EIGRP are down.",
+      "The static route and OSPF are down.",
+      "EIGRP",
+      "The static ; route and eBGP are down.",
+      "Static :",
+      "All protocols are up.",
+      "OSPF and eBGP are down."
+    ],
+    "questionStateImage": "Q0938-state.png",
+    "answerStateImage": "Q0938-answer.png"
   },
   {
     "id": "Q0939",
@@ -29506,7 +29984,16 @@
     "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 419,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "collection of can be uniquely interrogated identifiable over objects SNMP whose state",
+      "system that runs monitoring network nodes applications and controls",
+      "SNMP component and that network captures data and translates device"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0950-answer.png"
   },
   {
     "id": "Q0951",
@@ -29691,7 +30178,15 @@
     ],
     "needsExhibit": false,
     "sourcePage": 421,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "applies a maximum specific rate action of to packets packets is exceeded whenever the",
+      "group distributing reduces traffic them when congestion the by available holding bandwidth packets and allows the overall differentiate process of traffic using into specific categories criteria to"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0956-answer.png"
   },
   {
     "id": "Q0957",
@@ -29740,7 +30235,30 @@
     ],
     "needsExhibit": false,
     "sourcePage": 424,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "An endpoint submits a domain request name. for the IP address of a",
+      "The DNS submits a request to the domain DNS server.",
+      "The DNS receives a reply from the domain DNS server.",
+      "The DNS responds to the endpoint.",
+      "The DNS submits a request to a root DNS server."
+    ],
+    "dropTargets": [
+      "Step P 1",
+      "Step 2",
+      "Step 3",
+      "Step 4",
+      "Step 5"
+    ],
+    "correctMapping": [
+      "An endpoint submits a domain request name. for the IP address of a",
+      "The DNS submits a request to a root DNS server.",
+      "The DNS submits a request to the domain DNS server.",
+      "The DNS receives a reply from the domain DNS server.",
+      "The DNS responds to the endpoint."
+    ],
+    "questionStateImage": "Q0958-state.png",
+    "answerStateImage": "Q0958-answer.png"
   },
   {
     "id": "Q0959",
@@ -29795,7 +30313,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 425,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q0960-state.png",
+    "answerStateImage": "Q0960-answer.png"
   },
   {
     "id": "Q0961",
@@ -29877,7 +30400,20 @@
     ],
     "needsExhibit": false,
     "sourcePage": 427,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "ip domain list",
+      "ip domain lookup source-interface",
+      "ip host"
+    ],
+    "dropTargets": [
+      "enables the DNS server on the device",
+      "identifies a DNS server to provide lookup services",
+      "specifies the default host domain names to append to unqualified"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q0963-state.png",
+    "answerStateImage": "Q0963-answer.png"
   },
   {
     "id": "Q0964",
@@ -30099,7 +30635,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 431,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "attack 802.1q double-tagging VLAN-hopping",
+      "MAC flooding attack",
+      "man-in-the-middle spoofing attack",
+      "switch-spoofing VLAN-hopping attack"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0970-answer.png"
   },
   {
     "id": "Q0971",
@@ -30247,7 +30793,27 @@
     ],
     "needsExhibit": false,
     "sourcePage": 434,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "It grants access to network assets, such as FTP servers.",
+      "It restricts the CLI commands that a user is able to",
+      "It performs user validation via TACACS+.",
+      "It verifies “who you are”."
+    ],
+    "dropTargets": [
+      "4 Authentication Po",
+      "Authorization"
+    ],
+    "correctMapping": [
+      "4 Authentication",
+      "It performs user validation via TACACS+.",
+      "It verifies “who you are”.",
+      "Authorization",
+      "It grants access to network assets, such as FTP servers.",
+      "It restricts the CLI commands that a user is able to perform."
+    ],
+    "questionStateImage": "Q0975-state.png",
+    "answerStateImage": "Q0975-answer.png"
   },
   {
     "id": "Q0976",
@@ -30702,7 +31268,27 @@
     ],
     "needsExhibit": false,
     "sourcePage": 441,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "It assigns per-user attributes.",
+      "It reaches the CLI commands that a user is able to",
+      "It permits and derives login attempts.",
+      "It records the amount of network resources consumed by the user.",
+      "lt tracks the services that a user is using."
+    ],
+    "dropTargets": [
+      "Po",
+      "Authorization"
+    ],
+    "correctMapping": [
+      "It permits and derives login attempts.",
+      "It supports local, PPP, RADIUS, and TACACS+ options.",
+      "Authorization",
+      "It assigns per-user attributes.",
+      "It reaches the CLI commands that a user is able to perform."
+    ],
+    "questionStateImage": "Q0989-state.png",
+    "answerStateImage": "Q0989-answer.png"
   },
   {
     "id": "Q0990",
@@ -30786,7 +31372,15 @@
     ],
     "needsExhibit": false,
     "sourcePage": 443,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "Accountin oY",
+      "Authorization"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q0992-answer.png"
   },
   {
     "id": "Q0993",
@@ -31047,7 +31641,23 @@
     ],
     "needsExhibit": false,
     "sourcePage": 447,
-    "needsReview": false
+    "needsReview": false,
+    "dragItems": [
+      "communicates between the SDN controller and the application plane",
+      "communicates between the SDN controller and the data plane",
+      "supports network virtualization protocols",
+      "supports REST-based requirements",
+      "uses OpenFlow to control interface planes between the data and"
+    ],
+    "dropTargets": [],
+    "correctMapping": [
+      "supports automation",
+      "communicates between the SDN controller and the application plane",
+      "supports data sharing between systems",
+      "supports REST-based requirements"
+    ],
+    "questionStateImage": "Q1000-state.png",
+    "answerStateImage": "Q1000-answer.png"
   },
   {
     "id": "Q1002",
@@ -31256,7 +31866,15 @@
     ],
     "needsExhibit": false,
     "sourcePage": 450,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "Camels Fs elie",
+      "Fs Cisco DNA Center"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1008-answer.png"
   },
   {
     "id": "Q1009",
@@ -31558,7 +32176,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 454,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1018-state.png",
+    "answerStateImage": "Q1018-answer.png"
   },
   {
     "id": "Q1019",
@@ -31639,7 +32262,28 @@
     ],
     "needsExhibit": false,
     "sourcePage": 456,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "; ;",
+      "——",
+      "VLAN and HSRP configuration"
+    ],
+    "dropTargets": [
+      "Cisco DNA Center Po Po eee",
+      "Traditional"
+    ],
+    "correctMapping": [
+      "Cisco DNA Center",
+      "overlay and underlay configuration",
+      "routed access deployment",
+      "VXLAN and LISP configuration",
+      "Traditional",
+      "STP deployment",
+      "VLAN and HSRP configuration",
+      "configuration via console"
+    ],
+    "questionStateImage": "Q1021-state.png",
+    "answerStateImage": "Q1021-answer.png"
   },
   {
     "id": "Q1022",
@@ -31725,7 +32369,21 @@
     ],
     "needsExhibit": false,
     "sourcePage": 458,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "It uses multiple tools and applications to analyze and",
+      "It manages device configurations on a per-device basis.",
+      "It provides a single interface — for network security and Security is managed a near the eee perimeter of the network It supports CLI configuration templates to to multiple apply a devices. consistent lt uses and take NetFlow to appropriate analyze action potential on that security traffic. threats"
+    ],
+    "dropTargets": [
+      "Cisco DNA Center Device Po Ps eee Management Traditional Device Management"
+    ],
+    "correctMapping": [
+      "Cisco DNA Center Device Management It provides a single interface analytics. for network security and It supports CLI configuration templates to to multiple apply a devices. consistent It uses EUG) EMME NetFlow EE to PORES analyze potential EL security EUG: threats Traditional Device Management manages dev; device fi configurations fi on a per-device device basi basis.",
+      "Security is with managed firewalls. near the VPNs, perimeter and IPS. of the network It uses multiple troubleshoot tools and different applications types of to data. analyze and"
+    ],
+    "questionStateImage": "Q1024-state.png",
+    "answerStateImage": "Q1024-answer.png"
   },
   {
     "id": "Q1025",
@@ -31840,7 +32498,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 460,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "daemon that has determines updates when available the central authority model in which nodes the on an central as-needed server sends basis updates to easy-to-manage deployment scalability option that may lack device hardware that runs without embedded management features to automatically install or update deploy a configuration or"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1028-answer.png"
   },
   {
     "id": "Q1029",
@@ -32904,7 +33569,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 479,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1068-state.png",
+    "answerStateImage": "Q1068-answer.png"
   },
   {
     "id": "Q1069",
@@ -33288,7 +33958,26 @@
     ],
     "needsExhibit": false,
     "sourcePage": 484,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "———",
+      "is typically used for DWDM optical systems spanning long",
+      "eliminates distortion from overlapping light pulses"
+    ],
+    "dropTargets": [
+      "CO pper Pe",
+      "fe fiber"
+    ],
+    "correctMapping": [
+      "CO pper",
+      "contains a single solid conductor",
+      "is affected by electrical and magnetic interference",
+      "je fiber",
+      "is typically used for DWDM distances optical systems spanning long",
+      "eliminates distortion from overlapping light pulses"
+    ],
+    "questionStateImage": "Q1081-state.png",
+    "answerStateImage": "Q1081-answer.png"
   },
   {
     "id": "Q1082",
@@ -33438,7 +34127,25 @@
     ],
     "needsExhibit": false,
     "sourcePage": 487,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "contains a single solid conductor",
+      "is typically used for DWDM distances optical systems spanning long",
+      "uses a single wavelength of light"
+    ],
+    "dropTargets": [
+      "fe fiber"
+    ],
+    "correctMapping": [
+      "copper",
+      "contains a single solid conductor",
+      "transmits data in the form of electronic signals",
+      "gingl fe fiber",
+      "is typically used for DWDM distances optical systems spanning long",
+      "uses a single wavelength of light"
+    ],
+    "questionStateImage": "Q1086-state.png",
+    "answerStateImage": "Q1086-answer.png"
   },
   {
     "id": "Q1087",
@@ -33454,7 +34161,25 @@
     ],
     "needsExhibit": false,
     "sourcePage": 488,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "is typically used in small office applications",
+      "is typically used for internal datacenter connectivity",
+      "has increased attenuation over long distances"
+    ],
+    "dropTargets": [
+      "Itimode fiber"
+    ],
+    "correctMapping": [
+      "copper",
+      "is typically used in small office applications",
+      "Is comprised of shielded and unshielded twisted pairs",
+      "fiber",
+      "is typically used for internal datacenter connectivity",
+      "has increased attenuation over long distances"
+    ],
+    "questionStateImage": "Q1087-state.png",
+    "answerStateImage": "Q1087-answer.png"
   },
   {
     "id": "Q1088",
@@ -33470,7 +34195,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 489,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "ng single-mode fiber is ideal longer distances with little loss of integrity",
+      "copper",
+      "is not easily broken",
+      "contains a single solid conductor"
+    ],
+    "questionStateImage": "Q1088-state.png",
+    "answerStateImage": "Q1088-answer.png"
   },
   {
     "id": "Q1089",
@@ -33487,7 +34222,25 @@
     ],
     "needsExhibit": false,
     "sourcePage": 490,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "transmits data up to 100 Gbits which degrades over distance]",
+      "has minimal light reflection as it travels down the core"
+    ],
+    "dropTargets": [
+      "PF",
+      "[Multimode fiber"
+    ],
+    "correctMapping": [
+      "single-mode fiber",
+      "uses a single wavelength on light",
+      "has minimal light reflection as it travels down the core",
+      "[multimode fiber",
+      "becomes distorted at longer lengths",
+      "transmits data up to 100 Gbits which degrades over distance"
+    ],
+    "questionStateImage": "Q1089-state.png",
+    "answerStateImage": "Q1089-answer.png"
   },
   {
     "id": "Q1091",
@@ -33503,7 +34256,26 @@
     ],
     "needsExhibit": false,
     "sourcePage": 492,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "——",
+      "is comprised of shielded and unshielded twisted pairs",
+      "contains a conductor, bedding, and sheathing",
+      "has a core diameter of 9 microns"
+    ],
+    "dropTargets": [
+      "FP single-mode fiber Po coppe"
+    ],
+    "correctMapping": [
+      "single-mode fiber",
+      "uses a single wavelength of light",
+      "has a core diameter of 9 microns",
+      "copper",
+      "is comprised of shielded and unshielded twisted pairs",
+      "contains a conductor, bedding, and sheathing"
+    ],
+    "questionStateImage": "Q1091-state.png",
+    "answerStateImage": "Q1091-answer.png"
   },
   {
     "id": "Q1093",
@@ -33518,7 +34290,16 @@
     ],
     "needsExhibit": false,
     "sourcePage": 493,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "single-mode fiber Pe",
+      "multimode fiber",
+      "PO"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1093-answer.png"
   },
   {
     "id": "Q1094",
@@ -33763,7 +34544,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 497,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1101-state.png",
+    "answerStateImage": "Q1101-answer.png"
   },
   {
     "id": "Q1102",
@@ -33779,7 +34565,24 @@
     ],
     "needsExhibit": false,
     "sourcePage": 498,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "may be used at by the same multiple time organizations",
+      "sends rather packets than a to a single group address address",
+      "provides one-to-many communications",
+      "allows sites to address be conflicts combined without"
+    ],
+    "dropTargets": [
+      "Unique Local"
+    ],
+    "correctMapping": [
+      "Unique Local may be used at by the same multiple time organizations",
+      "allows sites to address be conflicts combined without",
+      "Multicast sends rather packets than a to a single group address address",
+      "provides one-to-many communications"
+    ],
+    "questionStateImage": "Q1102-state.png",
+    "answerStateImage": "Q1102-answer.png"
   },
   {
     "id": "Q1103",
@@ -33794,7 +34597,25 @@
     ],
     "needsExhibit": false,
     "sourcePage": 499,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "may be used at by the same multiple time organizations",
+      "required on all IPv6 devices",
+      "is a counterpart of private IPv4 address"
+    ],
+    "dropTargets": [
+      "Unique Local",
+      "Link-Local Address ———"
+    ],
+    "correctMapping": [
+      "Unique Local",
+      "may be used at by the same multiple time organizations",
+      "is a counterpart of private IPv4 address",
+      "| Link-Local attached Address to a single subnet |",
+      "required on all IPv6 devices"
+    ],
+    "questionStateImage": "Q1103-state.png",
+    "answerStateImage": "Q1103-answer.png"
   },
   {
     "id": "Q1104",
@@ -34069,7 +34890,18 @@
     ],
     "needsExhibit": false,
     "sourcePage": 502,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "server",
+      "spurious . DHCP server",
+      "trusted"
+    ],
+    "dropTargets": [
+      "ist unknown of hosts to the on the administrative network that domain are internal network addresses unknown device network to component adminictrative DHCP under hosts . on server that the administrator the domain control . within propagates network of an the IP"
+    ],
+    "correctMapping": [],
+    "questionStateImage": "Q1112-state.png",
+    "answerStateImage": "Q1112-answer.png"
   },
   {
     "id": "Q1113",
@@ -34119,7 +34951,24 @@
     ],
     "needsExhibit": false,
     "sourcePage": 503,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "is a counterpart addresses of private IPv4",
+      "sends rather packets than a to a single group address address",
+      "has a unicast source sent to a group",
+      "allows sites to address be conflicts combined without"
+    ],
+    "dropTargets": [
+      "Unique Local"
+    ],
+    "correctMapping": [
+      "Unique Local is a counterpart addresses of private IPv4",
+      "allows sites to address be conflicts combined without",
+      "Multicast sends rather packets than a to a single g group address address",
+      "has a unicast source sent to a group"
+    ],
+    "questionStateImage": "Q1114-state.png",
+    "answerStateImage": "Q1114-answer.png"
   },
   {
     "id": "Q1115",
@@ -34134,7 +34983,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 504,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "[ multimode is typically fiber used for internal datacenter connectivity | | inn ode fiber uses a single wavelength on light has minimal light reflection as it travels down the core |"
+    ],
+    "questionStateImage": "Q1115-state.png",
+    "answerStateImage": "Q1115-answer.png"
   },
   {
     "id": "Q1116",
@@ -34251,7 +35107,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 506,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1119-state.png",
+    "answerStateImage": "Q1119-answer.png"
   },
   {
     "id": "Q1120",
@@ -34437,7 +35298,22 @@
     ],
     "needsExhibit": false,
     "sourcePage": 511,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "See ee)"
+    ],
+    "dropTargets": [
+      "ee",
+      "Ce"
+    ],
+    "correctMapping": [
+      "uses multiple wavelengths of light",
+      "Se",
+      "a ESE Eo :",
+      "| ——— uses a single wavelength of light |"
+    ],
+    "questionStateImage": "Q1125-state.png",
+    "answerStateImage": "Q1125-answer.png"
   },
   {
     "id": "Q1126",
@@ -34484,7 +35360,12 @@
     "exhibitImages": [],
     "needsExhibit": false,
     "sourcePage": 512,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": null,
+    "answerStateImage": "Q1127-answer.png"
   },
   {
     "id": "Q1128",
@@ -34566,7 +35447,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 514,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "Ce",
+      "FE"
+    ],
+    "correctMapping": [
+      "| | ff — It It records supports the User duration of Access each Reporting. connection. | | | It It restricts grants the access CLI to commands network that assets, a user such is as able FTP to servers. perform. | | |"
+    ],
+    "questionStateImage": "Q1130-state.png",
+    "answerStateImage": "Q1130-answer.png"
   },
   {
     "id": "Q1131",
@@ -34616,7 +35507,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 516,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1132-state.png",
+    "answerStateImage": "Q1132-answer.png"
   },
   {
     "id": "Q1133",
@@ -34685,7 +35581,15 @@
     ],
     "needsExhibit": true,
     "sourcePage": 518,
-    "needsReview": false
+    "needsReview": false,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "__",
+      "eee eee"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1135-answer.png"
   },
   {
     "id": "Q1140",
@@ -34837,7 +35741,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 522,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "— —— as"
+    ],
+    "correctMapping": [
+      "allows sites to be combined without address conflicts | |",
+      "sends packets to a group address rather than a single address ||"
+    ],
+    "questionStateImage": "Q1144-state.png",
+    "answerStateImage": "Q1144-answer.png"
   },
   {
     "id": "Q1145",
@@ -34918,7 +35832,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 524,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "best effort"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1147-answer.png"
   },
   {
     "id": "Q1149",
@@ -35051,7 +35972,21 @@
     ],
     "needsExhibit": false,
     "sourcePage": 529,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "is used typically for DWDM optical systems spanning long"
+    ],
+    "dropTargets": [
+      "a!"
+    ],
+    "correctMapping": [
+      ") ) contains a conductor, bedding, and sheathing",
+      "is typically used in small office applications",
+      "is typically used for DWDM distances optical systems spanning long",
+      "eliminates distortion from overlapping light pulses"
+    ],
+    "questionStateImage": "Q1153-state.png",
+    "answerStateImage": "Q1153-answer.png"
   },
   {
     "id": "Q1154",
@@ -35100,7 +36035,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 530,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "with new content from the payload"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1155-answer.png"
   },
   {
     "id": "Q1157",
@@ -35294,7 +36236,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 534,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "fp Ce"
+    ],
+    "correctMapping": [
+      "| | is Is easy to by tap affected Into electrical and and obtain magnetic secure Information interference",
+      "| transmits data of up to 40Gbit/s over long distances has minimal light as reflection it travels down the core"
+    ],
+    "questionStateImage": "Q1165-state.png",
+    "answerStateImage": "Q1165-answer.png"
   },
   {
     "id": "Q1168",
@@ -35343,7 +36295,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 535,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "PE",
+      "SS"
+    ],
+    "correctMapping": [
+      "| allows sites to be combined a without address conflicts | | sends packets to a group address rather than a single address"
+    ],
+    "questionStateImage": "Q1170-state.png",
+    "answerStateImage": "Q1170-answer.png"
   },
   {
     "id": "Q1173",
@@ -35623,7 +36585,12 @@
     ],
     "needsExhibit": false,
     "sourcePage": 540,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1188-state.png",
+    "answerStateImage": "Q1188-answer.png"
   },
   {
     "id": "Q1189",
@@ -35673,7 +36640,26 @@
     ],
     "needsExhibit": false,
     "sourcePage": 542,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "eee eee",
+      "allows sites to be combined without address conflicts",
+      "has 2 unicast source sent to 2 group"
+    ],
+    "dropTargets": [
+      "ique Local Po",
+      "ulticast Po"
+    ],
+    "correctMapping": [
+      "que Local",
+      "may be used by multiple organizations at the same time",
+      "allows sites to be combined without address conflicts",
+      "ticast",
+      "cannot be used as a source address",
+      "has a unicast source sent to a group"
+    ],
+    "questionStateImage": "Q1190-state.png",
+    "answerStateImage": "Q1190-answer.png"
   },
   {
     "id": "Q1192",
@@ -37516,7 +38502,20 @@
     ],
     "needsExhibit": false,
     "sourcePage": 568,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "a |"
+    ],
+    "dropTargets": [
+      "|e"
+    ],
+    "correctMapping": [
+      "communications",
+      "without address conflicts",
+      "on the internet"
+    ],
+    "questionStateImage": "Q1256-state.png",
+    "answerStateImage": "Q1256-answer.png"
   },
   {
     "id": "Q1259",
@@ -37631,7 +38630,15 @@
     ],
     "needsExhibit": false,
     "sourcePage": 571,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "organizations at the same time",
+      "same way as IPv4 addresses"
+    ],
+    "questionStateImage": "Q1263-state.png",
+    "answerStateImage": "Q1263-answer.png"
   },
   {
     "id": "Q1264",
@@ -37713,7 +38720,17 @@
     ],
     "needsExhibit": false,
     "sourcePage": 572,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "|_____"
+    ],
+    "correctMapping": [
+      "obtain secure information",
+      "a using pulses of light |"
+    ],
+    "questionStateImage": "Q1267-state.png",
+    "answerStateImage": "Q1267-answer.png"
   },
   {
     "id": "Q1268",
@@ -38193,7 +39210,18 @@
     ],
     "needsExhibit": false,
     "sourcePage": 580,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [
+      "Link-Local Address ——"
+    ],
+    "correctMapping": [
+      "addresses in IGP",
+      "a single link",
+      "sent to a group"
+    ],
+    "questionStateImage": "Q1289-state.png",
+    "answerStateImage": "Q1289-answer.png"
   },
   {
     "id": "Q1290",
@@ -38276,7 +39304,12 @@
     ],
     "needsExhibit": true,
     "sourcePage": 581,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [],
+    "questionStateImage": "Q1292-state.png",
+    "answerStateImage": "Q1292-answer.png"
   },
   {
     "id": "Q1294",
@@ -38521,7 +39554,22 @@
     ],
     "needsExhibit": false,
     "sourcePage": 586,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [
+      "ae",
+      "eee"
+    ],
+    "dropTargets": [
+      "Unique Local",
+      "Multicast Pe Po"
+    ],
+    "correctMapping": [
+      "private IPv4 addresses",
+      "organizations at the same time",
+      "communications"
+    ],
+    "questionStateImage": "Q1325-state.png",
+    "answerStateImage": "Q1325-answer.png"
   },
   {
     "id": "Q1326",
@@ -38570,7 +39618,14 @@
     ],
     "needsExhibit": false,
     "sourcePage": 587,
-    "needsReview": true
+    "needsReview": true,
+    "dragItems": [],
+    "dropTargets": [],
+    "correctMapping": [
+      "a _ —"
+    ],
+    "questionStateImage": null,
+    "answerStateImage": "Q1327-answer.png"
   },
   {
     "id": "Q1330",
