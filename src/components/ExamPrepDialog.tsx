@@ -204,250 +204,258 @@ interface DragDropCardProps {
 }
 
 function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: DragDropCardProps) {
-  const base = dark
-    ? "bg-zinc-800 border-zinc-700 text-zinc-200"
-    : "bg-white border-zinc-200 text-zinc-800";
-
   const items = question.dragItems ?? [];
   const targets = question.dropTargets ?? [];
   const correctMapping = question.correctMapping ?? [];
   const hasInteractive = items.length >= 2 && targets.length >= 1;
 
-  // draggedItem: text of currently dragged item
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
 
-  // Items still in the pool (not placed in any slot)
-  const placedItems = new Set(userSlots.filter(Boolean) as string[]);
-  const poolItems = items.filter((item) => !placedItems.has(item));
+  const placedSet = new Set(userSlots.filter(Boolean) as string[]);
+  const poolItems = items.filter((item) => !placedSet.has(item));
 
-  function handleDragStart(item: string) {
-    setDraggedItem(item);
+  const score = revealed && correctMapping.length > 0
+    ? scoreDragDrop(userSlots, correctMapping)
+    : null;
+
+  // ── Drag handlers ────────────────────────────────────────
+  function onItemDragStart(item: string) { setDraggedItem(item); }
+  function onItemDragEnd() { setDraggedItem(null); setDragOverSlot(null); }
+
+  function onSlotDragOver(e: React.DragEvent, i: number) {
+    if (revealed) return;
+    e.preventDefault();
+    setDragOverSlot(i);
   }
+  function onSlotDragLeave() { setDragOverSlot(null); }
 
-  function handleDropOnSlot(slotIdx: number) {
+  function onSlotDrop(i: number) {
     if (!draggedItem || revealed) return;
     const next = [...userSlots];
-    // If this item was already placed somewhere else, remove it
-    const prevIdx = next.indexOf(draggedItem);
-    if (prevIdx !== -1) next[prevIdx] = null;
-    next[slotIdx] = draggedItem;
+    const prev = next.indexOf(draggedItem);
+    if (prev !== -1) next[prev] = null;
+    next[i] = draggedItem;
+    onUpdateSlots(next);
+    setDraggedItem(null);
+    setDragOverSlot(null);
+  }
+
+  function onPoolDragOver(e: React.DragEvent) {
+    if (revealed) return;
+    e.preventDefault();
+    setDragOverSlot(null);
+  }
+  function onPoolDrop() {
+    if (!draggedItem || revealed) return;
+    const next = [...userSlots];
+    const prev = next.indexOf(draggedItem);
+    if (prev !== -1) next[prev] = null;
     onUpdateSlots(next);
     setDraggedItem(null);
   }
 
-  function handleDropOnPool() {
-    if (!draggedItem || revealed) return;
-    const next = [...userSlots];
-    const prevIdx = next.indexOf(draggedItem);
-    if (prevIdx !== -1) next[prevIdx] = null;
-    onUpdateSlots(next);
-    setDraggedItem(null);
-  }
-
-  function handleRemoveFromSlot(slotIdx: number) {
+  function removeFromSlot(i: number) {
     if (revealed) return;
     const next = [...userSlots];
-    next[slotIdx] = null;
+    next[i] = null;
     onUpdateSlots(next);
   }
 
-  const score = revealed ? scoreDragDrop(userSlots, correctMapping) : null;
-
+  // ── Fallback: no interactive data ────────────────────────
   if (!hasInteractive) {
-    // Image-only fallback: show question-state + toggle answer image
     return (
-      <div className={`rounded-xl border p-4 shadow-sm ${base}`}>
-        <p className="mb-3 text-sm font-medium text-fuchsia-500">Drag &amp; Drop</p>
-        {question.questionStateImage && (
-          <div className="mb-3">
-            <p className={`mb-1 text-xs ${dark ? "text-zinc-500" : "text-zinc-400"}`}>Aufgabe:</p>
-            <ExhibitImage
-              src={`/exam-images/${question.questionStateImage}`}
-              dark={dark}
-            />
-          </div>
+      <div className={`flex flex-col gap-3 rounded-xl border p-4 shadow-sm ${
+        dark ? "bg-zinc-800 border-zinc-700" : "bg-white border-zinc-200"
+      }`}>
+        {question.questionStateImage && !revealed && (
+          <ExhibitImage src={`/exam-images/${question.questionStateImage}`} dark={dark} />
         )}
-        {(question.exhibitImages ?? []).filter((img) =>
-          img !== question.questionStateImage && img !== question.answerStateImage
-        ).map((img) => (
-          <ExhibitImage key={img} src={`/exam-images/${img}`} dark={dark} />
-        ))}
-        {(question.answerStateImage || revealed) && (
+        {(question.exhibitImages ?? [])
+          .filter((img) => img !== question.questionStateImage && img !== question.answerStateImage)
+          .map((img) => <ExhibitImage key={img} src={`/exam-images/${img}`} dark={dark} />)}
+        {!question.questionStateImage && !question.answerStateImage && (question.exhibitImages ?? []).length === 0 && (
+          <p className={`rounded-lg border border-dashed p-4 text-sm ${
+            dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
+          }`}>
+            Drag &amp; Drop — Seite {question.sourcePage} im PDF für die vollständige Aufgabe.
+          </p>
+        )}
+        {(revealed || question.answerStateImage) && (
           <>
             <button
               onClick={() => setShowAnswer((v) => !v)}
-              className={`mt-3 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs ${
+              className={`flex w-fit items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs ${
                 dark ? "border-zinc-600 text-zinc-400 hover:bg-zinc-700" : "border-zinc-300 text-zinc-500 hover:bg-zinc-100"
               }`}
             >
               <Eye size={14} />
-              {showAnswer ? "Antwort verbergen" : "Antwort anzeigen"}
+              {showAnswer ? "Antwort verbergen" : "Korrekte Antwort anzeigen"}
             </button>
             {showAnswer && question.answerStateImage && (
-              <div className="mt-3">
-                <p className={`mb-1 text-xs ${dark ? "text-zinc-500" : "text-zinc-400"}`}>Korrekte Antwort:</p>
-                <ExhibitImage
-                  src={`/exam-images/${question.answerStateImage}`}
-                  dark={dark}
-                />
+              <ExhibitImage src={`/exam-images/${question.answerStateImage}`} dark={dark} />
+            )}
+            {showAnswer && correctMapping.length > 0 && (
+              <div className={`rounded-lg p-3 text-xs ${
+                dark ? "bg-zinc-700 text-zinc-300" : "bg-zinc-50 text-zinc-600"
+              }`}>
+                {correctMapping.filter(Boolean).map((m, i) => (
+                  <div key={i}>{m}</div>
+                ))}
               </div>
             )}
           </>
-        )}
-        {!question.questionStateImage && !question.answerStateImage && (
-          <div className={`rounded-lg border border-dashed p-4 text-sm ${
-            dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
-          }`}>
-            Drag &amp; Drop — Antwort im PDF-Exhibit sichtbar (Seite {question.sourcePage}).
-          </div>
         )}
       </div>
     );
   }
 
+  // ── Interactive drag-drop UI ──────────────────────────────
+  const itemCls = (item: string) => {
+    const base = "flex cursor-grab select-none items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all active:cursor-grabbing active:opacity-60";
+    if (draggedItem === item) return `${base} opacity-40 scale-95`;
+    if (revealed) return `${base} ${dark ? "border-zinc-600 bg-zinc-700 opacity-70" : "border-zinc-200 bg-zinc-100 opacity-70"}`;
+    return `${base} ${dark
+      ? "border-zinc-500 bg-zinc-700 hover:border-sky-400 hover:bg-sky-900/30 hover:text-sky-300"
+      : "border-zinc-300 bg-white hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700 shadow-sm"}`;
+  };
+
+  const slotCls = (i: number) => {
+    const placed = userSlots[i];
+    const expectedItem = correctMapping[i];
+    const isCorrect = revealed && placed != null && expectedItem != null && fuzzyMatch(placed, expectedItem);
+    const isWrong = revealed && placed != null && expectedItem != null && !fuzzyMatch(placed, expectedItem);
+    const isMissed = revealed && placed == null && expectedItem != null;
+    const isHovered = dragOverSlot === i && !revealed;
+    const base = "min-h-11 flex-1 rounded-lg border-2 transition-all";
+    if (isCorrect) return `${base} border-green-400 bg-green-500/10`;
+    if (isWrong)   return `${base} border-red-400 bg-red-500/10`;
+    if (isMissed)  return `${base} border-yellow-400 bg-yellow-500/10`;
+    if (isHovered) return `${base} ${dark ? "border-sky-400 bg-sky-900/40" : "border-sky-400 bg-sky-50"} scale-[1.01]`;
+    if (placed)    return `${base} ${dark ? "border-sky-500 bg-sky-900/20" : "border-sky-400 bg-sky-50"}`;
+    return `${base} border-dashed ${dark ? "border-zinc-600 bg-zinc-700/20" : "border-zinc-300 bg-zinc-50"}`;
+  };
+
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${base}`}>
-      <p className="mb-2 text-sm font-medium text-fuchsia-500">Drag &amp; Drop</p>
+    <div className={`flex flex-col gap-5 rounded-xl border p-5 shadow-sm ${
+      dark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-200 text-zinc-900"
+    }`}>
 
-      {/* Question exhibit image if present */}
-      {question.questionStateImage && !revealed && (
-        <div className="mb-3">
-          <ExhibitImage src={`/exam-images/${question.questionStateImage}`} dark={dark} />
-        </div>
-      )}
-
-      {revealed && question.answerStateImage && (
-        <div className="mb-3">
-          <p className={`mb-1 text-xs font-medium ${dark ? "text-zinc-400" : "text-zinc-500"}`}>Korrekte Lösung:</p>
-          <ExhibitImage src={`/exam-images/${question.answerStateImage}`} dark={dark} />
-        </div>
-      )}
-
-      <div className="flex gap-3">
-        {/* Left: drag source pool */}
-        <div className="w-2/5">
-          <p className={`mb-2 text-xs font-semibold uppercase tracking-wide ${
-            dark ? "text-zinc-500" : "text-zinc-400"
-          }`}>Items</p>
-          <div
-            className={`min-h-20 rounded-lg border border-dashed p-2 ${
-              dark ? "border-zinc-600" : "border-zinc-300"
-            }`}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDropOnPool}
-          >
-            {poolItems.map((item) => (
-              <div
-                key={item}
-                draggable={!revealed}
-                onDragStart={() => handleDragStart(item)}
-                className={`mb-1.5 flex cursor-grab items-center gap-1.5 rounded-md border px-2 py-1.5 text-xs active:cursor-grabbing ${
-                  revealed
-                    ? dark ? "border-zinc-600 bg-zinc-700 opacity-60" : "border-zinc-200 bg-zinc-100 opacity-60"
-                    : dark
-                    ? "border-zinc-500 bg-zinc-700 hover:border-zinc-300"
-                    : "border-zinc-200 bg-white hover:border-zinc-400"
-                }`}
-              >
-                <DotsSixVertical size={12} className="shrink-0 opacity-40" />
-                <span className="leading-tight">{item}</span>
-              </div>
-            ))}
-            {poolItems.length === 0 && !revealed && (
-              <p className={`text-center text-xs ${
-                dark ? "text-zinc-600" : "text-zinc-400"
-              }`}>Alle Items platziert</p>
-            )}
-          </div>
-        </div>
-
-        {/* Right: drop targets */}
-        <div className="w-3/5">
-          <p className={`mb-2 text-xs font-semibold uppercase tracking-wide ${
-            dark ? "text-zinc-500" : "text-zinc-400"
-          }`}>Ziele</p>
-          <div className="flex flex-col gap-2">
-            {targets.map((target, i) => {
-              const placed = userSlots[i] ?? null;
-              const expectedItem = correctMapping[i] ?? null;
-              const isCorrect = revealed && placed !== null && expectedItem !== null && fuzzyMatch(placed, expectedItem);
-              const isWrong = revealed && placed !== null && expectedItem !== null && !fuzzyMatch(placed, expectedItem);
-              const isMissed = revealed && placed === null && expectedItem !== null;
-
-              return (
-                <div key={i} className="flex items-stretch gap-2">
-                  {/* Target description */}
-                  <div className={`flex-1 rounded-lg border px-2 py-1.5 text-xs leading-tight ${
-                    dark ? "border-zinc-600 bg-zinc-700/50 text-zinc-300" : "border-zinc-200 bg-zinc-50 text-zinc-600"
-                  }`}>
-                    {target}
-                  </div>
-                  {/* Drop slot */}
-                  <div
-                    onDragOver={(e) => { if (!revealed) e.preventDefault(); }}
-                    onDrop={() => handleDropOnSlot(i)}
-                    className={`w-36 shrink-0 rounded-lg border-2 border-dashed transition-colors ${
-                      isCorrect
-                        ? "border-green-400 bg-green-500/10"
-                        : isWrong
-                        ? "border-red-400 bg-red-500/10"
-                        : isMissed
-                        ? "border-yellow-400 bg-yellow-500/10"
-                        : placed
-                        ? dark ? "border-sky-500 bg-sky-900/30" : "border-sky-400 bg-sky-50"
-                        : dark ? "border-zinc-600 bg-zinc-700/20" : "border-zinc-300 bg-zinc-50"
-                    }`}
-                  >
-                    {placed ? (
-                      <div
-                        draggable={!revealed}
-                        onDragStart={() => handleDragStart(placed)}
-                        className="flex h-full min-h-9 cursor-grab items-center justify-between gap-1 px-2 py-1 active:cursor-grabbing"
-                      >
-                        <span className="text-xs leading-tight">{placed}</span>
-                        {!revealed && (
-                          <button
-                            onClick={() => handleRemoveFromSlot(i)}
-                            className="shrink-0 opacity-40 hover:opacity-100"
-                          >
-                            <X size={12} />
-                          </button>
-                        )}
-                        {isCorrect && <CheckCircle size={14} className="shrink-0 text-green-500" />}
-                        {isWrong && <XCircle size={14} className="shrink-0 text-red-500" />}
-                      </div>
-                    ) : (
-                      <div className="flex min-h-9 items-center justify-center">
-                        {isMissed ? (
-                          <span className="px-2 text-center text-xs text-yellow-500">{expectedItem}</span>
-                        ) : (
-                          <span className={`text-xs ${
-                            dark ? "text-zinc-600" : "text-zinc-400"
-                          }`}>←</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+      {/* Items pool */}
+      <div>
+        <p className={`mb-2 text-xs font-semibold uppercase tracking-wider ${
+          dark ? "text-zinc-500" : "text-zinc-400"
+        }`}>Items <span className="normal-case font-normal">(ziehen und in Ziele ablegen)</span></p>
+        <div
+          className={`flex min-h-12 flex-wrap gap-2 rounded-xl border-2 border-dashed p-3 transition-colors ${
+            revealed
+              ? dark ? "border-zinc-700 bg-zinc-700/20" : "border-zinc-200 bg-zinc-50"
+              : dark ? "border-zinc-600 bg-zinc-700/10" : "border-zinc-200 bg-zinc-50"
+          }`}
+          onDragOver={onPoolDragOver}
+          onDrop={onPoolDrop}
+        >
+          {poolItems.length > 0 ? poolItems.map((item) => (
+            <div
+              key={item}
+              draggable={!revealed}
+              onDragStart={() => onItemDragStart(item)}
+              onDragEnd={onItemDragEnd}
+              className={itemCls(item)}
+            >
+              <DotsSixVertical size={14} weight="bold" className="shrink-0 opacity-40" />
+              {item}
+            </div>
+          )) : (
+            <p className={`w-full text-center text-xs ${
+              dark ? "text-zinc-600" : "text-zinc-400"
+            }`}>{revealed ? "Alle Items verteilt" : "Alle Items platziert ✓"}</p>
+          )}
         </div>
       </div>
 
-      {/* Score feedback */}
+      {/* Drop targets */}
+      <div>
+        <p className={`mb-2 text-xs font-semibold uppercase tracking-wider ${
+          dark ? "text-zinc-500" : "text-zinc-400"
+        }`}>Ziele</p>
+        <div className="flex flex-col gap-2">
+          {targets.map((target, i) => {
+            const placed = userSlots[i] ?? null;
+            const expectedItem = correctMapping[i] ?? null;
+            const isCorrect = revealed && placed != null && expectedItem != null && fuzzyMatch(placed, expectedItem);
+            const isWrong   = revealed && placed != null && expectedItem != null && !fuzzyMatch(placed, expectedItem);
+            const isMissed  = revealed && placed == null && expectedItem != null;
+
+            return (
+              <div key={i} className="flex items-center gap-3">
+                {/* Target label */}
+                <div className={`w-2/5 shrink-0 rounded-lg px-3 py-2 text-sm leading-snug ${
+                  dark ? "bg-zinc-700 text-zinc-300" : "bg-zinc-100 text-zinc-700"
+                }`}>
+                  {target}
+                </div>
+
+                {/* Drop slot */}
+                <div
+                  className={slotCls(i)}
+                  onDragOver={(e) => onSlotDragOver(e, i)}
+                  onDragLeave={onSlotDragLeave}
+                  onDrop={() => onSlotDrop(i)}
+                >
+                  {placed ? (
+                    <div
+                      draggable={!revealed}
+                      onDragStart={() => onItemDragStart(placed)}
+                      onDragEnd={onItemDragEnd}
+                      className="flex h-full min-h-11 cursor-grab items-center justify-between gap-2 px-3 py-2 active:cursor-grabbing"
+                    >
+                      <span className="text-sm leading-snug">{placed}</span>
+                      <div className="flex shrink-0 items-center gap-1">
+                        {isCorrect && <CheckCircle size={16} className="text-green-500" />}
+                        {isWrong   && <XCircle    size={16} className="text-red-500"   />}
+                        {!revealed && (
+                          <button
+                            onClick={() => removeFromSlot(i)}
+                            className={`rounded p-0.5 opacity-40 hover:opacity-100 ${
+                              dark ? "hover:bg-zinc-600" : "hover:bg-zinc-200"
+                            }`}
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={`flex h-full min-h-11 items-center justify-center px-3 ${
+                      isMissed ? "text-yellow-500 text-sm font-medium" : ""
+                    }`}>
+                      {isMissed
+                        ? expectedItem
+                        : <span className={`text-xs ${dark ? "text-zinc-600" : "text-zinc-400"}`}>hier ablegen</span>
+                      }
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Score */}
       {revealed && score !== null && (
-        <div className={`mt-4 rounded-lg p-3 text-sm ${
+        <div className={`rounded-lg p-3 text-sm font-medium ${
           score >= 0.8
             ? dark ? "bg-green-900/30 text-green-300" : "bg-green-50 text-green-700"
             : score >= 0.5
             ? dark ? "bg-yellow-900/30 text-yellow-300" : "bg-yellow-50 text-yellow-700"
             : dark ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-700"
         }`}>
-          {score >= 0.8 ? "✓ " : "✗ "}
-          <span className="font-semibold">{Math.round(score * 100)}% korrekt</span>
-          {score < 1 && " — Gelbe Slots zeigen die fehlenden richtigen Antworten"}
+          {score >= 0.8 ? "✓" : "✗"}{" "}
+          {Math.round(score * 100)}% korrekt
+          {score < 1 && <span className="ml-1 font-normal opacity-80">— gelbe Felder zeigen die richtigen Antworten</span>}
         </div>
       )}
     </div>
