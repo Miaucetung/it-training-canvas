@@ -557,6 +557,14 @@ function QuestionCard({
           ))}
         </div>
       )}
+      {question.needsExhibit && question.exhibitImages.length === 0 && (
+        <div className={`mb-4 flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs ${
+          dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
+        }`}>
+          <span className="text-amber-400">⚠</span>
+          Exhibit-Bild konnte nicht aus dem PDF extrahiert werden (Seite {question.sourcePage})
+        </div>
+      )}
 
       {/* Question text */}
       <p className="mb-4 text-base leading-relaxed">{question.text}</p>

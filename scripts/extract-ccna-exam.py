@@ -166,6 +166,7 @@ def extract_questions():
                 current = {
                     "id":          f"Q{m.group(1)}",
                     "page":        page_num,
+                    "y_start":     bbox[1] if bbox else 0,  # top-y of question header
                     "body_lines":  [],
                     "options":     [],   # [{"letter": "A", "text": "..."}]
                     "opt_bboxes":  [],   # [(letter, y0, y1, y_center, page_idx)]
@@ -243,16 +244,33 @@ def extract_questions():
         if not q_this_page and current:
             q_this_page = [current]
 
-        for img_idx, img_info in enumerate(page.get_images(full=True)):
-            xref = img_info[0]
-            try:
-                bi = doc.extract_image(xref)
-            except Exception:
-                continue
-            if not bi:
-                continue
-            tq = q_this_page[img_idx % len(q_this_page)] if q_this_page else None
-            if tq:
+        if q_this_page:
+            # Use image bbox to assign to the spatially nearest question on the page.
+            # get_image_rects returns bounding boxes for each image xref.
+            for img_info in page.get_images(full=True):
+                xref = img_info[0]
+                try:
+                    bi = doc.extract_image(xref)
+                except Exception:
+                    continue
+                if not bi:
+                    continue
+                # Find image vertical center on the page
+                rects = page.get_image_rects(xref)
+                img_y = rects[0].y0 if rects else None
+
+                if img_y is not None and len(q_this_page) > 1:
+                    # Pick the question whose start-y is closest to (and above) the image
+                    best = q_this_page[0]
+                    for cq in q_this_page:
+                        # q["y_start"] is set when we find the question header bbox
+                        qy = cq.get("y_start", 0)
+                        if qy <= img_y + 5:  # image is below or at question start
+                            best = cq
+                    tq = best
+                else:
+                    tq = q_this_page[0]
+
                 tq["images"].append({"ext": bi["ext"], "data": bi["image"]})
 
     # Flush last question
