@@ -27,7 +27,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0001-1.png"
+      "Q0001-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 1,
@@ -61,7 +61,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0002-1.png"
+      "Q0002-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 1,
@@ -76,7 +76,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0003-1.png"
+      "Q0003-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 2,
@@ -139,8 +139,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0005-1.png",
-      "Q0005-2.png"
+      "Q0005-1.svg",
+      "Q0005-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 3,
@@ -357,9 +357,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0012-1.png",
-      "Q0012-2.png",
-      "Q0012-3.png"
+      "Q0012-1.svg",
+      "Q0012-2.svg",
+      "Q0012-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 6,
@@ -494,7 +494,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0016-1.png"
+      "Q0016-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 7,
@@ -1126,7 +1126,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0035-1.png"
+      "Q0035-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 12,
@@ -1205,7 +1205,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0038-1.png"
+      "Q0038-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 13,
@@ -1271,7 +1271,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0040-1.png"
+      "Q0040-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 15,
@@ -1382,7 +1382,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0044-1.png"
+      "Q0044-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 16,
@@ -1474,7 +1474,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0047-1.png"
+      "Q0047-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 17,
@@ -1687,7 +1687,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0053-1.png"
+      "Q0053-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 19,
@@ -2012,7 +2012,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0062-1.png"
+      "Q0062-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 22,
@@ -2298,7 +2298,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0071-1.png"
+      "Q0071-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 24,
@@ -2428,7 +2428,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0075-1.png"
+      "Q0075-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 26,
@@ -2622,7 +2622,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0081-1.png"
+      "Q0081-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 28,
@@ -2720,7 +2720,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0085-1.png"
+      "Q0085-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 29,
@@ -2909,7 +2909,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0091-1.png"
+      "Q0091-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 31,
@@ -2975,7 +2975,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0093-1.png"
+      "Q0093-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 32,
@@ -3022,7 +3022,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0095-1.png"
+      "Q0095-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 33,
@@ -3037,7 +3037,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0096-1.png"
+      "Q0096-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 33,
@@ -3116,7 +3116,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0099-1.png"
+      "Q0099-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 34,
@@ -3182,7 +3182,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0101-1.png"
+      "Q0101-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 35,
@@ -3248,7 +3248,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0103-1.png"
+      "Q0103-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 36,
@@ -3442,7 +3442,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0109-1.png"
+      "Q0109-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 38,
@@ -3718,7 +3718,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0118-1.png"
+      "Q0118-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 41,
@@ -3880,7 +3880,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0123-1.png"
+      "Q0123-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 42,
@@ -4068,7 +4068,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0129-1.png"
+      "Q0129-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 44,
@@ -4102,7 +4102,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0130-1.png"
+      "Q0130-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 45,
@@ -4117,7 +4117,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0131-1.png"
+      "Q0131-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 46,
@@ -4132,8 +4132,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0132-1.png",
-      "Q0132-2.png"
+      "Q0132-1.svg",
+      "Q0132-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 47,
@@ -4195,8 +4195,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0134-1.png",
-      "Q0134-2.png"
+      "Q0134-1.svg",
+      "Q0134-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 48,
@@ -4246,7 +4246,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0135-1.png"
+      "Q0135-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 49,
@@ -4261,7 +4261,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0136-1.png"
+      "Q0136-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 50,
@@ -4276,7 +4276,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0137-1.png"
+      "Q0137-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 50,
@@ -4323,7 +4323,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0139-1.png"
+      "Q0139-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 51,
@@ -4370,7 +4370,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0141-1.png"
+      "Q0141-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 51,
@@ -4436,7 +4436,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0143-1.png"
+      "Q0143-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 52,
@@ -4520,7 +4520,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0146-1.png"
+      "Q0146-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 53,
@@ -4572,8 +4572,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0148-1.png",
-      "Q0148-2.png"
+      "Q0148-1.svg",
+      "Q0148-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 54,
@@ -4636,7 +4636,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0150-1.png"
+      "Q0150-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 55,
@@ -4715,9 +4715,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0153-1.png",
-      "Q0153-2.png",
-      "Q0153-3.png"
+      "Q0153-1.svg",
+      "Q0153-2.svg",
+      "Q0153-3.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 56,
@@ -4732,8 +4732,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0154-1.png",
-      "Q0154-2.png"
+      "Q0154-1.svg",
+      "Q0154-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 57,
@@ -4748,7 +4748,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0155-1.png"
+      "Q0155-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 58,
@@ -4763,11 +4763,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0156-1.png",
-      "Q0156-2.png",
-      "Q0156-3.png",
-      "Q0156-4.png",
-      "Q0156-5.png"
+      "Q0156-1.svg",
+      "Q0156-2.svg",
+      "Q0156-3.svg",
+      "Q0156-4.svg",
+      "Q0156-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 59,
@@ -5094,7 +5094,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0166-1.png"
+      "Q0166-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 61,
@@ -5325,7 +5325,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0173-1.png"
+      "Q0173-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 63,
@@ -5372,7 +5372,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0175-1.png"
+      "Q0175-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 65,
@@ -5387,8 +5387,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0176-1.png",
-      "Q0176-2.png"
+      "Q0176-1.svg",
+      "Q0176-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 65,
@@ -5565,7 +5565,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0181-1.png"
+      "Q0181-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 66,
@@ -5580,9 +5580,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0182-1.png",
-      "Q0182-2.png",
-      "Q0182-3.png"
+      "Q0182-1.svg",
+      "Q0182-2.svg",
+      "Q0182-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 67,
@@ -5663,7 +5663,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0184-1.png"
+      "Q0184-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 69,
@@ -5729,7 +5729,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0186-1.png"
+      "Q0186-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 70,
@@ -5744,8 +5744,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0187-1.png",
-      "Q0187-2.png"
+      "Q0187-1.svg",
+      "Q0187-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 71,
@@ -5811,7 +5811,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0189-1.png"
+      "Q0189-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 72,
@@ -5978,7 +5978,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0194-1.png"
+      "Q0194-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 73,
@@ -6012,7 +6012,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0195-1.png"
+      "Q0195-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 74,
@@ -6142,7 +6142,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0199-1.png"
+      "Q0199-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 75,
@@ -6218,7 +6218,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0201-1.png"
+      "Q0201-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 76,
@@ -6252,7 +6252,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0202-1.png"
+      "Q0202-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 76,
@@ -6286,7 +6286,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0203-1.png"
+      "Q0203-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 77,
@@ -6401,8 +6401,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0207-1.png",
-      "Q0207-2.png"
+      "Q0207-1.svg",
+      "Q0207-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 78,
@@ -6472,7 +6472,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0209-1.png"
+      "Q0209-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 79,
@@ -6618,7 +6618,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0213-1.png"
+      "Q0213-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 80,
@@ -7141,7 +7141,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0229-1.png"
+      "Q0229-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 84,
@@ -7409,7 +7409,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0237-1.png"
+      "Q0237-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 87,
@@ -7555,7 +7555,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0242-1.png"
+      "Q0242-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 89,
@@ -7717,7 +7717,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0247-1.png"
+      "Q0247-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 90,
@@ -7751,8 +7751,8 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0248-1.png",
-      "Q0248-2.png"
+      "Q0248-1.svg",
+      "Q0248-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 91,
@@ -7786,7 +7786,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0249-1.png"
+      "Q0249-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 92,
@@ -7948,7 +7948,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0254-1.png"
+      "Q0254-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 94,
@@ -8064,7 +8064,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0258-1.png"
+      "Q0258-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 96,
@@ -8130,8 +8130,8 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0260-1.png",
-      "Q0260-2.png"
+      "Q0260-1.svg",
+      "Q0260-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 97,
@@ -8204,7 +8204,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0263-1.png"
+      "Q0263-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 99,
@@ -8238,7 +8238,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0264-1.png"
+      "Q0264-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 100,
@@ -8289,7 +8289,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0265-1.png"
+      "Q0265-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 100,
@@ -8360,7 +8360,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0268-1.png"
+      "Q0268-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 101,
@@ -8394,7 +8394,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0269-1.png"
+      "Q0269-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 102,
@@ -8428,7 +8428,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0270-1.png"
+      "Q0270-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 103,
@@ -8467,7 +8467,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0271-1.png"
+      "Q0271-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 103,
@@ -8533,7 +8533,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0274-1.png"
+      "Q0274-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 104,
@@ -8567,7 +8567,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0275-1.png"
+      "Q0275-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 105,
@@ -8601,7 +8601,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0276-1.png"
+      "Q0276-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 105,
@@ -8635,7 +8635,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0277-1.png"
+      "Q0277-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 106,
@@ -8650,7 +8650,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0278-1.png"
+      "Q0278-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 107,
@@ -8684,7 +8684,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0279-1.png"
+      "Q0279-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 107,
@@ -8718,7 +8718,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0280-1.png"
+      "Q0280-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 108,
@@ -8784,7 +8784,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0282-1.png"
+      "Q0282-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 108,
@@ -8831,8 +8831,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0284-1.png",
-      "Q0284-2.png"
+      "Q0284-1.svg",
+      "Q0284-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 109,
@@ -8930,7 +8930,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0287-1.png"
+      "Q0287-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 110,
@@ -8964,7 +8964,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0288-1.png"
+      "Q0288-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 111,
@@ -9016,8 +9016,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0290-1.png",
-      "Q0290-2.png"
+      "Q0290-1.svg",
+      "Q0290-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 112,
@@ -9083,7 +9083,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0292-1.png"
+      "Q0292-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 113,
@@ -9117,7 +9117,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0293-1.png"
+      "Q0293-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 114,
@@ -9220,7 +9220,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0296-1.png"
+      "Q0296-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 115,
@@ -9320,7 +9320,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0299-1.png"
+      "Q0299-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 116,
@@ -9546,7 +9546,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0306-1.png"
+      "Q0306-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 118,
@@ -9580,7 +9580,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0307-1.png"
+      "Q0307-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 119,
@@ -9614,7 +9614,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0308-1.png"
+      "Q0308-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 120,
@@ -9648,7 +9648,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0309-1.png"
+      "Q0309-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 121,
@@ -9682,7 +9682,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0310-1.png"
+      "Q0310-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 122,
@@ -9815,9 +9815,9 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0311-1.png",
-      "Q0311-2.png",
-      "Q0311-3.png"
+      "Q0311-1.svg",
+      "Q0311-2.svg",
+      "Q0311-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 123,
@@ -9864,11 +9864,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0319-1.png",
-      "Q0319-2.png",
-      "Q0319-3.png",
-      "Q0319-4.png",
-      "Q0319-5.png"
+      "Q0319-1.svg",
+      "Q0319-2.svg",
+      "Q0319-3.svg",
+      "Q0319-4.svg",
+      "Q0319-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 127,
@@ -9902,8 +9902,8 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0320-1.png",
-      "Q0320-2.png"
+      "Q0320-1.svg",
+      "Q0320-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 128,
@@ -9918,11 +9918,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0321-1.png",
-      "Q0321-2.png",
-      "Q0321-3.png",
-      "Q0321-4.png",
-      "Q0321-5.png"
+      "Q0321-1.svg",
+      "Q0321-2.svg",
+      "Q0321-3.svg",
+      "Q0321-4.svg",
+      "Q0321-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 129,
@@ -9956,8 +9956,8 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0322-1.png",
-      "Q0322-2.png"
+      "Q0322-1.svg",
+      "Q0322-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 130,
@@ -9991,8 +9991,8 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0323-1.png",
-      "Q0323-2.png"
+      "Q0323-1.svg",
+      "Q0323-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 131,
@@ -10026,8 +10026,8 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0324-1.png",
-      "Q0324-2.png"
+      "Q0324-1.svg",
+      "Q0324-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 132,
@@ -10110,8 +10110,8 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0327-1.png",
-      "Q0327-2.png"
+      "Q0327-1.svg",
+      "Q0327-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 133,
@@ -10177,7 +10177,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0329-1.png"
+      "Q0329-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 134,
@@ -10192,7 +10192,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0330-1.png"
+      "Q0330-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 135,
@@ -10359,7 +10359,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0335-1.png"
+      "Q0335-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 136,
@@ -10489,7 +10489,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0340-1.png"
+      "Q0340-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 139,
@@ -10555,7 +10555,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0342-1.png"
+      "Q0342-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 140,
@@ -10589,7 +10589,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0343-1.png"
+      "Q0343-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 140,
@@ -10719,7 +10719,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0347-1.png"
+      "Q0347-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 141,
@@ -10790,7 +10790,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0349-1.png"
+      "Q0349-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 142,
@@ -10829,7 +10829,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0350-1.png"
+      "Q0350-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 142,
@@ -10863,7 +10863,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0351-1.png"
+      "Q0351-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 143,
@@ -10966,7 +10966,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0354-1.png"
+      "Q0354-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 144,
@@ -11000,7 +11000,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0355-1.png"
+      "Q0355-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 144,
@@ -11039,7 +11039,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0356-1.png"
+      "Q0356-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 145,
@@ -11073,7 +11073,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0357-1.png"
+      "Q0357-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 146,
@@ -11107,7 +11107,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0358-1.png"
+      "Q0358-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 147,
@@ -11141,7 +11141,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0359-1.png"
+      "Q0359-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 147,
@@ -11239,7 +11239,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0362-1.png"
+      "Q0362-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 148,
@@ -11392,7 +11392,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0367-1.png"
+      "Q0367-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 150,
@@ -11426,7 +11426,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0368-1.png"
+      "Q0368-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 151,
@@ -11502,7 +11502,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0370-1.png"
+      "Q0370-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 152,
@@ -11568,7 +11568,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0372-1.png"
+      "Q0372-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 153,
@@ -11666,7 +11666,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0375-1.png"
+      "Q0375-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 154,
@@ -11801,7 +11801,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0379-1.png"
+      "Q0379-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 155,
@@ -11840,7 +11840,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0380-1.png"
+      "Q0380-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 156,
@@ -11924,7 +11924,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0383-1.png"
+      "Q0383-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 157,
@@ -12037,7 +12037,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0386-1.png"
+      "Q0386-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 158,
@@ -12071,7 +12071,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0387-1.png"
+      "Q0387-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 159,
@@ -12113,7 +12113,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0388-1.png"
+      "Q0388-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 159,
@@ -12147,7 +12147,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0389-1.png"
+      "Q0389-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 160,
@@ -12223,7 +12223,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0391-1.png"
+      "Q0391-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 161,
@@ -12326,7 +12326,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0394-1.png"
+      "Q0394-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 162,
@@ -12402,7 +12402,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0396-1.png"
+      "Q0396-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 163,
@@ -12478,7 +12478,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0398-1.png"
+      "Q0398-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 164,
@@ -12512,7 +12512,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0399-1.png"
+      "Q0399-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 164,
@@ -12554,7 +12554,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0400-1.png"
+      "Q0400-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 165,
@@ -12588,7 +12588,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0401-1.png"
+      "Q0401-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 165,
@@ -12622,7 +12622,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0402-1.png"
+      "Q0402-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 166,
@@ -12664,7 +12664,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0403-1.png"
+      "Q0403-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 167,
@@ -12703,7 +12703,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0404-1.png"
+      "Q0404-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 168,
@@ -12888,7 +12888,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0409-1.png"
+      "Q0409-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 169,
@@ -12959,7 +12959,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0411-1.png"
+      "Q0411-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 170,
@@ -12993,7 +12993,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0412-1.png"
+      "Q0412-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 171,
@@ -13027,7 +13027,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0413-1.png"
+      "Q0413-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 172,
@@ -13061,7 +13061,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0414-1.png"
+      "Q0414-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 172,
@@ -13095,7 +13095,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0415-1.png"
+      "Q0415-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 173,
@@ -13110,7 +13110,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0416-1.png"
+      "Q0416-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 174,
@@ -13186,7 +13186,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0418-1.png"
+      "Q0418-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 175,
@@ -13216,7 +13216,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0419-1.png"
+      "Q0419-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 176,
@@ -13319,7 +13319,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0422-1.png"
+      "Q0422-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 177,
@@ -13417,7 +13417,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0425-1.png"
+      "Q0425-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 178,
@@ -13451,7 +13451,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0426-1.png"
+      "Q0426-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 178,
@@ -13494,7 +13494,7 @@
       "F"
     ],
     "exhibitImages": [
-      "Q0427-1.png"
+      "Q0427-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 179,
@@ -13528,7 +13528,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0428-1.png"
+      "Q0428-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 179,
@@ -13566,7 +13566,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0429-1.png"
+      "Q0429-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 180,
@@ -13636,7 +13636,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0431-1.png"
+      "Q0431-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 181,
@@ -13670,7 +13670,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0432-1.png"
+      "Q0432-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 181,
@@ -13773,7 +13773,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0435-1.png"
+      "Q0435-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 182,
@@ -13871,7 +13871,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0438-1.png"
+      "Q0438-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 183,
@@ -13905,7 +13905,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0439-1.png"
+      "Q0439-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 184,
@@ -13939,7 +13939,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0440-1.png"
+      "Q0440-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 184,
@@ -14005,7 +14005,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0442-1.png"
+      "Q0442-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 185,
@@ -14039,7 +14039,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0443-1.png"
+      "Q0443-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 186,
@@ -14073,7 +14073,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0444-1.png"
+      "Q0444-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 186,
@@ -14107,7 +14107,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0445-1.png"
+      "Q0445-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 187,
@@ -14146,7 +14146,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0446-1.png"
+      "Q0446-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 187,
@@ -14180,7 +14180,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0447-1.png"
+      "Q0447-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 188,
@@ -14214,7 +14214,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0448-1.png"
+      "Q0448-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 188,
@@ -14248,7 +14248,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0449-1.png"
+      "Q0449-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 189,
@@ -14282,7 +14282,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0450-1.png"
+      "Q0450-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 190,
@@ -14316,7 +14316,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0451-1.png"
+      "Q0451-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 190,
@@ -14350,7 +14350,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0452-1.png"
+      "Q0452-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 191,
@@ -14384,7 +14384,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0453-1.png"
+      "Q0453-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 191,
@@ -14418,7 +14418,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0454-1.png"
+      "Q0454-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 192,
@@ -14452,7 +14452,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0455-1.png"
+      "Q0455-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 194,
@@ -14486,7 +14486,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0456-1.png"
+      "Q0456-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 194,
@@ -14520,7 +14520,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0457-1.png"
+      "Q0457-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 195,
@@ -14586,7 +14586,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0459-1.png"
+      "Q0459-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 196,
@@ -14620,7 +14620,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0460-1.png"
+      "Q0460-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 197,
@@ -14686,7 +14686,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0462-1.png"
+      "Q0462-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 198,
@@ -14720,7 +14720,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0463-1.png"
+      "Q0463-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 198,
@@ -14754,7 +14754,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0464-1.png"
+      "Q0464-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 199,
@@ -14788,7 +14788,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0465-1.png"
+      "Q0465-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 199,
@@ -14822,7 +14822,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0466-1.png"
+      "Q0466-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 200,
@@ -14856,7 +14856,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0467-1.png"
+      "Q0467-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 201,
@@ -14890,7 +14890,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0468-1.png"
+      "Q0468-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 201,
@@ -14924,7 +14924,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0469-1.png"
+      "Q0469-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 202,
@@ -14958,7 +14958,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0470-1.png"
+      "Q0470-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 203,
@@ -14992,7 +14992,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0471-1.png"
+      "Q0471-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 204,
@@ -15026,7 +15026,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0472-1.png"
+      "Q0472-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 204,
@@ -15060,7 +15060,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0473-1.png"
+      "Q0473-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 205,
@@ -15094,7 +15094,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0474-1.png"
+      "Q0474-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 206,
@@ -15192,7 +15192,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0477-1.png"
+      "Q0477-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 207,
@@ -15226,7 +15226,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0478-1.png"
+      "Q0478-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 207,
@@ -15260,7 +15260,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0479-1.png"
+      "Q0479-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 209,
@@ -15275,8 +15275,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0480-1.png",
-      "Q0480-2.png"
+      "Q0480-1.svg",
+      "Q0480-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 210,
@@ -15323,7 +15323,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0481-1.png"
+      "Q0481-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 211,
@@ -15357,7 +15357,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0482-1.png"
+      "Q0482-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 211,
@@ -15391,7 +15391,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0483-1.png"
+      "Q0483-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 212,
@@ -15425,7 +15425,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0484-1.png"
+      "Q0484-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 213,
@@ -15491,7 +15491,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0486-1.png"
+      "Q0486-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 214,
@@ -15525,7 +15525,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0487-1.png"
+      "Q0487-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 215,
@@ -15564,7 +15564,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0488-1.png"
+      "Q0488-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 215,
@@ -15598,7 +15598,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0489-1.png"
+      "Q0489-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 216,
@@ -15637,7 +15637,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0490-1.png",
+      "Q0490-1.svg",
       "Q0490-2.png"
     ],
     "needsExhibit": true,
@@ -15672,7 +15672,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0491-1.png"
+      "Q0491-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 218,
@@ -15706,7 +15706,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0492-1.png"
+      "Q0492-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 219,
@@ -15740,7 +15740,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0493-1.png"
+      "Q0493-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 220,
@@ -15755,10 +15755,10 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0494-1.png",
-      "Q0494-2.png",
-      "Q0494-3.png",
-      "Q0494-4.png"
+      "Q0494-1.svg",
+      "Q0494-2.svg",
+      "Q0494-3.svg",
+      "Q0494-4.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 221,
@@ -15792,7 +15792,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0495-1.png"
+      "Q0495-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 222,
@@ -15826,7 +15826,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0496-1.png"
+      "Q0496-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 222,
@@ -15860,7 +15860,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0497-1.png"
+      "Q0497-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 224,
@@ -15894,7 +15894,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0498-1.png"
+      "Q0498-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 224,
@@ -15928,7 +15928,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0499-1.png"
+      "Q0499-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 225,
@@ -16144,7 +16144,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0506-1.png"
+      "Q0506-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 228,
@@ -16274,7 +16274,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0510-1.png"
+      "Q0510-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 229,
@@ -16372,7 +16372,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0513-1.png"
+      "Q0513-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 230,
@@ -16410,7 +16410,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0514-1.png"
+      "Q0514-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 231,
@@ -16708,7 +16708,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0523-1.png"
+      "Q0523-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 233,
@@ -16955,7 +16955,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0530-1.png"
+      "Q0530-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 235,
@@ -17026,7 +17026,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0532-1.png"
+      "Q0532-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 235,
@@ -17073,7 +17073,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0534-1.png"
+      "Q0534-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 236,
@@ -17445,8 +17445,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0545-1.png",
-      "Q0545-2.png"
+      "Q0545-1.svg",
+      "Q0545-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 239,
@@ -17667,9 +17667,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0552-1.png",
-      "Q0552-2.png",
-      "Q0552-3.png"
+      "Q0552-1.svg",
+      "Q0552-2.svg",
+      "Q0552-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 242,
@@ -17856,7 +17856,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0557-1.png"
+      "Q0557-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 244,
@@ -18119,7 +18119,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0565-1.png"
+      "Q0565-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 246,
@@ -18158,7 +18158,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0566-1.png"
+      "Q0566-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 247,
@@ -18384,7 +18384,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0573-1.png"
+      "Q0573-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 249,
@@ -18450,7 +18450,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0575-1.png"
+      "Q0575-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 250,
@@ -18612,7 +18612,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0580-1.png"
+      "Q0580-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 252,
@@ -18678,7 +18678,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0582-1.png"
+      "Q0582-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 253,
@@ -18693,8 +18693,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0583-1.png",
-      "Q0583-2.png"
+      "Q0583-1.svg",
+      "Q0583-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 254,
@@ -18790,8 +18790,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0586-1.png",
-      "Q0586-2.png"
+      "Q0586-1.svg",
+      "Q0586-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 256,
@@ -18857,8 +18857,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0588-1.png",
-      "Q0588-2.png"
+      "Q0588-1.svg",
+      "Q0588-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 257,
@@ -18914,7 +18914,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0589-1.png"
+      "Q0589-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 258,
@@ -18948,7 +18948,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0590-1.png"
+      "Q0590-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 259,
@@ -18995,8 +18995,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0592-1.png",
-      "Q0592-2.png"
+      "Q0592-1.svg",
+      "Q0592-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 260,
@@ -19053,7 +19053,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0593-1.png"
+      "Q0593-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 261,
@@ -19215,7 +19215,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0598-1.png"
+      "Q0598-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 262,
@@ -19313,7 +19313,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0601-1.png"
+      "Q0601-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 263,
@@ -19443,7 +19443,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0605-1.png"
+      "Q0605-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 265,
@@ -19514,7 +19514,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0607-1.png"
+      "Q0607-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 266,
@@ -19585,7 +19585,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0609-1.png"
+      "Q0609-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 267,
@@ -19619,7 +19619,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0610-1.png"
+      "Q0610-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 267,
@@ -19653,7 +19653,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0611-1.png"
+      "Q0611-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 268,
@@ -19737,7 +19737,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0614-1.png"
+      "Q0614-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 269,
@@ -19841,7 +19841,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0617-1.png"
+      "Q0617-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 270,
@@ -19992,7 +19992,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0621-1.png"
+      "Q0621-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 272,
@@ -20039,7 +20039,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0623-1.png"
+      "Q0623-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 273,
@@ -20059,11 +20059,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0624-1.png",
-      "Q0624-2.png",
-      "Q0624-3.png",
-      "Q0624-4.png",
-      "Q0624-5.png"
+      "Q0624-1.svg",
+      "Q0624-2.svg",
+      "Q0624-3.svg",
+      "Q0624-4.svg",
+      "Q0624-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 274,
@@ -20198,7 +20198,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0628-1.png"
+      "Q0628-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 276,
@@ -20232,7 +20232,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0629-1.png"
+      "Q0629-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 276,
@@ -20266,7 +20266,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0630-1.png"
+      "Q0630-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 277,
@@ -20409,11 +20409,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0635-1.png",
-      "Q0635-2.png",
-      "Q0635-3.png",
-      "Q0635-4.png",
-      "Q0635-5.png"
+      "Q0635-1.svg",
+      "Q0635-2.svg",
+      "Q0635-3.svg",
+      "Q0635-4.svg",
+      "Q0635-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 278,
@@ -20617,7 +20617,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0641-1.png"
+      "Q0641-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 281,
@@ -20811,7 +20811,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0647-1.png"
+      "Q0647-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 282,
@@ -20927,8 +20927,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0651-1.png",
-      "Q0651-2.png"
+      "Q0651-1.svg",
+      "Q0651-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 284,
@@ -21176,7 +21176,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0658-1.png"
+      "Q0658-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 286,
@@ -21210,7 +21210,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0660-1.png"
+      "Q0660-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 287,
@@ -21356,7 +21356,9 @@
       "A",
       "D"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0664-1.svg"
+    ],
     "needsExhibit": true,
     "sourcePage": 288,
     "needsReview": false
@@ -21370,7 +21372,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0665-1.png"
+      "Q0665-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 289,
@@ -21417,7 +21419,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0667-1.png"
+      "Q0667-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 290,
@@ -21468,7 +21470,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0668-1.png"
+      "Q0668-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 291,
@@ -21502,7 +21504,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0669-1.png"
+      "Q0669-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 292,
@@ -21714,7 +21716,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0676-1.png"
+      "Q0676-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 294,
@@ -22096,7 +22098,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0688-1.png"
+      "Q0688-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 297,
@@ -22111,7 +22113,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0689-1.png"
+      "Q0689-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 298,
@@ -22438,7 +22440,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0699-1.png"
+      "Q0699-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 301,
@@ -22472,7 +22474,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0700-1.png"
+      "Q0700-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 302,
@@ -22511,7 +22513,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0702-1.png"
+      "Q0702-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 303,
@@ -22550,7 +22552,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0703-1.png"
+      "Q0703-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 304,
@@ -22922,7 +22924,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0715-1.png"
+      "Q0715-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 307,
@@ -23167,10 +23169,10 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0722-1.png",
-      "Q0722-2.png",
-      "Q0722-3.png",
-      "Q0722-4.png"
+      "Q0722-1.svg",
+      "Q0722-2.svg",
+      "Q0722-3.svg",
+      "Q0722-4.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 309,
@@ -23185,7 +23187,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0723-1.png"
+      "Q0723-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 310,
@@ -23237,7 +23239,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0725-1.png"
+      "Q0725-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 311,
@@ -23353,7 +23355,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0729-1.png"
+      "Q0729-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 312,
@@ -23432,8 +23434,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0732-1.png",
-      "Q0732-2.png"
+      "Q0732-1.svg",
+      "Q0732-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 313,
@@ -23595,7 +23597,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0738-1.png"
+      "Q0738-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 315,
@@ -24073,7 +24075,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0753-1.png"
+      "Q0753-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 319,
@@ -24107,7 +24109,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0754-1.png"
+      "Q0754-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 320,
@@ -24186,7 +24188,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0757-1.png"
+      "Q0757-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 321,
@@ -24302,7 +24304,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0761-1.png"
+      "Q0761-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 323,
@@ -24445,7 +24447,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0766-1.png"
+      "Q0766-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 325,
@@ -24560,7 +24562,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0769-1.png"
+      "Q0769-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 326,
@@ -24594,7 +24596,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0771-1.png"
+      "Q0771-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 327,
@@ -24628,7 +24630,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0772-1.png"
+      "Q0772-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 327,
@@ -24643,7 +24645,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0773-1.png"
+      "Q0773-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 328,
@@ -24727,7 +24729,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0776-1.png"
+      "Q0776-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 329,
@@ -24742,7 +24744,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0777-1.png"
+      "Q0777-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 330,
@@ -24757,7 +24759,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0778-1.png"
+      "Q0778-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 331,
@@ -24772,7 +24774,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0779-1.png"
+      "Q0779-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 332,
@@ -24806,7 +24808,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0780-1.png"
+      "Q0780-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 333,
@@ -24909,7 +24911,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0783-1.png"
+      "Q0783-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 334,
@@ -24924,7 +24926,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0784-1.png"
+      "Q0784-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 334,
@@ -25006,7 +25008,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0786-1.png"
+      "Q0786-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 335,
@@ -25104,7 +25106,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0790-1.png"
+      "Q0790-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 336,
@@ -25202,7 +25204,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0794-1.png"
+      "Q0794-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 337,
@@ -25318,7 +25320,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0799-1.png"
+      "Q0799-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 339,
@@ -25365,7 +25367,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0801-1.png"
+      "Q0801-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 340,
@@ -25600,7 +25602,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0811-1.png"
+      "Q0811-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 343,
@@ -26228,7 +26230,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0831-1.png"
+      "Q0831-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 350,
@@ -26243,8 +26245,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0832-1.png",
-      "Q0832-2.png"
+      "Q0832-1.svg",
+      "Q0832-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 351,
@@ -26310,7 +26312,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0834-1.png"
+      "Q0834-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 352,
@@ -26376,8 +26378,8 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0836-1.png",
-      "Q0836-2.png"
+      "Q0836-1.svg",
+      "Q0836-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 355,
@@ -26416,7 +26418,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0837-1.png"
+      "Q0837-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 356,
@@ -26535,7 +26537,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0840-1.png"
+      "Q0840-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 357,
@@ -26569,7 +26571,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0842-1.png"
+      "Q0842-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 358,
@@ -26603,7 +26605,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0843-1.png"
+      "Q0843-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 359,
@@ -26637,7 +26639,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0844-1.png"
+      "Q0844-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 360,
@@ -26725,7 +26727,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0847-1.png"
+      "Q0847-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 361,
@@ -26791,7 +26793,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0850-1.png"
+      "Q0850-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 362,
@@ -26838,8 +26840,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0852-1.png",
-      "Q0852-2.png"
+      "Q0852-1.svg",
+      "Q0852-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 363,
@@ -27070,7 +27072,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0859-1.png"
+      "Q0859-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 366,
@@ -27104,7 +27106,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0860-1.png"
+      "Q0860-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 367,
@@ -27170,7 +27172,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0862-1.png"
+      "Q0862-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 368,
@@ -27332,7 +27334,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0867-1.png"
+      "Q0867-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 369,
@@ -27347,7 +27349,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0868-1.png"
+      "Q0868-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 370,
@@ -27445,7 +27447,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0871-1.png"
+      "Q0871-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 371,
@@ -27488,7 +27490,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0872-1.png"
+      "Q0872-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 372,
@@ -27559,7 +27561,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0874-1.png"
+      "Q0874-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 373,
@@ -27593,7 +27595,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0875-1.png"
+      "Q0875-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 374,
@@ -27627,7 +27629,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0876-1.png"
+      "Q0876-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 377,
@@ -27661,7 +27663,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0877-1.png"
+      "Q0877-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 378,
@@ -27759,7 +27761,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0880-1.png"
+      "Q0880-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 379,
@@ -27889,7 +27891,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0884-1.png"
+      "Q0884-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 381,
@@ -28056,7 +28058,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0889-1.png"
+      "Q0889-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 382,
@@ -28122,7 +28124,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0891-1.png"
+      "Q0891-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 383,
@@ -28156,7 +28158,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0893-1.png"
+      "Q0893-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 384,
@@ -28190,7 +28192,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0894-1.png"
+      "Q0894-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 385,
@@ -28229,7 +28231,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0895-1.png"
+      "Q0895-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 386,
@@ -28263,7 +28265,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0896-1.png"
+      "Q0896-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 387,
@@ -28278,9 +28280,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0897-1.png",
-      "Q0897-2.png",
-      "Q0897-3.png"
+      "Q0897-1.svg",
+      "Q0897-2.svg",
+      "Q0897-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 388,
@@ -28319,7 +28321,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0898-1.png"
+      "Q0898-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 389,
@@ -28353,7 +28355,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0899-1.png"
+      "Q0899-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 390,
@@ -28368,8 +28370,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0900-1.png",
-      "Q0900-2.png"
+      "Q0900-1.svg",
+      "Q0900-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 390,
@@ -28410,7 +28412,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0901-1.png"
+      "Q0901-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 392,
@@ -28444,7 +28446,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0902-1.png"
+      "Q0902-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 392,
@@ -28478,7 +28480,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0903-1.png"
+      "Q0903-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 393,
@@ -28512,7 +28514,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0904-1.png"
+      "Q0904-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 393,
@@ -28527,7 +28529,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0905-1.png"
+      "Q0905-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 394,
@@ -28570,7 +28572,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0906-1.png"
+      "Q0906-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 395,
@@ -28604,7 +28606,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0907-1.png"
+      "Q0907-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 395,
@@ -28638,7 +28640,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0908-1.png"
+      "Q0908-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 396,
@@ -28653,8 +28655,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0909-1.png",
-      "Q0909-2.png"
+      "Q0909-1.svg",
+      "Q0909-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 397,
@@ -28703,7 +28705,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0910-1.png"
+      "Q0910-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 398,
@@ -28737,7 +28739,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0911-1.png"
+      "Q0911-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 399,
@@ -28835,7 +28837,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0914-1.png"
+      "Q0914-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 400,
@@ -28869,7 +28871,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0915-1.png"
+      "Q0915-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 401,
@@ -28903,7 +28905,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0916-1.png"
+      "Q0916-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 401,
@@ -29001,7 +29003,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0919-1.png"
+      "Q0919-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 403,
@@ -29067,7 +29069,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0922-1.png"
+      "Q0922-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 404,
@@ -29101,7 +29103,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0923-1.png"
+      "Q0923-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 404,
@@ -29135,7 +29137,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0924-1.png"
+      "Q0924-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 405,
@@ -29256,8 +29258,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0928-1.png",
-      "Q0928-2.png"
+      "Q0928-1.svg",
+      "Q0928-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 407,
@@ -29315,7 +29317,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0929-1.png"
+      "Q0929-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 408,
@@ -29450,7 +29452,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0933-1.png"
+      "Q0933-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 409,
@@ -29502,8 +29504,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0936-1.png",
-      "Q0936-2.png"
+      "Q0936-1.svg",
+      "Q0936-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 411,
@@ -29544,7 +29546,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0937-1.png"
+      "Q0937-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 412,
@@ -29559,8 +29561,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0938-1.png",
-      "Q0938-2.png"
+      "Q0938-1.svg",
+      "Q0938-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 413,
@@ -29645,7 +29647,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0940-1.png"
+      "Q0940-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 414,
@@ -29679,7 +29681,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0941-1.png"
+      "Q0941-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 415,
@@ -29745,7 +29747,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0943-1.png"
+      "Q0943-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 416,
@@ -29784,7 +29786,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0944-1.png"
+      "Q0944-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 416,
@@ -29914,7 +29916,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q0948-1.png"
+      "Q0948-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 418,
@@ -29962,7 +29964,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0950-1.png"
+      "Q0950-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 419,
@@ -30156,7 +30158,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0956-1.png"
+      "Q0956-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 421,
@@ -30198,7 +30200,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0957-1.png"
+      "Q0957-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 422,
@@ -30213,8 +30215,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0958-1.png",
-      "Q0958-2.png"
+      "Q0958-1.svg",
+      "Q0958-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 424,
@@ -30289,8 +30291,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0960-1.png",
-      "Q0960-2.png"
+      "Q0960-1.svg",
+      "Q0960-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 425,
@@ -30361,7 +30363,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0962-1.png"
+      "Q0962-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 426,
@@ -30376,8 +30378,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0963-1.png",
-      "Q0963-2.png"
+      "Q0963-1.svg",
+      "Q0963-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 427,
@@ -30423,7 +30425,9 @@
     "correctAnswer": [
       "A"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0964-1.svg"
+    ],
     "needsExhibit": true,
     "sourcePage": 428,
     "needsReview": false
@@ -30460,7 +30464,9 @@
       "A",
       "C"
     ],
-    "exhibitImages": [],
+    "exhibitImages": [
+      "Q0965-1.svg"
+    ],
     "needsExhibit": true,
     "sourcePage": 429,
     "needsReview": false
@@ -30612,7 +30618,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0970-1.png"
+      "Q0970-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 431,
@@ -30688,7 +30694,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0972-1.png"
+      "Q0972-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 432,
@@ -30754,7 +30760,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q0974-1.png"
+      "Q0974-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 433,
@@ -30769,8 +30775,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0975-1.png",
-      "Q0975-2.png"
+      "Q0975-1.svg",
+      "Q0975-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 434,
@@ -30952,7 +30958,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0980-1.png"
+      "Q0980-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 436,
@@ -30991,7 +30997,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q0981-1.png"
+      "Q0981-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 437,
@@ -31095,7 +31101,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q0984-1.png"
+      "Q0984-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 439,
@@ -31243,8 +31249,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0989-1.png",
-      "Q0989-2.png"
+      "Q0989-1.svg",
+      "Q0989-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 441,
@@ -31348,7 +31354,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q0992-1.png"
+      "Q0992-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 443,
@@ -31518,7 +31524,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q0997-1.png"
+      "Q0997-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 445,
@@ -31616,8 +31622,8 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1000-1.png",
-      "Q1000-2.png"
+      "Q1000-1.svg",
+      "Q1000-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 447,
@@ -31795,7 +31801,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1006-1.png"
+      "Q1006-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 449,
@@ -31842,7 +31848,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1008-1.png"
+      "Q1008-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 450,
@@ -32071,7 +32077,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1014-1.png"
+      "Q1014-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 452,
@@ -32150,8 +32156,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1018-1.png",
-      "Q1018-2.png"
+      "Q1018-1.svg",
+      "Q1018-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 454,
@@ -32222,7 +32228,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1020-1.png"
+      "Q1020-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 455,
@@ -32237,8 +32243,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1021-1.png",
-      "Q1021-2.png"
+      "Q1021-1.svg",
+      "Q1021-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 456,
@@ -32343,8 +32349,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1024-1.png",
-      "Q1024-2.png"
+      "Q1024-1.svg",
+      "Q1024-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 458,
@@ -32456,7 +32462,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1027-1.png"
+      "Q1027-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 459,
@@ -32471,7 +32477,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1028-1.png"
+      "Q1028-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 460,
@@ -32544,7 +32550,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1030-1.png"
+      "Q1030-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 461,
@@ -32642,7 +32648,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1033-1.png"
+      "Q1033-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 463,
@@ -32777,7 +32783,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1037-1.png"
+      "Q1037-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 465,
@@ -32848,7 +32854,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1039-1.png"
+      "Q1039-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 466,
@@ -32987,7 +32993,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1045-1.png"
+      "Q1045-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 469,
@@ -33021,7 +33027,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1046-1.png"
+      "Q1046-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 470,
@@ -33156,7 +33162,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1050-1.png"
+      "Q1050-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 472,
@@ -33190,7 +33196,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1051-1.png"
+      "Q1051-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 473,
@@ -33224,7 +33230,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1053-1.png"
+      "Q1053-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 474,
@@ -33258,7 +33264,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1055-1.png"
+      "Q1055-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 474,
@@ -33292,7 +33298,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1056-1.png"
+      "Q1056-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 475,
@@ -33358,7 +33364,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1062-1.png"
+      "Q1062-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 476,
@@ -33392,7 +33398,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1063-1.png"
+      "Q1063-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 476,
@@ -33426,7 +33432,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1064-1.png"
+      "Q1064-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 477,
@@ -33460,7 +33466,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1065-1.png"
+      "Q1065-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 477,
@@ -33494,7 +33500,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1066-1.png"
+      "Q1066-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 478,
@@ -33541,8 +33547,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1068-1.png",
-      "Q1068-2.png"
+      "Q1068-1.svg",
+      "Q1068-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 479,
@@ -33581,7 +33587,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1069-1.png"
+      "Q1069-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 480,
@@ -33716,7 +33722,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1074-1.png"
+      "Q1074-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 481,
@@ -33915,7 +33921,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1080-1.png"
+      "Q1080-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 483,
@@ -33930,8 +33936,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1081-1.png",
-      "Q1081-2.png"
+      "Q1081-1.svg",
+      "Q1081-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 484,
@@ -33984,7 +33990,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1082-1.png"
+      "Q1082-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 485,
@@ -34050,7 +34056,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1084-1.png"
+      "Q1084-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 485,
@@ -34084,7 +34090,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1085-1.png"
+      "Q1085-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 486,
@@ -34099,8 +34105,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1086-1.png",
-      "Q1086-2.png"
+      "Q1086-1.svg",
+      "Q1086-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 487,
@@ -34133,8 +34139,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1087-1.png",
-      "Q1087-2.png"
+      "Q1087-1.svg",
+      "Q1087-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 488,
@@ -34167,8 +34173,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1088-1.png",
-      "Q1088-2.png"
+      "Q1088-1.svg",
+      "Q1088-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 489,
@@ -34193,9 +34199,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1089-1.png",
-      "Q1089-2.png",
-      "Q1089-3.png"
+      "Q1089-1.svg",
+      "Q1089-2.svg",
+      "Q1089-3.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 490,
@@ -34228,8 +34234,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1091-1.png",
-      "Q1091-2.png"
+      "Q1091-1.svg",
+      "Q1091-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 492,
@@ -34263,7 +34269,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1093-1.png"
+      "Q1093-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 493,
@@ -34338,7 +34344,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1095-1.png"
+      "Q1095-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 494,
@@ -34468,7 +34474,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1099-1.png"
+      "Q1099-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 495,
@@ -34515,8 +34521,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1101-1.png",
-      "Q1101-2.png"
+      "Q1101-1.svg",
+      "Q1101-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 497,
@@ -34536,8 +34542,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1102-1.png",
-      "Q1102-2.png"
+      "Q1102-1.svg",
+      "Q1102-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 498,
@@ -34569,8 +34575,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1103-1.png",
-      "Q1103-2.png"
+      "Q1103-1.svg",
+      "Q1103-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 499,
@@ -34846,7 +34852,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1111-1.png"
+      "Q1111-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 501,
@@ -34861,8 +34867,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1112-1.png",
-      "Q1112-2.png"
+      "Q1112-1.svg",
+      "Q1112-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 502,
@@ -34920,8 +34926,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1114-1.png",
-      "Q1114-2.png"
+      "Q1114-1.svg",
+      "Q1114-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 503,
@@ -34953,8 +34959,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1115-1.png",
-      "Q1115-2.png"
+      "Q1115-1.svg",
+      "Q1115-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 504,
@@ -35027,7 +35033,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1117-1.png"
+      "Q1117-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 505,
@@ -35074,8 +35080,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1119-1.png",
-      "Q1119-2.png"
+      "Q1119-1.svg",
+      "Q1119-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 506,
@@ -35114,7 +35120,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1120-1.png"
+      "Q1120-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 507,
@@ -35148,7 +35154,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1121-1.png"
+      "Q1121-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 508,
@@ -35182,7 +35188,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1122-1.png"
+      "Q1122-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 508,
@@ -35216,7 +35222,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1123-1.png"
+      "Q1123-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 509,
@@ -35250,7 +35256,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1124-1.png"
+      "Q1124-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 510,
@@ -35265,8 +35271,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1125-1.png",
-      "Q1125-2.png"
+      "Q1125-1.svg",
+      "Q1125-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 511,
@@ -35328,7 +35334,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1127-1.png"
+      "Q1127-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 512,
@@ -35399,7 +35405,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1129-1.png"
+      "Q1129-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 513,
@@ -35414,8 +35420,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1130-1.png",
-      "Q1130-2.png"
+      "Q1130-1.svg",
+      "Q1130-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 514,
@@ -35459,7 +35465,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1131-1.png"
+      "Q1131-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 515,
@@ -35474,8 +35480,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1132-1.png",
-      "Q1132-2.png"
+      "Q1132-1.svg",
+      "Q1132-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 516,
@@ -35514,7 +35520,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1133-1.png"
+      "Q1133-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 517,
@@ -35548,8 +35554,8 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1135-1.png",
-      "Q1135-2.png"
+      "Q1135-1.svg",
+      "Q1135-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 518,
@@ -35591,7 +35597,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1140-1.png"
+      "Q1140-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 520,
@@ -35707,8 +35713,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1144-1.png",
-      "Q1144-2.png"
+      "Q1144-1.svg",
+      "Q1144-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 522,
@@ -35752,7 +35758,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1145-1.png"
+      "Q1145-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 523,
@@ -35799,7 +35805,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1147-1.png"
+      "Q1147-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 524,
@@ -35840,7 +35846,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1149-1.png"
+      "Q1149-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 525,
@@ -35923,8 +35929,8 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1151-1.png",
-      "Q1151-2.png"
+      "Q1151-1.svg",
+      "Q1151-2.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 527,
@@ -35939,8 +35945,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1153-1.png",
-      "Q1153-2.png"
+      "Q1153-1.svg",
+      "Q1153-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 529,
@@ -36001,7 +36007,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1155-1.png"
+      "Q1155-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 530,
@@ -36186,7 +36192,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1163-1.png"
+      "Q1163-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 532,
@@ -36201,8 +36207,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1165-1.png",
-      "Q1165-2.png"
+      "Q1165-1.svg",
+      "Q1165-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 534,
@@ -36259,8 +36265,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1170-1.png",
-      "Q1170-2.png"
+      "Q1170-1.svg",
+      "Q1170-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 535,
@@ -36336,7 +36342,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1174-1.png"
+      "Q1174-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 536,
@@ -36370,7 +36376,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1176-1.png"
+      "Q1176-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 537,
@@ -36404,7 +36410,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1177-1.png"
+      "Q1177-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 538,
@@ -36534,7 +36540,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1184-1.png"
+      "Q1184-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 540,
@@ -36549,8 +36555,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1188-1.png",
-      "Q1188-2.png"
+      "Q1188-1.svg",
+      "Q1188-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 540,
@@ -36589,7 +36595,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1189-1.png"
+      "Q1189-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 541,
@@ -36604,8 +36610,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1190-1.png",
-      "Q1190-2.png"
+      "Q1190-1.svg",
+      "Q1190-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 542,
@@ -36772,11 +36778,11 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1196-1.png",
-      "Q1196-2.png",
-      "Q1196-3.png",
-      "Q1196-4.png",
-      "Q1196-5.png"
+      "Q1196-1.svg",
+      "Q1196-2.svg",
+      "Q1196-3.svg",
+      "Q1196-4.svg",
+      "Q1196-5.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 545,
@@ -36811,7 +36817,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1197-1.png"
+      "Q1197-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 546,
@@ -36845,7 +36851,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1198-1.png"
+      "Q1198-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 546,
@@ -36943,7 +36949,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1202-1.png"
+      "Q1202-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 547,
@@ -36977,7 +36983,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1203-1.png"
+      "Q1203-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 548,
@@ -37011,7 +37017,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1204-1.png"
+      "Q1204-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 549,
@@ -37045,7 +37051,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1205-1.png"
+      "Q1205-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 549,
@@ -37175,7 +37181,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1209-1.png"
+      "Q1209-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 552,
@@ -37214,7 +37220,7 @@
       "E"
     ],
     "exhibitImages": [
-      "Q1210-1.png"
+      "Q1210-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 553,
@@ -37248,7 +37254,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1211-1.png"
+      "Q1211-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 554,
@@ -37282,7 +37288,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1212-1.png"
+      "Q1212-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 554,
@@ -37385,7 +37391,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1215-1.png"
+      "Q1215-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 555,
@@ -37547,7 +37553,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1221-1.png"
+      "Q1221-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 557,
@@ -37581,7 +37587,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1222-1.png"
+      "Q1222-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 558,
@@ -37632,7 +37638,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1223-1.png"
+      "Q1223-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 559,
@@ -37698,7 +37704,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1227-1.png"
+      "Q1227-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 560,
@@ -37796,7 +37802,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1231-1.png"
+      "Q1231-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 561,
@@ -38054,7 +38060,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1240-1.png"
+      "Q1240-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 563,
@@ -38088,7 +38094,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1241-1.png"
+      "Q1241-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 564,
@@ -38127,7 +38133,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1242-1.png"
+      "Q1242-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 565,
@@ -38193,7 +38199,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1245-1.png"
+      "Q1245-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 566,
@@ -38451,7 +38457,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1254-1.png"
+      "Q1254-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 568,
@@ -38466,8 +38472,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1256-1.png",
-      "Q1256-2.png"
+      "Q1256-1.svg",
+      "Q1256-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 568,
@@ -38514,7 +38520,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1259-1.png"
+      "Q1259-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 569,
@@ -38548,7 +38554,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1261-1.png"
+      "Q1261-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 570,
@@ -38595,8 +38601,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1263-1.png",
-      "Q1263-2.png"
+      "Q1263-1.svg",
+      "Q1263-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 571,
@@ -38683,8 +38689,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1267-1.png",
-      "Q1267-2.png"
+      "Q1267-1.svg",
+      "Q1267-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 572,
@@ -38765,7 +38771,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1269-1.png"
+      "Q1269-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 573,
@@ -38831,7 +38837,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1273-1.png"
+      "Q1273-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 574,
@@ -38865,7 +38871,7 @@
       "C"
     ],
     "exhibitImages": [
-      "Q1274-1.png"
+      "Q1274-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 575,
@@ -38899,7 +38905,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1276-1.png"
+      "Q1276-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 575,
@@ -38965,7 +38971,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1279-1.png"
+      "Q1279-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 576,
@@ -39031,7 +39037,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1281-1.png"
+      "Q1281-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 577,
@@ -39174,8 +39180,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1289-1.png",
-      "Q1289-2.png"
+      "Q1289-1.svg",
+      "Q1289-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 580,
@@ -39265,9 +39271,9 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1292-1.png",
-      "Q1292-2.png",
-      "Q1292-3.png"
+      "Q1292-1.svg",
+      "Q1292-2.svg",
+      "Q1292-3.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 581,
@@ -39306,7 +39312,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1294-1.png"
+      "Q1294-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 582,
@@ -39340,7 +39346,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1296-1.png"
+      "Q1296-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 583,
@@ -39406,7 +39412,7 @@
       "B"
     ],
     "exhibitImages": [
-      "Q1320-1.png"
+      "Q1320-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 584,
@@ -39517,8 +39523,8 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1325-1.png",
-      "Q1325-2.png"
+      "Q1325-1.svg",
+      "Q1325-2.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 586,
@@ -39580,7 +39586,7 @@
     "options": [],
     "correctAnswer": null,
     "exhibitImages": [
-      "Q1327-1.png"
+      "Q1327-1.svg"
     ],
     "needsExhibit": false,
     "sourcePage": 587,
@@ -39621,7 +39627,7 @@
       "D"
     ],
     "exhibitImages": [
-      "Q1330-1.png"
+      "Q1330-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 588,
@@ -39655,7 +39661,7 @@
       "A"
     ],
     "exhibitImages": [
-      "Q1339-1.png"
+      "Q1339-1.svg"
     ],
     "needsExhibit": true,
     "sourcePage": 589,

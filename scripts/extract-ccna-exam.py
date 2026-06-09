@@ -94,19 +94,30 @@ def green_rects_on_page(page) -> list[tuple]:
     return rects
 
 
-def render_region_svg(page, clip: fitz.Rect) -> bytes | None:
+def render_region_svg(src_doc, page_number: int, clip: fitz.Rect) -> bytes | None:
     """
-    Render a page region to SVG. Captures both vector paths and embedded rasters.
+    Render a clipped region of a PDF page to SVG, preserving vector graphics.
+
+    Uses show_pdf_page() to paste the clipped region into a temporary single-page
+    document, then exports that page as SVG. This preserves vector paths (router
+    symbols, lines, labels) — unlike get_pixmap() which rasterizes everything.
+
     Returns UTF-8-encoded SVG bytes, or None if region is too small or empty.
     """
     try:
         if clip.is_empty or clip.height < 30 or clip.width < 40:
             return None
-        # Clamp to page bounds
+        page = src_doc[page_number]
         clip = clip & page.rect
         if clip.is_empty:
             return None
-        svg_str = page.get_svg_image(clip=clip, matrix=fitz.Matrix(1.5, 1.5))
+
+        tmp = fitz.open()
+        tmp_page = tmp.new_page(width=round(clip.width), height=round(clip.height))
+        tmp_page.show_pdf_page(tmp_page.rect, src_doc, page_number, clip=clip)
+        svg_str = tmp_page.get_svg_image()
+        tmp.close()
+
         # A meaningful SVG is at least ~1.5 KB; shorter = empty/whitespace only
         if not svg_str or len(svg_str) < 1500:
             return None
@@ -293,7 +304,7 @@ def extract_questions():
 
                 # Try SVG render of this image's page region (preserves vector context)
                 if rects:
-                    svg_data = render_region_svg(page, rects[0])
+                    svg_data = render_region_svg(doc, page_idx, rects[0])
                     if svg_data:
                         tq["images"].append({"ext": "svg", "data": svg_data})
                         continue
@@ -317,10 +328,10 @@ def extract_questions():
                 y_top = tq.get("y_start", 0) + 20  # skip past the question-number line
                 y_bot = min(y_opts) - 5 if y_opts else page.rect.height * 0.72
                 clip = fitz.Rect(0, y_top, page.rect.width, y_bot)
-                svg_data = render_region_svg(page, clip)
+                svg_data = render_region_svg(doc, page_idx, clip)
                 if svg_data:
                     tq["images"].append({"ext": "svg", "data": svg_data})
-                    print(f"  → SVG region captured for {tq.get('id', '?')} (needsExhibit, page {page_num})")
+                    print(f"  SVG region captured for {tq.get('id', '?')} (needsExhibit, page {page_num})")
 
     # Flush last question
     if current:
