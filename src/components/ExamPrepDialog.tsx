@@ -134,19 +134,51 @@ function fuzzyMatch(userText: string, correctText: string): boolean {
   return overlap / Math.max(uWords.length, cWords.length) >= 0.6;
 }
 
+/** Returns true if a text string looks like garbled OCR output */
+function isGarbledText(text: string): boolean {
+  if (!text || text.length < 3) return true;
+  const specialRatio = (text.match(/[^a-zA-Z0-9\s.,\/:()]/g) ?? []).length / text.length;
+  return specialRatio > 0.15;
+}
+
+/** Returns true if all texts in the array are clean enough to use */
+function hasUsableDDTexts(texts: string[]): boolean {
+  return texts.length > 0 && texts.every((t) => !isGarbledText(t));
+}
+
 /** Score a drag-drop submission: returns fraction of correct slot assignments */
 function scoreDragDrop(
   userSlots: (string | null)[],
   correctMapping: string[],
 ): number {
-  let correct = 0;
-  const total = correctMapping.filter((m) => m).length;
+  // Only compare up to the shorter array to avoid out-of-bounds slot comparisons
+  const len = Math.min(userSlots.length, correctMapping.length);
+  const total = correctMapping.slice(0, len).filter(Boolean).length;
   if (total === 0) return 0;
-  correctMapping.forEach((expected, i) => {
+  let correct = 0;
+  for (let i = 0; i < len; i++) {
+    const expected = correctMapping[i];
     const placed = userSlots[i];
     if (expected && placed && fuzzyMatch(placed, expected)) correct++;
-  });
-  return total > 0 ? correct / total : 0;
+  }
+  return correct / total;
+}
+
+/** Re-classify "General" drag-drop questions using keyword heuristics */
+function inferDDCategory(q: ExamQuestion): string {
+  if (q.category !== "General") return q.category;
+  const text = [q.text, ...(q.dragItems ?? []), ...(q.dropTargets ?? [])].join(" ").toLowerCase();
+  if (/ospf|lsa|area 0|backbone/.test(text)) return "OSPF";
+  if (/vlan|trunk|stp|spanning.tree|etherchannel|802\.1q/.test(text)) return "Switching/VLAN";
+  if (/ipv6|fe80|2001:|link.local|eui.64/.test(text)) return "IPv6";
+  if (/\bdhcp\b|dhcp\s+discover|dhcp\s+offer|dhcp\s+ack/.test(text)) return "NAT/DHCP";
+  if (/\bnat\b|\bpat\b|overload|inside.global|outside.local/.test(text)) return "NAT/DHCP";
+  if (/\bacl\b|access.list|permit|deny|standard.*acl|extended.*acl/.test(text)) return "Security";
+  if (/wireless|ssid|wpa|wpa2|802\.11|bss|ess|\bap\b|access.point/.test(text)) return "Wireless";
+  if (/subnet|cidr|wildcard|network.mask|classful|classless/.test(text)) return "IPv4/Subnetting";
+  if (/ip route|routing|eigrp|bgp|static.route|default.route/.test(text)) return "Routing";
+  if (/\bapi\b|rest|netconf|yang|openflow|\bsdn\b|controller/.test(text)) return "Automation/SDN";
+  return q.category;
 }
 
 // ─── Sub-components ──────────────────────────────────────────
@@ -207,7 +239,12 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
   const items = question.dragItems ?? [];
   const targets = question.dropTargets ?? [];
   const correctMapping = question.correctMapping ?? [];
-  const hasInteractive = items.length >= 2 && targets.length >= 1;
+  // Only show interactive UI if both items and targets are OCR-clean text
+  const hasInteractive =
+    items.length >= 2 &&
+    targets.length >= 1 &&
+    hasUsableDDTexts(items) &&
+    hasUsableDDTexts(targets);
 
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
@@ -263,12 +300,23 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
     onUpdateSlots(next);
   }
 
-  // ── Fallback: no interactive data ────────────────────────
+  // ── Fallback: no interactive data (or garbled OCR text) ──
   if (!hasInteractive) {
+    const hasGarbledData =
+      (question.dragItems?.length ?? 0) >= 2 &&
+      (!hasUsableDDTexts(question.dragItems!) || !hasUsableDDTexts(question.dropTargets ?? []));
     return (
       <div className={`flex flex-col gap-3 rounded-xl border p-4 shadow-sm ${
         dark ? "bg-zinc-800 border-zinc-700" : "bg-white border-zinc-200"
       }`}>
+        {/* Badge: image-only, no automatic scoring */}
+        <div className={`flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs ${
+          dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-500"
+        }`}>
+          <span>Nur per Bild lösbar</span>
+          <span>·</span>
+          <span>Kein automatisches Scoring</span>
+        </div>
         {question.questionStateImage && !revealed && (
           <ExhibitImage src={`/exam-images/${question.questionStateImage}`} dark={dark} />
         )}
@@ -279,7 +327,9 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
           <p className={`rounded-lg border border-dashed p-4 text-sm ${
             dark ? "border-zinc-600 text-zinc-500" : "border-zinc-300 text-zinc-400"
           }`}>
-            Drag &amp; Drop — Seite {question.sourcePage} im PDF für die vollständige Aufgabe.
+            {hasGarbledData
+              ? `OCR-Fehler — Drag & Drop nur im PDF lesbar (Seite ${question.sourcePage}).`
+              : `Drag & Drop — Seite ${question.sourcePage} im PDF für die vollständige Aufgabe.`}
           </p>
         )}
         {(revealed || question.answerStateImage) && (
@@ -641,10 +691,11 @@ function QuestionCard({
           )}
         </div>
       )}
-      {revealed && !correct && (
+      {/* Only show "not extractable" for MC questions — drag-drop handles its own state */}
+      {revealed && !correct && !isDragDrop && (
         <div
-          className={`mt-4 rounded-lg p-3 text-sm ${
-            dark ? "bg-yellow-900/30 text-yellow-300" : "bg-yellow-50 text-yellow-700"
+          className={`mt-4 rounded-lg border p-3 text-sm font-medium ${
+            dark ? "border-yellow-700 bg-yellow-900/40 text-yellow-300" : "border-yellow-300 bg-yellow-50 text-yellow-700"
           }`}
         >
           ⚠ Antwort nicht extrahierbar (Seite {question.sourcePage}). Diese Frage braucht manuelle Prüfung.
@@ -753,13 +804,25 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const [dragDropSlots, setDragDropSlots] = useState<Map<string, (string | null)[]>>(new Map());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Load questions from public/exam-questions.json
+  // Load questions + manual corrections overlay, then apply category inference
   useEffect(() => {
-    fetch("/exam-questions.json")
-      .then((r) => r.json())
-      .then((data: ExamQuestion[]) => {
-        // Filter: only questions with options (skip pure drag-drop with no options)
-        setQuestions(data);
+    Promise.all([
+      fetch("/exam-questions.json").then((r) => r.json()) as Promise<ExamQuestion[]>,
+      fetch("/exam-questions-corrections.json")
+        .then((r) => r.json())
+        .catch(() => ({})) as Promise<Record<string, Partial<ExamQuestion>>>,
+    ])
+      .then(([data, corrections]) => {
+        const merged = data.map((q) => {
+          const patch = corrections[q.id];
+          const patched: ExamQuestion = patch ? { ...q, ...patch } : q;
+          // Re-classify "General" drag-drop questions using text heuristics
+          if (patched.type === "drag-drop") {
+            patched.category = inferDDCategory(patched);
+          }
+          return patched;
+        });
+        setQuestions(merged);
         setLoading(false);
       })
       .catch((e) => {
@@ -794,21 +857,30 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     return ["all", ...Array.from(cats).sort()];
   }, [questions]);
 
-  // Filtered pool: MC questions (existing filter) + drag-drop questions with images or items
+  // Filtered pool: MC questions (existing filter) + drag-drop questions with images or usable items
   const filteredPool = useMemo(() => {
-    let pool = questions.filter(
-      (q) =>
-        ((q.options.length > 0 &&
-          q.type !== "drag-drop" &&
+    let pool = questions.filter((q) => {
+      if (q.type !== "drag-drop") {
+        return (
+          q.options.length > 0 &&
           q.correctAnswer !== null &&
           q.correctAnswer.length > 0 &&
-          !q.needsReview) ||
-         (q.type === "drag-drop" &&
-          ((q.dragItems?.length ?? 0) >= 2 ||
-           q.questionStateImage != null ||
-           q.answerStateImage != null ||
-           q.exhibitImages.length > 0)))
-    );
+          !q.needsReview
+        );
+      }
+      // Drag-drop: exclude needsReview questions that have no usable image fallback
+      const hasCleanInteractive =
+        (q.dragItems?.length ?? 0) >= 2 &&
+        hasUsableDDTexts(q.dragItems!) &&
+        (q.dropTargets?.length ?? 0) >= 1 &&
+        hasUsableDDTexts(q.dropTargets!);
+      const hasImageFallback =
+        q.questionStateImage != null ||
+        q.answerStateImage != null ||
+        q.exhibitImages.length > 0;
+      if (q.needsReview && !hasImageFallback) return false;
+      return hasCleanInteractive || hasImageFallback;
+    });
     if (selectedCategory !== "all") {
       pool = pool.filter((q) => q.category === selectedCategory);
     }

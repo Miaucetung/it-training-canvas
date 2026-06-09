@@ -1,0 +1,10 @@
+{
+  "_comment": "Manuelle Korrekturen für Drag-Drop-Fragen mit OCR-Fehlern. Format: { \"Q####\": { ...partial ExamQuestion fields } }",
+  "_example": {
+    "Q0007": {
+      "dragItems": ["FTP", "TFTP", "SSH"],
+      "dropTargets": ["uses ports 20 and 21", "uses UDP for fast transfers", "provides encrypted remote access"],
+      "correctMapping": ["FTP", "TFTP", "SSH"]
+    }
+  }
+}
