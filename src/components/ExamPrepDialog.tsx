@@ -28,32 +28,41 @@ import {
   XCircle,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
+
+// ─── Zod schemas (runtime validation for fetch responses) ────
+const ExamOptionSchema = z.object({
+  letter: z.string(),
+  text: z.string(),
+});
+
+const ExamQuestionSchema = z.object({
+  id: z.string(),
+  category: z.string(),
+  type: z.enum(["single", "multi-select", "drag-drop"]),
+  expectedAnswerCount: z.number(),
+  text: z.string(),
+  options: z.array(ExamOptionSchema),
+  correctAnswer: z.array(z.string()).nullable(),
+  exhibitImages: z.array(z.string()),
+  needsExhibit: z.boolean(),
+  sourcePage: z.number(),
+  needsReview: z.boolean(),
+  explanation: z.string().optional(),
+  dragItems: z.array(z.string()).optional(),
+  dropTargets: z.array(z.string()).optional(),
+  correctMapping: z.array(z.string()).optional(),
+  questionStateImage: z.string().nullable().optional(),
+  answerStateImage: z.string().nullable().optional(),
+});
+
+const ExamQuestionsSchema = z.array(ExamQuestionSchema);
+
+const CorrectionsSchema = z.record(z.string(), ExamQuestionSchema.partial());
 
 // ─── Types ───────────────────────────────────────────────────
-interface ExamOption {
-  letter: string;
-  text: string;
-}
-
-interface ExamQuestion {
-  id: string;
-  category: string;
-  type: "single" | "multi-select" | "drag-drop";
-  expectedAnswerCount: number;
-  text: string;
-  options: ExamOption[];
-  correctAnswer: string[] | null;
-  exhibitImages: string[];
-  needsExhibit: boolean;
-  sourcePage: number;
-  needsReview: boolean;
-  // Drag-drop specific (from OCR extraction)
-  dragItems?: string[];
-  dropTargets?: string[];
-  correctMapping?: string[];  // correctMapping[i] = correct item for dropTargets[i]
-  questionStateImage?: string | null;  // before answering
-  answerStateImage?: string | null;    // after answering (correct answer shown)
-}
+type ExamOption = z.infer<typeof ExamOptionSchema>;
+type ExamQuestion = z.infer<typeof ExamQuestionSchema>;
 
 interface SessionResult {
   questionId: string;
@@ -716,6 +725,20 @@ function QuestionCard({
           ⚠ Antwort nicht extrahierbar (Seite {question.sourcePage}). Diese Frage braucht manuelle Prüfung.
         </div>
       )}
+
+      {/* Explanation — shown after reveal if available */}
+      {revealed && question.explanation && (
+        <div
+          className={`mt-3 flex gap-2 rounded-lg border-l-4 px-3 py-2.5 text-sm ${
+            dark
+              ? "border-sky-500 bg-sky-900/20 text-sky-200"
+              : "border-sky-400 bg-sky-50 text-sky-900"
+          }`}
+        >
+          <span className="mt-0.5 shrink-0 text-sky-400">💡</span>
+          <span>{question.explanation}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -861,10 +884,13 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   // Load questions + manual corrections overlay, then apply category inference
   useEffect(() => {
     Promise.all([
-      fetch("/exam-questions.json").then((r) => r.json()) as Promise<ExamQuestion[]>,
+      fetch("/exam-questions.json")
+        .then((r) => r.json())
+        .then((raw) => ExamQuestionsSchema.parse(raw)),
       fetch("/exam-questions-corrections.json")
         .then((r) => r.json())
-        .catch(() => ({})) as Promise<Record<string, Partial<ExamQuestion>>>,
+        .then((raw) => CorrectionsSchema.parse(raw))
+        .catch(() => ({}) as Record<string, Partial<ExamQuestion>>),
     ])
       .then(([data, corrections]) => {
         const merged = data.map((q) => {
