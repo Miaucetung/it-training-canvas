@@ -3,8 +3,12 @@ import { useLocalStorage } from "@/lib/use-local-storage";
 import { LearningPath, Quiz, UserProgress } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useProgressSync } from "@/hooks/useProgressSync";
 
 export function useLearningState() {
+  const { user } = useAuth();
+
   const [learningPaths, setLearningPaths] = useLocalStorage<
     Record<string, LearningPath>
   >("canvas-learning-paths", {});
@@ -17,6 +21,8 @@ export function useLearningState() {
   const [userProgress, setUserProgress] = useLocalStorage<
     Record<string, UserProgress>
   >("canvas-user-progress", {});
+
+  useProgressSync(user, userProgress, setUserProgress as (p: Record<string, UserProgress>) => void);
 
   const [showLearningPathEditor, setShowLearningPathEditor] = useState(false);
   const [editingPath, setEditingPath] = useState<LearningPath | null>(null);
@@ -95,6 +101,7 @@ export function useLearningState() {
   );
 
   return {
+    user,
     learningPaths,
     setLearningPaths,
     quizzes,

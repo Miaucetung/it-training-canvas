@@ -35,3 +35,5 @@ pids
 
 # Office lock files
 ~$*.doc*
+
+coverage/

@@ -77,6 +77,8 @@ import {
   Target,
   Terminal,
 } from "@phosphor-icons/react";
+import { AuthDialog } from "@/components/AuthDialog";
+import { supabase } from "@/lib/supabase";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
 
@@ -196,6 +198,7 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLabScenarios, setShowLabScenarios] = useState(false);
   const [showExamPrep, setShowExamPrep] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
@@ -232,6 +235,7 @@ function App() {
 
   // Phase 3: Learning Engine State (extracted to useLearningState hook)
   const {
+    user,
     learningPaths,
     quizzes,
     userProgress,
@@ -1505,6 +1509,40 @@ function App() {
             >
               <Keyboard size={16} />
             </button>
+
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`} />
+
+            {/* Auth button */}
+            {user ? (
+              <button
+                onClick={() => supabase.auth.signOut()}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  theme === "dark"
+                    ? "text-emerald-400 hover:bg-zinc-700"
+                    : "text-emerald-600 hover:bg-emerald-50"
+                }`}
+                title={`Angemeldet als ${user.email} — Klicken zum Abmelden`}
+              >
+                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                  theme === "dark" ? "bg-emerald-700 text-white" : "bg-emerald-100 text-emerald-700"
+                }`}>
+                  {user.email?.[0]?.toUpperCase() ?? "?"}
+                </span>
+                <span className="max-w-[80px] truncate hidden sm:block">{user.email?.split("@")[0]}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAuthDialog(true)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  theme === "dark"
+                    ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
+                    : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                }`}
+                title="Anmelden — Fortschritt geräteübergreifend synchronisieren"
+              >
+                Anmelden
+              </button>
+            )}
           </div>
         </div>
 
@@ -1855,6 +1893,13 @@ function App() {
             onClose={() => setShowExamPrep(false)}
           />
         </Suspense>
+      )}
+
+      {showAuthDialog && (
+        <AuthDialog
+          dark={theme === "dark"}
+          onClose={() => setShowAuthDialog(false)}
+        />
       )}
 
       <OnboardingTour
