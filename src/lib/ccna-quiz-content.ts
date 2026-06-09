@@ -8041,6 +8041,1880 @@ export const QUIZ_TAG1_GRUNDLAGEN: Quiz = {
 };
 
 // ============================================================
+// QUIZ 31: Statisches Routing & Routingtabelle
+// ============================================================
+export const QUIZ_STATIC_ROUTING: Quiz = {
+  id: "ccna-quiz-static-routing",
+  title: "CCNA: Statisches Routing & Routingtabelle",
+  description: "ip route-Syntax, Routingtabelle lesen, Default-Route, Floating Static Routes und Vor-/Nachteile",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die korrekte Syntax für eine statische Route zum Netzwerk 192.168.2.0/24 mit Next-Hop 10.0.0.1?",
+      explanation: "Syntax: ip route [Zielnetz] [Subnetzmaske] [Next-Hop oder Exit-Interface]. Also: ip route 192.168.2.0 255.255.255.0 10.0.0.1",
+      answers: [
+        { id: "a", text: "ip route 192.168.2.0 255.255.255.0 10.0.0.1", isCorrect: true },
+        { id: "b", text: "ip route 10.0.0.1 192.168.2.0 255.255.255.0", isCorrect: false },
+        { id: "c", text: "route add 192.168.2.0/24 next-hop 10.0.0.1", isCorrect: false },
+        { id: "d", text: "ip static-route 192.168.2.0 255.255.255.0 10.0.0.1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welchen Administrative-Distanz-Wert hat eine statische Route standardmäßig?",
+      explanation: "Statische Routen haben standardmäßig eine AD von 1 – damit sind sie vertrauenswürdiger als alle dynamischen Routing-Protokolle, aber weniger als direkt verbundene Interfaces (AD 0).",
+      answers: [
+        { id: "a", text: "0", isCorrect: false },
+        { id: "b", text: "1", isCorrect: true },
+        { id: "c", text: "90", isCorrect: false },
+        { id: "d", text: "110", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie lautet der Befehl für eine Default-Route (Gateway of Last Resort) mit Next-Hop 192.168.1.1?",
+      explanation: "Die Default-Route verwendet 0.0.0.0 als Netzwerk UND als Subnetzmaske: ip route 0.0.0.0 0.0.0.0 192.168.1.1",
+      answers: [
+        { id: "a", text: "ip route 0.0.0.0 255.255.255.0 192.168.1.1", isCorrect: false },
+        { id: "b", text: "ip route 0.0.0.0 0.0.0.0 192.168.1.1", isCorrect: true },
+        { id: "c", text: "ip default-gateway 192.168.1.1", isCorrect: false },
+        { id: "d", text: "ip route default 192.168.1.1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In der Ausgabe von 'show ip route' steht vor einer Route das Kürzel 'S'. Was bedeutet das?",
+      explanation: "In der Routing-Tabelle steht 'S' für Static Route (statische Route). 'C' = Connected, 'O' = OSPF, 'R' = RIP, 'D' = EIGRP.",
+      answers: [
+        { id: "a", text: "STP-Route (Spanning Tree)", isCorrect: false },
+        { id: "b", text: "Static Route (statische Route)", isCorrect: true },
+        { id: "c", text: "OSPF Summary-Route", isCorrect: false },
+        { id: "d", text: "Stub Network", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Eine statische Route mit AD 254 ist als Backup-Route geeignet, wenn OSPF (AD 110) aktiv ist.",
+      explanation: "Richtig. Da AD 254 > 110, wird OSPF bevorzugt. Die statische Route (Floating Static) wird erst aktiv, wenn die OSPF-Route wegfällt.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der größte Nachteil von statischem Routing in großen Netzwerken?",
+      explanation: "Bei Topologieänderungen (Link down, neues Netz) müssen alle statischen Routen manuell angepasst werden. Dynamische Protokolle lernen Änderungen automatisch.",
+      answers: [
+        { id: "a", text: "Statisches Routing verbraucht mehr Bandbreite als dynamisches Routing", isCorrect: false },
+        { id: "b", text: "Bei Topologieänderungen müssen Routen manuell angepasst werden", isCorrect: true },
+        { id: "c", text: "Statisches Routing unterstützt kein VLSM", isCorrect: false },
+        { id: "d", text: "Statische Routen sind weniger sicher als dynamische Routen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine 'Host-Route' in der Routing-Tabelle?",
+      explanation: "Eine Host-Route hat die Subnetzmaske /32 (255.255.255.255) und zeigt auf eine einzelne IP-Adresse, nicht auf ein Netzwerk.",
+      answers: [
+        { id: "a", text: "Eine Route mit Subnetzmaske /24 zu einem lokalen Netz", isCorrect: false },
+        { id: "b", text: "Eine Route mit Subnetzmaske /32 zu einer einzelnen IP-Adresse", isCorrect: true },
+        { id: "c", text: "Eine Route über einen Host als Gateway", isCorrect: false },
+        { id: "d", text: "Eine automatisch generierte Route für alle Hosts", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl wird die IP-Routing-Tabelle auf einem Cisco-Router angezeigt?",
+      explanation: "'show ip route' zeigt alle bekannten Routen in der Routing-Tabelle inklusive Quellprotokoll, AD, Metrik und Next-Hop.",
+      answers: [
+        { id: "a", text: "show route table", isCorrect: false },
+        { id: "b", text: "show ip routing", isCorrect: false },
+        { id: "c", text: "show ip route", isCorrect: true },
+        { id: "d", text: "display routing-table", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet 'C' in der Ausgabe von 'show ip route'?",
+      explanation: "'C' steht für Directly Connected – das Netzwerk ist direkt an einem aktiven Interface des Routers angeschlossen.",
+      answers: [
+        { id: "a", text: "CDP-Route", isCorrect: false },
+        { id: "b", text: "Directly Connected (direkt verbundenes Netz)", isCorrect: true },
+        { id: "c", text: "Cost-Route", isCorrect: false },
+        { id: "d", text: "Core-Backbone-Route", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche der folgenden Aussagen über statische Routen sind korrekt? (Mehrere Antworten möglich)",
+      explanation: "Statische Routen werden nicht durch Routing-Protokolle verteilt, benötigen keine Berechnungs-CPU und haben standardmäßig AD 1. Sie eignen sich für kleine, stabile Netzwerke.",
+      answers: [
+        { id: "a", text: "Sie werden nicht automatisch durch Routing-Updates an andere Router verteilt", isCorrect: true },
+        { id: "b", text: "Sie benötigen keine CPU-Ressourcen für Metrik-Berechnungen", isCorrect: true },
+        { id: "c", text: "Sie eignen sich ideal für große Netzwerke mit häufigen Topologieänderungen", isCorrect: false },
+        { id: "d", text: "Sie haben standardmäßig den AD-Wert 1", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Subnetzmaske wird in der Default-Route verwendet?",
+      explanation: "Die Default-Route 0.0.0.0/0 (= ip route 0.0.0.0 0.0.0.0) matcht alle Zieladressen und wird als letzter Ausweg (Gateway of Last Resort) verwendet.",
+      answers: [
+        { id: "a", text: "255.255.255.255", isCorrect: false },
+        { id: "b", text: "255.0.0.0", isCorrect: false },
+        { id: "c", text: "0.0.0.0", isCorrect: true },
+        { id: "d", text: "255.255.255.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was besagt das 'Longest Match'-Prinzip bei der Routenauswahl?",
+      explanation: "Beim Longest Match wird die Route mit dem spezifischsten (längsten) Präfix gewählt. /28 wird vor /24 bevorzugt, /32 vor /28 usw. – unabhängig von AD oder Metrik.",
+      answers: [
+        { id: "a", text: "Die Route mit der höchsten Administrative Distanz wird bevorzugt", isCorrect: false },
+        { id: "b", text: "Die Route mit dem spezifischsten (längsten) Netzwerkpräfix wird bevorzugt", isCorrect: true },
+        { id: "c", text: "Die Route mit dem kürzesten Präfix gewinnt", isCorrect: false },
+        { id: "d", text: "Die zuerst eingetragene Route wird verwendet", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Eine statische Route kann sowohl mit einer Next-Hop IP-Adresse als auch mit einem Exit-Interface konfiguriert werden.",
+      explanation: "Richtig. Beispiele: 'ip route 10.0.0.0 255.0.0.0 192.168.1.1' (Next-Hop IP) oder 'ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/0' (Exit-Interface).",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was passiert mit einer statischen Route, wenn das konfigurierte Exit-Interface den Status 'down' erhält?",
+      explanation: "Wenn das Exit-Interface down ist, wird die statische Route automatisch aus der aktiven Routing-Tabelle entfernt. Sie bleibt in der Konfiguration, ist aber inaktiv.",
+      answers: [
+        { id: "a", text: "Die Route bleibt aktiv und wird weiter verwendet", isCorrect: false },
+        { id: "b", text: "Die Route wird aus der aktiven Routing-Tabelle entfernt", isCorrect: true },
+        { id: "c", text: "Der Router sendet automatisch eine ICMP-Meldung", isCorrect: false },
+        { id: "d", text: "Die Route wird durch eine OSPF-Route ersetzt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welchem Einsatzszenario ist statisches Routing am geeignetsten?",
+      explanation: "Statisches Routing eignet sich für kleine, stabile Netzwerke (z. B. Stub Networks) oder für Default-Routen zum ISP. Bei häufigen Änderungen oder vielen Routen ist dynamisches Routing effizienter.",
+      answers: [
+        { id: "a", text: "In großen ISP-Netzwerken mit tausenden Routen", isCorrect: false },
+        { id: "b", text: "In kleinen Netzwerken mit stabiler, unveränderlicher Topologie", isCorrect: true },
+        { id: "c", text: "In Netzwerken, die sich täglich ändern", isCorrect: false },
+        { id: "d", text: "Ausschließlich in IPv6-Netzwerken", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Unterschied zwischen 'ip default-gateway' und 'ip route 0.0.0.0 0.0.0.0'?",
+      explanation: "'ip default-gateway' wird auf Geräten ohne IP-Routing (Switches im Layer-2-Modus) für Management-Traffic verwendet. 'ip route 0.0.0.0 0.0.0.0' konfiguriert eine Default-Route auf Routern mit aktivem IP-Routing.",
+      answers: [
+        { id: "a", text: "Kein Unterschied, beide sind gleichwertig", isCorrect: false },
+        { id: "b", text: "'ip default-gateway' gilt für Switches/Hosts ohne IP-Routing; 'ip route' für Router mit aktivem Routing", isCorrect: true },
+        { id: "c", text: "'ip default-gateway' ist nur für IPv6-Geräte", isCorrect: false },
+        { id: "d", text: "'ip route 0.0.0.0 0.0.0.0' ist eine veraltete Methode", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet die Notation [1/0] in der Routing-Tabellenausgabe 'S 192.168.2.0/24 [1/0] via 10.0.0.1'?",
+      explanation: "[AD/Metrik] – also [Administrative Distance / Metrik]. Bei statischen Routen: [1/0] = AD 1, Metrik 0.",
+      answers: [
+        { id: "a", text: "[Metrik / Administrative Distanz]", isCorrect: false },
+        { id: "b", text: "[Administrative Distanz / Metrik]", isCorrect: true },
+        { id: "c", text: "[Cost / Hop-Count]", isCorrect: false },
+        { id: "d", text: "[Priority / Weight]", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche AD hat eine Directly Connected Route?",
+      explanation: "Direkt verbundene Routen haben AD 0 – sie sind die vertrauenswürdigste Quelle, da der Router das Netzwerk selbst kennt.",
+      answers: [
+        { id: "a", text: "0", isCorrect: true },
+        { id: "b", text: "1", isCorrect: false },
+        { id: "c", text: "5", isCorrect: false },
+        { id: "d", text: "10", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet 'via 10.0.0.1' in der Routing-Tabelle?",
+      explanation: "'via 10.0.0.1' gibt die Next-Hop IP-Adresse an, also den nächsten Router, an den Pakete für dieses Zielnetz weitergeleitet werden.",
+      answers: [
+        { id: "a", text: "Das Protokoll, über das die Route gelernt wurde", isCorrect: false },
+        { id: "b", text: "Die Next-Hop IP-Adresse für diese Route", isCorrect: true },
+        { id: "c", text: "Ein Verweis auf eine andere Routing-Tabelle", isCorrect: false },
+        { id: "d", text: "Die Ausgangsschnittstelle des Routers", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Summarisierungsrouten (Summary Routes) werden ausschließlich bei statischem Routing eingesetzt.",
+      explanation: "Falsch. Summarisierung wird auch bei dynamischen Protokollen wie OSPF (Type-3-LSA) und EIGRP verwendet, um die Routing-Tabelle zu verkleinern.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 32: RIP/RIPv2 & dynamisches Routing
+// ============================================================
+export const QUIZ_RIP: Quiz = {
+  id: "ccna-quiz-rip",
+  title: "CCNA: RIP/RIPv2 & dynamisches Routing",
+  description: "Distance-Vector-Prinzip, RIP-Timer, RIPv1 vs. RIPv2, VLSM, Routing-Loop-Verhütung",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Metrik verwendet RIP für die Routenwahl?",
+      explanation: "RIP verwendet den Hop-Count als einzige Metrik. Die Route mit den wenigsten Hops (Router-Sprüngen) wird bevorzugt.",
+      answers: [
+        { id: "a", text: "Bandbreite (Bandwidth)", isCorrect: false },
+        { id: "b", text: "Verzögerung (Delay)", isCorrect: false },
+        { id: "c", text: "Hop-Count (Anzahl der Router-Sprünge)", isCorrect: true },
+        { id: "d", text: "Link Cost (OSPF-Kosten)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie hoch ist die maximale Hop-Anzahl, die RIP unterstützt?",
+      explanation: "RIP erlaubt maximal 15 Hops. Eine Route mit 16 Hops gilt als unerreichbar (Infinity) – das verhindert Routing-Loops in sehr großen Netzen.",
+      answers: [
+        { id: "a", text: "10", isCorrect: false },
+        { id: "b", text: "15", isCorrect: true },
+        { id: "c", text: "100", isCorrect: false },
+        { id: "d", text: "255", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welchem Zeitintervall sendet RIP seine komplette Routing-Tabelle?",
+      explanation: "RIP sendet alle 30 Sekunden seine vollständige Routing-Tabelle an alle Nachbarn (Broadcast bei RIPv1, Multicast bei RIPv2).",
+      answers: [
+        { id: "a", text: "10 Sekunden", isCorrect: false },
+        { id: "b", text: "30 Sekunden", isCorrect: true },
+        { id: "c", text: "60 Sekunden", isCorrect: false },
+        { id: "d", text: "90 Sekunden", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der wichtigste Unterschied zwischen RIPv1 und RIPv2?",
+      explanation: "RIPv2 ist Classless und sendet die Subnetzmaske mit in den Routing-Updates. Damit wird VLSM unterstützt. RIPv1 ist Classful und sendet keine Subnetzmasken.",
+      answers: [
+        { id: "a", text: "RIPv2 verwendet TCP statt UDP für den Transport", isCorrect: false },
+        { id: "b", text: "RIPv2 ist Classless und überträgt Subnetzmasken in Updates (VLSM-Unterstützung)", isCorrect: true },
+        { id: "c", text: "RIPv2 hat eine maximale Hop-Anzahl von 30", isCorrect: false },
+        { id: "d", text: "RIPv1 verwendet Multicast, RIPv2 Broadcast", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "An welche Multicast-Adresse sendet RIPv2 seine Updates?",
+      explanation: "RIPv2 verwendet 224.0.0.9 für Multicast-Updates. RIPv1 verwendet Broadcast (255.255.255.255). OSPF verwendet 224.0.0.5/6, EIGRP 224.0.0.10.",
+      answers: [
+        { id: "a", text: "224.0.0.5", isCorrect: false },
+        { id: "b", text: "224.0.0.9", isCorrect: true },
+        { id: "c", text: "224.0.0.10", isCorrect: false },
+        { id: "d", text: "255.255.255.255", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl aktiviert RIPv2 auf einem Cisco-Router und bewirbt das Netz 10.0.0.0/8?",
+      explanation: "RIPv2 aktivieren: 'router rip', dann 'version 2', dann 'network 10.0.0.0' (classful Netzwerkadresse). Optional: 'no auto-summary' für VLSM.",
+      answers: [
+        { id: "a", text: "router rip → version 2 → network 10.0.0.0", isCorrect: true },
+        { id: "b", text: "ip routing rip version 2 network 10.0.0.0", isCorrect: false },
+        { id: "c", text: "rip enable version 2 network 10.0.0.0/8", isCorrect: false },
+        { id: "d", text: "routing-protocol rip 2 10.0.0.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "RIPv1 sendet Subnetzmasken in seinen Routing-Updates.",
+      explanation: "Falsch. RIPv1 ist ein Classful-Protokoll und sendet keine Subnetzmasken. Daher unterstützt RIPv1 kein VLSM. RIPv2 behebt diesen Mangel.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 'Split Horizon' in RIP?",
+      explanation: "Split Horizon verhindert, dass ein Router eine Route über dieselbe Schnittstelle zurücksendet, über die er sie gelernt hat. Das verhindert Routing-Loops.",
+      answers: [
+        { id: "a", text: "Ein Mechanismus zur Aufteilung großer Netzwerke in Segmente", isCorrect: false },
+        { id: "b", text: "Verhindern des Zurücksendens einer Route über die gleiche Schnittstelle, über die sie gelernt wurde", isCorrect: true },
+        { id: "c", text: "Ein Timer, der den Routing-Update-Zyklus steuert", isCorrect: false },
+        { id: "d", text: "Eine Methode zur Lastverteilung über mehrere Pfade", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 'Route Poisoning'?",
+      explanation: "Route Poisoning setzt die Metrik einer ausgefallenen Route sofort auf 16 (= unendlich/unerreichbar) und sendet dieses Update aktiv an alle Nachbarn, um Loops zu verhindern.",
+      answers: [
+        { id: "a", text: "Das Löschen aller Routing-Tabellen beim Neustart", isCorrect: false },
+        { id: "b", text: "Das Setzen der Metrik einer ausgefallenen Route auf 16 (Infinity)", isCorrect: true },
+        { id: "c", text: "Das Überschreiben guter Routen durch schlechtere Updates", isCorrect: false },
+        { id: "d", text: "Ein DoS-Angriff auf RIP-Netzwerke", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat RIP?",
+      explanation: "RIP hat AD 120. Zum Vergleich: Connected=0, Static=1, EIGRP=90, OSPF=110, RIP=120. Niedrigere AD = höheres Vertrauen.",
+      answers: [
+        { id: "a", text: "90", isCorrect: false },
+        { id: "b", text: "110", isCorrect: false },
+        { id: "c", text: "120", isCorrect: true },
+        { id: "d", text: "170", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet es, wenn eine Route in RIP eine Hop-Count von 16 hat?",
+      explanation: "Eine Hop-Count von 16 bedeutet in RIP 'unerreichbar' (Infinity). Da RIP maximal 15 Hops erlaubt, wird Hop 16 als unendlich/nicht erreichbar interpretiert.",
+      answers: [
+        { id: "a", text: "Die Route hat optimale Qualität mit kurzer Latenz", isCorrect: false },
+        { id: "b", text: "Die Route gilt als unerreichbar (Infinity)", isCorrect: true },
+        { id: "c", text: "Die Route hat genau 16 Router-Sprünge zum Ziel", isCorrect: false },
+        { id: "d", text: "Die Route wird mit höchster Priorität behandelt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Mechanismen verwendet RIP zur Verhütung von Routing-Loops? (Mehrere Antworten möglich)",
+      explanation: "RIP verwendet Split Horizon, Route Poisoning und Holddown-Timer gegen Routing-Loops. DUAL ist ein EIGRP-Algorithmus und nicht Teil von RIP.",
+      answers: [
+        { id: "a", text: "Split Horizon", isCorrect: true },
+        { id: "b", text: "Route Poisoning", isCorrect: true },
+        { id: "c", text: "Holddown-Timer", isCorrect: true },
+        { id: "d", text: "DUAL-Algorithmus", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Holddown-Timer in RIP und wie lange dauert er standardmäßig?",
+      explanation: "Der Holddown-Timer (standardmäßig 180 Sekunden) verhindert, dass nach dem Ausfall einer Route alternative Routen zu früh akzeptiert werden. Das schützt vor Routing-Loops während der Konvergenzphase.",
+      answers: [
+        { id: "a", text: "Zeit vor dem Routerstart (60 Sekunden)", isCorrect: false },
+        { id: "b", text: "Zeit nach Routenausfall, in der alternative Routen ignoriert werden (180 Sekunden)", isCorrect: true },
+        { id: "c", text: "Zeit bis zum nächsten Update (30 Sekunden)", isCorrect: false },
+        { id: "d", text: "Zeit bis zum Löschen einer Route aus der Tabelle (240 Sekunden)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Transportprotokoll und welchen Port verwendet RIP?",
+      explanation: "RIP verwendet UDP-Port 520 für seine Routing-Updates. UDP wird gewählt, da geringe Overhead für einfache Broadcasts/Multicasts wichtiger ist als Zuverlässigkeit.",
+      answers: [
+        { id: "a", text: "TCP Port 520", isCorrect: false },
+        { id: "b", text: "UDP Port 520", isCorrect: true },
+        { id: "c", text: "TCP Port 179", isCorrect: false },
+        { id: "d", text: "UDP Port 67", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Worin unterscheidet sich ein Link-State-Protokoll (OSPF) grundlegend von einem Distance-Vector-Protokoll (RIP)?",
+      explanation: "Link-State-Protokolle wie OSPF senden nur Änderungen (LSAs), haben die vollständige Topologiekarte und konvergieren schneller. Distance-Vector-Protokolle wie RIP senden periodisch die gesamte Routing-Tabelle.",
+      answers: [
+        { id: "a", text: "Link-State-Protokolle haben keine maximale Hop-Anzahl und sind immer schneller", isCorrect: false },
+        { id: "b", text: "Link-State-Protokolle senden nur Änderungen (LSAs), nicht die komplette Tabelle", isCorrect: true },
+        { id: "c", text: "Distance-Vector-Protokolle kennen die vollständige Netzwerktopologie", isCorrect: false },
+        { id: "d", text: "Link-State-Protokolle sind grundsätzlich langsamer bei der Konvergenz", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist VLSM (Variable Length Subnet Masking)?",
+      explanation: "VLSM ermöglicht unterschiedliche Subnetzmasken innerhalb desselben Netzwerks, um IP-Adressen effizient zu nutzen. Benötigt ein Classless-Protokoll wie RIPv2 oder OSPF.",
+      answers: [
+        { id: "a", text: "Ein dynamisches Routingprotokoll der zweiten Generation", isCorrect: false },
+        { id: "b", text: "Variable Length Subnet Masking – unterschiedliche Subnetzmasken im gleichen Netzwerk", isCorrect: true },
+        { id: "c", text: "Ein spezieller VPN-Tunnelmodus", isCorrect: false },
+        { id: "d", text: "Virtual LAN Subnet Multiplexing", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "RIP konvergiert in großen Netzwerken schneller als OSPF.",
+      explanation: "Falsch. OSPF konvergiert deutlich schneller als RIP, da es LSAs sofort bei Änderungen sendet und den Dijkstra-Algorithmus für schnelle Neuberechnung nutzt. RIPs 30-Sekunden-Intervalle machen es langsam.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie lang ist der RIP Flush-Timer standardmäßig?",
+      explanation: "Der Flush-Timer beträgt 240 Sekunden. Nach Ablauf des Holddown-Timers (180s) beginnt der Flush-Timer. Wenn nach insgesamt 240s kein Update kam, wird die Route gelöscht.",
+      answers: [
+        { id: "a", text: "30 Sekunden", isCorrect: false },
+        { id: "b", text: "120 Sekunden", isCorrect: false },
+        { id: "c", text: "180 Sekunden", isCorrect: false },
+        { id: "d", text: "240 Sekunden", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "RIPv2 unterstützt automatische Summarisierung (auto-summary) auf Classgrenzen.",
+      explanation: "Richtig, aber 'auto-summary' ist in der Praxis oft mit 'no auto-summary' deaktiviert, damit VLSM-Subnetze korrekt in Updates weitergegeben werden.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bewirkt der 'network'-Befehl in der RIP-Konfiguration?",
+      explanation: "'network [classful-Adresse]' aktiviert RIP auf allen Interfaces, deren IP-Adresse in das angegebene Klassnetzwerk fällt, und bewirbt diese Netzwerke in RIP-Updates.",
+      answers: [
+        { id: "a", text: "Er definiert das Ziel-Netzwerk für statische Routen", isCorrect: false },
+        { id: "b", text: "Er aktiviert RIP auf Interfaces im angegebenen Netzwerk und bewirbt diese", isCorrect: true },
+        { id: "c", text: "Er konfiguriert den Next-Hop für RIP-Updates", isCorrect: false },
+        { id: "d", text: "Er setzt die RIP-Version für ein bestimmtes Netzwerk", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 33: Administrative Distanz & Floating Static Routes
+// ============================================================
+export const QUIZ_ADMIN_DISTANCE: Quiz = {
+  id: "ccna-quiz-admin-distance",
+  title: "CCNA: Administrative Distanz & Floating Static Routes",
+  description: "AD-Tabelle, Routenauswahl-Logik, Floating Static Routes als Backup-Routen",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat eine direkt verbundene (Directly Connected) Route?",
+      explanation: "Directly Connected Routes haben AD 0 – die vertrauenswürdigste mögliche Quelle, da der Router das Netz selbst direkt kennt.",
+      answers: [
+        { id: "a", text: "0", isCorrect: true },
+        { id: "b", text: "1", isCorrect: false },
+        { id: "c", text: "5", isCorrect: false },
+        { id: "d", text: "10", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat eine statische Route standardmäßig?",
+      explanation: "Statische Routen haben AD 1. Sie sind vertrauenswürdiger als alle dynamischen Protokolle, aber weniger als direkt verbundene Routen (AD 0).",
+      answers: [
+        { id: "a", text: "0", isCorrect: false },
+        { id: "b", text: "1", isCorrect: true },
+        { id: "c", text: "90", isCorrect: false },
+        { id: "d", text: "110", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat EIGRP für interne Routen?",
+      explanation: "EIGRP intern hat AD 90. Externe EIGRP-Routen (redistributed) haben AD 170.",
+      answers: [
+        { id: "a", text: "80", isCorrect: false },
+        { id: "b", text: "90", isCorrect: true },
+        { id: "c", text: "100", isCorrect: false },
+        { id: "d", text: "110", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat OSPF?",
+      explanation: "OSPF hat AD 110. Die vollständige Reihenfolge: Connected=0, Static=1, EIGRP=90, OSPF=110, RIP=120, Ext.EIGRP=170.",
+      answers: [
+        { id: "a", text: "90", isCorrect: false },
+        { id: "b", text: "100", isCorrect: false },
+        { id: "c", text: "110", isCorrect: true },
+        { id: "d", text: "120", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat RIP?",
+      explanation: "RIP hat AD 120 – höher als EIGRP (90) und OSPF (110), also weniger vertrauenswürdig als diese.",
+      answers: [
+        { id: "a", text: "100", isCorrect: false },
+        { id: "b", text: "110", isCorrect: false },
+        { id: "c", text: "120", isCorrect: true },
+        { id: "d", text: "170", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat External EIGRP (redistributierte Routen)?",
+      explanation: "Externe EIGRP-Routen (aus anderen Protokollen redistributiert) haben AD 170 – deutlich höher als interne EIGRP-Routen (AD 90).",
+      answers: [
+        { id: "a", text: "90", isCorrect: false },
+        { id: "b", text: "110", isCorrect: false },
+        { id: "c", text: "120", isCorrect: false },
+        { id: "d", text: "170", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Router hat eine OSPF-Route und eine statische Route zum gleichen Ziel. Welche wird in die Routing-Tabelle eingetragen?",
+      explanation: "Die statische Route (AD 1) wird bevorzugt, da sie eine niedrigere AD hat als OSPF (AD 110). Niedrigere AD = höhere Vertrauenswürdigkeit.",
+      answers: [
+        { id: "a", text: "OSPF-Route (AD 110) – da dynamisch gelernt", isCorrect: false },
+        { id: "b", text: "Statische Route (AD 1) – da niedrigere AD", isCorrect: true },
+        { id: "c", text: "Abhängig von der Metrik der Routen", isCorrect: false },
+        { id: "d", text: "Die neuere Route wird bevorzugt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine 'Floating Static Route'?",
+      explanation: "Eine Floating Static Route hat eine höhere AD als das aktive dynamische Routing-Protokoll. Sie bleibt inaktiv (liegt 'unter' der dynamischen Route) und wird nur aktiv, wenn die dynamische Route wegfällt.",
+      answers: [
+        { id: "a", text: "Eine statische Route, die sich automatisch an Topologieänderungen anpasst", isCorrect: false },
+        { id: "b", text: "Eine statische Route mit höherer AD als das aktive Protokoll – dient als Backup", isCorrect: true },
+        { id: "c", text: "Eine temporäre Route mit Ablaufzeit", isCorrect: false },
+        { id: "d", text: "Eine über DHCP zugewiesene Route", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie konfiguriert man eine Floating Static Route als Backup für OSPF (AD 110) via 10.0.0.2 zum Netz 192.168.2.0/24?",
+      explanation: "Die Floating Static Route muss eine höhere AD als 110 haben, z.B. 150: 'ip route 192.168.2.0 255.255.255.0 10.0.0.2 150'. OSPF (AD 110) wird bevorzugt, bei Ausfall übernimmt die statische Route (AD 150).",
+      answers: [
+        { id: "a", text: "ip route 192.168.2.0 255.255.255.0 10.0.0.2 (AD 1 – schlägt OSPF)", isCorrect: false },
+        { id: "b", text: "ip route 192.168.2.0 255.255.255.0 10.0.0.2 150 (AD 150 > 110)", isCorrect: true },
+        { id: "c", text: "ip route floating 192.168.2.0 255.255.255.0 10.0.0.2", isCorrect: false },
+        { id: "d", text: "ip backup-route 192.168.2.0 255.255.255.0 10.0.0.2 ospf", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was passiert, wenn zwei Protokolle Routen zum gleichen Netzwerk mit identischer Präfixlänge haben?",
+      explanation: "Bei gleichem Präfix wird die Route mit der niedrigeren AD in die Routing-Tabelle installiert. Die andere Route bleibt in der Protokoll-Datenbank, aber nicht in der aktiven Routing-Tabelle.",
+      answers: [
+        { id: "a", text: "Beide Routen werden installiert (automatisches Load Balancing)", isCorrect: false },
+        { id: "b", text: "Die Route mit der niedrigeren AD wird bevorzugt und installiert", isCorrect: true },
+        { id: "c", text: "Die Route mit der höheren AD gewinnt", isCorrect: false },
+        { id: "d", text: "Beide Routen werden abgelehnt (Konflikt)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Eine Route mit niedrigerer Administrative Distanz ist vertrauenswürdiger als eine Route mit höherer AD.",
+      explanation: "Richtig. Die AD gibt an, wie vertrauenswürdig eine Routing-Quelle ist. Niedrigere AD = höheres Vertrauen. Daher haben direkt verbundene Routen (AD 0) immer Vorrang.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welcher Reihenfolge wählt ein Router die beste Route aus?",
+      explanation: "Erst Longest Match (spezifischstes Präfix), dann bei gleichem Präfix die niedrigste AD, dann bei gleichem AD die niedrigste Metrik.",
+      answers: [
+        { id: "a", text: "Metrik → Longest Match → Administrative Distanz", isCorrect: false },
+        { id: "b", text: "Longest Match → Administrative Distanz → Metrik", isCorrect: true },
+        { id: "c", text: "Administrative Distanz → Metrik → Longest Match", isCorrect: false },
+        { id: "d", text: "Metrik → Administrative Distanz → Longest Match", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Aussagen über Administrative Distanz sind korrekt? (Mehrere Antworten möglich)",
+      explanation: "AD wird nur zwischen verschiedenen Routingquellen verglichen. Kleinere AD = höhere Vertrauenswürdigkeit. AD ist der Tiebreaker nach dem Longest Match. Innerhalb eines Protokolls entscheidet die Metrik.",
+      answers: [
+        { id: "a", text: "AD wird nur zwischen verschiedenen Routing-Protokollen/Quellen verglichen", isCorrect: true },
+        { id: "b", text: "Kleinere AD bedeutet höhere Vertrauenswürdigkeit", isCorrect: true },
+        { id: "c", text: "AD dient als Tiebreaker, wenn die Präfixlänge identisch ist", isCorrect: true },
+        { id: "d", text: "AD vergleicht Routen innerhalb desselben Protokolls (dafür ist die Metrik zuständig)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Router erhält eine EIGRP-Route (AD 90) und eine OSPF-Route (AD 110) zum Ziel 10.0.0.0/24. Was wird in der Routing-Tabelle angezeigt?",
+      explanation: "Die EIGRP-Route (AD 90) wird in die Routing-Tabelle installiert, da 90 < 110. Die OSPF-Route liegt nur in der OSPF-Datenbank und wird erst aktiv, wenn EIGRP die Route verliert.",
+      answers: [
+        { id: "a", text: "Nur die OSPF-Route (AD 110)", isCorrect: false },
+        { id: "b", text: "Nur die EIGRP-Route (AD 90)", isCorrect: true },
+        { id: "c", text: "Beide Routen (Load Balancing)", isCorrect: false },
+        { id: "d", text: "Keine der Routen (Konflikt)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche AD-Wert ist für eine 'nicht vertrauenswürdige' oder unbekannte Route reserviert?",
+      explanation: "AD 255 bedeutet 'nicht vertrauenswürdig' oder 'unbekannt'. Routen mit AD 255 werden nicht in die Routing-Tabelle installiert.",
+      answers: [
+        { id: "a", text: "200", isCorrect: false },
+        { id: "b", text: "254", isCorrect: false },
+        { id: "c", text: "255", isCorrect: true },
+        { id: "d", text: "128", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 34: EIGRP Grundlagen
+// ============================================================
+export const QUIZ_EIGRP: Quiz = {
+  id: "ccna-quiz-eigrp",
+  title: "CCNA: EIGRP Grundlagen",
+  description: "DUAL-Algorithmus, Successor/Feasible Successor, Metrik, Konfiguration und Eigenschaften",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Als welcher Protokoll-Typ wird EIGRP klassifiziert?",
+      explanation: "EIGRP gilt als 'Advanced Distance-Vector' oder 'Hybrid' Protokoll. Es kombiniert Eigenschaften von Distance-Vector (Bellman-Ford-Basis) und Link-State (Topologie-Datenbank, schnelle Konvergenz).",
+      answers: [
+        { id: "a", text: "Reines Distance-Vector-Protokoll wie RIP", isCorrect: false },
+        { id: "b", text: "Reines Link-State-Protokoll wie OSPF", isCorrect: false },
+        { id: "c", text: "Advanced Distance-Vector (Hybrid-Protokoll)", isCorrect: true },
+        { id: "d", text: "Path-Vector-Protokoll wie BGP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welchen Algorithmus verwendet EIGRP zur Loop-freien Routenberechnung?",
+      explanation: "EIGRP verwendet den DUAL (Diffusing Update Algorithm). Er garantiert Loop-freie Routen und ermöglicht schnelle Konvergenz durch vorberechnete Backup-Routen (Feasible Successors).",
+      answers: [
+        { id: "a", text: "Dijkstra SPF-Algorithmus", isCorrect: false },
+        { id: "b", text: "Bellman-Ford-Algorithmus", isCorrect: false },
+        { id: "c", text: "DUAL (Diffusing Update Algorithm)", isCorrect: true },
+        { id: "d", text: "Prim-Algorithmus", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "An welche Multicast-Adresse sendet EIGRP seine Hello- und Update-Pakete?",
+      explanation: "EIGRP verwendet 224.0.0.10. Zum Vergleich: OSPF Hello = 224.0.0.5, OSPF DR/BDR = 224.0.0.6, RIPv2 = 224.0.0.9.",
+      answers: [
+        { id: "a", text: "224.0.0.5", isCorrect: false },
+        { id: "b", text: "224.0.0.6", isCorrect: false },
+        { id: "c", text: "224.0.0.9", isCorrect: false },
+        { id: "d", text: "224.0.0.10", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Administrative Distanz hat EIGRP für interne Routen?",
+      explanation: "EIGRP intern = AD 90. EIGRP extern (redistributed) = AD 170. Zum Vergleich: OSPF = 110, RIP = 120.",
+      answers: [
+        { id: "a", text: "80", isCorrect: false },
+        { id: "b", text: "90", isCorrect: true },
+        { id: "c", text: "100", isCorrect: false },
+        { id: "d", text: "110", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche AD hat EIGRP für externe (redistributierte) Routen?",
+      explanation: "External EIGRP (Routen aus anderen Protokollen redistributiert) hat AD 170 – deutlich höher als interne EIGRP-Routen (90), um Routing-Loops mit anderen Protokollen zu vermeiden.",
+      answers: [
+        { id: "a", text: "90", isCorrect: false },
+        { id: "b", text: "120", isCorrect: false },
+        { id: "c", text: "170", isCorrect: true },
+        { id: "d", text: "200", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein 'Successor' in EIGRP?",
+      explanation: "Der Successor ist die beste Route zu einem Ziel – die Route, die in die Routing-Tabelle installiert wird. Sie hat die niedrigste Feasible Distance (Gesamtmetrik vom Router zum Ziel).",
+      answers: [
+        { id: "a", text: "Ein EIGRP-Nachbarrouter", isCorrect: false },
+        { id: "b", text: "Die beste Route zu einem Ziel (in die Routing-Tabelle installiert)", isCorrect: true },
+        { id: "c", text: "Ein Backup-Router im Netzwerk", isCorrect: false },
+        { id: "d", text: "Der nächste Router in Richtung EIGRP-AS-Grenze", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein 'Feasible Successor' (FS) in EIGRP?",
+      explanation: "Ein Feasible Successor ist eine vorberechnete Loop-freie Backup-Route. Er erfüllt die Feasibility Condition und kann bei Ausfall des Successors sofort ohne erneute DUAL-Berechnung aktiviert werden.",
+      answers: [
+        { id: "a", text: "Ein Router, der für die EIGRP-AS-Rolle qualifiziert ist", isCorrect: false },
+        { id: "b", text: "Eine Loop-freie Backup-Route, die die Feasibility Condition erfüllt", isCorrect: true },
+        { id: "c", text: "Eine alternative Route mit höherer Metrik ohne weitere Bedingung", isCorrect: false },
+        { id: "d", text: "Ein Nachbar mit der besten Bandbreite", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die 'Feasibility Condition' (FC) in EIGRP?",
+      explanation: "FC: Die Reported Distance (RD) des Feasible Successors muss kleiner sein als die Feasible Distance (FD) des aktuellen Successors. Das garantiert Loop-Freiheit.",
+      answers: [
+        { id: "a", text: "Der FS muss eine geringere Bandbreite als der Successor haben", isCorrect: false },
+        { id: "b", text: "Die Reported Distance des FS muss kleiner sein als die Feasible Distance des Successors", isCorrect: true },
+        { id: "c", text: "Der FS muss im gleichen Autonomous System wie der Successor sein", isCorrect: false },
+        { id: "d", text: "Der FS muss direkt mit dem Router verbunden sein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie lautet der grundlegende Konfigurationsbefehl, um EIGRP mit AS 100 zu aktivieren und Netz 10.0.0.0/8 zu bewerben?",
+      explanation: "EIGRP konfigurieren: 'router eigrp 100' (AS-Nummer), dann 'network 10.0.0.0' (classful) oder 'network 10.0.0.0 0.255.255.255' (mit Wildcard).",
+      answers: [
+        { id: "a", text: "router eigrp 100 → network 10.0.0.0", isCorrect: true },
+        { id: "b", text: "eigrp enable 100 → advertise 10.0.0.0/8", isCorrect: false },
+        { id: "c", text: "ip eigrp 100 → network 10.0.0.0/8", isCorrect: false },
+        { id: "d", text: "routing-protocol eigrp as 100 network 10.0.0.0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "EIGRP unterstützt unequal-cost Load Balancing über den 'variance'-Befehl.",
+      explanation: "Richtig. Der 'variance'-Multiplier erlaubt EIGRP, Pakete über mehrere Pfade zu verteilen, die bis zu variance-mal schlechter als der Successor-Pfad sind. Das ist ein einzigartiges Feature von EIGRP.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche zwei Parameter verwendet EIGRP standardmäßig für die Metrikberechnung?",
+      explanation: "EIGRP verwendet standardmäßig Bandbreite (Bandwidth) und Verzögerung (Delay). Weitere Parameter (Reliability, Load, MTU) sind konfigurierbar, aber standardmäßig deaktiviert.",
+      answers: [
+        { id: "a", text: "Hop-Count und Bandbreite", isCorrect: false },
+        { id: "b", text: "Bandbreite (Bandwidth) und Verzögerung (Delay)", isCorrect: true },
+        { id: "c", text: "Nur Bandbreite", isCorrect: false },
+        { id: "d", text: "Hop-Count und Delay", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie oft sendet EIGRP standardmäßig Hello-Pakete auf einem LAN-Interface?",
+      explanation: "Auf LAN-Interfaces sendet EIGRP alle 5 Sekunden Hello-Pakete. Der Hold-Timer beträgt 15 Sekunden (3× Hello-Intervall). Auf WAN-Interfaces (T1 und langsamer): 60s Hello, 180s Hold.",
+      answers: [
+        { id: "a", text: "Alle 5 Sekunden", isCorrect: true },
+        { id: "b", text: "Alle 10 Sekunden", isCorrect: false },
+        { id: "c", text: "Alle 30 Sekunden", isCorrect: false },
+        { id: "d", text: "Alle 60 Sekunden", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "EIGRP sendet bei einer Topologieänderung immer die komplette Routing-Tabelle (wie RIP).",
+      explanation: "Falsch. EIGRP sendet Bounded Updates – nur betroffene Routen, nur an betroffene Nachbarn. Das spart Bandbreite und erhöht die Skalierbarkeit erheblich.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche IP-Protokollnummer verwendet EIGRP für seine Pakete?",
+      explanation: "EIGRP verwendet IP-Protokollnummer 88. OSPF verwendet 89. EIGRP läuft direkt über IP, nicht über TCP oder UDP.",
+      answers: [
+        { id: "a", text: "TCP/IP (Protokoll 6)", isCorrect: false },
+        { id: "b", text: "UDP/IP (Protokoll 17)", isCorrect: false },
+        { id: "c", text: "IP-Protokoll 88", isCorrect: true },
+        { id: "d", text: "IP-Protokoll 89", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl zeigt man die EIGRP-Topologie-Tabelle (inklusive Feasible Successors) an?",
+      explanation: "'show ip eigrp topology' zeigt alle EIGRP-Routen (Successors und Feasible Successors) mit Feasible Distance und Reported Distance.",
+      answers: [
+        { id: "a", text: "show ip route eigrp", isCorrect: false },
+        { id: "b", text: "show eigrp topology all", isCorrect: false },
+        { id: "c", text: "show ip eigrp topology", isCorrect: true },
+        { id: "d", text: "show eigrp routing-table", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl zeigt aktive EIGRP-Nachbarschaften an?",
+      explanation: "'show ip eigrp neighbors' listet alle EIGRP-Nachbarn mit Interface, Hold-Time, SRTT und weiteren Details.",
+      answers: [
+        { id: "a", text: "show ip ospf neighbor", isCorrect: false },
+        { id: "b", text: "show ip eigrp neighbors", isCorrect: true },
+        { id: "c", text: "show eigrp adjacency", isCorrect: false },
+        { id: "d", text: "show ip eigrp adjacency", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "EIGRP ist ein proprietäres Cisco-Protokoll, das niemals standardisiert wurde.",
+      explanation: "Falsch. EIGRP war ursprünglich Cisco-proprietär, wurde aber 2013 als RFC 7868 veröffentlicht und damit standardisiert.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: false },
+        { id: "b", text: "Falsch", isCorrect: true },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Zweck des 'variance'-Befehls in EIGRP?",
+      explanation: "'variance N' erlaubt Load Balancing über Pfade, die bis zu N-mal schlechter als der Successor-Pfad sind. variance 2 bedeutet: Pfade bis 2× der Successor-Metrik werden einbezogen.",
+      answers: [
+        { id: "a", text: "Verschiedene AS-Nummern in einem Netzwerk zu erlauben", isCorrect: false },
+        { id: "b", text: "Unequal-cost Load Balancing über Pfade unterschiedlicher Metrik zu ermöglichen", isCorrect: true },
+        { id: "c", text: "Die Metrik-Berechnungsformel zu ändern", isCorrect: false },
+        { id: "d", text: "Hello-Timer für bestimmte Interfaces anzupassen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Mechanismus stellt in EIGRP die zuverlässige Zustellung wichtiger Pakete sicher?",
+      explanation: "EIGRP verwendet RTP (Reliable Transport Protocol) für Update, Query, Reply und ACK-Pakete. Hello-Pakete werden unzuverlässig (unreliable) gesendet.",
+      answers: [
+        { id: "a", text: "TCP", isCorrect: false },
+        { id: "b", text: "UDP", isCorrect: false },
+        { id: "c", text: "RTP (Reliable Transport Protocol)", isCorrect: true },
+        { id: "d", text: "ICMP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein EIGRP-Router findet keinen Feasible Successor. Was passiert, wenn der Successor ausfällt?",
+      explanation: "Wenn kein Feasible Successor vorhanden ist, startet EIGRP den DUAL-Aktiven-Prozess: Der Router sendet Query-Pakete an alle Nachbarn, um neue Routen zu berechnen. Die Route ist während dieser Zeit inaktiv.",
+      answers: [
+        { id: "a", text: "Der Router verwendet automatisch RIP als Fallback", isCorrect: false },
+        { id: "b", text: "DUAL startet einen aktiven Prozess (Diffusing Computation) – Queries werden gesendet", isCorrect: true },
+        { id: "c", text: "Der Router löscht das komplette Routing und startet neu", isCorrect: false },
+        { id: "d", text: "Die Route bleibt dauerhaft aktiv über den letzten Successor-Pfad", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 35: Port Security
+// ============================================================
+export const QUIZ_PORT_SECURITY: Quiz = {
+  id: "ccna-quiz-port-security",
+  title: "CCNA: Port Security",
+  description: "switchport port-security, Violation-Modi, Sticky MAC, err-disable Recovery und 802.1X Grundlagen",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl aktiviert man Port Security auf einem Switch-Interface?",
+      explanation: "Der Befehl 'switchport port-security' aktiviert Port Security auf einem Interface. Das Interface muss vorher als statischer Access- oder Trunk-Port konfiguriert sein.",
+      answers: [
+        { id: "a", text: "ip port-security enable", isCorrect: false },
+        { id: "b", text: "switchport port-security", isCorrect: true },
+        { id: "c", text: "port security enable", isCorrect: false },
+        { id: "d", text: "interface port-security on", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele MAC-Adressen erlaubt Port Security standardmäßig pro Port?",
+      explanation: "Standardmäßig erlaubt Port Security genau 1 MAC-Adresse pro Port. Mit 'switchport port-security maximum N' kann dies erhöht werden.",
+      answers: [
+        { id: "a", text: "0 (muss immer manuell konfiguriert werden)", isCorrect: false },
+        { id: "b", text: "1", isCorrect: true },
+        { id: "c", text: "5", isCorrect: false },
+        { id: "d", text: "Unbegrenzt", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine 'Sticky MAC-Adresse'?",
+      explanation: "Sticky MAC-Adressen werden dynamisch gelernt und automatisch in die Running-Configuration geschrieben. Mit 'copy running-config startup-config' bleiben sie nach einem Reload erhalten.",
+      answers: [
+        { id: "a", text: "Eine manuell statisch eingetragene, unveränderliche MAC-Adresse", isCorrect: false },
+        { id: "b", text: "Eine dynamisch gelernte MAC-Adresse, die in die Running-Config gespeichert wird", isCorrect: true },
+        { id: "c", text: "Eine MAC-Adresse, die im NVRAM gespeichert und nicht überschrieben werden kann", isCorrect: false },
+        { id: "d", text: "Eine verschlüsselte MAC-Adresse für sichere Verbindungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Violation-Modus deaktiviert den Port und sendet eine SNMP-Meldung bei einer Verletzung?",
+      explanation: "Der 'shutdown'-Modus versetzt den Port in den err-disable-Zustand, sendet eine Syslog-Meldung und ggf. einen SNMP-Trap. Dies ist der Standard-Violation-Modus.",
+      answers: [
+        { id: "a", text: "protect", isCorrect: false },
+        { id: "b", text: "restrict", isCorrect: false },
+        { id: "c", text: "shutdown", isCorrect: true },
+        { id: "d", text: "disable", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was macht der Violation-Modus 'protect'?",
+      explanation: "'protect' verwirft Pakete von unbekannten MAC-Adressen, sendet aber keine Syslog-Meldung oder SNMP-Trap. Der Port bleibt oben – daher am wenigsten restriktiv.",
+      answers: [
+        { id: "a", text: "Port wird deaktiviert und eine Meldung gesendet", isCorrect: false },
+        { id: "b", text: "Pakete werden verworfen, aber kein Log oder Alert", isCorrect: true },
+        { id: "c", text: "Pakete werden verworfen und eine Syslog-Meldung gesendet", isCorrect: false },
+        { id: "d", text: "Port wird in das Quarantäne-VLAN verschoben", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was macht der Violation-Modus 'restrict'?",
+      explanation: "'restrict' verwirft Pakete unbekannter MACs UND sendet eine Syslog-Meldung + erhöht den Violation-Counter. Der Port bleibt aktiv – Mittelweg zwischen protect und shutdown.",
+      answers: [
+        { id: "a", text: "Port wird sofort deaktiviert (err-disable)", isCorrect: false },
+        { id: "b", text: "Pakete werden verworfen, ohne jede Benachrichtigung", isCorrect: false },
+        { id: "c", text: "Pakete werden verworfen und eine Syslog-Meldung/SNMP-Trap gesendet", isCorrect: true },
+        { id: "d", text: "Nur eine Warnung, Pakete werden durchgelassen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welchem Zustand befindet sich ein Port nach einer 'shutdown'-Verletzung?",
+      explanation: "Nach einer Shutdown-Verletzung wechselt der Port in den 'err-disable'-Zustand. In 'show interface' erscheint er als 'err-disabled'. Er muss manuell reaktiviert werden.",
+      answers: [
+        { id: "a", text: "down/down", isCorrect: false },
+        { id: "b", text: "err-disable", isCorrect: true },
+        { id: "c", text: "administratively down", isCorrect: false },
+        { id: "d", text: "half-duplex suspended", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie reaktiviert man einen err-disabled Port manuell?",
+      explanation: "Erst 'shutdown' auf dem Interface eingeben, dann 'no shutdown'. Das setzt den err-disable-Zustand zurück und reaktiviert den Port.",
+      answers: [
+        { id: "a", text: "shutdown → no shutdown auf dem Interface", isCorrect: true },
+        { id: "b", text: "port-security reset auf dem Interface", isCorrect: false },
+        { id: "c", text: "errdisable recovery cause port-security global", isCorrect: false },
+        { id: "d", text: "interface reset auf dem Interface", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl zeigt man den Port Security Status aller Interfaces?",
+      explanation: "'show port-security' zeigt eine Übersicht aller Interfaces mit Port Security – maximale und aktuelle MAC-Anzahl, Violation-Modus und Violation-Zähler.",
+      answers: [
+        { id: "a", text: "show port-security interface summary", isCorrect: false },
+        { id: "b", text: "show port-security", isCorrect: true },
+        { id: "c", text: "show mac-address-table security", isCorrect: false },
+        { id: "d", text: "show switchport security all", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was muss vor der Aktivierung von Port Security auf einem Interface konfiguriert sein?",
+      explanation: "Port Security funktioniert nur auf statisch konfigurierten Access- oder Trunk-Ports. Dynamic Auto / Dynamic Desirable Ports (DTP aktiv) unterstützen Port Security nicht.",
+      answers: [
+        { id: "a", text: "Das Interface muss als Routed Port konfiguriert sein", isCorrect: false },
+        { id: "b", text: "Das Interface muss als statischer Access- oder Trunk-Port konfiguriert sein", isCorrect: true },
+        { id: "c", text: "VTP muss auf dem Switch deaktiviert sein", isCorrect: false },
+        { id: "d", text: "STP muss auf dem Port explizit aktiviert sein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Sticky MAC-Adressen bleiben nach einem Switch-Reload erhalten, wenn die Konfiguration gespeichert wurde.",
+      explanation: "Richtig. Sticky MACs werden in die Running-Config geschrieben. Mit 'copy running-config startup-config' werden sie persistent und überleben Reloads.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie konfiguriert man, dass ein Port maximal 3 MAC-Adressen erlaubt?",
+      explanation: "'switchport port-security maximum 3' setzt das Maximum auf 3 MAC-Adressen. Standardwert ist 1.",
+      answers: [
+        { id: "a", text: "switchport port-security max 3", isCorrect: false },
+        { id: "b", text: "switchport port-security maximum 3", isCorrect: true },
+        { id: "c", text: "port-security mac-address max 3", isCorrect: false },
+        { id: "d", text: "ip port-security maximum 3", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 802.1X im Kontext der Netzwerksicherheit?",
+      explanation: "802.1X ist ein IEEE-Standard für Port-basierte Netzwerkzugangskontrolle (PNAC). Er verwendet EAP (Extensible Authentication Protocol) und einen RADIUS-Server zur Authentifizierung von Benutzern/Geräten vor dem Netzwerkzugang.",
+      answers: [
+        { id: "a", text: "Ein VLAN-Tagging-Standard", isCorrect: false },
+        { id: "b", text: "Port-basierte Netzwerkzugangskontrolle mit EAP-Authentifizierung via RADIUS", isCorrect: true },
+        { id: "c", text: "Ein Spanning Tree Erweiterungsprotokoll", isCorrect: false },
+        { id: "d", text: "Ein Kabelstandard für Cat6a Kupfermedien", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "BPDU-Guard deaktiviert automatisch einen Port (err-disable), wenn dieser ein STP-BPDU-Paket empfängt.",
+      explanation: "Richtig. BPDU-Guard schützt PortFast-Ports: Wenn ein Switch (der BPDUs sendet) versehentlich an einem PortFast-Port angeschlossen wird, deaktiviert BPDU-Guard den Port sofort.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist PortFast und für welche Ports ist es gedacht?",
+      explanation: "PortFast schaltet einen Port sofort in den STP Forwarding-Zustand, ohne die üblichen STP-Phasen (Listening/Learning). Es ist nur für Ports gedacht, an denen Endgeräte (keine Switches) angeschlossen sind.",
+      answers: [
+        { id: "a", text: "Eine STP-Funktion für schnelle Switch-zu-Switch Verbindungen", isCorrect: false },
+        { id: "b", text: "Sofortiger Wechsel in den Forwarding-Zustand ohne STP-Phasen – für Endgeräte-Ports", isCorrect: true },
+        { id: "c", text: "Ein Port-Monitoring-Mechanismus für Netzwerkanalyse", isCorrect: false },
+        { id: "d", text: "Ein EIGRP-Feature zur schnellen Routenkonvergenz", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 36: CIS1 Klausurvorbereitung
+// ============================================================
+export const QUIZ_CIS1_KLAUSUR: Quiz = {
+  id: "ccna-quiz-cis1-klausur",
+  title: "CIS1 Klausurvorbereitung: Grundlagen & Switching",
+  description: "Querschnitt CIS1: OSI, CLI, VLANs, VTP, DTP, Router-on-a-Stick, Subnetting Class C",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Auf welcher OSI-Schicht arbeitet ein Switch standardmäßig?",
+      explanation: "Ein herkömmlicher Switch arbeitet auf Schicht 2 (Data Link Layer) und leitet Frames anhand von MAC-Adressen weiter. Ein Layer-3-Switch kann zusätzlich auf Schicht 3 routen.",
+      answers: [
+        { id: "a", text: "Schicht 1 (Physical)", isCorrect: false },
+        { id: "b", text: "Schicht 2 (Data Link)", isCorrect: true },
+        { id: "c", text: "Schicht 3 (Network)", isCorrect: false },
+        { id: "d", text: "Schicht 4 (Transport)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche drei Schichten des OSI-Modells werden im TCP/IP-Modell als 'Application Layer' zusammengefasst?",
+      explanation: "Im TCP/IP-Modell entspricht der Application Layer den OSI-Schichten 5 (Session), 6 (Presentation) und 7 (Application).",
+      answers: [
+        { id: "a", text: "Schichten 1, 2 und 3", isCorrect: false },
+        { id: "b", text: "Schichten 2, 3 und 4", isCorrect: false },
+        { id: "c", text: "Schichten 5, 6 und 7", isCorrect: true },
+        { id: "d", text: "Schichten 4, 5 und 6", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Cisco-IOS-Befehl wechselt in den Privileged EXEC Mode?",
+      explanation: "'enable' wechselt vom User EXEC Mode (Router>) in den Privileged EXEC Mode (Router#). Von dort aus kommt man mit 'configure terminal' in den Global Configuration Mode.",
+      answers: [
+        { id: "a", text: "configure terminal", isCorrect: false },
+        { id: "b", text: "enable", isCorrect: true },
+        { id: "c", text: "admin mode", isCorrect: false },
+        { id: "d", text: "su root", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet CSMA/CD in Ethernet-Netzwerken?",
+      explanation: "CSMA/CD = Carrier Sense Multiple Access / Collision Detection. Geräte lauschen vor dem Senden (CS), teilen das Medium (MA), erkennen Kollisionen (CD) und führen einen Backoff durch.",
+      answers: [
+        { id: "a", text: "Carrier Sense Multiple Access / Collision Detection", isCorrect: true },
+        { id: "b", text: "Controlled Signal Multiple Access / Collision Delay", isCorrect: false },
+        { id: "c", text: "Channel Switching Medium Access / Collision Detection", isCorrect: false },
+        { id: "d", text: "Carrier Signal Modulation Access / Collision Detection", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Zweck von ARP (Address Resolution Protocol)?",
+      explanation: "ARP löst IP-Adressen (Layer 3) in MAC-Adressen (Layer 2) auf. Ein Gerät sendet einen Broadcast mit der Ziel-IP und empfängt die zugehörige MAC-Adresse des Ziels.",
+      answers: [
+        { id: "a", text: "Es weist automatisch IP-Adressen zu", isCorrect: false },
+        { id: "b", text: "Es löst IP-Adressen in MAC-Adressen auf", isCorrect: true },
+        { id: "c", text: "Es leitet Pakete zwischen verschiedenen Netzwerken weiter", isCorrect: false },
+        { id: "d", text: "Es verschlüsselt die Kommunikation zwischen Hosts", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein VLAN und welches Problem löst es?",
+      explanation: "Ein VLAN (Virtual LAN) ist ein logisches Netzwerksegment, das Broadcast-Domänen aufteilt, ohne physische Trennung zu erfordern. Es erhöht Sicherheit und reduziert unnötigen Broadcast-Traffic.",
+      answers: [
+        { id: "a", text: "Ein VLAN verbindet verschiedene physische Standorte über WAN", isCorrect: false },
+        { id: "b", text: "Ein VLAN teilt eine physische Netzwerkinfrastruktur in logische Broadcast-Domänen", isCorrect: true },
+        { id: "c", text: "Ein VLAN ist ein verschlüsselter Tunnel zwischen zwei Routern", isCorrect: false },
+        { id: "d", text: "Ein VLAN erhöht die Bandbreite durch Kanalbündelung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Cisco-IOS-Befehl konfiguriert ein Interface als Access-Port im VLAN 10?",
+      explanation: "Für einen Access-Port: 'switchport mode access' + 'switchport access vlan 10'. Access-Ports gehören genau einem VLAN und senden ungetaggte Frames.",
+      answers: [
+        { id: "a", text: "switchport vlan 10 access", isCorrect: false },
+        { id: "b", text: "switchport mode access → switchport access vlan 10", isCorrect: true },
+        { id: "c", text: "vlan 10 access port", isCorrect: false },
+        { id: "d", text: "interface vlan 10 access", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein Trunk-Port und welches Protokoll wird für das VLAN-Tagging verwendet?",
+      explanation: "Ein Trunk-Port überträgt mehrere VLANs gleichzeitig. IEEE 802.1Q wird für das VLAN-Tagging verwendet – jeder Frame erhält einen 4-Byte-Tag mit der VLAN-ID.",
+      answers: [
+        { id: "a", text: "Ein Port für Verbindungen zu Endgeräten; verwendet ISL", isCorrect: false },
+        { id: "b", text: "Ein Port, der mehrere VLANs überträgt; verwendet IEEE 802.1Q", isCorrect: true },
+        { id: "c", text: "Ein Port für WAN-Verbindungen; verwendet PPP", isCorrect: false },
+        { id: "d", text: "Ein redundanter Uplink-Port; verwendet STP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was sind die drei VTP-Modi und welcher empfängt, aber speichert keine VLAN-Informationen für andere?",
+      explanation: "VTP-Modi: Server (erstellt/ändert/löscht VLANs), Client (empfängt und verwendet VLANs, kann nicht ändern), Transparent (leitet VTP weiter, erstellt eigene VLANs lokal). Transparent-Modus macht beide Aussagen.",
+      answers: [
+        { id: "a", text: "Server-Modus", isCorrect: false },
+        { id: "b", text: "Client-Modus", isCorrect: false },
+        { id: "c", text: "Transparent-Modus", isCorrect: true },
+        { id: "d", text: "Off-Modus", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist das Sicherheitsrisiko bei VTP Server-Modus?",
+      explanation: "Wenn ein neuer Switch mit höherer VTP-Revisionsnummer ans Netz angeschlossen wird, überschreibt er die VLAN-Datenbank aller anderen Switches – VLANs können dadurch verschwinden und Netzwerkausfälle verursachen.",
+      answers: [
+        { id: "a", text: "VTP verschlüsselt Daten nicht ausreichend", isCorrect: false },
+        { id: "b", text: "Ein Switch mit höherer Revisionsnummer kann alle VLANs überschreiben/löschen", isCorrect: true },
+        { id: "c", text: "VTP ermöglicht Man-in-the-Middle-Angriffe auf Trunk-Ports", isCorrect: false },
+        { id: "d", text: "VTP Server sendet Klartext-Passwörter", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist DTP und wie deaktiviert man es sicher?",
+      explanation: "DTP (Dynamic Trunking Protocol) verhandelt automatisch Trunk-Links zwischen Cisco-Switches. Sicherheitsempfehlung: DTP deaktivieren mit 'switchport nonegotiate' + statischen Mode konfigurieren.",
+      answers: [
+        { id: "a", text: "DTP ist ein Spanning-Tree-Mechanismus; deaktivieren mit 'no spanning-tree'", isCorrect: false },
+        { id: "b", text: "DTP verhandelt automatisch Trunk-Links; deaktivieren mit 'switchport nonegotiate'", isCorrect: true },
+        { id: "c", text: "DTP ist ein VPN-Protokoll; deaktivieren mit 'no ip dtp'", isCorrect: false },
+        { id: "d", text: "DTP ist ein DHCP-Erweiterungsprotokoll; deaktivieren mit 'no ip dhcp dtp'", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist Router-on-a-Stick (ROAS) und warum braucht man es?",
+      explanation: "ROAS ermöglicht Inter-VLAN-Routing über einen physischen Router-Port mit Sub-Interfaces. Jedes Sub-Interface wird einem VLAN zugeordnet und mit 'encapsulation dot1Q [VLAN-ID]' konfiguriert.",
+      answers: [
+        { id: "a", text: "Eine Methode zur Redundanz über mehrere Router", isCorrect: false },
+        { id: "b", text: "Inter-VLAN-Routing über Sub-Interfaces auf einem physischen Router-Port", isCorrect: true },
+        { id: "c", text: "Eine Methode zur Verbindung mehrerer Switches über einen Trunk", isCorrect: false },
+        { id: "d", text: "Eine Failover-Methode für Router in HA-Konfigurationen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele Hosts sind in einem /26-Netzwerk nutzbar?",
+      explanation: "/26 = 26 Netzwerkbits, 6 Hostbits → 2^6 = 64 Adressen. Minus Netzadresse und Broadcast = 62 nutzbare Hosts.",
+      answers: [
+        { id: "a", text: "30", isCorrect: false },
+        { id: "b", text: "62", isCorrect: true },
+        { id: "c", text: "126", isCorrect: false },
+        { id: "d", text: "254", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die Subnetzmaske für /27?",
+      explanation: "/27 bedeutet 27 Bits für das Netz: 11111111.11111111.11111111.11100000 = 255.255.255.224",
+      answers: [
+        { id: "a", text: "255.255.255.128", isCorrect: false },
+        { id: "b", text: "255.255.255.192", isCorrect: false },
+        { id: "c", text: "255.255.255.224", isCorrect: true },
+        { id: "d", text: "255.255.255.240", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche der folgenden Adressen ist die Netzwerkadresse des Subnetzes, in dem 192.168.1.100/27 liegt?",
+      explanation: "/27 hat Blöcke von 32: 0, 32, 64, 96, 128, 160... Die Adresse 100 liegt im Block 96-127. Netzwerkadresse = 192.168.1.96, Broadcast = 192.168.1.127.",
+      answers: [
+        { id: "a", text: "192.168.1.64", isCorrect: false },
+        { id: "b", text: "192.168.1.96", isCorrect: true },
+        { id: "c", text: "192.168.1.100", isCorrect: false },
+        { id: "d", text: "192.168.1.128", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Im Cisco IOS speichert 'copy running-config startup-config' die aktuelle Konfiguration dauerhaft.",
+      explanation: "Richtig. Die Running-Config liegt im RAM und geht bei Neustart verloren. 'copy running-config startup-config' (oder 'wr') speichert sie in den NVRAM (Startup-Config).",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Native VLAN sendet auf einem 802.1Q Trunk ungetaggte Frames?",
+      explanation: "Das Native VLAN (Standard: VLAN 1) sendet und empfängt Frames ohne 802.1Q-Tag auf einem Trunk-Link. Es sollte auf ein ungenutztes VLAN geändert werden (Sicherheit).",
+      answers: [
+        { id: "a", text: "VLAN 0", isCorrect: false },
+        { id: "b", text: "VLAN 1 (Standard-Native-VLAN)", isCorrect: true },
+        { id: "c", text: "VLAN 1002", isCorrect: false },
+        { id: "d", text: "Das VLAN mit der höchsten ID", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl konfiguriert ein Sub-Interface für VLAN 20 auf Router-Interface G0/0?",
+      explanation: "Sub-Interface G0/0.20, dann 'encapsulation dot1Q 20' für VLAN 20. Danach IP-Adresse konfigurieren. Das physische Interface braucht kein 'ip address', nur 'no shutdown'.",
+      answers: [
+        { id: "a", text: "interface G0/0 → vlan 20 subinterface", isCorrect: false },
+        { id: "b", text: "interface G0/0.20 → encapsulation dot1Q 20 → ip address ...", isCorrect: true },
+        { id: "c", text: "interface G0/0 → switchport access vlan 20", isCorrect: false },
+        { id: "d", text: "vlan 20 interface G0/0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welchem VLAN-Bereich liegen Standard-VLANs (Normal Range)?",
+      explanation: "Standard-VLANs (Normal Range) sind VLAN 1–1005. Erweiterte VLANs (Extended Range) sind 1006–4094 und erfordern VTP Transparent oder Off Mode.",
+      answers: [
+        { id: "a", text: "VLAN 0 bis 999", isCorrect: false },
+        { id: "b", text: "VLAN 1 bis 1005", isCorrect: true },
+        { id: "c", text: "VLAN 1 bis 4096", isCorrect: false },
+        { id: "d", text: "VLAN 100 bis 4094", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Vorteil eines Layer-3-Switches gegenüber Router-on-a-Stick für Inter-VLAN-Routing?",
+      explanation: "Ein Layer-3-Switch routet zwischen VLANs intern über SVIs (Switched Virtual Interfaces) ohne einen externen Router. Das ist schneller und eliminiert den Single-Link-Engpass von ROAS.",
+      answers: [
+        { id: "a", text: "Layer-3-Switches sind billiger als Router", isCorrect: false },
+        { id: "b", text: "Internes Routing über SVIs ohne externen Router – kein Engpass durch einzelnen physischen Link", isCorrect: true },
+        { id: "c", text: "Layer-3-Switches unterstützen mehr VLANs als Router", isCorrect: false },
+        { id: "d", text: "Layer-3-Switches sind einfacher zu konfigurieren", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was zeigt 'show vlan brief' auf einem Cisco-Switch?",
+      explanation: "'show vlan brief' zeigt alle VLANs, ihre Namen und die zugehörigen Ports in kompakter Form. Trunk-Ports erscheinen hier nicht (die sind keinem VLAN direkt zugeordnet).",
+      answers: [
+        { id: "a", text: "Nur VLAN 1 und die Management-VLAN-Konfiguration", isCorrect: false },
+        { id: "b", text: "Alle VLANs, ihre Namen und zugehörige Access-Ports", isCorrect: true },
+        { id: "c", text: "Alle Trunk-Ports und erlaubte VLANs", isCorrect: false },
+        { id: "d", text: "VTP-Status und Konfiguration", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele nutzbare Hosts hat ein /30-Subnetz?",
+      explanation: "/30 = 2 Hostbits → 4 Adressen total. Minus Netz und Broadcast = 2 nutzbare Hosts. /30 wird typisch für Point-to-Point-Links zwischen Routern verwendet.",
+      answers: [
+        { id: "a", text: "0", isCorrect: false },
+        { id: "b", text: "2", isCorrect: true },
+        { id: "c", text: "6", isCorrect: false },
+        { id: "d", text: "14", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Das 'native VLAN' auf einem Trunk sollte aus Sicherheitsgründen nicht VLAN 1 sein.",
+      explanation: "Richtig. VLAN 1 als Native VLAN ist ein Sicherheitsrisiko (VLAN Hopping Angriff). Best Practice: Native VLAN auf ein ungenutztes VLAN ändern, das keine Hosts hat.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Cisco-IOS-Befehl zeigt alle aktiven Interfaces mit IP-Adresse und Status?",
+      explanation: "'show ip interface brief' zeigt alle Interfaces, ihre IP-Adressen und den Status (up/up, down/down, administratively down). Sehr nützlich für schnelle Diagnose.",
+      answers: [
+        { id: "a", text: "show interfaces status", isCorrect: false },
+        { id: "b", text: "show ip interface brief", isCorrect: true },
+        { id: "c", text: "show interface all ip", isCorrect: false },
+        { id: "d", text: "show running-config interfaces", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Schritte sind notwendig, um ein neues VLAN 30 mit dem Namen 'Marketing' auf einem Cisco-Switch zu erstellen?",
+      explanation: "VLANs erstellen im VLAN-Config-Mode: 'vlan 30' (im Global Config Mode), dann 'name Marketing'. Alternativ über die VLAN-Datenbank.",
+      answers: [
+        { id: "a", text: "interface vlan 30 → name Marketing", isCorrect: false },
+        { id: "b", text: "vlan 30 → name Marketing (im Global Config Mode)", isCorrect: true },
+        { id: "c", text: "switchport vlan 30 name Marketing", isCorrect: false },
+        { id: "d", text: "create vlan 30 name Marketing", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 37: CIS2 Klausurvorbereitung
+// ============================================================
+export const QUIZ_CIS2_KLAUSUR: Quiz = {
+  id: "ccna-quiz-cis2-klausur",
+  title: "CIS2 Klausurvorbereitung: Routing & ACLs",
+  description: "Querschnitt CIS2: Subnetting Class B, Statisches Routing, DHCP, CDP/LLDP, RIP, Admin Distance, Floating Static, ACLs",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die 'Magic Number' beim Subnetting und wie berechnet man sie?",
+      explanation: "Die Magic Number = 256 minus der Wert des letzten Oktetts der Subnetzmaske. Für /26 (255.255.255.192): 256-192=64. Sie gibt die Blockgröße der Subnetze an.",
+      answers: [
+        { id: "a", text: "Der Wert des letzten Oktetts der Subnetzmaske", isCorrect: false },
+        { id: "b", text: "256 minus dem Wert des interessanten Oktetts der Subnetzmaske", isCorrect: true },
+        { id: "c", text: "Die Anzahl der nutzbaren Hosts im Subnetz", isCorrect: false },
+        { id: "d", text: "Die Summe aller gesetzten Bits in der Subnetzmaske", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Unternehmen hat das Netzwerk 172.16.0.0/16 und benötigt 50 Subnetze mit je mindestens 500 Hosts. Welche Subnetzmaske ist geeignet?",
+      explanation: "50 Subnetze → mind. 6 Subnetzlbits (2^6=64≥50). 500 Hosts → mind. 10 Hostbits (2^10=1024≥500+2). /16 + 6 = /22. Prüfung: /22 hat 10 Hostbits = 1022 Hosts. Korrekt.",
+      answers: [
+        { id: "a", text: "/20 (255.255.240.0)", isCorrect: false },
+        { id: "b", text: "/22 (255.255.252.0)", isCorrect: true },
+        { id: "c", text: "/24 (255.255.255.0)", isCorrect: false },
+        { id: "d", text: "/25 (255.255.255.128)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine 'statische Route' und welchen AD-Wert hat sie standardmäßig?",
+      explanation: "Eine statische Route wird manuell vom Administrator konfiguriert. Sie hat AD 1 – vertrauenswürdiger als alle dynamischen Protokolle (EIGRP=90, OSPF=110, RIP=120), aber weniger als Connected (0).",
+      answers: [
+        { id: "a", text: "Eine automatisch gelernte Route mit AD 0", isCorrect: false },
+        { id: "b", text: "Eine manuell konfigurierte Route mit AD 1", isCorrect: true },
+        { id: "c", text: "Eine OSPF-Route mit AD 110", isCorrect: false },
+        { id: "d", text: "Eine DHCP-zugewiesene Route mit AD 5", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Router soll Pakete an unbekannte Ziele an 10.0.0.1 weiterleiten. Welcher Befehl konfiguriert das?",
+      explanation: "Default-Route: 'ip route 0.0.0.0 0.0.0.0 10.0.0.1'. Diese Route matcht alle Zieladressen, die keine spezifischere Route haben (Gateway of Last Resort).",
+      answers: [
+        { id: "a", text: "ip route 255.255.255.255 0.0.0.0 10.0.0.1", isCorrect: false },
+        { id: "b", text: "ip route 0.0.0.0 0.0.0.0 10.0.0.1", isCorrect: true },
+        { id: "c", text: "ip default-route 10.0.0.1", isCorrect: false },
+        { id: "d", text: "ip gateway 10.0.0.1", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist DHCP und welche vier Schritte umfasst der DHCP-Prozess?",
+      explanation: "DHCP (Dynamic Host Configuration Protocol) weist IP-Adressen automatisch zu. Vier Schritte (DORA): Discover (Client-Broadcast) → Offer (Server-Angebot) → Request (Client-Anfrage) → Acknowledge (Server-Bestätigung).",
+      answers: [
+        { id: "a", text: "DHCP vergibt statische Adressen; Schritte: Define, Offer, Reserve, Assign", isCorrect: false },
+        { id: "b", text: "DHCP vergibt dynamische Adressen; Schritte: Discover, Offer, Request, Acknowledge (DORA)", isCorrect: true },
+        { id: "c", text: "DHCP ist ein DNS-Erweiterungsprotokoll; Schritte: Discover, Offer, Reply, Accept", isCorrect: false },
+        { id: "d", text: "DHCP vergibt IPv6-Adressen; Schritte: Discover, Offer, Request, Ack", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Unterschied zwischen CDP und LLDP?",
+      explanation: "CDP (Cisco Discovery Protocol) ist Cisco-proprietär. LLDP (Link Layer Discovery Protocol) ist ein offener IEEE 802.1AB Standard und funktioniert herstellerübergreifend.",
+      answers: [
+        { id: "a", text: "CDP ist für IPv6, LLDP nur für IPv4", isCorrect: false },
+        { id: "b", text: "CDP ist Cisco-proprietär, LLDP ist ein offener IEEE-Standard (herstellerübergreifend)", isCorrect: true },
+        { id: "c", text: "CDP arbeitet auf Layer 3, LLDP auf Layer 2", isCorrect: false },
+        { id: "d", text: "CDP und LLDP sind identisch, nur für verschiedene Hardware", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Mit welchem Befehl zeigt man CDP-Nachbarinformationen an?",
+      explanation: "'show cdp neighbors' zeigt direkt verbundene CDP-fähige Nachbarn mit Geräte-ID, Interface, Holdtime, Capability und Platform. 'show cdp neighbors detail' zeigt zusätzlich IP-Adressen.",
+      answers: [
+        { id: "a", text: "show neighbor cdp", isCorrect: false },
+        { id: "b", text: "show cdp neighbors", isCorrect: true },
+        { id: "c", text: "display cdp table", isCorrect: false },
+        { id: "d", text: "show ip cdp", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches dynamische Routing-Protokoll verwendet ausschließlich Hop-Count als Metrik mit Maximum 15?",
+      explanation: "RIP (Routing Information Protocol) verwendet Hop-Count als einzige Metrik. Maximum 15 Hops – Hop-Count 16 = unerreichbar. Daher für große Netzwerke ungeeignet.",
+      answers: [
+        { id: "a", text: "OSPF", isCorrect: false },
+        { id: "b", text: "EIGRP", isCorrect: false },
+        { id: "c", text: "RIP", isCorrect: true },
+        { id: "d", text: "BGP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Router hat RIP-Route (AD 120) und OSPF-Route (AD 110) für dasselbe Ziel 10.10.0.0/24. Welche Route verwendet er?",
+      explanation: "OSPF (AD 110) wird bevorzugt gegenüber RIP (AD 120), da niedrigere AD = höhere Vertrauenswürdigkeit.",
+      answers: [
+        { id: "a", text: "RIP-Route (AD 120) – da es das ältere Protokoll ist", isCorrect: false },
+        { id: "b", text: "OSPF-Route (AD 110) – da niedrigere AD höher vertrauenswürdig", isCorrect: true },
+        { id: "c", text: "Beide werden für Load Balancing verwendet", isCorrect: false },
+        { id: "d", text: "Keine – Konflikt zwischen Protokollen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine 'Floating Static Route' und in welchem Szenario wird sie eingesetzt?",
+      explanation: "Eine Floating Static Route hat eine höhere AD als das primäre Routing-Protokoll und dient als Backup-Route. Beispiel: OSPF (AD 110) als Primär, Floating Static (AD 150) als Fallback wenn OSPF ausfällt.",
+      answers: [
+        { id: "a", text: "Eine temporäre Route mit Ablaufdatum", isCorrect: false },
+        { id: "b", text: "Eine statische Backup-Route mit höherer AD als das primäre Protokoll", isCorrect: true },
+        { id: "c", text: "Eine dynamisch angepasste statische Route", isCorrect: false },
+        { id: "d", text: "Eine Route für Floating-Point-Berechnungen in der Routing-Engine", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine Standard-ACL und auf welches Element filtert sie?",
+      explanation: "Standard-ACLs (Nummer 1-99 oder 1300-1999) filtern ausschließlich anhand der Quell-IP-Adresse. Sie sollten so nah wie möglich am Ziel platziert werden.",
+      answers: [
+        { id: "a", text: "Eine ACL, die Quell- und Ziel-IP-Adresse filtert", isCorrect: false },
+        { id: "b", text: "Eine ACL, die ausschließlich die Quell-IP-Adresse filtert", isCorrect: true },
+        { id: "c", text: "Eine ACL, die nur nach TCP-Ports filtert", isCorrect: false },
+        { id: "d", text: "Eine ACL für alle Protokolle ohne Einschränkung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine Erweiterte ACL und welche Nummernbereiche hat sie?",
+      explanation: "Erweiterte ACLs (100-199 oder 2000-2699) filtern nach Quell-IP, Ziel-IP, Protokoll und Port. Sie sollten so nah wie möglich an der Quelle platziert werden.",
+      answers: [
+        { id: "a", text: "ACL-Nummern 1-99; filtert nur Quell-IP", isCorrect: false },
+        { id: "b", text: "ACL-Nummern 100-199 (oder 2000-2699); filtert Quell/Ziel-IP, Protokoll und Port", isCorrect: true },
+        { id: "c", text: "ACL-Nummern 200-299; filtert nur Ziel-IP", isCorrect: false },
+        { id: "d", text: "ACL-Nummern 1000-1999; filtert MAC-Adressen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie wird eine ACL auf einem Interface angewendet?",
+      explanation: "ACL auf Interface anwenden: 'ip access-group [ACL-Name/Nummer] [in|out]'. 'in' = eingehender Traffic (Richtung Router), 'out' = ausgehender Traffic (vom Router weg).",
+      answers: [
+        { id: "a", text: "access-list apply [Nummer] [Interface]", isCorrect: false },
+        { id: "b", text: "ip access-group [Nummer/Name] in|out (im Interface-Config-Mode)", isCorrect: true },
+        { id: "c", text: "ip access-list [Nummer] interface [Name]", isCorrect: false },
+        { id: "d", text: "acl bind [Nummer] [Interface] direction [in|out]", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Am Ende jeder ACL gibt es implizit ein 'deny any any', das alle nicht explizit erlaubten Pakete blockiert.",
+      explanation: "Richtig. Cisco IOS fügt am Ende jeder ACL automatisch ein implizites 'deny any' hinzu. Ohne mindestens ein 'permit' blockiert eine ACL daher allen Traffic.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine Named ACL und welchen Vorteil hat sie gegenüber nummerierten ACLs?",
+      explanation: "Named ACLs verwenden einen beschreibenden Namen statt einer Nummer. Vorteil: Einzelne ACL-Einträge können gelöscht oder hinzugefügt werden, ohne die gesamte ACL neu zu erstellen.",
+      answers: [
+        { id: "a", text: "Named ACLs sind schneller als nummerierte ACLs", isCorrect: false },
+        { id: "b", text: "Named ACLs erlauben das Bearbeiten einzelner Einträge ohne die ACL neu zu erstellen", isCorrect: true },
+        { id: "c", text: "Named ACLs können nur auf Layer-3-Interfaces angewendet werden", isCorrect: false },
+        { id: "d", text: "Named ACLs unterstützen mehr Filterkriterien als nummerierte ACLs", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was bedeutet eine Wildcard-Maske 0.0.0.255 in einer ACL?",
+      explanation: "In Wildcard-Masken bedeutet 0 = 'Bit muss übereinstimmen' und 1 = 'Bit ist egal'. 0.0.0.255 bedeutet, dass die ersten 24 Bits übereinstimmen müssen (wie /24), das letzte Okkett ist egal.",
+      answers: [
+        { id: "a", text: "Nur die Adresse 0.0.0.255 wird gematcht", isCorrect: false },
+        { id: "b", text: "Die ersten drei Oktette müssen übereinstimmen, das letzte ist beliebig (/24)", isCorrect: true },
+        { id: "c", text: "Alle Adressen werden blockiert", isCorrect: false },
+        { id: "d", text: "Nur Broadcast-Adressen werden gematcht", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "RIPv2 unterstützt VLSM. Warum kann RIPv1 VLSM nicht unterstützen?",
+      explanation: "RIPv1 ist Classful und sendet keine Subnetzmasken in seinen Routing-Updates. Daher kann der empfangende Router die Präfixlänge nicht bestimmen – VLSM ist unmöglich.",
+      answers: [
+        { id: "a", text: "RIPv1 ist zu langsam für VLSM-Berechnungen", isCorrect: false },
+        { id: "b", text: "RIPv1 sendet keine Subnetzmasken in seinen Updates (Classful)", isCorrect: true },
+        { id: "c", text: "RIPv1 unterstützt maximal /24 Präfixe", isCorrect: false },
+        { id: "d", text: "RIPv1 verwendet Broadcast statt Multicast", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche DHCP-Nachricht sendet ein Client als ersten Schritt beim IP-Adressbezug?",
+      explanation: "DHCP Discover: Der Client sendet einen Broadcast (255.255.255.255) auf UDP Port 67, um DHCP-Server im lokalen Netz zu finden. Es ist der erste Schritt des DORA-Prozesses.",
+      answers: [
+        { id: "a", text: "DHCP Request", isCorrect: false },
+        { id: "b", text: "DHCP Discover", isCorrect: true },
+        { id: "c", text: "DHCP Offer", isCorrect: false },
+        { id: "d", text: "DHCP Acknowledge", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist 'DHCP Snooping' und warum ist es wichtig?",
+      explanation: "DHCP Snooping unterscheidet zwischen vertrauenswürdigen (trusted) und nicht vertrauenswürdigen (untrusted) Ports. Unbekannte DHCP-Server auf Untrusted-Ports werden blockiert – Schutz vor Rogue DHCP Servern.",
+      answers: [
+        { id: "a", text: "Eine Funktion, die DHCP-Anfragen protokolliert ohne zu filtern", isCorrect: false },
+        { id: "b", text: "Schutz vor Rogue DHCP-Servern durch Trusted/Untrusted Port-Klassifizierung", isCorrect: true },
+        { id: "c", text: "Eine Funktion zur Beschleunigung des DHCP-Prozesses", isCorrect: false },
+        { id: "d", text: "Ein Monitoring-Tool für DHCP-Lease-Statistiken", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Aussage beschreibt korrekt den Unterschied zwischen Routing-Metrik und Administrative Distanz?",
+      explanation: "Administrative Distanz vergleicht verschiedene Routing-Quellen/-Protokolle. Metrik wird innerhalb eines Protokolls verwendet, um die beste Route zu wählen (z.B. Hop-Count bei RIP, Cost bei OSPF).",
+      answers: [
+        { id: "a", text: "Metrik und Administrative Distanz sind identisch", isCorrect: false },
+        { id: "b", text: "AD vergleicht Routing-Quellen; Metrik vergleicht Routen innerhalb eines Protokolls", isCorrect: true },
+        { id: "c", text: "Metrik wird nur bei statischen Routen verwendet", isCorrect: false },
+        { id: "d", text: "AD ist nur relevant für EIGRP, Metrik für alle anderen Protokolle", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "CDP und LLDP sind Layer-2-Protokolle und können daher auch dann Informationen austauschen, wenn keine IP-Konnektivität besteht.",
+      explanation: "Richtig. CDP und LLDP arbeiten auf Layer 2 (Data Link) und verwenden keine IP-Adressen. Sie funktionieren auch ohne konfigurierte IP-Adresse auf den Interfaces.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie lautet die korrekte Konfiguration einer Named Standard-ACL 'BLOCK_HOST', die Host 192.168.1.100 verweigert?",
+      explanation: "'ip access-list standard BLOCK_HOST' → 'deny host 192.168.1.100' → 'permit any'. 'host 192.168.1.100' entspricht Wildcard 0.0.0.0.",
+      answers: [
+        { id: "a", text: "access-list BLOCK_HOST deny 192.168.1.100", isCorrect: false },
+        { id: "b", text: "ip access-list standard BLOCK_HOST → deny host 192.168.1.100 → permit any", isCorrect: true },
+        { id: "c", text: "ip access-list extended BLOCK_HOST → deny ip 192.168.1.100 any", isCorrect: false },
+        { id: "d", text: "access-list 1 deny 192.168.1.100 0.0.0.255", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl zeigt den DHCP-Adresspool und alle ausgegebenen Leases auf einem Cisco-Router?",
+      explanation: "'show ip dhcp binding' zeigt alle aktuell ausgegebenen DHCP-Leases (Client-MAC → IP-Adresse, Lease-Zeit). 'show ip dhcp pool' zeigt die Pool-Konfiguration.",
+      answers: [
+        { id: "a", text: "show ip dhcp pool", isCorrect: false },
+        { id: "b", text: "show ip dhcp binding", isCorrect: true },
+        { id: "c", text: "show dhcp leases", isCorrect: false },
+        { id: "d", text: "show ip address dhcp", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist ein 'ip helper-address' und wann wird es benötigt?",
+      explanation: "'ip helper-address [DHCP-Server-IP]' leitet DHCP-Broadcasts (und andere UDP-Dienste) als Unicast an den DHCP-Server weiter. Nötig, wenn Client und DHCP-Server in verschiedenen Subnetzen/VLANs sind.",
+      answers: [
+        { id: "a", text: "Eine Hilfsdatei für IP-Konfigurationen", isCorrect: false },
+        { id: "b", text: "Leitet DHCP-Broadcasts als Unicast weiter – für DHCP über verschiedene Subnetze", isCorrect: true },
+        { id: "c", text: "Ein Backup-Mechanismus für IP-Adressen", isCorrect: false },
+        { id: "d", text: "Eine DNS-Hilfsfunktion für automatische Namensauflösung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welches Subnetz enthält die IP-Adresse 172.16.100.50/20?",
+      explanation: "/20 im dritten Oktet: Magic Number = 256-240=16. Blöcke: 0, 16, 32, 48, 64, 80, 96, 112... 100 liegt im Block 96-111. Netzadresse: 172.16.96.0/20, Broadcast: 172.16.111.255.",
+      answers: [
+        { id: "a", text: "172.16.80.0/20", isCorrect: false },
+        { id: "b", text: "172.16.96.0/20", isCorrect: true },
+        { id: "c", text: "172.16.100.0/20", isCorrect: false },
+        { id: "d", text: "172.16.112.0/20", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// QUIZ 38: CIS3 Klausurvorbereitung
+// ============================================================
+export const QUIZ_CIS3_KLAUSUR: Quiz = {
+  id: "ccna-quiz-cis3-klausur",
+  title: "CIS3 Klausurvorbereitung: Protokolle & Sicherheit",
+  description: "Querschnitt CIS3: ACLs Named/Extended, NAT/PAT, EtherChannel, STP/RSTP, Port Security, OSPF, EIGRP, HSRP",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist NAT (Network Address Translation) und welches Problem löst es?",
+      explanation: "NAT übersetzt private IP-Adressen in öffentliche und umgekehrt. Es ermöglicht mehreren Hosts mit privaten Adressen (RFC 1918) den Internetzugang über eine oder wenige öffentliche IP-Adressen.",
+      answers: [
+        { id: "a", text: "NAT verschlüsselt IP-Pakete für sicheren Transport", isCorrect: false },
+        { id: "b", text: "NAT übersetzt private in öffentliche IP-Adressen – ermöglicht Internetzugang bei IPv4-Adressmangel", isCorrect: true },
+        { id: "c", text: "NAT routet Pakete zwischen verschiedenen AS-Systemen", isCorrect: false },
+        { id: "d", text: "NAT balanciert Last zwischen mehreren Servern", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Unterschied zwischen Static NAT, Dynamic NAT und NAT Overload (PAT)?",
+      explanation: "Static NAT: 1:1-Zuordnung (eine private ↔ eine öffentliche IP). Dynamic NAT: Pool öffentlicher IPs, dynamisch zugewiesen. PAT/NAT Overload: Viele private → eine öffentliche IP, unterschieden durch Port-Nummern.",
+      answers: [
+        { id: "a", text: "Static=1:1, Dynamic=1:viele, PAT=Pool", isCorrect: false },
+        { id: "b", text: "Static=1:1 fest, Dynamic=Pool dynamisch, PAT=viele:1 über Ports", isCorrect: true },
+        { id: "c", text: "Alle drei sind identisch, nur für verschiedene Betriebssysteme", isCorrect: false },
+        { id: "d", text: "Static=temporär, Dynamic=permanent, PAT=Pool", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist PAT (Port Address Translation)?",
+      explanation: "PAT = NAT Overload. Viele interne Hosts teilen eine einzige öffentliche IP-Adresse. Die Unterscheidung der Verbindungen erfolgt über eindeutige Port-Nummern in der NAT-Tabelle.",
+      answers: [
+        { id: "a", text: "Ein Protokoll zur Port-Weiterleitung zwischen VLANs", isCorrect: false },
+        { id: "b", text: "NAT Overload: Viele interne Hosts teilen eine öffentliche IP über Port-Nummern-Unterscheidung", isCorrect: true },
+        { id: "c", text: "Ein Layer-4-Protokoll für zuverlässige Übertragung", isCorrect: false },
+        { id: "d", text: "Eine ACL-Funktion für Port-basierte Filterung", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist EtherChannel und welche zwei Protokolle gibt es zur automatischen Verhandlung?",
+      explanation: "EtherChannel bündelt mehrere physische Links zu einem logischen Link. LACP (IEEE 802.3ad, offen) und PAgP (Cisco-proprietär) dienen zur automatischen Verhandlung. Statische Konfiguration (on) ist ebenfalls möglich.",
+      answers: [
+        { id: "a", text: "EtherChannel bündelt Links; Protokolle: STP und RSTP", isCorrect: false },
+        { id: "b", text: "EtherChannel bündelt Links; Protokolle: LACP (IEEE) und PAgP (Cisco)", isCorrect: true },
+        { id: "c", text: "EtherChannel ist ein WAN-Protokoll; Protokolle: PPP und HDLC", isCorrect: false },
+        { id: "d", text: "EtherChannel verschlüsselt Traffic; Protokolle: AES und DES", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der LACP-Mode 'active' im Vergleich zu 'passive'?",
+      explanation: "LACP Active: Sendet aktiv LACP-PDUs und initiiert Verhandlung. Passive: Wartet auf LACP-PDUs, reagiert aber nicht selbst. Active+Active oder Active+Passive bilden einen EtherChannel. Passive+Passive nicht.",
+      answers: [
+        { id: "a", text: "Active = höhere Priorität, Passive = niedrigere Priorität", isCorrect: false },
+        { id: "b", text: "Active = sendet LACP-PDUs initiativ; Passive = wartet auf LACP-PDUs vom Partner", isCorrect: true },
+        { id: "c", text: "Active = für Trunk-Ports, Passive = für Access-Ports", isCorrect: false },
+        { id: "d", text: "Active und Passive sind identisch – nur für verschiedene Cisco-Plattformen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Zweck von STP (Spanning Tree Protocol)?",
+      explanation: "STP verhindert Layer-2-Loops in redundanten Switched-Netzwerken. Es blockiert redundante Pfade und aktiviert diese nur bei Ausfall des primären Pfades.",
+      answers: [
+        { id: "a", text: "STP ermöglicht Load Balancing über mehrere Switch-Uplinks", isCorrect: false },
+        { id: "b", text: "STP verhindert Layer-2-Loops, indem es redundante Ports blockiert", isCorrect: true },
+        { id: "c", text: "STP verwaltet VLAN-Informationen im Netzwerk", isCorrect: false },
+        { id: "d", text: "STP priorisiert Routing-Protokoll-Updates", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie wird der Root Bridge in STP ausgewählt?",
+      explanation: "Der Switch mit der niedrigsten Bridge-ID (= niedrigste Priorität, bei Gleichheit niedrigste MAC-Adresse) wird Root Bridge. Cisco-Standard-Priorität ist 32768.",
+      answers: [
+        { id: "a", text: "Der Switch mit der höchsten IP-Adresse", isCorrect: false },
+        { id: "b", text: "Der Switch mit der niedrigsten Bridge-ID (Priorität + MAC)", isCorrect: true },
+        { id: "c", text: "Der erste Switch, der hochfährt", isCorrect: false },
+        { id: "d", text: "Der Switch mit den meisten Ports", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Hauptvorteil von RSTP (Rapid Spanning Tree) gegenüber STP (802.1D)?",
+      explanation: "RSTP (802.1w) konvergiert deutlich schneller als klassisches STP – in Sekunden statt 30-50 Sekunden. Es führt neue Port-Roles und Port-States ein und verwendet direkte Kommunikation mit Nachbarn.",
+      answers: [
+        { id: "a", text: "RSTP unterstützt mehr VLANs als STP", isCorrect: false },
+        { id: "b", text: "RSTP konvergiert deutlich schneller als klassisches STP (Sekunden statt 30-50s)", isCorrect: true },
+        { id: "c", text: "RSTP benötigt keine Root Bridge", isCorrect: false },
+        { id: "d", text: "RSTP ist Layer-3-fähig, STP nicht", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was macht PortFast und für welche Ports darf es aktiviert werden?",
+      explanation: "PortFast überspringt die STP Listening/Learning Phasen und versetzt einen Port sofort in den Forwarding-Zustand. Es darf nur auf Access-Ports für Endgeräte (kein Switch) aktiviert werden.",
+      answers: [
+        { id: "a", text: "PortFast deaktiviert STP vollständig auf einem Port – für alle Porttypen", isCorrect: false },
+        { id: "b", text: "PortFast überspringt STP-Phasen für sofortiges Forwarding – nur für Endgeräte-Ports", isCorrect: true },
+        { id: "c", text: "PortFast aktiviert BPDU-Guard automatisch auf Trunk-Ports", isCorrect: false },
+        { id: "d", text: "PortFast beschleunigt STP-Konvergenz im gesamten Netzwerk", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist OSPF und welchen Algorithmus verwendet es?",
+      explanation: "OSPF (Open Shortest Path First) ist ein Link-State-Routing-Protokoll. Es verwendet den Dijkstra-SPF-Algorithmus zur Routenberechnung und arbeitet mit LSAs (Link State Advertisements) in einer LSDB.",
+      answers: [
+        { id: "a", text: "OSPF ist ein Distance-Vector-Protokoll; verwendet Bellman-Ford", isCorrect: false },
+        { id: "b", text: "OSPF ist ein Link-State-Protokoll; verwendet Dijkstra SPF-Algorithmus", isCorrect: true },
+        { id: "c", text: "OSPF ist ein Hybrid-Protokoll; verwendet DUAL", isCorrect: false },
+        { id: "d", text: "OSPF ist ein Path-Vector-Protokoll; verwendet Prim-Algorithmus", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die OSPF Area 0 (Backbone Area) und warum ist sie wichtig?",
+      explanation: "Area 0 ist die OSPF Backbone Area – alle anderen Areas müssen direkt mit Area 0 verbunden sein. ABRs (Area Border Router) verbinden non-backbone Areas mit Area 0.",
+      answers: [
+        { id: "a", text: "Area 0 ist optional und kann durch jede andere Area ersetzt werden", isCorrect: false },
+        { id: "b", text: "Area 0 ist die Backbone Area – alle anderen Areas müssen direkt mit ihr verbunden sein", isCorrect: true },
+        { id: "c", text: "Area 0 ist für EIGRP-Redistribution reserviert", isCorrect: false },
+        { id: "d", text: "Area 0 ist die Managementarea für OSPF-Konfiguration", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche AD hat OSPF und welchen Vorteil hat es gegenüber RIP?",
+      explanation: "OSPF hat AD 110 (RIP: 120). OSPF-Vorteile: Keine Hop-Limit, verwendet Cost (Bandbreite) statt Hop-Count, schnellere Konvergenz, skaliert besser, unterstützt VLSM und Areas.",
+      answers: [
+        { id: "a", text: "OSPF AD 90; schneller durch DUAL-Algorithmus", isCorrect: false },
+        { id: "b", text: "OSPF AD 110; verwendet Cost (Bandbreite) statt Hop-Count, kein Hop-Limit, schnellere Konvergenz", isCorrect: true },
+        { id: "c", text: "OSPF AD 120; einfacher zu konfigurieren als RIP", isCorrect: false },
+        { id: "d", text: "OSPF AD 170; unterstützt mehr Router als RIP", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist EIGRP und welchen Algorithmus verwendet es?",
+      explanation: "EIGRP (Enhanced IGRP) ist ein Advanced Distance-Vector (Hybrid) Protokoll. Es verwendet DUAL (Diffusing Update Algorithm) und hat AD 90 intern / 170 extern.",
+      answers: [
+        { id: "a", text: "Link-State-Protokoll; verwendet Dijkstra; AD 110", isCorrect: false },
+        { id: "b", text: "Advanced Distance-Vector (Hybrid); verwendet DUAL; AD 90 intern / 170 extern", isCorrect: true },
+        { id: "c", text: "Distance-Vector; verwendet Bellman-Ford; AD 120", isCorrect: false },
+        { id: "d", text: "Path-Vector; verwendet BGP-Algorithmus; AD 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist HSRP (Hot Standby Router Protocol) und welches Problem löst es?",
+      explanation: "HSRP ist ein Cisco-proprietäres FHRP (First Hop Redundancy Protocol). Es bietet eine virtuelle IP/MAC-Adresse, sodass Hosts einen single Default Gateway haben, der bei Router-Ausfall automatisch übernommen wird.",
+      answers: [
+        { id: "a", text: "HSRP ist ein Routing-Protokoll für WAN-Verbindungen", isCorrect: false },
+        { id: "b", text: "HSRP bietet Gateway-Redundanz durch eine virtuelle IP/MAC – transparentes Failover bei Router-Ausfall", isCorrect: true },
+        { id: "c", text: "HSRP ist ein Spanning-Tree-Erweiterungsprotokoll", isCorrect: false },
+        { id: "d", text: "HSRP balanciert Last zwischen mehreren ISP-Verbindungen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie wird der HSRP Active Router bestimmt?",
+      explanation: "Der Router mit der höchsten HSRP-Priorität (Standard: 100) wird Active Router. Bei Gleichheit gewinnt die höhere IP-Adresse. Der zweitbeste wird Standby Router.",
+      answers: [
+        { id: "a", text: "Der Router mit der niedrigsten Priorität (Standard 100)", isCorrect: false },
+        { id: "b", text: "Der Router mit der höchsten Priorität (Standard 100); bei Gleichstand höhere IP gewinnt", isCorrect: true },
+        { id: "c", text: "Der zuerst hochgefahrene Router im Netzwerk", isCorrect: false },
+        { id: "d", text: "Der Router mit der niedrigsten MAC-Adresse", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Violation-Modi gibt es bei Port Security und was unterscheidet sie?",
+      explanation: "Protect: Pakete verwerfen, kein Log. Restrict: Pakete verwerfen + Syslog/SNMP-Trap. Shutdown (Standard): Port in err-disable + Log. Shutdown ist am restriktivsten.",
+      answers: [
+        { id: "a", text: "Allow, Block, Terminate – alle deaktivieren den Port", isCorrect: false },
+        { id: "b", text: "Protect (verwerfen/kein Log), Restrict (verwerfen/Log), Shutdown (err-disable/Log)", isCorrect: true },
+        { id: "c", text: "Warn, Deny, Drop – alle ohne Port-Deaktivierung", isCorrect: false },
+        { id: "d", text: "Soft, Medium, Hard – nach Schweregrad des Angriffs", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist eine Named Extended ACL und wie filtert sie Traffic?",
+      explanation: "Named Extended ACLs verwenden einen beschreibenden Namen und filtern nach Quell-IP, Ziel-IP, Protokoll (TCP/UDP/ICMP) und Port-Nummern. Flexibler als nummerierte ACLs (editierbar).",
+      answers: [
+        { id: "a", text: "Filtert nur nach Quell-IP-Adresse mit beschreibendem Namen", isCorrect: false },
+        { id: "b", text: "Filtert nach Quell-IP, Ziel-IP, Protokoll und Port – mit beschreibendem Namen und editierbaren Einträgen", isCorrect: true },
+        { id: "c", text: "Filtert nur nach Protokolltypen ohne IP-Filterung", isCorrect: false },
+        { id: "d", text: "Filtert nach MAC-Adressen auf Layer 2", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist die OSPF Router-ID und wie wird sie bestimmt?",
+      explanation: "Die OSPF Router-ID ist eine 32-Bit-Zahl in IP-Format. Priorität: 1. Manuell konfiguriert (router-id Befehl), 2. Höchste Loopback-IP, 3. Höchste aktive Interface-IP.",
+      answers: [
+        { id: "a", text: "Die niedrigste IP-Adresse aller aktiven Interfaces", isCorrect: false },
+        { id: "b", text: "Manuell konfiguriert > höchste Loopback-IP > höchste aktive Interface-IP", isCorrect: true },
+        { id: "c", text: "Immer die Management-VLAN-IP des Routers", isCorrect: false },
+        { id: "d", text: "Die MAC-Adresse des ersten Interfaces in Hex-Format", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl konfiguriert OSPF auf einem Router mit Process-ID 1 und bewirbt 10.0.0.0/24 in Area 0?",
+      explanation: "'router ospf 1' (Process-ID), dann 'network 10.0.0.0 0.0.0.255 area 0'. Die Wildcard-Maske kehrt die Subnetzmaske um: /24 → 0.0.0.255.",
+      answers: [
+        { id: "a", text: "ospf 1 → network 10.0.0.0/24 area 0", isCorrect: false },
+        { id: "b", text: "router ospf 1 → network 10.0.0.0 0.0.0.255 area 0", isCorrect: true },
+        { id: "c", text: "ip ospf 1 area 0 → network 10.0.0.0", isCorrect: false },
+        { id: "d", text: "routing-protocol ospf 1 → advertise 10.0.0.0/24 area 0", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist BPDU-Guard und zusammen mit welcher STP-Funktion wird es typisch eingesetzt?",
+      explanation: "BPDU-Guard deaktiviert einen Port (err-disable) sobald er ein BPDU empfängt. Es wird typisch zusammen mit PortFast auf Access-Ports eingesetzt – schützt vor versehentlichen Switch-Verbindungen an diesen Ports.",
+      answers: [
+        { id: "a", text: "BPDU-Guard filtert BPDU-Inhalte – eingesetzt mit VTP", isCorrect: false },
+        { id: "b", text: "BPDU-Guard deaktiviert Ports bei BPDU-Empfang – eingesetzt mit PortFast auf Access-Ports", isCorrect: true },
+        { id: "c", text: "BPDU-Guard blockiert alle Frames außer BPDUs – eingesetzt mit Trunk-Ports", isCorrect: false },
+        { id: "d", text: "BPDU-Guard erhöht die STP-Priorität – eingesetzt mit Root Guard", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der Unterschied zwischen HSRP, VRRP und GLBP?",
+      explanation: "HSRP: Cisco-proprietär, eine virtuelle IP. VRRP (RFC 3768): Offen/Standardisiert, ähnlich HSRP. GLBP: Cisco-proprietär, ermöglicht zusätzlich Last-Balancing über mehrere Gateways gleichzeitig.",
+      answers: [
+        { id: "a", text: "Alle drei sind identisch, nur für verschiedene IOS-Versionen", isCorrect: false },
+        { id: "b", text: "HSRP=Cisco-proprietär, VRRP=IEEE-Standard, GLBP=Cisco+Load-Balancing", isCorrect: true },
+        { id: "c", text: "HSRP ist für IPv4, VRRP für IPv6, GLBP für beide", isCorrect: false },
+        { id: "d", text: "GLBP ist veraltet; HSRP und VRRP sind der aktuelle Standard", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "NAT Overload (PAT) ermöglicht es, dass Tausende interner Hosts eine einzige öffentliche IP-Adresse teilen.",
+      explanation: "Richtig. PAT unterscheidet die Verbindungen anhand eindeutiger Port-Nummern (bis zu ~65.000) in der NAT-Tabelle. Damit können sehr viele interne Hosts eine einzige öffentliche IP verwenden.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl zeigt die aktive HSRP-Gruppe und den Active/Standby-Router?",
+      explanation: "'show standby brief' zeigt eine kompakte Übersicht aller HSRP-Gruppen: Interface, Gruppe, Priorität, Zustand (Active/Standby/Listen) und virtuelle IP.",
+      answers: [
+        { id: "a", text: "show hsrp status", isCorrect: false },
+        { id: "b", text: "show standby brief", isCorrect: true },
+        { id: "c", text: "show ip hsrp group", isCorrect: false },
+        { id: "d", text: "show fhrp summary", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein EtherChannel soll mit 4 Ports konfiguriert werden. Welche Anforderung müssen alle Ports erfüllen?",
+      explanation: "Alle Ports eines EtherChannels müssen identische Parameter haben: gleiche Duplex-Einstellung, gleiche Geschwindigkeit (Speed), gleicher Trunk/Access-Mode und gleiche erlaubte VLANs.",
+      answers: [
+        { id: "a", text: "Alle Ports müssen auf verschiedenen Switch-Modulen liegen", isCorrect: false },
+        { id: "b", text: "Alle Ports müssen gleiche Speed, Duplex, Mode (Trunk/Access) und erlaubte VLANs haben", isCorrect: true },
+        { id: "c", text: "Alle Ports müssen in unterschiedlichen VLANs sein", isCorrect: false },
+        { id: "d", text: "Alle Ports müssen manuell auf 'half-duplex' gesetzt werden", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -8074,4 +9948,12 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_VLAN_ADVANCED.id]: QUIZ_VLAN_ADVANCED,
   [QUIZ_TAG1_WIEDERHOLUNG.id]: QUIZ_TAG1_WIEDERHOLUNG,
   [QUIZ_TAG1_GRUNDLAGEN.id]: QUIZ_TAG1_GRUNDLAGEN,
+  [QUIZ_STATIC_ROUTING.id]: QUIZ_STATIC_ROUTING,
+  [QUIZ_RIP.id]: QUIZ_RIP,
+  [QUIZ_ADMIN_DISTANCE.id]: QUIZ_ADMIN_DISTANCE,
+  [QUIZ_EIGRP.id]: QUIZ_EIGRP,
+  [QUIZ_PORT_SECURITY.id]: QUIZ_PORT_SECURITY,
+  [QUIZ_CIS1_KLAUSUR.id]: QUIZ_CIS1_KLAUSUR,
+  [QUIZ_CIS2_KLAUSUR.id]: QUIZ_CIS2_KLAUSUR,
+  [QUIZ_CIS3_KLAUSUR.id]: QUIZ_CIS3_KLAUSUR,
 };
