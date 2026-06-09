@@ -1,4 +1,3 @@
-import { DEFAULT_LEARNING_PATHS, DEFAULT_QUIZZES } from "@/lib/default-learning-content";
 import { useLocalStorage } from "@/lib/use-local-storage";
 import { LearningPath, Quiz, UserProgress } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
@@ -30,12 +29,12 @@ export function useLearningState() {
     useState<LearningPath | null>(null);
   const [showProgressTracker, setShowProgressTracker] = useState(false);
 
-  // Seed defaults on first mount — merge so new default content is always present
+  // Seed defaults on first mount — dynamic import keeps ccna-content out of main bundle
   useEffect(() => {
-    if (Object.keys(learningPaths).length === 0) {
-      setLearningPaths(DEFAULT_LEARNING_PATHS);
-    }
-    setQuizzes((prev) => ({ ...DEFAULT_QUIZZES, ...prev }));
+    import("@/lib/default-learning-content").then(({ DEFAULT_LEARNING_PATHS, DEFAULT_QUIZZES }) => {
+      setLearningPaths((prev) => Object.keys(prev).length === 0 ? DEFAULT_LEARNING_PATHS : prev);
+      setQuizzes((prev) => ({ ...DEFAULT_QUIZZES, ...prev }));
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

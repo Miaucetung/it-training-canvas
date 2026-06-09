@@ -70,4 +70,14 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('ccna-quiz-content') || id.includes('default-learning-content')) return 'ccna-content';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+        }
+      }
+    }
+  }
 });
