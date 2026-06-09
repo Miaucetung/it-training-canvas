@@ -1205,8 +1205,25 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
             </div>
           )}
 
+          {/* ── COMING SOON (no questions loaded) ────────────── */}
+          {!loading && !error && mode === "menu" && questions.length === 0 && (
+            <div className="flex flex-col items-center gap-4 py-16 text-center">
+              <div className={`flex h-20 w-20 items-center justify-center rounded-full ${dark ? "bg-zinc-800" : "bg-zinc-100"}`}>
+                <Target size={40} className={dark ? "text-zinc-600" : "text-zinc-400"} />
+              </div>
+              <div>
+                <div className={`text-lg font-semibold ${dark ? "text-zinc-300" : "text-zinc-700"}`}>
+                  Prüfungssimulator — demnächst
+                </div>
+                <div className={`mt-1 max-w-xs text-sm ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
+                  Der Prüfungsbereich wird mit Fragen aus den Lernpfaden aufgebaut. Lerne zuerst die Lektionen.
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── MENU ──────────────────────────────────────────── */}
-          {!loading && !error && mode === "menu" && (
+          {!loading && !error && mode === "menu" && questions.length > 0 && (
             <div className="flex flex-col gap-6">
               {/* Stats */}
               <div
