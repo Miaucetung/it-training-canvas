@@ -8264,6 +8264,28 @@ export const QUIZ_STATIC_ROUTING: Quiz = {
         { id: "b", text: "Falsch", isCorrect: true },
       ],
     },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Administrator konfiguriert 'ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/0' auf einem Ethernet-Interface. Welche AD hat diese Route und warum ist das eine Prüfungsfalle?",
+      explanation: "Eine direkt angegebene statische Route über ein Ethernet-Interface gilt als 'directly attached' und erhält AD 0 (wie eine direkt verbundene Route). Das Problem: Der Router muss für jedes Paket eine ARP-Anfrage senden, um die MAC-Adresse des Ziels zu ermitteln. Auf Ethernet kann der Router nicht direkt die MAC des finalen Ziels auflösen – das führt zu Problemen. Empfehlung: Immer Next-Hop IP statt Exit-Interface bei Ethernet verwenden.",
+      answers: [
+        { id: "a", text: "AD 1 – wie alle statischen Routen", isCorrect: false },
+        { id: "b", text: "AD 0 – direkt verbundene Route (Prüfungsfalle: kein ARP auf Ethernet möglich)", isCorrect: true },
+        { id: "c", text: "AD 90 – EIGRP übernimmt", isCorrect: false },
+        { id: "d", text: "AD 110 – wie OSPF", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wozu dient eine statische Route mit 'null0' als Exit-Interface (Discarding Route)?",
+      explanation: "Eine Route zu null0 ('ip route 192.168.0.0 255.255.0.0 null0') verwirft alle Pakete für dieses Netz, anstatt sie weiterzuleiten. Sie wird typisch in Kombination mit einer spezifischeren Route genutzt, um Routing-Loops zu verhindern – der Router wirft Pakete ohne passendes Subnetz weg statt sie über die Default-Route zu senden.",
+      answers: [
+        { id: "a", text: "Sie wird genutzt, um den Routing-Prozess zu deaktivieren", isCorrect: false },
+        { id: "b", text: "Sie verwirft Pakete zum konfigurierten Zielnetz (Blackhole/Discarding)", isCorrect: true },
+        { id: "c", text: "Sie markiert Pakete mit QoS-Tags für die Priorisierung", isCorrect: false },
+        { id: "d", text: "Sie leitet Pakete an den Default-Gateway weiter", isCorrect: false },
+      ],
+    },
   ],
 };
 
