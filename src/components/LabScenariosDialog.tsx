@@ -14,7 +14,6 @@ import {
   Key,
   Lightning,
   Network,
-  Router,
   Shield,
   Shuffle,
   Stack,
@@ -53,7 +52,7 @@ interface LabScenario {
     hint: string;
   };
   steps: LabStep[];
-  verifyCommands: Array<{ cmd: string; expected: string }>;
+  verifyCommands: Array<{ cmd: string; expected: string; explanation?: string }>;
 }
 
 // ── Lab-Szenarien ─────────────────────────────────────────────
@@ -350,7 +349,7 @@ const LABS: LabScenario[] = [
   // ─────────────────────────────────────────────────────────────
   {
     id: "roas",
-    icon: <Router size={20} />,
+    icon: <Network size={20} />,
     title: "Inter-VLAN Routing (RoaS)",
     subtitle: "Router · Switch · 2 PCs",
     difficulty: "Mittel",
@@ -1910,7 +1909,7 @@ const LABS: LabScenario[] = [
   // ─────────────────────────────────────────────────────────────
   {
     id: "floating-static",
-    icon: <Router size={20} />,
+    icon: <Network size={20} />,
     title: "Floating Static Route",
     subtitle: "Backup-Route über Admin-Distance",
     difficulty: "Mittel",

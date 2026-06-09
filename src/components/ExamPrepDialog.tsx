@@ -29,6 +29,8 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
+import { EXAM_DIAGRAMS } from "@/lib/exam-diagrams";
+import { getExamQuestions } from "@/lib/quiz-to-exam";
 
 // ─── Zod schemas (runtime validation for fetch responses) ────
 const ExamOptionSchema = z.object({
@@ -49,6 +51,7 @@ const ExamQuestionSchema = z.object({
   sourcePage: z.number(),
   needsReview: z.boolean(),
   explanation: z.string().optional(),
+  diagramId: z.string().optional(),
   dragItems: z.array(z.string()).optional(),
   dropTargets: z.array(z.string()).optional(),
   correctMapping: z.array(z.string()).optional(),
@@ -56,9 +59,6 @@ const ExamQuestionSchema = z.object({
   answerStateImage: z.string().nullable().optional(),
 });
 
-const ExamQuestionsSchema = z.array(ExamQuestionSchema);
-
-const CorrectionsSchema = z.record(z.string(), ExamQuestionSchema.partial());
 
 // ─── Types ───────────────────────────────────────────────────
 type ExamOption = z.infer<typeof ExamOptionSchema>;
@@ -171,23 +171,6 @@ function scoreDragDrop(
     if (expected && placed && fuzzyMatch(placed, expected)) correct++;
   }
   return correct / total;
-}
-
-/** Re-classify "General" drag-drop questions using keyword heuristics */
-function inferDDCategory(q: ExamQuestion): string {
-  if (q.category !== "General") return q.category;
-  const text = [q.text, ...(q.dragItems ?? []), ...(q.dropTargets ?? [])].join(" ").toLowerCase();
-  if (/ospf|lsa|area 0|backbone/.test(text)) return "OSPF";
-  if (/vlan|trunk|stp|spanning.tree|etherchannel|802\.1q/.test(text)) return "Switching/VLAN";
-  if (/ipv6|fe80|2001:|link.local|eui.64/.test(text)) return "IPv6";
-  if (/\bdhcp\b|dhcp\s+discover|dhcp\s+offer|dhcp\s+ack/.test(text)) return "NAT/DHCP";
-  if (/\bnat\b|\bpat\b|overload|inside.global|outside.local/.test(text)) return "NAT/DHCP";
-  if (/\bacl\b|access.list|permit|deny|standard.*acl|extended.*acl/.test(text)) return "Security";
-  if (/wireless|ssid|wpa|wpa2|802\.11|bss|ess|\bap\b|access.point/.test(text)) return "Wireless";
-  if (/subnet|cidr|wildcard|network.mask|classful|classless/.test(text)) return "IPv4/Subnetting";
-  if (/ip route|routing|eigrp|bgp|static.route|default.route/.test(text)) return "Routing";
-  if (/\bapi\b|rest|netconf|yang|openflow|\bsdn\b|controller/.test(text)) return "Automation/SDN";
-  return q.category;
 }
 
 // ─── Sub-components ──────────────────────────────────────────
@@ -640,6 +623,14 @@ function QuestionCard({
         </div>
       )}
 
+      {/* Diagram — context visual for concept questions */}
+      {question.diagramId && EXAM_DIAGRAMS[question.diagramId] && (
+        <div
+          className={`mb-4 overflow-hidden rounded-lg border ${dark ? "border-zinc-700 bg-zinc-900" : "border-zinc-200 bg-white"}`}
+          dangerouslySetInnerHTML={{ __html: EXAM_DIAGRAMS[question.diagramId] }}
+        />
+      )}
+
       {/* Question text */}
       <p className="mb-4 text-base leading-relaxed">{question.text}</p>
 
@@ -863,9 +854,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
 
 // ─── Main Component ───────────────────────────────────────────
 export default function ExamPrepDialog({ dark, onClose }: Props) {
-  const [questions, setQuestions] = useState<ExamQuestion[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const questions = useMemo(() => getExamQuestions() as ExamQuestion[], []);
 
   const [mode, setMode] = useState<Mode>("menu");
   const [sessionMode, setSessionMode] = useState<"learn" | "exam" | "drill">("learn");
@@ -881,35 +870,6 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const [dragDropSlots, setDragDropSlots] = useState<Map<string, (string | null)[]>>(new Map());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Load questions + manual corrections overlay, then apply category inference
-  useEffect(() => {
-    Promise.all([
-      fetch("/exam-questions.json")
-        .then((r) => r.json())
-        .then((raw) => ExamQuestionsSchema.parse(raw)),
-      fetch("/exam-questions-corrections.json")
-        .then((r) => r.json())
-        .then((raw) => CorrectionsSchema.parse(raw))
-        .catch(() => ({}) as Record<string, Partial<ExamQuestion>>),
-    ])
-      .then(([data, corrections]) => {
-        const merged = data.map((q) => {
-          const patch = corrections[q.id];
-          const patched: ExamQuestion = patch ? { ...q, ...patch } : q;
-          // Re-classify "General" drag-drop questions using text heuristics
-          if (patched.type === "drag-drop") {
-            patched.category = inferDDCategory(patched);
-          }
-          return patched;
-        });
-        setQuestions(merged);
-        setLoading(false);
-      })
-      .catch((e) => {
-        setError(`Fehler beim Laden: ${e.message}`);
-        setLoading(false);
-      });
-  }, []);
 
   // Timer für Prüfungsmodus
   useEffect(() => {
@@ -1192,21 +1152,8 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
         {/* Body */}
         <div className="p-5">
-          {loading && (
-            <div className="flex items-center justify-center py-16 text-zinc-400">
-              Lade Fragenkatalog...
-            </div>
-          )}
-
-          {error && (
-            <div className="flex items-center justify-center gap-2 py-16 text-red-500">
-              <Warning size={20} />
-              {error}
-            </div>
-          )}
-
           {/* ── COMING SOON (no questions loaded) ────────────── */}
-          {!loading && !error && mode === "menu" && questions.length === 0 && (
+          {mode === "menu" && questions.length === 0 && (
             <div className="flex flex-col items-center gap-4 py-16 text-center">
               <div className={`flex h-20 w-20 items-center justify-center rounded-full ${dark ? "bg-zinc-800" : "bg-zinc-100"}`}>
                 <Target size={40} className={dark ? "text-zinc-600" : "text-zinc-400"} />
@@ -1223,7 +1170,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           )}
 
           {/* ── MENU ──────────────────────────────────────────── */}
-          {!loading && !error && mode === "menu" && questions.length > 0 && (
+          {mode === "menu" && questions.length > 0 && (
             <div className="flex flex-col gap-6">
               {/* Stats */}
               <div
@@ -1335,7 +1282,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           )}
 
           {/* ── QUIZ (learn / exam / drill) ───────────────────── */}
-          {!loading && !error && (mode === "learn" || mode === "exam" || mode === "drill") && currentQ && (
+          {(mode === "learn" || mode === "exam" || mode === "drill") && currentQ && (
             <div className="flex flex-col gap-4">
               <QuestionCard
                 question={currentQ}
@@ -1421,7 +1368,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           )}
 
           {/* ── RESULTS ──────────────────────────────────────── */}
-          {!loading && !error && mode === "results" && (
+          {mode === "results" && (
             <ResultsScreen
               results={results}
               questions={sessionQ}
