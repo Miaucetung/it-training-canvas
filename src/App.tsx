@@ -5,13 +5,10 @@ import { ConnectionPropertiesPanel } from "@/components/ConnectionPropertiesPane
 import { CostCalculator } from "@/components/CostCalculator";
 import { FloatingToolbar } from "@/components/FloatingToolbar";
 import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
-import { LearningPathEditor } from "@/components/LearningPathEditor";
 import { MetricsDashboard } from "@/components/MetricsDashboard";
 import { MiniMap } from "@/components/MiniMap";
-import { PacketFlowVisualizer } from "@/components/PacketFlowVisualizer";
 import { PDUInspector } from "@/components/PDUInspector";
 import { PresentationsDialog } from "@/components/PresentationsDialog";
-import { ProgressTracker } from "@/components/ProgressTracker";
 import { SelectionToolbar } from "@/components/SelectionToolbar";
 import { ShapeConfigDialog } from "@/components/ShapeConfigDialog";
 import { ShapePicker } from "@/components/ShapePicker";
@@ -20,17 +17,15 @@ import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import { OnboardingTour } from "@/components/OnboardingTour";
-import { LabScenariosDialog } from "@/components/LabScenariosDialog";
-import ExamPrepDialog from "@/components/ExamPrepDialog";
 import {
   SimulationControls,
   useSimulation,
 } from "@/components/SimulationControls";
-import { TemplateGallery } from "@/components/TemplateGallery";
 import { TerminalEmulator } from "@/components/TerminalEmulator";
 import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import { TopicListPanel } from "@/components/TopicListPanel";
 import { TopologyValidator } from "@/components/TopologyValidator";
+import { useLearningState } from "@/hooks/useLearningState";
 import {
   downloadJSON,
   exportCanvasAsPNG,
@@ -40,10 +35,6 @@ import {
 import { createTemplate } from "@/lib/collaboration-engine";
 import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
 import type { CertificationModule, Topic } from "@/lib/content/types";
-import {
-  DEFAULT_LEARNING_PATHS,
-  DEFAULT_QUIZZES,
-} from "@/lib/default-learning-content";
 import {
   Annotation,
   CanvasConnection,
@@ -56,10 +47,8 @@ import {
   GRID_SIZES,
   GridPattern,
   GridSize,
-  LearningPath,
   PEN_WIDTHS,
   PenWidth,
-  Quiz,
   ShapeConfig,
   ShapeDefinition,
   SUBJECT_CONFIGS,
@@ -69,8 +58,8 @@ import {
   TEXT_SIZES,
   TextSize,
   Tool,
-  UserProgress,
 } from "@/lib/types";
+import { useLocalStorage } from "@/lib/use-local-storage";
 import {
   BookOpen,
   ChartLine,
@@ -88,8 +77,26 @@ import {
   Target,
   Terminal,
 } from "@phosphor-icons/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
+
+// ── Lazy-loaded heavy dialogs (code-split on first use) ───────
+const ExamPrepDialog = lazy(() => import("@/components/ExamPrepDialog"));
+const LabScenariosDialog = lazy(() =>
+  import("@/components/LabScenariosDialog").then((m) => ({ default: m.LabScenariosDialog })),
+);
+const LearningPathEditor = lazy(() =>
+  import("@/components/LearningPathEditor").then((m) => ({ default: m.LearningPathEditor })),
+);
+const PacketFlowVisualizer = lazy(() =>
+  import("@/components/PacketFlowVisualizer").then((m) => ({ default: m.PacketFlowVisualizer })),
+);
+const ProgressTracker = lazy(() =>
+  import("@/components/ProgressTracker").then((m) => ({ default: m.ProgressTracker })),
+);
+const TemplateGallery = lazy(() =>
+  import("@/components/TemplateGallery").then((m) => ({ default: m.TemplateGallery })),
+);
 
 // ── Phase 6c-1: Catalog → Subject-ID mapping ─────────────────
 // Maps CATALOG_PREVIEW slugs to SUBJECT_CONFIGS keys.
@@ -111,42 +118,6 @@ export const SUBJECT_TO_MODULE_ID: Record<string, string> = {
 const CATALOG_SUBJECTS: string[] = CATALOG_PREVIEW.map(
   (m) => CATALOG_SLUG_TO_SUBJECT[m.slug],
 ).filter((s): s is string => !!s && !DEFAULT_SUBJECTS.includes(s));
-
-// Custom hook to replace useKV with localStorage fallback
-function useLocalStorage<T>(
-  key: string,
-  initialValue: T,
-): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error("Error reading localStorage:", error);
-      return initialValue;
-    }
-  });
-
-  // Use ref to avoid dependency on storedValue in setValue
-  const storedValueRef = useRef(storedValue);
-  storedValueRef.current = storedValue;
-
-  const setValue = useCallback(
-    (value: React.SetStateAction<T>) => {
-      try {
-        const valueToStore =
-          value instanceof Function ? value(storedValueRef.current) : value;
-        setStoredValue(valueToStore);
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      } catch (error) {
-        console.error("Error writing localStorage:", error);
-      }
-    },
-    [key],
-  );
-
-  return [storedValue, setValue];
-}
 
 function App() {
   const [appData, setAppData] = useLocalStorage<Record<string, SubjectData>>(
@@ -259,22 +230,24 @@ function App() {
   );
   const [showTerminal, setShowTerminal] = useState(false);
 
-  // Phase 3: Learning Engine State
-  const [learningPaths, setLearningPaths] = useLocalStorage<
-    Record<string, LearningPath>
-  >("canvas-learning-paths", {});
-  const [quizzes, setQuizzes] = useLocalStorage<Record<string, Quiz>>(
-    "canvas-quizzes",
-    {},
-  );
-  const [userProgress, setUserProgress] = useLocalStorage<
-    Record<string, UserProgress>
-  >("canvas-user-progress", {});
-  const [showLearningPathEditor, setShowLearningPathEditor] = useState(false);
-  const [editingPath, setEditingPath] = useState<LearningPath | null>(null);
-  const [activeLearningPath, setActiveLearningPath] =
-    useState<LearningPath | null>(null);
-  const [showProgressTracker, setShowProgressTracker] = useState(false);
+  // Phase 3: Learning Engine State (extracted to useLearningState hook)
+  const {
+    learningPaths,
+    quizzes,
+    userProgress,
+    editingPath,
+    setEditingPath,
+    activeLearningPath,
+    setActiveLearningPath,
+    showLearningPathEditor,
+    setShowLearningPathEditor,
+    showProgressTracker,
+    setShowProgressTracker,
+    handleSaveLearningPath,
+    handleDeleteLearningPath,
+    handleStartLearningPath,
+    handleUpdateProgress,
+  } = useLearningState();
 
   const [selectionToolbarPosition, setSelectionToolbarPosition] = useState<{
     x: number;
@@ -326,15 +299,6 @@ function App() {
       );
       if (hasContent) setShowWelcome(false);
     }
-  }, []);
-
-  // Seed default learning paths & quizzes — merge so new default content is always present
-  useEffect(() => {
-    if (Object.keys(learningPaths).length === 0) {
-      setLearningPaths(DEFAULT_LEARNING_PATHS);
-    }
-    // DEFAULT_QUIZZES as base, existing user quizzes override (preserves customizations)
-    setQuizzes((prev) => ({ ...DEFAULT_QUIZZES, ...prev }));
   }, []);
 
   useEffect(() => {
@@ -940,71 +904,6 @@ function App() {
       updateCanvasState(newObjects);
     },
     [getCurrentCanvasState, updateCanvasState],
-  );
-
-  // Phase 3: Learning Engine Handlers
-  const handleSaveLearningPath = useCallback(
-    (path: LearningPath) => {
-      setLearningPaths((prev) => ({ ...prev, [path.id]: path }));
-      setShowLearningPathEditor(false);
-      setEditingPath(null);
-      toast.success("Lernpfad gespeichert", { duration: 1500 });
-    },
-    [setLearningPaths],
-  );
-
-  const handleDeleteLearningPath = useCallback(
-    (pathId: string) => {
-      setLearningPaths((prev) => {
-        const next = { ...prev };
-        delete next[pathId];
-        return next;
-      });
-      // Clean up progress
-      setUserProgress((prev) => {
-        const next = { ...prev };
-        delete next[pathId];
-        return next;
-      });
-      toast.success("Lernpfad gelöscht", { duration: 1500 });
-    },
-    [setLearningPaths, setUserProgress],
-  );
-
-  const handleStartLearningPath = useCallback(
-    (path: LearningPath) => {
-      setActiveLearningPath(path);
-      setShowProgressTracker(true);
-
-      // Initialize progress if not exists
-      if (!userProgress[path.id]) {
-        setUserProgress((prev) => ({
-          ...prev,
-          [path.id]: {
-            pathId: path.id,
-            currentStepIndex: 0,
-            completedSteps: [],
-            quizScores: {},
-            hintsUsed: {},
-            startedAt: Date.now(),
-            lastActivityAt: Date.now(),
-            totalTimeSpent: 0,
-            overallScore: 0,
-          },
-        }));
-      }
-    },
-    [userProgress, setUserProgress],
-  );
-
-  const handleUpdateProgress = useCallback(
-    (newProgress: UserProgress) => {
-      setUserProgress((prev) => ({
-        ...prev,
-        [newProgress.pathId]: newProgress,
-      }));
-    },
-    [setUserProgress],
   );
 
   // Handle object selection from Canvas
@@ -1941,17 +1840,21 @@ function App() {
         connections={canvasState.connections}
       />
 
-      <LabScenariosDialog
-        open={showLabScenarios}
-        onClose={() => setShowLabScenarios(false)}
-        theme={theme}
-      />
+      <Suspense fallback={null}>
+        <LabScenariosDialog
+          open={showLabScenarios}
+          onClose={() => setShowLabScenarios(false)}
+          theme={theme}
+        />
+      </Suspense>
 
       {showExamPrep && (
-        <ExamPrepDialog
-          dark={theme === "dark"}
-          onClose={() => setShowExamPrep(false)}
-        />
+        <Suspense fallback={null}>
+          <ExamPrepDialog
+            dark={theme === "dark"}
+            onClose={() => setShowExamPrep(false)}
+          />
+        </Suspense>
       )}
 
       <OnboardingTour
@@ -2123,58 +2026,64 @@ function App() {
 
       {/* Phase 3: Learning Path Editor */}
       {showLearningPathEditor && (
-        <LearningPathEditor
-          path={editingPath}
-          onSave={handleSaveLearningPath}
-          onClose={() => {
-            setShowLearningPathEditor(false);
-            setEditingPath(null);
-          }}
-          theme={theme}
-          subject={currentSubject}
-        />
+        <Suspense fallback={null}>
+          <LearningPathEditor
+            path={editingPath}
+            onSave={handleSaveLearningPath}
+            onClose={() => {
+              setShowLearningPathEditor(false);
+              setEditingPath(null);
+            }}
+            theme={theme}
+            subject={currentSubject}
+          />
+        </Suspense>
       )}
 
       {/* Phase 3: Progress Tracker */}
       {showProgressTracker && activeLearningPath && (
-        <ProgressTracker
-          path={activeLearningPath}
-          progress={
-            userProgress[activeLearningPath.id] || {
-              pathId: activeLearningPath.id,
-              currentStepIndex: 0,
-              completedSteps: [],
-              quizScores: {},
-              hintsUsed: {},
-              startedAt: Date.now(),
-              lastActivityAt: Date.now(),
-              totalTimeSpent: 0,
-              overallScore: 0,
+        <Suspense fallback={null}>
+          <ProgressTracker
+            path={activeLearningPath}
+            progress={
+              userProgress[activeLearningPath.id] || {
+                pathId: activeLearningPath.id,
+                currentStepIndex: 0,
+                completedSteps: [],
+                quizScores: {},
+                hintsUsed: {},
+                startedAt: Date.now(),
+                lastActivityAt: Date.now(),
+                totalTimeSpent: 0,
+                overallScore: 0,
+              }
             }
-          }
-          quizzes={quizzes}
-          objects={canvasState.objects}
-          connections={canvasState.connections}
-          onUpdateProgress={handleUpdateProgress}
-          onClose={() => {
-            setShowProgressTracker(false);
-            setActiveLearningPath(null);
-          }}
-          theme={theme}
-        />
+            quizzes={quizzes}
+            objects={canvasState.objects}
+            connections={canvasState.connections}
+            onUpdateProgress={handleUpdateProgress}
+            onClose={() => {
+              setShowProgressTracker(false);
+              setActiveLearningPath(null);
+            }}
+            theme={theme}
+          />
+        </Suspense>
       )}
 
       {/* Phase 4: Packet Flow Visualizer */}
       {showPacketFlow && (
-        <PacketFlowVisualizer
-          objects={canvasState.objects}
-          connections={canvasState.connections}
-          theme={theme}
-          onClose={() => setShowPacketFlow(false)}
-          onInspectPDU={(sourceId, targetId, protocol, hopIndex) =>
-            setPduInspectorData({ sourceId, targetId, protocol, hopIndex })
-          }
-        />
+        <Suspense fallback={null}>
+          <PacketFlowVisualizer
+            objects={canvasState.objects}
+            connections={canvasState.connections}
+            theme={theme}
+            onClose={() => setShowPacketFlow(false)}
+            onInspectPDU={(sourceId, targetId, protocol, hopIndex) =>
+              setPduInspectorData({ sourceId, targetId, protocol, hopIndex })
+            }
+          />
+        </Suspense>
       )}
 
       {/* Phase 6: PDU Inspector */}
@@ -2252,6 +2161,7 @@ function App() {
 
       {/* Phase 5: Template Gallery */}
       {showTemplateGallery && (
+        <Suspense fallback={null}>
         <TemplateGallery
           theme={theme}
           customTemplates={customTemplates}
@@ -2308,6 +2218,7 @@ function App() {
             setPendingTemplateId(undefined);
           }}
         />
+        </Suspense>
       )}
 
       <input

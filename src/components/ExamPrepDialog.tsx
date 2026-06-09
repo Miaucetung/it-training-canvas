@@ -723,13 +723,15 @@ function QuestionCard({
 // ─── Results Screen ───────────────────────────────────────────
 interface ResultsProps {
   results: SessionResult[];
+  questions: ExamQuestion[];
   dark: boolean;
   onRetry: () => void;
   onMenu: () => void;
   mode: "learn" | "exam" | "drill";
+  elapsedSeconds?: number;
 }
 
-function ResultsScreen({ results, dark, onRetry, onMenu, mode }: ResultsProps) {
+function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapsedSeconds }: ResultsProps) {
   const correct = results.filter((r) => r.correct).length;
   const total = results.length;
   const pct = total > 0 ? correct / total : 0;
@@ -738,11 +740,15 @@ function ResultsScreen({ results, dark, onRetry, onMenu, mode }: ResultsProps) {
 
   const byCategory = useMemo(() => {
     const map: Record<string, { c: number; t: number }> = {};
+    const qMap = new Map(questions.map((q) => [q.id, q]));
     results.forEach((r) => {
-      // We can't easily get category here without questions — use id prefix
+      const cat = qMap.get(r.questionId)?.category ?? "Sonstige";
+      if (!map[cat]) map[cat] = { c: 0, t: 0 };
+      map[cat].t++;
+      if (r.correct) map[cat].c++;
     });
     return map;
-  }, [results]);
+  }, [results, questions]);
 
   return (
     <div className="flex flex-col items-center gap-6 p-6">
@@ -766,6 +772,11 @@ function ResultsScreen({ results, dark, onRetry, onMenu, mode }: ResultsProps) {
           {correct} / {total} richtig ({Math.round(pct * 100)}%)
           {" · "}Cisco-Grenze: 825/1000
         </div>
+        {mode === "exam" && elapsedSeconds != null && (
+          <div className={`mt-1 text-sm ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
+            Zeit: {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, "0")}
+          </div>
+        )}
       </div>
 
       {/* Progress bar */}
@@ -775,6 +786,33 @@ function ResultsScreen({ results, dark, onRetry, onMenu, mode }: ResultsProps) {
           style={{ width: `${Math.round(pct * 100)}%` }}
         />
       </div>
+
+      {/* Domain breakdown — sorted worst first */}
+      {Object.keys(byCategory).length > 0 && (
+        <div className="w-full max-w-sm space-y-2">
+          <div className={`text-sm font-medium ${dark ? "text-zinc-300" : "text-zinc-600"}`}>
+            Domain-Analyse
+          </div>
+          {Object.entries(byCategory)
+            .sort(([, a], [, b]) => a.c / a.t - b.c / b.t)
+            .map(([cat, { c, t }]) => (
+              <div key={cat} className="space-y-0.5">
+                <div className="flex justify-between text-xs">
+                  <span className={dark ? "text-zinc-300" : "text-zinc-700"}>{cat}</span>
+                  <span className={dark ? "text-zinc-500" : "text-zinc-400"}>
+                    {c}/{t} ({Math.round((c / t) * 100)}%)
+                  </span>
+                </div>
+                <div className={`h-2 overflow-hidden rounded-full ${dark ? "bg-zinc-700" : "bg-zinc-200"}`}>
+                  <div
+                    className={`h-full rounded-full ${c / t >= PASS_THRESHOLD ? "bg-green-500" : "bg-red-500"}`}
+                    style={{ width: `${Math.round((c / t) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
 
       <div className="flex gap-3">
         <button
@@ -807,6 +845,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const [mode, setMode] = useState<Mode>("menu");
+  const [sessionMode, setSessionMode] = useState<"learn" | "exam" | "drill">("learn");
   const [sessionQ, setSessionQ] = useState<ExamQuestion[]>([]);
   const [qIndex, setQIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Map<string, string[]>>(new Map());
@@ -910,6 +949,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setDragDropSlots(new Map());
     setRevealed(new Set());
     setResults([]);
+    setSessionMode("learn");
     setMode("learn");
   }
 
@@ -923,6 +963,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setResults([]);
     setTimeLeft(EXAM_TIME_SECONDS);
     setExamFinished(false);
+    setSessionMode("exam");
     setMode("exam");
   }
 
@@ -944,6 +985,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setDragDropSlots(new Map());
     setRevealed(new Set());
     setResults([]);
+    setSessionMode("drill");
     setMode("drill");
   }
 
@@ -1339,13 +1381,11 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           {!loading && !error && mode === "results" && (
             <ResultsScreen
               results={results}
+              questions={sessionQ}
               dark={dark}
-              mode={
-                (["learn", "exam", "drill"] as const).find(() => true) as "learn" | "exam" | "drill"
-              }
-              onRetry={() => {
-                setMode("menu");
-              }}
+              mode={sessionMode}
+              elapsedSeconds={sessionMode === "exam" ? EXAM_TIME_SECONDS - timeLeft : undefined}
+              onRetry={() => setMode("menu")}
               onMenu={() => setMode("menu")}
             />
           )}
