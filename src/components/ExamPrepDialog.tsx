@@ -196,11 +196,13 @@ function ExhibitImage({ src, dark }: { src: string; dark: boolean }) {
       </div>
     );
   }
+  const isSvg = src.toLowerCase().endsWith(".svg");
   return (
     <img
       src={src}
       alt="Exhibit"
       className="max-w-full rounded-lg border border-zinc-300 dark:border-zinc-600"
+      style={isSvg ? { width: "100%", height: "auto" } : undefined}
       onError={() => setFailed(true)}
     />
   );

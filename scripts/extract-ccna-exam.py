@@ -13,9 +13,15 @@ Key findings from format analysis:
   - Green rects must be matched per-question using y-center of option line
   - Each page can have multiple questions → must NOT lump all page-answers into one question
 
+Image strategy (SVG-first):
+  - Embedded raster images: render their page region as SVG (captures surrounding vectors)
+  - Missing exhibits (needsExhibit=True but no raster): render estimated exhibit region as SVG
+  - SVG gives vector-quality scaling for topology diagrams; rasters embedded as base64 inside SVG
+
 Outputs:
-  notes/ccna-exam/questions.json       (1 JSON array, sorted by source page)
-  notes/ccna-exam/images/Q####-N.ext   (exhibit images)
+  notes/ccna-exam/questions.json         (1 JSON array, sorted by source page)
+  notes/ccna-exam/images/Q####-N.svg     (exhibit images, SVG format)
+  notes/ccna-exam/images/Q####-N.png/jpg (fallback if SVG render fails)
   notes/ccna-exam/extraction-stats.txt
 """
 from __future__ import annotations
@@ -86,6 +92,28 @@ def green_rects_on_page(page) -> list[tuple]:
             if r:
                 rects.append((r.x0, r.y0, r.x1, r.y1))
     return rects
+
+
+def render_region_svg(page, clip: fitz.Rect) -> bytes | None:
+    """
+    Render a page region to SVG. Captures both vector paths and embedded rasters.
+    Returns UTF-8-encoded SVG bytes, or None if region is too small or empty.
+    """
+    try:
+        if clip.is_empty or clip.height < 30 or clip.width < 40:
+            return None
+        # Clamp to page bounds
+        clip = clip & page.rect
+        if clip.is_empty:
+            return None
+        svg_str = page.get_svg_image(clip=clip, matrix=fitz.Matrix(1.5, 1.5))
+        # A meaningful SVG is at least ~1.5 KB; shorter = empty/whitespace only
+        if not svg_str or len(svg_str) < 1500:
+            return None
+        return svg_str.encode("utf-8")
+    except Exception as e:
+        print(f"    SVG render failed: {e}")
+        return None
 
 
 def get_dict_lines(page) -> list[tuple]:
@@ -246,32 +274,53 @@ def extract_questions():
 
         if q_this_page:
             # Use image bbox to assign to the spatially nearest question on the page.
-            # get_image_rects returns bounding boxes for each image xref.
+            # Strategy: try SVG rendering of the image region first (vector quality),
+            # fall back to embedded raster if SVG render fails.
             for img_info in page.get_images(full=True):
                 xref = img_info[0]
+                rects = page.get_image_rects(xref)
+                img_y = rects[0].y0 if rects else None
+
+                if img_y is not None and len(q_this_page) > 1:
+                    best = q_this_page[0]
+                    for cq in q_this_page:
+                        qy = cq.get("y_start", 0)
+                        if qy <= img_y + 5:
+                            best = cq
+                    tq = best
+                else:
+                    tq = q_this_page[0]
+
+                # Try SVG render of this image's page region (preserves vector context)
+                if rects:
+                    svg_data = render_region_svg(page, rects[0])
+                    if svg_data:
+                        tq["images"].append({"ext": "svg", "data": svg_data})
+                        continue
+
+                # Fallback: extract embedded raster
                 try:
                     bi = doc.extract_image(xref)
                 except Exception:
                     continue
                 if not bi:
                     continue
-                # Find image vertical center on the page
-                rects = page.get_image_rects(xref)
-                img_y = rects[0].y0 if rects else None
-
-                if img_y is not None and len(q_this_page) > 1:
-                    # Pick the question whose start-y is closest to (and above) the image
-                    best = q_this_page[0]
-                    for cq in q_this_page:
-                        # q["y_start"] is set when we find the question header bbox
-                        qy = cq.get("y_start", 0)
-                        if qy <= img_y + 5:  # image is below or at question start
-                            best = cq
-                    tq = best
-                else:
-                    tq = q_this_page[0]
-
                 tq["images"].append({"ext": bi["ext"], "data": bi["image"]})
+
+            # SVG fallback for needsExhibit questions that got no images at all.
+            # These are likely pages where the diagram is drawn as vector paths (not embedded images).
+            for tq in q_this_page:
+                if not tq.get("needs_exhibit") or tq["images"]:
+                    continue
+                # Estimate exhibit region: below question header, above first option on this page
+                y_opts = [ob[1] for ob in tq.get("opt_bboxes", []) if ob[4] == page_idx]
+                y_top = tq.get("y_start", 0) + 20  # skip past the question-number line
+                y_bot = min(y_opts) - 5 if y_opts else page.rect.height * 0.72
+                clip = fitz.Rect(0, y_top, page.rect.width, y_bot)
+                svg_data = render_region_svg(page, clip)
+                if svg_data:
+                    tq["images"].append({"ext": "svg", "data": svg_data})
+                    print(f"  → SVG region captured for {tq.get('id', '?')} (needsExhibit, page {page_num})")
 
     # Flush last question
     if current:
@@ -288,23 +337,29 @@ def extract_questions():
         if not body and not q["options"] and not q["drag_drop"]:
             continue
 
-        # Save images
+        # Save images (SVG preferred; raster as fallback)
         image_paths = []
         for i, info in enumerate(q["images"], 1):
-            ext     = info["ext"]
-            out_ext = "png" if ext.lower() in ("png", "jpx", "jb2") else "jpg"
-            fname   = f"{q['id']}-{i}.{out_ext}"
+            ext = info["ext"]
             try:
-                if ext.lower() in ("png", "jpeg", "jpg"):
+                if ext == "svg":
+                    fname = f"{q['id']}-{i}.svg"
+                    (IMG_DIR / fname).write_bytes(info["data"])
+                elif ext.lower() in ("png", "jpeg", "jpg"):
+                    fname = f"{q['id']}-{i}.{ext.lower()}"
                     (IMG_DIR / fname).write_bytes(info["data"])
                 else:
+                    # jpx, jb2, etc. → convert via Pixmap
+                    fname = f"{q['id']}-{i}.png"
                     pm = fitz.Pixmap(info["data"])
                     if pm.n - pm.alpha < 4:
                         pm.save(str(IMG_DIR / fname))
+                    else:
+                        continue  # skip unsupported colorspace
                 image_paths.append(fname)
                 img_total += 1
             except Exception as e:
-                print(f"  skip {fname}: {e}")
+                print(f"  skip {q['id']}-{i}: {e}")
 
         correct = sorted(set(q["hi_letters"])) if q["hi_letters"] else None
         if correct:

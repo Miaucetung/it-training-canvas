@@ -29,6 +29,7 @@ function examImagesPlugin(): PluginOption {
             ".jpeg": "image/jpeg",
             ".gif": "image/gif",
             ".webp": "image/webp",
+            ".svg": "image/svg+xml",
           };
           res.setHeader("Content-Type", mime[ext] ?? "application/octet-stream");
           fs.createReadStream(filePath).pipe(res);
