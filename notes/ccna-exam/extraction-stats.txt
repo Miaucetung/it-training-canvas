@@ -1,5 +1,5 @@
 Total questions : 1212
-Images          : 635
+Images          : 619
 With exhibits   : 517
 Drag-drop       : 84
 Multi-select    : 157

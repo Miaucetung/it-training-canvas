@@ -322,8 +322,10 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
         {question.questionStateImage && !revealed && (
           <ExhibitImage src={`/exam-images/${question.questionStateImage}`} dark={dark} />
         )}
-        {(question.exhibitImages ?? [])
-          .filter((img) => img !== question.questionStateImage && img !== question.answerStateImage)
+        {/* Only show exhibitImages when no questionStateImage exists — the SVG captures from the
+            extractor may contain the DD Answer Area UI itself, causing double-display */}
+        {!question.questionStateImage && (question.exhibitImages ?? [])
+          .filter((img) => img !== question.answerStateImage)
           .map((img) => <ExhibitImage key={img} src={`/exam-images/${img}`} dark={dark} />)}
         {!question.questionStateImage && !question.answerStateImage && (question.exhibitImages ?? []).length === 0 && (
           <p className={`rounded-lg border border-dashed p-4 text-sm ${
@@ -364,6 +366,12 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
   }
 
   // ── Interactive drag-drop UI ──────────────────────────────
+  // For questions with a topology exhibit (needsExhibit + questionStateImage),
+  // show the state image above the drag-drop interface as context.
+  const topologyImage = question.needsExhibit && question.questionStateImage && !revealed
+    ? question.questionStateImage
+    : null;
+
   const itemCls = (item: string) => {
     const base = "flex cursor-grab select-none items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all active:cursor-grabbing active:opacity-60";
     if (draggedItem === item) return `${base} opacity-40 scale-95`;
@@ -393,6 +401,11 @@ function DragDropCard({ question, userSlots, onUpdateSlots, revealed, dark }: Dr
     <div className={`flex flex-col gap-5 rounded-xl border p-5 shadow-sm ${
       dark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-200 text-zinc-900"
     }`}>
+
+      {/* Topology exhibit above drag-drop interface (when question references an exhibit) */}
+      {topologyImage && (
+        <ExhibitImage src={`/exam-images/${topologyImage}`} dark={dark} />
+      )}
 
       {/* Items pool */}
       <div>
@@ -601,8 +614,8 @@ function QuestionCard({
         )}
       </div>
 
-      {/* Exhibit */}
-      {question.needsExhibit && question.exhibitImages.length > 0 && (
+      {/* Exhibit — drag-drop questions handle their own image display inside DragDropCard */}
+      {question.needsExhibit && question.exhibitImages.length > 0 && !isDragDrop && (
         <div className="mb-4 flex flex-col gap-2">
           {question.exhibitImages.map((img) => (
             <ExhibitImage key={img} src={`/exam-images/${img}`} dark={dark} />

@@ -302,6 +302,15 @@ def extract_questions():
                 else:
                     tq = q_this_page[0]
 
+                # For drag-drop questions: skip the DD Answer Area UI image.
+                # The DD Answer Area is always in the lower portion of the page (y > 55% page height).
+                # Real topology exhibits are in the upper portion. The DD OCR extractor handles
+                # state/answer images separately, so we only want topology exhibits here.
+                if tq.get("drag_drop") and rects:
+                    img_rel_y = rects[0].y0 / page.rect.height
+                    if img_rel_y > 0.55:
+                        continue  # Skip: lower half = DD Answer Area, not a topology exhibit
+
                 # Try SVG render of this image's page region (preserves vector context)
                 if rects:
                     svg_data = render_region_svg(doc, page_idx, rects[0])
