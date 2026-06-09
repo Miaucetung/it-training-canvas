@@ -4,6 +4,10 @@ import { resolve } from "path";
 export default defineConfig({
   test: {
     globals: true,
+    env: {
+      VITE_SUPABASE_URL: "https://shkvdpbclqjnvlcnjufg.supabase.co",
+      VITE_SUPABASE_ANON_KEY: "test-anon-key",
+    },
     environment: "node",
     environmentMatchGlobs: [
       ['src/__tests__/components/**', 'jsdom'],
