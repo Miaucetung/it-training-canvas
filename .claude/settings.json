@@ -1,7 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(python3)",
+      "Bash(node -e ' *)",
+      "Bash(python scripts/extract-ccna-exam.py)",
+      "Bash(python -c \"import fitz; print\\(fitz.__version__\\); help\\(fitz.Page.get_svg_image\\)\")",
+      "Read(//c/Users/mmuja/Downloads/OneDrive_1_8.6.2026/**)",
+      "Bash(python -c ' *)",
+      "Read(//c/Users/mmuja/llmWiki/ClaudeCodeWiki/wiki/concepts/**)",
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(grep -rn \"^[[:space:]]*/\\\\*\" src --include=\"*.ts\" --include=\"*.tsx\")",
+      "Bash(grep -v \"^\\\\s*\\\\/\\\\*\\\\*\")",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(grep -rn \"console\\\\\\\\.log\\\\|console\\\\\\\\.error\\\\|console\\\\\\\\.warn\\\\|console\\\\\\\\.debug\" src --include=\"*.ts\" --include=\"*.tsx\")",
+      "Bash(cd c:/it-training-canvas-new && grep -o \"import.*from ['\\\\\"][^'\\\\\"]*['\\\\\"]\" src/App.tsx | sed \"s/^import.*from ['\\\\\"]//;s/['\\\\\"]$//\" | sort | uniq > /tmp/app_imports.txt && cat package.json | grep -o \"\\\\\"[^\\\\\"]*\\\\\":\" | grep -v \"\\\\\"scripts\\\\\"\\\\|\\\\\"dependencies\\\\\"\\\\|\\\\\"devDependencies\\\\\"\\\\|\\\\\"version\\\\\"\\\\|\\\\\"type\\\\\"\\\\|\\\\\"name\\\\\"\" | sed 's/^\"//;s/\".*$//' | sort | uniq > /tmp/packages.txt && echo \"Imported in App.tsx:\" && cat /tmp/app_imports.txt | head -20)",
+      "Read(//tmp/**)"
     ]
   }
 }
