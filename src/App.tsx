@@ -78,6 +78,7 @@ import {
   Terminal,
 } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
+import { SetPasswordDialog } from "@/components/SetPasswordDialog";
 import { supabase } from "@/lib/supabase";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast, Toaster } from "sonner";
@@ -236,6 +237,8 @@ function App() {
   // Phase 3: Learning Engine State (extracted to useLearningState hook)
   const {
     user,
+    isRecoveryMode,
+    clearRecoveryMode,
     learningPaths,
     quizzes,
     userProgress,
@@ -1895,7 +1898,14 @@ function App() {
         </Suspense>
       )}
 
-      {showAuthDialog && (
+      {isRecoveryMode && (
+        <SetPasswordDialog
+          dark={theme === "dark"}
+          onClose={clearRecoveryMode}
+        />
+      )}
+
+      {!isRecoveryMode && showAuthDialog && (
         <AuthDialog
           dark={theme === "dark"}
           onClose={() => setShowAuthDialog(false)}

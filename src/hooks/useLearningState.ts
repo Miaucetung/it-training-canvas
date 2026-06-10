@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProgressSync } from "@/hooks/useProgressSync";
 
 export function useLearningState() {
-  const { user } = useAuth();
+  const { user, isRecoveryMode, clearRecoveryMode } = useAuth();
 
   const [learningPaths, setLearningPaths] = useLocalStorage<
     Record<string, LearningPath>
@@ -101,6 +101,8 @@ export function useLearningState() {
 
   return {
     user,
+    isRecoveryMode,
+    clearRecoveryMode,
     learningPaths,
     setLearningPaths,
     quizzes,
