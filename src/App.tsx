@@ -83,6 +83,7 @@ import { AuthDialog } from "@/components/AuthDialog";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
 import { supabase } from "@/lib/supabase";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
 
 // ── Lazy-loaded heavy dialogs (code-split on first use) ───────
@@ -208,6 +209,7 @@ function App() {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const moreMenuContentRef = useRef<HTMLDivElement>(null);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -1056,9 +1058,9 @@ function App() {
   useEffect(() => {
     if (!showMoreMenu) return;
     const handler = (e: MouseEvent) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
-        setShowMoreMenu(false);
-      }
+      const inButton = moreMenuRef.current?.contains(e.target as Node);
+      const inContent = moreMenuContentRef.current?.contains(e.target as Node);
+      if (!inButton && !inContent) setShowMoreMenu(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -1421,8 +1423,9 @@ function App() {
                   className={`transition-transform duration-150 ${showMoreMenu ? "rotate-180" : ""}`}
                 />
               </button>
-              {showMoreMenu && moreMenuPos && (
+              {showMoreMenu && moreMenuPos && createPortal(
                 <div
+                  ref={moreMenuContentRef}
                   style={{ top: moreMenuPos.top, right: moreMenuPos.right }}
                   className={`fixed z-[200] min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
                     theme === "dark"
@@ -1507,7 +1510,8 @@ function App() {
                     Kosten-Rechner
                     {showCostCalculator && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />}
                   </button>
-                </div>
+                </div>,
+                document.body
               )}
             </div>
 
