@@ -61,6 +61,7 @@ import {
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/use-local-storage";
 import {
+  ArrowClockwise,
   BookOpen,
   CaretDown,
   ChartLine,
@@ -207,6 +208,7 @@ function App() {
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [canvasView, setCanvasView] = useState(false);
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreMenuContentRef = useRef<HTMLDivElement>(null);
@@ -1056,6 +1058,10 @@ function App() {
   );
 
   useEffect(() => {
+    setCanvasView(!(SUBJECT_TO_MODULE_ID[currentSubject] ?? null));
+  }, [currentSubject]);
+
+  useEffect(() => {
     if (!showMoreMenu) return;
     const handler = (e: MouseEvent) => {
       const inButton = moreMenuRef.current?.contains(e.target as Node);
@@ -1562,74 +1568,120 @@ function App() {
                 Anmelden
               </button>
             )}
+
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+
+            <button
+              onClick={() => setCanvasView((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                canvasView
+                  ? theme === "dark"
+                    ? "border-indigo-600/50 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
+                    : "border-indigo-400/50 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                  : theme === "dark"
+                    ? "border-slate-700/60 text-slate-400 hover:border-slate-600 hover:text-slate-200 hover:bg-slate-800"
+                    : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 hover:bg-slate-50"
+              }`}
+              title={canvasView ? "Zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
+            >
+              <ArrowClockwise size={14} />
+              {canvasView ? "Lernen" : "Canvas"}
+            </button>
           </div>
         </div>
 
-        {/* Canvas Area / Topic Panel */}
-        <div className="flex-1 relative overflow-hidden flex">
-          {catalogModuleId && catalogPanelOpen ? (
-            <>
-              {/* Collapse button — top-left corner of panel */}
-              <div className="absolute top-2 left-2 z-30">
-                <button
-                  onClick={() => setCatalogPanelOpen(false)}
-                  title="Panel minimieren"
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600/50 backdrop-blur-sm transition-colors"
-                >
-                  <SidebarSimple size={13} />
-                  <span>Minimieren</span>
-                </button>
-              </div>
+        {/* Canvas / Topic — 3D Flip */}
+        <div className="flex-1 relative overflow-hidden" style={{ perspective: "1400px" }}>
+          <div
+            className="absolute inset-0"
+            style={{
+              transformStyle: "preserve-3d",
+              transition: "transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)",
+              transform: canvasView ? "rotateY(180deg)" : "rotateY(0deg)",
+            }}
+          >
+            {/* FRONT: Lernoberfläche */}
+            <div
+              className="absolute inset-0 overflow-hidden flex"
+              style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"] }}
+            >
+              {catalogModuleId && (
+                catalogPanelOpen ? (
+                  <div className="absolute top-2 left-2 z-30">
+                    <button
+                      onClick={() => setCatalogPanelOpen(false)}
+                      title="Panel minimieren"
+                      className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600/50 backdrop-blur-sm transition-colors"
+                    >
+                      <SidebarSimple size={13} />
+                      <span>Minimieren</span>
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setCatalogPanelOpen(true)}
+                    title="Themen-Panel öffnen"
+                    className="absolute top-2 left-2 z-30 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-indigo-600/90 hover:bg-indigo-500 text-white border border-indigo-500/50 backdrop-blur-sm shadow-lg transition-colors"
+                  >
+                    <SidebarSimple size={13} />
+                    <span>Themen</span>
+                  </button>
+                )
+              )}
 
-              {/* Topic List — shrinks when detail panel open */}
-              <div
-                className={`flex-shrink-0 overflow-y-auto pt-8 ${
-                  selectedTopic ? "w-80" : "flex-1"
-                }`}
-              >
-                <TopicListPanel
-                  moduleId={catalogModuleId}
-                  theme={theme}
-                  onTopicClick={(topic, mod) => {
-                    setSelectedTopic(topic);
-                    setSelectedTopicModule(mod);
-                  }}
-                />
-              </div>
+              {catalogModuleId && catalogPanelOpen ? (
+                <>
+                  <div
+                    className={`flex-shrink-0 overflow-y-auto pt-8 ${
+                      selectedTopic ? "w-80" : "flex-1"
+                    }`}
+                  >
+                    <TopicListPanel
+                      moduleId={catalogModuleId}
+                      theme={theme}
+                      onTopicClick={(topic, mod) => {
+                        setSelectedTopic(topic);
+                        setSelectedTopicModule(mod);
+                      }}
+                    />
+                  </div>
 
-              {/* Topic Detail — slides in from right */}
-              {selectedTopic && selectedTopicModule && (
-                <div className="flex-1 overflow-hidden">
-                  <TopicDetailPanel
-                    topic={selectedTopic}
-                    module={selectedTopicModule}
-                    theme={theme}
-                    onOpenTemplate={(tplId) => {
-                      setPendingTemplateId(tplId);
-                      setShowTemplateGallery(true);
-                    }}
-                    onClose={() => {
-                      setSelectedTopic(null);
-                      setSelectedTopicModule(null);
-                    }}
-                  />
+                  {selectedTopic && selectedTopicModule && (
+                    <div className="flex-1 overflow-hidden">
+                      <TopicDetailPanel
+                        topic={selectedTopic}
+                        module={selectedTopicModule}
+                        theme={theme}
+                        onOpenTemplate={(tplId) => {
+                          setPendingTemplateId(tplId);
+                          setShowTemplateGallery(true);
+                        }}
+                        onClose={() => {
+                          setSelectedTopic(null);
+                          setSelectedTopicModule(null);
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                    {catalogModuleId ? "Themen-Panel minimiert." : "Kein Lerninhalt für dieses Thema."}
+                  </p>
                 </div>
               )}
-            </>
-          ) : (
-            <>
-              {/* Floating "Themen" button when catalog panel is collapsed */}
-              {catalogModuleId && !catalogPanelOpen && (
-                <button
-                  onClick={() => setCatalogPanelOpen(true)}
-                  title="Themen-Panel öffnen"
-                  className="absolute top-2 left-2 z-30 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-indigo-600/90 hover:bg-indigo-500 text-white border border-indigo-500/50 backdrop-blur-sm shadow-lg transition-colors"
-                >
-                  <SidebarSimple size={13} />
-                  <span>Themen</span>
-                </button>
-              )}
+            </div>
 
+            {/* BACK: Canvas */}
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+                transform: "rotateY(180deg)",
+              }}
+            >
               {/* Floating View-Density toggle (Simple ↔ Detail) */}
               <div
                 className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
@@ -1665,6 +1717,7 @@ function App() {
               >
                 ?
               </button>
+
               <Canvas
                 objects={canvasState.objects}
                 onObjectsChange={updateCanvasState}
@@ -1678,11 +1731,9 @@ function App() {
                     setShowPropertiesPanel(false);
                     setSelectionToolbarPosition(null);
                   } else {
-                    // Multiple selection - close properties panel but keep selection toolbar
                     setSelectedObjectForProperties(null);
                     setShowPropertiesPanel(false);
                   }
-                  // Calculate toolbar position above selection
                   if (selectedObjs.length > 0 && tool === "select") {
                     let minX = Infinity,
                       minY = Infinity,
@@ -1697,7 +1748,6 @@ function App() {
                       if (bounds.y + bounds.height > maxY)
                         maxY = bounds.y + bounds.height;
                     });
-                    // Transform to screen coordinates
                     const screenX =
                       (minX + (maxX - minX) / 2 - viewportInfo.x) *
                       viewportInfo.zoom;
@@ -1715,7 +1765,6 @@ function App() {
                     if (!prev) return {};
                     const current = prev[currentSubject];
                     if (!current) return prev;
-
                     return {
                       ...prev,
                       [currentSubject]: {
@@ -1763,7 +1812,7 @@ function App() {
                 />
               )}
 
-              {/* Welcome Overlay — UX-QW-1 */}
+              {/* Welcome Overlay */}
               {showWelcome && canvasState.objects.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div
@@ -1820,51 +1869,53 @@ function App() {
                   </div>
                 </div>
               )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
 
-        {/* Floating Toolbar */}
-        <FloatingToolbar
-          tool={tool}
-          onToolChange={handleToolChange}
-          color={color}
-          onColorChange={setColor}
-          penWidth={penWidth}
-          onPenWidthChange={setPenWidth}
-          textSize={textSize}
-          onTextSizeChange={setTextSize}
-          fontFamily={fontFamily}
-          onFontFamilyChange={setFontFamily}
-          theme={theme}
-          onThemeToggle={handleThemeToggle}
-          showGrid={showGrid}
-          onGridToggle={handleGridToggle}
-          gridSize={gridSize}
-          onGridSizeChange={setGridSize}
-          gridPattern={gridPattern}
-          onGridPatternChange={setGridPattern}
-          gridColor={gridColor}
-          gridAccentColor={gridAccentColor}
-          onGridColorChange={handleGridColorChange}
-          gridOpacity={gridOpacity}
-          onGridOpacityChange={handleGridOpacityChange}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-          onSave={handleSave}
-          onExport={handleExport}
-          onExportPNG={handleExportPNG}
-          onExportSVG={handleExportSVG}
-          onImport={handleImport}
-          onShowPresentations={() => setShowPresentations(true)}
-          onShowShapePicker={() => setShowShapePicker(true)}
-          onShowKeyboardShortcuts={() => setShowKeyboardShortcuts(true)}
-          onSelectAll={handleSelectAll}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          currentSubject={currentSubject}
-          selectedShape={selectedShape}
-        />
+        {/* Floating Toolbar — only visible on canvas face */}
+        {canvasView && (
+          <FloatingToolbar
+            tool={tool}
+            onToolChange={handleToolChange}
+            color={color}
+            onColorChange={setColor}
+            penWidth={penWidth}
+            onPenWidthChange={setPenWidth}
+            textSize={textSize}
+            onTextSizeChange={setTextSize}
+            fontFamily={fontFamily}
+            onFontFamilyChange={setFontFamily}
+            theme={theme}
+            onThemeToggle={handleThemeToggle}
+            showGrid={showGrid}
+            onGridToggle={handleGridToggle}
+            gridSize={gridSize}
+            onGridSizeChange={setGridSize}
+            gridPattern={gridPattern}
+            onGridPatternChange={setGridPattern}
+            gridColor={gridColor}
+            gridAccentColor={gridAccentColor}
+            onGridColorChange={handleGridColorChange}
+            gridOpacity={gridOpacity}
+            onGridOpacityChange={handleGridOpacityChange}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            onSave={handleSave}
+            onExport={handleExport}
+            onExportPNG={handleExportPNG}
+            onExportSVG={handleExportSVG}
+            onImport={handleImport}
+            onShowPresentations={() => setShowPresentations(true)}
+            onShowShapePicker={() => setShowShapePicker(true)}
+            onShowKeyboardShortcuts={() => setShowKeyboardShortcuts(true)}
+            onSelectAll={handleSelectAll}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            currentSubject={currentSubject}
+            selectedShape={selectedShape}
+          />
+        )}
       </div>
 
       {/* Shape Picker Panel */}
