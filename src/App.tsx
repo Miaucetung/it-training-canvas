@@ -206,6 +206,8 @@ function App() {
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -1387,7 +1389,14 @@ function App() {
             {/* Mehr-Dropdown */}
             <div ref={moreMenuRef} className="relative">
               <button
-                onClick={() => setShowMoreMenu((prev) => !prev)}
+                ref={moreButtonRef}
+                onClick={() => {
+                  if (!showMoreMenu && moreButtonRef.current) {
+                    const rect = moreButtonRef.current.getBoundingClientRect();
+                    setMoreMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+                  }
+                  setShowMoreMenu((prev) => !prev);
+                }}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   showMoreMenu ||
                   showPacketFlow ||
@@ -1412,9 +1421,10 @@ function App() {
                   className={`transition-transform duration-150 ${showMoreMenu ? "rotate-180" : ""}`}
                 />
               </button>
-              {showMoreMenu && (
+              {showMoreMenu && moreMenuPos && (
                 <div
-                  className={`absolute right-0 top-full mt-1.5 z-50 min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
+                  style={{ top: moreMenuPos.top, right: moreMenuPos.right }}
+                  className={`fixed z-[200] min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
                     theme === "dark"
                       ? "bg-slate-900 border-slate-700/80"
                       : "bg-white border-slate-200"
