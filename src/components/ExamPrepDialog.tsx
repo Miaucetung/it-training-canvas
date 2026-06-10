@@ -31,6 +31,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { EXAM_DIAGRAMS } from "@/lib/exam-diagrams";
 import { getExamQuestions } from "@/lib/quiz-to-exam";
+import { toast } from "sonner";
 
 // ─── Zod schemas (runtime validation for fetch responses) ────
 const ExamOptionSchema = z.object({
@@ -962,7 +963,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
       )
     );
     if (pool.length === 0) {
-      alert("Keine Schwächefragen gespeichert. Übe erst im Lernmodus!");
+      toast.warning("Noch keine Schwächefragen. Übe erst im Lernmodus.");
       return;
     }
     setSessionQ(pool);
