@@ -8267,10 +8267,10 @@ export const QUIZ_STATIC_ROUTING: Quiz = {
     {
       id: uid(), type: "single-choice", points: 10,
       text: "Ein Administrator konfiguriert 'ip route 10.0.0.0 255.0.0.0 GigabitEthernet0/0' auf einem Ethernet-Interface. Welche AD hat diese Route und warum ist das eine Prüfungsfalle?",
-      explanation: "Eine direkt angegebene statische Route über ein Ethernet-Interface gilt als 'directly attached' und erhält AD 0 (wie eine direkt verbundene Route). Das Problem: Der Router muss für jedes Paket eine ARP-Anfrage senden, um die MAC-Adresse des Ziels zu ermitteln. Auf Ethernet kann der Router nicht direkt die MAC des finalen Ziels auflösen – das führt zu Problemen. Empfehlung: Immer Next-Hop IP statt Exit-Interface bei Ethernet verwenden.",
+      explanation: "AD bleibt 1 – auch mit Exit-Interface ist es eine statische Route. In 'show ip route' erscheint sie als 'S ... is directly connected, GigabitEthernet0', aber 'directly connected' beschreibt hier den Interface-Typ, nicht die AD. Die echte Prüfungsfalle: Auf Ethernet sendet der Router für jedes Zielpaket einen ARP-Request (Proxy ARP), da er nicht die MAC des nächsten Hops kennt. Das kann bei vielen Zielen den ARP-Table fluten. Empfehlung: Auf Ethernet immer Next-Hop IP statt Exit-Interface verwenden.",
       answers: [
-        { id: "a", text: "AD 1 – wie alle statischen Routen", isCorrect: false },
-        { id: "b", text: "AD 0 – direkt verbundene Route (Prüfungsfalle: kein ARP auf Ethernet möglich)", isCorrect: true },
+        { id: "a", text: "AD 0 – gilt als direkt verbundene Route", isCorrect: false },
+        { id: "b", text: "AD 1 – statische Routen haben immer AD 1 (Prüfungsfalle: ARP-Flooding auf Ethernet)", isCorrect: true },
         { id: "c", text: "AD 90 – EIGRP übernimmt", isCorrect: false },
         { id: "d", text: "AD 110 – wie OSPF", isCorrect: false },
       ],
@@ -8485,7 +8485,7 @@ export const QUIZ_RIP: Quiz = {
     {
       id: uid(), type: "single-choice", points: 10,
       text: "Wie lang ist der RIP Flush-Timer standardmäßig?",
-      explanation: "Der Flush-Timer beträgt 240 Sekunden. Nach Ablauf des Holddown-Timers (180s) beginnt der Flush-Timer. Wenn nach insgesamt 240s kein Update kam, wird die Route gelöscht.",
+      explanation: "Der Flush-Timer beträgt 240 Sekunden – gerechnet ab dem letzten empfangenen Update. Nach 180s ohne Update wird die Route als invalid markiert (Holddown beginnt). Nach 240s (gesamt ab letztem Update, also 60s nach Holddown) wird die Route vollständig aus der Tabelle gelöscht.",
       answers: [
         { id: "a", text: "30 Sekunden", isCorrect: false },
         { id: "b", text: "120 Sekunden", isCorrect: false },
