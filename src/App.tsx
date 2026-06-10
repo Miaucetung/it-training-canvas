@@ -1599,7 +1599,7 @@ function App() {
             {/* FRONT: Lernoberfläche — Dashboard */}
             <div
               className="absolute inset-0 overflow-hidden flex"
-              style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"] }}
+              style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], pointerEvents: canvasView ? "none" : "auto" }}
             >
               {catalogModuleId ? (
                 <>
@@ -1665,6 +1665,7 @@ function App() {
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
                 transform: "rotateY(180deg)",
+                pointerEvents: canvasView ? "auto" : "none",
               }}
             >
               {/* Floating View-Density toggle (Simple ↔ Detail) */}
