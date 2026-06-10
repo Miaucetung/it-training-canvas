@@ -74,7 +74,6 @@ import {
   Notepad,
   Plus,
   Pulse,
-  SidebarSimple,
   Stethoscope,
   Target,
   Terminal,
@@ -157,8 +156,6 @@ function App() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedTopicModule, setSelectedTopicModule] =
     useState<CertificationModule | null>(null);
-  // Phase 6c: catalog panel open/collapsed (so canvas stays accessible)
-  const [catalogPanelOpen, setCatalogPanelOpen] = useState(true);
   const [showShapePicker, setShowShapePicker] = useState(false);
   const [selectedShape, setSelectedShape] = useState<ShapeDefinition | null>(
     null,
@@ -1239,7 +1236,6 @@ function App() {
           setCurrentSubject(s);
           setSelectedTopic(null);
           setSelectedTopicModule(null);
-          setCatalogPanelOpen(true);
         }}
         onAddSubject={handleAddSubject}
         onRemoveSubject={handleRemoveSubject}
@@ -1600,40 +1596,17 @@ function App() {
               transform: canvasView ? "rotateY(180deg)" : "rotateY(0deg)",
             }}
           >
-            {/* FRONT: Lernoberfläche */}
+            {/* FRONT: Lernoberfläche — Dashboard */}
             <div
               className="absolute inset-0 overflow-hidden flex"
               style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"] }}
             >
-              {catalogModuleId && (
-                catalogPanelOpen ? (
-                  <div className="absolute top-2 left-2 z-30">
-                    <button
-                      onClick={() => setCatalogPanelOpen(false)}
-                      title="Panel minimieren"
-                      className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-300 hover:text-white border border-slate-600/50 backdrop-blur-sm transition-colors"
-                    >
-                      <SidebarSimple size={13} />
-                      <span>Minimieren</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setCatalogPanelOpen(true)}
-                    title="Themen-Panel öffnen"
-                    className="absolute top-2 left-2 z-30 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs bg-indigo-600/90 hover:bg-indigo-500 text-white border border-indigo-500/50 backdrop-blur-sm shadow-lg transition-colors"
-                  >
-                    <SidebarSimple size={13} />
-                    <span>Themen</span>
-                  </button>
-                )
-              )}
-
-              {catalogModuleId && catalogPanelOpen ? (
+              {catalogModuleId ? (
                 <>
+                  {/* Left: Topic list — fixed sidebar */}
                   <div
-                    className={`flex-shrink-0 overflow-y-auto pt-8 ${
-                      selectedTopic ? "w-80" : "flex-1"
+                    className={`w-72 shrink-0 overflow-y-auto border-r ${
+                      theme === "dark" ? "border-slate-700/50 bg-slate-900/40" : "border-slate-200 bg-slate-50/60"
                     }`}
                   >
                     <TopicListPanel
@@ -1646,8 +1619,9 @@ function App() {
                     />
                   </div>
 
-                  {selectedTopic && selectedTopicModule && (
-                    <div className="flex-1 overflow-hidden">
+                  {/* Right: Topic detail or placeholder */}
+                  <div className="flex-1 overflow-hidden">
+                    {selectedTopic && selectedTopicModule ? (
                       <TopicDetailPanel
                         topic={selectedTopic}
                         module={selectedTopicModule}
@@ -1661,13 +1635,24 @@ function App() {
                           setSelectedTopicModule(null);
                         }}
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="h-full flex items-center justify-center">
+                        <div className="text-center max-w-xs px-6">
+                          <p className={`text-base font-medium mb-2 ${theme === "dark" ? "text-slate-300" : "text-slate-700"}`}>
+                            Thema auswählen
+                          </p>
+                          <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                            Wähle ein Thema aus der Liste, um den Lerninhalt anzuzeigen.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center">
                   <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                    {catalogModuleId ? "Themen-Panel minimiert." : "Kein Lerninhalt für dieses Thema."}
+                    Kein Lerninhalt für dieses Thema.
                   </p>
                 </div>
               )}
