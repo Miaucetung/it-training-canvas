@@ -62,6 +62,7 @@ import {
 import { useLocalStorage } from "@/lib/use-local-storage";
 import {
   BookOpen,
+  CaretDown,
   ChartLine,
   CurrencyDollar,
   Export,
@@ -76,6 +77,7 @@ import {
   Stethoscope,
   Target,
   Terminal,
+  UserCircle,
 } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
@@ -203,6 +205,7 @@ function App() {
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -263,6 +266,7 @@ function App() {
 
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const emptyCanvasState = () => ({
@@ -1048,6 +1052,17 @@ function App() {
   );
 
   useEffect(() => {
+    if (!showMoreMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showMoreMenu]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignoriere Tastenkürzel wenn ein Input-Feld oder Textarea fokussiert ist
       const activeElement = document.activeElement;
@@ -1250,8 +1265,7 @@ function App() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Group: LERNEN */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
                 const paths = Object.values(learningPaths);
@@ -1289,14 +1303,11 @@ function App() {
               )}
             </button>
 
-            <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
-            />
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
-            {/* Group: TOPOLOGIE & SIMULATION (Packet-Tracer-Funktionen) */}
             <button
               onClick={() => setShowShapePicker(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 theme === "dark"
                   ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
                   : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
@@ -1320,7 +1331,7 @@ function App() {
                   );
                 }
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showTerminal
                   ? "bg-green-500/20 text-green-300"
                   : theme === "dark"
@@ -1334,7 +1345,7 @@ function App() {
             </button>
             <button
               onClick={() => setShowLabScenarios(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showLabScenarios
                   ? "bg-violet-500/20 text-violet-300"
                   : theme === "dark"
@@ -1365,145 +1376,136 @@ function App() {
                   ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
                   : "bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
               }`}
-              title="Ping testen – geführte Schritt-für-Schritt-Analyse mit klarer Erklärung"
+              title="Ping testen – geführte Schritt-für-Schritt-Analyse"
             >
               <Lightning size={16} weight="fill" />
               Ping testen
             </button>
-            <button
-              onClick={() => setShowPacketFlow(!showPacketFlow)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showPacketFlow
-                  ? "bg-emerald-500/20 text-emerald-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10"
-                    : "text-slate-500 hover:text-emerald-600 hover:bg-emerald-50"
-              }`}
-              title="Paketfluss-Simulation – Pakete zwischen Geräten visualisieren (Detailansicht)"
-            >
-              <Lightning size={16} />
-              Paketfluss
-            </button>
-            <button
-              onClick={() => setShowSimulationHUD(!showSimulationHUD)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showSimulationHUD
-                  ? "bg-teal-500/20 text-teal-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-teal-300 hover:bg-teal-500/10"
-                    : "text-slate-500 hover:text-teal-600 hover:bg-teal-50"
-              }`}
-              title="Simulation – Play/Pause/Step, Pakete manuell senden"
-            >
-              <Pulse size={16} />
-              Simulation
-              {simulationState.isRunning && (
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-              )}
-            </button>
-            <button
-              onClick={() => setShowTopologyValidator(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                theme === "dark"
-                  ? "text-slate-400 hover:text-rose-300 hover:bg-rose-500/10"
-                  : "text-slate-500 hover:text-rose-600 hover:bg-rose-50"
-              }`}
-              title="Topologie prüfen – Verkabelung & Konfiguration validieren"
-            >
-              <Stethoscope size={16} />
-              Prüfen
-            </button>
-            <button
-              onClick={() => setShowMetrics(!showMetrics)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showMetrics
-                  ? "bg-blue-500/20 text-blue-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-blue-300 hover:bg-blue-500/10"
-                    : "text-slate-500 hover:text-blue-600 hover:bg-blue-50"
-              }`}
-              title="Metriken-Dashboard (Durchsatz, Latenz, Fehler)"
-            >
-              <ChartLine size={16} />
-              Metriken
-            </button>
 
-            <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
-            />
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
-            {/* Group: KOLLABORATION */}
-            <button
-              onClick={() => setShowAnnotations(!showAnnotations)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showAnnotations
-                  ? "bg-pink-500/20 text-pink-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-pink-300 hover:bg-pink-500/10"
-                    : "text-slate-500 hover:text-pink-600 hover:bg-pink-50"
-              }`}
-              title="Annotationen / Notizen am Canvas"
-            >
-              <Notepad size={16} />
-              Notizen
-              {(annotations[currentSubject]?.length ?? 0) > 0 && (
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700" : "bg-slate-200"}`}
+            {/* Mehr-Dropdown */}
+            <div ref={moreMenuRef} className="relative">
+              <button
+                onClick={() => setShowMoreMenu((prev) => !prev)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  showMoreMenu ||
+                  showPacketFlow ||
+                  showSimulationHUD ||
+                  showMetrics ||
+                  showAnnotations ||
+                  showTemplateGallery ||
+                  showShareExport ||
+                  showCostCalculator
+                    ? theme === "dark"
+                      ? "bg-slate-700 text-slate-200"
+                      : "bg-slate-100 text-slate-700"
+                    : theme === "dark"
+                      ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                }`}
+                title="Weitere Werkzeuge"
+              >
+                Mehr
+                <CaretDown
+                  size={12}
+                  className={`transition-transform duration-150 ${showMoreMenu ? "rotate-180" : ""}`}
+                />
+              </button>
+              {showMoreMenu && (
+                <div
+                  className={`absolute right-0 top-full mt-1.5 z-50 min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
+                    theme === "dark"
+                      ? "bg-slate-900 border-slate-700/80"
+                      : "bg-white border-slate-200"
+                  }`}
                 >
-                  {annotations[currentSubject]?.length}
-                </span>
+                  <p className={`px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                    Simulation
+                  </p>
+                  <button
+                    onClick={() => { setShowPacketFlow(!showPacketFlow); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showPacketFlow ? theme === "dark" ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <Lightning size={15} />
+                    Paketfluss
+                    {showPacketFlow && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                  </button>
+                  <button
+                    onClick={() => { setShowSimulationHUD(!showSimulationHUD); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showSimulationHUD ? theme === "dark" ? "bg-teal-500/10 text-teal-300" : "bg-teal-50 text-teal-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <Pulse size={15} />
+                    Simulation
+                    {simulationState.isRunning && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />}
+                  </button>
+                  <button
+                    onClick={() => { setShowTopologyValidator(true); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <Stethoscope size={15} />
+                    Topologie prüfen
+                  </button>
+                  <button
+                    onClick={() => { setShowMetrics(!showMetrics); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showMetrics ? theme === "dark" ? "bg-blue-500/10 text-blue-300" : "bg-blue-50 text-blue-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <ChartLine size={15} />
+                    Metriken
+                    {showMetrics && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
+                  </button>
+
+                  <div className={`my-1.5 mx-2 border-t ${theme === "dark" ? "border-slate-800" : "border-slate-100"}`} />
+
+                  <p className={`px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                    Kollaboration
+                  </p>
+                  <button
+                    onClick={() => { setShowAnnotations(!showAnnotations); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showAnnotations ? theme === "dark" ? "bg-pink-500/10 text-pink-300" : "bg-pink-50 text-pink-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <Notepad size={15} />
+                    Notizen
+                    {(annotations[currentSubject]?.length ?? 0) > 0 && (
+                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+                        {annotations[currentSubject]?.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => { setShowTemplateGallery(!showTemplateGallery); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showTemplateGallery ? theme === "dark" ? "bg-violet-500/10 text-violet-300" : "bg-violet-50 text-violet-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <FolderOpen size={15} />
+                    Vorlagen
+                  </button>
+                  <button
+                    onClick={() => { setShowShareExport(!showShareExport); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showShareExport ? theme === "dark" ? "bg-cyan-500/10 text-cyan-300" : "bg-cyan-50 text-cyan-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <Export size={15} />
+                    Teilen & Export
+                  </button>
+
+                  <div className={`my-1.5 mx-2 border-t ${theme === "dark" ? "border-slate-800" : "border-slate-100"}`} />
+
+                  <button
+                    onClick={() => { setShowCostCalculator(!showCostCalculator); setShowMoreMenu(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showCostCalculator ? theme === "dark" ? "bg-amber-500/10 text-amber-300" : "bg-amber-50 text-amber-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    <CurrencyDollar size={15} />
+                    Kosten-Rechner
+                    {showCostCalculator && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                  </button>
+                </div>
               )}
-            </button>
-            <button
-              onClick={() => setShowTemplateGallery(!showTemplateGallery)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showTemplateGallery
-                  ? "bg-violet-500/20 text-violet-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
-                    : "text-slate-500 hover:text-violet-600 hover:bg-violet-50"
-              }`}
-              title="Vorlagen-Galerie (Topologien, Diagramme)"
-            >
-              <FolderOpen size={16} />
-              Vorlagen
-            </button>
-            <button
-              onClick={() => setShowShareExport(!showShareExport)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showShareExport
-                  ? "bg-cyan-500/20 text-cyan-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10"
-                    : "text-slate-500 hover:text-cyan-600 hover:bg-cyan-50"
-              }`}
-              title="Teilen & Export"
-            >
-              <Export size={16} />
-              Teilen
-            </button>
+            </div>
 
-            <div
-              className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`}
-            />
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
-            {/* Overflow: Kosten-Rechner & Hilfe */}
-            <button
-              onClick={() => setShowCostCalculator(!showCostCalculator)}
-              className={`flex items-center justify-center w-8 h-8 rounded-lg text-xs transition-colors ${
-                showCostCalculator
-                  ? "bg-amber-500/20 text-amber-300"
-                  : theme === "dark"
-                    ? "text-slate-500 hover:text-amber-300 hover:bg-amber-500/10"
-                    : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"
-              }`}
-              title="Kosten-Rechner (Hardware-Kalkulation)"
-            >
-              <CurrencyDollar size={16} />
-            </button>
             <button
               onClick={() => setShowKeyboardShortcuts(true)}
-              className={`flex items-center justify-center w-8 h-8 rounded-lg text-xs transition-colors ${
+              className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
                   : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
@@ -1513,9 +1515,8 @@ function App() {
               <Keyboard size={16} />
             </button>
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-500" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
-            {/* Auth button */}
             {user ? (
               <button
                 onClick={() => supabase.auth.signOut()}
@@ -1536,13 +1537,14 @@ function App() {
             ) : (
               <button
                 onClick={() => setShowAuthDialog(true)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
                   theme === "dark"
-                    ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
-                    : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                    ? "border-sky-700/60 text-sky-400 hover:bg-sky-500/10 hover:border-sky-500/80"
+                    : "border-sky-400/60 text-sky-600 hover:bg-sky-50 hover:border-sky-500"
                 }`}
                 title="Anmelden — Fortschritt geräteübergreifend synchronisieren"
               >
+                <UserCircle size={15} />
                 Anmelden
               </button>
             )}
