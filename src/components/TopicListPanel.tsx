@@ -15,6 +15,7 @@ import {
   Clock,
   ListBullets,
   Question,
+  Wrench,
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
@@ -23,9 +24,11 @@ interface TopicListPanelProps {
   theme: "light" | "dark";
   /** Called when user clicks a topic. Receives the Topic and the loaded module. */
   onTopicClick?: (topic: Topic, module: CertificationModule) => void;
+  /** Startet ein Tool aus dem Schnellstart (Tool-IDs aus dem App-Tools-Menü). */
+  onLaunchTool?: (toolId: string) => void;
 }
 
-export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanelProps) {
+export function TopicListPanel({ moduleId, theme, onTopicClick, onLaunchTool }: TopicListPanelProps) {
   const [mod, setMod] = useState<CertificationModule | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,13 +91,13 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
 
   return (
     <div
-      className={`h-full overflow-y-auto ${
+      className={`h-full overflow-y-auto @container ${
         theme === "dark"
           ? "bg-gradient-to-b from-slate-900 via-slate-900 to-[#0a0f1e]"
           : "bg-gradient-to-b from-slate-50 to-white"
       }`}
     >
-      <div className="max-w-3xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Module Header — Hero */}
         <div
           className={`relative mb-8 rounded-2xl border p-5 overflow-hidden ${
@@ -161,6 +164,34 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
           </div>
         </div>
 
+        {/* Tool-Schnellstart — nur wenn Platz da ist (breiter Container) */}
+        {onLaunchTool && (
+          <div className="hidden @3xl:flex flex-wrap gap-2 mb-8 -mt-3">
+            {[
+              { id: "subnetting-drill", name: "Subnetting-Drill" },
+              { id: "vlan-simulator", name: "VLAN-Simulator" },
+              { id: "stp-simulator", name: "STP-Simulator" },
+              { id: "osi-simulator", name: "OSI-Simulator" },
+              { id: "routing-simulator", name: "Routing-Simulator" },
+              { id: "ipv6-calculator", name: "IPv6-Rechner" },
+              { id: "cli-glossary", name: "CLI-Glossar" },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onLaunchTool(t.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
+                  theme === "dark"
+                    ? "border-slate-700/60 bg-slate-800/50 text-slate-300 hover:border-amber-500/40 hover:text-amber-300 hover:shadow-[0_2px_12px_rgba(245,158,11,0.15)]"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-amber-300 hover:text-amber-600 hover:shadow-sm"
+                }`}
+              >
+                <Wrench size={12} className={theme === "dark" ? "text-amber-400" : "text-amber-500"} />
+                {t.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Topic List */}
         <div>
           <h2
@@ -171,7 +202,7 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
             Themen ({mod.topics.length})
           </h2>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 @3xl:grid-cols-2 @6xl:grid-cols-3 gap-2 @3xl:gap-3">
             {mod.topics.map((topic, index) => {
               const conceptCount = topic.conceptIds.length;
               const quizQuestionCount = topic.quizIds.reduce(

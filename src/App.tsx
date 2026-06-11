@@ -1836,10 +1836,16 @@ function App() {
             >
               {catalogModuleId ? (
                 <>
-                  {/* Left: Topic list — fixed sidebar */}
+                  {/* Topic list — volle Breite ohne Auswahl, Sidebar mit Auswahl */}
                   <div
-                    className={`w-72 shrink-0 overflow-y-auto border-r ${
-                      theme === "dark" ? "border-slate-700/50 bg-slate-900/40" : "border-slate-200 bg-slate-50/60"
+                    className={`overflow-y-auto transition-all duration-300 ${
+                      selectedTopic
+                        ? `w-80 shrink-0 border-r ${
+                            theme === "dark"
+                              ? "border-slate-700/50 bg-slate-900/40"
+                              : "border-slate-200 bg-slate-50/60"
+                          }`
+                        : "flex-1"
                     }`}
                   >
                     <TopicListPanel
@@ -1849,12 +1855,13 @@ function App() {
                         setSelectedTopic(topic);
                         setSelectedTopicModule(mod);
                       }}
+                      onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
                     />
                   </div>
 
-                  {/* Right: Topic detail or placeholder */}
-                  <div className="flex-1 overflow-hidden">
-                    {selectedTopic && selectedTopicModule ? (
+                  {/* Topic detail — nur bei Auswahl */}
+                  {selectedTopic && selectedTopicModule && (
+                    <div className="flex-1 overflow-hidden">
                       <TopicDetailPanel
                         topic={selectedTopic}
                         module={selectedTopicModule}
@@ -1868,68 +1875,8 @@ function App() {
                           setSelectedTopicModule(null);
                         }}
                       />
-                    ) : (
-                      <div
-                        className={`h-full flex items-center justify-center ${
-                          theme === "dark"
-                            ? "bg-gradient-to-br from-slate-900 via-slate-900 to-[#0d1326]"
-                            : "bg-gradient-to-br from-white to-slate-50"
-                        }`}
-                      >
-                        <div className="max-w-md w-full px-8">
-                          <div className="text-center mb-8">
-                            <div
-                              className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-                                theme === "dark"
-                                  ? "bg-gradient-to-br from-indigo-500/30 to-indigo-500/5 ring-1 ring-indigo-400/25 shadow-[0_0_24px_rgba(99,102,241,0.2)]"
-                                  : "bg-indigo-50 ring-1 ring-indigo-200"
-                              }`}
-                            >
-                              <BookOpen
-                                size={26}
-                                weight="fill"
-                                className={theme === "dark" ? "text-indigo-300" : "text-indigo-500"}
-                              />
-                            </div>
-                            <p className={`text-lg font-semibold tracking-tight ${theme === "dark" ? "text-slate-100" : "text-slate-800"}`}>
-                              Thema auswählen
-                            </p>
-                            <p className={`text-sm mt-1 ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                              Wähle links ein Thema — oder starte direkt ein Tool.
-                            </p>
-                          </div>
-
-                          {/* Tool-Schnellstart */}
-                          <div className="grid grid-cols-2 gap-2">
-                            {[
-                              { id: "subnetting-drill" as ToolId, name: "Subnetting-Drill", desc: "Rechnen gegen die Uhr" },
-                              { id: "vlan-simulator" as ToolId, name: "VLAN-Simulator", desc: "Trunks & 802.1Q live" },
-                              { id: "stp-simulator" as ToolId, name: "STP-Simulator", desc: "Spanning Tree verstehen" },
-                              { id: "cli-glossary" as ToolId, name: "CLI-Glossar", desc: "IOS-Befehle nachschlagen" },
-                            ].map((t) => (
-                              <button
-                                key={t.id}
-                                onClick={() => setActiveTool(t.id)}
-                                className={`group text-left rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 ${
-                                  theme === "dark"
-                                    ? "bg-slate-800/50 border-slate-700/50 hover:border-amber-500/40 hover:shadow-[0_4px_18px_rgba(245,158,11,0.12)]"
-                                    : "bg-white border-slate-200 hover:border-amber-300 hover:shadow-md"
-                                }`}
-                              >
-                                <span className={`flex items-center gap-1.5 text-xs font-semibold ${theme === "dark" ? "text-slate-200" : "text-slate-700"}`}>
-                                  <Wrench size={12} className={theme === "dark" ? "text-amber-400" : "text-amber-500"} />
-                                  {t.name}
-                                </span>
-                                <span className={`block text-[10px] mt-0.5 ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                                  {t.desc}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center">
