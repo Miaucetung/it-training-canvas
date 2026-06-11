@@ -22,25 +22,49 @@ import {
   Question,
   X,
 } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { IPv6CalculatorDialog } from "./IPv6CalculatorDialog";
-import { QuizDialog } from "./QuizDialog";
 import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
-import { SubnettingDrillDialog } from "./SubnettingDrillDialog";
-import { TerminalEmulator } from "./TerminalEmulator";
-import { VerkabelungTrainerDialog } from "./VerkabelungTrainerDialog";
-import { VlanSimulatorDialog } from "./VlanSimulatorDialog";
-import { TopologieExplorerDialog } from "./TopologieExplorerDialog";
-import { CliGlossaryDialog } from "./CliGlossaryDialog";
-import { StpSimulatorDialog } from "./StpSimulatorDialog";
-import { OsiSimulatorDialog } from "./OsiSimulatorDialog";
-import { RoutingSimulatorDialog } from "./RoutingSimulatorDialog";
 import {
   exportLessonAsMarkdown,
   exportLessonAsPdf,
 } from "@/lib/content/lesson-exporter";
+
+// Simulator-Dialoge lazy laden — sie machen sonst >50 % des Entry-Chunks aus
+const IPv6CalculatorDialog = lazy(() =>
+  import("./IPv6CalculatorDialog").then((m) => ({ default: m.IPv6CalculatorDialog })),
+);
+const QuizDialog = lazy(() =>
+  import("./QuizDialog").then((m) => ({ default: m.QuizDialog })),
+);
+const SubnettingDrillDialog = lazy(() =>
+  import("./SubnettingDrillDialog").then((m) => ({ default: m.SubnettingDrillDialog })),
+);
+const TerminalEmulator = lazy(() =>
+  import("./TerminalEmulator").then((m) => ({ default: m.TerminalEmulator })),
+);
+const VerkabelungTrainerDialog = lazy(() =>
+  import("./VerkabelungTrainerDialog").then((m) => ({ default: m.VerkabelungTrainerDialog })),
+);
+const VlanSimulatorDialog = lazy(() =>
+  import("./VlanSimulatorDialog").then((m) => ({ default: m.VlanSimulatorDialog })),
+);
+const TopologieExplorerDialog = lazy(() =>
+  import("./TopologieExplorerDialog").then((m) => ({ default: m.TopologieExplorerDialog })),
+);
+const CliGlossaryDialog = lazy(() =>
+  import("./CliGlossaryDialog").then((m) => ({ default: m.CliGlossaryDialog })),
+);
+const StpSimulatorDialog = lazy(() =>
+  import("./StpSimulatorDialog").then((m) => ({ default: m.StpSimulatorDialog })),
+);
+const OsiSimulatorDialog = lazy(() =>
+  import("./OsiSimulatorDialog").then((m) => ({ default: m.OsiSimulatorDialog })),
+);
+const RoutingSimulatorDialog = lazy(() =>
+  import("./RoutingSimulatorDialog").then((m) => ({ default: m.RoutingSimulatorDialog })),
+);
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -1045,7 +1069,8 @@ export function TopicDetailPanel({
         )}
       </div>
 
-      {hasSubnettingDrill && (
+      <Suspense fallback={null}>
+      {hasSubnettingDrill && drillOpen && (
         <SubnettingDrillDialog
           open={drillOpen}
           onClose={() => setDrillOpen(false)}
@@ -1053,7 +1078,7 @@ export function TopicDetailPanel({
         />
       )}
 
-      {hasIPv6Calculator && (
+      {hasIPv6Calculator && ipv6Open && (
         <IPv6CalculatorDialog
           open={ipv6Open}
           onClose={() => setIpv6Open(false)}
@@ -1130,6 +1155,7 @@ export function TopicDetailPanel({
           onClose={() => setActiveQuiz(null)}
         />
       )}
+      </Suspense>
     </div>
   );
 }

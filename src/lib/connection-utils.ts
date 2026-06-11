@@ -282,7 +282,6 @@ function drawArrowHead(
 ) {
   const angle = Math.atan2(toPoint.y - fromPoint.y, toPoint.x - fromPoint.x);
   const arrowLength = 10;
-  const arrowWidth = 6;
 
   ctx.beginPath();
   ctx.moveTo(toPoint.x, toPoint.y);

@@ -38,18 +38,10 @@ function examImagesPlugin(): PluginOption {
         }
       });
     },
-    // Build: copy all images into dist/exam-images/
-    closeBundle() {
-      if (!fs.existsSync(srcDir)) return;
-      const destDir = path.resolve(__dirname, "dist/exam-images");
-      fs.mkdirSync(destDir, { recursive: true });
-      let count = 0;
-      for (const file of fs.readdirSync(srcDir)) {
-        fs.copyFileSync(path.join(srcDir, file), path.join(destDir, file));
-        count++;
-      }
-      console.log(`[exam-images] Copied ${count} images → dist/exam-images/`);
-    },
+    // Build-Copy deaktiviert: Die aktuelle Fragen-Pipeline (quiz-to-exam.ts)
+    // referenziert keine Exhibit-Bilder — 268 MB würden ungenutzt im Image landen.
+    // Bei Reaktivierung der Bild-Fragen: Copy wieder einschalten oder Bilder
+    // über separates Volume/Objektspeicher ausliefern.
   };
 }
 

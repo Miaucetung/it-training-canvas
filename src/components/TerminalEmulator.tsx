@@ -802,8 +802,6 @@ export function TerminalEmulator({
       const [baseCmd, ...args] = trimmed.split(/\s+/);
       const cmdLower = baseCmd.toLowerCase();
 
-      // Handle special compound commands
-      let handler: CommandHandler | undefined;
 
       // "ip route add" → modify routing table
       if (
@@ -879,7 +877,7 @@ export function TerminalEmulator({
         return;
       }
 
-      handler = COMMANDS[cmdLower];
+      const handler: CommandHandler | undefined = COMMANDS[cmdLower];
 
       let result: { output: string; exitCode: number };
       if (handler) {

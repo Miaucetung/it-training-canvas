@@ -26,7 +26,7 @@ import {
   ShapeDefinition,
   Tool,
 } from "@/lib/types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { PacketData } from "@/components/SimulationControls";
 
@@ -70,7 +70,7 @@ interface TextInputState {
   isEditing: boolean;
 }
 
-export function Canvas({
+function CanvasInner({
   objects,
   onObjectsChange,
   onSelectionChange,
@@ -837,11 +837,6 @@ export function Canvas({
     y: (point.y - offset.y) / scale,
   });
 
-  const worldToScreen = (point: Point): Point => ({
-    x: point.x * scale + offset.x,
-    y: point.y * scale + offset.y,
-  });
-
   const snapToGrid = (point: Point): Point => {
     if (!showGrid) return point;
     return {
@@ -1160,7 +1155,7 @@ export function Canvas({
     if (tool !== "select" && !currentObject) return;
 
     // Snap to nearby shapes when dragging
-    let snappedPos = e.shiftKey ? snapToGrid(worldPos) : worldPos;
+    const snappedPos = e.shiftKey ? snapToGrid(worldPos) : worldPos;
 
     // Snap-to-Shape: align with nearby shape edges
     if (!e.shiftKey && tool === "select" && selectedObjectIds.size > 0) {
@@ -1172,14 +1167,6 @@ export function Canvas({
       otherShapes.forEach((shape) => {
         const bounds = getShapeBounds(shape);
         if (!bounds) return;
-
-        // Snap to edges of other shapes
-        const edges = [
-          bounds.x, // left
-          bounds.x + bounds.width, // right
-          bounds.y, // top
-          bounds.y + bounds.height, // bottom
-        ];
 
         // Horizontal alignment
         if (Math.abs(snappedPos.x - bounds.x) < SNAP_THRESHOLD) {
@@ -1671,3 +1658,5 @@ export function Canvas({
     </div>
   );
 }
+
+export const Canvas = memo(CanvasInner);

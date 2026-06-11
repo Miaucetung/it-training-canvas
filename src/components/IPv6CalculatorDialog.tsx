@@ -1950,7 +1950,6 @@ function BinaryTab({ dark }: { dark: boolean }) {
   const lbl = dark ? "text-slate-400" : "text-slate-500";
   const mono = dark ? "text-white" : "text-slate-900";
   const accent = dark ? "text-indigo-300" : "text-indigo-700";
-  const accentBg = dark ? "bg-indigo-500/20" : "bg-indigo-100";
 
   const activeDigit = clickedDigit ?? hoverDigit;
 

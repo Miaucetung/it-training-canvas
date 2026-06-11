@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { memo, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -85,7 +85,6 @@ interface FloatingToolbarProps {
   onExportSVG?: () => void;
   onImport: () => void;
   onShowPresentations: () => void;
-  onShowShapePicker: () => void;
   onShowKeyboardShortcuts?: () => void;
   onSelectAll?: () => void;
   canUndo: boolean;
@@ -112,7 +111,7 @@ const tools: Array<{
   { tool: "shape", icon: Shapes, label: "IT-Formen", shortcut: "S" },
 ];
 
-export function FloatingToolbar({
+function FloatingToolbarInner({
   tool,
   onToolChange,
   color,
@@ -121,8 +120,6 @@ export function FloatingToolbar({
   onPenWidthChange,
   textSize,
   onTextSizeChange,
-  fontFamily,
-  onFontFamilyChange,
   theme,
   onThemeToggle,
   showGrid,
@@ -131,9 +128,6 @@ export function FloatingToolbar({
   onGridSizeChange,
   gridPattern,
   onGridPatternChange,
-  gridColor,
-  gridAccentColor,
-  onGridColorChange,
   gridOpacity,
   onGridOpacityChange,
   onUndo,
@@ -144,13 +138,11 @@ export function FloatingToolbar({
   onExportSVG,
   onImport,
   onShowPresentations,
-  onShowShapePicker,
   onShowKeyboardShortcuts,
   onSelectAll,
   canUndo,
   canRedo,
   currentSubject,
-  selectedShape,
 }: FloatingToolbarProps) {
   const subjectColor = SUBJECT_CONFIGS[currentSubject]?.color || "#6366F1";
   const [minimized, setMinimized] = useState(true);
@@ -929,3 +921,5 @@ export function FloatingToolbar({
     </TooltipProvider>
   );
 }
+
+export const FloatingToolbar = memo(FloatingToolbarInner);

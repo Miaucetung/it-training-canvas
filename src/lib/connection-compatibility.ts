@@ -2,7 +2,7 @@
 // Determines which shapes can connect, recommended cable/connection types,
 // and validates network topology.
 
-import { CableType, DrawingObject, ShapeConfig } from "./types";
+import { CableType, DrawingObject } from "./types";
 import { ConnectionType } from "./shape-properties";
 
 // ============================================================

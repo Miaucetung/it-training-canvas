@@ -1027,8 +1027,6 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [running, speed, visibleVlans]);
 
-  const vlanForFrame = (vlanId: number) => TRUNK_VLANS.find((v) => v.id === vlanId)!;
-
   return (
     <div className="space-y-4">
       <p className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
@@ -1061,7 +1059,6 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
 
         {/* Frames */}
         {frames.map((f) => {
-          const vd = vlanForFrame(f.vlan);
           const top = 20 + ((f.id % 3) * 20);
           return (
             <div

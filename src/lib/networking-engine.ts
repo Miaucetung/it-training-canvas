@@ -728,7 +728,7 @@ export function evaluateACLs(shape: DrawingObject): ACLConfig[] {
 function checkNAT(
   shape: DrawingObject,
   srcIp: string,
-  dstIp: string,
+  _dstIp: string,
 ): string | null {
   const nat = shape.config?.natConfig;
   if (!nat || !nat.enabled) return null;
@@ -990,7 +990,7 @@ export function resolveDNS(
   hostname: string,
   clientShape: DrawingObject,
   objects: DrawingObject[],
-  connections: CanvasConnection[],
+  _connections: CanvasConnection[],
 ): DNSResult {
   const steps: string[] = [];
 
@@ -1457,8 +1457,6 @@ function getDefaultPort(protocol: string): number {
 /** Generate default interfaces for a shape based on its type */
 export function getDefaultInterfaces(shapeId: string): NetworkInterface[] {
   const id = shapeId?.toLowerCase() || "";
-  const mac = generateMAC;
-
   if (id.includes("router") || id.includes("gateway")) {
     return [
       {

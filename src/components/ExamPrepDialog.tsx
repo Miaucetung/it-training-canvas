@@ -39,6 +39,7 @@ const ExamOptionSchema = z.object({
   text: z.string(),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- nur als Typquelle via z.infer genutzt
 const ExamQuestionSchema = z.object({
   id: z.string(),
   category: z.string(),
@@ -62,7 +63,6 @@ const ExamQuestionSchema = z.object({
 
 
 // ─── Types ───────────────────────────────────────────────────
-type ExamOption = z.infer<typeof ExamOptionSchema>;
 type ExamQuestion = z.infer<typeof ExamQuestionSchema>;
 
 interface SessionResult {
@@ -115,7 +115,9 @@ function loadWeakIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return new Set(JSON.parse(raw));
-  } catch {}
+  } catch {
+    /* localStorage nicht verfügbar */
+  }
   return new Set();
 }
 
@@ -147,7 +149,7 @@ function fuzzyMatch(userText: string, correctText: string): boolean {
 /** Returns true if a text string looks like garbled OCR output */
 function isGarbledText(text: string): boolean {
   if (!text || text.length < 3) return true;
-  const specialRatio = (text.match(/[^a-zA-Z0-9\s.,\/:()]/g) ?? []).length / text.length;
+  const specialRatio = (text.match(/[^a-zA-Z0-9\s.,/:()]/g) ?? []).length / text.length;
   return specialRatio > 0.15;
 }
 
@@ -201,7 +203,7 @@ function ExhibitImage({ src, dark }: { src: string; dark: boolean }) {
   );
 }
 
-function CategoryBadge({ category, dark }: { category: string; dark: boolean }) {
+function CategoryBadge({ category }: { category: string; dark: boolean }) {
   const colors: Record<string, string> = {
     Routing: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
     "Switching/VLAN": "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
@@ -551,10 +553,6 @@ function QuestionCard({
   const correct = question.correctAnswer;
   const isMulti = question.type === "multi-select" || (correct && correct.length > 1);
   const isDragDrop = question.type === "drag-drop";
-  const hasInteractiveDragDrop =
-    isDragDrop &&
-    (question.dragItems?.length ?? 0) >= 2 &&
-    (question.dropTargets?.length ?? 0) >= 1;
 
   function optionCls(letter: string): string {
     const selected = userAnswer.includes(letter);

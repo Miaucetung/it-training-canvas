@@ -10,8 +10,6 @@ import { CCNA_QUIZZES } from "./ccna-quiz-content";
 // ────────────────────────────────────────────────────────────
 // Helper: Generate unique IDs
 // ────────────────────────────────────────────────────────────
-let _idCounter = 0;
-const uid = (prefix: string) => `${prefix}-${++_idCounter}`;
 
 // ────────────────────────────────────────────────────────────
 // QUIZZES

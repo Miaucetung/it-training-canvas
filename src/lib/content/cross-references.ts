@@ -7,7 +7,6 @@
 import type {
   Concept,
   ConceptBridge,
-  CertificationModule,
 } from "@/lib/content/types";
 import { contentRegistry } from "@/lib/content/content-registry";
 

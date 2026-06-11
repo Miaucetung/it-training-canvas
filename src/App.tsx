@@ -21,7 +21,6 @@ import {
   SimulationControls,
   useSimulation,
 } from "@/components/SimulationControls";
-import { TerminalEmulator } from "@/components/TerminalEmulator";
 import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import { TopicListPanel } from "@/components/TopicListPanel";
 import { TopologyValidator } from "@/components/TopologyValidator";
@@ -103,6 +102,72 @@ const ProgressTracker = lazy(() =>
 const TemplateGallery = lazy(() =>
   import("@/components/TemplateGallery").then((m) => ({ default: m.TemplateGallery })),
 );
+const TerminalEmulator = lazy(() =>
+  import("@/components/TerminalEmulator").then((m) => ({ default: m.TerminalEmulator })),
+);
+
+function getObjectBounds(obj: DrawingObject): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  if (obj.type === "shape" && obj.startPoint) {
+    return {
+      x: obj.startPoint.x,
+      y: obj.startPoint.y,
+      width: obj.shapeWidth || 80,
+      height: obj.shapeHeight || 80,
+    };
+  }
+  if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
+    const x = Math.min(obj.startPoint.x, obj.endPoint.x);
+    const y = Math.min(obj.startPoint.y, obj.endPoint.y);
+    return {
+      x,
+      y,
+      width: Math.abs(obj.endPoint.x - obj.startPoint.x),
+      height: Math.abs(obj.endPoint.y - obj.startPoint.y),
+    };
+  }
+  if (obj.type === "line" && obj.startPoint && obj.endPoint) {
+    const x = Math.min(obj.startPoint.x, obj.endPoint.x);
+    const y = Math.min(obj.startPoint.y, obj.endPoint.y);
+    return {
+      x,
+      y,
+      width: Math.abs(obj.endPoint.x - obj.startPoint.x) || 10,
+      height: Math.abs(obj.endPoint.y - obj.startPoint.y) || 10,
+    };
+  }
+  if (obj.type === "text" && obj.startPoint) {
+    return {
+      x: obj.startPoint.x,
+      y: obj.startPoint.y,
+      width: 150,
+      height: obj.fontSize || 16,
+    };
+  }
+  if (obj.type === "pen" && obj.points?.length) {
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+    obj.points.forEach((p) => {
+      if (p.x < minX) minX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y > maxY) maxY = p.y;
+    });
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX || 10,
+      height: maxY - minY || 10,
+    };
+  }
+  return { x: 0, y: 0, width: 100, height: 100 };
+}
 
 // ── Phase 6c-1: Catalog → Subject-ID mapping ─────────────────
 // Maps CATALOG_PREVIEW slugs to SUBJECT_CONFIGS keys.
@@ -257,7 +322,6 @@ function App() {
     showProgressTracker,
     setShowProgressTracker,
     handleSaveLearningPath,
-    handleDeleteLearningPath,
     handleStartLearningPath,
     handleUpdateProgress,
   } = useLearningState();
@@ -356,6 +420,90 @@ function App() {
       }
     );
   }, [appData, currentSubject]);
+
+  // Stabile Handler für memoized Children (Canvas, Sidebar, FloatingToolbar)
+  const viewportInfoRef = useRef(viewportInfo);
+  viewportInfoRef.current = viewportInfo;
+
+  const handleSubjectChange = useCallback((s: string) => {
+    setCurrentSubject(s);
+    setSelectedTopic(null);
+    setSelectedTopicModule(null);
+  }, []);
+
+  const handleToggleSidebar = useCallback(
+    () => setSidebarCollapsed((v) => !v),
+    [],
+  );
+
+  const handleSelectionChange = useCallback(
+    (selectedObjs: DrawingObject[]) => {
+      setSelectedObjects(selectedObjs);
+      if (selectedObjs.length === 1) {
+        setSelectedObjectForProperties(selectedObjs[0]);
+        setShowPropertiesPanel(true);
+      } else if (selectedObjs.length === 0) {
+        setSelectedObjectForProperties(null);
+        setShowPropertiesPanel(false);
+        setSelectionToolbarPosition(null);
+      } else {
+        setSelectedObjectForProperties(null);
+        setShowPropertiesPanel(false);
+      }
+      if (selectedObjs.length > 0 && tool === "select") {
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -Infinity,
+          maxY = -Infinity;
+        selectedObjs.forEach((obj) => {
+          const bounds = getObjectBounds(obj);
+          if (bounds.x < minX) minX = bounds.x;
+          if (bounds.y < minY) minY = bounds.y;
+          if (bounds.x + bounds.width > maxX) maxX = bounds.x + bounds.width;
+          if (bounds.y + bounds.height > maxY) maxY = bounds.y + bounds.height;
+        });
+        const vp = viewportInfoRef.current;
+        const screenX = (minX + (maxX - minX) / 2 - vp.x) * vp.zoom;
+        const screenY = (minY - vp.y) * vp.zoom - 60;
+        setSelectionToolbarPosition({
+          x: Math.max(150, screenX),
+          y: Math.max(60, screenY),
+        });
+      }
+    },
+    [tool],
+  );
+
+  const handleConnectionsChange = useCallback(
+    (newConnections: CanvasConnection[]) => {
+      setAppData((prev) => {
+        if (!prev) return {};
+        const current = prev[currentSubject];
+        if (!current) return prev;
+        return {
+          ...prev,
+          [currentSubject]: {
+            ...current,
+            canvasState: {
+              ...current.canvasState,
+              connections: newConnections,
+            },
+            lastModified: Date.now(),
+          },
+        };
+      });
+    },
+    [currentSubject, setAppData],
+  );
+
+  const handleShowPresentations = useCallback(
+    () => setShowPresentations(true),
+    [],
+  );
+  const handleShowKeyboardShortcuts = useCallback(
+    () => setShowKeyboardShortcuts(true),
+    [],
+  );
 
   const updateCanvasState = useCallback(
     (newObjects: DrawingObject[]) => {
@@ -528,7 +676,7 @@ function App() {
         setSubjects(Object.keys(data));
         setShowWelcome(false);
         toast.success("Import erfolgreich!", { duration: 2000 });
-      } catch (error) {
+      } catch {
         toast.error("Import fehlgeschlagen: Ungültige JSON-Datei", {
           duration: 3000,
         });
@@ -920,18 +1068,6 @@ function App() {
     [getCurrentCanvasState, updateCanvasState],
   );
 
-  // Handle object selection from Canvas
-  const handleObjectSelection = useCallback((objects: DrawingObject[]) => {
-    const selectedObjects = objects.filter((obj) => obj.selected);
-    if (selectedObjects.length === 1) {
-      setSelectedObjectForProperties(selectedObjects[0]);
-      setShowPropertiesPanel(true);
-    } else if (selectedObjects.length === 0) {
-      setSelectedObjectForProperties(null);
-      setShowPropertiesPanel(false);
-    }
-  }, []);
-
   const handleThemeToggle = useCallback(() => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -1145,70 +1281,6 @@ function App() {
   ]);
 
   // Helper function to get object bounds
-  const getObjectBounds = useCallback(
-    (
-      obj: DrawingObject,
-    ): { x: number; y: number; width: number; height: number } => {
-      if (obj.type === "shape" && obj.startPoint) {
-        return {
-          x: obj.startPoint.x,
-          y: obj.startPoint.y,
-          width: obj.shapeWidth || 80,
-          height: obj.shapeHeight || 80,
-        };
-      }
-      if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
-        const x = Math.min(obj.startPoint.x, obj.endPoint.x);
-        const y = Math.min(obj.startPoint.y, obj.endPoint.y);
-        return {
-          x,
-          y,
-          width: Math.abs(obj.endPoint.x - obj.startPoint.x),
-          height: Math.abs(obj.endPoint.y - obj.startPoint.y),
-        };
-      }
-      if (obj.type === "line" && obj.startPoint && obj.endPoint) {
-        const x = Math.min(obj.startPoint.x, obj.endPoint.x);
-        const y = Math.min(obj.startPoint.y, obj.endPoint.y);
-        return {
-          x,
-          y,
-          width: Math.abs(obj.endPoint.x - obj.startPoint.x) || 10,
-          height: Math.abs(obj.endPoint.y - obj.startPoint.y) || 10,
-        };
-      }
-      if (obj.type === "text" && obj.startPoint) {
-        return {
-          x: obj.startPoint.x,
-          y: obj.startPoint.y,
-          width: 150,
-          height: obj.fontSize || 16,
-        };
-      }
-      if (obj.type === "pen" && obj.points?.length) {
-        let minX = Infinity,
-          minY = Infinity,
-          maxX = -Infinity,
-          maxY = -Infinity;
-        obj.points.forEach((p) => {
-          if (p.x < minX) minX = p.x;
-          if (p.y < minY) minY = p.y;
-          if (p.x > maxX) maxX = p.x;
-          if (p.y > maxY) maxY = p.y;
-        });
-        return {
-          x: minX,
-          y: minY,
-          width: maxX - minX || 10,
-          height: maxY - minY || 10,
-        };
-      }
-      // Fallback
-      return { x: 0, y: 0, width: 100, height: 100 };
-    },
-    [],
-  );
-
   const canvasState = getCurrentCanvasState();
   const canUndo = canvasState.historyIndex > 0;
   const canRedo = canvasState.historyIndex < canvasState.history.length - 1;
@@ -1232,15 +1304,11 @@ function App() {
       <Sidebar
         subjects={subjects}
         currentSubject={currentSubject}
-        onSubjectChange={(s) => {
-          setCurrentSubject(s);
-          setSelectedTopic(null);
-          setSelectedTopicModule(null);
-        }}
+        onSubjectChange={handleSubjectChange}
         onAddSubject={handleAddSubject}
         onRemoveSubject={handleRemoveSubject}
         collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onToggleCollapse={handleToggleSidebar}
       />
 
       {/* Main Content Area */}
@@ -1599,6 +1667,7 @@ function App() {
             {/* FRONT: Lernoberfläche — Dashboard */}
             <div
               className="absolute inset-0 overflow-hidden flex"
+              inert={canvasView || undefined}
               style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], pointerEvents: canvasView ? "none" : "auto" }}
             >
               {catalogModuleId ? (
@@ -1661,6 +1730,7 @@ function App() {
             {/* BACK: Canvas */}
             <div
               className="absolute inset-0 overflow-hidden"
+              inert={!canvasView || undefined}
               style={{
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
@@ -1707,63 +1777,9 @@ function App() {
               <Canvas
                 objects={canvasState.objects}
                 onObjectsChange={updateCanvasState}
-                onSelectionChange={(selectedObjs) => {
-                  setSelectedObjects(selectedObjs);
-                  if (selectedObjs.length === 1) {
-                    setSelectedObjectForProperties(selectedObjs[0]);
-                    setShowPropertiesPanel(true);
-                  } else if (selectedObjs.length === 0) {
-                    setSelectedObjectForProperties(null);
-                    setShowPropertiesPanel(false);
-                    setSelectionToolbarPosition(null);
-                  } else {
-                    setSelectedObjectForProperties(null);
-                    setShowPropertiesPanel(false);
-                  }
-                  if (selectedObjs.length > 0 && tool === "select") {
-                    let minX = Infinity,
-                      minY = Infinity,
-                      maxX = -Infinity,
-                      maxY = -Infinity;
-                    selectedObjs.forEach((obj) => {
-                      const bounds = getObjectBounds(obj);
-                      if (bounds.x < minX) minX = bounds.x;
-                      if (bounds.y < minY) minY = bounds.y;
-                      if (bounds.x + bounds.width > maxX)
-                        maxX = bounds.x + bounds.width;
-                      if (bounds.y + bounds.height > maxY)
-                        maxY = bounds.y + bounds.height;
-                    });
-                    const screenX =
-                      (minX + (maxX - minX) / 2 - viewportInfo.x) *
-                      viewportInfo.zoom;
-                    const screenY =
-                      (minY - viewportInfo.y) * viewportInfo.zoom - 60;
-                    setSelectionToolbarPosition({
-                      x: Math.max(150, screenX),
-                      y: Math.max(60, screenY),
-                    });
-                  }
-                }}
+                onSelectionChange={handleSelectionChange}
                 connections={canvasState.connections}
-                onConnectionsChange={(newConnections) => {
-                  setAppData((prev) => {
-                    if (!prev) return {};
-                    const current = prev[currentSubject];
-                    if (!current) return prev;
-                    return {
-                      ...prev,
-                      [currentSubject]: {
-                        ...current,
-                        canvasState: {
-                          ...current.canvasState,
-                          connections: newConnections,
-                        },
-                        lastModified: Date.now(),
-                      },
-                    };
-                  });
-                }}
+                onConnectionsChange={handleConnectionsChange}
                 onConnectionSelect={handleConnectionSelect}
                 onContextMenu={handleContextMenu}
                 tool={tool}
@@ -1892,9 +1908,8 @@ function App() {
             onExportPNG={handleExportPNG}
             onExportSVG={handleExportSVG}
             onImport={handleImport}
-            onShowPresentations={() => setShowPresentations(true)}
-            onShowShapePicker={() => setShowShapePicker(true)}
-            onShowKeyboardShortcuts={() => setShowKeyboardShortcuts(true)}
+            onShowPresentations={handleShowPresentations}
+            onShowKeyboardShortcuts={handleShowKeyboardShortcuts}
             onSelectAll={handleSelectAll}
             canUndo={canUndo}
             canRedo={canRedo}
@@ -2089,18 +2104,20 @@ function App() {
 
       {/* Terminal Emulator */}
       {showTerminal && terminalShape && (
-        <TerminalEmulator
-          shape={terminalShape}
-          onClose={() => {
-            setShowTerminal(false);
-            setTerminalShape(null);
-          }}
-          onUpdateHistory={handleUpdateTerminalHistory}
-          onUpdateConfig={handleUpdateShapeConfigFromTerminal}
-          allObjects={getCurrentCanvasState().objects}
-          allConnections={getCurrentCanvasState().connections}
-          theme={theme}
-        />
+        <Suspense fallback={null}>
+          <TerminalEmulator
+            shape={terminalShape}
+            onClose={() => {
+              setShowTerminal(false);
+              setTerminalShape(null);
+            }}
+            onUpdateHistory={handleUpdateTerminalHistory}
+            onUpdateConfig={handleUpdateShapeConfigFromTerminal}
+            allObjects={getCurrentCanvasState().objects}
+            allConnections={getCurrentCanvasState().connections}
+            theme={theme}
+          />
+        </Suspense>
       )}
 
       {/* Simulation HUD (Packet-Tracer-style controls) */}

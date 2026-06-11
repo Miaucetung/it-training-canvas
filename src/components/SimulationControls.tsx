@@ -63,7 +63,6 @@ interface SimulationControlsProps {
 
 export function SimulationControls({
   objects,
-  connections,
   simulationState,
   onSimulationChange,
   onPacketSend,
@@ -360,8 +359,8 @@ export function SimulationControls({
 export function useSimulation(
   objects: DrawingObject[],
   connections: CanvasConnection[],
-  onObjectsChange: (objects: DrawingObject[]) => void,
-  onConnectionsChange: (connections: CanvasConnection[]) => void,
+  _onObjectsChange: (objects: DrawingObject[]) => void,
+  _onConnectionsChange: (connections: CanvasConnection[]) => void,
 ) {
   const [simulationState, setSimulationState] = useState<SimulationState>({
     isRunning: false,

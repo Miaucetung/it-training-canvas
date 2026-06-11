@@ -60,7 +60,7 @@ export function CanvasContextMenu({
   x,
   y,
   selectedObjects,
-  allObjects,
+  allObjects: _allObjects,
   onClose,
   onDelete,
   onDuplicate,

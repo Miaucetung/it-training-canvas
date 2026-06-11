@@ -20,7 +20,7 @@ import {
   Folder,
   GitBranch,
   GraduationCap,
-  Infinity,
+  Infinity as InfinityIcon,
   LinuxLogo,
   MagnifyingGlass,
   Plus,
@@ -30,7 +30,7 @@ import {
   WindowsLogo,
   X,
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { memo, useState } from "react";
 
 interface SidebarProps {
   subjects: string[];
@@ -52,7 +52,7 @@ const iconMap: Record<string, any> = {
   WifiHigh: WifiHigh,
   ShieldCheck: ShieldCheck,
   Code: Code,
-  Infinity: Infinity,
+  Infinity: InfinityIcon,
   WindowsLogo: WindowsLogo,
   Database: Database,
   Terminal: Terminal,
@@ -73,12 +73,8 @@ function getSubjectColor(subject: string): string {
   return config?.color || "#6366F1";
 }
 
-function getSubjectGradient(subject: string): string {
-  const config = SUBJECT_CONFIGS[subject];
-  return config?.gradient || "from-indigo-500 to-purple-600";
-}
 
-export function Sidebar({
+function SidebarInner({
   subjects,
   currentSubject,
   onSubjectChange,
@@ -451,3 +447,5 @@ export function Sidebar({
     </TooltipProvider>
   );
 }
+
+export const Sidebar = memo(SidebarInner);

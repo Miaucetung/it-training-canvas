@@ -682,7 +682,7 @@ export const SHAPE_PROPERTY_SCHEMAS: Record<string, PropertyField[]> = {
 
 // Default Properties für neue Shapes
 export function getDefaultProperties(
-  category: string,
+  _category: string,
 ): Partial<ShapeProperties> {
   return {
     name: "Neues Element",

@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   validateModule,
   validateConcept,
-  validateTopic,
   validateConceptCoverage,
   validateConceptAppliesTo,
 } from "@/lib/content/validators";

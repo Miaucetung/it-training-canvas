@@ -229,9 +229,6 @@ export function QuizDialog({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const answeredCount =
-    Object.keys(state.answers).length + Object.keys(state.textAnswers).length;
-  const progress = Math.round((answeredCount / questions.length) * 100);
 
   if (showResult && result) {
     return (

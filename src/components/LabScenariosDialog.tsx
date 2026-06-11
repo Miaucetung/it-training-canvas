@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
@@ -3152,7 +3151,6 @@ function downloadText(lab: LabScenario) {
 }
 
 function printLabAsPdf(lab: LabScenario) {
-  const content = buildLabText(lab);
   const printWindow = window.open("", "_blank", "width=900,height=700");
   if (!printWindow) return;
   printWindow.document.write(`

@@ -18,7 +18,6 @@ import { updateStreak, useStreakFreeze, resetWeeklyFreezeIfNeeded } from '@/lib/
 import { checkAllAchievements } from '@/lib/gamification/state/achievement-engine';
 import {
   LocalStorageProgressStore,
-  createEmptyState,
   SCHEMA_VERSION,
 } from '@/lib/gamification/state/progress-store';
 import { gamificationBus } from '@/lib/gamification/events/event-bus';

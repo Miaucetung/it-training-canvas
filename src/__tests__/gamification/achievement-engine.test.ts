@@ -24,7 +24,7 @@ function makePersistedQuizEvent(quizId: string, score: number, passed: boolean, 
   return { id: `e-${quizId}`, type: 'quiz_completed', timestamp, payload: { quizId, moduleId: 'm1', score, correctAnswers: 8, totalQuestions: 10, passed } };
 }
 
-function makePersistedQuestionEvent(questionId: string, correct: boolean, timestamp = Date.now()): PersistedEvent {
+function _makePersistedQuestionEvent(questionId: string, correct: boolean, timestamp = Date.now()): PersistedEvent {
   return { id: `e-${questionId}`, type: 'question_answered', timestamp, payload: { questionId, quizId: 'q1', correct } };
 }
 

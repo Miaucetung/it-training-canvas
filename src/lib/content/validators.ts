@@ -5,7 +5,7 @@
 // ============================================================
 
 import { z } from "zod";
-import type { CertificationModule, Concept, Topic } from "@/lib/content/types";
+import type { CertificationModule, Concept } from "@/lib/content/types";
 
 // ────────────────────────────────────────────────────────────
 // Leaf schemas

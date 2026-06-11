@@ -15,8 +15,8 @@
  * j) adapters.ts wird tatsächlich aufgerufen (spy)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import * as adapters from "@/lib/content/adapters";
 import type { CertificationModule, Topic } from "@/lib/content/types";
