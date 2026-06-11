@@ -29,13 +29,36 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#10B981",
     width: 80,
     height: 60,
-    svgPath: `
-      <rect x="5" y="15" width="70" height="35" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <circle cx="20" cy="32" r="4" fill="currentColor"/>
-      <circle cx="40" cy="32" r="4" fill="currentColor"/>
-      <circle cx="60" cy="32" r="4" fill="currentColor"/>
-      <line x1="40" y1="5" x2="40" y2="15" stroke="currentColor" stroke-width="2"/>
-      <line x1="30" y1="5" x2="50" y2="5" stroke="currentColor" stroke-width="2"/>
+    svgPath: `<!-- router-ht -->
+      <defs>
+        <linearGradient id="rt-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+        <radialGradient id="rt-glow" cx="0.5" cy="0.5" r="0.55">
+          <stop offset="0" stop-color="currentColor" stop-opacity="0.4"/>
+          <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <line x1="20" y1="6" x2="20" y2="18" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="20" cy="5" r="2" fill="currentColor"/>
+      <line x1="60" y1="6" x2="60" y2="18" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="60" cy="5" r="2" fill="currentColor"/>
+      <rect x="4" y="17" width="72" height="37" rx="6" fill="url(#rt-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="6" y="19" width="68" height="8" rx="4" fill="#FFFFFF" opacity="0.05"/>
+      <circle cx="40" cy="35" r="13" fill="url(#rt-glow)"/>
+      <circle cx="40" cy="35" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.85"/>
+      <path d="M33 31.5 H47 M43.5 28.5 L47 31.5 L43.5 34.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M47 38.5 H33 M36.5 35.5 L33 38.5 L36.5 41.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="66" cy="23.5" r="2.8" fill="#22C55E" opacity="0.25"/>
+      <circle cx="66" cy="23.5" r="1.4" fill="#22C55E"/>
+      <circle cx="71" cy="23.5" r="2.8" fill="#F59E0B" opacity="0.25"/>
+      <circle cx="71" cy="23.5" r="1.4" fill="#F59E0B"/>
+      <rect x="10" y="46" width="6" height="4" rx="1" fill="currentColor" opacity="0.55"/>
+      <rect x="19" y="46" width="6" height="4" rx="1" fill="currentColor" opacity="0.3"/>
+      <rect x="28" y="46" width="6" height="4" rx="1" fill="currentColor" opacity="0.55"/>
+      <line x1="52" y1="46" x2="70" y2="46" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+      <line x1="52" y1="49" x2="70" y2="49" stroke="currentColor" stroke-width="1" opacity="0.35"/>
     `,
     label: "Router",
   },
@@ -47,19 +70,32 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#10B981",
     width: 100,
     height: 40,
-    svgPath: `
-      <rect x="5" y="5" width="90" height="30" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="12" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="24" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="36" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="48" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="60" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="72" y="12" width="8" height="6" fill="currentColor"/>
-      <rect x="84" y="12" width="8" height="6" fill="currentColor"/>
-      <circle cx="16" cy="28" r="3" fill="#22C55E"/>
-      <circle cx="28" cy="28" r="3" fill="#22C55E"/>
-      <circle cx="40" cy="28" r="3" fill="#22C55E"/>
-      <circle cx="52" cy="28" r="3" fill="#22C55E"/>
+    svgPath: `<!-- switch-ht -->
+      <defs>
+        <linearGradient id="sw-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="6" width="94" height="28" rx="5" fill="url(#sw-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="5" y="8" width="90" height="6" rx="3" fill="#FFFFFF" opacity="0.05"/>
+      <path d="M10 16 H26 M22.5 13 L26 16 L22.5 19 M13.5 13 L10 16 L13.5 19" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10 24 H26 M22.5 21 L26 24 L22.5 27 M13.5 21 L10 24 L13.5 27" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      <circle cx="39" cy="14" r="1.3" fill="#22C55E"/>
+      <circle cx="47" cy="14" r="1.3" fill="#22C55E"/>
+      <circle cx="55" cy="14" r="1.3" fill="#0F1B30" stroke="currentColor" stroke-width="0.5"/>
+      <circle cx="63" cy="14" r="1.3" fill="#22C55E"/>
+      <circle cx="71" cy="14" r="1.3" fill="#F59E0B"/>
+      <circle cx="79" cy="14" r="1.3" fill="#0F1B30" stroke="currentColor" stroke-width="0.5"/>
+      <circle cx="87" cy="14" r="1.3" fill="#22C55E"/>
+      <rect x="36" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="44" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="52" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+      <rect x="60" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="68" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.45"/>
+      <rect x="76" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.25"/>
+      <rect x="84" y="19" width="6" height="6" rx="1" fill="currentColor" opacity="0.6"/>
+      <line x1="36" y1="29" x2="90" y2="29" stroke="currentColor" stroke-width="0.8" opacity="0.3"/>
     `,
     label: "Switch",
   },
@@ -71,13 +107,35 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#EF4444",
     width: 60,
     height: 70,
-    svgPath: `
-      <rect x="5" y="5" width="50" height="60" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-      <rect x="10" y="10" width="40" height="10" fill="currentColor" opacity="0.3"/>
-      <line x1="15" y1="30" x2="45" y2="30" stroke="currentColor" stroke-width="2"/>
-      <line x1="15" y1="38" x2="45" y2="38" stroke="currentColor" stroke-width="2"/>
-      <line x1="15" y1="46" x2="45" y2="46" stroke="currentColor" stroke-width="2"/>
-      <path d="M25 54 L30 59 L35 54" stroke="currentColor" stroke-width="2" fill="none"/>
+    svgPath: `<!-- firewall-ht -->
+      <defs>
+        <linearGradient id="fw-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2A1620"/>
+          <stop offset="1" stop-color="#120B14"/>
+        </linearGradient>
+        <radialGradient id="fw-glow" cx="0.5" cy="0.55" r="0.6">
+          <stop offset="0" stop-color="currentColor" stop-opacity="0.35"/>
+          <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect x="4" y="5" width="52" height="60" rx="6" fill="url(#fw-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="6" y="7" width="48" height="7" rx="3.5" fill="#FFFFFF" opacity="0.05"/>
+      <g stroke="currentColor" stroke-width="1.2" opacity="0.55">
+        <line x1="8" y1="18" x2="52" y2="18"/>
+        <line x1="8" y1="27" x2="52" y2="27"/>
+        <line x1="8" y1="36" x2="52" y2="36"/>
+        <line x1="20" y1="9" x2="20" y2="18"/>
+        <line x1="36" y1="9" x2="36" y2="18"/>
+        <line x1="14" y1="18" x2="14" y2="27"/>
+        <line x1="30" y1="18" x2="30" y2="27"/>
+        <line x1="46" y1="18" x2="46" y2="27"/>
+        <line x1="20" y1="27" x2="20" y2="36"/>
+        <line x1="36" y1="27" x2="36" y2="36"/>
+      </g>
+      <circle cx="30" cy="50" r="12" fill="url(#fw-glow)"/>
+      <path d="M30 41 Q34 46 33 50.5 Q35.5 49 35.5 53.5 Q35.5 59 30 59 Q24.5 59 24.5 53.5 Q24.5 49.5 27.5 47 Q27 44 30 41 Z" fill="currentColor"/>
+      <circle cx="30" cy="54" r="2.2" fill="#FDBA74"/>
+      <circle cx="48" cy="60" r="1.4" fill="#22C55E"/>
     `,
     label: "Firewall",
   },
@@ -89,11 +147,26 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#8B5CF6",
     width: 80,
     height: 60,
-    svgPath: `
-      <ellipse cx="40" cy="30" rx="35" ry="25" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <path d="M25 20 L40 30 L25 40" stroke="currentColor" stroke-width="2" fill="none"/>
-      <path d="M55 20 L40 30 L55 40" stroke="currentColor" stroke-width="2" fill="none"/>
-      <line x1="40" y1="10" x2="40" y2="50" stroke="currentColor" stroke-width="2"/>
+    svgPath: `<!-- loadbalancer-ht -->
+      <defs>
+        <linearGradient id="lb-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#241B3E"/>
+          <stop offset="1" stop-color="#100B1E"/>
+        </linearGradient>
+      </defs>
+      <rect x="5" y="13" width="70" height="34" rx="17" fill="url(#lb-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="8" y="15" width="64" height="8" rx="4" fill="#FFFFFF" opacity="0.05"/>
+      <circle cx="24" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="24" cy="30" r="2.6" fill="currentColor"/>
+      <path d="M31 30 C42 30 42 20 52 20" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M31 30 H52" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M31 30 C42 30 42 40 52 40" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="58" cy="20" r="3.4" fill="#22C55E" opacity="0.25"/>
+      <circle cx="58" cy="20" r="1.8" fill="#22C55E"/>
+      <circle cx="58" cy="30" r="3.4" fill="#22C55E" opacity="0.25"/>
+      <circle cx="58" cy="30" r="1.8" fill="#22C55E"/>
+      <circle cx="58" cy="40" r="3.4" fill="#F59E0B" opacity="0.25"/>
+      <circle cx="58" cy="40" r="1.8" fill="#F59E0B"/>
     `,
     label: "Load Balancer",
   },
@@ -105,11 +178,26 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#64748B",
     width: 60,
     height: 55,
-    svgPath: `
-      <rect x="5" y="5" width="50" height="35" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="10" y="10" width="40" height="25" fill="currentColor" opacity="0.1"/>
-      <rect x="20" y="42" width="20" height="3" fill="currentColor"/>
-      <rect x="15" y="47" width="30" height="4" rx="1" fill="currentColor" opacity="0.5"/>
+    svgPath: `<!-- computer-ht -->
+      <defs>
+        <linearGradient id="pc-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+        <linearGradient id="pc-screen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0EA5E9" stop-opacity="0.45"/>
+          <stop offset="1" stop-color="#0EA5E9" stop-opacity="0.06"/>
+        </linearGradient>
+      </defs>
+      <rect x="4" y="4" width="52" height="37" rx="4" fill="url(#pc-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="8" y="8" width="44" height="29" rx="2" fill="url(#pc-screen)"/>
+      <path d="M10 8 L24 8 L15 37 L10 37 Z" fill="#FFFFFF" opacity="0.07"/>
+      <line x1="12" y1="14" x2="34" y2="14" stroke="#E0F2FE" stroke-width="1.6" opacity="0.75"/>
+      <line x1="12" y1="19" x2="27" y2="19" stroke="#BAE6FD" stroke-width="1.2" opacity="0.45"/>
+      <line x1="12" y1="23" x2="31" y2="23" stroke="#BAE6FD" stroke-width="1.2" opacity="0.3"/>
+      <circle cx="49" cy="34" r="1.5" fill="#22C55E"/>
+      <rect x="25" y="42" width="10" height="4" fill="currentColor" opacity="0.45"/>
+      <rect x="16" y="46" width="28" height="5" rx="2.5" fill="url(#pc-body)" stroke="currentColor" stroke-width="1.3"/>
     `,
     label: "PC",
   },
@@ -121,11 +209,25 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#64748B",
     width: 70,
     height: 50,
-    svgPath: `
-      <rect x="10" y="5" width="50" height="32" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="14" y="9" width="42" height="24" fill="currentColor" opacity="0.1"/>
-      <path d="M5 40 L10 37 L60 37 L65 40 Z" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="2"/>
-      <rect x="5" y="40" width="60" height="5" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+    svgPath: `<!-- laptop-ht -->
+      <defs>
+        <linearGradient id="lp-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+        <linearGradient id="lp-screen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0EA5E9" stop-opacity="0.45"/>
+          <stop offset="1" stop-color="#0EA5E9" stop-opacity="0.06"/>
+        </linearGradient>
+      </defs>
+      <rect x="11" y="4" width="48" height="32" rx="3" fill="url(#lp-body)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="14" y="7" width="42" height="26" rx="1.5" fill="url(#lp-screen)"/>
+      <path d="M16 7 L27 7 L20 33 L16 33 Z" fill="#FFFFFF" opacity="0.07"/>
+      <line x1="18" y1="13" x2="41" y2="13" stroke="#E0F2FE" stroke-width="1.4" opacity="0.75"/>
+      <line x1="18" y1="18" x2="35" y2="18" stroke="#BAE6FD" stroke-width="1.1" opacity="0.45"/>
+      <path d="M5 41 L11 36 L59 36 L65 41 Z" fill="url(#lp-body)" stroke="currentColor" stroke-width="1.4"/>
+      <rect x="4" y="41" width="62" height="4.5" rx="2.2" fill="#101A30" stroke="currentColor" stroke-width="1.4"/>
+      <rect x="28" y="37.5" width="14" height="2" rx="1" fill="#FFFFFF" opacity="0.12"/>
     `,
     label: "Laptop",
   },
@@ -137,11 +239,24 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#64748B",
     width: 35,
     height: 60,
-    svgPath: `
-      <rect x="5" y="5" width="25" height="50" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="8" y="12" width="19" height="34" fill="currentColor" opacity="0.1"/>
-      <circle cx="17.5" cy="51" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <rect x="13" y="8" width="9" height="2" rx="1" fill="currentColor" opacity="0.5"/>
+    svgPath: `<!-- smartphone-ht -->
+      <defs>
+        <linearGradient id="sp-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+        <linearGradient id="sp-screen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0EA5E9" stop-opacity="0.4"/>
+          <stop offset="1" stop-color="#0EA5E9" stop-opacity="0.05"/>
+        </linearGradient>
+      </defs>
+      <rect x="4.5" y="3" width="26" height="54" rx="6" fill="url(#sp-body)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="7" y="9" width="21" height="41" rx="2.5" fill="url(#sp-screen)"/>
+      <path d="M8 9 L17 9 L11 50 L8 50 Z" fill="#FFFFFF" opacity="0.06"/>
+      <circle cx="17.5" cy="6" r="1.1" fill="currentColor" opacity="0.7"/>
+      <line x1="10" y1="16" x2="22" y2="16" stroke="#E0F2FE" stroke-width="1.2" opacity="0.7"/>
+      <line x1="10" y1="21" x2="19" y2="21" stroke="#BAE6FD" stroke-width="1" opacity="0.4"/>
+      <rect x="12" y="52.5" width="11" height="1.8" rx="0.9" fill="currentColor" opacity="0.6"/>
     `,
     label: "Mobile",
   },
@@ -155,13 +270,22 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#10B981",
     width: 60,
     height: 55,
-    svgPath: `
-      <ellipse cx="30" cy="35" rx="10" ry="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="2"/>
-      <rect x="28" y="15" width="4" height="20" fill="currentColor" opacity="0.5"/>
-      <path d="M15 15 Q30 0 45 15" fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M20 18 Q30 8 40 18" fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M25 21 Q30 14 35 21" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="15" y1="45" x2="45" y2="45" stroke="currentColor" stroke-width="2"/>
+    svgPath: `<!-- access-point-ht -->
+      <defs>
+        <linearGradient id="ap-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+      </defs>
+      <path d="M14 24 Q30 9 46 24" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.9" stroke-linecap="round"/>
+      <path d="M19 29 Q30 19 41 29" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.6" stroke-linecap="round"/>
+      <path d="M24 33 Q30 27.5 36 33" stroke="currentColor" stroke-width="1.3" fill="none" opacity="0.4" stroke-linecap="round"/>
+      <ellipse cx="30" cy="44" rx="20" ry="7.5" fill="url(#ap-body)" stroke="currentColor" stroke-width="1.5"/>
+      <ellipse cx="30" cy="41.5" rx="20" ry="7.5" fill="url(#ap-body)" stroke="currentColor" stroke-width="1.5"/>
+      <ellipse cx="30" cy="40" rx="13" ry="4" fill="#FFFFFF" opacity="0.05"/>
+      <circle cx="30" cy="40.5" r="3.2" fill="#22C55E" opacity="0.25"/>
+      <circle cx="30" cy="40.5" r="1.6" fill="#22C55E"/>
+      <line x1="20" y1="53.5" x2="40" y2="53.5" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
     `,
     label: "AP",
   },
@@ -173,13 +297,23 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#94A3B8",
     width: 90,
     height: 40,
-    svgPath: `
-      <rect x="5" y="5" width="80" height="30" rx="3" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2"/>
-      <circle cx="20" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
-      <circle cx="45" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
-      <circle cx="70" cy="20" r="5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.5"/>
-      <line x1="25" y1="20" x2="40" y2="20" stroke="currentColor" stroke-width="2"/>
-      <line x1="50" y1="20" x2="65" y2="20" stroke="currentColor" stroke-width="2"/>
+    svgPath: `<!-- hub-ht -->
+      <defs>
+        <linearGradient id="hb-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#222B3D"/>
+          <stop offset="1" stop-color="#0B1220"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="7" width="84" height="26" rx="5" fill="url(#hb-body)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="5" y="9" width="80" height="5" rx="2.5" fill="#FFFFFF" opacity="0.05"/>
+      <line x1="14" y1="20" x2="76" y2="20" stroke="currentColor" stroke-width="1.6" opacity="0.6"/>
+      <circle cx="20" cy="20" r="4.5" fill="#0B1322" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="1.6" fill="currentColor"/>
+      <circle cx="45" cy="20" r="4.5" fill="#0B1322" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="45" cy="20" r="1.6" fill="currentColor"/>
+      <circle cx="70" cy="20" r="4.5" fill="#0B1322" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="70" cy="20" r="1.6" fill="currentColor"/>
+      <circle cx="81" cy="12" r="1.3" fill="#F59E0B"/>
     `,
     label: "Hub",
   },
@@ -191,14 +325,27 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#64748B",
     width: 60,
     height: 45,
-    svgPath: `
-      <rect x="5" y="10" width="50" height="30" rx="4" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <circle cx="15" cy="25" r="4" fill="currentColor" opacity="0.5"/>
-      <circle cx="30" cy="25" r="4" fill="currentColor" opacity="0.5"/>
-      <circle cx="45" cy="25" r="4" fill="currentColor" opacity="0.5"/>
-      <line x1="15" y1="5" x2="15" y2="10" stroke="currentColor" stroke-width="2"/>
-      <line x1="45" y1="5" x2="45" y2="10" stroke="currentColor" stroke-width="2"/>
-      <circle cx="15" cy="3" r="2" fill="currentColor"/>
+    svgPath: `<!-- modem-ht -->
+      <defs>
+        <linearGradient id="md-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+      </defs>
+      <line x1="48" y1="4" x2="48" y2="13" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="48" cy="3.4" r="1.8" fill="currentColor"/>
+      <rect x="4" y="12" width="52" height="28" rx="5" fill="url(#md-body)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="6" y="14" width="48" height="6" rx="3" fill="#FFFFFF" opacity="0.05"/>
+      <circle cx="14" cy="26" r="2.8" fill="#22C55E" opacity="0.25"/>
+      <circle cx="14" cy="26" r="1.4" fill="#22C55E"/>
+      <circle cx="26" cy="26" r="2.8" fill="#22C55E" opacity="0.25"/>
+      <circle cx="26" cy="26" r="1.4" fill="#22C55E"/>
+      <circle cx="38" cy="26" r="2.8" fill="#F59E0B" opacity="0.25"/>
+      <circle cx="38" cy="26" r="1.4" fill="#F59E0B"/>
+      <rect x="11" y="31" width="6" height="1.4" rx="0.7" fill="currentColor" opacity="0.35"/>
+      <rect x="23" y="31" width="6" height="1.4" rx="0.7" fill="currentColor" opacity="0.35"/>
+      <rect x="35" y="31" width="6" height="1.4" rx="0.7" fill="currentColor" opacity="0.35"/>
+      <rect x="46" y="29" width="7" height="6" rx="1" fill="currentColor" opacity="0.4"/>
     `,
     label: "Modem",
   },
@@ -210,16 +357,29 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#10B981",
     width: 50,
     height: 55,
-    svgPath: `
-      <rect x="5" y="15" width="40" height="35" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="10" y="20" width="30" height="12" rx="2" fill="currentColor" opacity="0.3"/>
-      <rect x="10" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
-      <rect x="21" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
-      <rect x="32" y="35" width="9" height="6" rx="1" fill="currentColor" opacity="0.4"/>
-      <rect x="10" y="43" width="9" height="4" rx="1" fill="currentColor" opacity="0.4"/>
-      <rect x="21" y="43" width="9" height="4" rx="1" fill="currentColor" opacity="0.4"/>
-      <path d="M30 15 Q35 5 42 8" stroke="currentColor" stroke-width="2" fill="none"/>
-      <circle cx="43" cy="7" r="3" fill="currentColor" opacity="0.5"/>
+    svgPath: `<!-- ip-phone-ht -->
+      <defs>
+        <linearGradient id="ph-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+        <linearGradient id="ph-screen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0EA5E9" stop-opacity="0.45"/>
+          <stop offset="1" stop-color="#0EA5E9" stop-opacity="0.08"/>
+        </linearGradient>
+      </defs>
+      <path d="M36 14 Q40 4 46 7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <circle cx="46.5" cy="6.5" r="2.6" fill="url(#ph-body)" stroke="currentColor" stroke-width="1.2"/>
+      <rect x="4" y="13" width="42" height="39" rx="5" fill="url(#ph-body)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="6" y="15" width="38" height="6" rx="3" fill="#FFFFFF" opacity="0.05"/>
+      <rect x="9" y="19" width="23" height="11" rx="2" fill="url(#ph-screen)"/>
+      <circle cx="38.5" cy="23" r="1.4" fill="#22C55E"/>
+      <rect x="9" y="34" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
+      <rect x="20" y="34" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
+      <rect x="31" y="34" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
+      <rect x="9" y="41" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
+      <rect x="20" y="41" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
+      <rect x="31" y="41" width="8" height="5" rx="1.2" fill="currentColor" opacity="0.45"/>
     `,
     label: "IP Phone",
   },
@@ -265,15 +425,34 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#6366F1",
     width: 60,
     height: 80,
-    svgPath: `
-      <rect x="5" y="5" width="50" height="70" rx="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-      <rect x="10" y="10" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
-      <rect x="10" y="26" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
-      <rect x="10" y="42" width="40" height="12" rx="2" fill="currentColor" opacity="0.3"/>
-      <circle cx="44" cy="16" r="3" fill="#22C55E"/>
-      <circle cx="44" cy="32" r="3" fill="#22C55E"/>
-      <circle cx="44" cy="48" r="3" fill="#F59E0B"/>
-      <rect x="10" y="58" width="15" height="12" rx="2" fill="currentColor" opacity="0.2"/>
+    svgPath: `<!-- server-ht -->
+      <defs>
+        <linearGradient id="sv-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#26334F"/>
+          <stop offset="1" stop-color="#0B1322"/>
+        </linearGradient>
+      </defs>
+      <rect x="4" y="4" width="52" height="72" rx="5" fill="url(#sv-body)" stroke="currentColor" stroke-width="1.6"/>
+      <rect x="6" y="6" width="48" height="7" rx="3.5" fill="#FFFFFF" opacity="0.05"/>
+      <rect x="8" y="10" width="44" height="14" rx="2" fill="#0B1322" stroke="currentColor" stroke-width="1" opacity="0.95"/>
+      <line x1="12" y1="15" x2="32" y2="15" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <line x1="12" y1="19" x2="32" y2="19" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+      <circle cx="45" cy="17" r="2.6" fill="#22C55E" opacity="0.25"/>
+      <circle cx="45" cy="17" r="1.3" fill="#22C55E"/>
+      <rect x="8" y="28" width="44" height="14" rx="2" fill="#0B1322" stroke="currentColor" stroke-width="1" opacity="0.95"/>
+      <line x1="12" y1="33" x2="32" y2="33" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <line x1="12" y1="37" x2="32" y2="37" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+      <circle cx="45" cy="35" r="2.6" fill="#22C55E" opacity="0.25"/>
+      <circle cx="45" cy="35" r="1.3" fill="#22C55E"/>
+      <rect x="8" y="46" width="44" height="14" rx="2" fill="#0B1322" stroke="currentColor" stroke-width="1" opacity="0.95"/>
+      <line x1="12" y1="51" x2="32" y2="51" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <line x1="12" y1="55" x2="32" y2="55" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+      <circle cx="45" cy="53" r="2.6" fill="#F59E0B" opacity="0.25"/>
+      <circle cx="45" cy="53" r="1.3" fill="#F59E0B"/>
+      <line x1="10" y1="65" x2="50" y2="65" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+      <line x1="10" y1="68" x2="50" y2="68" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+      <line x1="10" y1="71" x2="50" y2="71" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+      <circle cx="48" cy="71" r="1.3" fill="#22C55E"/>
     `,
     label: "Server",
   },
@@ -572,9 +751,20 @@ export const IT_SHAPES: ShapeDefinition[] = [
     color: "#3B82F6",
     width: 90,
     height: 60,
-    svgPath: `
+    svgPath: `<!-- cloud-ht -->
+      <defs>
+        <linearGradient id="cl-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="currentColor" stop-opacity="0.38"/>
+          <stop offset="1" stop-color="currentColor" stop-opacity="0.07"/>
+        </linearGradient>
+      </defs>
       <path d="M20 50 Q5 50 5 38 Q5 26 18 26 Q18 15 35 15 Q52 15 55 26 Q75 20 80 35 Q90 35 85 48 Q83 55 70 55 L20 55 Q10 55 10 48 Z"
-            fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="2"/>
+            fill="url(#cl-fill)" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M18 26 Q22 20 30 19" stroke="#FFFFFF" stroke-width="1.4" opacity="0.18" fill="none" stroke-linecap="round"/>
+      <circle cx="32" cy="40" r="2.2" fill="currentColor"/>
+      <circle cx="48" cy="33" r="2.2" fill="currentColor"/>
+      <circle cx="63" cy="41" r="2.2" fill="currentColor"/>
+      <path d="M32 40 L48 33 L63 41" stroke="currentColor" stroke-width="1.2" opacity="0.55" fill="none"/>
     `,
     label: "Cloud",
   },

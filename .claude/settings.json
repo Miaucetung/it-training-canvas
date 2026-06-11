@@ -16,7 +16,9 @@
       "Bash(awk '{print $5, $9}')",
       "Bash(grep -rn \"console\\\\\\\\.log\\\\|console\\\\\\\\.error\\\\|console\\\\\\\\.warn\\\\|console\\\\\\\\.debug\" src --include=\"*.ts\" --include=\"*.tsx\")",
       "Bash(cd c:/it-training-canvas-new && grep -o \"import.*from ['\\\\\"][^'\\\\\"]*['\\\\\"]\" src/App.tsx | sed \"s/^import.*from ['\\\\\"]//;s/['\\\\\"]$//\" | sort | uniq > /tmp/app_imports.txt && cat package.json | grep -o \"\\\\\"[^\\\\\"]*\\\\\":\" | grep -v \"\\\\\"scripts\\\\\"\\\\|\\\\\"dependencies\\\\\"\\\\|\\\\\"devDependencies\\\\\"\\\\|\\\\\"version\\\\\"\\\\|\\\\\"type\\\\\"\\\\|\\\\\"name\\\\\"\" | sed 's/^\"//;s/\".*$//' | sort | uniq > /tmp/packages.txt && echo \"Imported in App.tsx:\" && cat /tmp/app_imports.txt | head -20)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:5199)",
+      "Bash(curl -s http://localhost:5000)"
     ]
   }
 }

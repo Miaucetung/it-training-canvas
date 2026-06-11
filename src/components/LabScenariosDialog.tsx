@@ -13,12 +13,14 @@ import {
   Key,
   Lightning,
   Network,
+  Package,
   Shield,
   Shuffle,
   Stack,
   X,
 } from "@phosphor-icons/react";
 import { useState } from "react";
+import { exportLabForPacketTracer } from "@/lib/packet-tracer-export";
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -3387,6 +3389,14 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
             >
               <FilePdf size={15} />
               PDF
+            </button>
+            <button
+              onClick={() => exportLabForPacketTracer(lab)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-cyan-400 hover:text-white hover:bg-cyan-500/20 transition-colors"
+              title="Packet-Tracer-Export: ZIP mit IOS-Konfigs pro Gerät + Aufbau-Anleitung"
+            >
+              <Package size={15} />
+              PT-Export
             </button>
             <div className="w-px h-5 bg-slate-700 mx-1" />
             <button

@@ -257,6 +257,24 @@ export function drawObject(
           ctx.translate(-centerX, -centerY);
         }
 
+        // Platform shadow — grounds the device on the canvas
+        ctx.save();
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.ellipse(
+          centerX,
+          y + height + 4,
+          width * 0.42,
+          4.5,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = "rgba(2, 6, 18, 0.35)";
+        ctx.fill();
+        ctx.restore();
+
         // Try to get cached SVG image
         const svgImg = getSvgImage(obj.svgPath, obj.color, width, height);
 
@@ -308,9 +326,75 @@ export function drawObject(
           drawStatusIndicator(ctx, x + width - 6, y + 6, obj.status);
         }
 
+        // HUD-style selection/hover frame
+        if (obj.selected) {
+          drawSelectionHud(ctx, x, y, width, height, true);
+        } else if (isHovered) {
+          drawSelectionHud(ctx, x, y, width, height, false);
+        }
+
         ctx.textAlign = "left";
       }
       break;
+  }
+
+  ctx.restore();
+}
+
+// HUD frame: dashed rounded outline + corner brackets (Packet-Tracer-/Sci-Fi-Look)
+function drawSelectionHud(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  selected: boolean,
+): void {
+  const pad = 7;
+  const bx = x - pad;
+  const by = y - pad;
+  const bw = w + pad * 2;
+  const bh = h + pad * 2;
+  const c = Math.min(11, bw / 4, bh / 4); // corner bracket length
+
+  ctx.save();
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+
+  // Dashed outline
+  ctx.strokeStyle = selected
+    ? "rgba(129, 140, 248, 0.55)"
+    : "rgba(129, 140, 248, 0.3)";
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.roundRect(bx, by, bw, bh, 6);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Corner brackets (only when selected)
+  if (selected) {
+    ctx.strokeStyle = "#818CF8";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    // top-left
+    ctx.moveTo(bx, by + c);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx + c, by);
+    // top-right
+    ctx.moveTo(bx + bw - c, by);
+    ctx.lineTo(bx + bw, by);
+    ctx.lineTo(bx + bw, by + c);
+    // bottom-right
+    ctx.moveTo(bx + bw, by + bh - c);
+    ctx.lineTo(bx + bw, by + bh);
+    ctx.lineTo(bx + bw - c, by + bh);
+    // bottom-left
+    ctx.moveTo(bx + c, by + bh);
+    ctx.lineTo(bx, by + bh);
+    ctx.lineTo(bx, by + bh - c);
+    ctx.stroke();
   }
 
   ctx.restore();
