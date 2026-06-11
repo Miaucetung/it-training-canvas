@@ -10,6 +10,7 @@ import { loadModule } from "@/lib/content/content-loader";
 import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   BookOpen,
+  CaretRight,
   CheckCircle,
   Clock,
   ListBullets,
@@ -88,20 +89,39 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
   return (
     <div
       className={`h-full overflow-y-auto ${
-        theme === "dark" ? "bg-slate-900" : "bg-slate-50"
+        theme === "dark"
+          ? "bg-gradient-to-b from-slate-900 via-slate-900 to-[#0a0f1e]"
+          : "bg-gradient-to-b from-slate-50 to-white"
       }`}
     >
       <div className="max-w-3xl mx-auto px-6 py-8">
-        {/* Module Header */}
-        <div className="mb-8">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-              <BookOpen size={24} className="text-indigo-400" weight="fill" />
+        {/* Module Header — Hero */}
+        <div
+          className={`relative mb-8 rounded-2xl border p-5 overflow-hidden ${
+            theme === "dark"
+              ? "border-indigo-500/20 bg-slate-800/40"
+              : "border-indigo-100 bg-white"
+          }`}
+        >
+          {/* Glow-Akzent oben rechts */}
+          <div
+            aria-hidden
+            className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 70%)",
+            }}
+          />
+          <div className="relative flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/40 to-indigo-500/10 ring-1 ring-indigo-400/30 flex items-center justify-center flex-shrink-0 shadow-[0_0_18px_rgba(99,102,241,0.25)]">
+              <BookOpen size={24} className="text-indigo-300" weight="fill" />
             </div>
             <div className="flex-1 min-w-0">
               <h1
-                className={`text-2xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-slate-900"
+                className={`text-2xl font-bold tracking-tight ${
+                  theme === "dark"
+                    ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300"
+                    : "text-slate-900"
                 }`}
               >
                 {mod.title}
@@ -116,26 +136,28 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
             </div>
           </div>
 
-          {/* Module Stats */}
-          <div className="flex gap-6 mt-5">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <ListBullets size={14} />
-              <span>{mod.topics.length} Topics</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <CheckCircle size={14} />
-              <span>{totalConcepts} Konzepte</span>
-            </div>
-            {totalQuestions > 0 && (
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Question size={14} />
-                <span>{totalQuestions} Fragen</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <Clock size={14} />
-              <span>~{Math.round(totalMinutes / 60)} Std.</span>
-            </div>
+          {/* Module Stats — Glas-Chips */}
+          <div className="relative flex flex-wrap gap-2 mt-5">
+            {[
+              { icon: <ListBullets size={13} />, text: `${mod.topics.length} Topics` },
+              { icon: <CheckCircle size={13} />, text: `${totalConcepts} Konzepte` },
+              ...(totalQuestions > 0
+                ? [{ icon: <Question size={13} />, text: `${totalQuestions} Fragen` }]
+                : []),
+              { icon: <Clock size={13} />, text: `~${Math.round(totalMinutes / 60)} Std.` },
+            ].map((chip, i) => (
+              <span
+                key={i}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border ${
+                  theme === "dark"
+                    ? "border-slate-700/60 bg-slate-900/60 text-slate-300"
+                    : "border-slate-200 bg-slate-50 text-slate-600"
+                }`}
+              >
+                {chip.icon}
+                {chip.text}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -176,22 +198,27 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
                       onTopicClick(topic, mod);
                     }
                   }}
-                  className={`group rounded-xl border p-4 transition-colors ${
+                  className={`group relative rounded-xl border p-4 transition-all duration-200 overflow-hidden ${
                     onTopicClick
-                      ? "cursor-pointer"
+                      ? "cursor-pointer hover:-translate-y-0.5"
                       : "cursor-default"
                   } ${
                     theme === "dark"
-                      ? "bg-slate-800/60 border-slate-700/50 hover:bg-slate-800 hover:border-slate-600"
-                      : "bg-white border-slate-200 hover:border-slate-300"
+                      ? "bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:border-indigo-500/50 hover:bg-slate-800/80 hover:shadow-[0_4px_24px_rgba(99,102,241,0.18)]"
+                      : "bg-white border-slate-200 hover:border-indigo-300 hover:shadow-[0_4px_20px_rgba(99,102,241,0.12)]"
                   }`}
                 >
+                  {/* Akzentleiste links — erscheint beim Hover */}
+                  <div
+                    aria-hidden
+                    className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-indigo-400 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  />
                   <div className="flex items-start gap-3">
                     {/* Index Badge */}
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 transition-shadow duration-200 ${
                         theme === "dark"
-                          ? "bg-indigo-500/20 text-indigo-300"
+                          ? "bg-gradient-to-br from-indigo-500/35 to-indigo-500/10 ring-1 ring-indigo-400/25 text-indigo-300 group-hover:shadow-[0_0_14px_rgba(99,102,241,0.35)]"
                           : "bg-indigo-100 text-indigo-600"
                       }`}
                     >
@@ -234,6 +261,16 @@ export function TopicListPanel({ moduleId, theme, onTopicClick }: TopicListPanel
                         </span>
                       </div>
                     </div>
+
+                    {/* Chevron — erscheint beim Hover */}
+                    {onTopicClick && (
+                      <div className="self-center flex-shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
+                        <CaretRight
+                          size={16}
+                          className={theme === "dark" ? "text-indigo-400" : "text-indigo-500"}
+                        />
+                      </div>
+                    )}
 
                     {/* "Coming soon" indicator — hidden when onTopicClick is active */}
                     {!onTopicClick && (

@@ -77,6 +77,7 @@ import {
   Target,
   Terminal,
   UserCircle,
+  Wrench,
 } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
@@ -105,6 +106,75 @@ const TemplateGallery = lazy(() =>
 const TerminalEmulator = lazy(() =>
   import("@/components/TerminalEmulator").then((m) => ({ default: m.TerminalEmulator })),
 );
+const SubnettingDrillDialog = lazy(() =>
+  import("@/components/SubnettingDrillDialog").then((m) => ({ default: m.SubnettingDrillDialog })),
+);
+const IPv6CalculatorDialog = lazy(() =>
+  import("@/components/IPv6CalculatorDialog").then((m) => ({ default: m.IPv6CalculatorDialog })),
+);
+const VlanSimulatorDialog = lazy(() =>
+  import("@/components/VlanSimulatorDialog").then((m) => ({ default: m.VlanSimulatorDialog })),
+);
+const StpSimulatorDialog = lazy(() =>
+  import("@/components/StpSimulatorDialog").then((m) => ({ default: m.StpSimulatorDialog })),
+);
+const OsiSimulatorDialog = lazy(() =>
+  import("@/components/OsiSimulatorDialog").then((m) => ({ default: m.OsiSimulatorDialog })),
+);
+const RoutingSimulatorDialog = lazy(() =>
+  import("@/components/RoutingSimulatorDialog").then((m) => ({ default: m.RoutingSimulatorDialog })),
+);
+const VerkabelungTrainerDialog = lazy(() =>
+  import("@/components/VerkabelungTrainerDialog").then((m) => ({ default: m.VerkabelungTrainerDialog })),
+);
+const TopologieExplorerDialog = lazy(() =>
+  import("@/components/TopologieExplorerDialog").then((m) => ({ default: m.TopologieExplorerDialog })),
+);
+const CliGlossaryDialog = lazy(() =>
+  import("@/components/CliGlossaryDialog").then((m) => ({ default: m.CliGlossaryDialog })),
+);
+
+// ── Tools-Menü: alle Simulatoren & Trainer zentral startbar ──
+type ToolId =
+  | "subnetting-drill"
+  | "ipv6-calculator"
+  | "vlan-simulator"
+  | "stp-simulator"
+  | "osi-simulator"
+  | "routing-simulator"
+  | "verkabelung-trainer"
+  | "topologie-explorer"
+  | "cli-glossary";
+
+const TOOL_GROUPS: Array<{
+  group: string;
+  tools: Array<{ id: ToolId; name: string; hint: string }>;
+}> = [
+  {
+    group: "Simulatoren",
+    tools: [
+      { id: "vlan-simulator", name: "VLAN-Simulator", hint: "Frames, Trunks & 802.1Q live" },
+      { id: "stp-simulator", name: "STP-Simulator", hint: "Spanning Tree Schritt für Schritt" },
+      { id: "osi-simulator", name: "OSI-Simulator", hint: "Kapselung durch alle 7 Schichten" },
+      { id: "routing-simulator", name: "Routing-Simulator", hint: "Routingtabellen & Pfadwahl" },
+    ],
+  },
+  {
+    group: "Trainer & Rechner",
+    tools: [
+      { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
+      { id: "ipv6-calculator", name: "IPv6-Rechner", hint: "Adressen kürzen, EUI-64, Präfixe" },
+      { id: "verkabelung-trainer", name: "Verkabelungs-Trainer", hint: "Kabeltypen richtig zuordnen" },
+    ],
+  },
+  {
+    group: "Referenz",
+    tools: [
+      { id: "topologie-explorer", name: "Topologie-Explorer", hint: "Referenz-Topologien erkunden" },
+      { id: "cli-glossary", name: "CLI-Glossar", hint: "IOS-Befehle nachschlagen" },
+    ],
+  },
+];
 
 function getObjectBounds(obj: DrawingObject): {
   x: number;
@@ -274,6 +344,13 @@ function App() {
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreMenuContentRef = useRef<HTMLDivElement>(null);
+
+  // Tools-Menü (Simulatoren & Trainer)
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [toolsMenuPos, setToolsMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const [activeTool, setActiveTool] = useState<ToolId | null>(null);
+  const toolsButtonRef = useRef<HTMLButtonElement>(null);
+  const toolsMenuContentRef = useRef<HTMLDivElement>(null);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -1207,6 +1284,17 @@ function App() {
   }, [showMoreMenu]);
 
   useEffect(() => {
+    if (!showToolsMenu) return;
+    const handler = (e: MouseEvent) => {
+      const inButton = toolsButtonRef.current?.contains(e.target as Node);
+      const inContent = toolsMenuContentRef.current?.contains(e.target as Node);
+      if (!inButton && !inContent) setShowToolsMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showToolsMenu]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignoriere Tastenkürzel wenn ein Input-Feld oder Textarea fokussiert ist
       const activeElement = document.activeElement;
@@ -1432,6 +1520,81 @@ function App() {
               <BookOpen size={16} />
               Labs
             </button>
+            <button
+              ref={toolsButtonRef}
+              onClick={() => {
+                if (!showToolsMenu && toolsButtonRef.current) {
+                  const rect = toolsButtonRef.current.getBoundingClientRect();
+                  setToolsMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+                }
+                setShowToolsMenu((prev) => !prev);
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                showToolsMenu || activeTool
+                  ? "bg-amber-500/20 text-amber-300"
+                  : theme === "dark"
+                    ? "text-slate-400 hover:text-amber-300 hover:bg-amber-500/10"
+                    : "text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+              }`}
+              title="Alle Simulatoren, Trainer & Rechner"
+            >
+              <Wrench size={16} />
+              Tools
+              <CaretDown
+                size={11}
+                className={`transition-transform duration-150 ${showToolsMenu ? "rotate-180" : ""}`}
+              />
+            </button>
+            {showToolsMenu && toolsMenuPos && createPortal(
+              <div
+                ref={toolsMenuContentRef}
+                style={{ top: toolsMenuPos.top, right: toolsMenuPos.right }}
+                className={`fixed z-[200] min-w-[250px] rounded-xl border shadow-2xl py-1.5 ${
+                  theme === "dark"
+                    ? "bg-slate-900 border-slate-700"
+                    : "bg-white border-slate-200"
+                }`}
+              >
+                {TOOL_GROUPS.map((group, gi) => (
+                  <div key={group.group}>
+                    {gi > 0 && (
+                      <div className={`my-1 h-px ${theme === "dark" ? "bg-slate-700/60" : "bg-slate-100"}`} />
+                    )}
+                    <p className={`px-3 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider ${
+                      theme === "dark" ? "text-slate-500" : "text-slate-400"
+                    }`}>
+                      {group.group}
+                    </p>
+                    {group.tools.map((tool) => (
+                      <button
+                        key={tool.id}
+                        onClick={() => {
+                          setActiveTool(tool.id);
+                          setShowToolsMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 transition-colors ${
+                          theme === "dark"
+                            ? "hover:bg-slate-800"
+                            : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className={`block text-xs font-medium ${
+                          theme === "dark" ? "text-slate-200" : "text-slate-700"
+                        }`}>
+                          {tool.name}
+                        </span>
+                        <span className={`block text-[10px] ${
+                          theme === "dark" ? "text-slate-500" : "text-slate-400"
+                        }`}>
+                          {tool.hint}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>,
+              document.body
+            )}
             <button
               onClick={() => setShowExamPrep(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
@@ -1706,14 +1869,63 @@ function App() {
                         }}
                       />
                     ) : (
-                      <div className="h-full flex items-center justify-center">
-                        <div className="text-center max-w-xs px-6">
-                          <p className={`text-base font-medium mb-2 ${theme === "dark" ? "text-slate-300" : "text-slate-700"}`}>
-                            Thema auswählen
-                          </p>
-                          <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                            Wähle ein Thema aus der Liste, um den Lerninhalt anzuzeigen.
-                          </p>
+                      <div
+                        className={`h-full flex items-center justify-center ${
+                          theme === "dark"
+                            ? "bg-gradient-to-br from-slate-900 via-slate-900 to-[#0d1326]"
+                            : "bg-gradient-to-br from-white to-slate-50"
+                        }`}
+                      >
+                        <div className="max-w-md w-full px-8">
+                          <div className="text-center mb-8">
+                            <div
+                              className={`w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+                                theme === "dark"
+                                  ? "bg-gradient-to-br from-indigo-500/30 to-indigo-500/5 ring-1 ring-indigo-400/25 shadow-[0_0_24px_rgba(99,102,241,0.2)]"
+                                  : "bg-indigo-50 ring-1 ring-indigo-200"
+                              }`}
+                            >
+                              <BookOpen
+                                size={26}
+                                weight="fill"
+                                className={theme === "dark" ? "text-indigo-300" : "text-indigo-500"}
+                              />
+                            </div>
+                            <p className={`text-lg font-semibold tracking-tight ${theme === "dark" ? "text-slate-100" : "text-slate-800"}`}>
+                              Thema auswählen
+                            </p>
+                            <p className={`text-sm mt-1 ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                              Wähle links ein Thema — oder starte direkt ein Tool.
+                            </p>
+                          </div>
+
+                          {/* Tool-Schnellstart */}
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              { id: "subnetting-drill" as ToolId, name: "Subnetting-Drill", desc: "Rechnen gegen die Uhr" },
+                              { id: "vlan-simulator" as ToolId, name: "VLAN-Simulator", desc: "Trunks & 802.1Q live" },
+                              { id: "stp-simulator" as ToolId, name: "STP-Simulator", desc: "Spanning Tree verstehen" },
+                              { id: "cli-glossary" as ToolId, name: "CLI-Glossar", desc: "IOS-Befehle nachschlagen" },
+                            ].map((t) => (
+                              <button
+                                key={t.id}
+                                onClick={() => setActiveTool(t.id)}
+                                className={`group text-left rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 ${
+                                  theme === "dark"
+                                    ? "bg-slate-800/50 border-slate-700/50 hover:border-amber-500/40 hover:shadow-[0_4px_18px_rgba(245,158,11,0.12)]"
+                                    : "bg-white border-slate-200 hover:border-amber-300 hover:shadow-md"
+                                }`}
+                              >
+                                <span className={`flex items-center gap-1.5 text-xs font-semibold ${theme === "dark" ? "text-slate-200" : "text-slate-700"}`}>
+                                  <Wrench size={12} className={theme === "dark" ? "text-amber-400" : "text-amber-500"} />
+                                  {t.name}
+                                </span>
+                                <span className={`block text-[10px] mt-0.5 ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                                  {t.desc}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -2118,6 +2330,39 @@ function App() {
             allConnections={getCurrentCanvasState().connections}
             theme={theme}
           />
+        </Suspense>
+      )}
+
+      {/* Tools-Menü: aktiver Simulator/Trainer */}
+      {activeTool && (
+        <Suspense fallback={null}>
+          {activeTool === "subnetting-drill" && (
+            <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "ipv6-calculator" && (
+            <IPv6CalculatorDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "vlan-simulator" && (
+            <VlanSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "stp-simulator" && (
+            <StpSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "osi-simulator" && (
+            <OsiSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "routing-simulator" && (
+            <RoutingSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "verkabelung-trainer" && (
+            <VerkabelungTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "topologie-explorer" && (
+            <TopologieExplorerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "cli-glossary" && (
+            <CliGlossaryDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
         </Suspense>
       )}
 
