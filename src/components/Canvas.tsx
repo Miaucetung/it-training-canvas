@@ -113,6 +113,14 @@ function CanvasInner({
   // Zoom and Pan state
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
+
+  // Touch-Support: aktive Pointer (für Pinch-Zoom mit zwei Fingern)
+  const activePointers = useRef<Map<number, Point>>(new Map());
+  const pinchRef = useRef<{
+    startDist: number;
+    startScale: number;
+    startWorldMid: Point;
+  } | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState<Point | null>(null);
 
@@ -1362,6 +1370,67 @@ function CanvasInner({
     });
   };
 
+  // ── Pointer-Events: Maus + Touch + Stift über dieselben Handler ──
+  // Zwei Finger = Pinch-Zoom/Pan, ein Finger/Maus/Stift = bisheriges Verhalten.
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (e.pointerType === "touch") {
+      e.currentTarget.setPointerCapture(e.pointerId);
+      if (activePointers.current.size === 2) {
+        const [p1, p2] = [...activePointers.current.values()];
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mid = {
+          x: (p1.x + p2.x) / 2 - rect.left,
+          y: (p1.y + p2.y) / 2 - rect.top,
+        };
+        pinchRef.current = {
+          startDist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+          startScale: scale,
+          startWorldMid: screenToWorld(mid),
+        };
+        // Laufende Ein-Finger-Aktion (Zeichnen/Draggen) sauber beenden
+        handleMouseUp(e);
+        return;
+      }
+    }
+    handleMouseDown(e);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activePointers.current.has(e.pointerId)) {
+      activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    if (pinchRef.current && activePointers.current.size >= 2) {
+      const [p1, p2] = [...activePointers.current.values()];
+      const rect = e.currentTarget.getBoundingClientRect();
+      const mid = {
+        x: (p1.x + p2.x) / 2 - rect.left,
+        y: (p1.y + p2.y) / 2 - rect.top,
+      };
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const newScale = Math.max(
+        0.1,
+        Math.min(5, pinchRef.current.startScale * (dist / pinchRef.current.startDist)),
+      );
+      setScale(newScale);
+      setOffset({
+        x: mid.x - pinchRef.current.startWorldMid.x * newScale,
+        y: mid.y - pinchRef.current.startWorldMid.y * newScale,
+      });
+      return;
+    }
+    handleMouseMove(e);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    activePointers.current.delete(e.pointerId);
+    if (pinchRef.current) {
+      if (activePointers.current.size < 2) pinchRef.current = null;
+      return;
+    }
+    handleMouseUp(e);
+  };
+
   const handleDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const screenPos = getMousePos(e);
     const worldPos = screenToWorld(screenPos);
@@ -1529,10 +1598,11 @@ function CanvasInner({
     <div ref={containerRef} className="relative w-full h-full overflow-hidden">
       <canvas
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         onWheel={handleWheel}
         onDoubleClick={handleDoubleClick}
         onContextMenu={(e) => {
@@ -1544,7 +1614,7 @@ function CanvasInner({
             onContextMenu(e, selectedObjects);
           }
         }}
-        style={{ cursor: getCursor() }}
+        style={{ cursor: getCursor(), touchAction: "none" }}
         className="w-full h-full"
       />
 

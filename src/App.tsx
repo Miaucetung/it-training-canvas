@@ -1404,7 +1404,7 @@ function App() {
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Header Bar */}
         <div
-          className={`flex items-center justify-between px-6 py-3 border-b ${
+          className={`flex items-center justify-between px-3 md:px-6 py-3 border-b ${
             theme === "dark"
               ? "bg-slate-900/50 border-slate-700/50"
               : "bg-white/80 border-slate-200"
@@ -1417,12 +1417,12 @@ function App() {
             />
             <div>
               <h2
-                className={`text-lg font-semibold ${theme === "dark" ? "text-white" : "text-slate-900"}`}
+                className={`text-base md:text-lg font-semibold truncate max-w-[40vw] md:max-w-none ${theme === "dark" ? "text-white" : "text-slate-900"}`}
               >
                 {currentConfig?.name || currentSubject}
               </h2>
               <p
-                className={`text-xs ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}
+                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}
               >
                 {currentConfig?.description || "Training Canvas"}
               </p>
@@ -1454,7 +1454,7 @@ function App() {
               title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
             >
               <GraduationCap size={16} />
-              Lernpfade
+              <span className="hidden lg:inline">Lernpfade</span>
               {Object.keys(learningPaths).length > 0 && (
                 <span
                   className={`px-1.5 py-0.5 rounded-full text-[10px] ${
@@ -1466,7 +1466,7 @@ function App() {
               )}
             </button>
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             <button
               onClick={() => setShowShapePicker(true)}
@@ -1478,7 +1478,7 @@ function App() {
               title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
             >
               <Plus size={16} />
-              Gerät
+              <span className="hidden lg:inline">Gerät</span>
             </button>
             <button
               onClick={() => {
@@ -1504,7 +1504,7 @@ function App() {
               title="IOS-CLI für selektiertes Gerät öffnen"
             >
               <Terminal size={16} />
-              CLI
+              <span className="hidden lg:inline">CLI</span>
             </button>
             <button
               onClick={() => setShowLabScenarios(true)}
@@ -1518,7 +1518,7 @@ function App() {
               title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
             >
               <BookOpen size={16} />
-              Labs
+              <span className="hidden lg:inline">Labs</span>
             </button>
             <button
               ref={toolsButtonRef}
@@ -1539,7 +1539,7 @@ function App() {
               title="Alle Simulatoren, Trainer & Rechner"
             >
               <Wrench size={16} />
-              Tools
+              <span className="hidden lg:inline">Tools</span>
               <CaretDown
                 size={11}
                 className={`transition-transform duration-150 ${showToolsMenu ? "rotate-180" : ""}`}
@@ -1605,7 +1605,7 @@ function App() {
               title="CCNA Prüfungsvorbereitung — 1200+ echte Prüfungsfragen"
             >
               <Target size={16} weight="fill" />
-              Prüfung
+              <span className="hidden lg:inline">Prüfung</span>
             </button>
             <button
               onClick={() => setShowPingScenario(true)}
@@ -1617,10 +1617,10 @@ function App() {
               title="Ping testen – geführte Schritt-für-Schritt-Analyse"
             >
               <Lightning size={16} weight="fill" />
-              Ping testen
+              <span className="hidden lg:inline">Ping testen</span>
             </button>
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             {/* Mehr-Dropdown */}
             <div ref={moreMenuRef} className="relative">
@@ -1749,11 +1749,11 @@ function App() {
               )}
             </div>
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             <button
               onClick={() => setShowKeyboardShortcuts(true)}
-              className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+              className={`hidden md:flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
                 theme === "dark"
                   ? "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
                   : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
@@ -1763,7 +1763,7 @@ function App() {
               <Keyboard size={16} />
             </button>
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             {user ? (
               <button
@@ -1793,11 +1793,11 @@ function App() {
                 title="Anmelden — Fortschritt geräteübergreifend synchronisieren"
               >
                 <UserCircle size={15} />
-                Anmelden
+                <span className="hidden sm:inline">Anmelden</span>
               </button>
             )}
 
-            <div className={`w-px h-5 ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             <button
               onClick={() => setCanvasView((v) => !v)}
@@ -1813,7 +1813,7 @@ function App() {
               title={canvasView ? "Zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
             >
               <ArrowClockwise size={14} />
-              {canvasView ? "Lernen" : "Canvas"}
+              <span className="hidden sm:inline">{canvasView ? "Lernen" : "Canvas"}</span>
             </button>
           </div>
         </div>
