@@ -1836,28 +1836,20 @@ function App() {
             >
               {catalogModuleId ? (
                 <>
-                  {/* Topic list — volle Breite ohne Auswahl, Sidebar mit Auswahl */}
-                  <div
-                    className={`overflow-y-auto transition-all duration-300 ${
-                      selectedTopic
-                        ? `w-80 shrink-0 border-r ${
-                            theme === "dark"
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-slate-200 bg-slate-50/60"
-                          }`
-                        : "flex-1"
-                    }`}
-                  >
-                    <TopicListPanel
-                      moduleId={catalogModuleId}
-                      theme={theme}
-                      onTopicClick={(topic, mod) => {
-                        setSelectedTopic(topic);
-                        setSelectedTopicModule(mod);
-                      }}
-                      onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
-                    />
-                  </div>
+                  {/* Topic list — kollabiert komplett bei Themen-Auswahl */}
+                  {!selectedTopic && (
+                    <div className="flex-1 overflow-y-auto">
+                      <TopicListPanel
+                        moduleId={catalogModuleId}
+                        theme={theme}
+                        onTopicClick={(topic, mod) => {
+                          setSelectedTopic(topic);
+                          setSelectedTopicModule(mod);
+                        }}
+                        onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
+                      />
+                    </div>
+                  )}
 
                   {/* Topic detail — nur bei Auswahl */}
                   {selectedTopic && selectedTopicModule && (
