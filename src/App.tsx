@@ -429,6 +429,7 @@ function App() {
     setCurrentSubject(s);
     setSelectedTopic(null);
     setSelectedTopicModule(null);
+    setSidebarCollapsed(true);
   }, []);
 
   const handleToggleSidebar = useCallback(
