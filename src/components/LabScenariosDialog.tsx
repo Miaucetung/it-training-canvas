@@ -44,7 +44,7 @@ interface LabScenario {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  difficulty: "Anfänger" | "Mittel" | "Fortgeschritten";
+  difficulty: "Drill" | "Anfänger" | "Mittel" | "Fortgeschritten";
   duration: string;
   topology: {
     description: string;
@@ -59,6 +59,359 @@ interface LabScenario {
 // ── Lab-Szenarien ─────────────────────────────────────────────
 
 const LABS: LabScenario[] = [
+
+  // ─────────────────────────────────────────────────────────────
+  // DRILL-LABS — stumpfe Wiederholung für Muskelgedächtnis
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "drill-grundkonfig",
+    icon: <Check size={20} />,
+    title: "Drill: Grundkonfiguration ×3",
+    subtitle: "Identischer Basis-Block auf R1, SW1 und SW2",
+    difficulty: "Drill",
+    duration: "15 min",
+    topology: {
+      description:
+        "Reines Wiederholungstraining: Derselbe Grundkonfigurations-Block wird dreimal hintereinander eingetippt — auf einem Router und zwei Switches. Ziel: die Sequenz sitzt blind.",
+      devices: [
+        { type: "router", label: "R1", count: 1 },
+        { type: "switch", label: "SW1 / SW2", count: 2 },
+      ],
+      connections: [
+        "Keine Verkabelung nötig — jedes Gerät wird einzeln konfiguriert",
+      ],
+      hint: "Nicht kopieren! Jeden Block von Hand tippen — genau darum geht es. Reihenfolge laut sagen: Hostname → Secret → Console → VTY → Banner → Speichern.",
+    },
+    steps: [
+      {
+        title: "Runde 1: R1 komplett durchkonfigurieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "Router(config)#",
+            commands: [
+              {
+                cmd: "hostname R1\nenable secret class\nno ip domain-lookup",
+                explanation:
+                  "Die ersten drei Handgriffe auf JEDEM Cisco-Gerät: Name, Privileged-Passwort (gehasht), und kein nerviges DNS-Lookup bei Tippfehlern.",
+              },
+              {
+                cmd: "line console 0\npassword cisco\nlogin\nexit",
+                explanation:
+                  "Konsolen-Zugang absichern. `login` aktiviert die Passwort-Abfrage — ohne `login` fragt niemand nach dem Passwort!",
+              },
+              {
+                cmd: "line vty 0 4\npassword cisco\nlogin\nexit",
+                explanation:
+                  "Dasselbe für die ersten 5 virtuellen Terminal-Lines (Telnet/SSH).",
+              },
+              {
+                cmd: "banner motd #Unbefugter Zugriff verboten!#\nservice password-encryption",
+                explanation:
+                  "Rechtlicher Warnhinweis + Klartext-Passwörter in der Config verschleiern.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "copy running-config startup-config",
+                explanation:
+                  "Speichern! Enter bei der Dateinamen-Abfrage. Ohne diesen Schritt ist nach `reload` alles weg.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Runde 2: SW1 — exakt dieselbe Sequenz",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "Switch(config)#",
+            commands: [
+              {
+                cmd: "hostname SW1\nenable secret class\nno ip domain-lookup\nline console 0\npassword cisco\nlogin\nexit\nline vty 0 4\npassword cisco\nlogin\nexit\nbanner motd #Unbefugter Zugriff verboten!#\nservice password-encryption",
+                explanation:
+                  "Identisch zu R1 — nur der Hostname ändert sich. Diesmal ohne auf die Erklärungen zu schauen.",
+              },
+              {
+                cmd: "do copy running-config startup-config",
+                explanation:
+                  "Mit `do` direkt aus dem Config-Modus speichern — spart das `exit`.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Runde 3: SW2 — aus dem Gedächtnis",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "Switch(config)#",
+            commands: [
+              {
+                cmd: "hostname SW2\n... (komplette Sequenz aus dem Kopf)",
+                explanation:
+                  "Letzte Runde: Bildschirm mit den Befehlen abdecken und die komplette Sequenz frei tippen. Erst danach mit Runde 1 vergleichen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show running-config | include hostname|secret|banner", expected: "Alle drei Geräte zeigen identische Struktur" },
+      { cmd: "show startup-config", expected: "Gespeicherte Config vorhanden (kein 'startup-config is not present')" },
+      { cmd: "exit + neu einloggen", expected: "Banner erscheint, Console-Passwort wird abgefragt" },
+    ],
+  },
+
+  {
+    id: "drill-pc-ips",
+    icon: <Desktop size={20} />,
+    title: "Drill: 6 PCs durchnummerieren",
+    subtitle: "Statische IPs im Akkord vergeben",
+    difficulty: "Drill",
+    duration: "10 min",
+    topology: {
+      description:
+        "Sechs PCs an einem Switch, alle im selben /24-Netz. Die IPs werden stur durchnummeriert (.11 bis .16) — bis der Ablauf Desktop → IP Configuration → Eintragen automatisch abläuft.",
+      devices: [
+        { type: "switch", label: "SW1", count: 1 },
+        { type: "pc", label: "PC0–PC5", count: 6 },
+      ],
+      connections: [
+        "PC0–PC5 → SW1 Fa0/1–Fa0/6 (Copper Straight-Through)",
+      ],
+      hint: "Schema: PC-Nummer + 11 = letztes Oktett. PC0 → .11, PC1 → .12, … PC5 → .16. Gateway immer .1.",
+    },
+    steps: [
+      {
+        title: "Alle 6 PCs nach Schema konfigurieren",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              {
+                cmd: "IP Address: 192.168.50.11\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.50.1",
+                explanation:
+                  "PT: PC anklicken → Desktop-Tab → IP Configuration → Static. Die drei Felder ausfüllen, Fenster schließen, nächster PC.",
+              },
+            ],
+          },
+          {
+            device: "PC1-PC5",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              {
+                cmd: "PC1: .12  |  PC2: .13  |  PC3: .14  |  PC4: .15  |  PC5: .16\n(Maske und Gateway überall identisch)",
+                explanation:
+                  "Stumpf durcharbeiten. Ziel: unter 60 Sekunden pro PC. Wer schneller will: Tab-Taste statt Maus zwischen den Feldern.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Nachbarschafts-Pingrunde",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop > Command Prompt",
+            commands: [
+              {
+                cmd: "ping 192.168.50.12\nping 192.168.50.16",
+                explanation:
+                  "Von PC0 den direkten Nachbarn und den letzten PC anpingen. Erster Ping verliert oft 1 Paket (ARP) — das ist normal und eine beliebte Prüfungsfrage!",
+              },
+              {
+                cmd: "ipconfig",
+                explanation:
+                  "Eigene Einstellungen prüfen — Tippfehler im Gateway sind der häufigste Fehler in dieser Übung.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ping zwischen beliebigen PCs", expected: "0% Verlust (außer erstem ARP-Ping)" },
+      { cmd: "ipconfig auf jedem PC", expected: "IP nach Schema, Maske /24, Gateway .1" },
+      { cmd: "show mac address-table (SW1)", expected: "6 MAC-Adressen auf Fa0/1–Fa0/6 gelernt" },
+    ],
+  },
+
+  {
+    id: "drill-access-ports",
+    icon: <Stack size={20} />,
+    title: "Drill: Access-Ports im Akkord",
+    subtitle: "16 Ports · 2 VLANs · 2 Switches",
+    difficulty: "Drill",
+    duration: "12 min",
+    topology: {
+      description:
+        "Auf zwei Switches werden jeweils 16 Ports in zwei VLANs aufgeteilt — mit interface range immer im selben Dreierschritt: range → mode access → access vlan.",
+      devices: [
+        { type: "switch", label: "SW1 / SW2", count: 2 },
+      ],
+      connections: [
+        "Keine Verkabelung nötig — reines Konfigurationstraining",
+      ],
+      hint: "Der Dreierschritt sitzt, wenn du ihn sprechen kannst: 'range — access — vlan'. Portfast obendrauf, weil es Access-Ports sind.",
+    },
+    steps: [
+      {
+        title: "SW1: VLANs anlegen + Ports zuweisen",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "vlan 10\nname BUERO\nvlan 20\nname LABOR",
+                explanation: "VLANs zuerst — sonst landet die Port-Zuweisung in einem nicht existierenden VLAN.",
+              },
+              {
+                cmd: "interface range fa0/1 - 8\nswitchport mode access\nswitchport access vlan 10\nspanning-tree portfast",
+                explanation:
+                  "Der Dreierschritt + Portfast für die ersten 8 Ports. `interface range` ist der wichtigste Zeitsparer der Prüfung.",
+              },
+              {
+                cmd: "interface range fa0/9 - 16\nswitchport mode access\nswitchport access vlan 20\nspanning-tree portfast",
+                explanation: "Dieselbe Sequenz für VLAN 20 — ohne nachzudenken.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW2: identisch wiederholen",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "(komplette Sequenz von SW1 wiederholen)",
+                explanation:
+                  "Runde 2 aus dem Gedächtnis: 2 VLANs, 2× Dreierschritt. Stoppuhr: unter 90 Sekunden ist das Ziel.",
+              },
+              {
+                cmd: "do show vlan brief",
+                explanation:
+                  "Sofort-Kontrolle ohne den Config-Modus zu verlassen: Fa0/1–8 in VLAN 10, Fa0/9–16 in VLAN 20?",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show vlan brief", expected: "VLAN 10 BUERO: Fa0/1-8, VLAN 20 LABOR: Fa0/9-16 (auf beiden Switches)" },
+      { cmd: "show interfaces fa0/1 switchport", expected: "Administrative Mode: static access, Access Mode VLAN: 10" },
+      { cmd: "show running-config | section interface", expected: "Jeder Port: mode access + access vlan + portfast" },
+    ],
+  },
+
+  {
+    id: "drill-interfaces",
+    icon: <Network size={20} />,
+    title: "Drill: Router-Interfaces hochziehen",
+    subtitle: "6 Interfaces · 2 Router · ip address + no shutdown",
+    difficulty: "Drill",
+    duration: "12 min",
+    topology: {
+      description:
+        "Zwei Router mit je drei Interfaces. Jedes bekommt stur dieselbe Behandlung: interface → ip address → no shutdown → description. Router-Interfaces sind ab Werk AUS — das vergisst man nie wieder.",
+      devices: [
+        { type: "router", label: "R1 / R2", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/1 ↔ R2 Gi0/1 (optional, für den Schluss-Ping)",
+      ],
+      hint: "Der Vierschritt: interface — ip address — no shut — description. Bei 'no shutdown' auf die Konsolenmeldung 'changed state to up' achten.",
+    },
+    steps: [
+      {
+        title: "R1: drei Interfaces konfigurieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/0\nip address 192.168.10.1 255.255.255.0\nno shutdown\ndescription LAN-BUERO",
+                explanation:
+                  "Interface 1 von 6. Die Konsolenmeldung '%LINK-5-CHANGED: ... changed state to up' bestätigt den no shutdown.",
+              },
+              {
+                cmd: "interface gi0/1\nip address 10.0.0.1 255.255.255.252\nno shutdown\ndescription WAN-ZU-R2",
+                explanation: "Interface 2: /30 für den Punkt-zu-Punkt-Link.",
+              },
+              {
+                cmd: "interface gi0/2\nip address 192.168.20.1 255.255.255.0\nno shutdown\ndescription LAN-LABOR",
+                explanation: "Interface 3 — dieselbe Sequenz, drittes Mal.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R2: identisch wiederholen + prüfen",
+        blocks: [
+          {
+            device: "R2",
+            mode: "interface",
+            modeLabel: "R2(config-if)#",
+            commands: [
+              {
+                cmd: "gi0/0: 192.168.30.1/24\ngi0/1: 10.0.0.2/30\ngi0/2: 192.168.40.1/24\n(jeweils + no shutdown + description)",
+                explanation:
+                  "Runde 2 ohne Spickzettel. Der Vierschritt muss automatisch kommen.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
+              {
+                cmd: "show ip interface brief",
+                explanation:
+                  "DER Kontrollbefehl: alle drei Interfaces müssen 'up/up' zeigen. 'administratively down' = no shutdown vergessen — der Klassiker.",
+              },
+              {
+                cmd: "ping 10.0.0.1",
+                explanation: "Schluss-Ping über den WAN-Link zu R1.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip interface brief", expected: "Alle konfigurierten Interfaces: Status up, Protocol up" },
+      { cmd: "show interfaces description", expected: "Jedes Interface hat eine Description" },
+      { cmd: "ping 10.0.0.2 (von R1)", expected: "!!!!! — 100% Erfolg über den /30-Link" },
+    ],
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 1. IP-Grundkonfiguration
   // ─────────────────────────────────────────────────────────────
@@ -3381,6 +3734,7 @@ const LABS: LabScenario[] = [
 // ── Hilfsfunktionen ───────────────────────────────────────────
 
 function difficultyColor(d: LabScenario["difficulty"]) {
+  if (d === "Drill") return "text-cyan-400 bg-cyan-400/10";
   if (d === "Anfänger") return "text-emerald-400 bg-emerald-400/10";
   if (d === "Mittel") return "text-amber-400 bg-amber-400/10";
   return "text-red-400 bg-red-400/10";
@@ -3652,7 +4006,7 @@ function printLabAsPdf(lab: LabScenario) {
 <body>
   <h1>${lab.title}</h1>
   <div class="meta">
-    <span class="badge ${lab.difficulty === 'Anfänger' ? 'badge-easy' : lab.difficulty === 'Mittel' ? 'badge-medium' : 'badge-hard'}">${lab.difficulty}</span>
+    <span class="badge ${lab.difficulty === 'Anfänger' || lab.difficulty === 'Drill' ? 'badge-easy' : lab.difficulty === 'Mittel' ? 'badge-medium' : 'badge-hard'}">${lab.difficulty}</span>
     ${lab.subtitle} &nbsp;|&nbsp; ⏱ ${lab.duration}
   </div>
 
