@@ -345,6 +345,131 @@ const LABS: LabScenario[] = [
     ],
   },
 
+
+  // ─────────────────────────────────────────────────────────────
+  // VTP & DTP (CIS1 — Prüfungsklassiker)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "vtp-dtp",
+    icon: <Stack size={20} />,
+    title: "VTP & DTP",
+    subtitle: "VLAN-Verteilung & Trunk-Verhandlung · 3 Switches",
+    difficulty: "Mittel",
+    duration: "20 min",
+    topology: {
+      description:
+        "Drei Switches in Reihe. SW1 ist VTP-Server und verteilt VLANs automatisch an die Clients SW2 und SW3. DTP verhandelt die Trunks.",
+      devices: [
+        { type: "switch", label: "SW1 (Server) / SW2 / SW3 (Clients)", count: 3 },
+        { type: "pc", label: "PC0 / PC1", count: 2 },
+      ],
+      connections: [
+        "SW1 Gi0/1 ↔ SW2 Gi0/1  (Trunk)",
+        "SW2 Gi0/2 ↔ SW3 Gi0/1  (Trunk)",
+        "PC0 → SW1 Fa0/1 (VLAN 10), PC1 → SW3 Fa0/1 (VLAN 10)",
+      ],
+      hint: "VTP verteilt nur die VLAN-Datenbank — die Port-Zuweisung (access vlan) bleibt lokal auf jedem Switch!",
+    },
+    steps: [
+      {
+        title: "SW1 als VTP-Server konfigurieren",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "vtp domain CCNA-LAB\nvtp mode server\nvtp password cisco",
+                explanation:
+                  "Domain-Name und Passwort müssen auf allen Switches identisch sein, sonst werden VTP-Advertisements ignoriert. Server ist der Default-Modus.",
+              },
+              {
+                cmd: "vlan 10\nname VERWALTUNG\nvlan 20\nname TECHNIK",
+                explanation:
+                  "VLANs werden NUR auf dem Server angelegt — VTP verteilt sie automatisch an alle Clients in der Domain.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW2 und SW3 als VTP-Clients",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "vtp domain CCNA-LAB\nvtp mode client\nvtp password cisco",
+                explanation:
+                  "Clients übernehmen die VLAN-Datenbank vom Server, können selbst aber keine VLANs anlegen oder löschen. SW3 identisch konfigurieren.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Trunks per DTP verhandeln",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "interface",
+            modeLabel: "SW1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/1\nswitchport mode dynamic desirable",
+                explanation:
+                  "DTP desirable verhandelt aktiv einen Trunk. Gegenseite kann desirable, auto oder trunk sein — alles ergibt einen Trunk. Achtung Prüfung: auto + auto = KEIN Trunk!",
+              },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "interface",
+            modeLabel: "SW2(config-if)#",
+            commands: [
+              {
+                cmd: "interface range gi0/1 - 2\nswitchport mode trunk\nswitchport nonegotiate",
+                explanation:
+                  "Best Practice: Trunk statisch setzen und DTP mit nonegotiate abschalten — verhindert VLAN-Hopping über gefälschte DTP-Frames.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "VLAN-Verteilung prüfen + Nachbarn entdecken",
+        blocks: [
+          {
+            device: "SW3",
+            mode: "privileged",
+            modeLabel: "SW3#",
+            commands: [
+              {
+                cmd: "show vtp status",
+                explanation:
+                  "Revision-Nummer muss der des Servers entsprechen. Prüfungsfalle: ein gebrauchter Switch mit HÖHERER Revision überschreibt die Server-Datenbank!",
+              },
+              {
+                cmd: "show cdp neighbors detail",
+                explanation:
+                  "CDP (Cisco-proprietär, Default an) zeigt Nachbargerät, Port, IOS-Version und IP. LLDP wäre die herstellerneutrale Alternative (lldp run).",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show vlan brief (auf SW3)", expected: "VLAN 10 VERWALTUNG und VLAN 20 TECHNIK vorhanden — ohne lokale Konfiguration" },
+      { cmd: "show vtp status", expected: "VTP Operating Mode: Client, gleiche Configuration Revision wie SW1" },
+      { cmd: "show interfaces trunk", expected: "Gi0/1 mode: desirable, status: trunking, encapsulation 802.1q" },
+      { cmd: "show dtp interface gi0/1", expected: "TOS/TAS/TNS: ACCESS/DESIRABLE/TRUNK" },
+    ],
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 3. Inter-VLAN Routing (Router-on-a-Stick)
   // ─────────────────────────────────────────────────────────────
@@ -580,6 +705,119 @@ const LABS: LabScenario[] = [
       { cmd: "ping 192.168.2.10 (von PC0)", expected: "Pakete kommen durch beide Router" },
       { cmd: "show ip route", expected: "S 192.168.2.0/24 via 10.0.0.2" },
       { cmd: "traceroute 192.168.2.10", expected: "Hops: R1 WAN → R2 → Ziel" },
+    ],
+  },
+
+
+  // ─────────────────────────────────────────────────────────────
+  // RIPv2 (CIS2 — dynamisches Routing Grundlagen)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "rip-v2",
+    icon: <Shuffle size={20} />,
+    title: "RIPv2 — Dynamisches Routing",
+    subtitle: "3 Router · Distance Vector · max. 15 Hops",
+    difficulty: "Mittel",
+    duration: "20 min",
+    topology: {
+      description:
+        "Drei Router in Reihe (R1 — R2 — R3), jeder mit eigenem LAN. Statt statischer Routen tauschen die Router ihre Netze alle 30 Sekunden per RIPv2 aus.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3", count: 3 },
+        { type: "switch", label: "SW1–SW3", count: 3 },
+        { type: "pc", label: "PC0–PC2", count: 3 },
+      ],
+      connections: [
+        "R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)",
+        "R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/30)",
+        "LANs: R1=192.168.1.0/24, R2=192.168.2.0/24, R3=192.168.3.0/24",
+      ],
+      hint: "RIP ist ein Distance-Vector-Protokoll: Metrik = Hop-Count, Maximum 15 Hops (16 = unreachable). AD = 120.",
+    },
+    steps: [
+      {
+        title: "Interfaces konfigurieren (alle Router)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\ninterface gi0/1\nip address 10.0.12.1 255.255.255.252\nno shutdown",
+                explanation:
+                  "LAN + WAN-Link zu R2. R2 und R3 analog mit ihren Subnetzen konfigurieren.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "RIPv2 aktivieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router rip\nversion 2\nno auto-summary",
+                explanation:
+                  "version 2 macht RIP classless (Subnetzmasken werden mitgesendet, Multicast 224.0.0.9 statt Broadcast). no auto-summary verhindert falsche Zusammenfassung an Klassengrenzen — Top-Prüfungsfrage!",
+              },
+              {
+                cmd: "network 192.168.1.0\nnetwork 10.0.0.0",
+                explanation:
+                  "RIP nimmt CLASSFUL-Netzangaben ohne Wildcard-Maske: 10.0.0.0 aktiviert ALLE Interfaces im 10er-Netz. Anders als OSPF/EIGRP!",
+              },
+              {
+                cmd: "passive-interface gi0/0",
+                explanation:
+                  "Keine RIP-Updates ins LAN senden (dort ist kein Router) — spart Bandbreite und verhindert Manipulation.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "router",
+            modeLabel: "R2(config-router)#",
+            commands: [
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 192.168.2.0\nnetwork 10.0.0.0",
+                explanation: "R2 kennt beide WAN-Links über das 10er-Netz. R3 analog.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Konvergenz beobachten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation:
+                  "R-Einträge mit [120/1] und [120/2]: AD 120, Metrik = Hop-Count. 192.168.3.0/24 hat 2 Hops (über R2 und R3).",
+              },
+              {
+                cmd: "show ip protocols",
+                explanation:
+                  "Zeigt Timer (Update 30s, Invalid 180s, Flush 240s), Version und passive Interfaces — die Timer sind Prüfungsstoff.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route rip", expected: "R 192.168.3.0/24 [120/2] via 10.0.12.2 (auf R1)" },
+      { cmd: "show ip protocols", expected: "Routing Protocol is rip, Sending updates every 30 seconds" },
+      { cmd: "ping 192.168.3.10 (von PC0)", expected: "Erfolgreich über 2 Router-Hops" },
+      { cmd: "debug ip rip (kurz!)", expected: "v2 updates via Multicast 224.0.0.9, danach undebug all" },
     ],
   },
 
@@ -1965,6 +2203,137 @@ const LABS: LabScenario[] = [
       { cmd: "show ip route", expected: "S* 0.0.0.0/0 [1/0] via 10.1.1.1 (nur primär sichtbar)" },
       { cmd: "show ip sla statistics", expected: "Return Code: OK, Latest RTT: 12ms" },
       { cmd: "show track", expected: "Track 1 IP SLA 1 reachability  Reachability is Up" },
+    ],
+  },
+
+
+  // ─────────────────────────────────────────────────────────────
+  // EIGRP (CIS3 — Advanced Distance Vector)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "eigrp",
+    icon: <Lightning size={20} />,
+    title: "EIGRP Grundlagen",
+    subtitle: "3 Router · DUAL · Successor & Feasible Successor",
+    difficulty: "Fortgeschritten",
+    duration: "25 min",
+    topology: {
+      description:
+        "Drei Router im Dreieck (Redundanz!). EIGRP berechnet per DUAL-Algorithmus den besten Pfad (Successor) und hält einen Backup-Pfad (Feasible Successor) sofort bereit.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3", count: 3 },
+        { type: "switch", label: "SW1 / SW3", count: 2 },
+        { type: "pc", label: "PC0 / PC1", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)",
+        "R2 Gi0/2 ↔ R3 Gi0/2  (10.0.23.0/30)",
+        "R1 Gi0/2 ↔ R3 Gi0/1  (10.0.13.0/30) — Dreieck!",
+        "LANs: R1=192.168.1.0/24, R3=192.168.3.0/24",
+      ],
+      hint: "EIGRP: Cisco-proprietär (heute teils offen), AD 90 intern / 170 extern, Multicast 224.0.0.10, Metrik aus Bandbreite + Delay.",
+    },
+    steps: [
+      {
+        title: "EIGRP mit gleicher AS-Nummer starten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router eigrp 100",
+                explanation:
+                  "Die AS-Nummer (100) MUSS auf allen Routern identisch sein, sonst entsteht keine Nachbarschaft — der häufigste EIGRP-Fehler in der Prüfung.",
+              },
+              {
+                cmd: "network 192.168.1.0 0.0.0.255\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.13.0 0.0.0.3",
+                explanation:
+                  "EIGRP nutzt Wildcard-Masken wie OSPF (Maske invertiert: /30 → 0.0.0.3). Präziser als RIPs classful network-Befehl.",
+              },
+              {
+                cmd: "no auto-summary\npassive-interface gi0/0",
+                explanation:
+                  "Auto-Summary deaktivieren (wie bei RIP), keine Hellos ins LAN.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "router",
+            modeLabel: "R2(config-router)#",
+            commands: [
+              {
+                cmd: "router eigrp 100\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary",
+                explanation: "R2 ist reiner Transit-Router. R3 analog mit seinen Netzen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Nachbarschaften & Topologie analysieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip eigrp neighbors",
+                explanation:
+                  "Nachbartabelle: Hello alle 5s über 224.0.0.10, Hold-Time 15s. Beide Nachbarn (R2 direkt, R3 direkt) müssen erscheinen.",
+              },
+              {
+                cmd: "show ip eigrp topology",
+                explanation:
+                  "Die Topologie-Tabelle ist das EIGRP-Herzstück: P = Passive (stabil), zeigt Successor UND Feasible Successor mit FD/AD. Feasibility Condition: Backup-AD < Successor-FD.",
+              },
+              {
+                cmd: "show ip route eigrp",
+                explanation:
+                  "D-Einträge mit [90/...]: AD 90, zusammengesetzte Metrik aus Bandbreite + Delay (K1/K3 default).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "DUAL-Failover testen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/2\nshutdown",
+                explanation:
+                  "Direkten Link zu R3 kappen. DUAL schaltet SOFORT auf den Feasible Successor über R2 um — ohne Neuberechnung, das ist EIGRPs Konvergenz-Vorteil gegenüber RIP/OSPF.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route eigrp",
+                explanation:
+                  "192.168.3.0/24 zeigt jetzt den Pfad über 10.0.12.2 (R2) — Failover in unter einer Sekunde. Danach: no shutdown.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip eigrp neighbors", expected: "2 Nachbarn mit Hold-Time < 15s, Interface Gi0/1 + Gi0/2" },
+      { cmd: "show ip eigrp topology", expected: "P 192.168.3.0/24: 1 Successor, FD + Feasible Successor sichtbar" },
+      { cmd: "show ip route eigrp", expected: "D 192.168.3.0/24 [90/...] — AD 90 für internes EIGRP" },
+      { cmd: "ping 192.168.3.10 nach shutdown Gi0/2", expected: "Weiterhin erfolgreich — DUAL-Failover über R2" },
     ],
   },
 

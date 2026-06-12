@@ -20,7 +20,11 @@ type Category =
   | "Spanning Tree"
   | "EtherChannel"
   | "SSH & Sicherheit"
+  | "ACLs"
+  | "NAT / PAT"
+  | "DHCP"
   | "Routing"
+  | "HSRP & Redundanz"
   | "Troubleshooting";
 
 interface Entry {
@@ -93,6 +97,11 @@ const ENTRIES: Entry[] = [
   { cmd: "vtp mode {server|client|transparent}", mode: "Config", desc: "Setzt den VTP-Modus.", category: "VLAN & Trunk" },
   { cmd: "vtp domain CCNA", mode: "Config", desc: "Setzt die VTP-Domain.", category: "VLAN & Trunk" },
   { cmd: "show vtp status", mode: "Priv", desc: "VTP-Modus, Revision, Domain, Anzahl VLANs.", category: "VLAN & Trunk" },
+  { cmd: "switchport mode dynamic desirable", mode: "If", desc: "DTP: verhandelt aktiv einen Trunk (auto = passiv abwartend).", category: "VLAN & Trunk" },
+  { cmd: "switchport nonegotiate", mode: "If", desc: "Deaktiviert DTP-Verhandlung — Best Practice auf statischen Trunks.", category: "VLAN & Trunk" },
+  { cmd: "show dtp interface gi0/1", mode: "Priv", desc: "DTP-Status und verhandelter Modus eines Ports.", category: "VLAN & Trunk" },
+  { cmd: "interface gi0/0.10", mode: "Config", desc: "Erstellt Subinterface für Router-on-a-Stick (VLAN 10).", category: "VLAN & Trunk" },
+  { cmd: "encapsulation dot1q 10", mode: "If", desc: "Bindet das Subinterface an VLAN-Tag 10 (vor der IP-Adresse setzen!).", category: "VLAN & Trunk" },
 
   // Spanning Tree
   { cmd: "spanning-tree mode rapid-pvst", mode: "Config", desc: "Aktiviert Rapid-PVST+ (empfohlen).", category: "Spanning Tree" },
@@ -122,7 +131,42 @@ const ENTRIES: Entry[] = [
   { cmd: "service password-encryption", mode: "Config", desc: "Verschlüsselt alle Klartext-Passwörter in der Config (schwach!).", category: "SSH & Sicherheit" },
   { cmd: "switchport port-security", mode: "If", desc: "Aktiviert Port-Security.", category: "SSH & Sicherheit" },
   { cmd: "switchport port-security maximum 2", mode: "If", desc: "Maximal 2 MAC-Adressen pro Port erlaubt.", category: "SSH & Sicherheit" },
-  { cmd: "switchport port-security violation shutdown", mode: "If", desc: "Aktion bei Verletzung: Port deaktivieren (err-disabled).", category: "SSH & Sicherheit" },
+  { cmd: "switchport port-security violation shutdown", mode: "If", desc: "Aktion bei Verletzung: Port deaktivieren (err-disabled). Alternativen: protect (verwerfen), restrict (verwerfen + Log/Counter).", category: "SSH & Sicherheit" },
+  { cmd: "switchport port-security mac-address sticky", mode: "If", desc: "Lernt MAC-Adressen dynamisch und schreibt sie in die running-config.", category: "SSH & Sicherheit" },
+  { cmd: "show port-security", mode: "Priv", desc: "Übersicht aller Port-Security-Ports mit Violation-Countern.", category: "SSH & Sicherheit" },
+  { cmd: "show port-security interface gi0/1", mode: "Priv", desc: "Detail: Modus, max. MACs, Violation-Mode, Status (z. B. err-disabled).", category: "SSH & Sicherheit" },
+  { cmd: "line console 0", mode: "Config", desc: "Konfiguriert den Konsolen-Port (physischer Zugang).", category: "SSH & Sicherheit" },
+  { cmd: "password <pw>", mode: "Line", desc: "Setzt das Line-Passwort (Console/VTY) — mit login aktivieren.", category: "SSH & Sicherheit" },
+  { cmd: "banner motd #Unbefugter Zugriff verboten#", mode: "Config", desc: "Message of the Day — rechtlicher Warnhinweis vor dem Login.", category: "SSH & Sicherheit" },
+
+  // ACLs
+  { cmd: "access-list 10 permit 192.168.1.0 0.0.0.255", mode: "Config", desc: "Standard-ACL (1–99): filtert nur nach Quell-IP. Wildcard-Maske!", category: "ACLs" },
+  { cmd: "access-list 100 permit tcp any host 10.1.1.5 eq 80", mode: "Config", desc: "Extended ACL (100–199): filtert nach Protokoll, Quelle, Ziel, Port.", category: "ACLs" },
+  { cmd: "ip access-list extended WEB-FILTER", mode: "Config", desc: "Named ACL — eigener Config-Modus, Regeln einzeln editierbar.", category: "ACLs" },
+  { cmd: "ip access-group 10 in", mode: "If", desc: "Bindet ACL 10 eingehend ans Interface. Ohne Bindung filtert keine ACL!", category: "ACLs" },
+  { cmd: "access-class 10 in", mode: "Line", desc: "Beschränkt VTY-Zugriff (SSH/Telnet) auf Quell-IPs der ACL 10.", category: "ACLs" },
+  { cmd: "remark Verwaltung -> Server", mode: "Config", desc: "Kommentarzeile innerhalb einer ACL (Dokumentation).", category: "ACLs" },
+  { cmd: "show access-lists", mode: "Priv", desc: "Alle ACLs mit Treffer-Countern (matches).", category: "ACLs" },
+
+  // NAT / PAT
+  { cmd: "ip nat inside", mode: "If", desc: "Markiert das Interface als Innenseite (privates Netz).", category: "NAT / PAT" },
+  { cmd: "ip nat outside", mode: "If", desc: "Markiert das Interface als Außenseite (Internet/WAN).", category: "NAT / PAT" },
+  { cmd: "ip nat inside source list 1 interface gi0/1 overload", mode: "Config", desc: "PAT: alle internen Adressen teilen sich die Interface-IP (Port-Multiplexing).", category: "NAT / PAT" },
+  { cmd: "ip nat inside source static 192.168.1.10 203.0.113.10", mode: "Config", desc: "Statisches NAT: feste 1:1-Zuordnung (z. B. interner Webserver).", category: "NAT / PAT" },
+  { cmd: "ip nat pool POOL1 203.0.113.10 203.0.113.20 netmask 255.255.255.0", mode: "Config", desc: "Adress-Pool für dynamisches NAT (mit source list <n> pool POOL1).", category: "NAT / PAT" },
+  { cmd: "show ip nat translations", mode: "Priv", desc: "Aktive Übersetzungstabelle (inside/outside, local/global).", category: "NAT / PAT" },
+  { cmd: "show ip nat statistics", mode: "Priv", desc: "Anzahl Übersetzungen, Treffer, konfigurierte Richtungen.", category: "NAT / PAT" },
+  { cmd: "clear ip nat translation *", mode: "Priv", desc: "Leert die dynamische NAT-Tabelle (bei Umkonfiguration nötig).", category: "NAT / PAT" },
+
+  // DHCP
+  { cmd: "ip dhcp pool LAN10", mode: "Config", desc: "Erstellt einen DHCP-Pool und wechselt in den DHCP-Config-Modus.", category: "DHCP" },
+  { cmd: "network 192.168.10.0 255.255.255.0", mode: "Dhcp", desc: "Adressbereich, den der Pool vergibt.", category: "DHCP" },
+  { cmd: "default-router 192.168.10.1", mode: "Dhcp", desc: "Gateway, das den Clients mitgeteilt wird.", category: "DHCP" },
+  { cmd: "dns-server 8.8.8.8", mode: "Dhcp", desc: "DNS-Server für die Clients.", category: "DHCP" },
+  { cmd: "ip dhcp excluded-address 192.168.10.1 192.168.10.10", mode: "Config", desc: "Adressen, die NICHT vergeben werden (Gateway, Server, Drucker).", category: "DHCP" },
+  { cmd: "ip helper-address 10.1.1.5", mode: "If", desc: "DHCP-Relay: leitet Broadcast-DISCOVER als Unicast an den DHCP-Server weiter.", category: "DHCP" },
+  { cmd: "ip address dhcp", mode: "If", desc: "Interface bezieht seine IP selbst per DHCP (Router als Client).", category: "DHCP" },
+  { cmd: "show ip dhcp binding", mode: "Priv", desc: "Vergebene Leases: IP ↔ MAC ↔ Ablaufzeit.", category: "DHCP" },
 
   // Routing
   { cmd: "ip routing", mode: "Config", desc: "Aktiviert IPv4-Routing (auf L3-Switches).", category: "Routing" },
@@ -132,6 +176,25 @@ const ENTRIES: Entry[] = [
   { cmd: "show ip route", mode: "Priv", desc: "Routing-Tabelle.", category: "Routing" },
   { cmd: "show ip protocols", mode: "Priv", desc: "Aktive Routing-Protokolle + Parameter.", category: "Routing" },
   { cmd: "show ip ospf neighbor", mode: "Priv", desc: "OSPF-Nachbarschaften.", category: "Routing" },
+  { cmd: "ip route 192.168.2.0 255.255.255.0 10.0.0.2", mode: "Config", desc: "Statische Route: Zielnetz + Maske + Next-Hop (AD 1).", category: "Routing" },
+  { cmd: "ip route 192.168.2.0 255.255.255.0 10.0.1.2 5", mode: "Config", desc: "Floating Static: AD 5 statt 1 — Backup-Route, aktiv nur wenn die primäre ausfällt.", category: "Routing" },
+  { cmd: "ip default-gateway 192.168.1.1", mode: "Config", desc: "Default-Gateway für L2-Switch-Management (kein ip routing aktiv).", category: "Routing" },
+  { cmd: "router rip", mode: "Config", desc: "Startet RIP. Mit version 2 classless (überträgt Subnetzmasken).", category: "Routing" },
+  { cmd: "no auto-summary", mode: "Router", desc: "Deaktiviert RIPv2-Auto-Summarization an Klassengrenzen (fast immer nötig!).", category: "Routing" },
+  { cmd: "network 192.168.1.0", mode: "Router", desc: "RIP: aktiviert das classful Netz (keine Wildcard-Maske bei RIP).", category: "Routing" },
+  { cmd: "router eigrp 10", mode: "Config", desc: "Startet EIGRP mit AS-Nummer 10 (muss auf allen Routern gleich sein).", category: "Routing" },
+  { cmd: "network 10.0.0.0 0.0.0.255", mode: "Router", desc: "EIGRP: aktiviert passende Interfaces (Wildcard-Maske wie bei OSPF).", category: "Routing" },
+  { cmd: "show ip eigrp neighbors", mode: "Priv", desc: "EIGRP-Nachbartabelle (Hello über Multicast 224.0.0.10).", category: "Routing" },
+  { cmd: "router-id 1.1.1.1", mode: "Router", desc: "Setzt die OSPF-Router-ID manuell (sonst höchste Loopback-/Interface-IP).", category: "Routing" },
+  { cmd: "passive-interface gi0/0", mode: "Router", desc: "Keine Hello-Pakete auf diesem Interface (LAN ohne Nachbar-Router).", category: "Routing" },
+  { cmd: "default-information originate", mode: "Router", desc: "OSPF verteilt die eigene Default-Route an alle Nachbarn.", category: "Routing" },
+  { cmd: "ipv6 unicast-routing", mode: "Config", desc: "Aktiviert IPv6-Routing global (Voraussetzung für IPv6-Forwarding).", category: "Routing" },
+
+  // HSRP & Redundanz
+  { cmd: "standby 1 ip 192.168.1.254", mode: "If", desc: "HSRP-Gruppe 1 mit virtueller Gateway-IP für die Clients.", category: "HSRP & Redundanz" },
+  { cmd: "standby 1 priority 110", mode: "If", desc: "Höhere Priorität = Active-Router (Default 100).", category: "HSRP & Redundanz" },
+  { cmd: "standby 1 preempt", mode: "If", desc: "Router übernimmt Active-Rolle zurück, sobald er wieder verfügbar ist.", category: "HSRP & Redundanz" },
+  { cmd: "show standby brief", mode: "Priv", desc: "HSRP-Status: Gruppe, Priorität, Active/Standby, virtuelle IP.", category: "HSRP & Redundanz" },
 
   // Troubleshooting
   { cmd: "ping <ip>", mode: "Priv", desc: "ICMP-Erreichbarkeitstest.", category: "Troubleshooting" },
@@ -154,7 +217,11 @@ const CATEGORIES: Category[] = [
   "Spanning Tree",
   "EtherChannel",
   "SSH & Sicherheit",
+  "ACLs",
+  "NAT / PAT",
+  "DHCP",
   "Routing",
+  "HSRP & Redundanz",
   "Troubleshooting",
 ];
 
