@@ -1189,6 +1189,126 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     downloads: 0,
     rating: 4.9,
   },
+
+  // -- tpl-edu-ivr-svi: Inter-VLAN Routing per SVI (L3-Switch) --
+  {
+    id: "tpl-edu-ivr-svi",
+    name: "Inter-VLAN Routing per SVI (L3-Switch)",
+    description:
+      "Ein Multilayer-Switch routet zwischen VLANs über SVIs (interface vlan). Moderne Alternative zu Router-on-a-Stick — ohne separaten Router und ohne Trunk-Flaschenhals. CCNA Blueprint 1.6 / 3.x.",
+    category: "education",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["Inter-VLAN", "SVI", "Layer-3-Switch", "ip routing", "Gateway", "Didaktik"],
+    difficulty: "intermediate",
+    objects: [
+      tplText("svi-h1", 70, 28, "Inter-VLAN Routing per SVI (Multilayer-Switch)", "#1E293B", 18),
+      tplText("svi-h2", 70, 53, "Das SVI (interface vlan X) ist das Gateway der Hosts — 'ip routing' macht aus dem Switch einen Router.", "#475569", 12),
+
+      // L3-Switch (Mitte oben)
+      tplShape("svi-mls", "switch", 470, 120, 120, 80, "#F59E0B", "MLS1 (Layer-3)"),
+      tplText("svi-mls-ip1", 430, 210, "SVI Vlan10: 192.168.10.254", "#B45309", 11),
+      tplText("svi-mls-ip2", 430, 225, "SVI Vlan20: 192.168.20.254", "#B45309", 11),
+      tplText("svi-mls-rt", 430, 240, "ip routing  (sonst nur L2!)", "#DC2626", 11),
+
+      // VLAN 10 Zone
+      tplRect("svi-zone10", 120, 430, 220, 150, "#BFDBFE"),
+      tplText("svi-l10", 135, 442, "VLAN 10 — SALES", "#1D4ED8", 12),
+      tplText("svi-l10b", 135, 458, "192.168.10.0/24", "#1D4ED8", 10),
+      tplShape("svi-pc10", "computer", 195, 485, 70, 70, "#3B82F6", "PC-Sales"),
+      tplText("svi-pc10ip", 150, 560, "192.168.10.1  GW .254", "#1D4ED8", 10),
+
+      // VLAN 20 Zone
+      tplRect("svi-zone20", 720, 430, 220, 150, "#BBF7D0"),
+      tplText("svi-l20", 735, 442, "VLAN 20 — MRKT", "#15803D", 12),
+      tplText("svi-l20b", 735, 458, "192.168.20.0/24", "#15803D", 10),
+      tplShape("svi-pc20", "computer", 795, 485, 70, 70, "#10B981", "PC-Mrkt"),
+      tplText("svi-pc20ip", 750, 560, "192.168.20.1  GW .254", "#15803D", 10),
+
+      // Vergleich ROAS vs SVI
+      tplRect("svi-cmp", 70, 620, 870, 110, "#F1F5F9"),
+      tplText("svi-cmp0", 85, 630, "SVI (L3-Switch)  vs.  Router-on-a-Stick:", "#0F172A", 13),
+      tplText("svi-cmp1", 85, 650, "SVI:  kein Router nötig, kein Trunk-Flaschenhals, Wire-Speed-Routing in Hardware (ASIC).", "#15803D", 12),
+      tplText("svi-cmp2", 85, 668, "ROAS: 1 Router + 1 Trunk, alle VLANs teilen sich EINEN physischen Link — günstig, aber langsamer.", "#B45309", 12),
+      tplText("svi-cmp3", 85, 688, "Config SVI:  vlan 10  →  interface vlan 10  →  ip address ...  →  no shutdown  →  (global) ip routing", "#0F172A", 12),
+      tplText("svi-cmp4", 85, 708, "Prüfen:  show ip route  (C-Routen über Vlan10/Vlan20)  |  show ip interface brief | include Vlan", "#334155", 12),
+    ],
+    connections: [
+      tplConn("svi-c1", "svi-mls", "svi-pc10", "Gi1/0/1 Access VLAN10", "#3B82F6", { labelOffsetT: 0.35 }),
+      tplConn("svi-c2", "svi-mls", "svi-pc20", "Gi1/0/2 Access VLAN20", "#10B981", { labelOffsetT: 0.35 }),
+    ],
+    estimatedTime: "18 min",
+    downloads: 0,
+    rating: 4.8,
+  },
+
+  // -- tpl-edu-l2-security: Angriff -> Abwehr Mapping --
+  {
+    id: "tpl-edu-l2-security",
+    name: "L2-Security: Angriff → Abwehr",
+    description:
+      "Die wichtigsten Layer-2-Angriffe und ihre Gegenmaßnahmen auf einen Blick — DHCP-Starvation, MAC-Flooding, Rogue-DHCP, ARP-Poisoning, IP-Spoofing, STP-Attacken. CCNA Blueprint 5.x.",
+    category: "security",
+    author: "System",
+    createdAt: 0,
+    updatedAt: 0,
+    tags: ["L2-Security", "Port-Security", "DHCP-Snooping", "DAI", "IP-Source-Guard", "BPDU-Guard", "Didaktik"],
+    difficulty: "intermediate",
+    objects: [
+      tplText("l2s-h1", 60, 25, "Layer-2-Security — Angriff trifft Abwehr", "#1E293B", 18),
+      tplText("l2s-h2", 60, 50, "Jeder L2-Angriff hat eine konkrete Cisco-Gegenmaßnahme. Diese Zuordnung ist Prüfungsstoff.", "#475569", 12),
+
+      // Zentrale Switch-Darstellung
+      tplShape("l2s-sw", "switch", 470, 95, 120, 70, "#EF4444", "Access-Switch"),
+
+      // Spalte ANGRIFF (links)
+      tplRect("l2s-atk-zone", 50, 210, 380, 470, "#FEE2E2"),
+      tplText("l2s-atk-h", 70, 222, "ANGRIFF", "#991B1B", 15),
+
+      tplText("l2s-a1", 70, 260, "DHCP-Starvation", "#991B1B", 13),
+      tplText("l2s-a1b", 70, 276, "Linux fischt alle Pool-IPs ab → 0 IPs für echte User", "#7F1D1D", 11),
+      tplText("l2s-a2", 70, 320, "MAC-Flooding / CDP-Flooding", "#991B1B", 13),
+      tplText("l2s-a2b", 70, 336, "macof flutet MAC-Tabelle → Switch wird zum Hub", "#7F1D1D", 11),
+      tplText("l2s-a3", 70, 380, "MAC-Spoofing", "#991B1B", 13),
+      tplText("l2s-a3b", 70, 396, "macchanger fälscht fremde MAC am eigenen Port", "#7F1D1D", 11),
+      tplText("l2s-a4", 70, 440, "Rogue-DHCP / DHCP-Spoofing", "#991B1B", 13),
+      tplText("l2s-a4b", 70, 456, "Fake-DHCP-Server verteilt falsches Gateway (MITM)", "#7F1D1D", 11),
+      tplText("l2s-a5", 70, 500, "ARP-Poisoning", "#991B1B", 13),
+      tplText("l2s-a5b", 70, 516, "Gefälschte ARP-Replies leiten Traffic um (MITM)", "#7F1D1D", 11),
+      tplText("l2s-a6", 70, 560, "IP-Spoofing", "#991B1B", 13),
+      tplText("l2s-a6b", 70, 576, "Statische Fremd-IP umgeht ACLs", "#7F1D1D", 11),
+      tplText("l2s-a7", 70, 620, "STP-Attacke (Root-Hijack)", "#991B1B", 13),
+      tplText("l2s-a7b", 70, 636, "Fremder Switch sendet bessere BPDU → wird Root", "#7F1D1D", 11),
+
+      // Spalte ABWEHR (rechts)
+      tplRect("l2s-def-zone", 630, 210, 400, 470, "#D1FAE5"),
+      tplText("l2s-def-h", 650, 222, "ABWEHR (Cisco IOS)", "#065F46", 15),
+
+      tplText("l2s-d1", 650, 260, "Port-Security + snooping limit rate", "#065F46", 13),
+      tplText("l2s-d1b", 650, 276, "max MACs/Port, Rate-Limit auf DHCP", "#047857", 11),
+      tplText("l2s-d2", 650, 320, "switchport port-security", "#065F46", 13),
+      tplText("l2s-d2b", 650, 336, "maximum 1 / sticky / violation shutdown", "#047857", 11),
+      tplText("l2s-d3", 650, 380, "Port-Security (max + sticky)", "#065F46", 13),
+      tplText("l2s-d3b", 650, 396, "bindet erlaubte MAC fest an den Port", "#047857", 11),
+      tplText("l2s-d4", 650, 440, "DHCP-Snooping", "#065F46", 13),
+      tplText("l2s-d4b", 650, 456, "ip dhcp snooping + nur Uplink = trust", "#047857", 11),
+      tplText("l2s-d5", 650, 500, "Dynamic ARP Inspection (DAI)", "#065F46", 13),
+      tplText("l2s-d5b", 650, 516, "ip arp inspection vlan — prüft gegen Snooping-DB", "#047857", 11),
+      tplText("l2s-d6", 650, 560, "IP Source Guard", "#065F46", 13),
+      tplText("l2s-d6b", 650, 576, "ip verify source — filtert gegen Snooping-Bindings", "#047857", 11),
+      tplText("l2s-d7", 650, 620, "BPDU-Guard / Root-Guard", "#065F46", 13),
+      tplText("l2s-d7b", 650, 636, "spanning-tree bpduguard / guard root", "#047857", 11),
+
+      // Pfeile Angriff -> Abwehr (visuelle Zuordnung)
+      tplText("l2s-arr", 455, 440, "→", "#0F172A", 26),
+      tplText("l2s-note", 455, 690, "Faustregel: Snooping-Binding-Tabelle ist die Basis für DAI UND IP Source Guard.", "#7C3AED", 12),
+    ],
+    connections: [],
+    estimatedTime: "15 min",
+    downloads: 0,
+    rating: 4.9,
+  },
 ];
 
 export function searchTemplates(

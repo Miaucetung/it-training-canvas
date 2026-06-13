@@ -412,6 +412,333 @@ const LABS: LabScenario[] = [
     ],
   },
 
+
+  // ---------------------------------------------------------------
+  // Inter-VLAN Routing via SVI (L3-Switch) -- Roter Faden / PDF
+  // ---------------------------------------------------------------
+  {
+    id: "ivr-svi",
+    icon: <Network size={20} />,
+    title: "Inter-VLAN Routing (L3-Switch / SVI)",
+    subtitle: "Multilayer-Switch routet zwischen VLANs -- ohne Router",
+    difficulty: "Mittel",
+    duration: "18 min",
+    topology: {
+      description:
+        "Statt Router-on-a-Stick übernimmt ein Layer-3-Switch das Routing zwischen den VLANs über SVIs (interface vlan). Moderner Standard im Campus-Netz.",
+      devices: [
+        { type: "switch", label: "MLS1 (Layer-3)", count: 1 },
+        { type: "pc", label: "PC-Sales / PC-Mrkt", count: 2 },
+      ],
+      connections: [
+        "PC-Sales → MLS1 Gi1/0/1  (VLAN 10)",
+        "PC-Mrkt  → MLS1 Gi1/0/2  (VLAN 20)",
+      ],
+      hint: "Das SVI (interface vlan 10) ist das Gateway der Hosts. Ohne 'ip routing' bleibt es ein reiner L2-Switch -- häufigster Fehler!",
+    },
+    steps: [
+      {
+        title: "VLANs anlegen + Access-Ports zuweisen",
+        blocks: [
+          {
+            device: "MLS1",
+            mode: "global",
+            modeLabel: "MLS1(config)#",
+            commands: [
+              {
+                cmd: "vlan 10\nname SALES\nvlan 20\nname MRKT",
+                explanation:
+                  "VLANs zuerst in der Datenbank anlegen -- sonst landet die Port-Zuweisung im Leeren.",
+              },
+              {
+                cmd: "interface gi1/0/1\nswitchport mode access\nswitchport access vlan 10\ninterface gi1/0/2\nswitchport mode access\nswitchport access vlan 20",
+                explanation:
+                  "Jeder PC-Port ist ein Access-Port in seinem VLAN -- wie beim normalen L2-Switch.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Routing aktivieren + SVIs als Gateways",
+        blocks: [
+          {
+            device: "MLS1",
+            mode: "global",
+            modeLabel: "MLS1(config)#",
+            commands: [
+              {
+                cmd: "ip routing",
+                explanation:
+                  "DER entscheidende Befehl: erst damit wird aus dem Switch ein Router. Vergisst man ihn, pingen sich nur Hosts im selben VLAN.",
+              },
+              {
+                cmd: "interface vlan 10\nip address 192.168.10.254 255.255.255.0\nno shutdown",
+                explanation:
+                  "Das SVI für VLAN 10. Diese IP trägst du bei PC-Sales als Default Gateway ein.",
+              },
+              {
+                cmd: "interface vlan 20\nip address 192.168.20.254 255.255.255.0\nno shutdown",
+                explanation:
+                  "SVI für VLAN 20 -- Gateway für PC-Mrkt. Beide SVIs gehen 'up', sobald je ein aktiver Access-Port im VLAN ist.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Endgeräte konfigurieren + testen",
+        blocks: [
+          {
+            device: "PC-Sales / PC-Mrkt",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              {
+                cmd: "PC-Sales: 192.168.10.1 /24  GW 192.168.10.254\nPC-Mrkt : 192.168.20.1 /24  GW 192.168.20.254",
+                explanation:
+                  "Gateway = die SVI-IP des eigenen VLANs. Ohne korrektes Gateway scheitert das Inter-VLAN-Routing trotz richtiger Switch-Konfig.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route (auf MLS1)", expected: "C 192.168.10.0/24 + C 192.168.20.0/24 über Vlan10/Vlan20 (connected)" },
+      { cmd: "show ip interface brief | include Vlan", expected: "Vlan10 + Vlan20: up/up mit ihren SVI-IPs" },
+      { cmd: "ping 192.168.20.1 (von PC-Sales)", expected: "Erfolgreich -- Routing zwischen den VLANs über den L3-Switch" },
+    ],
+  },
+
+  // ---------------------------------------------------------------
+  // Password Recovery (Router + Switch) -- PDF
+  // ---------------------------------------------------------------
+  {
+    id: "password-recovery",
+    icon: <Key size={20} />,
+    title: "Password Recovery",
+    subtitle: "Router (0x2142) & Switch (flash_init) ohne Passwort retten",
+    difficulty: "Mittel",
+    duration: "15 min",
+    topology: {
+      description:
+        "Klassische Admin-Aufgabe: ein Gerät, dessen enable-secret niemand mehr kennt, wieder unter Kontrolle bringen -- über Konsolenzugang und Boot-Loader.",
+      devices: [
+        { type: "router", label: "R1 (Passwort unbekannt)", count: 1 },
+        { type: "switch", label: "SW1 (Passwort unbekannt)", count: 1 },
+      ],
+      connections: [
+        "Konsolenkabel (Rollover) → PC mit Terminalprogramm",
+      ],
+      hint: "Kernidee: das Gerät so booten, dass die startup-config (mit dem Passwort) NICHT geladen wird -- dann Passwort neu setzen und sauber zurückstellen.",
+    },
+    steps: [
+      {
+        title: "Router: Register lesen + ROMMON",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show version",
+                explanation:
+                  "Ganz unten: 'Configuration register is 0x2102'. 0x2102 = startup-config laden, 0x2142 = startup-config überspringen.",
+              },
+              {
+                cmd: "(Router neu starten + während des Bootens Strg+Pause/Break)",
+                explanation:
+                  "Unterbricht den Boot und fällt in den ROMMON-Modus (rommon 1>). In Packet Tracer: Ctrl+C.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "rommon",
+            modeLabel: "rommon 1>",
+            commands: [
+              {
+                cmd: "confreg 0x2142\nreset",
+                explanation:
+                  "Setzt das Register so, dass die startup-config beim nächsten Boot übersprungen wird, und startet neu. Gerät bootet jetzt OHNE Passwort.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Router: Passwort neu setzen + Register zurücksetzen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "Router#",
+            commands: [
+              {
+                cmd: "copy startup-config running-config",
+                explanation:
+                  "WICHTIG: erst die alte Config zurückholen -- sonst überschreibst du beim Speichern die komplette Konfiguration mit einer leeren!",
+              },
+              {
+                cmd: "configure terminal\nenable secret cisco123\nconfig-register 0x2102",
+                explanation:
+                  "Neues Passwort setzen UND das Register auf 0x2102 zurücksetzen -- sonst ignoriert der Router auch beim nächsten Start die startup-config.",
+              },
+              {
+                cmd: "end\nwrite memory",
+                explanation:
+                  "Speichern. Beim nächsten Reload bootet der Router normal mit neuem Passwort.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Switch: Recovery über den Boot-Loader",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "switch",
+            modeLabel: "switch:",
+            commands: [
+              {
+                cmd: "flash_init",
+                explanation:
+                  "Switch beim Booten mit gedrueckter MODE-Taste in den Boot-Loader bringen, dann Flash initialisieren.",
+              },
+              {
+                cmd: "rename flash:config.text flash:config.old\nboot",
+                explanation:
+                  "Die startup-config (config.text) umbenennen → Switch bootet ohne Passwort. Nach dem Boot zurückbenennen und mit 'copy startup running' zurückholen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show version | include register", expected: "Configuration register is 0x2102 (will be 0x2102 at next reload)" },
+      { cmd: "show running-config | include enable", expected: "enable secret 5 ... (neuer Hash)" },
+      { cmd: "reload + Login", expected: "Gerät bootet normal, neues Passwort wird akzeptiert, alte Config intakt" },
+    ],
+  },
+
+  // ---------------------------------------------------------------
+  // IOS Backup & Upgrade (TFTP) -- PDF
+  // ---------------------------------------------------------------
+  {
+    id: "ios-backup-upgrade",
+    icon: <Stack size={20} />,
+    title: "IOS-Backup & Upgrade (TFTP)",
+    subtitle: "Image sichern, neues laden, Bootreihenfolge setzen",
+    difficulty: "Mittel",
+    duration: "20 min",
+    topology: {
+      description:
+        "Wartungsroutine: vor jedem IOS-Upgrade erst Config und altes Image auf einen TFTP-Server sichern, dann das neue Image laden und den Boot festlegen.",
+      devices: [
+        { type: "router", label: "R1", count: 1 },
+        { type: "server", label: "TFTP-Server", count: 1 },
+      ],
+      connections: [
+        "R1 Gi0/0 → TFTP-Server  (gleiches Subnetz, z. B. 10.1.1.0/24)",
+      ],
+      hint: "Reihenfolge merken: Erreichbarkeit prüfen → Config sichern → Image sichern → Platz prüfen → neues Image laden → verify md5 → boot system → reload.",
+    },
+    steps: [
+      {
+        title: "Vorbereitung: Erreichbarkeit + Platz",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "ping 10.1.1.10",
+                explanation:
+                  "Der TFTP-Server muss erreichbar sein -- ohne Konnektivitaet schlägt jedes copy fehl.",
+              },
+              {
+                cmd: "show flash:",
+                explanation:
+                  "Aktuelles Image und freier Speicher. Genug Platz für das neue Image? Sonst altes erst löschen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Backup von Config + IOS-Image",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "copy running-config tftp:",
+                explanation:
+                  "Erst die Konfiguration sichern. Bei der Abfrage die TFTP-Server-IP (10.1.1.10) und den Dateinamen angeben.",
+              },
+              {
+                cmd: "copy flash: tftp:",
+                explanation:
+                  "Dann das aktuelle IOS-Image sichern -- das ist die Rückfallebene, falls das neue Image defekt ist.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Neues Image laden + Boot festlegen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "copy tftp: flash:",
+                explanation:
+                  "Neues Image vom Server in den Flash laden. Server-IP + exakter Dateiname nötig.",
+              },
+              {
+                cmd: "verify /md5 flash:c2900-universalk9-mz.SPA.bin",
+                explanation:
+                  "MD5-Prüfsumme gegen Ciscos Angabe vergleichen -- so erkennst du eine beschädigte Datei VOR dem Reload.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "boot system flash:c2900-universalk9-mz.SPA.bin",
+                explanation:
+                  "Legt fest, welches Image beim nächsten Start geladen wird. Ohne diesen Befehl nimmt der Router das erste Image im Flash.",
+              },
+              {
+                cmd: "exit\nwrite memory\nreload",
+                explanation:
+                  "Speichern und neu starten. Nach dem Boot mit 'show version' die neue IOS-Version prüfen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show version", expected: "Neue IOS-Version in der ersten Zeile (z. B. Version 15.2 statt 15.1)" },
+      { cmd: "show flash:", expected: "Neues + altes Image vorhanden, genug freier Speicher" },
+      { cmd: "show boot / show bootvar", expected: "BOOT path-list zeigt das neue Image" },
+    ],
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 1. IP-Grundkonfiguration
   // ─────────────────────────────────────────────────────────────

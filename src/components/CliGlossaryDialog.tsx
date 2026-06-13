@@ -25,6 +25,9 @@ type Category =
   | "DHCP"
   | "Routing"
   | "HSRP & Redundanz"
+  | "L2-Security"
+  | "NTP & DNS"
+  | "Wartung & Recovery"
   | "Troubleshooting";
 
 interface Entry {
@@ -169,7 +172,9 @@ const ENTRIES: Entry[] = [
   { cmd: "show ip dhcp binding", mode: "Priv", desc: "Vergebene Leases: IP ↔ MAC ↔ Ablaufzeit.", category: "DHCP" },
 
   // Routing
-  { cmd: "ip routing", mode: "Config", desc: "Aktiviert IPv4-Routing (auf L3-Switches).", category: "Routing" },
+  { cmd: "ip routing", mode: "Config", desc: "Aktiviert IPv4-Routing (auf L3-Switches). Pflicht für Inter-VLAN-Routing per SVI!", category: "Routing" },
+  { cmd: "interface vlan 10", mode: "Config", desc: "Erstellt ein SVI (Switch Virtual Interface) — wird zum Gateway aller VLAN-10-Hosts.", category: "Routing" },
+  { cmd: "sdm prefer lanbase-routing", mode: "Config", desc: "Schaltet das SDM-Template auf Routing um (nach reload nötig, damit SVIs routen).", category: "Routing" },
   { cmd: "ip route 0.0.0.0 0.0.0.0 <gateway>", mode: "Config", desc: "Statische Default-Route.", category: "Routing" },
   { cmd: "router ospf 1", mode: "Config", desc: "Startet OSPF-Prozess 1.", category: "Routing" },
   { cmd: "network 10.0.0.0 0.0.0.255 area 0", mode: "Router", desc: "Aktiviert OSPF auf passendem Netz in Area 0.", category: "Routing" },
@@ -195,6 +200,45 @@ const ENTRIES: Entry[] = [
   { cmd: "standby 1 priority 110", mode: "If", desc: "Höhere Priorität = Active-Router (Default 100).", category: "HSRP & Redundanz" },
   { cmd: "standby 1 preempt", mode: "If", desc: "Router übernimmt Active-Rolle zurück, sobald er wieder verfügbar ist.", category: "HSRP & Redundanz" },
   { cmd: "show standby brief", mode: "Priv", desc: "HSRP-Status: Gruppe, Priorität, Active/Standby, virtuelle IP.", category: "HSRP & Redundanz" },
+
+  // L2-Security
+  { cmd: "ip dhcp snooping", mode: "Config", desc: "Aktiviert DHCP-Snooping global — schützt vor Rogue-DHCP-Servern (DHCP-Spoofing).", category: "L2-Security" },
+  { cmd: "ip dhcp snooping vlan 10", mode: "Config", desc: "Aktiviert Snooping für ein VLAN: alle Ports werden untrusted, DISCOVER nur an Trust-Ports.", category: "L2-Security" },
+  { cmd: "ip dhcp snooping trust", mode: "If", desc: "Macht den Uplink/Server-Port vertrauenswürdig — nur hier sind DHCP-OFFER erlaubt.", category: "L2-Security" },
+  { cmd: "ip dhcp snooping limit rate 10", mode: "If", desc: "Begrenzt DHCP-Pakete/s am Port — bremst DHCP-Starvation-Angriffe aus.", category: "L2-Security" },
+  { cmd: "show ip dhcp snooping binding", mode: "Priv", desc: "Binding-Tabelle: MAC ↔ IP ↔ VLAN ↔ Port — Grundlage für DAI und IP Source Guard.", category: "L2-Security" },
+  { cmd: "ip arp inspection vlan 10", mode: "Config", desc: "Dynamic ARP Inspection: prüft ARP gegen die Snooping-Binding-Tabelle (gegen ARP-Poisoning).", category: "L2-Security" },
+  { cmd: "ip arp inspection trust", mode: "If", desc: "Macht den Port vertrauenswürdig für ARP (Uplinks/Trunks, Server) — überspringt die Prüfung.", category: "L2-Security" },
+  { cmd: "show ip arp inspection", mode: "Priv", desc: "DAI-Status pro VLAN + verworfene/erlaubte ARP-Pakete.", category: "L2-Security" },
+  { cmd: "ip verify source", mode: "If", desc: "IP Source Guard: filtert IP-Traffic gegen die DHCP-Snooping-Bindings (gegen IP-Spoofing).", category: "L2-Security" },
+  { cmd: "show ip verify source", mode: "Priv", desc: "Zeigt die aktiven IP-Source-Guard-Filter pro Port.", category: "L2-Security" },
+  { cmd: "spanning-tree guard root", mode: "If", desc: "Root Guard: verhindert, dass ein fremder Switch über diesen Port Root-Bridge wird.", category: "L2-Security" },
+  { cmd: "spanning-tree bpdufilter enable", mode: "If", desc: "BPDU-Filter: sendet/empfängt keine BPDUs am Port (mit Vorsicht einsetzen).", category: "L2-Security" },
+  { cmd: "storm-control broadcast level 20", mode: "If", desc: "Begrenzt Broadcast-Sturm auf 20 % der Portbandbreite (gegen MAC-Flooding-Folgen).", category: "L2-Security" },
+
+  // NTP & DNS
+  { cmd: "ntp master 1", mode: "Config", desc: "Macht den Router zum NTP-Master mit Stratum 1 (Zeitquelle für das Netz).", category: "NTP & DNS" },
+  { cmd: "ntp server 10.10.10.1", mode: "Config", desc: "Konfiguriert das Gerät als NTP-Client gegen diesen Server (UDP 123).", category: "NTP & DNS" },
+  { cmd: "ntp authenticate", mode: "Config", desc: "Aktiviert NTP-Authentifizierung (mit ntp authentication-key … md5 …).", category: "NTP & DNS" },
+  { cmd: "show ntp status", mode: "Priv", desc: "Sync-Status, Stratum, Referenzuhr.", category: "NTP & DNS" },
+  { cmd: "show ntp associations", mode: "Priv", desc: "Liste aller NTP-Partner mit Offset und Reachability.", category: "NTP & DNS" },
+  { cmd: "clock set 14:30:00 13 JUN 2026", mode: "Priv", desc: "Setzt die Systemzeit manuell (wenn kein NTP verfügbar).", category: "NTP & DNS" },
+  { cmd: "ip name-server 8.8.8.8", mode: "Config", desc: "Trägt einen DNS-Server für die Namensauflösung des Geräts selbst ein.", category: "NTP & DNS" },
+  { cmd: "ip domain-lookup", mode: "Config", desc: "Aktiviert DNS-Auflösung (no ip domain-lookup stoppt das nervige Lookup bei Tippfehlern).", category: "NTP & DNS" },
+  { cmd: "ip host www.ccn.com 200.10.20.20", mode: "Config", desc: "Statischer Host-Eintrag — bindet einen Namen an eine IP (lokaler DNS).", category: "NTP & DNS" },
+  { cmd: "ip dns server", mode: "Config", desc: "Aktiviert den Router selbst als einfachen DNS-Server (UDP 53).", category: "NTP & DNS" },
+
+  // Wartung & Recovery
+  { cmd: "show version | include register", mode: "Priv", desc: "Liest das Konfigurationsregister: 0x2102 = startup lesen, 0x2142 = startup überspringen.", category: "Wartung & Recovery" },
+  { cmd: "confreg 0x2142", mode: "Rommon", desc: "ROMMON: setzt das Register so, dass die startup-config beim Boot übersprungen wird (Passwort-Recovery).", category: "Wartung & Recovery" },
+  { cmd: "config-register 0x2102", mode: "Config", desc: "Setzt das Register nach dem Recovery zurück auf normal (startup-config wieder laden!).", category: "Wartung & Recovery" },
+  { cmd: "flash_init", mode: "Switch", desc: "Switch-Recovery: initialisiert den Flash im Boot-Loader (vor rename config.text).", category: "Wartung & Recovery" },
+  { cmd: "rename flash:config.text flash:config.old", mode: "Switch", desc: "Switch-Recovery: versteckt die startup-config, damit der Switch ohne Passwort bootet.", category: "Wartung & Recovery" },
+  { cmd: "copy flash: tftp:", mode: "Priv", desc: "Sichert das IOS-Image (oder die Config) auf einen TFTP-Server — Backup vor dem Upgrade!", category: "Wartung & Recovery" },
+  { cmd: "copy tftp: flash:", mode: "Priv", desc: "Lädt ein neues IOS-Image vom TFTP-Server in den Flash.", category: "Wartung & Recovery" },
+  { cmd: "boot system flash:c2900-universalk9.bin", mode: "Config", desc: "Legt fest, welches IOS-Image beim nächsten Start geladen wird.", category: "Wartung & Recovery" },
+  { cmd: "verify /md5 flash:image.bin", mode: "Priv", desc: "Prüft die MD5-Summe des Images gegen Ciscos Angabe (Integrität nach Download).", category: "Wartung & Recovery" },
+  { cmd: "show flash:", mode: "Priv", desc: "Inhalt und freier Speicher im Flash (genug Platz fürs neue Image?).", category: "Wartung & Recovery" },
 
   // Troubleshooting
   { cmd: "ping <ip>", mode: "Priv", desc: "ICMP-Erreichbarkeitstest.", category: "Troubleshooting" },
@@ -222,6 +266,9 @@ const CATEGORIES: Category[] = [
   "DHCP",
   "Routing",
   "HSRP & Redundanz",
+  "L2-Security",
+  "NTP & DNS",
+  "Wartung & Recovery",
   "Troubleshooting",
 ];
 
