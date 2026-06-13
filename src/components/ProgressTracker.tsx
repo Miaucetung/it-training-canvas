@@ -23,6 +23,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { HintPanel } from "./HintPanel";
 import { QuizDialog } from "./QuizDialog";
 
@@ -59,6 +60,8 @@ export function ProgressTracker({
   const [expandedStep, setExpandedStep] = useState<number>(
     progress.currentStepIndex,
   );
+  // Letztes Prüfergebnis (für sichtbares Feedback nach "Überprüfen")
+  const [lastValidation, setLastValidation] = useState<ScoreResult | null>(null);
 
   const currentStep = path.steps[progress.currentStepIndex];
   const completedCount = progress.completedSteps.length;
@@ -96,6 +99,18 @@ export function ProgressTracker({
     if (!currentStep) return;
 
     const result = validateStep(currentStep, objects, connections);
+    setLastValidation(result);
+
+    if (result.passed) {
+      toast.success(
+        `Schritt bestanden — ${result.percentage}% (${result.totalPoints} Punkte)`,
+      );
+    } else {
+      const offen = result.results.filter((r) => !r.passed).length;
+      toast.error(
+        `Noch nicht erfüllt (${result.percentage}%). ${offen} Anforderung${offen === 1 ? "" : "en"} offen — siehe Checkliste.`,
+      );
+    }
 
     if (result.passed) {
       const newCompletedSteps = [
@@ -120,6 +135,7 @@ export function ProgressTracker({
       });
 
       setExpandedStep(nextIndex);
+      setLastValidation(null);
     }
 
     return result;
@@ -436,6 +452,70 @@ export function ProgressTracker({
                         )}
                       </div>
                     )}
+
+                    {/* Anforderungs-Checkliste für Aufgaben/Checkpoints */}
+                    {isCurrent &&
+                      !isCompleted &&
+                      (step.type === "task" || step.type === "checkpoint") &&
+                      (step.validationRules?.length ?? 0) > 0 && (
+                        <div className={`p-3 rounded-lg ${cardBg} space-y-1.5`}>
+                          <p className={`text-[11px] font-semibold ${textMuted} uppercase tracking-wider`}>
+                            Anforderungen (auf dem Canvas)
+                          </p>
+                          {step.validationRules!.map((rule) => {
+                            const res = lastValidation?.results.find(
+                              (r) => r.ruleId === rule.id,
+                            );
+                            const state = !lastValidation
+                              ? "pending"
+                              : res?.passed
+                                ? "passed"
+                                : "failed";
+                            return (
+                              <div
+                                key={rule.id}
+                                className="flex items-start gap-2 text-xs"
+                              >
+                                <span className="mt-0.5">
+                                  {state === "passed" ? (
+                                    <CheckCircle
+                                      size={13}
+                                      weight="fill"
+                                      className="text-green-400"
+                                    />
+                                  ) : state === "failed" ? (
+                                    <X size={13} className="text-red-400" />
+                                  ) : (
+                                    <CaretRight
+                                      size={13}
+                                      className={textMuted}
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  className={
+                                    state === "passed"
+                                      ? "text-green-400"
+                                      : state === "failed"
+                                        ? "text-red-300"
+                                        : textMuted
+                                  }
+                                >
+                                  {rule.description}
+                                  <span className={`ml-1 ${textMuted}`}>
+                                    ({rule.points} Pkt)
+                                  </span>
+                                </span>
+                              </div>
+                            );
+                          })}
+                          <p className={`text-[11px] ${textMuted} pt-1`}>
+                            Tipp: Über „Canvas" oben rechts umschalten, Geräte
+                            platzieren & per Doppelklick konfigurieren, dann
+                            erneut „Überprüfen".
+                          </p>
+                        </div>
+                      )}
 
                     {/* Hint Panel */}
                     {isCurrent && showHints && step.hints.length > 0 && (
