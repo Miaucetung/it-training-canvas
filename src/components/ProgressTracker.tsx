@@ -22,7 +22,7 @@ import {
   Trophy,
   X,
 } from "@phosphor-icons/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HintPanel } from "./HintPanel";
 import { QuizDialog } from "./QuizDialog";
 
@@ -65,17 +65,23 @@ export function ProgressTracker({
   const totalSteps = path.steps.length;
   const overallProgress = Math.round((completedCount / totalSteps) * 100);
 
-  // Time tracking
+  // Time tracking — Ref hält den aktuellen Fortschritt, damit der Sekunden-
+  // Timer nicht mit einer veralteten Closure einen Schritt-Fortschritt
+  // überschreibt (sonst springt currentStepIndex jede Sekunde zurück).
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+
   useEffect(() => {
     const interval = setInterval(() => {
+      const p = progressRef.current;
       onUpdateProgress({
-        ...progress,
-        totalTimeSpent: progress.totalTimeSpent + 1,
+        ...p,
+        totalTimeSpent: p.totalTimeSpent + 1,
         lastActivityAt: Date.now(),
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [progress.totalTimeSpent]);
+  }, [onUpdateProgress]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
