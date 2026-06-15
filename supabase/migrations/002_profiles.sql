@@ -13,6 +13,7 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Jeder Nutzer sieht/bearbeitet nur seine eigene Zeile.
+drop policy if exists "profiles_own" on public.profiles;
 create policy "profiles_own"
   on public.profiles for all
   using  (auth.uid() = id)
@@ -26,6 +27,7 @@ grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.profiles to authenticated;
 
 -- updated_at automatisch pflegen (Funktion stammt aus 001_user_progress.sql)
+drop trigger if exists profiles_updated_at on public.profiles;
 create trigger profiles_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
