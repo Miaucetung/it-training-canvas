@@ -32,11 +32,16 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   }
 }
 
-/** Setzt/aktualisiert den Anzeigenamen. Gibt das aktualisierte Profil zurück. */
+export interface SaveResult {
+  profile: Profile | null;
+  error: string | null;
+}
+
+/** Setzt/aktualisiert den Anzeigenamen. error enthält die DB-Meldung bei Fehler. */
 export async function updateDisplayName(
   userId: string,
   displayName: string,
-): Promise<Profile | null> {
+): Promise<SaveResult> {
   const trimmed = displayName.trim();
   try {
     const { data, error } = await supabase
@@ -49,11 +54,12 @@ export async function updateDisplayName(
       .single();
     if (error) {
       console.error("updateDisplayName failed:", error.message);
-      return null;
+      return { profile: null, error: error.message };
     }
-    return data as Profile;
+    return { profile: data as Profile, error: null };
   } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     console.error("updateDisplayName threw:", e);
-    return null;
+    return { profile: null, error: msg };
   }
 }

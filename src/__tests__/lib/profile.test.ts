@@ -53,12 +53,13 @@ describe("updateDisplayName", () => {
       data: { id: "u1", display_name: "Erika", updated_at: "x" },
       error: null,
     });
-    const p = await updateDisplayName("u1", "  Erika  ");
+    const { profile, error } = await updateDisplayName("u1", "  Erika  ");
     expect(upsert).toHaveBeenCalledWith(
       { id: "u1", display_name: "Erika" },
       { onConflict: "id" },
     );
-    expect(p?.display_name).toBe("Erika");
+    expect(profile?.display_name).toBe("Erika");
+    expect(error).toBeNull();
   });
 
   it("schreibt null, wenn der Name leer ist", async () => {
@@ -70,8 +71,10 @@ describe("updateDisplayName", () => {
     );
   });
 
-  it("liefert null bei DB-Fehler", async () => {
+  it("liefert die Fehlermeldung bei DB-Fehler", async () => {
     single.mockResolvedValue({ data: null, error: { message: "denied" } });
-    expect(await updateDisplayName("u1", "X")).toBeNull();
+    const { profile, error } = await updateDisplayName("u1", "X");
+    expect(profile).toBeNull();
+    expect(error).toBe("denied");
   });
 });

@@ -44,13 +44,15 @@ export function AccountDialog({ user, dark, onClose }: Props) {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const result = await updateDisplayName(user.id, displayName);
+    const { profile, error } = await updateDisplayName(user.id, displayName);
     setSaving(false);
-    if (result) {
-      setInitialName(result.display_name ?? "");
+    if (profile) {
+      setInitialName(profile.display_name ?? "");
       toast.success("Profil gespeichert.");
     } else {
-      toast.error("Speichern fehlgeschlagen.");
+      toast.error(`Speichern fehlgeschlagen: ${error ?? "unbekannt"}`, {
+        duration: 8000,
+      });
     }
   }
 
