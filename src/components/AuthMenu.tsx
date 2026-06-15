@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { UserCircle } from "@phosphor-icons/react";
 import { lazy, Suspense, useState } from "react";
+import { createPortal } from "react-dom";
 
 const AccountDialog = lazy(() =>
   import("./AccountDialog").then((m) => ({ default: m.AccountDialog })),
@@ -60,15 +61,17 @@ export function AuthMenu({ user, dark, onLogin }: Props) {
         </span>
       </button>
 
-      {showAccount && (
-        <Suspense fallback={null}>
-          <AccountDialog
-            user={user}
-            dark={dark}
-            onClose={() => setShowAccount(false)}
-          />
-        </Suspense>
-      )}
+      {showAccount &&
+        createPortal(
+          <Suspense fallback={null}>
+            <AccountDialog
+              user={user}
+              dark={dark}
+              onClose={() => setShowAccount(false)}
+            />
+          </Suspense>,
+          document.body,
+        )}
     </>
   );
 }
