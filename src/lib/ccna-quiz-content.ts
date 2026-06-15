@@ -10133,6 +10133,127 @@ export const QUIZ_CIS3_KLAUSUR: Quiz = {
 };
 
 // ============================================================
+// QUIZ: Router-on-a-Stick (RoaS)
+// ============================================================
+export const QUIZ_ROAS: Quiz = {
+  id: "ccna-quiz-roas",
+  title: "CCNA: Router-on-a-Stick",
+  description: "Inter-VLAN-Routing per Subinterfaces — Konfiguration, Trunk-Gegenseite und Troubleshooting",
+  passingScore: 70,
+  shuffleQuestions: true,
+  questions: [
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche IP-Konfiguration gehört bei Router-on-a-Stick auf das physische Parent-Interface (z. B. Gi0/0)?",
+      explanation: "Das physische Parent-Interface bekommt KEINE IP-Adresse (no ip address), muss aber mit 'no shutdown' aktiviert werden. Die IP-Adressen liegen ausschließlich auf den Subinterfaces.",
+      answers: [
+        { id: "a", text: "Die IP des ersten VLANs", isCorrect: false },
+        { id: "b", text: "Keine IP — nur 'no shutdown'", isCorrect: true },
+        { id: "c", text: "Die IP des Default-Gateways aller VLANs", isCorrect: false },
+        { id: "d", text: "Eine /30-Adresse zum Switch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welcher Befehl ordnet einem Subinterface das VLAN-Tag 20 zu?",
+      explanation: "'encapsulation dot1q 20' bindet das Subinterface an VLAN 20. Ohne diesen Befehl weiß das Subinterface nicht, welches VLAN es bearbeitet.",
+      answers: [
+        { id: "a", text: "switchport access vlan 20", isCorrect: false },
+        { id: "b", text: "encapsulation dot1q 20", isCorrect: true },
+        { id: "c", text: "switchport trunk allowed vlan 20", isCorrect: false },
+        { id: "d", text: "vlan 20", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "In welcher Reihenfolge müssen die Befehle auf einem Subinterface stehen?",
+      explanation: "Erst 'encapsulation dot1q <vlan>', dann 'ip address ...'. Die Encapsulation definiert das VLAN, bevor die IP zugewiesen wird.",
+      answers: [
+        { id: "a", text: "Erst ip address, dann encapsulation dot1q", isCorrect: false },
+        { id: "b", text: "Erst encapsulation dot1q, dann ip address", isCorrect: true },
+        { id: "c", text: "Die Reihenfolge ist beliebig", isCorrect: false },
+        { id: "d", text: "Erst no shutdown, dann encapsulation", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie muss der Switch-Port konfiguriert sein, der den Router-on-a-Stick anbindet?",
+      explanation: "Der Switch-Port zum Router muss ein Trunk sein (switchport mode trunk), damit er die getaggten Frames aller VLANs überträgt.",
+      answers: [
+        { id: "a", text: "Als Access-Port im Management-VLAN", isCorrect: false },
+        { id: "b", text: "Als Trunk-Port (switchport mode trunk)", isCorrect: true },
+        { id: "c", text: "Als Routed-Port (no switchport)", isCorrect: false },
+        { id: "d", text: "Als EtherChannel", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ein Techniker hat 'ip address' versehentlich auf Gi0/0 (Parent) statt auf den Subinterfaces gesetzt. Was ist die Folge?",
+      explanation: "Eine IP auf dem physischen Parent gehört zu keinem VLAN-Tag. Das Inter-VLAN-Routing funktioniert nicht — die Subinterfaces brauchen die VLAN-Gateways.",
+      answers: [
+        { id: "a", text: "Inter-VLAN-Routing funktioniert trotzdem", isCorrect: false },
+        { id: "b", text: "Kein Inter-VLAN-Routing — IP gehört zu keinem VLAN-Tag", isCorrect: true },
+        { id: "c", text: "Nur VLAN 1 funktioniert", isCorrect: false },
+        { id: "d", text: "Der Router stürzt ab", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welchen Befehl nutzt man, um die VLAN-Zuordnung der Subinterfaces und die Paketzähler zu prüfen?",
+      explanation: "'show vlans' (auf dem Router) zeigt die Subinterface-↔-VLAN-Zuordnung samt Paketzählern. 'show ip route' zeigt die connected Routen über die Subinterfaces.",
+      answers: [
+        { id: "a", text: "show vlan brief", isCorrect: false },
+        { id: "b", text: "show vlans", isCorrect: true },
+        { id: "c", text: "show mac address-table", isCorrect: false },
+        { id: "d", text: "show spanning-tree", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "true-false", points: 5,
+      text: "Wird 'no shutdown' auf dem physischen Parent-Interface vergessen, sind auch alle Subinterfaces down — egal wie korrekt sie konfiguriert sind.",
+      explanation: "Wahr. Die Subinterfaces hängen am Line-Protocol des physischen Parents. Ist das Parent administrativ down, sind alle Subinterfaces ebenfalls down.",
+      answers: [
+        { id: "a", text: "Wahr", isCorrect: true },
+        { id: "b", text: "Falsch", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Was ist der wesentliche Nachteil von Router-on-a-Stick gegenüber einem Layer-3-Switch mit SVIs?",
+      explanation: "Bei RoaS läuft aller Inter-VLAN-Traffic über einen einzigen Trunk-Link (Engpass). Ein L3-Switch routet in Hardware at Wire-Speed über alle Ports.",
+      answers: [
+        { id: "a", text: "RoaS unterstützt keine VLANs > 100", isCorrect: false },
+        { id: "b", text: "Der einzelne Trunk-Link ist ein Bandbreiten-Engpass", isCorrect: true },
+        { id: "c", text: "RoaS benötigt zwingend OSPF", isCorrect: false },
+        { id: "d", text: "RoaS kann kein 802.1Q", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "multiple-choice", points: 15,
+      text: "Welche Bedingungen müssen für ein funktionierendes Native-VLAN bei RoaS erfüllt sein? (Mehrere Antworten)",
+      explanation: "Das Subinterface mit 'encapsulation dot1q <vlan> native' muss zur Switch-Trunk-Konfiguration ('switchport trunk native vlan <vlan>') passen. Ein Native-VLAN-Mismatch führt zu Konnektivitätsproblemen und STP-Warnungen.",
+      answers: [
+        { id: "a", text: "Subinterface mit 'encapsulation dot1q <vlan> native'", isCorrect: true },
+        { id: "b", text: "Gleiche Native-VLAN-ID auf Router- und Switch-Seite", isCorrect: true },
+        { id: "c", text: "Das Native-VLAN muss immer VLAN 1 sein", isCorrect: false },
+        { id: "d", text: "Native-VLAN-Traffic wird getaggt übertragen", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "PCs in VLAN 10 erreichen ihr Gateway, aber keine Hosts in VLAN 20. Subinterfaces und IPs sind korrekt. Was prüft man als Nächstes?",
+      explanation: "Wenn die Router-Subinterfaces korrekt sind, liegt der Fehler oft am Switch-Trunk: Ist der Port wirklich Trunk und sind VLAN 10 UND 20 erlaubt (switchport trunk allowed vlan)? Auch das PC-Gateway muss die Subinterface-IP sein.",
+      answers: [
+        { id: "a", text: "Ob der Switch-Trunk beide VLANs erlaubt und PC-Gateways stimmen", isCorrect: true },
+        { id: "b", text: "Ob OSPF zwischen den VLANs läuft", isCorrect: false },
+        { id: "c", text: "Ob NAT auf dem Router aktiv ist", isCorrect: false },
+        { id: "d", text: "Ob DHCP-Snooping die Pakete verwirft", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+// ============================================================
 // Alle CCNA Quizzes als Collection
 // ============================================================
 export const CCNA_QUIZZES: Record<string, Quiz> = {
@@ -10164,6 +10285,7 @@ export const CCNA_QUIZZES: Record<string, Quiz> = {
   [QUIZ_VIRTUALIZATION.id]: QUIZ_VIRTUALIZATION,
   [QUIZ_CCNA_EXAM_2.id]: QUIZ_CCNA_EXAM_2,
   [QUIZ_VLAN_ADVANCED.id]: QUIZ_VLAN_ADVANCED,
+  [QUIZ_ROAS.id]: QUIZ_ROAS,
   [QUIZ_TAG1_WIEDERHOLUNG.id]: QUIZ_TAG1_WIEDERHOLUNG,
   [QUIZ_TAG1_GRUNDLAGEN.id]: QUIZ_TAG1_GRUNDLAGEN,
   [QUIZ_STATIC_ROUTING.id]: QUIZ_STATIC_ROUTING,

@@ -1619,7 +1619,7 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-lab-multi-switch",
     "vlan-lab-wlan",
   ],
-  quizIds: ["quiz-vlan-advanced"],
+  quizIds: ["quiz-vlan-advanced", "ccna-quiz-roas"],
   exerciseIds: [],
   prerequisiteTopicIds: ["switching-vlans", "networking-fundamentals"],
   estimatedMinutes: 240,
