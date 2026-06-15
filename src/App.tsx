@@ -76,12 +76,11 @@ import {
   Stethoscope,
   Target,
   Terminal,
-  UserCircle,
   Wrench,
 } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
+import { AuthMenu } from "@/components/AuthMenu";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
-import { supabase } from "@/lib/supabase";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
@@ -1765,37 +1764,11 @@ function App() {
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
-            {user ? (
-              <button
-                onClick={() => supabase.auth.signOut()}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  theme === "dark"
-                    ? "text-emerald-400 hover:bg-zinc-700"
-                    : "text-emerald-600 hover:bg-emerald-50"
-                }`}
-                title={`Angemeldet als ${user.email} — Klicken zum Abmelden`}
-              >
-                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-                  theme === "dark" ? "bg-emerald-700 text-white" : "bg-emerald-100 text-emerald-700"
-                }`}>
-                  {user.email?.[0]?.toUpperCase() ?? "?"}
-                </span>
-                <span className="max-w-[80px] truncate hidden sm:block">{user.email?.split("@")[0]}</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => setShowAuthDialog(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
-                  theme === "dark"
-                    ? "border-sky-700/60 text-sky-400 hover:bg-sky-500/10 hover:border-sky-500/80"
-                    : "border-sky-400/60 text-sky-600 hover:bg-sky-50 hover:border-sky-500"
-                }`}
-                title="Anmelden — Fortschritt geräteübergreifend synchronisieren"
-              >
-                <UserCircle size={15} />
-                <span className="hidden sm:inline">Anmelden</span>
-              </button>
-            )}
+            <AuthMenu
+              user={user}
+              dark={theme === "dark"}
+              onLogin={() => setShowAuthDialog(true)}
+            />
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
