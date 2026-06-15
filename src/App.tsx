@@ -81,6 +81,9 @@ import {
 import { AuthDialog } from "@/components/AuthDialog";
 import { AuthMenu } from "@/components/AuthMenu";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
+const AccountDialog = lazy(() =>
+  import("@/components/AccountDialog").then((m) => ({ default: m.AccountDialog })),
+);
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
@@ -335,6 +338,7 @@ function App() {
   const [showLabScenarios, setShowLabScenarios] = useState(false);
   const [showExamPrep, setShowExamPrep] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
@@ -1768,6 +1772,7 @@ function App() {
               user={user}
               dark={theme === "dark"}
               onLogin={() => setShowAuthDialog(true)}
+              onAccount={() => setShowAccount(true)}
             />
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
@@ -2103,6 +2108,18 @@ function App() {
           dark={theme === "dark"}
           onClose={() => setShowAuthDialog(false)}
         />
+      )}
+
+      {showAccount && user && (
+        <Suspense fallback={null}>
+          <AccountDialog
+            user={user}
+            dark={theme === "dark"}
+            learningPaths={learningPaths}
+            userProgress={userProgress}
+            onClose={() => setShowAccount(false)}
+          />
+        </Suspense>
       )}
 
       <OnboardingTour
