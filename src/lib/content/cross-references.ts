@@ -15,6 +15,23 @@ import { contentRegistry } from "@/lib/content/content-registry";
 // Add entries here as new modules are created
 // ────────────────────────────────────────────────────────────
 export const CONCEPT_BRIDGES: ConceptBridge[] = [
+  // ── Intra-CCNA: DHCP-Relay setzt Inter-VLAN-Routing & Trunking voraus ──
+  {
+    sourceConceptId: "dhcp-relay",
+    sourceModuleId: "ccna",
+    targetConceptId: "inter-vlan-routing-roas",
+    targetModuleId: "ccna",
+    bridgeNote:
+      "DHCP-Relay (ip helper-address) lebt auf den Router-Subinterfaces des Inter-VLAN-Routings: Genau dort, wo Router-on-a-Stick die VLAN-Gateways terminiert, fängt der Relay-Agent die Client-Broadcasts ab und setzt das giaddr für die Pool-Auswahl.",
+  },
+  {
+    sourceConceptId: "dhcp-relay",
+    sourceModuleId: "ccna",
+    targetConceptId: "vlans",
+    targetModuleId: "ccna",
+    bridgeNote:
+      "Ohne korrekten 802.1Q-Trunk zwischen Switch und Router erreichen die getaggten VLAN-Frames die Relay-Subinterfaces nicht. Trunking ist damit die Layer-2-Voraussetzung, bevor DHCP-Relay über VLAN-Grenzen funktioniert.",
+  },
   {
     sourceConceptId: "vlans",
     sourceModuleId: "ccna",
@@ -130,20 +147,25 @@ export function findRelatedConcepts(
   const result: { concept: Concept; bridge: ConceptBridge }[] = [];
 
   for (const bridge of matches) {
-    const targetId =
-      bridge.targetModuleId === targetModuleId
-        ? bridge.targetConceptId
-        : bridge.sourceConceptId;
-    const moduleId =
-      bridge.targetModuleId === targetModuleId
-        ? bridge.targetModuleId
-        : bridge.sourceModuleId;
+    // "Other end" = die Seite, die NICHT das angefragte Concept ist.
+    // Wichtig für Intra-Modul-Bridges (ccna ↔ ccna): dort sind beide
+    // moduleIds gleich, daher muss anhand der conceptId unterschieden
+    // werden — sonst würde das Concept als Querverweis auf sich selbst
+    // zurückgegeben.
+    const queriedIsSource = bridge.sourceConceptId === conceptId;
+    const targetId = queriedIsSource
+      ? bridge.targetConceptId
+      : bridge.sourceConceptId;
+    const moduleId = queriedIsSource
+      ? bridge.targetModuleId
+      : bridge.sourceModuleId;
 
     const module = contentRegistry.getModuleSync(moduleId);
     if (!module) continue;
 
     const concept = module.concepts[targetId];
-    if (concept) {
+    // Selbst-Referenz ausschließen (Robustheit gegen Self-Bridges)
+    if (concept && concept.id !== conceptId) {
       result.push({ concept, bridge });
     }
   }
