@@ -18,6 +18,13 @@ create policy "profiles_own"
   using  (auth.uid() = id)
   with check (auth.uid() = id);
 
+-- Tabellen-Privilegien für die authenticated-Rolle. Ohne diese GRANTs
+-- schlägt jeder Zugriff mit "permission denied for table profiles" fehl
+-- (die Privilegien-Prüfung läuft VOR der RLS-Policy). RLS schränkt den
+-- Zugriff danach auf die eigene Zeile ein.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.profiles to authenticated;
+
 -- updated_at automatisch pflegen (Funktion stammt aus 001_user_progress.sql)
 create trigger profiles_updated_at
   before update on public.profiles
