@@ -95,7 +95,7 @@ export const CONCEPT_ROUTING_NP: Concept = {
   title: "Routing: Statisch, Dynamisch und Protokolle (Vendor-neutral, N10-009)",
   appliesTo: ["comptia-network-plus"],
   tags: ["routing", "ospf", "bgp", "rip", "static-routing", "n10-009", "vendor-neutral"],
-  relatedConceptIds: ["routing-fundamentals", "ospf", "inter-vlan-routing"],
+  relatedConceptIds: ["routing-fundamentals", "ospf", "inter-vlan-routing-overview"],
   content: `
 ## Routing: Die N10-009-Perspektive
 

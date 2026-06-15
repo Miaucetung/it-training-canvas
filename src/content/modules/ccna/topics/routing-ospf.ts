@@ -314,9 +314,9 @@ area <id> range <netz> <maske>     ! Route Summarization am ABR konfigurieren
   `.trim(),
 };
 
-export const CONCEPT_INTER_VLAN_ROUTING: Concept = {
-  id: "inter-vlan-routing",
-  title: "Inter-VLAN Routing",
+export const CONCEPT_INTER_VLAN_ROUTING_OVERVIEW: Concept = {
+  id: "inter-vlan-routing-overview",
+  title: "Inter-VLAN Routing — Überblick",
   appliesTo: ["ccna"],
   tags: [
     "networking",
@@ -433,7 +433,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "ospf-neighbor-states",
     "ospf-dr-bdr",
     "ospf-lsa-types",
-    "inter-vlan-routing",
+    "inter-vlan-routing-overview",
     "routing-ospf-guide",
   ],
   quizIds: ["ccna-quiz-ospf"],
@@ -450,6 +450,6 @@ export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
   "ospf-dr-bdr": CONCEPT_OSPF_DR_BDR,
   "ospf-lsa-types": CONCEPT_OSPF_LSA_TYPES,
-  "inter-vlan-routing": CONCEPT_INTER_VLAN_ROUTING,
+  "inter-vlan-routing-overview": CONCEPT_INTER_VLAN_ROUTING_OVERVIEW,
   "routing-ospf-guide": CONCEPT_ROUTING_OSPF_GUIDE,
 };

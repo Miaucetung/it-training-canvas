@@ -375,8 +375,8 @@ SW(config-if)# switchport trunk allowed vlan add 99
 
 // ── Concept 5: Inter-VLAN Routing ─────────────────────────────
 
-export const CONCEPT_INTER_VLAN_ROUTING: Concept = {
-  id: "inter-vlan-routing",
+export const CONCEPT_INTER_VLAN_ROUTING_ROAS: Concept = {
+  id: "inter-vlan-routing-roas",
   title: "Inter-VLAN Routing — Router-on-a-Stick vs. Layer-3-Switch",
   appliesTo: ["ccna"],
   tags: [
@@ -1549,7 +1549,7 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "dot1q-tagging",
     "vlan-port-typen",
     "vlan-typen",
-    "inter-vlan-routing",
+    "inter-vlan-routing-roas",
     "vtp-dtp",
     "vlan-sicherheit",
     "vlan-advanced-guide",
@@ -1572,7 +1572,7 @@ export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
   "dot1q-tagging": CONCEPT_DOT1Q_TAGGING,
   "vlan-port-typen": CONCEPT_VLAN_PORT_TYPEN,
   "vlan-typen": CONCEPT_VLAN_TYPEN,
-  "inter-vlan-routing": CONCEPT_INTER_VLAN_ROUTING,
+  "inter-vlan-routing-roas": CONCEPT_INTER_VLAN_ROUTING_ROAS,
   "vtp-dtp": CONCEPT_VTP_DTP,
   "vlan-sicherheit": CONCEPT_VLAN_SICHERHEIT,
   "vlan-advanced-guide": CONCEPT_VLAN_ADVANCED_GUIDE,
