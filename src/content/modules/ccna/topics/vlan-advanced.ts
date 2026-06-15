@@ -394,15 +394,27 @@ export const CONCEPT_INTER_VLAN_ROUTING_ROAS: Concept = {
 
 ---
 
+## 📚 Lernziele
+
+- Begründen, **warum** VLANs ohne Layer-3-Gerät nicht miteinander kommunizieren können
+- Router-on-a-Stick **vollständig konfigurieren**: physisches Parent-Interface, Subinterfaces, \`encapsulation dot1q\`, Native VLAN
+- Den **Trunk-Port** auf der Switch-Gegenseite korrekt einrichten
+- ROAS gegen die **Layer-3-Switch-SVI**-Variante abwägen und die jeweils passende Methode wählen
+- Eine fehlerhafte ROAS-Konfiguration anhand von \`show\`-Befehlen **systematisch troubleshooten**
+
+---
+
 ## Das Problem: VLANs sind Layer-2-Inseln
 
-Geräte in VLAN 10 können **nicht direkt** mit Geräten in VLAN 20 kommunizieren — dafür ist ein Layer-3-Gerät (Router oder L3-Switch) erforderlich.
+Ein VLAN ist eine eigene Broadcast-Domäne. Geräte in VLAN 10 können **nicht direkt** mit Geräten in VLAN 20 sprechen — selbst wenn sie am selben Switch hängen. Der Switch ist ein Layer-2-Gerät und trifft Weiterleitungsentscheidungen nur anhand von MAC-Adressen innerhalb desselben VLANs. Sobald Pakete eine VLAN-Grenze überschreiten sollen, braucht es ein **Layer-3-Gerät** (Router oder Multilayer-Switch), das anhand der Ziel-**IP** routet. Genau dafür gibt es zwei klassische CCNA-Methoden: **Router-on-a-Stick** und der **Layer-3-Switch mit SVIs**.
 
 ---
 
 ## Methode 1: Router-on-a-Stick (ROAS)
 
-Ein einziger Trunk-Link zwischen Switch und Router. Der Router hat **logische Subinterfaces** pro VLAN.
+Statt für jedes VLAN ein eigenes Router-Kabel zu ziehen (Legacy-Methode, nicht skalierbar), nutzt ROAS **einen einzigen Trunk-Link** zwischen Switch und Router. Auf dem Router wird das physische Interface in **logische Subinterfaces** aufgeteilt — eines pro VLAN. Jedes Subinterface bekommt per \`encapsulation dot1q <vlan>\` ein VLAN-Tag und die **Gateway-IP** des jeweiligen VLANs.
+
+Wichtig ist die Rollentrennung: Das **physische Parent-Interface** (z. B. \`Gi0/0\`) bekommt **keine IP-Adresse**, muss aber mit \`no shutdown\` aktiviert werden — sonst sind auch alle Subinterfaces down. Die IP-Adressen leben ausschließlich auf den Subinterfaces.
 
 \`\`\`
 Topologie:
@@ -410,47 +422,49 @@ PC_A (VLAN 10) ─── SW1 ─── [Trunk Gi0/24] ─── Router Gi0/0
 PC_B (VLAN 20) ─── SW1 ─/
 
 Router-Konfiguration:
-Router(config)# interface GigabitEthernet 0/0
-Router(config-if)# no ip address
-Router(config-if)# no shutdown
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# no ip address          ! Parent: KEINE IP
+Router(config-if)# no shutdown            ! aber AKTIVIEREN
 
-Router(config)# interface GigabitEthernet 0/0.10
+Router(config)# interface GigabitEthernet0/0.10
 Router(config-subif)# encapsulation dot1q 10
 Router(config-subif)# ip address 192.168.10.1 255.255.255.0
 
-Router(config)# interface GigabitEthernet 0/0.20
+Router(config)# interface GigabitEthernet0/0.20
 Router(config-subif)# encapsulation dot1q 20
 Router(config-subif)# ip address 192.168.20.1 255.255.255.0
 
-! Native VLAN auf Subinterface (optional, für ungetaggten Traffic)
-Router(config)# interface GigabitEthernet 0/0.999
+! Native VLAN als Subinterface (für ungetaggten Traffic, muss zur
+! Switch-Seite passen — sonst Native-VLAN-Mismatch)
+Router(config)# interface GigabitEthernet0/0.999
 Router(config-subif)# encapsulation dot1q 999 native
 
 Switch-Konfiguration (Trunk-Port zum Router):
-SW(config)# interface GigabitEthernet 0/24
+SW(config)# interface GigabitEthernet0/24
+SW(config-if)# switchport trunk encapsulation dot1q   ! nur auf Switches nötig, die ISL können
 SW(config-if)# switchport mode trunk
+SW(config-if)# switchport trunk native vlan 999
 SW(config-if)# switchport trunk allowed vlan 10,20,999
 \`\`\`
 
-**Nachteil ROAS**: Der Trunk-Link ist ein Engpass ("Stau auf der Einbahnstraße"). Bei 48-Port-Switch mit 20 VLANs läuft alles über einen einzigen physischen Link.
+**Nachteil ROAS**: Der Trunk-Link ist ein Engpass ("Stau auf der Einbahnstraße"). Aller Inter-VLAN-Traffic teilt sich diesen einen physischen Link — bei einem 48-Port-Switch mit 20 VLANs läuft alles über eine einzige Leitung.
 
 ---
 
 ## Methode 2: Layer-3-Switch mit SVIs
 
-Ein Layer-3-Switch (z.B. Cisco Catalyst 3650/3850/9300) hat **integrierte Routing-Engine**. Kein Router nötig.
+Ein Layer-3-Switch (z. B. Cisco Catalyst 3650/3850/9300) hat eine **integrierte Routing-Engine in Hardware** — kein externer Router nötig. Pro VLAN wird ein **SVI** (Switch Virtual Interface, \`interface Vlan X\`) als Gateway angelegt. Routing geschieht at Wire-Speed im ASIC.
 
 \`\`\`
 L3-Switch-Konfiguration:
-! IP-Routing aktivieren (standardmäßig deaktiviert!)
+! IP-Routing aktivieren (standardmäßig DEAKTIVIERT!)
 SW(config)# ip routing
 
-! SVI per VLAN
-SW(config)# interface Vlan 10
+SW(config)# interface Vlan10
 SW(config-if)# ip address 192.168.10.1 255.255.255.0
 SW(config-if)# no shutdown
 
-SW(config)# interface Vlan 20
+SW(config)# interface Vlan20
 SW(config-if)# ip address 192.168.20.1 255.255.255.0
 SW(config-if)# no shutdown
 
@@ -470,27 +484,74 @@ C    192.168.20.0/24 is directly connected, Vlan20
 | Performance | Trunk-Link Engpass | Wire-Speed in Hardware |
 | Skalierung | Schlecht (>10 VLANs unpraktisch) | Sehr gut (bis 1000 VLANs) |
 | Konfigurationsaufwand | Mittel | Gering |
-| Typischer Einsatz | Lab, kleine Umgebungen | Enterprise, Datacenter |
+| Typischer Einsatz | Lab, kleine Umgebungen, Filialen | Enterprise, Datacenter |
 | \`ip routing\` nötig? | Nein (Router hat es immer) | **Ja — vergisst man oft!** |
-
-> ⚠️ **Achtung-Falle**: Auf einem Layer-3-Switch muss **\`ip routing\`** explizit aktiviert werden! Ohne diesen Befehl werden SVIs erstellt, aber es findet kein Routing statt. Häufigster Fehler im Lab!
 
 ---
 
-## Paket-Pfad: PC_A (VLAN 10) → PC_B (VLAN 20)
+## 🛠️ Vollständiges Praxis-Szenario
+
+**Bäckerei Hofmann KG, Filiale Nürnberg.** Zwei Abteilungen sollen getrennt, aber routbar sein:
+VLAN 10 *Verkauf* (192.168.10.0/24) und VLAN 20 *Büro* (192.168.20.0/24). Vorhanden ist ein gebrauchter Cisco ISR 1100 — also ROAS über \`Gi0/0\`.
 
 \`\`\`
-1. PC_A sendet Paket (Ziel: 192.168.20.50)
-   → Default-Gateway: 192.168.10.1 (SVI Vlan10 oder Router-Subinterface)
+! ---------- Switch SW1 ----------
+SW1(config)# vlan 10
+SW1(config-vlan)# name Verkauf
+SW1(config-vlan)# vlan 20
+SW1(config-vlan)# name Buero
+SW1(config-vlan)# exit
+SW1(config)# interface range fa0/1-10
+SW1(config-if-range)# switchport mode access
+SW1(config-if-range)# switchport access vlan 10
+SW1(config)# interface range fa0/11-20
+SW1(config-if-range)# switchport mode access
+SW1(config-if-range)# switchport access vlan 20
+SW1(config)# interface gi0/1                 ! Uplink zum Router
+SW1(config-if)# switchport mode trunk
+SW1(config-if)# switchport trunk allowed vlan 10,20
 
-2. Switch/Router empfängt Paket auf Interface für VLAN 10
-   → Routing-Tabelle: 192.168.20.0/24 → via Vlan20
-
-3. Paket wird auf Interface für VLAN 20 weitergeleitet
-   → ARP für 192.168.20.50 (falls noch nicht bekannt)
-
-4. PC_B empfängt Paket
+! ---------- Router R1 (on a stick) ----------
+R1(config)# interface gi0/0
+R1(config-if)# no ip address
+R1(config-if)# no shutdown
+R1(config)# interface gi0/0.10
+R1(config-subif)# encapsulation dot1q 10
+R1(config-subif)# ip address 192.168.10.1 255.255.255.0
+R1(config)# interface gi0/0.20
+R1(config-subif)# encapsulation dot1q 20
+R1(config-subif)# ip address 192.168.20.1 255.255.255.0
 \`\`\`
+
+Ergebnis: PC im Verkauf (GW 192.168.10.1) erreicht jetzt PC im Büro (GW 192.168.20.1) — der Router taggt/untaggt über den Trunk und routet zwischen den Subinterfaces.
+
+---
+
+## ✅ Verifikation & Troubleshooting
+
+\`\`\`
+R1# show ip route
+C    192.168.10.0/24 is directly connected, GigabitEthernet0/0.10
+C    192.168.20.0/24 is directly connected, GigabitEthernet0/0.20
+
+R1# show interfaces gi0/0.10
+GigabitEthernet0/0.10 is up, line protocol is up
+  Encapsulation 802.1Q Virtual LAN, Vlan ID 10
+
+R1# show vlans                 ! Subinterface ↔ VLAN-Zuordnung + Pakete
+
+SW1# show interfaces trunk     ! Trunk up? Welche VLANs erlaubt/aktiv?
+\`\`\`
+
+Troubleshooting-Reihenfolge: (1) Parent-Interface \`up/up\`? (2) Subinterface-\`encapsulation\` = VLAN-ID? (3) IP auf Subinterface, nicht auf Parent? (4) Switch-Port wirklich Trunk und VLAN erlaubt? (5) PC-Gateway = Subinterface-IP?
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **\`encapsulation dot1q\` vergessen oder falsche VLAN-ID:** Ohne den Befehl weiß das Subinterface nicht, welches VLAN-Tag es bearbeitet — es bleibt funktionslos. In Prüfungsfragen wird gern eine \`ip address\` auf dem Subinterface gezeigt, aber die \`encapsulation\`-Zeile fehlt → kein Inter-VLAN-Routing.
+- ⚠️ **IP-Adresse auf dem physischen Parent statt auf dem Subinterface:** Das Parent (\`Gi0/0\`) muss \`no ip address\` haben. Eine IP dort gehört zu keinem VLAN-Tag und das Routing schlägt fehl.
+- ⚠️ **Parent-Interface im \`shutdown\`:** Vergisst man \`no shutdown\` auf dem physischen Interface, sind **alle** Subinterfaces down — egal wie korrekt sie konfiguriert sind. Ebenso klassisch: Native-VLAN-Mismatch zwischen Router-Subinterface (\`encapsulation dot1q 999 native\`) und Switch-Trunk (\`switchport trunk native vlan 999\`).
   `.trim(),
 };
 
