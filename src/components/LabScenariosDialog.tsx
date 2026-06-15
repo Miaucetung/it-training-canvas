@@ -1740,6 +1740,273 @@ const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // DHCP Relay über VLAN-Grenzen (Router-on-a-Stick + ip helper-address)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "dhcp-relay",
+    icon: <Network size={20} />,
+    title: "DHCP Relay über VLAN-Grenzen",
+    subtitle: "Router-on-a-Stick · 3 VLANs · zentraler DHCP-Server · ip helper-address",
+    difficulty: "Fortgeschritten",
+    duration: "30 min",
+    topology: {
+      description:
+        "Drei VLANs auf zwei Switches, Inter-VLAN-Routing per Router-on-a-Stick. Ein einziger DHCP-Server (192.168.2.11) im VLAN 71 versorgt die Clients in VLAN 51 und 61 — der Router leitet die DHCP-Broadcasts per ip helper-address als Unicast weiter.",
+      devices: [
+        { type: "router", label: "R1 (RoaS, Gi0/0.51/.61/.71)", count: 1 },
+        { type: "switch", label: "SW1 (VTP-Server)", count: 1 },
+        { type: "switch", label: "SW2 (VTP-Client, downstream)", count: 1 },
+        { type: "server", label: "DHCP-Server 192.168.2.11", count: 1 },
+        { type: "pc", label: "Clients Rot/Blau/Gelb", count: 3 },
+      ],
+      connections: [
+        "R1 Gi0/0 ↔ SW1 Gi0/1  (Trunk 802.1Q, alle VLANs)",
+        "SW1 Gi0/2 ↔ SW2 Gi0/1  (Trunk, downstream)",
+        "DHCP-Server → SW1 Fa0/24  (VLAN 71 Gelb)",
+        "Client-Rot → SW1 Fa0/1 (VLAN 51) · Client-Blau → SW1 Fa0/11 (VLAN 61)",
+      ],
+      hint: "ip helper-address gehört auf die CLIENT-Subinterfaces (.51 und .61). VLAN 71 (Server) braucht keinen Helper — der Server steht dort lokal.",
+    },
+    steps: [
+      {
+        title: "SW1 als VTP-Server + VLANs anlegen",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "vtp domain FSG57\nvtp password geheim!\nvtp mode server",
+                explanation:
+                  "VTP-Domain FSG57 mit Passwort 'geheim!'. SW1 ist Server und verteilt die VLAN-Datenbank an SW2 — Domain und Passwort müssen auf beiden Switches identisch sein.",
+              },
+              {
+                cmd: "vlan 51\nname Rot\nvlan 61\nname Blau\nvlan 71\nname Gelb",
+                explanation:
+                  "Drei VLANs: 51 Rot (172.16.51.0/24), 61 Blau (172.16.61.0/24), 71 Gelb (192.168.2.0/24 — DHCP-Server). VTP überträgt sie automatisch an SW2.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW1 Access-Ports + Trunks",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "interface range fa0/1-10\nswitchport mode access\nswitchport access vlan 51",
+                explanation: "Fa0/1-10 = VLAN 51 Rot.",
+              },
+              {
+                cmd: "interface range fa0/11-20\nswitchport mode access\nswitchport access vlan 61",
+                explanation: "Fa0/11-20 = VLAN 61 Blau.",
+              },
+              {
+                cmd: "interface range fa0/21-24\nswitchport mode access\nswitchport access vlan 71",
+                explanation: "Fa0/21-24 = VLAN 71 Gelb (DHCP-Server an Fa0/24).",
+              },
+              {
+                cmd: "interface gi0/1\nswitchport mode trunk\ninterface gi0/2\nswitchport mode trunk",
+                explanation: "Gi0/1 = Trunk zum Router (RoaS), Gi0/2 = Trunk zu SW2.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW2 als VTP-Client + Access-Ports",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "vtp domain FSG57\nvtp password geheim!\nvtp mode client",
+                explanation:
+                  "SW2 übernimmt die VLAN-Datenbank von SW1 — keine lokale VLAN-Erstellung nötig. Prüfung: 'show vtp status' muss gleiche Revision wie SW1 zeigen.",
+              },
+              {
+                cmd: "interface gi0/1\nswitchport mode trunk\ninterface range fa0/1-10\nswitchport mode access\nswitchport access vlan 51",
+                explanation: "Uplink-Trunk zu SW1, Access-Ports z. B. für weitere Rot-Clients.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R1 Router-on-a-Stick + ip helper-address",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "interface gi0/0\nno ip address\nno shutdown",
+                explanation: "Physisches Parent-Interface: KEINE IP, aber aktivieren — sonst sind alle Subinterfaces down.",
+              },
+              {
+                cmd: "interface gi0/0.51\nencapsulation dot1q 51\nip address 172.16.51.1 255.255.255.0\nip helper-address 192.168.2.11",
+                explanation:
+                  "VLAN-51-Gateway. Der Helper leitet DHCP-Broadcasts der Rot-Clients als Unicast an 192.168.2.11 weiter und trägt 172.16.51.1 ins giaddr-Feld → der Server wählt den Rot-Pool.",
+              },
+              {
+                cmd: "interface gi0/0.61\nencapsulation dot1q 61\nip address 172.16.61.1 255.255.255.0\nip helper-address 192.168.2.11",
+                explanation: "VLAN-61-Gateway + Helper für die Blau-Clients (giaddr 172.16.61.1 → Blau-Pool).",
+              },
+              {
+                cmd: "interface gi0/0.71\nencapsulation dot1q 71\nip address 192.168.2.1 255.255.255.0",
+                explanation:
+                  "VLAN-71-Gateway. KEIN Helper nötig — der DHCP-Server steht in diesem VLAN lokal.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "DHCP-Server (192.168.2.11) — Pools je VLAN",
+        blocks: [
+          {
+            device: "DHCP-Server",
+            mode: "service",
+            modeLabel: "Server > Services > DHCP",
+            commands: [
+              {
+                cmd: "Pool Rot:  Default Gateway 172.16.51.1 · DNS 192.168.2.11 · Start 172.16.51.10 · Maske 255.255.255.0",
+                explanation:
+                  "Der Pool für die Rot-Clients. Das Default-Gateway ist die Router-Subinterface-IP (172.16.51.1) — NICHT die Server-IP.",
+              },
+              {
+                cmd: "Pool Blau: Default Gateway 172.16.61.1 · DNS 192.168.2.11 · Start 172.16.61.10 · Maske 255.255.255.0",
+                explanation:
+                  "Analog für Blau. Wichtig: pro Client-Subnetz ein eigener Pool, dessen Netz zur giaddr passt — sonst antwortet der Server nicht.",
+              },
+              {
+                cmd: "Server-NIC: statisch 192.168.2.11/24, Gateway 192.168.2.1",
+                explanation: "Der Server selbst bekommt eine statische IP im VLAN 71.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ipconfig (Client Rot)", expected: "IP aus 172.16.51.10+, Gateway 172.16.51.1" },
+      { cmd: "ipconfig (Client Blau)", expected: "IP aus 172.16.61.10+, Gateway 172.16.61.1" },
+      { cmd: "show ip dhcp binding (Server)", expected: "Leases in 172.16.51.x UND 172.16.61.x" },
+      { cmd: "show vlans (R1)", expected: "Gi0/0.51→VLAN51, .61→VLAN61, .71→VLAN71 + Paketzähler" },
+      { cmd: "show vtp status (SW2)", expected: "Mode: Client, Domain FSG57, gleiche Revision wie SW1" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // DHCP Troubleshooting — 3 eingebaute Fehler finden & beheben
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "dhcp-troubleshoot-lab",
+    icon: <Shield size={20} />,
+    title: "DHCP Troubleshooting: 3 Fehler finden",
+    subtitle: "APIPA-Diagnose · helper-address · excluded-address · SVI down",
+    difficulty: "Fortgeschritten",
+    duration: "25 min",
+    topology: {
+      description:
+        "Eine fertig 'verkabelte' Umgebung mit drei eingebauten Konfigurationsfehlern: Clients bekommen keine oder falsche IPs (169.254.x.x / Gateway-Konflikt). Aufgabe: systematisch diagnostizieren und beheben.",
+      devices: [
+        { type: "router", label: "R1 (DHCP-Relay + SVI VLAN1)", count: 1 },
+        { type: "switch", label: "SW1", count: 1 },
+        { type: "server", label: "DHCP-Server 192.168.2.11", count: 1 },
+        { type: "pc", label: "Clients VLAN 51 / 61", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/0 ↔ SW1 (Trunk) · DHCP-Server in VLAN 71",
+        "Clients in VLAN 51 (Rot) und VLAN 61 (Blau)",
+      ],
+      hint: "Symptom zuerst lesen: 169.254.x.x = gar keine DHCP-Antwort. Eine Adresse aus dem richtigen Netz, aber Konflikt = excluded-address-Problem.",
+    },
+    steps: [
+      {
+        title: "Fehler 1: Client Rot bekommt 169.254.x.x (APIPA)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show running-config interface gi0/0.51",
+                explanation:
+                  "Diagnose: Der Helper steht fälschlich auf gi0/0.71 (Server-seitig) statt auf gi0/0.51 (Client-seitig). Darum entsteht kein korrektes giaddr für die Rot-Clients → keine Antwort → APIPA.",
+              },
+              {
+                cmd: "interface gi0/0.51\nip helper-address 192.168.2.11",
+                explanation:
+                  "FIX: Helper auf das CLIENT-Subinterface setzen. (Auf gi0/0.71 wieder entfernen: 'no ip helper-address 192.168.2.11'.)",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Fehler 2: Client Blau bekommt IP, aber Adresskonflikt",
+        blocks: [
+          {
+            device: "DHCP-Server",
+            mode: "service",
+            modeLabel: "Server > Services > DHCP",
+            commands: [
+              {
+                cmd: "Pool Blau prüfen: Start-IP = 172.16.61.1 (= Gateway!)",
+                explanation:
+                  "Diagnose: Der Pool beginnt bei 172.16.61.1 — das ist die Gateway-IP des Routers (gi0/0.61). Der Server vergibt sie an einen Client → Konflikt, 'show ip dhcp conflict' / Doppel-IP-Warnung.",
+              },
+              {
+                cmd: "FIX: Start-IP auf 172.16.61.10 setzen (Gateway .1 ausnehmen)",
+                explanation:
+                  "Auf einem IOS-DHCP-Server entspricht das 'ip dhcp excluded-address 172.16.61.1'. In Packet Tracer: Start-Adresse über das Gateway hinaus legen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Fehler 3: Management-Zugriff im VLAN 1 schlägt fehl",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "privileged",
+            modeLabel: "SW1#",
+            commands: [
+              {
+                cmd: "show ip interface brief | include Vlan1",
+                explanation:
+                  "Diagnose: Vlan1 ist 'administratively down'. Das Management-SVI ist nie hochgekommen — der Switch ist nicht per Telnet/SSH erreichbar.",
+              },
+              {
+                cmd: "interface vlan 1\nip address 192.168.2.50 255.255.255.0\nno shutdown",
+                explanation:
+                  "FIX: SVI mit IP versehen und mit 'no shutdown' aktivieren. SVIs sind per Default down — der häufigste Management-Fehler.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ipconfig (Client Rot)", expected: "Echte IP 172.16.51.x statt 169.254.x.x" },
+      { cmd: "ipconfig (Client Blau)", expected: "IP ab 172.16.61.10, kein Konflikt mit Gateway" },
+      { cmd: "show ip dhcp conflict (Server)", expected: "Keine Konflikte mehr gelistet" },
+      { cmd: "show ip interface brief (SW1)", expected: "Vlan1: up/up mit Management-IP" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 7. NAT / PAT (Overload)
   // ─────────────────────────────────────────────────────────────
   {
