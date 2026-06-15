@@ -55,6 +55,433 @@ SW(config-if)# ip dhcp snooping trust         ! Uplink-Port
   `.trim(),
 };
 
+export const CONCEPT_DHCP_DORA: Concept = {
+  id: "dhcp-dora",
+  title: "DHCP DORA — Ablauf, Paketfelder & Broadcast/Unicast",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["dhcp", "dora", "discover", "offer", "request", "ack", "udp", "layer-7"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 2.6 | ⏱️ 15 Min
+
+---
+
+## 📚 Lernziele
+
+- Die vier DORA-Schritte in **korrekter Reihenfolge** benennen und erklären
+- Pro Schritt sagen, ob er **Broadcast oder Unicast** ist — und warum
+- Die wichtigsten **BOOTP-Felder** (chaddr, yiaddr, giaddr, xid) und Optionen zuordnen
+- Die Sondernachrichten **NAK, DECLINE, RELEASE** einordnen
+
+---
+
+## DORA im Detail
+
+DHCP läuft über **UDP** — Server lauscht auf **Port 67**, Client auf **Port 68**. Der gesamte Handshake heißt **DORA**:
+
+\`\`\`
+1. DISCOVER  Client → Broadcast (255.255.255.255)
+   src 0.0.0.0:68  dst 255.255.255.255:67
+   "Gibt es hier einen DHCP-Server?"  (enthält chaddr = Client-MAC, xid)
+
+2. OFFER     Server → Client (Broadcast ODER Unicast)
+   yiaddr = angebotene IP, plus Maske/Gateway/DNS/Lease als Optionen
+
+3. REQUEST   Client → Broadcast
+   "Ich nehme diese IP."  Option 50 = Requested IP, Option 54 = Server-ID
+   Broadcast, damit ALLE Server es hören — die nicht gewählten geben ihr Angebot wieder frei
+
+4. ACK       Server → Client
+   Bestätigung, ab jetzt läuft die Lease-Zeit
+\`\`\`
+
+Der Client kennt zu Beginn weder seine eigene IP (\`src 0.0.0.0\`) noch die Server-IP — deshalb sind **DISCOVER und REQUEST Broadcasts**. **OFFER und ACK** können je nach Implementierung Broadcast oder Unicast sein (oft Broadcast, weil der Client noch keine bestätigte IP hat).
+
+## Wichtige Felder (BOOTP-Header)
+
+| Feld | Bedeutung |
+|------|-----------|
+| \`xid\` | Transaction-ID — ordnet Antworten der Anfrage zu |
+| \`chaddr\` | Client-Hardware-Adresse (MAC) |
+| \`yiaddr\` | "your IP" — die dem Client zugewiesene Adresse (im OFFER/ACK) |
+| \`giaddr\` | Gateway-IP des Relay-Agents (0.0.0.0 wenn kein Relay) |
+| \`siaddr\` | IP des nächsten Servers (z. B. TFTP für Boot) |
+
+## Sondernachrichten
+
+- **NAK** — Server lehnt ab (z. B. Client fragt nach IP aus falschem Subnetz)
+- **DECLINE** — Client hat die IP per ARP getestet und festgestellt: schon belegt
+- **RELEASE** — Client gibt seine Lease freiwillig zurück (Unicast an Server)
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **Reihenfolge verwechselt:** DROA, DORA, ROAD — geprüft wird fast immer **DORA** (Discover, Offer, Request, Ack). Ein beliebter Distraktor ist "DROA".
+- ⚠️ **Broadcast/Unicast falsch zugeordnet:** REQUEST ist ein **Broadcast** (nicht Unicast!), obwohl der Client den Server bereits kennt — damit die anderen Server ihr Angebot zurücknehmen.
+- ⚠️ **Ports verdreht:** Server = 67, Client = 68. Eine häufige Falschantwort tauscht beide.
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_LEASE: Concept = {
+  id: "dhcp-lease",
+  title: "DHCP Lease — T1 Renewal & T2 Rebinding",
+  appliesTo: ["ccna"],
+  tags: ["dhcp", "lease", "renewal", "rebinding", "t1", "t2", "timer"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 2.6 | ⏱️ 10 Min
+
+---
+
+## 📚 Lernziele
+
+- Den **Lebenszyklus** einer DHCP-Lease beschreiben
+- Die Timer **T1 (50 %)** und **T2 (87,5 %)** und ihre Aktionen erklären
+- Den Unterschied zwischen **Renewal (Unicast)** und **Rebinding (Broadcast)** benennen
+- Die Lease-Dauer auf einem Cisco-Router konfigurieren
+
+---
+
+## Der Lease-Lebenszyklus
+
+Eine DHCP-Adresse wird **geliehen** (lease), nicht dauerhaft vergeben. Beim ACK startet die Lease-Uhr. Zwei Timer steuern die Verlängerung:
+
+\`\`\`
+|========== Lease-Dauer (z. B. 8 Tage) ==========|
+0%            T1 (50%)        T2 (87,5%)      100%
+              Renewal         Rebinding       Expiry
+              (Unicast)       (Broadcast)
+\`\`\`
+
+- **T1 = 50 % der Lease** → **Renewal**: Der Client schickt einen **Unicast-REQUEST direkt an den ursprünglichen Server** ("verlängere bitte meine IP"). Antwortet der Server mit ACK, beginnt die Lease von vorn.
+- **T2 = 87,5 % der Lease** → **Rebinding**: Renewal hat bis hierher nicht geklappt (Server weg?). Der Client schickt nun einen **Broadcast-REQUEST an JEDEN erreichbaren Server**.
+- **100 % = Expiry**: Auch Rebinding gescheitert → der Client **gibt die IP auf** und startet eine komplett neue DORA-Sequenz. Bis dahin kann er kein IP-Routing mehr nutzen.
+
+## Konfiguration (Cisco)
+
+\`\`\`
+R1(config)# ip dhcp pool OFFICE
+R1(dhcp-config)# network 192.168.1.0 255.255.255.0
+R1(dhcp-config)# default-router 192.168.1.1
+R1(dhcp-config)# lease 8 0 0        ! 8 Tage, 0 Stunden, 0 Minuten
+R1(dhcp-config)# lease infinite      ! alternativ: niemals ablaufen
+
+R1# show ip dhcp binding             ! zeigt Lease-Ablaufzeitpunkt
+\`\`\`
+
+Kurze Leases (z. B. Gäste-WLAN, \`lease 0 2 0\` = 2 Stunden) geben Adressen schnell zurück in den Pool. Lange Leases reduzieren DHCP-Traffic in stabilen Büronetzen.
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **T1/T2-Prozente verwechselt:** T1 = **50 %** (Renewal, Unicast), T2 = **87,5 %** (Rebinding, Broadcast). Geprüft wird gern, welcher Timer einen Broadcast auslöst → **T2**.
+- ⚠️ **Lease-Syntax:** \`lease <Tage> <Stunden> <Minuten>\` — \`lease 1\` allein bedeutet **1 Tag**, nicht 1 Stunde.
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_OPTIONS: Concept = {
+  id: "dhcp-options",
+  title: "DHCP-Optionen — 3, 6, 51 & 82 (Relay Agent Info)",
+  appliesTo: ["ccna"],
+  tags: ["dhcp", "options", "option-82", "relay-agent", "circuit-id", "remote-id"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 2.6 / 5.7 | ⏱️ 12 Min
+
+---
+
+## 📚 Lernziele
+
+- Die wichtigsten **DHCP-Optionen** und ihre Funktion zuordnen
+- **Option 82** (Relay Agent Information) und ihren Sicherheitsnutzen erklären
+- Den Zusammenhang zwischen Option 82, DHCP-Relay und DHCP-Snooping verstehen
+
+---
+
+## Was sind DHCP-Optionen?
+
+Neben der IP selbst transportiert DHCP **Optionen** im Paket — codiert als Type-Length-Value. Die prüfungsrelevanten:
+
+| Option | Name | Inhalt |
+|--------|------|--------|
+| 1 | Subnet Mask | Subnetzmaske |
+| 3 | Router | Default-Gateway |
+| 6 | DNS Server | DNS-Server-Adresse(n) |
+| 15 | Domain Name | DNS-Domänensuffix |
+| 51 | Lease Time | Lease-Dauer in Sekunden |
+| 53 | Message Type | DISCOVER/OFFER/REQUEST/ACK… |
+| 50 | Requested IP | vom Client gewünschte IP |
+| 54 | Server Identifier | IP des ausgewählten Servers |
+| **82** | **Relay Agent Info** | Port-/Switch-Kennung (Sicherheit) |
+
+\`\`\`
+R1(config)# ip dhcp pool OFFICE
+R1(dhcp-config)# network 192.168.1.0 255.255.255.0
+R1(dhcp-config)# default-router 192.168.1.1      ! Option 3
+R1(dhcp-config)# dns-server 8.8.8.8 1.1.1.1      ! Option 6
+R1(dhcp-config)# domain-name firma.local         ! Option 15
+R1(dhcp-config)# lease 1 0 0                       ! Option 51
+\`\`\`
+
+## Option 82 — Relay Agent Information
+
+Option 82 wird vom **Relay-Agent oder DHCP-Snooping-Switch** in das DHCP-Paket eingefügt, **bevor** es zum Server weitergeleitet wird. Sie enthält zwei Sub-Optionen:
+
+- **Circuit-ID** — an welchem Port/VLAN kam die Anfrage rein
+- **Remote-ID** — welcher Switch/Relay (z. B. dessen MAC)
+
+Dadurch weiß der Server (oder ein zentrales System) **woher** eine Anfrage physisch stammt — Grundlage für Adresszuteilung pro Port und für die Missbrauchserkennung.
+
+\`\`\`
+SW(config)# ip dhcp snooping information option         ! Option 82 einfügen (Default an)
+R1(config)# ip dhcp relay information trust-all          ! Relay vertraut Option-82-Paketen
+\`\`\`
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **Option 3 vs. 6 verwechselt:** **3 = Gateway (Router)**, **6 = DNS**. Ein klassischer Distraktor dreht beide um.
+- ⚠️ **Option 82 wird vom Server verworfen:** Fügt ein Snooping-Switch Option 82 ein, der Relay-Router aber vertraut ihr nicht, droppt er das Paket. Lösung: \`ip dhcp relay information trust-all\` (oder am Switch \`ip dhcp snooping information option allow-untrusted\`).
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_APIPA: Concept = {
+  id: "dhcp-apipa",
+  title: "APIPA — 169.254.x.x als Diagnose-Signal",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["dhcp", "apipa", "link-local", "169.254", "troubleshooting", "rfc-3927"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 5.5 | ⏱️ 10 Min
+
+---
+
+## 📚 Lernziele
+
+- Erkennen, dass eine **169.254.x.x**-Adresse ein DHCP-Problem signalisiert
+- Den Adressbereich und seine **Link-Local-Eigenschaft** (nicht routbar) benennen
+- Die häufigsten **Ursachen** systematisch eingrenzen
+
+---
+
+## Was ist APIPA?
+
+**APIPA** (Automatic Private IP Addressing) ist ein Mechanismus von Windows (und macOS), der sich aus dem Bereich **169.254.0.0/16** (RFC 3927, "link-local") **selbst** eine Adresse gibt, **wenn kein DHCP-Server antwortet**. Der Host pingt den Bereich vorher per ARP durch, um Konflikte zu vermeiden.
+
+\`\`\`
+C:\\> ipconfig
+   IPv4-Adresse  . . . . . . : 169.254.137.42
+   Subnetzmaske  . . . . . . : 255.255.0.0
+   Standardgateway . . . . . :              ← LEER!
+\`\`\`
+
+Entscheidend: **169.254.x.x ist nicht routbar.** Zwei APIPA-Hosts im selben L2-Segment können sich gegenseitig erreichen, aber es gibt **kein Gateway** — kein Internet, kein Inter-VLAN.
+
+## APIPA als Diagnose-Signal
+
+Sieht ein Techniker **169.254.x.x**, heißt das fast immer: **"DHCP hat nicht funktioniert."** Eingrenzung:
+
+1. **DHCP-Server down** oder Pool erschöpft (\`show ip dhcp pool\` → 0 freie Adressen)
+2. **Relay fehlt/falsch:** Server in anderem Subnetz, aber kein \`ip helper-address\` auf dem Client-Interface
+3. **L2-Problem:** Access-Port im falschen VLAN, Trunk down, Kabel
+4. **DHCP-Snooping** blockiert den (legitimen) Server, weil der Uplink-Port nicht \`trust\` ist
+
+\`\`\`
+! Schnelltest vom Client
+ipconfig /release
+ipconfig /renew      ! holt der Client jetzt eine echte IP?
+\`\`\`
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **APIPA ≠ Fehlkonfiguration des Clients:** Die 169.254-Adresse ist **kein** Client-Tippfehler, sondern die **Folge** eines DHCP-Ausfalls — am Server/Relay/VLAN suchen, nicht am Client.
+- ⚠️ **169.254 mit 192.168 verwechselt:** 192.168.0.0/16 ist privat-routbar (RFC 1918), **169.254.0.0/16 ist link-local und nicht routbar** (RFC 3927).
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_RELAY: Concept = {
+  id: "dhcp-relay",
+  title: "DHCP Relay — ip helper-address richtig platzieren",
+  appliesTo: ["ccna"],
+  tags: ["dhcp", "relay", "ip-helper-address", "giaddr", "inter-vlan", "broadcast"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 4.3 | ⏱️ 15 Min
+
+---
+
+## 📚 Lernziele
+
+- Erklären, **warum** ein zentraler DHCP-Server ohne Relay nicht über Subnetzgrenzen funktioniert
+- \`ip helper-address\` auf dem **richtigen (Client-seitigen) Interface** platzieren
+- Die Rolle des **giaddr**-Felds bei der Pool-Auswahl verstehen
+- Mehrere Helper-Adressen für Redundanz konfigurieren
+
+---
+
+## Das Problem: DHCP ist Broadcast, Router blockieren Broadcasts
+
+Der DISCOVER eines Clients ist ein **Broadcast** (255.255.255.255). Router leiten Broadcasts **nicht** weiter — ein DHCP-Server in einem anderen VLAN/Subnetz sieht die Anfrage also nie. Lösung: der **DHCP-Relay-Agent**.
+
+## ip helper-address — wohin?
+
+Der Befehl gehört auf das **Interface, das den Clients zugewandt ist** — also das SVI bzw. Router-Subinterface des **Client-VLANs**, **nicht** das Interface Richtung Server.
+
+\`\`\`
+! R1 ist Gateway der Clients in VLAN 10 (192.168.10.0/24).
+! DHCP-Server steht zentral in 192.168.2.11.
+
+R1(config)# interface gi0/0.10            ! CLIENT-seitiges Interface!
+R1(config-subif)# encapsulation dot1q 10
+R1(config-subif)# ip address 192.168.10.1 255.255.255.0
+R1(config-subif)# ip helper-address 192.168.2.11
+\`\`\`
+
+**Was der Relay tut:** Er fängt den Client-Broadcast auf dem Client-Interface ab, trägt die **eigene Interface-IP in das giaddr-Feld** ein und sendet das Paket als **Unicast** an den Server. Der Server liest \`giaddr\` und weiß dadurch, **aus welchem Pool** (welchem Subnetz) er eine Adresse vergeben muss. Genau deshalb muss \`ip helper-address\` client-seitig stehen — nur dort entsteht das korrekte giaddr.
+
+\`\`\`
+! Redundanz: zwei Server
+R1(config-subif)# ip helper-address 192.168.2.11
+R1(config-subif)# ip helper-address 192.168.2.12
+\`\`\`
+
+Nebenwirkung: \`ip helper-address\` leitet standardmäßig **acht UDP-Dienste** weiter (DHCP/BOOTP, DNS, TFTP, TIME, NetBIOS …). Mit \`no ip forward-protocol udp <port>\` lässt sich das einschränken.
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **Helper auf dem falschen Interface:** Steht \`ip helper-address\` auf dem **Server-seitigen** Interface statt am Client-VLAN, entsteht kein korrektes giaddr → der Server kann den Pool nicht zuordnen, der Client bekommt **APIPA**. Klassischer Troubleshooting-Fehler.
+- ⚠️ **Server hat keinen Pool für das Client-Subnetz:** Relay funktioniert, aber der Server kennt das per giaddr angefragte Subnetz nicht → NAK/keine Antwort. Beide Seiten müssen zusammenpassen.
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_TROUBLESHOOT: Concept = {
+  id: "dhcp-troubleshoot",
+  title: "DHCP Troubleshooting — show & debug",
+  appliesTo: ["ccna"],
+  tags: ["dhcp", "troubleshooting", "show", "debug", "binding", "conflict"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐ | Exam Topic: 5.7 | ⏱️ 12 Min
+
+---
+
+## 📚 Lernziele
+
+- Die zentralen **show-Befehle** für DHCP-Server und -Leases anwenden
+- Einen **Adresskonflikt** erkennen und auflösen
+- Mit **debug** den DORA-Ablauf live mitlesen
+- Bindings und Konflikte gezielt zurücksetzen
+
+---
+
+## Die wichtigsten show-Befehle
+
+\`\`\`
+R1# show ip dhcp binding
+IP address       Client-ID/MAC        Lease expiration        Type
+192.168.1.11     0100.1122.3344.55    Jun 14 2026 10:42 AM    Automatic
+
+R1# show ip dhcp pool
+Pool OFFICE :
+ Utilization mark (high/low) : 100 / 0
+ Total addresses             : 254
+ Leased addresses            : 254      ← Pool erschöpft!
+
+R1# show ip dhcp conflict
+IP address       Detection method   Detection time
+192.168.1.50     Ping               Jun 13 2026 09:10 AM
+
+R1# show ip dhcp server statistics    ! Zähler je Nachrichtentyp
+\`\`\`
+
+## Adresskonflikte
+
+Cisco erkennt Konflikte auf zwei Wegen: der **Server pingt** eine Adresse vor der Vergabe (Antwort = belegt), der **Client prüft per Gratuitous ARP**. Konflikt-Adressen werden aus dem Pool genommen und in \`show ip dhcp conflict\` gelistet — bis man sie freigibt.
+
+\`\`\`
+R1# clear ip dhcp conflict *      ! alle Konflikte zurücksetzen
+R1# clear ip dhcp binding *       ! alle dynamischen Bindings lösen
+\`\`\`
+
+## Live mitlesen mit debug
+
+\`\`\`
+R1# debug ip dhcp server events     ! Lease-Vergabe, Ablauf, Pool-Auswahl
+R1# debug ip dhcp server packet     ! einzelne DORA-Pakete
+R1# undebug all                     ! Debug wieder aus (wichtig!)
+\`\`\`
+
+Typischer Fund im Debug: \`DHCPD: there is no address pool for 192.168.10.1\` → der Server hat keinen Pool für das per giaddr angefragte Subnetz (Relay-Problem, siehe dhcp-relay).
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **excluded-address vergessen → Konflikt:** Ist die Router/Gateway-IP nicht per \`ip dhcp excluded-address\` ausgenommen, vergibt der Server sie an einen Client → Adresskonflikt mit dem Gateway.
+- ⚠️ **debug in Produktion vergessen abzuschalten:** \`debug ip dhcp server packet\` kann die CPU fluten. Immer mit \`undebug all\` beenden.
+  `.trim(),
+};
+
+export const CONCEPT_DHCP_SNOOPING: Concept = {
+  id: "dhcp-snooping",
+  title: "DHCP Snooping — trusted/untrusted & Binding-Tabelle",
+  appliesTo: ["ccna"],
+  tags: ["dhcp", "snooping", "security", "trusted", "untrusted", "binding-table", "layer-2"],
+  content: `
+## 🎯 CCNA-Prüfungsrelevanz: ⭐⭐⭐ | Exam Topic: 5.7 | ⏱️ 15 Min
+
+---
+
+## 📚 Lernziele
+
+- Den Angriff **Rogue-DHCP / DHCP-Spoofing** und seine Wirkung (MITM) erklären
+- **Trusted** und **untrusted** Ports korrekt zuordnen
+- DHCP-Snooping konfigurieren und die **Binding-Tabelle** lesen
+- Den Zusammenhang zu **DAI** und **IP Source Guard** benennen
+
+---
+
+## Der Angriff: Rogue-DHCP-Server
+
+Stellt ein Angreifer einen eigenen DHCP-Server ins LAN, kann er Clients ein **falsches Gateway** (seine eigene IP) zuweisen — der gesamte Traffic läuft dann über ihn (**Man-in-the-Middle**). Dazu oft kombiniert mit **DHCP-Starvation** (alle echten Adressen abgreifen, damit nur noch der Rogue-Server antwortet).
+
+## Die Abwehr: Snooping mit trusted/untrusted
+
+DHCP-Snooping macht alle Ports per Default **untrusted**. Auf untrusted Ports lässt der Switch **nur Client-Nachrichten** (DISCOVER/REQUEST) durch und **verwirft Server-Nachrichten** (OFFER/ACK/NAK). Nur explizit als **trusted** markierte Ports — der Uplink zum echten Server bzw. Relay — dürfen Server-Antworten senden.
+
+\`\`\`
+SW(config)# ip dhcp snooping                       ! global aktivieren
+SW(config)# ip dhcp snooping vlan 10,20             ! pro VLAN
+
+SW(config)# interface gi0/1                          ! Uplink zum echten Server
+SW(config-if)# ip dhcp snooping trust
+
+SW(config)# interface range fa0/1-24                 ! Access-Ports = untrusted
+SW(config-if-range)# ip dhcp snooping limit rate 10  ! gegen Starvation
+\`\`\`
+
+## Die Binding-Tabelle
+
+Auf untrusted Ports baut der Switch aus erfolgreichen Leases eine **Binding-Tabelle** auf — **MAC ↔ IP ↔ VLAN ↔ Port ↔ Lease**:
+
+\`\`\`
+SW# show ip dhcp snooping binding
+MacAddress          IpAddress       Lease(sec)  Type           VLAN  Interface
+00:11:22:33:44:55   192.168.10.31   84600       dhcp-snooping  10    FastEthernet0/3
+\`\`\`
+
+Diese Tabelle ist die **Grundlage für Dynamic ARP Inspection (DAI)** und **IP Source Guard** — beide prüfen Pakete gegen diese Bindings. Snooping ist damit das Fundament der Layer-2-Sicherheit.
+
+---
+
+## ⚠️ Häufige Fehler & Prüfungsfallen
+
+- ⚠️ **Uplink nicht trust gesetzt:** Bleibt der Port zum echten Server untrusted, verwirft der Switch dessen OFFER/ACK → alle Clients bekommen **APIPA**. Klassische Falle: Snooping aktiviert, aber \`ip dhcp snooping trust\` am Uplink vergessen.
+- ⚠️ **Trust auf Access-Port:** Ein als trusted markierter Endgeräte-Port hebelt den Schutz aus — dort könnte ein Rogue-Server unbehelligt antworten. Trust **nur** Richtung echtem Server/Relay/Trunk.
+  `.trim(),
+};
+
 export const CONCEPT_NAT: Concept = {
   id: "nat",
   title: "NAT & PAT — Network/Port Address Translation",
@@ -143,16 +570,34 @@ export const TOPIC_DHCP_NAT: Topic = {
   title: "DHCP & NAT",
   description:
     "DHCP für automatische IP-Vergabe, DHCP Relay und DHCP Snooping. NAT/PAT für Internetzugang aus privaten Netzen.",
-  conceptIds: ["dhcp", "nat", "dhcp-nat-guide"],
+  conceptIds: [
+    "dhcp",
+    "dhcp-dora",
+    "dhcp-lease",
+    "dhcp-options",
+    "dhcp-relay",
+    "dhcp-apipa",
+    "dhcp-troubleshoot",
+    "dhcp-snooping",
+    "nat",
+    "dhcp-nat-guide",
+  ],
   quizIds: ["ccna-quiz-dhcp", "ccna-quiz-nat"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
-  estimatedMinutes: 90,
+  estimatedMinutes: 150,
   tags: ["dhcp", "nat", "pat", "ip-management"],
 };
 
 export const DHCP_NAT_CONCEPTS: Record<string, Concept> = {
   dhcp: CONCEPT_DHCP,
+  "dhcp-dora": CONCEPT_DHCP_DORA,
+  "dhcp-lease": CONCEPT_DHCP_LEASE,
+  "dhcp-options": CONCEPT_DHCP_OPTIONS,
+  "dhcp-apipa": CONCEPT_DHCP_APIPA,
+  "dhcp-relay": CONCEPT_DHCP_RELAY,
+  "dhcp-troubleshoot": CONCEPT_DHCP_TROUBLESHOOT,
+  "dhcp-snooping": CONCEPT_DHCP_SNOOPING,
   nat: CONCEPT_NAT,
   "dhcp-nat-guide": CONCEPT_DHCP_NAT_GUIDE,
 };
