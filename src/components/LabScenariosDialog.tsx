@@ -58,7 +58,7 @@ interface LabScenario {
 
 // ── Lab-Szenarien ─────────────────────────────────────────────
 
-const LABS: LabScenario[] = [
+export const LABS: LabScenario[] = [
 
   // ─────────────────────────────────────────────────────────────
   // DRILL-LABS — stumpfe Wiederholung für Muskelgedächtnis
