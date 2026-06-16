@@ -4996,6 +4996,337 @@ export const LABS: LabScenario[] = [
       { term: "show interfaces counters errors", def: "Listet alle Fehlerzähler je Port auf." },
     ],
   },
+
+  // ---------------------------------------------------------------
+  // Campus-Capstone: VTP + Router-on-a-Stick + zentrales DHCP (3 Switches)
+  // ---------------------------------------------------------------
+  {
+    id: "vlan-vtp-dhcp-campus",
+    icon: <Network size={20} />,
+    title: "Campus: VTP + RoaS + zentrales DHCP (3 Switches)",
+    subtitle: "R1 als DHCP-Server · VTP CCNA · 3 VLANs + Mgmt · End-to-End",
+    difficulty: "Fortgeschritten",
+    duration: "45 min",
+    context: {
+      problem:
+        "Drei Abteilungen (VLANs) verteilt über drei in Reihe geschaltete Switches sollen automatisch IP-Adressen bekommen und miteinander routen — mit nur EINEM Router und einem zentralen DHCP-Server, ohne auf jedem Switch VLANs und auf jedem Router-Port Adressen von Hand zu pflegen.",
+      purpose:
+        "Ein vollständiges Campus-Szenario von Grund auf, das den CIS-Grundlagenstoff zusammenführt: Grundkonfiguration, automatische VLAN-Verteilung per VTP über drei Switches, Inter-VLAN-Routing per Router-on-a-Stick (inkl. Native-VLAN-Subinterface), ein zentraler DHCP-Server mit vier Pools und ausgenommenen Bereichen sowie Switch-Management über SVIs — abgeschlossen mit End-to-End-Ping-Tests. Ideales Abschluss-Lab.",
+    },
+    topology: {
+      description:
+        "Router R1 (Router-on-a-Stick + DHCP-Server) hängt an SW1; die drei Switches sind in Reihe per Trunk verbunden (SW1—SW2—SW3). VLANs werden per VTP von SW1/SW2 (Server) an SW3 (Client) verteilt. An jedem Switch sitzen drei PCs in VLAN 100 (Rot), 110 (Blau) und 120 (Grün); das Management läuft über VLAN 1.",
+      devices: [
+        { type: "router", label: "R1 (RoaS + DHCP-Server)", count: 1 },
+        { type: "switch", label: "SW1 / SW2 (VTP-Server)", count: 2 },
+        { type: "switch", label: "SW3 (VTP-Client)", count: 1 },
+        { type: "pc", label: "9 PCs (Rot/Blau/Grün je Switch)", count: 9 },
+      ],
+      connections: [
+        "R1 Gi0/0 ↔ SW1 Gi0/1  (Trunk, Router-on-a-Stick)",
+        "SW1 Gi0/2 ↔ SW2 Gi0/1  (Trunk)",
+        "SW2 Gi0/2 ↔ SW3 Gi0/1  (Trunk)",
+        "Je Switch: PC Rot → Fa0/1 (VLAN 100), PC Blau → Fa0/8 (VLAN 110), PC Grün → Fa0/13 (VLAN 120)",
+      ],
+      hint: "Die Access-Ranges legen Fa0/1-7 = VLAN 100, Fa0/8-12 = VLAN 110, Fa0/13-20 = VLAN 120. Stecke jeden PC an einen Port IM Bereich seines VLANs. Bei SW3 (VTP-Client) zuerst den Trunk setzen, auf die VLAN-Synchronisation warten, DANN die Access-Ports zuweisen.",
+    },
+    steps: [
+      {
+        title: "Schritt 1 — R1: Grundkonfig, Subinterfaces (RoaS), DHCP-Server",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "hostname R1\nenable secret cisco\nno ip domain-lookup\nline console 0\npassword cisco\nlogin\nexit\nline vty 0 4\npassword cisco\nlogin\nexit",
+                explanation:
+                  "Grundkonfiguration: Hostname, Privileged-Passwort (Hash), kein DNS-Lookup bei Tippfehlern, Console- und VTY-Zugang mit Passwort.",
+              },
+              {
+                cmd: "interface gi0/0\nno ip address\nno shutdown",
+                explanation:
+                  "Das physische Parent-Interface bekommt KEINE IP, muss aber aktiviert werden — sonst sind alle Subinterfaces down.",
+              },
+              {
+                cmd: "interface gi0/0.1\nencapsulation dot1Q 1 native\nip address 192.168.1.1 255.255.255.0\nexit",
+                explanation:
+                  "Subinterface für das Management-VLAN 1 als NATIVE VLAN (ungetaggt). 192.168.1.1 ist Gateway des Mgmt-Netzes.",
+              },
+              {
+                cmd: "interface gi0/0.100\nencapsulation dot1Q 100\nip address 10.10.100.1 255.255.255.0\nexit\ninterface gi0/0.110\nencapsulation dot1Q 110\nip address 10.10.110.1 255.255.255.0\nexit\ninterface gi0/0.120\nencapsulation dot1Q 120\nip address 10.10.120.1 255.255.255.0\nexit",
+                explanation:
+                  "Je ein Subinterface als Gateway pro Daten-VLAN (100 Rot, 110 Blau, 120 Grün). encapsulation dot1Q <id> bindet das Tag, dann die IP.",
+              },
+              {
+                cmd: "ip dhcp excluded-address 192.168.1.1 192.168.1.100\nip dhcp excluded-address 192.168.1.200 192.168.1.255\nip dhcp excluded-address 10.10.100.1 10.10.100.100\nip dhcp excluded-address 10.10.100.200 10.10.100.255\nip dhcp excluded-address 10.10.110.1 10.10.110.100\nip dhcp excluded-address 10.10.110.200 10.10.110.255\nip dhcp excluded-address 10.10.120.1 10.10.120.100\nip dhcp excluded-address 10.10.120.200 10.10.120.255",
+                explanation:
+                  "Nimmt Gateways, Server- und Reservebereiche aus den Pools heraus. So vergibt DHCP nur den Bereich .101–.199 je Netz.",
+              },
+              {
+                cmd: "ip dhcp pool MGMT\nnetwork 192.168.1.0 255.255.255.0\ndefault-router 192.168.1.1\nexit",
+                explanation: "DHCP-Pool für das Management-Netz (VLAN 1).",
+              },
+              {
+                cmd: "ip dhcp pool VLAN100\nnetwork 10.10.100.0 255.255.255.0\ndefault-router 10.10.100.1\nexit\nip dhcp pool VLAN110\nnetwork 10.10.110.0 255.255.255.0\ndefault-router 10.10.110.1\nexit\nip dhcp pool VLAN120\nnetwork 10.10.120.0 255.255.255.0\ndefault-router 10.10.120.1\nexit",
+                explanation:
+                  "Ein Pool je Daten-VLAN. Das Default-Gateway ist jeweils die Subinterface-IP des Routers — so erreichen die Clients ihr Inter-VLAN-Routing.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "end\nwrite memory",
+                explanation: "Konfiguration speichern.",
+              },
+              {
+                cmd: "show ip interface brief\nshow ip dhcp pool",
+                explanation:
+                  "Verifikation: alle Subinterfaces up/up; jeder Pool zeigt seinen Bereich und (nach Schritt 5) vergebene Leases.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Schritt 2 — SW1 (VTP-Server): VLANs, Access-Ports, Trunks, Mgmt-SVI",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "hostname SW1\nenable secret cisco\nno ip domain-lookup\nline console 0\npassword cisco\nlogin\nexit\nline vty 0 4\npassword cisco\nlogin\nexit",
+                explanation: "Grundkonfiguration wie bei R1.",
+              },
+              {
+                cmd: "vtp mode server\nvtp domain CCNA\nvtp password cisco",
+                explanation:
+                  "SW1 ist VTP-Server der Domain CCNA und verteilt die VLAN-Datenbank. Domain + Passwort müssen auf allen Switches gleich sein.",
+              },
+              {
+                cmd: "vlan 100\nname Rot\nexit\nvlan 110\nname Blau\nexit\nvlan 120\nname Gruen\nexit",
+                explanation:
+                  "Die drei Daten-VLANs anlegen. VTP überträgt sie automatisch an SW2 und SW3.",
+              },
+              {
+                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                explanation:
+                  "Access-Ports den VLANs zuordnen: Fa0/1-7 → 100 (Rot), Fa0/8-12 → 110 (Blau), Fa0/13-20 → 120 (Grün).",
+              },
+              {
+                cmd: "interface gi0/1\nswitchport mode trunk\nexit\ninterface gi0/2\nswitchport mode trunk\nexit",
+                explanation: "Gi0/1 = Trunk zum Router (RoaS), Gi0/2 = Trunk zu SW2.",
+              },
+              {
+                cmd: "interface vlan 1\nip address 192.168.1.2 255.255.255.0\nno shutdown\nexit\nip default-gateway 192.168.1.1",
+                explanation:
+                  "Management-SVI im VLAN 1 + Default-Gateway, damit SW1 fernadministrierbar ist (L2-Switch routet selbst nicht).",
+              },
+            ],
+          },
+          {
+            device: "SW1",
+            mode: "privileged",
+            modeLabel: "SW1#",
+            commands: [
+              {
+                cmd: "end\nwrite memory",
+                explanation: "Speichern.",
+              },
+              {
+                cmd: "show vtp status\nshow vlan brief\nshow interfaces trunk",
+                explanation:
+                  "Verifikation: VTP-Server, Domain CCNA; VLAN 100/110/120 vorhanden; Gi0/1 und Gi0/2 trunking.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Schritt 3 — SW2 (VTP-Server): Access-Ports, Trunks, Mgmt-SVI",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "hostname SW2\nenable secret cisco\nno ip domain-lookup\nline console 0\npassword cisco\nlogin\nexit\nline vty 0 4\npassword cisco\nlogin\nexit",
+                explanation: "Grundkonfiguration.",
+              },
+              {
+                cmd: "vtp mode server\nvtp domain CCNA\nvtp password cisco",
+                explanation:
+                  "Auch SW2 ist Server der Domain CCNA. Die VLANs muss SW2 NICHT selbst anlegen — sie kommen per VTP von SW1 (gleiche Domain, höhere Revision gewinnt).",
+              },
+              {
+                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                explanation: "Access-Ports wie auf SW1 zuordnen.",
+              },
+              {
+                cmd: "interface gi0/1\nswitchport mode trunk\nexit\ninterface gi0/2\nswitchport mode trunk\nexit",
+                explanation: "Gi0/1 = Trunk zu SW1, Gi0/2 = Trunk zu SW3.",
+              },
+              {
+                cmd: "interface vlan 1\nip address 192.168.1.3 255.255.255.0\nno shutdown\nexit\nip default-gateway 192.168.1.1",
+                explanation: "Management-SVI + Gateway (192.168.1.3).",
+              },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "privileged",
+            modeLabel: "SW2#",
+            commands: [
+              { cmd: "end\nwrite memory", explanation: "Speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Schritt 4 — SW3 (VTP-Client): erst Trunk, VLAN-Sync abwarten, dann Access",
+        blocks: [
+          {
+            device: "SW3",
+            mode: "global",
+            modeLabel: "SW3(config)#",
+            commands: [
+              {
+                cmd: "hostname SW3\nenable secret cisco\nno ip domain-lookup\nline console 0\npassword cisco\nlogin\nexit\nline vty 0 4\npassword cisco\nlogin\nexit",
+                explanation: "Grundkonfiguration.",
+              },
+              {
+                cmd: "vtp mode client\nvtp domain CCNA\nvtp password cisco",
+                explanation:
+                  "SW3 ist VTP-Client und übernimmt die VLAN-Datenbank — kann selbst keine VLANs anlegen.",
+              },
+              {
+                cmd: "interface gi0/1\nswitchport mode trunk\nexit",
+                explanation:
+                  "ZUERST den Trunk setzen! Erst über den Trunk synchronisiert VTP die VLANs zu SW3.",
+              },
+            ],
+          },
+          {
+            device: "SW3",
+            mode: "privileged",
+            modeLabel: "SW3#",
+            commands: [
+              {
+                cmd: "show vlan brief",
+                explanation:
+                  "Warten und prüfen: VLAN 100, 110, 120 MÜSSEN per VTP erschienen sein. Erst dann weiter mit den Access-Ports.",
+              },
+            ],
+          },
+          {
+            device: "SW3",
+            mode: "global",
+            modeLabel: "SW3(config)#",
+            commands: [
+              {
+                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                explanation: "Jetzt die Access-Ports den (synchronisierten) VLANs zuweisen.",
+              },
+              {
+                cmd: "interface vlan 1\nip address 192.168.1.4 255.255.255.0\nno shutdown\nexit\nip default-gateway 192.168.1.1",
+                explanation: "Management-SVI + Gateway (192.168.1.4).",
+              },
+            ],
+          },
+          {
+            device: "SW3",
+            mode: "privileged",
+            modeLabel: "SW3#",
+            commands: [
+              { cmd: "end\nwrite memory", explanation: "Speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Schritt 5 — PCs auf DHCP stellen",
+        blocks: [
+          {
+            device: "Alle PCs",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              {
+                cmd: "Jeden PC anklicken → Desktop → IP Configuration → DHCP auswählen",
+                explanation:
+                  "Erwartete IPs: VLAN 100 (Rot) 10.10.100.101–199, VLAN 110 (Blau) 10.10.110.101–199, VLAN 120 (Grün) 10.10.120.101–199 — Gateway jeweils .1.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Schritt 6 — Abschlusstest",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip dhcp binding",
+                explanation:
+                  "Alle 9 PCs sollten mit IP und MAC erscheinen. Danach die Ping-Tests durchführen.",
+              },
+            ],
+          },
+          {
+            device: "PCs",
+            mode: "desktop",
+            modeLabel: "Desktop > Command Prompt",
+            commands: [
+              {
+                cmd: "PC Rot SW1 → PC Rot SW3  (gleiches VLAN 100, anderer Switch)",
+                explanation: "Muss funktionieren — VTP-Trunks tragen VLAN 100 durchgehend.",
+              },
+              {
+                cmd: "PC Rot → PC Blau  (VLAN 100 → VLAN 110, über R1)",
+                explanation: "Muss funktionieren — Inter-VLAN-Routing über die RoaS-Subinterfaces.",
+              },
+              {
+                cmd: "PC Rot SW1 → PC an SW3  (über zwei Trunk-Hops)",
+                explanation: "Muss funktionieren — Trunks SW1—SW2—SW3 transportieren alle VLANs.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip dhcp binding (R1)", expected: "9 Einträge — je PC eine IP aus .101–.199 + MAC" },
+      { cmd: "show ip dhcp pool (R1)", expected: "MGMT/VLAN100/110/120 mit vergebenen Leases" },
+      { cmd: "show vlan brief (SW3)", expected: "VLAN 100/110/120 per VTP vorhanden (obwohl SW3 Client ist)" },
+      { cmd: "show vtp status (alle)", expected: "Domain CCNA, gleiche Configuration Revision auf allen Switches" },
+      { cmd: "show interfaces trunk", expected: "Gi0/1/Gi0/2 trunking, VLAN 1/100/110/120 allowed+active" },
+      { cmd: "ping VLAN100 → VLAN110", expected: "Erfolgreich (Inter-VLAN über R1-Subinterfaces)" },
+    ],
+    glossary: [
+      { term: "Router-on-a-Stick", def: "Inter-VLAN-Routing über ein physisches Router-Interface, aufgeteilt in Subinterfaces pro VLAN." },
+      { term: "Subinterface (gi0/0.X)", def: "Logisches Unter-Interface mit eigenem VLAN-Tag und IP — Default-Gateway eines VLANs." },
+      { term: "encapsulation dot1Q <id> native", def: "Bindet das Subinterface an ein VLAN; 'native' = dieses VLAN läuft am Trunk ungetaggt (hier VLAN 1)." },
+      { term: "Native VLAN", def: "Das eine VLAN, dessen Frames am Trunk ungetaggt übertragen werden (Standard VLAN 1)." },
+      { term: "VTP (Server/Client)", def: "VLAN Trunking Protocol — Server legen VLANs an und verteilen sie; Clients übernehmen sie automatisch." },
+      { term: "VTP-Domain", def: "Gemeinsamer Name + Passwort, den alle Switches teilen müssen, damit VTP synchronisiert (hier CCNA)." },
+      { term: "ip dhcp excluded-address", def: "Nimmt Adressbereiche aus einem Pool heraus (Gateways, Server, Reserve) — verhindert Konflikte." },
+      { term: "ip dhcp pool / default-router", def: "Definiert Adressbereich (network) und das den Clients mitgeteilte Gateway je VLAN." },
+      { term: "SVI (interface vlan 1)", def: "Virtuelles Switch-Interface für das Management — gibt dem L2-Switch eine erreichbare IP." },
+      { term: "ip default-gateway", def: "Gateway für einen reinen L2-Switch (der selbst nicht routet) — für Fernzugriff aus anderen Netzen." },
+      { term: "show ip dhcp binding", def: "Zeigt alle vergebenen Leases: IP ↔ MAC ↔ Ablaufzeit." },
+    ],
+  },
 ];
 
 // ── Hilfsfunktionen ───────────────────────────────────────────
