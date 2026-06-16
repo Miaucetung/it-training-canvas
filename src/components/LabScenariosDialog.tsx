@@ -46,6 +46,8 @@ interface LabScenario {
   subtitle: string;
   difficulty: "Drill" | "Anfänger" | "Mittel" | "Fortgeschritten";
   duration: string;
+  /** Warum dieses Lab? Welches Problem es löst und wofür das Szenario gebraucht wird. */
+  context?: { problem: string; purpose: string };
   topology: {
     description: string;
     devices: Array<{ type: string; label: string; count: number }>;
@@ -54,6 +56,8 @@ interface LabScenario {
   };
   steps: LabStep[];
   verifyCommands: Array<{ cmd: string; expected: string; explanation?: string }>;
+  /** Kurz-Glossar der im Lab verwendeten Fachbegriffe. */
+  glossary?: Array<{ term: string; def: string }>;
 }
 
 // ── Lab-Szenarien ─────────────────────────────────────────────
@@ -1749,6 +1753,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router-on-a-Stick · 3 VLANs · zentraler DHCP-Server · ip helper-address",
     difficulty: "Fortgeschritten",
     duration: "30 min",
+    context: {
+      problem:
+        "DHCP-Clients suchen ihren Server per Broadcast. Router leiten Broadcasts aber NICHT zwischen Subnetzen weiter — ein zentraler DHCP-Server in VLAN 71 würde die Discover-Pakete aus VLAN 51 und 61 also nie sehen. Ohne Lösung bekäme jeder Client nur eine APIPA-Adresse (169.254.x.x).",
+      purpose:
+        "In echten Netzen will man EINEN zentralen DHCP-Server für viele VLANs statt einen Pool pro Router. Dieses Szenario zeigt den Standardweg dafür: Der Router wird mit 'ip helper-address' zum DHCP-Relay, das die Broadcasts als gezielten Unicast an den Server weiterreicht — genau so läuft es in Unternehmens- und Campus-Netzen.",
+    },
     topology: {
       description:
         "Drei VLANs auf zwei Switches, Inter-VLAN-Routing per Router-on-a-Stick. Ein einziger DHCP-Server (192.168.2.11) im VLAN 71 versorgt die Clients in VLAN 51 und 61 — der Router leitet die DHCP-Broadcasts per ip helper-address als Unicast weiter.",
@@ -1902,6 +1912,17 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip dhcp binding (Server)", expected: "Leases in 172.16.51.x UND 172.16.61.x" },
       { cmd: "show vlans (R1)", expected: "Gi0/0.51→VLAN51, .61→VLAN61, .71→VLAN71 + Paketzähler" },
       { cmd: "show vtp status (SW2)", expected: "Mode: Client, Domain FSG57, gleiche Revision wie SW1" },
+    ],
+    glossary: [
+      { term: "DHCP Relay", def: "Funktion eines Routers, die DHCP-Broadcasts aus einem Client-VLAN als Unicast an einen entfernten Server weiterleitet. Aktiviert mit ip helper-address." },
+      { term: "ip helper-address", def: "Befehl auf dem Client-seitigen Interface, der die Ziel-IP des DHCP-Servers setzt. Macht den Router zum Relay-Agent." },
+      { term: "giaddr", def: "Gateway IP Address — Feld im DHCP-Paket, in das der Relay seine Interface-IP einträgt. Der Server wählt daran den passenden Adresspool." },
+      { term: "Router-on-a-Stick", def: "Inter-VLAN-Routing über EIN physisches Interface, das per Subinterfaces (encapsulation dot1q) in mehrere VLAN-Gateways aufgeteilt wird." },
+      { term: "Subinterface", def: "Logisches Unter-Interface (z. B. Gi0/0.51) mit eigener VLAN-Zuordnung und IP — dient als Default-Gateway eines VLANs." },
+      { term: "encapsulation dot1q <id>", def: "Bindet ein Subinterface an ein VLAN-Tag nach IEEE 802.1Q. Pflicht, sonst weiß das Subinterface nicht, welches VLAN es bedient." },
+      { term: "VTP", def: "VLAN Trunking Protocol — verteilt die VLAN-Datenbank automatisch vom Server- an die Client-Switches derselben Domain." },
+      { term: "Trunk", def: "Switch-Link, der mehrere VLANs getaggt (802.1Q) überträgt — hier zwischen Switch und Router bzw. zwischen den Switches." },
+      { term: "APIPA", def: "169.254.x.x — Adresse, die ein Client sich selbst gibt, wenn KEIN DHCP-Server antwortet. Sicheres Zeichen für ein DHCP-/Relay-Problem." },
     ],
   },
 
@@ -4421,6 +4442,13 @@ function buildLabText(lab: LabScenario): string {
   out += `Schwierigkeit: ${lab.difficulty}  |  Dauer: ${lab.duration}\n`;
   out += `${sep}\n\n`;
 
+  // Kontext
+  if (lab.context) {
+    out += `WORUM GEHT ES?\n${line}\n`;
+    out += `Problem: ${lab.context.problem}\n`;
+    out += `Zweck:   ${lab.context.purpose}\n\n`;
+  }
+
   // Topologie
   out += `① TOPOLOGIE (Drag & Drop in Packet Tracer)\n${line}\n`;
   out += `${lab.topology.description}\n\n`;
@@ -4451,6 +4479,15 @@ function buildLabText(lab: LabScenario): string {
   lab.verifyCommands.forEach((v) => {
     out += `  $ ${v.cmd}\n    → Erwartet: ${v.expected}\n\n`;
   });
+
+  // Glossar
+  if (lab.glossary && lab.glossary.length > 0) {
+    out += `④ GLOSSAR\n${line}\n`;
+    lab.glossary.forEach((g) => {
+      out += `  ${g.term} — ${g.def}\n`;
+    });
+    out += `\n`;
+  }
 
   out += `${sep}\nGeneriert von ccna.ajti.online – ${new Date().toLocaleDateString("de-DE")}\n${sep}\n`;
   return out;
@@ -4604,6 +4641,13 @@ function printLabAsPdf(lab: LabScenario) {
     ${lab.subtitle} &nbsp;|&nbsp; ⏱ ${lab.duration}
   </div>
 
+  ${lab.context ? `
+  <div class="section topology-box" style="border-color:#c7d2fe;background:#eef2ff">
+    <strong>Worum geht es?</strong><br/>
+    <span style="font-size:10px;color:#374151"><strong>Problem:</strong> ${lab.context.problem}</span><br/>
+    <span style="font-size:10px;color:#374151"><strong>Zweck:</strong> ${lab.context.purpose}</span>
+  </div>` : ""}
+
   <div class="section topology-box">
     <strong>① Topologie aufbauen (Drag &amp; Drop in Packet Tracer)</strong><br/>
     <span style="font-size:10px;color:#374151">${lab.topology.description}</span>
@@ -4642,6 +4686,12 @@ function printLabAsPdf(lab: LabScenario) {
       </div>
     `).join("")}
   </div>
+
+  ${lab.glossary && lab.glossary.length > 0 ? `
+  <div class="section">
+    <strong>④ Glossar — Begriffe in diesem Lab</strong>
+    ${lab.glossary.map(g => `<div style="font-size:10px;margin-top:3px"><strong style="font-family:monospace">${g.term}</strong> — ${g.def}</div>`).join("")}
+  </div>` : ""}
 
   <div class="footer">ccna.ajti.online &mdash; ${new Date().toLocaleDateString("de-DE")} &mdash; ${lab.title}</div>
 
@@ -4777,6 +4827,25 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
                 </div>
               </div>
 
+              {/* ── Kontext: Warum dieses Lab? ── */}
+              {lab.context && (
+                <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-indigo-300 text-sm font-bold">Worum geht es in diesem Lab?</span>
+                  </div>
+                  <div className="space-y-2.5 text-sm">
+                    <div>
+                      <span className="text-indigo-400 font-semibold">Problem: </span>
+                      <span className="text-slate-300">{lab.context.problem}</span>
+                    </div>
+                    <div>
+                      <span className="text-indigo-400 font-semibold">Zweck: </span>
+                      <span className="text-slate-300">{lab.context.purpose}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ── Schritt 0: Topologie-Aufbau ── */}
               <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4">
                 <div className="flex items-center gap-2 mb-3">
@@ -4848,6 +4917,23 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
                   ))}
                 </div>
               </div>
+
+              {/* ── Glossar ── */}
+              {lab.glossary && lab.glossary.length > 0 && (
+                <div className="rounded-xl border border-slate-600/40 bg-slate-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-slate-300 text-sm font-bold">④ Glossar — Begriffe in diesem Lab</span>
+                  </div>
+                  <dl className="space-y-2">
+                    {lab.glossary.map((g, i) => (
+                      <div key={i} className="text-xs">
+                        <dt className="inline font-mono font-semibold text-cyan-300">{g.term}</dt>
+                        <dd className="inline text-slate-400"> — {g.def}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
