@@ -2772,6 +2772,12 @@ export const LABS: LabScenario[] = [
     subtitle: "2 Switches · PCs",
     difficulty: "Mittel",
     duration: "15 min",
+    context: {
+      problem:
+        "Redundante Verbindungen zwischen Switches erzeugen ohne Schutz Layer-2-Loops. Ein Frame kreist endlos, ein Broadcast-Sturm legt binnen Sekunden das ganze Netz lahm.",
+      purpose:
+        "STP wählt automatisch eine Root-Bridge und blockiert überflüssige Pfade, sodass genau ein loopfreier Baum bleibt. PortFast + BPDU-Guard sichern dabei die Access-Ports ab.",
+    },
     topology: {
       description:
         "STP verhindert Loops. PortFast beschleunigt den Port-Übergang für Endgeräte.",
@@ -2830,6 +2836,17 @@ export const LABS: LabScenario[] = [
       { cmd: "show spanning-tree", expected: "SW1: Root Bridge, SW2: Port blocked" },
       { cmd: "show spanning-tree vlan 1 detail", expected: "Root ID Priority 4096 SW1 MAC" },
     ],
+    glossary: [
+      { term: "STP", def: "Spanning Tree Protocol (802.1D) — verhindert Layer-2-Loops, indem es redundante Pfade blockiert." },
+      { term: "Root-Bridge", def: "Der zentrale Referenz-Switch des Baums — gewählt über die niedrigste Bridge-ID." },
+      { term: "Bridge-Priority", def: "Erster Teil der Bridge-ID (Default 32768). Niedriger gewinnt; bei Gleichstand entscheidet die MAC." },
+      { term: "BPDU", def: "Bridge Protocol Data Unit — STP-Nachricht, mit der Switches die Topologie aushandeln." },
+      { term: "Root Port (RP)", def: "Der Port eines Switches mit dem günstigsten Pfad zur Root-Bridge." },
+      { term: "Designated Port (DP)", def: "Pro Segment der weiterleitende Port; an der Root-Bridge sind alle Ports DP." },
+      { term: "Blocking", def: "Zustand eines Ports, der zur Loop-Vermeidung keine Daten weiterleitet." },
+      { term: "PortFast", def: "Bringt einen Access-Port sofort in Forwarding (überspringt STP-Phasen). Nur für Endgeräte!" },
+      { term: "BPDU-Guard", def: "Deaktiviert einen PortFast-Port (err-disabled), sobald dort eine BPDU eintrifft — schützt vor fremden Switches." },
+    ],
   },
 
   // ═════════════════════════════════════════════════════════════
@@ -2846,6 +2863,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Switch-Spoofing + Double-Tagging verhindern",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Ein Angreifer kann per Double-Tagging (zwei 802.1Q-Tags) oder einem erschlichenen Trunk (DTP) Frames in ein fremdes VLAN einschleusen, das er eigentlich nicht erreichen darf.",
+      purpose:
+        "Die Standard-Gegenmaßnahmen gegen VLAN-Hopping umsetzen: ein ungenutztes Native-VLAN als Blackhole, DTP per nonegotiate abschalten und Access-Ports härten.",
+    },
     topology: {
       description:
         "Angriffsszenario: Ein PC versucht durch Switch-Spoofing (DTP) oder Double-Tagging in fremde VLANs zu gelangen. Wir härten die Switch-Ports.",
@@ -2913,6 +2936,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show interfaces switchport", expected: "Operational Mode: static access, Negotiation: Off" },
       { cmd: "show interfaces trunk", expected: "Native vlan: 999, Allowed: 10,20" },
     ],
+    glossary: [
+      { term: "VLAN-Hopping", def: "Angriff, der Frames in ein anderes VLAN bringt — per Double-Tagging oder Switch-Spoofing (DTP)." },
+      { term: "Double-Tagging", def: "Angreifer setzt zwei 802.1Q-Tags; der erste wird am Trunk entfernt, der zweite leitet ins Ziel-VLAN." },
+      { term: "Native VLAN", def: "Das eine VLAN, dessen Frames am Trunk UNgetaggt laufen — Einfallstor für Double-Tagging." },
+      { term: "Blackhole-VLAN", def: "Ein leeres, nirgends genutztes VLAN, das man als Native VLAN setzt, damit getaggter Angriffsverkehr ins Leere läuft." },
+      { term: "switchport nonegotiate", def: "Schaltet DTP ab, damit kein Port automatisch zum Trunk verhandelt wird (Switch-Spoofing-Schutz)." },
+      { term: "DTP", def: "Dynamic Trunking Protocol — automatische Trunk-Verhandlung, die ein Angreifer ausnutzen kann." },
+      { term: "BPDU-Guard", def: "Sichert Access-Ports zusätzlich gegen eingeschleuste Switches ab." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -2925,6 +2957,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Root/BPDU/Loop Guard kombiniert einsetzen",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Standard-STP konvergiert langsam und ist manipulierbar: ein fremder Switch mit niedriger Priorität kann Root werden und den Verkehr umleiten, fehlerhafte Links können Loops erzeugen.",
+      purpose:
+        "STP produktionsreif härten: Rapid-PVST für schnelle Konvergenz, Root bewusst festlegen, PortFast+BPDU-Guard global, Root-Guard/Loop-Guard und automatische errdisable-Recovery.",
+    },
     topology: {
       description:
         "3 Switches im Triangle. Wir definieren bewusst die Root Bridge, schützen sie gegen unerlaubte Übernahme und sichern alle Trunk-Links gegen Loops.",
@@ -2999,6 +3037,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show spanning-tree summary", expected: "PortFast Default ON, BPDU Guard Default ON" },
       { cmd: "show spanning-tree interface Gi0/1 detail", expected: "Root guard: enabled" },
     ],
+    glossary: [
+      { term: "Rapid-PVST+", def: "Ciscos schnelle STP-Variante (802.1w) pro VLAN — Konvergenz in Sekunden statt ~50 s." },
+      { term: "root primary / secondary", def: "Setzt die Bridge-Priority so, dass ein Switch sicher Root (bzw. Backup-Root) wird." },
+      { term: "Root Guard", def: "Verhindert, dass über einen Port ein fremder Switch Root-Bridge wird (Port geht in root-inconsistent)." },
+      { term: "Loop Guard", def: "Schützt vor Loops, wenn ein Blocking-Port durch ausbleibende BPDUs fälschlich forwardet." },
+      { term: "PortFast default", def: "Aktiviert PortFast global auf allen Access-Ports." },
+      { term: "BPDU-Guard default", def: "Aktiviert BPDU-Guard global auf allen PortFast-Ports." },
+      { term: "err-disabled", def: "Sicherheits-Aus-Zustand eines Ports nach einer Verletzung (z. B. BPDU auf PortFast-Port)." },
+      { term: "errdisable recovery", def: "Holt err-disabled Ports nach einem Intervall automatisch zurück (cause + interval)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -3011,6 +3059,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Anti-Spoofing-Trio auf dem Access-Switch",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Im LAN ermöglichen Rogue-DHCP-Server, ARP-Poisoning und IP-Spoofing Man-in-the-Middle-Angriffe: der Angreifer leitet fremden Verkehr über sich um.",
+      purpose:
+        "Die zusammenhängende L2-Security-Kette aufbauen: DHCP-Snooping (nur Server-Port trusted) erzeugt eine Binding-Tabelle, auf der Dynamic ARP Inspection und IP Source Guard aufsetzen.",
+    },
     topology: {
       description:
         "Access-Switch SW1 mit 3 Endgeräten. Legitime DHCP-Server hängen am Uplink. Wir blockieren Rogue-DHCP, ARP-Spoofing und IP-Spoofing in einem Rutsch.",
@@ -3090,6 +3144,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip dhcp snooping binding", expected: "MAC ↔ IP ↔ Lease ↔ VLAN ↔ Port" },
       { cmd: "show ip arp inspection", expected: "Source Mac Validation: enabled" },
     ],
+    glossary: [
+      { term: "DHCP-Snooping", def: "Lässt DHCP-Server-Antworten nur an trusted Ports zu — blockiert Rogue-DHCP-Server." },
+      { term: "trusted / untrusted", def: "Trusted = Uplink zum echten Server (alles erlaubt); untrusted = Access-Ports (Server-Antworten verworfen)." },
+      { term: "Binding-Tabelle", def: "MAC ↔ IP ↔ VLAN ↔ Port, vom Snooping aufgebaut — Datenbasis für DAI und IP Source Guard." },
+      { term: "Dynamic ARP Inspection (DAI)", def: "Prüft ARP-Pakete gegen die Binding-Tabelle — stoppt ARP-Poisoning." },
+      { term: "IP Source Guard", def: "Filtert IP-Pakete an untrusted Ports gegen die Bindings — stoppt IP-Spoofing (ip verify source)." },
+      { term: "ip arp inspection trust", def: "Markiert Uplinks/Trunks als vertrauenswürdig, sodass sie die ARP-Prüfung überspringen." },
+      { term: "Rogue-DHCP", def: "Unbefugter DHCP-Server, der Clients ein falsches Gateway (MITM) zuweist." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -3102,6 +3165,12 @@ export const LABS: LabScenario[] = [
     subtitle: "MAC-Limit, Sticky-MAC, Violation-Modus, err-disable Recovery",
     difficulty: "Mittel",
     duration: "12 min",
+    context: {
+      problem:
+        "An einem offenen Switch-Port kann jeder ein eigenes Gerät anstecken — oder per MAC-Flooding die MAC-Tabelle überlaufen lassen, sodass der Switch wie ein Hub alles flutet.",
+      purpose:
+        "Port-Security begrenzt die erlaubten MAC-Adressen pro Port, lernt sie sticky in die Konfiguration und reagiert bei Verstoß automatisch (protect/restrict/shutdown).",
+    },
     topology: {
       description:
         "Access-Switch SW1 mit einem PC pro Port. Wir schützen Ports vor unauthorisierten MAC-Adressen und limitieren die Anzahl gelernter MACs.",
@@ -3152,6 +3221,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show port-security interface Fa0/1", expected: "Port Security: Enabled, Max: 2, Sticky MACs: 1" },
       { cmd: "show port-security address", expected: "VLAN, MAC, Type=SecureSticky, Port" },
       { cmd: "show errdisable recovery", expected: "psecure-violation: Enabled, Interval 300s" },
+    ],
+    glossary: [
+      { term: "Port-Security", def: "Switch-Funktion, die je Port nur bestimmte/begrenzte MAC-Adressen zulässt." },
+      { term: "maximum <n>", def: "Maximale Anzahl erlaubter MAC-Adressen am Port." },
+      { term: "sticky MAC", def: "Lernt die erlaubte MAC dynamisch und schreibt sie fest in die running-config." },
+      { term: "Violation: protect", def: "Verwirft Verkehr unbekannter MACs ohne Meldung." },
+      { term: "Violation: restrict", def: "Verwirft + zählt + meldet (Syslog/SNMP), Port bleibt aktiv." },
+      { term: "Violation: shutdown", def: "Default — Port geht bei Verstoß in err-disabled." },
+      { term: "err-disabled", def: "Abgeschalteter Zustand nach einer Verletzung; per errdisable recovery automatisch rückholbar." },
+      { term: "MAC-Flooding", def: "Angriff, der die MAC-Tabelle mit Fake-Adressen füllt, bis der Switch wie ein Hub flutet." },
     ],
   },
 
