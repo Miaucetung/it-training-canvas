@@ -1869,6 +1869,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · Switch · 2 PCs",
     difficulty: "Anfänger",
     duration: "10 min",
+    context: {
+      problem:
+        "Jeden PC von Hand mit IP, Maske, Gateway und DNS zu versorgen ist mühsam und fehleranfällig — und bei Netzänderungen muss man alles erneut anfassen.",
+      purpose:
+        "Ein Router als DHCP-Server vergibt diese Parameter automatisch per DORA. Das Lab zeigt Pool, ausgenommene Adressen und die Client-Seite.",
+    },
     topology: {
       description:
         "Der Router fungiert als DHCP-Server. PCs erhalten automatisch IP-Adressen.",
@@ -1958,6 +1964,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip dhcp pool", expected: "LAN_POOL, Leases: 2" },
       { cmd: "show ip dhcp binding", expected: "192.168.1.11 → PC0 MAC" },
       { cmd: "ipconfig (auf PC)", expected: "IP aus Pool 192.168.1.11 oder .12" },
+    ],
+    glossary: [
+      { term: "DHCP", def: "Dynamic Host Configuration Protocol — vergibt IP, Maske, Gateway und DNS automatisch (UDP 67/68)." },
+      { term: "DORA", def: "Discover, Offer, Request, Ack — die vier Schritte der DHCP-Adressvergabe." },
+      { term: "ip dhcp pool", def: "Legt einen Adresspool an und öffnet den DHCP-Config-Modus." },
+      { term: "network", def: "Definiert den Adressbereich, den der Pool vergibt." },
+      { term: "default-router", def: "Gateway, das der Server den Clients mitteilt." },
+      { term: "dns-server", def: "DNS-Server-Adresse für die Clients." },
+      { term: "ip dhcp excluded-address", def: "Nimmt Adressen aus dem Pool heraus (Gateway, Server, Drucker) — verhindert Konflikte." },
+      { term: "Lease", def: "Geliehene Adresse mit Ablaufzeit; wird per Renewal/Rebinding verlängert." },
     ],
   },
 
@@ -2154,6 +2170,12 @@ export const LABS: LabScenario[] = [
     subtitle: "APIPA-Diagnose · helper-address · excluded-address · SVI down",
     difficulty: "Fortgeschritten",
     duration: "25 min",
+    context: {
+      problem:
+        "In einer fertig verdrahteten Umgebung bekommen Clients keine oder falsche IPs (169.254.x.x bzw. Gateway-Konflikt). Drei typische Konfigurationsfehler sind absichtlich eingebaut.",
+      purpose:
+        "Systematische Fehlersuche trainieren: Symptom lesen (APIPA = kein DHCP), Ursache eingrenzen und gezielt beheben — Helper-Adresse auf der richtigen Seite, fehlende Exclusion, abgeschaltetes SVI.",
+    },
     topology: {
       description:
         "Eine fertig 'verkabelte' Umgebung mit drei eingebauten Konfigurationsfehlern: Clients bekommen keine oder falsche IPs (169.254.x.x / Gateway-Konflikt). Aufgabe: systematisch diagnostizieren und beheben.",
@@ -2243,6 +2265,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip dhcp conflict (Server)", expected: "Keine Konflikte mehr gelistet" },
       { cmd: "show ip interface brief (SW1)", expected: "Vlan1: up/up mit Management-IP" },
     ],
+    glossary: [
+      { term: "APIPA", def: "169.254.x.x — Selbstadresse eines Clients, wenn KEIN DHCP antwortet. Sicheres Zeichen für ein DHCP-Problem." },
+      { term: "ip helper-address", def: "Muss auf dem CLIENT-seitigen Interface stehen; auf der Server-Seite entsteht kein korrektes giaddr." },
+      { term: "giaddr", def: "Feld, in das der Relay seine Interface-IP einträgt; der Server wählt daran den Pool." },
+      { term: "ip dhcp excluded-address", def: "Fehlt sie für die Gateway-IP, vergibt der Server diese — Adresskonflikt." },
+      { term: "SVI", def: "interface vlan X; ist es administratively down, fehlt das Gateway/Management." },
+      { term: "administratively down", def: "Per shutdown abgeschaltetes Interface — mit no shutdown aktivieren." },
+      { term: "Adresskonflikt", def: "Zwei Geräte beanspruchen dieselbe IP (z. B. Gateway + Client)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -2255,6 +2286,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · Switch · 2 PCs · Cloud",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Private Adressen (RFC 1918) sind im Internet nicht routbar. Viele interne Hosts müssen sich aber eine knappe Menge öffentlicher IPs teilen.",
+      purpose:
+        "PAT (NAT Overload) übersetzt alle internen Adressen auf EINE öffentliche IP, unterschieden per Portnummer. Das Lab zeigt inside/outside-Markierung, ACL und overload.",
+    },
     topology: {
       description:
         "PCs mit privaten IPs teilen sich eine öffentliche IP durch PAT (Port-Übersetung).",
@@ -2321,6 +2358,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip nat statistics", expected: "Hits steigen bei ping" },
       { cmd: "ping 200.0.0.2 (von PC0)", expected: "Pakete werden übersetzt" },
     ],
+    glossary: [
+      { term: "NAT", def: "Network Address Translation — übersetzt private in öffentliche IPs (und zurück)." },
+      { term: "PAT (Overload)", def: "Port Address Translation — viele private IPs teilen sich eine öffentliche, getrennt per Port." },
+      { term: "Inside Local / Global", def: "Inside Local = private Host-IP; Inside Global = die öffentliche IP nach Übersetzung." },
+      { term: "ip nat inside", def: "Markiert das LAN-seitige Interface (innen)." },
+      { term: "ip nat outside", def: "Markiert das WAN-/Internet-seitige Interface (außen)." },
+      { term: "access-list (NAT)", def: "Legt fest, welche Quelladressen übersetzt werden." },
+      { term: "ip nat inside source list ... overload", def: "Aktiviert PAT für die ACL über das Ausgangsinterface." },
+      { term: "RFC 1918", def: "Definiert die privaten Adressbereiche (10/8, 172.16/12, 192.168/16)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -2333,6 +2380,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · Admin-PC",
     difficulty: "Anfänger",
     duration: "10 min",
+    context: {
+      problem:
+        "Telnet überträgt Login und gesamte Sitzung im Klartext — jeder im Pfad kann Passwörter mitlesen. Fernzugriff auf Netzgeräte muss verschlüsselt sein.",
+      purpose:
+        "SSHv2 für sicheren Remote-Zugriff einrichten: RSA-Schlüssel, lokale Benutzer, VTY-Lines nur per SSH. Standard-Härtung, die auf jedes produktive Gerät gehört.",
+    },
     topology: {
       description:
         "SSH verschlüsselt den Administrationszugriff (sicherer als Telnet).",
@@ -2441,6 +2494,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip ssh", expected: "SSH Enabled - version 2.0" },
       { cmd: "show users", expected: "admin  vty0  SSH" },
     ],
+    glossary: [
+      { term: "SSH", def: "Secure Shell — verschlüsselter Fernzugriff (TCP 22), Ersatz für Telnet." },
+      { term: "Telnet", def: "Unverschlüsselter Fernzugriff (TCP 23) — überträgt alles im Klartext, unsicher." },
+      { term: "ip domain-name", def: "Setzt die Domäne; nötig, weil der RSA-Schlüssel an einen FQDN gebunden wird." },
+      { term: "crypto key generate rsa", def: "Erzeugt das RSA-Schlüsselpaar (Modulus >= 768 für SSHv2)." },
+      { term: "ip ssh version 2", def: "Erzwingt das sichere SSHv2 (statt des schwächeren v1)." },
+      { term: "line vty 0 4", def: "Die virtuellen Terminal-Lines für den Fernzugriff." },
+      { term: "login local", def: "Authentifizierung gegen die lokale Benutzerdatenbank." },
+      { term: "transport input ssh", def: "Erlaubt auf den VTY-Lines nur SSH (kein Telnet)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -2453,6 +2516,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · 2 LANs",
     difficulty: "Mittel",
     duration: "15 min",
+    context: {
+      problem:
+        "Ohne Filter erreicht jedes Netz jedes andere. Oft soll ein bestimmtes Quellnetz blockiert, der übrige Verkehr aber durchgelassen werden.",
+      purpose:
+        "Eine Standard-ACL filtert ausschließlich nach der Quell-IP. Sie wird nah am Ziel angewendet. Wichtig: am Ende steht ein unsichtbares deny any.",
+    },
     topology: {
       description:
         "Standard-ACL filtert nach Quell-IP. Platzierung: so nah wie möglich am Ziel.",
@@ -2519,6 +2588,15 @@ export const LABS: LabScenario[] = [
       { cmd: "ping 192.168.3.100 (von PC0)", expected: "!!!!!  — erlaubt" },
       { cmd: "ping 192.168.3.100 (von PC1)", expected: "UUUUU — geblockt" },
     ],
+    glossary: [
+      { term: "ACL", def: "Access Control List — geordnete Regelliste, die Verkehr erlaubt (permit) oder verwirft (deny)." },
+      { term: "Standard-ACL", def: "Nummern 1–99 / 1300–1999 — filtert NUR nach Quell-IP." },
+      { term: "permit / deny", def: "Erlaubt bzw. verwirft passende Pakete. Reihenfolge zählt (erste Übereinstimmung gewinnt)." },
+      { term: "Wildcard-Maske", def: "Invertierte Maske zur Adressauswahl (0 = muss passen, 1 = egal)." },
+      { term: "implizites deny any", def: "Unsichtbare letzte Regel — was nicht erlaubt ist, wird verworfen." },
+      { term: "ip access-group", def: "Bindet eine ACL an ein Interface in einer Richtung (in/out)." },
+      { term: "in / out", def: "Richtung relativ zum Interface. Standard-ACL möglichst nah am Ziel platzieren." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -2531,6 +2609,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · 2 Hosts · Web-Server",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Standard-ACLs können nur nach Quelle filtern. Oft will man aber gezielter steuern — z. B. nur HTTP von einem bestimmten PC zu einem Server sperren, alles andere zulassen.",
+      purpose:
+        "Eine Extended ACL filtert nach Protokoll, Quelle, Ziel UND Port. Sie wird nah an der Quelle angewendet, um unerwünschten Verkehr früh zu stoppen.",
+    },
     topology: {
       description:
         "Extended ACL filtert nach Quelle, Ziel, Protokoll und Port. Platzierung: so nah wie möglich an der Quelle.",
@@ -2590,6 +2674,15 @@ export const LABS: LabScenario[] = [
     verifyCommands: [
       { cmd: "show ip access-lists BLOCK_PC1_HTTP", expected: "deny: Treffer-Zähler > 0" },
       { cmd: "ping 192.168.2.100 (von PC1)", expected: "ping funktioniert (ICMP, nicht HTTP)" },
+    ],
+    glossary: [
+      { term: "Extended ACL", def: "Nummern 100–199 / named — filtert nach Protokoll, Quelle, Ziel und Port." },
+      { term: "Named ACL", def: "ACL mit Namen statt Nummer (ip access-list extended NAME) — Regeln einzeln editierbar." },
+      { term: "eq <port>", def: "Match auf eine Portnummer (z. B. eq 80 = HTTP, eq 443 = HTTPS)." },
+      { term: "Protokoll-Filter", def: "Match auf tcp/udp/icmp/ip statt nur auf Adressen." },
+      { term: "ip access-group in", def: "Bindet die ACL eingehend ans Interface." },
+      { term: "nah an der Quelle", def: "Extended ACLs platziert man quellnah, um Verkehr früh zu verwerfen." },
+      { term: "established", def: "Optionales TCP-Match auf bereits aufgebaute Verbindungen (ACK/RST gesetzt)." },
     ],
   },
 
@@ -3741,6 +3834,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Time-Sync, zentrales Logging, sicheres Monitoring",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Ohne synchronisierte Uhren lassen sich Logs verschiedener Geräte nicht korrelieren — und ohne zentrales Logging übersieht man Vorfälle ganz.",
+      purpose:
+        "Betriebsgrundlagen einrichten: NTP für eine einheitliche, authentifizierte Zeit und Syslog für zentrale Logs mit korrekten Zeitstempeln.",
+    },
     topology: {
       description:
         "Switch SW1 als 'managed Device'. NTP-Server 10.0.0.10, Syslog-Server 10.0.0.20, SNMPv3 Monitoring von 10.0.0.30 mit Auth+Priv.",
@@ -3812,6 +3911,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ntp associations", expected: "*~10.0.0.10  (* = sys.peer)" },
       { cmd: "show logging", expected: "Trap logging: level informational, 0 messages lost, Logging to 10.0.0.20" },
       { cmd: "show snmp user", expected: "User name: monitor, Auth Protocol: SHA, Privacy: AES128" },
+    ],
+    glossary: [
+      { term: "NTP", def: "Network Time Protocol (UDP 123) — synchronisiert die Uhren aller Geräte." },
+      { term: "Stratum", def: "Distanz zur Referenzuhr; je niedriger, desto vertrauenswürdiger die Zeitquelle." },
+      { term: "ntp authenticate", def: "Aktiviert NTP-Authentifizierung (mit ntp authentication-key … md5)." },
+      { term: "Syslog", def: "Standard für Geräte-Logmeldungen, üblicherweise an einen zentralen Server (logging host)." },
+      { term: "logging trap <level>", def: "Legt fest, ab welchem Schweregrad Meldungen zum Server gehen." },
+      { term: "Severity-Level", def: "0 (Emergency) bis 7 (Debug) — Schweregrad einer Syslog-Meldung." },
+      { term: "service timestamps", def: "Versieht Log-/Debug-Zeilen mit Datum/Uhrzeit — Voraussetzung für Korrelation." },
+      { term: "facility", def: "Kategorie/Quelle einer Syslog-Meldung (z. B. local6)." },
     ],
   },
 
