@@ -1473,6 +1473,12 @@ export const LABS: LabScenario[] = [
     subtitle: "2 Router · 2 Switches · 4 PCs",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Ein Router kennt von sich aus nur direkt angeschlossene Netze. Pakete an entfernte Netze verwirft er, solange ihm der Weg dorthin nicht beigebracht wird.",
+      purpose:
+        "Mit statischen Routen den Pfad zu fernen Netzen von Hand eintragen — volle Kontrolle, kein Protokoll-Overhead. Wichtig ist auch die Rückroute, sonst kommt nur die Hinrichtung an.",
+    },
     topology: {
       description:
         "Zwei Router verbunden über ein WAN-Subnetz. Jeder Router hat ein LAN mit eigenen PCs.",
@@ -1561,6 +1567,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip route", expected: "S 192.168.2.0/24 via 10.0.0.2" },
       { cmd: "traceroute 192.168.2.10", expected: "Hops: R1 WAN → R2 → Ziel" },
     ],
+    glossary: [
+      { term: "Statische Route", def: "Manuell eingetragener Pfad zu einem Zielnetz (ip route)." },
+      { term: "ip route <netz> <maske> <next-hop>", def: "Definiert Zielnetz, Maske und die IP des nächsten Routers." },
+      { term: "Next-Hop", def: "IP des nächsten Routers auf dem Weg zum Ziel." },
+      { term: "Routingtabelle", def: "Liste aller bekannten Netze und ihrer Wege (show ip route)." },
+      { term: "Administrative Distanz", def: "Vertrauenswürdigkeit einer Routenquelle — statische Route hat AD 1." },
+      { term: "Rückroute", def: "Die Gegenroute für den Rückweg. Ohne sie scheitert die Antwort (asymmetrisches Problem)." },
+      { term: "/30", def: "Maske 255.255.255.252 — 2 nutzbare Hosts, typisch für Router-zu-Router-Links." },
+    ],
   },
 
 
@@ -1574,6 +1589,12 @@ export const LABS: LabScenario[] = [
     subtitle: "3 Router · Distance Vector · max. 15 Hops",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Statische Routen skalieren nicht: in einem Netz mit vielen Routern müsste man jede Route auf jedem Gerät von Hand pflegen und bei jeder Änderung anfassen.",
+      purpose:
+        "RIPv2 verteilt Routen automatisch (Distance-Vector, Metrik = Hop-Count). Das Lab zeigt classless RIP mit den Pflicht-Schritten version 2 und no auto-summary.",
+    },
     topology: {
       description:
         "Drei Router in Reihe (R1 — R2 — R3), jeder mit eigenem LAN. Statt statischer Routen tauschen die Router ihre Netze alle 30 Sekunden per RIPv2 aus.",
@@ -1674,6 +1695,16 @@ export const LABS: LabScenario[] = [
       { cmd: "ping 192.168.3.10 (von PC0)", expected: "Erfolgreich über 2 Router-Hops" },
       { cmd: "debug ip rip (kurz!)", expected: "v2 updates via Multicast 224.0.0.9, danach undebug all" },
     ],
+    glossary: [
+      { term: "Dynamisches Routing", def: "Router tauschen Routen automatisch aus, statt sie manuell zu pflegen." },
+      { term: "Distance-Vector", def: "Protokollfamilie, die Routen nach Richtung + Entfernung lernt (RIP, EIGRP)." },
+      { term: "RIP", def: "Routing Information Protocol — einfaches Distance-Vector-Protokoll, AD 120." },
+      { term: "Hop-Count", def: "RIP-Metrik = Anzahl Router bis zum Ziel. Maximum 15 (16 = unerreichbar)." },
+      { term: "version 2", def: "Macht RIP classless (überträgt Subnetzmasken, Multicast 224.0.0.9)." },
+      { term: "no auto-summary", def: "Verhindert die Zusammenfassung an Klassengrenzen — fast immer nötig." },
+      { term: "network (classful)", def: "Bei RIP wird das Netz CLASSFUL angegeben (ohne Wildcard-Maske)." },
+      { term: "passive-interface", def: "Sendet auf diesem Interface keine Updates (z. B. ins LAN ohne Nachbar-Router)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -1686,6 +1717,12 @@ export const LABS: LabScenario[] = [
     subtitle: "3 Router · 3 LANs",
     difficulty: "Mittel",
     duration: "25 min",
+    context: {
+      problem:
+        "RIP konvergiert langsam und ist auf 15 Hops begrenzt. Größere Netze brauchen ein schnelleres, skalierbares Protokoll, das Pfade nach echter Leitungsqualität wählt.",
+      purpose:
+        "OSPF (Link-State) berechnet kürzeste Pfade per Cost, konvergiert schnell und skaliert über Areas. Hier die Single-Area-0-Grundkonfiguration.",
+    },
     topology: {
       description:
         "Drei Router in Dreieck-Topologie, alle in OSPF Area 0. Kein manuelles Routing nötig.",
@@ -1809,6 +1846,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip ospf neighbor", expected: "Alle Nachbarn im FULL-State" },
       { cmd: "show ip route ospf", expected: "O 192.168.2.0, O 192.168.3.0 in Routing-Tabelle" },
       { cmd: "ping 192.168.3.10 (von PC-LAN1)", expected: "Automatisch geroutet über OSPF" },
+    ],
+    glossary: [
+      { term: "OSPF", def: "Open Shortest Path First — Link-State-Protokoll, AD 110, nutzt Dijkstra/SPF." },
+      { term: "Link-State", def: "Jeder Router kennt die komplette Topologie und rechnet selbst den besten Pfad." },
+      { term: "Area 0", def: "Backbone-Area; in Single-Area liegen alle Netze hier." },
+      { term: "router-id", def: "Eindeutige 32-Bit-Kennung eines OSPF-Routers (sonst höchste Loopback-/Interface-IP)." },
+      { term: "Wildcard-Maske", def: "Invertierte Maske im network-Befehl (z. B. /24 → 0.0.0.255, /30 → 0.0.0.3)." },
+      { term: "network <netz> <wildcard> area <n>", def: "Aktiviert OSPF auf passenden Interfaces und ordnet sie einer Area zu." },
+      { term: "Cost", def: "OSPF-Metrik, abgeleitet aus der Bandbreite (niedriger = besser)." },
+      { term: "Adjacency", def: "Voll ausgehandelte OSPF-Nachbarschaft, über die Routen ausgetauscht werden." },
     ],
   },
 
@@ -3244,6 +3291,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Area 0 + Area 1 mit ABR, LSA-Typen, Stub-Area",
     difficulty: "Fortgeschritten",
     duration: "25 min",
+    context: {
+      problem:
+        "Ein einziges großes OSPF-Area zwingt jeden Router, die vollständige Topologie-Datenbank zu halten und bei jeder Änderung neu zu rechnen — das skaliert schlecht.",
+      purpose:
+        "OSPF in mehrere Areas aufteilen, die alle an Area 0 hängen. ABRs fassen zwischen den Areas zusammen und begrenzen so den Rechen-/Speicheraufwand. Grundprinzip hierarchischer OSPF-Netze.",
+    },
     topology: {
       description:
         "3 Router: R1 in Area 0, R2 ist ABR (Area Border Router) zwischen Area 0 und Area 1, R3 in Area 1. Area 1 wird als Stub konfiguriert.",
@@ -3308,6 +3361,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip ospf neighbor", expected: "R1: FULL/BDR (auf R2), R3: FULL/BDR" },
       { cmd: "show ip ospf database", expected: "Type-1 (Router), Type-2 (Network), Type-3 (Summary) sichtbar" },
       { cmd: "show ip route ospf", expected: "O IA 192.168.1.0/24 (Inter-Area), O*IA 0.0.0.0/0 (Default in Stub)" },
+    ],
+    glossary: [
+      { term: "Multi-Area OSPF", def: "Aufteilung der OSPF-Domäne in mehrere Areas zur besseren Skalierung." },
+      { term: "Area 0 (Backbone)", def: "Zentrale Area; jede andere Area muss direkt mit ihr verbunden sein." },
+      { term: "ABR", def: "Area Border Router — Router mit Interfaces in mehreren Areas; verbindet sie mit Area 0." },
+      { term: "LSA", def: "Link State Advertisement — Bausteine der OSPF-Topologie-Datenbank." },
+      { term: "Backbone-Regel", def: "Alle Nicht-Backbone-Areas müssen an Area 0 angebunden sein." },
+      { term: "Summarization", def: "Zusammenfassung mehrerer Netze zu einer Route am ABR — entlastet andere Areas." },
+      { term: "router-id", def: "Eindeutige Router-Kennung, hier je Router manuell gesetzt (1.1.1.1 …)." },
     ],
   },
 
@@ -3386,6 +3448,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Backup-Route über Admin-Distance",
     difficulty: "Mittel",
     duration: "10 min",
+    context: {
+      problem:
+        "Eine einzelne statische Default-Route hat keinen Ersatz: fällt der Uplink aus, ist das Internet weg, bis jemand von Hand umkonfiguriert.",
+      purpose:
+        "Eine zweite Default-Route mit höherer Administrativer Distanz (Floating Static) als Reserve hinterlegen. Sie wird erst aktiv, wenn die primäre Route verschwindet — automatisches Failover, optional per IP SLA Tracking.",
+    },
     topology: {
       description:
         "Branch-Router R1 hat einen primären MPLS-Uplink und einen Backup-Internet-DSL-Link. Floating Static aktiviert den Backup nur, wenn der primäre Pfad ausfällt.",
@@ -3437,6 +3505,14 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip sla statistics", expected: "Return Code: OK, Latest RTT: 12ms" },
       { cmd: "show track", expected: "Track 1 IP SLA 1 reachability  Reachability is Up" },
     ],
+    glossary: [
+      { term: "Default-Route", def: "ip route 0.0.0.0 0.0.0.0 <next-hop> — Weg für alle Ziele, die sonst nirgends passen (Gateway of Last Resort)." },
+      { term: "Floating Static Route", def: "Statische Backup-Route mit absichtlich höherer AD; floatet inaktiv, bis die primäre ausfällt." },
+      { term: "Administrative Distanz (AD)", def: "Je niedriger, desto bevorzugter. Standard-Statik = 1; Floating z. B. 200." },
+      { term: "IP SLA", def: "Misst aktiv die Erreichbarkeit (z. B. per Ping) und meldet Ausfälle an das Tracking." },
+      { term: "track", def: "Objekt, das eine Route an ein IP-SLA-Ergebnis koppelt — fällt der Ping aus, fällt die Route." },
+      { term: "Failover", def: "Automatischer Wechsel auf den Backup-Pfad bei Ausfall des primären." },
+    ],
   },
 
 
@@ -3450,6 +3526,12 @@ export const LABS: LabScenario[] = [
     subtitle: "3 Router · DUAL · Successor & Feasible Successor",
     difficulty: "Fortgeschritten",
     duration: "25 min",
+    context: {
+      problem:
+        "Man will OSPF-schnelle Konvergenz, aber einfacher zu konfigurieren — und mit einem Backup-Pfad, der ohne Neuberechnung sofort bereitsteht.",
+      purpose:
+        "EIGRP (Advanced Distance-Vector) nutzt den DUAL-Algorithmus mit Successor + Feasible Successor für Failover im Sub-Sekunden-Bereich. Das Lab zeigt AS-Nummer, Wildcard-network und no auto-summary.",
+    },
     topology: {
       description:
         "Drei Router im Dreieck (Redundanz!). EIGRP berechnet per DUAL-Algorithmus den besten Pfad (Successor) und hält einen Backup-Pfad (Feasible Successor) sofort bereit.",
@@ -3567,6 +3649,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip eigrp topology", expected: "P 192.168.3.0/24: 1 Successor, FD + Feasible Successor sichtbar" },
       { cmd: "show ip route eigrp", expected: "D 192.168.3.0/24 [90/...] — AD 90 für internes EIGRP" },
       { cmd: "ping 192.168.3.10 nach shutdown Gi0/2", expected: "Weiterhin erfolgreich — DUAL-Failover über R2" },
+    ],
+    glossary: [
+      { term: "EIGRP", def: "Enhanced Interior Gateway Routing Protocol — Cisco, AD 90 (intern), Multicast 224.0.0.10." },
+      { term: "Advanced Distance-Vector", def: "Hybrid aus Distance-Vector und Link-State-Eigenschaften." },
+      { term: "DUAL", def: "Diffusing Update Algorithm — berechnet schleifenfreie Pfade und hält Backups bereit." },
+      { term: "Successor", def: "Der aktuell beste, in die Routingtabelle eingetragene Pfad zum Ziel." },
+      { term: "Feasible Successor", def: "Vorberechneter Backup-Pfad; bei Ausfall des Successors sofort aktiv (kein Neuberechnen)." },
+      { term: "AS-Nummer", def: "Autonomous-System-Nummer (hier 100) — muss auf allen EIGRP-Routern gleich sein." },
+      { term: "no auto-summary", def: "Schaltet die Zusammenfassung an Klassengrenzen ab (wie bei RIPv2)." },
+      { term: "show ip eigrp topology", def: "Zeigt Successor + Feasible Successor mit FD/AD je Ziel." },
     ],
   },
 
