@@ -74,6 +74,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Identischer Basis-Block auf R1, SW1 und SW2",
     difficulty: "Drill",
     duration: "15 min",
+    context: {
+      problem:
+        "Auf jedem neuen Cisco-Gerät müssen dieselben Grundeinstellungen gesetzt werden — Name, Passwörter, Banner, Speichern. Vergessene oder vertauschte Schritte sind die häufigste Anfänger-Fehlerquelle.",
+      purpose:
+        "Reines Wiederholungstraining, damit die Grundkonfig-Sequenz blind sitzt. Sie ist die Voraussetzung für jedes weitere Lab und jede Praxisaufgabe an realen Geräten.",
+    },
     topology: {
       description:
         "Reines Wiederholungstraining: Derselbe Grundkonfigurations-Block wird dreimal hintereinander eingetippt — auf einem Router und zwei Switches. Ziel: die Sequenz sitzt blind.",
@@ -176,6 +182,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show startup-config", expected: "Gespeicherte Config vorhanden (kein 'startup-config is not present')" },
       { cmd: "exit + neu einloggen", expected: "Banner erscheint, Console-Passwort wird abgefragt" },
     ],
+    glossary: [
+      { term: "hostname", def: "Setzt den Gerätenamen und ändert den CLI-Prompt — wichtig zur Orientierung in größeren Netzen." },
+      { term: "enable secret", def: "Passwort für den Privileged-EXEC-Modus, als MD5-Hash gespeichert (nicht umkehrbar). Sicherer als enable password." },
+      { term: "line console 0", def: "Konfiguriert den physischen Konsolen-Port; mit password + login wird der Zugang abgesichert." },
+      { term: "line vty 0 4", def: "Die ersten 5 virtuellen Terminal-Leitungen für Telnet/SSH-Fernzugriff." },
+      { term: "login", def: "Aktiviert die Passwortabfrage auf einer Line — ohne login wird trotz gesetztem Passwort nichts abgefragt." },
+      { term: "banner motd", def: "Message of the Day — rechtlicher Warnhinweis, der vor dem Login erscheint." },
+      { term: "service password-encryption", def: "Verschleiert Klartext-Passwörter in der Konfiguration (schwache Type-7-Verschlüsselung)." },
+      { term: "copy running-config startup-config", def: "Speichert die laufende Konfiguration ins NVRAM, damit sie einen Reload übersteht." },
+    ],
   },
 
   {
@@ -185,6 +201,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Statische IPs im Akkord vergeben",
     difficulty: "Drill",
     duration: "10 min",
+    context: {
+      problem:
+        "Ein Endgerät ohne korrekte IP, Subnetzmaske und Gateway kann nicht kommunizieren. In größeren Netzen müssen viele Hosts schnell und fehlerfrei adressiert werden.",
+      purpose:
+        "Trainiert das stumpfe, schnelle Vergeben statischer IPs nach einem festen Schema — und das Lesen von ipconfig zur Selbstkontrolle.",
+    },
     topology: {
       description:
         "Sechs PCs an einem Switch, alle im selben /24-Netz. Die IPs werden stur durchnummeriert (.11 bis .16) — bis der Ablauf Desktop → IP Configuration → Eintragen automatisch abläuft.",
@@ -255,6 +277,15 @@ export const LABS: LabScenario[] = [
       { cmd: "ipconfig auf jedem PC", expected: "IP nach Schema, Maske /24, Gateway .1" },
       { cmd: "show mac address-table (SW1)", expected: "6 MAC-Adressen auf Fa0/1–Fa0/6 gelernt" },
     ],
+    glossary: [
+      { term: "Statische IP", def: "Manuell fest vergebene Adresse (Gegenstück zu DHCP) — üblich für Server, Drucker und Laborübungen." },
+      { term: "Subnetzmaske /24", def: "255.255.255.0 — trennt Netz- von Hostanteil; alle .x im selben /24 sind direkt erreichbar." },
+      { term: "Default Gateway", def: "Router-IP, an die ein Host Pakete für andere Netze schickt. Fehlt sie, bleibt der Host im eigenen Subnetz gefangen." },
+      { term: "ipconfig", def: "Windows-Befehl, der IP, Maske und Gateway eines Hosts anzeigt — erster Schritt jeder Fehlersuche." },
+      { term: "ping", def: "ICMP-Erreichbarkeitstest zwischen zwei Hosts." },
+      { term: "ARP", def: "Address Resolution Protocol — löst eine IP in die zugehörige MAC auf. Der allererste Ping verliert oft 1 Paket, weil zuerst ARP läuft." },
+      { term: "MAC-Adresstabelle", def: "Liste im Switch, welche MAC an welchem Port hängt — Grundlage der L2-Weiterleitung." },
+    ],
   },
 
   {
@@ -264,6 +295,12 @@ export const LABS: LabScenario[] = [
     subtitle: "16 Ports · 2 VLANs · 2 Switches",
     difficulty: "Drill",
     duration: "12 min",
+    context: {
+      problem:
+        "In jedem Switch müssen viele Ports dem richtigen VLAN zugeordnet werden. Einzeln ist das langsam und fehleranfällig.",
+      purpose:
+        "Trainiert den Dreierschritt range → mode access → access vlan samt PortFast im Akkord, damit VLAN-Zuweisung zur Routine wird.",
+    },
     topology: {
       description:
         "Auf zwei Switches werden jeweils 16 Ports in zwei VLANs aufgeteilt — mit interface range immer im selben Dreierschritt: range → mode access → access vlan.",
@@ -329,6 +366,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show interfaces fa0/1 switchport", expected: "Administrative Mode: static access, Access Mode VLAN: 10" },
       { cmd: "show running-config | section interface", expected: "Jeder Port: mode access + access vlan + portfast" },
     ],
+    glossary: [
+      { term: "VLAN", def: "Virtual LAN — logische Aufteilung eines Switches in getrennte Broadcast-Domänen." },
+      { term: "Access-Port", def: "Switch-Port, der genau zu EINEM VLAN gehört und ungetaggte Frames eines Endgeräts überträgt." },
+      { term: "switchport mode access", def: "Setzt den Port fest in den Access-Modus (kein Trunk, keine DTP-Verhandlung)." },
+      { term: "switchport access vlan <id>", def: "Weist den Access-Port dem angegebenen VLAN zu." },
+      { term: "interface range", def: "Konfiguriert mehrere Interfaces gleichzeitig — der wichtigste Zeitsparer der Prüfung." },
+      { term: "PortFast", def: "Überspringt die STP-Phasen, sodass ein Access-Port sofort forwardet. Nur für Endgeräte-Ports!" },
+      { term: "show vlan brief", def: "Zeigt alle VLANs mit Namen, Status und zugeordneten Access-Ports." },
+    ],
   },
 
   {
@@ -338,6 +384,12 @@ export const LABS: LabScenario[] = [
     subtitle: "6 Interfaces · 2 Router · ip address + no shutdown",
     difficulty: "Drill",
     duration: "12 min",
+    context: {
+      problem:
+        "Router-Interfaces sind ab Werk abgeschaltet (administratively down) — das ist der häufigste „warum-geht-nichts\"-Fehler überhaupt.",
+      purpose:
+        "Trainiert den Vierschritt interface → ip address → no shutdown → description, bis er automatisch kommt, inklusive show ip interface brief als Kontrolle.",
+    },
     topology: {
       description:
         "Zwei Router mit je drei Interfaces. Jedes bekommt stur dieselbe Behandlung: interface → ip address → no shutdown → description. Router-Interfaces sind ab Werk AUS — das vergisst man nie wieder.",
@@ -413,6 +465,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip interface brief", expected: "Alle konfigurierten Interfaces: Status up, Protocol up" },
       { cmd: "show interfaces description", expected: "Jedes Interface hat eine Description" },
       { cmd: "ping 10.0.0.2 (von R1)", expected: "!!!!! — 100% Erfolg über den /30-Link" },
+    ],
+    glossary: [
+      { term: "ip address <ip> <maske>", def: "Weist einem Interface eine IPv4-Adresse zu — macht es zum Gateway seines Subnetzes." },
+      { term: "no shutdown", def: "Aktiviert ein Interface administrativ. Fehlt es, bleibt das Interface down — egal wie korrekt der Rest ist." },
+      { term: "administratively down", def: "Statusanzeige eines Interfaces, das per shutdown deaktiviert ist (Gegenteil: up/up)." },
+      { term: "/30", def: "Maske 255.255.255.252 — genau 2 nutzbare Adressen, ideal für Punkt-zu-Punkt-Links zwischen Routern." },
+      { term: "description", def: "Klartext-Notiz am Interface zur Dokumentation (z. B. WAN-ZU-R2)." },
+      { term: "show ip interface brief", def: "Kompakte Übersicht aller L3-Interfaces mit IP, Status und Protokoll — DER Kontrollbefehl." },
+      { term: "up/up", def: "Interface ist administrativ aktiv (Status up) UND das Line-Protocol läuft (Protocol up)." },
     ],
   },
 
@@ -525,6 +586,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router (0x2142) & Switch (flash_init) ohne Passwort retten",
     difficulty: "Mittel",
     duration: "15 min",
+    context: {
+      problem:
+        "Kennt niemand mehr das enable secret eines Geräts, ist es ohne Recovery nicht mehr administrierbar — ein realer Notfall im Betrieb.",
+      purpose:
+        "Standard-Admin-Prozedur, um Router (über ROMMON) und Switch (über den Boot-Loader) wieder unter Kontrolle zu bringen, OHNE die bestehende Konfiguration zu verlieren.",
+    },
     topology: {
       description:
         "Klassische Admin-Aufgabe: ein Gerät, dessen enable-secret niemand mehr kennt, wieder unter Kontrolle bringen -- über Konsolenzugang und Boot-Loader.",
@@ -627,6 +694,17 @@ export const LABS: LabScenario[] = [
       { cmd: "show running-config | include enable", expected: "enable secret 5 ... (neuer Hash)" },
       { cmd: "reload + Login", expected: "Gerät bootet normal, neues Passwort wird akzeptiert, alte Config intakt" },
     ],
+    glossary: [
+      { term: "Configuration Register", def: "16-Bit-Wert (zeigt show version), der das Boot-Verhalten steuert." },
+      { term: "0x2102", def: "Standard-Register: der Router lädt beim Booten die startup-config." },
+      { term: "0x2142", def: "Register, das die startup-config beim Booten ÜBERSPRINGT — der Kern des Router-Recovery." },
+      { term: "ROMMON", def: "ROM Monitor — minimaler Boot-Modus des Routers, erreichbar durch Boot-Unterbrechung (Strg+Pause)." },
+      { term: "confreg", def: "ROMMON-Befehl zum Setzen des Configuration Registers (z. B. confreg 0x2142)." },
+      { term: "config-register", def: "IOS-Befehl im Config-Modus, um das Register nach dem Recovery wieder auf 0x2102 zu setzen." },
+      { term: "flash_init", def: "Boot-Loader-Befehl des Switches, der den Flash initialisiert, bevor config.text umbenannt wird." },
+      { term: "config.text", def: "Datei im Switch-Flash, die die startup-config enthält. Umbenennen = Switch bootet ohne Passwort." },
+      { term: "copy startup-config running-config", def: "Holt die gesicherte Config zurück — WICHTIG vor dem Speichern, sonst überschreibt man alles mit Leer." },
+    ],
   },
 
   // ---------------------------------------------------------------
@@ -639,6 +717,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Image sichern, neues laden, Bootreihenfolge setzen",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Vor einem IOS-Upgrade muss alles gesichert sein. Ein defektes oder falsches Image kann ein Gerät unbootbar machen.",
+      purpose:
+        "Wartungsroutine: Config und altes Image per TFTP sichern, neues Image laden, MD5 prüfen, Bootreihenfolge setzen. Genau so läuft IOS-Pflege in der Praxis.",
+    },
     topology: {
       description:
         "Wartungsroutine: vor jedem IOS-Upgrade erst Config und altes Image auf einen TFTP-Server sichern, dann das neue Image laden und den Boot festlegen.",
@@ -740,6 +824,17 @@ export const LABS: LabScenario[] = [
       { cmd: "show version", expected: "Neue IOS-Version in der ersten Zeile (z. B. Version 15.2 statt 15.1)" },
       { cmd: "show flash:", expected: "Neues + altes Image vorhanden, genug freier Speicher" },
       { cmd: "show boot / show bootvar", expected: "BOOT path-list zeigt das neue Image" },
+    ],
+    glossary: [
+      { term: "TFTP", def: "Trivial File Transfer Protocol (UDP 69) — einfacher Dateitransfer, Standard für IOS-/Config-Backups." },
+      { term: "Flash", def: "Nichtflüchtiger Speicher des Geräts, in dem das IOS-Image liegt." },
+      { term: "IOS-Image", def: "Die Betriebssystem-Datei von Cisco-Geräten (z. B. c2900-universalk9-mz.SPA.bin)." },
+      { term: "copy flash: tftp:", def: "Sichert ein Image (oder Config) aus dem Flash auf einen TFTP-Server." },
+      { term: "copy tftp: flash:", def: "Lädt ein neues Image vom TFTP-Server in den Flash." },
+      { term: "verify /md5", def: "Prüft die MD5-Summe einer Datei gegen Ciscos Angabe — erkennt ein beschädigtes Image VOR dem Reload." },
+      { term: "boot system", def: "Legt fest, welches Image beim nächsten Start geladen wird." },
+      { term: "show flash:", def: "Zeigt Inhalt und freien Speicher des Flash — genug Platz fürs neue Image?" },
+      { term: "reload", def: "Startet das Gerät neu, damit das neue Image aktiv wird." },
     ],
   },
 
