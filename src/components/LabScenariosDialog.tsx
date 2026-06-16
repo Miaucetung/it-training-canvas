@@ -488,6 +488,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Multilayer-Switch routet zwischen VLANs -- ohne Router",
     difficulty: "Mittel",
     duration: "18 min",
+    context: {
+      problem:
+        "Router-on-a-Stick hat einen Engpass: aller Inter-VLAN-Verkehr teilt sich einen Trunk-Link. In größeren Netzen routet man lieber direkt im Switch.",
+      purpose:
+        "Ein Layer-3-Switch routet per SVIs (interface vlan) at Wire-Speed in Hardware zwischen VLANs — der moderne Campus-Standard. Zeigt die häufige Falle „ip routing vergessen\".",
+    },
     topology: {
       description:
         "Statt Router-on-a-Stick übernimmt ein Layer-3-Switch das Routing zwischen den VLANs über SVIs (interface vlan). Moderner Standard im Campus-Netz.",
@@ -573,6 +579,14 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip route (auf MLS1)", expected: "C 192.168.10.0/24 + C 192.168.20.0/24 über Vlan10/Vlan20 (connected)" },
       { cmd: "show ip interface brief | include Vlan", expected: "Vlan10 + Vlan20: up/up mit ihren SVI-IPs" },
       { cmd: "ping 192.168.20.1 (von PC-Sales)", expected: "Erfolgreich -- Routing zwischen den VLANs über den L3-Switch" },
+    ],
+    glossary: [
+      { term: "Layer-3-Switch", def: "Multilayer-Switch mit integrierter Routing-Engine — kein externer Router nötig." },
+      { term: "SVI", def: "Switch Virtual Interface (interface vlan X) — virtuelles L3-Interface, das als Gateway eines VLANs dient." },
+      { term: "ip routing", def: "Aktiviert IPv4-Routing auf dem L3-Switch. OHNE diesen Befehl bleibt es ein reiner L2-Switch — häufigster Fehler." },
+      { term: "interface vlan <id>", def: "Erstellt/öffnet das SVI eines VLANs zur IP-Konfiguration." },
+      { term: "Inter-VLAN-Routing", def: "Routing zwischen VLANs — hier in Switch-Hardware statt über einen Router." },
+      { term: "Connected Route", def: "Route (C in show ip route), die ein Gerät für ein direkt anliegendes Netz automatisch kennt." },
     ],
   },
 
@@ -848,6 +862,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · Switch · 2 PCs",
     difficulty: "Anfänger",
     duration: "10 min",
+    context: {
+      problem:
+        "Geräte können erst kommunizieren, wenn jedes Interface eine IP hat und Endgeräte ihr Default-Gateway kennen — das ist das absolute Fundament jedes Netzes.",
+      purpose:
+        "Die einfachste Topologie (Router–Switch–3 PCs) end-to-end aufbauen, adressieren und per Ping verifizieren. Grundlage für alle weiteren Labs.",
+    },
     topology: {
       description:
         "Die einfachste Netzwerktopologie: ein Router verbindet zwei PCs über einen Switch.",
@@ -971,6 +991,16 @@ export const LABS: LabScenario[] = [
       { cmd: "ping 192.168.1.10", expected: "!!!!! (5/5 erfolgreich)" },
       { cmd: "show ip interface brief", expected: "GigabitEthernet0/0 up/up" },
     ],
+    glossary: [
+      { term: "enable", def: "Wechsel in den Privileged-EXEC-Modus (# Prompt), Voraussetzung für configure terminal." },
+      { term: "configure terminal", def: "Öffnet den globalen Konfigurationsmodus." },
+      { term: "hostname", def: "Setzt den Gerätenamen." },
+      { term: "ip address <ip> <maske>", def: "Weist dem Interface eine IPv4-Adresse zu." },
+      { term: "no shutdown", def: "Aktiviert das Interface — Router-Ports sind ab Werk down." },
+      { term: "Default Gateway", def: "Router-IP, an die ein PC Pakete für andere Netze sendet." },
+      { term: "show ip interface brief", def: "Übersicht aller Interfaces mit IP und up/up-Status." },
+      { term: "ping", def: "ICMP-Test, ob ein Ziel erreichbar ist." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -983,6 +1013,12 @@ export const LABS: LabScenario[] = [
     subtitle: "2 Switches · 4 PCs",
     difficulty: "Anfänger",
     duration: "15 min",
+    context: {
+      problem:
+        "Ein flaches LAN ist eine einzige große Broadcast-Domäne — jedes Gerät hört jeden Broadcast. Das ist schlecht für Sicherheit und Performance.",
+      purpose:
+        "Den Verkehr per VLANs in getrennte Broadcast-Domänen aufteilen und diese VLANs über einen 802.1Q-Trunk zwischen Switches transportieren — die Basis jeder Campus-Verkabelung.",
+    },
     topology: {
       description:
         "Zwei Switches teilen ein Netz in zwei VLANs auf. Trunk-Link verbindet die Switches.",
@@ -1122,6 +1158,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show vlan brief", expected: "VLAN 10 active, VLAN 20 active" },
       { cmd: "show interfaces trunk", expected: "Gi0/1 trunk, VLANs 10,20" },
     ],
+    glossary: [
+      { term: "VLAN", def: "Virtual LAN — logische Aufteilung eines Switches in mehrere getrennte Broadcast-Domänen." },
+      { term: "Broadcast-Domäne", def: "Bereich, in dem ein Broadcast alle Geräte erreicht. Jedes VLAN ist eine eigene." },
+      { term: "Access-Port", def: "Port, der zu genau einem VLAN gehört (Endgerät-Anschluss, ungetaggt)." },
+      { term: "Trunk", def: "Link, der mehrere VLANs getaggt überträgt — zwischen Switches/Router. Auf ISL-fähigen Switches zuerst switchport trunk encapsulation dot1q, auf reinen 802.1Q-Switches (PT 2960) direkt switchport mode trunk." },
+      { term: "802.1Q", def: "IEEE-Standard, der jedem Frame ein 4-Byte VLAN-Tag voranstellt." },
+      { term: "switchport access vlan <id>", def: "Weist einem Access-Port sein VLAN zu." },
+      { term: "switchport trunk allowed vlan", def: "Schränkt ein, welche VLANs ein Trunk überträgt." },
+    ],
   },
 
 
@@ -1135,6 +1180,12 @@ export const LABS: LabScenario[] = [
     subtitle: "VLAN-Verteilung & Trunk-Verhandlung · 3 Switches",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "VLANs auf jedem Switch einzeln zu pflegen ist mühsam und fehleranfällig — und falsch verhandelte Trunks öffnen VLAN-Hopping-Angriffe.",
+      purpose:
+        "VTP verteilt die VLAN-Datenbank automatisch vom Server an die Client-Switches; DTP zeigt die Trunk-Verhandlung und wird per nonegotiate abgesichert. CCNA-Standardthema.",
+    },
     topology: {
       description:
         "Drei Switches in Reihe. SW1 ist VTP-Server und verteilt VLANs automatisch an die Clients SW2 und SW3. DTP verhandelt die Trunks.",
@@ -1247,6 +1298,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show interfaces trunk", expected: "Gi0/1 mode: desirable, status: trunking, encapsulation 802.1q" },
       { cmd: "show dtp interface gi0/1", expected: "TOS/TAS/TNS: ACCESS/DESIRABLE/TRUNK" },
     ],
+    glossary: [
+      { term: "VTP", def: "VLAN Trunking Protocol — synchronisiert die VLAN-Datenbank zwischen Switches einer Domain." },
+      { term: "VTP-Domain", def: "Gemeinsamer Name (+ Passwort), den alle Switches teilen müssen, damit VTP greift." },
+      { term: "VTP-Modus", def: "Server (anlegen + verteilen), Client (nur übernehmen), Transparent (lokal, leitet nur durch)." },
+      { term: "Revision", def: "Versionszähler der VLAN-Datenbank. Achtung: ein Switch mit höherer Revision überschreibt die Server-DB!" },
+      { term: "DTP", def: "Dynamic Trunking Protocol — verhandelt automatisch, ob ein Link Trunk wird." },
+      { term: "dynamic desirable", def: "DTP-Modus, der aktiv versucht, einen Trunk aufzubauen (auto = passiv abwartend)." },
+      { term: "switchport nonegotiate", def: "Schaltet DTP ab — Best Practice auf statisch gesetzten Trunks (gegen VLAN-Hopping)." },
+      { term: "CDP", def: "Cisco Discovery Protocol — zeigt direkt verbundene Cisco-Nachbarn (Gerät, Port, IOS, IP)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -1259,6 +1320,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Router · Switch · 2 PCs",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "VLANs sind Layer-2-Inseln: ohne ein Layer-3-Gerät erreicht ein PC in VLAN 10 keinen PC in VLAN 20.",
+      purpose:
+        "Mit Router-on-a-Stick routet EIN Router über logische Subinterfaces zwischen mehreren VLANs — die klassische, günstige Inter-VLAN-Lösung mit nur einem Trunk-Link.",
+    },
     topology: {
       description:
         "Ein Router mit einem einzigen Trunk-Port routet zwischen VLAN 10 und VLAN 20.",
@@ -1384,6 +1451,15 @@ export const LABS: LabScenario[] = [
     verifyCommands: [
       { cmd: "ping 192.168.20.10 (von PC0)", expected: "5/5 erfolgreich — Inter-VLAN Routing funktioniert" },
       { cmd: "show ip route", expected: "C 192.168.10.0/24, C 192.168.20.0/24" },
+    ],
+    glossary: [
+      { term: "Inter-VLAN-Routing", def: "Routing zwischen verschiedenen VLANs über ein Layer-3-Gerät." },
+      { term: "Router-on-a-Stick", def: "Inter-VLAN-Routing über EIN physisches Router-Interface, aufgeteilt in Subinterfaces." },
+      { term: "Subinterface", def: "Logisches Unter-Interface (z. B. Gi0/0.10) mit eigenem VLAN-Tag und IP — Gateway eines VLANs." },
+      { term: "encapsulation dot1Q <id>", def: "Bindet ein Subinterface an ein VLAN-Tag. Pflicht, sonst routet es nicht." },
+      { term: "Parent-Interface", def: "Das physische Interface (Gi0/0): bekommt KEINE IP, muss aber no shutdown sein." },
+      { term: "Trunk", def: "Switch-Link zum Router, der alle VLANs getaggt überträgt." },
+      { term: "Default Gateway", def: "Für die Hosts die Subinterface-IP ihres VLANs." },
     ],
   },
 
@@ -2480,6 +2556,12 @@ export const LABS: LabScenario[] = [
     subtitle: "2 Switches · gebündelte Links",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Ein einzelner Link zwischen zwei Switches ist Flaschenhals und Single Point of Failure — und STP würde einen zweiten, parallelen Link blockieren statt nutzen.",
+      purpose:
+        "Mehrere physische Links zu EINEM logischen Port-Channel bündeln: mehr Bandbreite und Redundanz, und STP sieht nur einen logischen Link (blockiert nichts).",
+    },
     topology: {
       description:
         "Zwei physische Links zwischen Switches werden zu einem logischen Port-Channel gebündelt.",
@@ -2550,6 +2632,15 @@ export const LABS: LabScenario[] = [
     verifyCommands: [
       { cmd: "show etherchannel summary", expected: "Po1 (SU) — S=Layer2, U=in use" },
       { cmd: "show interfaces Port-channel1", expected: "Bandbreite = 2× Fa0 = 200Mbit/s" },
+    ],
+    glossary: [
+      { term: "EtherChannel", def: "Bündelung mehrerer physischer Links zu einem logischen — Link Aggregation." },
+      { term: "Port-Channel", def: "Das logische Interface (Port-channel1), das die Mitglieds-Ports zusammenfasst." },
+      { term: "LACP", def: "Link Aggregation Control Protocol (IEEE 802.3ad, offen) — Modi active/passive." },
+      { term: "PAgP", def: "Port Aggregation Protocol (Cisco-proprietär) — Modi desirable/auto." },
+      { term: "channel-group <n> mode <mode>", def: "Fügt ein Interface einem EtherChannel hinzu: active/passive (LACP), desirable/auto (PAgP), on (statisch)." },
+      { term: "show etherchannel summary", def: "Status aller Port-Channels (P = in-use/gebündelt, D = down)." },
+      { term: "Single Point of Failure", def: "Eine Komponente, deren Ausfall die ganze Verbindung lahmlegt — durch Bündelung vermieden." },
     ],
   },
 
