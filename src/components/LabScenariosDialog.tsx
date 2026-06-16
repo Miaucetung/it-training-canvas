@@ -5026,9 +5026,9 @@ export const LABS: LabScenario[] = [
         "R1 Gi0/0 ↔ SW1 Gi0/1  (Trunk, Router-on-a-Stick)",
         "SW1 Gi0/2 ↔ SW2 Gi0/1  (Trunk)",
         "SW2 Gi0/2 ↔ SW3 Gi0/1  (Trunk)",
-        "Je Switch: PC Rot → Fa0/1 (VLAN 100), PC Blau → Fa0/8 (VLAN 110), PC Grün → Fa0/13 (VLAN 120)",
+        "Je Switch: PC Rot → Fa0/1 (VLAN 100), PC Blau → Fa0/2 (VLAN 110), PC Grün → Fa0/3 (VLAN 120)",
       ],
-      hint: "Die Access-Ranges legen Fa0/1-7 = VLAN 100, Fa0/8-12 = VLAN 110, Fa0/13-20 = VLAN 120. Stecke jeden PC an einen Port IM Bereich seines VLANs. Bei SW3 (VTP-Client) zuerst den Trunk setzen, auf die VLAN-Synchronisation warten, DANN die Access-Ports zuweisen.",
+      hint: "Access-Ports: Fa0/1 = VLAN 100 (Rot), Fa0/2 = VLAN 110 (Blau), Fa0/3 = VLAN 120 (Grün). Bei SW3 (VTP-Client) zuerst den Trunk setzen, auf die VLAN-Synchronisation warten, DANN die Access-Ports zuweisen.",
     },
     steps: [
       {
@@ -5116,9 +5116,9 @@ export const LABS: LabScenario[] = [
                   "Die drei Daten-VLANs anlegen. VTP überträgt sie automatisch an SW2 und SW3.",
               },
               {
-                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                cmd: "interface fa0/1\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface fa0/2\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface fa0/3\nswitchport mode access\nswitchport access vlan 120\nexit",
                 explanation:
-                  "Access-Ports den VLANs zuordnen: Fa0/1-7 → 100 (Rot), Fa0/8-12 → 110 (Blau), Fa0/13-20 → 120 (Grün).",
+                  "Access-Ports den VLANs zuordnen: Fa0/1 → 100 (Rot), Fa0/2 → 110 (Blau), Fa0/3 → 120 (Grün) — passend zu den drei PCs je Switch.",
               },
               {
                 cmd: "interface gi0/1\nswitchport mode trunk\nexit\ninterface gi0/2\nswitchport mode trunk\nexit",
@@ -5167,7 +5167,7 @@ export const LABS: LabScenario[] = [
                   "Auch SW2 ist Server der Domain CCNA. Die VLANs muss SW2 NICHT selbst anlegen — sie kommen per VTP von SW1 (gleiche Domain, höhere Revision gewinnt).",
               },
               {
-                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                cmd: "interface fa0/1\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface fa0/2\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface fa0/3\nswitchport mode access\nswitchport access vlan 120\nexit",
                 explanation: "Access-Ports wie auf SW1 zuordnen.",
               },
               {
@@ -5232,7 +5232,7 @@ export const LABS: LabScenario[] = [
             modeLabel: "SW3(config)#",
             commands: [
               {
-                cmd: "interface range fa0/1-7\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface range fa0/8-12\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface range fa0/13-20\nswitchport mode access\nswitchport access vlan 120\nexit",
+                cmd: "interface fa0/1\nswitchport mode access\nswitchport access vlan 100\nexit\ninterface fa0/2\nswitchport mode access\nswitchport access vlan 110\nexit\ninterface fa0/3\nswitchport mode access\nswitchport access vlan 120\nexit",
                 explanation: "Jetzt die Access-Ports den (synchronisierten) VLANs zuweisen.",
               },
               {
