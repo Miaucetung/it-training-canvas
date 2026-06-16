@@ -2794,6 +2794,12 @@ export const LABS: LabScenario[] = [
     subtitle: "2 Router · 2 PCs",
     difficulty: "Mittel",
     duration: "15 min",
+    context: {
+      problem:
+        "Die IPv4-Adressen sind weltweit aufgebraucht. Moderne Netze brauchen den riesigen IPv6-Adressraum — und Router müssen IPv6 erst explizit aktivieren, sonst routen sie es nicht.",
+      purpose:
+        "IPv6 auf Interfaces vergeben, IPv6-Routing einschalten und zwei Netze mit statischen IPv6-Routen verbinden. Grundlage jedes Dual-Stack-Netzes.",
+    },
     topology: {
       description:
         "IPv6 unicast routing zwischen zwei Routern und ihren LANs.",
@@ -2899,6 +2905,16 @@ export const LABS: LabScenario[] = [
     verifyCommands: [
       { cmd: "show ipv6 route", expected: "S 2001:db8:2::/64 via Gi0/1" },
       { cmd: "ping ipv6 2001:db8:2::10", expected: "!!!!! von PC0 zu PC1" },
+    ],
+    glossary: [
+      { term: "IPv6", def: "128-Bit-Adressierung als Nachfolger von IPv4 — praktisch unbegrenzter Adressraum." },
+      { term: "ipv6 unicast-routing", def: "Schaltet IPv6-Routing global ein. Ohne diesen Befehl leitet der Router kein IPv6 weiter." },
+      { term: "/64", def: "Standard-Präfixlänge eines IPv6-Subnetzes (64 Bit Netz, 64 Bit Interface-ID)." },
+      { term: "2001:db8::/32", def: "Reservierter Dokumentations-Präfix (RFC 3849) — wie 192.0.2.0 bei IPv4." },
+      { term: "ipv6 address", def: "Weist einem Interface eine globale IPv6-Adresse zu." },
+      { term: "ipv6 route", def: "Statische IPv6-Route: Zielpräfix + Next-Hop." },
+      { term: "Link-Local (fe80::)", def: "Automatische, nur im Segment gültige Adresse jedes IPv6-Interfaces." },
+      { term: "Dual-Stack", def: "Gerät betreibt IPv4 und IPv6 parallel." },
     ],
   },
 
@@ -3476,6 +3492,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Separater Process, link-local Neighborships",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Das klassische OSPF für IPv4 kennt keine IPv6-Routen. Für dynamisches Routing im IPv6-Netz braucht es OSPFv3.",
+      purpose:
+        "OSPFv3 für IPv6 einrichten: Area-Zuweisung direkt am Interface, manuelle Router-ID (Pflicht ohne IPv4) und passive-interface. Dynamisches IPv6-Routing statt statischer Routen.",
+    },
     topology: {
       description:
         "2 Router, beide IPv6-only. OSPFv3 läuft als eigener Prozess parallel zu OSPFv2 (IPv4).",
@@ -3528,6 +3550,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show ipv6 ospf neighbor", expected: "Neighbor ID 2.2.2.2 — FULL, Interface ID, Address fe80::..." },
       { cmd: "show ipv6 route ospf", expected: "O   2001:db8:1::/64 [110/2] via FE80::..." },
       { cmd: "show ipv6 ospf interface brief", expected: "Gi0/0 1 0 fe80::... 1" },
+    ],
+    glossary: [
+      { term: "OSPFv3", def: "OSPF-Version für IPv6 (RFC 5340) — Link-State, AD 110." },
+      { term: "ipv6 ospf <pid> area <n>", def: "Aktiviert OSPFv3 direkt am Interface und ordnet es einer Area zu (statt network-Befehl)." },
+      { term: "ipv6 router ospf", def: "Öffnet den OSPFv3-Prozess für globale Parameter (router-id, passive-interface)." },
+      { term: "router-id", def: "32-Bit-Kennung — bei reinem IPv6 MANUELL nötig, da keine IPv4-Adresse als ID dient." },
+      { term: "passive-interface default", def: "Setzt alle Interfaces passiv; mit no passive-interface gezielt freigeben." },
+      { term: "Link-Local-Nachbarschaft", def: "OSPFv3-Nachbarn kommunizieren über ihre fe80::-Adressen." },
+      { term: "Area 0", def: "Backbone-Area, hier am Interface zugewiesen." },
     ],
   },
 
@@ -3765,6 +3796,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Virtuelles Gateway, Priority, Preempt, Tracking",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Ein einzelnes Default-Gateway ist ein Single Point of Failure: fällt der Router aus, verlieren alle Hosts ihre Verbindung nach außen.",
+      purpose:
+        "HSRP gibt zwei Routern eine gemeinsame virtuelle Gateway-IP. Fällt der Active-Router aus, übernimmt der Standby unbemerkt — die Clients merken nichts. FHRP-Standard für Gateway-Redundanz.",
+    },
     topology: {
       description:
         "Zwei Distribution-Router teilen sich ein virtuelles Default Gateway. Fällt R1 (Active) aus, übernimmt R2 (Standby) in <3s.",
@@ -3821,6 +3858,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show standby brief", expected: "Grp 1, State Active (R1) / Standby (R2), Virtual IP 192.168.1.1" },
       { cmd: "show standby Gi0/0 1", expected: "Hellos sent, Priority 110, Track Gi0/1 line-protocol Up" },
       { cmd: "ping 192.168.1.1 (vom PC)", expected: "Antwortet, MAC = 0000.0c9f.f001" },
+    ],
+    glossary: [
+      { term: "HSRP", def: "Hot Standby Router Protocol (Cisco) — zwei Router teilen sich eine virtuelle Gateway-IP." },
+      { term: "FHRP", def: "First Hop Redundancy Protocol — Oberbegriff (HSRP, VRRP, GLBP)." },
+      { term: "Virtuelle IP/MAC", def: "Gemeinsame Adresse, die die Clients als Gateway nutzen; wandert beim Failover mit." },
+      { term: "Active / Standby", def: "Der Active leitet weiter; der Standby wartet bereit und übernimmt bei Ausfall." },
+      { term: "priority", def: "Höhere Priorität wird Active (Default 100)." },
+      { term: "preempt", def: "Erlaubt einem zurückkehrenden Router, die Active-Rolle zurückzuholen." },
+      { term: "Object Tracking", def: "Senkt die Priorität bei Uplink-Ausfall (standby track), sodass der Standby übernimmt." },
+      { term: "standby version 2", def: "HSRPv2 — unterstützt mehr Gruppen und msec-Timer." },
     ],
   },
 
@@ -3934,6 +3981,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Zentrales Login + Command Authorization",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Lokale Passwörter auf jedem einzelnen Gerät skalieren nicht und sind kaum zu auditieren. Geräte-Zugriff sollte zentral verwaltet und protokolliert werden.",
+      purpose:
+        "AAA mit TACACS+ einrichten: zentrale Authentifizierung und Autorisierung über einen Server, mit lokalem Fallback, falls der Server nicht erreichbar ist. Enterprise-Standard für Admin-Login.",
+    },
     topology: {
       description:
         "Switch SW1. Login wird zentral gegen einen TACACS+-Server geprüft. Lokaler Fallback-User, falls Server down.",
@@ -4018,6 +4071,15 @@ export const LABS: LabScenario[] = [
       { cmd: "test aaa group tacacs+ user01 Cisco123 legacy", expected: "User successfully authenticated" },
       { cmd: "show running-config | section aaa", expected: "AAA-Block komplett sichtbar" },
     ],
+    glossary: [
+      { term: "AAA", def: "Authentication, Authorization, Accounting — wer darf rein, was darf er, was hat er getan." },
+      { term: "aaa new-model", def: "Schaltet das AAA-Framework ein (Voraussetzung für RADIUS/TACACS+)." },
+      { term: "TACACS+", def: "Cisco-Protokoll (TCP 49) — trennt AAA, verschlüsselt die gesamte Sitzung; ideal für Geräte-Admin." },
+      { term: "RADIUS", def: "Offenes AAA-Protokoll (UDP) — verschlüsselt nur das Passwort; typisch für Endnutzer-Zugang." },
+      { term: "group server", def: "Bündelt mehrere AAA-Server zu einer benannten Gruppe." },
+      { term: "lokaler Fallback", def: "Schlüsselwort local in der Methodenliste — Login über lokale DB, wenn der Server ausfällt." },
+      { term: "key", def: "Gemeinsames Secret zwischen Gerät und AAA-Server." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4030,6 +4092,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Flow-Monitor, Exporter, Top-Talker erkennen",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Ohne Verkehrsanalyse weiß man nicht, wer wieviel Traffic verursacht — entscheidend für Kapazitätsplanung, Abrechnung und das Erkennen von Anomalien.",
+      purpose:
+        "Flexible NetFlow erfasst Flows (Quelle, Ziel, Ports, Protokoll) und exportiert sie an einen Collector. Verschafft Sichtbarkeit über den tatsächlichen Datenverkehr.",
+    },
     topology: {
       description:
         "Router R1 exportiert Flow-Records an einen Collector (z. B. Cisco Stealthwatch, ntopng).",
@@ -4113,6 +4181,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show flow exporter FNF-EXP statistics", expected: "Records sent, errors 0" },
       { cmd: "show flow monitor FNF-MON cache aggregate ipv4 source address sort highest counter bytes top 10", expected: "Top-Talker Liste" },
     ],
+    glossary: [
+      { term: "NetFlow", def: "Cisco-Technik zur Erfassung von Verkehrsflüssen pro Gerät." },
+      { term: "Flow", def: "Folge von Paketen mit gleichem 5-Tupel (Quelle/Ziel-IP, Quelle/Ziel-Port, Protokoll)." },
+      { term: "Flow Record", def: "Definiert, welche Felder erfasst werden (match) und welche Zähler (collect)." },
+      { term: "match / collect", def: "match = Schlüsselfelder eines Flows; collect = mitgezählte Werte (Bytes, Pakete, Zeit)." },
+      { term: "Flow Exporter", def: "Sendet die gesammelten Flows an einen externen Collector." },
+      { term: "Flow Monitor", def: "Verknüpft Record + Exporter und wird auf ein Interface angewendet." },
+      { term: "Collector", def: "Server, der NetFlow-Daten empfängt und auswertet." },
+      { term: "5-Tupel", def: "Die fünf Felder, die einen Flow eindeutig identifizieren." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4125,6 +4203,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Banner, Password-Policy, Login-Block, Service-Cleanup",
     difficulty: "Mittel",
     duration: "12 min",
+    context: {
+      problem:
+        "Ein Gerät mit Standardeinstellungen ist leicht angreifbar: schwache Passwort-Hashes, Brute-Force auf den Login und fehlende rechtliche Warnbanner.",
+      purpose:
+        "Das Gerät absichern: starke Hash-Algorithmen (scrypt), Mindest-Passwortlänge, Brute-Force-Schutz am Login und Warnbanner — die Basis-Härtung jedes produktiven Geräts.",
+    },
     topology: {
       description:
         "Standalone Switch SW1 oder Router R1 — Erstkonfiguration in einem 'sicher per Default'-Setup.",
@@ -4221,6 +4305,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show login", expected: "Login Block-for 120 seconds, 5 attempts within 60s" },
       { cmd: "show users", expected: "Aktive Sessions" },
     ],
+    glossary: [
+      { term: "Device Hardening", def: "Maßnahmen, die die Angriffsfläche eines Geräts verkleinern." },
+      { term: "banner motd / login / exec", def: "Textbanner zu verschiedenen Zeitpunkten — u. a. rechtlicher Warnhinweis." },
+      { term: "algorithm-type scrypt", def: "Moderner, sehr starker Passwort-Hash (Type 9) für enable/username secret." },
+      { term: "security passwords min-length", def: "Erzwingt eine Mindestlänge für neue Passwörter." },
+      { term: "login block-for", def: "Sperrt Logins nach zu vielen Fehlversuchen für eine Zeitspanne (Brute-Force-Schutz)." },
+      { term: "login delay", def: "Verzögerung zwischen Login-Versuchen — bremst automatisierte Angriffe." },
+      { term: "service password-encryption", def: "Verschleiert Klartext-Passwörter in der Konfiguration (schwach, aber Pflicht)." },
+      { term: "Brute-Force", def: "Angriff, der systematisch Passwörter durchprobiert." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4233,6 +4327,12 @@ export const LABS: LabScenario[] = [
     subtitle: "CAPWAP-Discovery, WLAN mit WPA2-PSK & WPA3-SAE",
     difficulty: "Fortgeschritten",
     duration: "25 min",
+    context: {
+      problem:
+        "Ein Lightweight Access Point kann erst WLANs ausstrahlen, wenn er Strom bekommt und seinen WLAN-Controller im Netz findet.",
+      purpose:
+        "Die AP-Anbindung vorbereiten: PoE am Switchport, Management-VLAN und ein DHCP-Pool mit Option 43, über die der AP die Controller-IP lernt. Grundlage zentral verwalteter WLANs.",
+    },
     topology: {
       description:
         "Cisco 9800-CL WLC, Lightweight AP an einem PoE-Switch im AP-VLAN 50. Clients verbinden sich auf SSID 'CORP-WLAN' (WPA2) und 'CORP-WPA3' (WPA3-SAE).",
@@ -4347,6 +4447,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show wireless client summary", expected: "MAC, State Run, WLAN, AP" },
       { cmd: "show capwap client rcb (am AP)", expected: "AP Mode: Local, Controller IP: 192.168.10.1" },
     ],
+    glossary: [
+      { term: "WLC", def: "Wireless LAN Controller — verwaltet zentral viele Access Points." },
+      { term: "Access Point (LWAP)", def: "Lightweight AP — sendet/empfängt Funk, wird aber vom WLC gesteuert." },
+      { term: "CAPWAP", def: "Tunnelprotokoll zwischen AP und WLC für Steuerung und Datenverkehr." },
+      { term: "PoE (power inline)", def: "Power over Ethernet — versorgt den AP über das Datenkabel mit Strom." },
+      { term: "DHCP Option 43", def: "DHCP-Feld, über das der AP die IP-Adresse seines WLC erfährt (Controller-Discovery)." },
+      { term: "Management-VLAN", def: "VLAN, in dem die APs ihre IP beziehen und mit dem WLC sprechen." },
+      { term: "Controller-Discovery", def: "Vorgang, mit dem ein AP seinen WLC findet (DHCP 43, DNS, Broadcast)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4359,6 +4468,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Zonen, Class-Map, Policy-Map, Zone-Pair",
     difficulty: "Fortgeschritten",
     duration: "20 min",
+    context: {
+      problem:
+        "Ohne Firewall-Policy erreicht jeder Bereich jeden anderen. Internes Netz, DMZ und Internet brauchen klar getrennte, kontrollierte Verkehrsregeln.",
+      purpose:
+        "Zone-Based Firewall einrichten: Interfaces Sicherheitszonen zuordnen und per Policy steuern, welcher Verkehr zwischen welchen Zonen erlaubt ist (z. B. INSIDE→OUTSIDE erlaubt, OUTSIDE→INSIDE blockiert).",
+    },
     topology: {
       description:
         "Edge-Router R1 mit 3 Zonen: INSIDE (LAN), OUTSIDE (Internet), DMZ (Webserver). Wir erlauben LAN→Internet (NAT), LAN→DMZ und Internet→DMZ:80.",
@@ -4462,6 +4577,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show zone-pair security", expected: "INSIDE-TO-OUTSIDE / OUTSIDE-TO-DMZ" },
       { cmd: "show policy-map type inspect zone-pair sessions", expected: "Aktive Inspection-Sessions" },
     ],
+    glossary: [
+      { term: "ZBFW", def: "Zone-Based Policy Firewall — Cisco-Firewall auf Basis von Sicherheitszonen." },
+      { term: "Security Zone", def: "Logische Gruppe von Interfaces mit gleichem Vertrauensniveau (INSIDE/OUTSIDE/DMZ)." },
+      { term: "zone-member", def: "Ordnet ein Interface einer Zone zu." },
+      { term: "Zone-Pair", def: "Richtungspaar (Quelle→Ziel-Zone), auf das eine Policy angewendet wird." },
+      { term: "Class-Map / Policy-Map", def: "Class-Map klassifiziert Verkehr, Policy-Map legt die Aktion fest (inspect/pass/drop)." },
+      { term: "inspect", def: "Stateful-Inspection — erlaubt Rückverkehr einer initiierten Verbindung automatisch." },
+      { term: "Self Zone", def: "Spezialzone für Verkehr zum/vom Router selbst (Management)." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4474,6 +4598,12 @@ export const LABS: LabScenario[] = [
     subtitle: "HTTPS + YANG-Daten + curl-Beispiel (CCNA 6.0)",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Geräte einzeln per CLI zu konfigurieren skaliert nicht. Automatisierung braucht eine programmierbare Schnittstelle statt Tastatureingaben.",
+      purpose:
+        "RESTCONF auf IOS-XE aktivieren und per HTTPS/JSON Interfaces auslesen und ändern — der Einstieg in Netzwerk-Automatisierung über eine REST-API.",
+    },
     topology: {
       description:
         "Router R1 (IOS-XE 17.x) wird via RESTCONF (HTTPS auf Port 443) konfigurierbar. Wir holen Interface-Status mit curl.",
@@ -4534,6 +4664,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show platform software yang-management process", expected: "ncsshd, confd, syncfd: Running" },
       { cmd: "Browser: https://10.0.0.1/restconf/data?depth=2", expected: "JSON-Response mit Top-Level YANG-Modulen" },
     ],
+    glossary: [
+      { term: "RESTCONF", def: "HTTP(S)-basierte API (RFC 8040), die YANG-Datenmodelle als REST-Ressourcen bereitstellt." },
+      { term: "YANG", def: "Modellierungssprache, die die Konfigurations-/Statusdaten eines Geräts strukturiert beschreibt." },
+      { term: "ip http secure-server", def: "Aktiviert den HTTPS-Server — Voraussetzung für RESTCONF." },
+      { term: "GET / PUT", def: "HTTP-Methoden: GET liest Daten, PUT setzt/ersetzt eine Konfiguration." },
+      { term: "JSON", def: "Datenformat der Anfragen/Antworten (application/yang-data+json)." },
+      { term: "ietf-interfaces", def: "Standard-YANG-Modul für Interface-Konfiguration und -Status." },
+      { term: "API-Endpoint", def: "URL-Pfad einer Ressource, z. B. /restconf/data/ietf-interfaces:interfaces." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4546,6 +4685,12 @@ export const LABS: LabScenario[] = [
     subtitle: "SSH-basierte API + Python-ncclient-Snippet",
     difficulty: "Fortgeschritten",
     duration: "15 min",
+    context: {
+      problem:
+        "Programmierbare Konfiguration braucht ein robustes, transaktionales Protokoll — kein fehleranfälliges Screen-Scraping der CLI.",
+      purpose:
+        "NETCONF (Port 830) auf IOS-XE aktivieren und per Python (ncclient) Konfigurationen lesen und schreiben. XML/YANG-basierte Automatisierung mit Transaktionen.",
+    },
     topology: {
       description:
         "Router R1 mit NETCONF über SSH-Port 830. Python-Skript holt die Hostname-Konfig per ncclient.",
@@ -4607,6 +4752,15 @@ export const LABS: LabScenario[] = [
       { cmd: "show platform software yang-management process", expected: "ncsshd: Running" },
       { cmd: "show running-config | include hostname", expected: "hostname R1-NEW" },
     ],
+    glossary: [
+      { term: "NETCONF", def: "XML-basiertes Konfigurationsprotokoll (RFC 6241) über SSH, Port 830." },
+      { term: "YANG", def: "Datenmodell, das NETCONF und RESTCONF gemeinsam nutzen." },
+      { term: "ncclient", def: "Python-Bibliothek, um NETCONF-Sitzungen aufzubauen und RPCs zu senden." },
+      { term: "Port 830", def: "Standard-TCP-Port für NETCONF over SSH." },
+      { term: "RPC", def: "Remote Procedure Call — NETCONF-Operation wie get-config oder edit-config." },
+      { term: "Datastore", def: "Konfigurationsspeicher: running (aktiv) bzw. candidate (Entwurf vor Commit)." },
+      { term: "XML", def: "Auszeichnungsformat der NETCONF-Nachrichten." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4619,6 +4773,12 @@ export const LABS: LabScenario[] = [
     subtitle: "Strukturierte Fehlersuche von L1 nach L7",
     difficulty: "Mittel",
     duration: "20 min",
+    context: {
+      problem:
+        "Bei einer Störung weiß man oft nicht, wo anfangen. Strukturierte Diagnose nach Schichten spart Zeit gegenüber wildem Herumprobieren.",
+      purpose:
+        "Eine nach OSI-Schichten sortierte show-Befehl-Referenz als Spickzettel für die systematische Fehlersuche — von Layer 1 (Interfaces) bis Layer 3 (Routing).",
+    },
     topology: {
       description:
         "Beliebige Topologie — der Workflow funktioniert immer. Ein PC erreicht angeblich nicht den Webserver. Wir gehen die Layer systematisch durch.",
@@ -4700,6 +4860,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show tech-support", expected: "Komplett-Snapshot — sendest du an TAC bei Eskalation" },
       { cmd: "show logging | last 50", expected: "Letzte 50 Log-Zeilen — oft steht das Problem direkt drin" },
     ],
+    glossary: [
+      { term: "show ip interface brief", def: "Schneller Überblick: welche L3-Interfaces sind up/up und haben eine IP." },
+      { term: "show interfaces status", def: "Port-Übersicht mit VLAN, Duplex, Speed und Verbindungsstatus." },
+      { term: "show interfaces counters errors", def: "Fehlerzähler je Port (CRC, Runts, Giants) — Layer-1-Diagnose." },
+      { term: "CDP / LLDP neighbors", def: "Zeigt direkt verbundene Nachbargeräte und an welchem Port." },
+      { term: "show mac address-table", def: "Welche MAC ist an welchem Port/VLAN gelernt — L2-Weiterleitung." },
+      { term: "show vlan brief", def: "VLANs und ihre zugeordneten Access-Ports." },
+      { term: "show interfaces trunk", def: "Trunk-Status und erlaubte/aktive VLANs." },
+      { term: "show spanning-tree", def: "Root-Bridge, Port-Rollen und -Zustände — L2-Loop-Diagnose." },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4712,6 +4882,12 @@ export const LABS: LabScenario[] = [
     subtitle: "CRC, Late-Collision, Input-Errors interpretieren",
     difficulty: "Mittel",
     duration: "15 min",
+    context: {
+      problem:
+        "Physische Probleme — defekte Kabel, Duplex-Mismatch, Störungen — stehen nicht in der Konfiguration, sondern in den Fehlerzählern eines Interfaces. Die muss man lesen können.",
+      purpose:
+        "Die Counter eines Interfaces interpretieren: CRC, Frame, Giants/Runts und Late Collisions — und daraus auf die wahre Ursache (Kabel, Duplex, Hardware) schließen.",
+    },
     topology: {
       description:
         "Switch SW1 mit auffälligem Port — wir lernen, wie man Kabel- und Duplex-Probleme diagnostiziert.",
@@ -4808,6 +4984,16 @@ export const LABS: LabScenario[] = [
       { cmd: "show interfaces Fa0/5 | include error|collision|CRC", expected: "Alle Counter sollten 0 oder konstant niedrig sein" },
       { cmd: "show interfaces status err-disabled", expected: "Liste err-disabled Ports — z. B. nach BPDU Guard oder Port Security" },
       { cmd: "show platform pm port-data Fa0/5", expected: "Detaillierter Port-Manager-Status (interne Cisco-Debug-Info)" },
+    ],
+    glossary: [
+      { term: "Input / Output Errors", def: "Summe aller Empfangs- bzw. Sendefehler eines Ports." },
+      { term: "CRC", def: "Prüfsummenfehler — meist Kabel, Störungen oder Duplex-Mismatch." },
+      { term: "Frame", def: "Frame mit nicht-ganzzahliger Byte-Zahl — oft Verkabelung/Störung." },
+      { term: "Giants / Runts", def: "Frame größer 1518 B (Giant) bzw. kleiner 64 B (Runt)." },
+      { term: "Collisions", def: "Auf Halb-Duplex normal; auf Full-Duplex ein Warnsignal." },
+      { term: "Late Collisions", def: "Kollision spät im Frame — fast immer ein Duplex-Mismatch (kritisch!)." },
+      { term: "Duplex-Mismatch", def: "Eine Seite Full-, die andere Half-Duplex — verursacht Late Collisions und CRC." },
+      { term: "show interfaces counters errors", def: "Listet alle Fehlerzähler je Port auf." },
     ],
   },
 ];
