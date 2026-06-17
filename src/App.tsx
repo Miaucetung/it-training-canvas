@@ -111,6 +111,9 @@ const TerminalEmulator = lazy(() =>
 const SubnettingDrillDialog = lazy(() =>
   import("@/components/SubnettingDrillDialog").then((m) => ({ default: m.SubnettingDrillDialog })),
 );
+const IPv4SubnetTableDialog = lazy(() =>
+  import("@/components/IPv4SubnetTableDialog").then((m) => ({ default: m.IPv4SubnetTableDialog })),
+);
 const IPv6CalculatorDialog = lazy(() =>
   import("@/components/IPv6CalculatorDialog").then((m) => ({ default: m.IPv6CalculatorDialog })),
 );
@@ -139,6 +142,7 @@ const CliGlossaryDialog = lazy(() =>
 // ── Tools-Menü: alle Simulatoren & Trainer zentral startbar ──
 type ToolId =
   | "subnetting-drill"
+  | "ipv4-subnet-table"
   | "ipv6-calculator"
   | "vlan-simulator"
   | "stp-simulator"
@@ -165,6 +169,7 @@ const TOOL_GROUPS: Array<{
     group: "Trainer & Rechner",
     tools: [
       { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
+      { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
       { id: "ipv6-calculator", name: "IPv6-Rechner", hint: "Adressen kürzen, EUI-64, Präfixe" },
       { id: "verkabelung-trainer", name: "Verkabelungs-Trainer", hint: "Kabeltypen richtig zuordnen" },
     ],
@@ -2267,6 +2272,9 @@ function App() {
         <Suspense fallback={null}>
           {activeTool === "subnetting-drill" && (
             <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "ipv4-subnet-table" && (
+            <IPv4SubnetTableDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
           )}
           {activeTool === "ipv6-calculator" && (
             <IPv6CalculatorDialog open onClose={() => setActiveTool(null)} theme={theme} />
