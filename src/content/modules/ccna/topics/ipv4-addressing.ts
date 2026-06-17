@@ -234,6 +234,83 @@ Die schnellste Methode für CCNA-Prüfungen — kein Taschenrechner nötig.
 };
 
 
+export const CONCEPT_SUBNETTING_EQUAL_SPLIT: Concept = {
+  id: "subnetting-equal-split",
+  title: "Aufgabe: Netz in gleich große Subnetze aufteilen",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["subnetting", "cidr", "aufgabe", "uebung", "vlsm", "nid", "broadcast"],
+  content: `
+## Verdichtung: Adresse, Maske, Subnetz
+
+Eine IPv4-Adresse ist ein **32-Bit-Wert** (2³² ≈ 4,294,967,296 Adressen), notiert als
+**4 Oktette** (je 8 Bit), durch Punkte getrennt — z. B. \`11000000.10101000.00000001.00000010\` = **192.168.1.2**.
+
+Die **Subnetzmaske** legt fest, welche Bits zum Netz- und welche zum Host-Anteil gehören:
+
+- Masken-Bit = **1** → korrespondierendes Bit gehört zum **Netzanteil**
+- Masken-Bit = **0** → korrespondierendes Bit gehört zum **Hostanteil**
+
+> Eine gültige Maske besteht immer aus **lückenlosen 1 en, gefolgt von lückenlosen 0 en** —
+> \`11110111…\` ist **ungültig**.
+
+### Die „Subnetz-Torte" — drei Arten von Adressen
+
+Jedes Subnetz hat einen festen Adressblock. Innerhalb dieses Blocks:
+
+| Adresse | Bedingung (Host-Anteil) | Rolle |
+|---------|-------------------------|-------|
+| **Netz-ID (NID)** | alle Bits **0** | „Name" des Subnetzes — **erste** Adresse |
+| **gültige Hosts** | alles dazwischen | an Knoten vergebbar |
+| **Broadcast** | alle Bits **1** | alle Hosts lauschen — **letzte** Adresse |
+
+→ Nutzbare Hosts = Blockgröße − 2 (NID + Broadcast abziehen).
+Sonderfall **/31** = 2 Hosts (Point-to-Point, RFC 3021), **/32** = 1 (Host-Route).
+
+## Methode: gleich große Subnetze (Bits borgen)
+
+Anders als bei VLSM (Bedarf je Abteilung) wird hier ein Netz in **X gleich große** Teile zerlegt:
+
+1. **Subnetz-Bits** \`n\` = wie viele Bits borge ich vom Host-Anteil, sodass \`2ⁿ ≥ X\`
+2. Neues Präfix = altes Präfix + \`n\` → daraus die Subnetzmaske
+3. **Anzahl Subnetze** = \`2ⁿ\`
+4. **Adressen je Subnetz (Blockgröße)** = \`2^(Host-Bits)\` = Schrittweite zur nächsten Netz-ID
+5. **Subnetz-IDs** = 0, Blockgröße, 2×Blockgröße, … im interessanten Oktett
+
+## Aufgabe
+
+> **Sie sind Admin des Netzes \`192.168.1.0/24\`. Teilen Sie es in X = 4 gleich große Subnetze auf.**
+>
+> 1. Welche Subnetzmaske müssen die Subnetze verwenden (dezimal **und** CIDR)?
+> 2. Wie viele Subnetze entstehen?
+> 3. Wie viele IP-Adressen hat jedes Subnetz?
+> 4. Wie viele **gültige** IP-Adressen hat jedes Subnetz?
+> 5. Notieren Sie die ersten vier Subnetz-IDs.
+> 6. Welche Subnetz-ID hat das letzte Subnetz?
+
+### Lösung
+
+4 Subnetze brauchen \`2² = 4\` → **2 Bits borgen** → Präfix \`/24 + 2 = /26\`.
+Letztes Oktett der Maske: \`11000000\` = **192**.
+
+1. Subnetzmaske: **255.255.255.192** = **/26**
+2. Subnetze: \`2² =\` **4**
+3. Adressen je Subnetz: \`2^(32−26) = 2⁶ =\` **64** (Blockgröße → Schrittweite 64)
+4. Gültige Hosts: \`64 − 2 =\` **62**
+5. Erste vier Subnetz-IDs:
+
+| # | Subnetz-ID | Erster Host | Letzter Host | Broadcast |
+|---|-----------|-------------|--------------|-----------|
+| 1 | 192.168.1.0/26   | .1   | .62  | .63  |
+| 2 | 192.168.1.64/26  | .65  | .126 | .127 |
+| 3 | 192.168.1.128/26 | .129 | .190 | .191 |
+| 4 | 192.168.1.192/26 | .193 | .254 | .255 |
+
+6. Letztes Subnetz: **192.168.1.192/26**
+
+> 🎯 **Gegenprobe** mit dem Tool **„IPv4-Subnetting-Referenz"** (Tab *Blockgrößen*): /26 → Block 64, 62 Hosts.
+  `.trim(),
+};
+
 export const TOPIC_IPV4_ADDRESSING: Topic = {
   id: "ipv4-addressing",
   title: "IPv4-Adressierung & Subnetting",
@@ -242,6 +319,7 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
   conceptIds: [
     "subnetting",
     "subnetting-drill",
+    "subnetting-equal-split",
     "ipv4-header",
     "arp",
     "icmp",
@@ -257,6 +335,7 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
 export const IPV4_CONCEPTS: Record<string, Concept> = {
   subnetting: CONCEPT_SUBNETTING,
   "subnetting-drill": CONCEPT_SUBNETTING_DRILL,
+  "subnetting-equal-split": CONCEPT_SUBNETTING_EQUAL_SPLIT,
   "ipv4-header": CONCEPT_IPV4_HEADER,
   arp: CONCEPT_ARP,
   icmp: CONCEPT_ICMP,
