@@ -196,6 +196,75 @@ Die schnellste Methode für CCNA-Prüfungen — kein Taschenrechner nötig.
 - Broadcast: 64 + 16 − 1 = **79**
 - Hosts: 192.168.10.**65** bis 192.168.10.**78**
 
+## Class-B-Subnetting — zwei Methoden zum Üben
+
+Beide Wege führen zum selben Ergebnis und sind **IHK-prüfungsrelevant**:
+**Methode A** rechnet dezimal (schnell), **Methode B** zeigt die Bits (verständlich, prüfungssicher).
+Übe beide am selben Beispiel und vergleiche.
+
+### Methode A — Pattern Value (ohne Binär)
+
+Wenn die Maske im **3. Oktett** wechselt (z. B. /17–/24), funktioniert die Magic Number genauso —
+nur im 3. statt im 4. Oktett. Zwei Begriffe genügen:
+
+- **Interesting Octet** = das Oktett, in dem die Maske **weder 0 noch 255** ist
+- **Pattern Value** = 256 − Masken-Wert in diesem Oktett (= Block-Größe in diesem Oktett)
+
+#### Die 3 Regeln je Masken-Oktett (Subnetz-ID)
+
+| Masken-Oktett | Was passiert mit dem IP-Oktett |
+|---------------|--------------------------------|
+| **255** | Wert **1:1** übernehmen |
+| **0** | Wert auf **0** setzen |
+| dazwischen | **Pattern Value** bilden → nächstes Vielfaches **unter** dem IP-Wert nehmen |
+
+**Broadcast** = nächstes Vielfaches − 1 im Interesting Octet, restliche Host-Oktette = **255**.
+
+**Beispiel 1** — 172.16.42.5 **/20** → Maske 255.255.**240**.0
+- Interesting Octet: 3. (240) → Pattern Value = 256 − 240 = **16**
+- Vielfache: 0, 16, 32, 48, … → 42 liegt zwischen 32 und 48 → **32**
+- Subnetz-ID: **172.16.32.0/20** · Broadcast: 48 − 1 = 47 → **172.16.47.255**
+- Block: 16 × 256 = **4096** Adressen
+
+**Beispiel 2** — 172.16.144.115 **/18** → Maske 255.255.**192**.0
+- Pattern Value = 256 − 192 = **64**
+- Vielfache: 0, 64, 128, 192 → 144 liegt zwischen 128 und 192 → **128**
+- Subnetz-ID: **172.16.128.0/18** · Broadcast: 192 − 1 = 191 → **172.16.191.255**
+- Block: 64 × 256 = **16.384** Adressen
+
+### Methode B — Binär (AND-Verknüpfung)
+
+Nur das **Interesting Octet** wird in Binär zerlegt; die anderen Oktette folgen denselben
+1:1-/0-Regeln. Subnetzmaske drüberlegen:
+
+- **Netz-Bits** (Maske = 1) → unverändert übernehmen
+- **Host-Bits** (Maske = 0) → für die **Subnetz-ID** alle **0**, für den **Broadcast** alle **1**
+
+**Beispiel 1** — 172.16.42.5 /20 (Interesting Octet = 3., Maske 240):
+
+\`\`\`
+            Netz | Host
+IP   (42)   0010 | 1010
+Maske(240)  1111 | 0000
+            ---------------
+Subnetz-ID  0010 | 0000  = 32   → 172.16.32.0/20
+Broadcast   0010 | 1111  = 47   → 172.16.47.255
+\`\`\`
+
+**Beispiel 2** — 172.16.144.115 /18 (Interesting Octet = 3., Maske 192):
+
+\`\`\`
+            Netz | Host
+IP  (144)   10 | 010000
+Maske(192)  11 | 000000
+            -----------------
+Subnetz-ID  10 | 000000  = 128  → 172.16.128.0/18
+Broadcast   10 | 111111  = 191  → 172.16.191.255
+\`\`\`
+
+> 🎯 **Gegenprobe**: Tool *„IPv4-Subnetting-Referenz"* → Tab *Oktett 0–255 (Binär)* zeigt jedes
+> Oktett ↔ 8-Bit-Binär; die Trennlinie Netz/Host liegt dort, wo die Maske von 1 auf 0 wechselt.
+
 ### Schnell-Referenz: Häufige CIDR-Präfixe
 
 | CIDR | Maske | Magic | Hosts |
