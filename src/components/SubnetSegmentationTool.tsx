@@ -137,6 +137,61 @@ function calculateVlsm(
   return results;
 }
 
+// ─── Gleich große Subnetze (FLSM, anhand Netz-ID) ────────────
+export interface EqualSplitResult {
+  results: SubnetResult[];
+  newPrefix: number;
+  subnetBits: number;
+  blockSize: number;
+  total: number;
+}
+
+export function calculateEqualSplit(
+  baseIp: number,
+  basePrefix: number,
+  numSubnets: number,
+): EqualSplitResult | string {
+  if (!Number.isFinite(numSubnets) || numSubnets < 2) {
+    return "Bitte in mindestens 2 Subnetze aufteilen.";
+  }
+  const subnetBits = Math.ceil(Math.log2(numSubnets));
+  const newPrefix = basePrefix + subnetBits;
+  if (newPrefix > 30) {
+    return `Zu fein unterteilt: /${newPrefix} überschreitet /30. Wähle weniger Subnetze oder ein größeres Basis-Netz.`;
+  }
+  const total = Math.pow(2, subnetBits);
+  if (total > 256) {
+    return "Mehr als 256 Subnetze werden nicht dargestellt. Wähle weniger Subnetze.";
+  }
+  const blockSize = Math.pow(2, 32 - newPrefix);
+
+  const results: SubnetResult[] = Array.from({ length: total }, (_, i) => {
+    const networkIp = (baseIp + i * blockSize) >>> 0;
+    const broadcastIp = (networkIp + blockSize - 1) >>> 0;
+    const seg: SegmentInput = {
+      id: `eq-${i + 1}`,
+      name: `Subnetz ${i + 1}`,
+      hosts: String(blockSize - 2),
+      vlan: String((i + 1) * 10),
+      color: ZONE_COLORS[i % ZONE_COLORS.length],
+    };
+    return {
+      segment: seg,
+      networkAddress: numToIp(networkIp),
+      subnetMask: maskToStr(newPrefix),
+      cidr: newPrefix,
+      gateway: numToIp((networkIp + 1) >>> 0),
+      firstHost: numToIp((networkIp + 1) >>> 0),
+      lastHost: numToIp((broadcastIp - 1) >>> 0),
+      broadcast: numToIp(broadcastIp),
+      usableHosts: blockSize - 2,
+      blockSize,
+    };
+  });
+
+  return { results, newPrefix, subnetBits, blockSize, total };
+}
+
 // ─── Cisco IOS Config Generator ──────────────────────────────
 function generateCiscoConfig(baseNet: string, results: SubnetResult[]): string {
   const lines: string[] = [];
@@ -251,6 +306,9 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
       color: ZONE_COLORS[i % ZONE_COLORS.length],
     }))
   );
+  const [mode, setMode] = useState<"vlsm" | "equal">("vlsm");
+  const [numSubnets, setNumSubnets] = useState("4");
+  const [splitInfo, setSplitInfo] = useState<EqualSplitResult | null>(null);
   const [results, setResults] = useState<SubnetResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showConfig, setShowConfig] = useState(false);
@@ -287,11 +345,24 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
   const calculate = useCallback(() => {
     setError(null);
     setResults(null);
+    setSplitInfo(null);
     setShowConfig(false);
 
     const parsed = parseBaseNetwork(baseNetwork);
     if (!parsed) {
       setError("Ungültiges Basis-Netz. Beispiel: 10.10.0.0/22");
+      return;
+    }
+
+    if (mode === "equal") {
+      const n = parseInt(numSubnets, 10);
+      const res = calculateEqualSplit(parsed.baseIp, parsed.prefix, n);
+      if (typeof res === "string") {
+        setError(res);
+      } else {
+        setSplitInfo(res);
+        setResults(res.results);
+      }
       return;
     }
 
@@ -307,7 +378,7 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
     } else {
       setResults(res);
     }
-  }, [baseNetwork, segments]);
+  }, [baseNetwork, segments, mode, numSubnets]);
 
   const ciscoConfig = useMemo(() => {
     if (!results) return "";
@@ -335,17 +406,48 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
           <div>
             <h3 className={`font-semibold text-sm ${text}`}>Subnetz-Segmentierungsplaner</h3>
             <p className={`text-xs mt-0.5 ${textMuted}`}>
-              Basis-Netz eingeben → Zonen definieren → VLSM berechnen
+              {mode === "equal"
+                ? "Netz-ID eingeben → in gleich große Subnetze aufteilen (FLSM)"
+                : "Basis-Netz eingeben → Zonen definieren → VLSM berechnen"}
             </p>
           </div>
         </div>
       </div>
 
       <div className="p-5 space-y-5">
+        {/* Mode toggle */}
+        <div className={`flex gap-1 p-1 rounded-xl ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+          {([
+            ["vlsm", "VLSM — nach Bedarf"],
+            ["equal", "Gleich groß (FLSM)"],
+          ] as const).map(([m, label]) => (
+            <button
+              key={m}
+              onClick={() => {
+                setMode(m);
+                setResults(null);
+                setSplitInfo(null);
+                setError(null);
+                setShowConfig(false);
+              }}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                mode === m
+                  ? "bg-indigo-600 text-white"
+                  : dark
+                    ? "text-slate-400 hover:text-white"
+                    : "text-slate-600 hover:text-slate-900"
+              }`}
+              aria-pressed={mode === m}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {/* Base Network Input */}
         <div>
           <label className={`block text-xs font-medium mb-1.5 ${textMuted}`}>
-            Basis-Netz (CIDR)
+            {mode === "equal" ? "Netz-ID (CIDR)" : "Basis-Netz (CIDR)"}
           </label>
           <div className="flex gap-2">
             <input
@@ -364,7 +466,47 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
           </div>
         </div>
 
-        {/* Segments Table */}
+        {/* Equal-split control (FLSM) */}
+        {mode === "equal" && (
+          <div>
+            <label className={`block text-xs font-medium mb-1.5 ${textMuted}`}>
+              In wie viele gleich große Subnetze aufteilen?
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {[2, 4, 8, 16, 32, 64].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setNumSubnets(String(n))}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors ${
+                    parseInt(numSubnets, 10) === n
+                      ? "bg-indigo-600 text-white"
+                      : dark
+                        ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <input
+                type="number"
+                min="2"
+                max="256"
+                value={numSubnets}
+                onChange={(e) => setNumSubnets(e.target.value)}
+                className={`w-20 px-2 py-1.5 rounded-lg border text-xs font-mono ${dark ? "bg-slate-700 border-slate-600 text-white" : "bg-white border-slate-300 text-slate-900"} focus:outline-none focus:ring-1 focus:ring-indigo-500/50`}
+                aria-label="Anzahl Subnetze"
+              />
+            </div>
+            <p className={`mt-2 text-xs ${textMuted}`}>
+              Die Aufteilung erfolgt gleichmäßig ab der Netz-ID. Bei einer Zahl, die keine
+              Zweierpotenz ist, wird auf die nächste Zweierpotenz aufgerundet.
+            </p>
+          </div>
+        )}
+
+        {/* Segments Table (VLSM only) */}
+        {mode === "vlsm" && (
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className={`text-xs font-medium ${textMuted}`}>
@@ -442,13 +584,14 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
             ))}
           </div>
         </div>
+        )}
 
         {/* Calculate Button */}
         <button
           onClick={calculate}
           className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors"
         >
-          VLSM berechnen →
+          {mode === "equal" ? "In gleich große Subnetze aufteilen →" : "VLSM berechnen →"}
         </button>
 
         {/* Error */}
@@ -461,6 +604,32 @@ export function SubnetSegmentationTool({ dark }: SubnetSegmentationToolProps) {
         {/* Results */}
         {results && (
           <div className="space-y-5">
+            {/* Rechenweg (FLSM) */}
+            {mode === "equal" && splitInfo && parsedBase && (
+              <div className={`rounded-xl border p-4 text-xs ${dark ? "border-indigo-500/30 bg-indigo-500/10 text-slate-300" : "border-indigo-200 bg-indigo-50 text-slate-700"}`}>
+                <div className={`mb-2 font-semibold ${dark ? "text-indigo-200" : "text-indigo-800"}`}>
+                  Rechenweg
+                </div>
+                <ol className="space-y-1 list-decimal list-inside">
+                  <li>
+                    {parseInt(numSubnets, 10)} Subnetze benötigt → 2<sup>{splitInfo.subnetBits}</sup> ={" "}
+                    {splitInfo.total} ≥ {parseInt(numSubnets, 10)} → {splitInfo.subnetBits} Subnetz-Bit(s) borgen.
+                  </li>
+                  <li>
+                    Neue Präfixlänge: /{parsedBase.prefix} + {splitInfo.subnetBits} = <strong>/{splitInfo.newPrefix}</strong>{" "}
+                    → Maske {maskToStr(splitInfo.newPrefix)}.
+                  </li>
+                  <li>
+                    Blockgröße (Schrittweite): 2<sup>{32 - splitInfo.newPrefix}</sup> ={" "}
+                    <strong>{splitInfo.blockSize.toLocaleString()}</strong> Adressen, davon {splitInfo.blockSize - 2} nutzbar.
+                  </li>
+                  <li>
+                    Ergebnis: <strong>{splitInfo.total}</strong> gleich große Subnetze ab {results[0].networkAddress}.
+                  </li>
+                </ol>
+              </div>
+            )}
+
             {/* Block Diagram */}
             <div className={`rounded-xl border ${border} ${bgCard} p-4`}>
               <h4 className={`text-xs font-semibold mb-3 ${textMuted} uppercase tracking-wide`}>
