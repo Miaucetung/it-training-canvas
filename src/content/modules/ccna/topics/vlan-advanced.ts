@@ -447,6 +447,30 @@ SW(config-if)# switchport trunk native vlan 999
 SW(config-if)# switchport trunk allowed vlan 10,20,999
 \`\`\`
 
+### Die Reise eines Frames — Inter-VLAN Schritt für Schritt
+
+> Szenario: **PC1** (VLAN 10) schickt ein Paket an **PC2** (VLAN 20) — beide am selben Switch, Gateway ist R1 per ROAS.
+
+| # | Wo | Was mit dem Frame passiert |
+|---|----|----------------------------|
+| 1 | PC1 → Access-Port | PC1 adressiert das Paket an sein Default Gateway 192.168.10.1 (R1) und schickt es **ungetaggt** aus dem Access-Port. |
+| 2 | SW1: Access → Trunk | SW1 empfängt auf Fa0/1 und **fügt ein 802.1Q-Tag VLAN 10 ein**, bevor der Frame auf den Trunk geht. |
+| 3 | Trunk → Router | Der getaggte Frame läuft über den **einen** Trunk-Link hoch zum Subinterface **Gi0/0.10**. |
+| 4 | R1: Routing + Re-Tag | R1 routet zwischen den verbundenen Subnetzen, **schreibt den L2-Header neu** und re-encapsuliert den Frame für **VLAN 20**. |
+| 5 | Router → Trunk | Jetzt mit **VLAN-20-Tag** geht der Frame über denselben physischen Link zurück zu SW1. |
+| 6 | SW1: Trunk → Access | SW1 leitet auf Fa0/2 aus und **entfernt das 802.1Q-Tag** — PC2 sieht nur einen **ungetaggten** Frame. |
+| 7 | → PC2 | PC2 empfängt den Frame. Inter-VLAN-Routing über **ein einziges** physisches Interface abgeschlossen. |
+
+Das **802.1Q-Tag** existiert nur auf dem Trunk: Access-Ports senden/empfangen immer ungetaggt — das Tag wird beim Übergang Access→Trunk eingefügt und beim Übergang Trunk→Access wieder entfernt.
+
+\`\`\`
+802.1Q-getaggter Ethernet-Frame (Tag nur auf dem Trunk):
+[ Dst MAC ][ Src MAC ][ 802.1Q-Tag: VID=10 ][ Typ ][ IP-Paket · TTL ][ FCS ]
+                       └── auf dem Trunk eingefügt ──┘
+\`\`\`
+
+> **Merksatz:** Auf dem Weg durch R1 **wechselt das VLAN-Tag 10 ⇄ 20**. Der Router ist der einzige Punkt, der die VLAN-Grenze (= Subnetz-Grenze) überschreitet — der Switch tagged bzw. untagged nur.
+
 **Nachteil ROAS**: Der Trunk-Link ist ein Engpass ("Stau auf der Einbahnstraße"). Aller Inter-VLAN-Traffic teilt sich diesen einen physischen Link — bei einem 48-Port-Switch mit 20 VLANs läuft alles über eine einzige Leitung.
 
 ---
@@ -1611,6 +1635,7 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
     "vlan-port-typen",
     "vlan-typen",
     "inter-vlan-routing-roas",
+    "roas-animation",
     "vtp-dtp",
     "vlan-sicherheit",
     "vlan-advanced-guide",
@@ -1626,6 +1651,25 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
   tags: ["vlan", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
 };
 
+export const CONCEPT_ROAS_ANIMATION: Concept = {
+  id: "roas-animation",
+  title: "Animation: Router-on-a-Stick — die Reise eines Frames",
+  appliesTo: ["ccna"],
+  tags: ["vlan", "roas", "inter-vlan", "802.1q", "trunk", "animation", "interactive"],
+  content: `
+## Interaktive Animation (Button unten)
+
+Eine abspielbare Timeline zeigt **Inter-VLAN-Routing über einen einzigen Trunk-Link** Schritt für Schritt:
+
+1. **Das Problem** — ein Layer-2-Switch hält VLAN 10 und VLAN 20 in getrennten Broadcast-Domänen und kann **nicht** zwischen ihnen routen.
+2. **Die Lösung** — ein physisches Router-Interface wird in **Subinterfaces** (eines pro VLAN) aufgeteilt; der Link zum Switch wird zum **802.1Q-Trunk**.
+3. **Die Frame-Reise** — verfolge einen Frame von **PC1 (VLAN 10) → PC2 (VLAN 20)**: ungetaggt raus → Switch setzt 802.1Q-Tag → Trunk → R1 routet und **re-encapsuliert auf VLAN 20** → Trunk zurück → Switch entfernt das Tag → PC2 empfängt ungetaggt.
+4. **Recap** — \`encapsulation dot1Q <id>\` macht jedes Subinterface zum Gateway; das VLAN-Tag wechselt auf dem Weg durch R1 **10 ⇄ 20**.
+
+> Nutze die Timeline-Steuerung zum Scrubben/Pausieren. Die Schritte entsprechen 1:1 der Tabelle „Die Reise eines Frames" im Konzept **Inter-VLAN Routing — Router-on-a-Stick**.
+  `.trim(),
+};
+
 // ── Exports ───────────────────────────────────────────────────
 
 export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
@@ -1634,6 +1678,7 @@ export const VLAN_ADVANCED_CONCEPTS: Record<string, Concept> = {
   "vlan-port-typen": CONCEPT_VLAN_PORT_TYPEN,
   "vlan-typen": CONCEPT_VLAN_TYPEN,
   "inter-vlan-routing-roas": CONCEPT_INTER_VLAN_ROUTING_ROAS,
+  "roas-animation": CONCEPT_ROAS_ANIMATION,
   "vtp-dtp": CONCEPT_VTP_DTP,
   "vlan-sicherheit": CONCEPT_VLAN_SICHERHEIT,
   "vlan-advanced-guide": CONCEPT_VLAN_ADVANCED_GUIDE,

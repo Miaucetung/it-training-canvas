@@ -65,6 +65,9 @@ const OsiSimulatorDialog = lazy(() =>
 const RoutingSimulatorDialog = lazy(() =>
   import("./RoutingSimulatorDialog").then((m) => ({ default: m.RoutingSimulatorDialog })),
 );
+const RouterOnAStickDialog = lazy(() =>
+  import("./RouterOnAStickDialog").then((m) => ({ default: m.RouterOnAStickDialog })),
+);
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -136,6 +139,7 @@ export function TopicDetailPanel({
   const [stpSimOpen, setStpSimOpen] = useState(false);
   const [osiSimOpen, setOsiSimOpen] = useState(false);
   const [routingSimOpen, setRoutingSimOpen] = useState(false);
+  const [roasAnimOpen, setRoasAnimOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
@@ -148,6 +152,7 @@ export function TopicDetailPanel({
   const hasStpSimulator = topic.conceptIds.includes("stp-simulator");
   const hasOsiSimulator = topic.conceptIds.includes("osi-simulator");
   const hasRoutingSimulator = topic.conceptIds.includes("routing-simulator");
+  const hasRoasAnimation = topic.conceptIds.includes("roas-animation");
   const hasTopologyExplorer = topic.conceptIds.includes("topology-explorer");
   const hasCliGlossary = topic.conceptIds.includes("ios-cli-glossary");
   const hasSubnetSegTool = topic.conceptIds.includes("subnet-seg-tool");
@@ -440,6 +445,38 @@ export function TopicDetailPanel({
                 className={`text-xs ${dark ? "text-cyan-300" : "text-cyan-600"}`}
               >
                 Starten →
+              </span>
+            </button>
+          </section>
+        )}
+
+        {/* ── Router-on-a-Stick Animation CTA ── */}
+        {hasRoasAnimation && (
+          <section>
+            <button
+              type="button"
+              onClick={() => setRoasAnimOpen(true)}
+              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
+                dark
+                  ? "bg-violet-500/10 border-violet-500/30 hover:bg-violet-500/20 text-violet-200"
+                  : "bg-violet-50 border-violet-200 hover:bg-violet-100 text-violet-800"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
+                  dark ? "bg-violet-500/30 text-violet-200" : "bg-violet-100 text-violet-700"
+                }`}
+              >
+                🎬
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold">Router-on-a-Stick — Animation</div>
+                <div className="text-xs opacity-80 mt-0.5">
+                  Frame-Reise PC1 → PC2 · 802.1Q-Tag setzen/routen/strippen · Timeline
+                </div>
+              </div>
+              <span className={`text-xs ${dark ? "text-violet-300" : "text-violet-600"}`}>
+                Abspielen →
               </span>
             </button>
           </section>
@@ -1118,6 +1155,13 @@ export function TopicDetailPanel({
         <RoutingSimulatorDialog
           dark={dark}
           onClose={() => setRoutingSimOpen(false)}
+        />
+      )}
+
+      {hasRoasAnimation && roasAnimOpen && (
+        <RouterOnAStickDialog
+          dark={dark}
+          onClose={() => setRoasAnimOpen(false)}
         />
       )}
 
