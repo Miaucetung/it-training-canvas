@@ -7,6 +7,20 @@
 
 @config '../tailwind.config.js';
 
+/* ------------------------------------------------------------
+   Theme-Refresh (Option A): slate-Palette zentral überschreiben.
+   Alle bestehenden slate-* Utility-Klassen ziehen automatisch nach
+   → mehr Tiefe/Elevation, ohne Komponenten-Refactor.
+   ------------------------------------------------------------ */
+@theme {
+  --color-slate-950: #080b12;  /* tiefste Ebene: Canvas, Code-Wells */
+  --color-slate-900: #0e131c;  /* App-Hintergrund */
+  --color-slate-800: #1a2230;  /* Karten/Panels — deutlich heller */
+  --color-slate-700: #2b3647;  /* sichtbare Rahmen */
+  --color-slate-600: #3d4a5e;  /* Trenner/Separatoren */
+  --color-slate-500: #5b6a80;  /* gedämpfter Text / Icons */
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
