@@ -13,6 +13,7 @@ import {
   Calculator,
   CheckCircle,
   GridFour,
+  Path,
   X,
   XCircle,
 } from "@phosphor-icons/react";
@@ -316,6 +317,237 @@ function useSegDrill(totalTasks = TOTAL_TASKS) {
   };
 }
 
+// ── Rechenweg-Erklärungen (pure, testbar) ───────────────────
+
+function toBin8(n: number): string {
+  return n.toString(2).padStart(8, "0");
+}
+
+interface SingleExplain {
+  octetIndex: number; // 0..3 — das interessante Oktett
+  octetLabel: string; // "3. Oktett"
+  maskOctet: number;
+  magic: number;
+  netBitsInOctet: number; // 0..8 — Split-Position im Oktett
+  ipOctet: number;
+  subnetOctet: number;
+  broadcastOctet: number;
+  steps: string[];
+}
+
+export function explainSingle(task: DrillTask): SingleExplain {
+  const idx = Math.max(
+    0,
+    task.mask.findIndex((m) => m !== 255),
+  );
+  const octetIndex = task.mask[idx] === undefined ? 3 : idx;
+  const maskOctet = task.mask[octetIndex];
+  const magic = task.magic;
+  const netBitsInOctet = Math.min(8, Math.max(0, task.cidr - octetIndex * 8));
+  const ipOctet = task.ip[octetIndex];
+  const subnetOctet = task.subnet[octetIndex];
+  const broadcastOctet = task.broadcast[octetIndex];
+  const octetLabel = `${octetIndex + 1}. Oktett`;
+
+  const subnetStr = task.subnet.join(".");
+  const bcStr = task.broadcast.join(".");
+  const firstStr = task.firstHost.join(".");
+  const lastStr = task.lastHost.join(".");
+
+  const steps: string[] = [];
+  if (maskOctet === 0) {
+    // byte-aligned (/8,/16,/24): interessantes Oktett wird voll zum Host
+    steps.push(
+      `Interesting Octet: ${octetLabel}. Hier ist die Maske 0 → das Oktett gehört komplett zum Host-Anteil, die linken Oktette (255) werden 1:1 übernommen.`,
+    );
+    steps.push(`Blockgröße in diesem Oktett: 256 − 0 = 256 (volle 256er-Schritte).`);
+    steps.push(`Subnetz-ID: dieses und alle rechten Host-Oktette auf 0 → ${subnetStr}.`);
+  } else {
+    steps.push(
+      `Interesting Octet: ${octetLabel} (Maske ${maskOctet}). Die übrigen Oktette sind 255 (1:1 übernehmen) oder 0 (auf 0 setzen).`,
+    );
+    steps.push(`Magic Number / Blockgröße: 256 − ${maskOctet} = ${magic}.`);
+    steps.push(
+      `Subnetz-ID: größtes Vielfaches von ${magic}, das ≤ ${ipOctet} ist, = ${subnetOctet} → ${subnetStr}.`,
+    );
+  }
+  steps.push(
+    `Broadcast: nächstes Vielfaches − 1 = ${subnetOctet + magic} − 1 = ${broadcastOctet}; rechte Host-Oktette = 255 → ${bcStr}.`,
+  );
+  steps.push(
+    `Nutzbare Hosts: ${firstStr} … ${lastStr} (Subnetz-ID + 1 bis Broadcast − 1).`,
+  );
+
+  return {
+    octetIndex,
+    octetLabel,
+    maskOctet,
+    magic,
+    netBitsInOctet,
+    ipOctet,
+    subnetOctet,
+    broadcastOctet,
+    steps,
+  };
+}
+
+interface SegExplain {
+  subnetBits: number;
+  newCidr: number;
+  hostBits: number;
+  blockSize: number;
+  steps: string[];
+}
+
+export function explainSeg(task: SegTask): SegExplain {
+  const subnetBits = Math.ceil(Math.log2(Math.max(task.requiredSubnets, 2)));
+  const newCidr = task.newCidr;
+  const hostBits = 32 - newCidr;
+  const blockSize = 1 << hostBits;
+  const firstIds = task.subnets
+    .slice(0, Math.min(4, task.subnets.length))
+    .map((s) => s.networkId)
+    .join(", ");
+
+  const steps = [
+    `${task.requiredSubnets} Subnetze benötigt → 2^${subnetBits} = ${1 << subnetBits} ≥ ${task.requiredSubnets} → ${subnetBits} Subnetz-Bit(s) vom Host-Anteil borgen.`,
+    `Neue Präfixlänge: /${task.baseCidr} + ${subnetBits} = /${newCidr} → Maske ${task.newMask}.`,
+    `Blockgröße (Schrittweite zur nächsten Subnetz-ID): 2^${hostBits} = ${blockSize} Adressen.`,
+    `Subnetz-IDs: ${task.baseNetwork} + n × ${blockSize} → ${firstIds} …`,
+    `Nutzbare Hosts je Subnetz: 2^${hostBits} − 2 = ${task.hostsPerSubnet}.`,
+  ];
+
+  return { subnetBits, newCidr, hostBits, blockSize, steps };
+}
+
+// ── Rechenweg-UI-Komponenten ────────────────────────────────
+
+function BinaryOctet({
+  value,
+  netBits,
+  dark,
+}: {
+  value: number;
+  netBits: number;
+  dark: boolean;
+}) {
+  const bits = toBin8(value).split("");
+  return (
+    <span className="inline-flex items-center font-mono text-[11px] leading-none">
+      {bits.map((b, i) => (
+        <span
+          key={i}
+          className={`inline-block w-4 py-1 text-center ${
+            i < netBits
+              ? dark
+                ? "bg-indigo-500/25 text-indigo-200"
+                : "bg-indigo-100 text-indigo-700"
+              : dark
+                ? "bg-slate-700/40 text-slate-300"
+                : "bg-slate-100 text-slate-600"
+          } ${i === netBits - 1 ? "mr-1.5 rounded-r-sm" : ""} ${i === netBits ? "rounded-l-sm" : ""} ${i === 0 ? "rounded-l-sm" : ""} ${i === 7 ? "rounded-r-sm" : ""}`}
+        >
+          {b}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function StepList({ steps, dark }: { steps: string[]; dark: boolean }) {
+  return (
+    <ol className="space-y-1.5">
+      {steps.map((s, i) => (
+        <li key={i} className="flex gap-2">
+          <span
+            className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+              dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-700"
+            }`}
+          >
+            {i + 1}
+          </span>
+          <span className={`text-xs leading-snug ${dark ? "text-slate-300" : "text-slate-700"}`}>
+            {s}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function CalcPathCard({
+  title,
+  dark,
+  children,
+}: {
+  title: string;
+  dark: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-3.5 space-y-3 ${
+        dark
+          ? "border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-violet-500/5"
+          : "border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50/60"
+      }`}
+    >
+      <div className="flex items-center gap-1.5">
+        <Path size={14} weight="bold" className={dark ? "text-indigo-400" : "text-indigo-600"} />
+        <span className={`text-xs font-semibold ${dark ? "text-indigo-200" : "text-indigo-800"}`}>
+          {title}
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SingleCalcPath({ task, dark }: { task: DrillTask; dark: boolean }) {
+  const ex = explainSingle(task);
+  const rows: Array<{ label: string; octet: number; strong?: boolean }> = [
+    { label: "IP", octet: ex.ipOctet },
+    { label: "Maske", octet: ex.maskOctet },
+    { label: "Subnetz-ID", octet: ex.subnetOctet, strong: true },
+    { label: "Broadcast", octet: ex.broadcastOctet, strong: true },
+  ];
+  return (
+    <CalcPathCard title="Rechenweg" dark={dark}>
+      <StepList steps={ex.steps} dark={dark} />
+      <div className={`rounded-lg p-2.5 ${dark ? "bg-slate-900/50" : "bg-white/70"}`}>
+        <div className={`mb-1.5 text-[10px] font-medium uppercase tracking-wide ${dark ? "text-slate-400" : "text-slate-500"}`}>
+          Binär · {ex.octetLabel} ·{" "}
+          <span className={dark ? "text-indigo-300" : "text-indigo-600"}>Netz</span>
+          {" | "}
+          <span className={dark ? "text-slate-400" : "text-slate-500"}>Host</span>
+        </div>
+        <div className="space-y-1">
+          {rows.map((r) => (
+            <div key={r.label} className="flex items-center gap-2">
+              <span className={`w-20 shrink-0 text-[11px] ${r.strong ? (dark ? "text-indigo-200 font-semibold" : "text-indigo-700 font-semibold") : dark ? "text-slate-400" : "text-slate-500"}`}>
+                {r.label}
+              </span>
+              <BinaryOctet value={r.octet} netBits={ex.netBitsInOctet} dark={dark} />
+              <span className={`ml-1 font-mono text-[11px] ${dark ? "text-slate-300" : "text-slate-600"}`}>
+                = {r.octet}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </CalcPathCard>
+  );
+}
+
+function SegCalcPath({ task, dark }: { task: SegTask; dark: boolean }) {
+  const ex = explainSeg(task);
+  return (
+    <CalcPathCard title="Rechenweg" dark={dark}>
+      <StepList steps={ex.steps} dark={dark} />
+    </CalcPathCard>
+  );
+}
+
 function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
   const drill = useSegDrill();
   const { task, checked, result, SHOW_SUBNETS } = drill;
@@ -469,17 +701,20 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
 
       {/* Detailübersicht nach Prüfung */}
       {checked && (
-        <div className={`rounded-md px-3 py-2 text-xs ${
-          allOk
-            ? dark ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
-                   : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-            : dark ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
-                   : "bg-rose-50 text-rose-700 border border-rose-200"
-        }`}>
-          {allOk
-            ? "Alles korrekt — gut gemacht!"
-            : `Erklärung: /${task.baseCidr} → benötigt ${Math.ceil(Math.log2(task.requiredSubnets))} Subnetz-Bit(s) → /${task.newCidr}. Hosts = 2^${32 - task.newCidr} − 2 = ${task.hostsPerSubnet}.`}
-        </div>
+        <>
+          <div className={`rounded-md px-3 py-2 text-xs ${
+            allOk
+              ? dark ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
+                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : dark ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
+                     : "bg-rose-50 text-rose-700 border border-rose-200"
+          }`}>
+            {allOk
+              ? "Alles korrekt — gut gemacht!"
+              : "Nicht alles richtig — der Rechenweg zeigt jeden Schritt."}
+          </div>
+          <SegCalcPath task={task} dark={dark} />
+        </>
       )}
 
       {drill.finished && (
@@ -699,11 +934,21 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
             dark ? "border-slate-700" : "border-slate-200"
           }`}
         >
+          <div
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+              dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"
+            }`}
+          >
+            <Calculator size={16} weight="bold" />
+          </div>
           <div className="flex-1">
             <div
               className={`font-semibold text-sm ${dark ? "text-white" : "text-slate-900"}`}
             >
               Subnetting-Drill
+            </div>
+            <div className={`text-[11px] ${dark ? "text-slate-400" : "text-slate-500"}`}>
+              Üben mit Rechenweg — Magic Number & Binär
             </div>
           </div>
           {/* Mode toggle */}
@@ -854,9 +1099,11 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                       result.lastOk &&
                       result.magicOk
                         ? "Alles korrekt — gut gemacht!"
-                        : "Nicht alles richtig — vergleiche oben mit der Lösung."}
+                        : "Nicht alles richtig — der Rechenweg zeigt jeden Schritt."}
                     </div>
                   )}
+
+                  {checked && <SingleCalcPath task={task} dark={dark} />}
                 </>
               )}
 
@@ -920,4 +1167,7 @@ export const __test__ = {
   octetEq,
   calcSegmentation,
   generateSegTask,
+  explainSingle,
+  explainSeg,
+  toBin8,
 };
