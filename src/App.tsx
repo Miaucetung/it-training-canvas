@@ -77,6 +77,7 @@ import {
   Target,
   Terminal,
   Wrench,
+  X,
 } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
 import { AuthMenu } from "@/components/AuthMenu";
@@ -114,6 +115,7 @@ const SubnettingDrillDialog = lazy(() =>
 const IPv4SubnetTableDialog = lazy(() =>
   import("@/components/IPv4SubnetTableDialog").then((m) => ({ default: m.IPv4SubnetTableDialog })),
 );
+const SubnettingCheatsheet = lazy(() => import("@/tools/SubnettingCheatsheet"));
 const IPv6CalculatorDialog = lazy(() =>
   import("@/components/IPv6CalculatorDialog").then((m) => ({ default: m.IPv6CalculatorDialog })),
 );
@@ -142,6 +144,7 @@ const CliGlossaryDialog = lazy(() =>
 // ── Tools-Menü: alle Simulatoren & Trainer zentral startbar ──
 type ToolId =
   | "subnetting-drill"
+  | "subnetting-cheatsheet"
   | "ipv4-subnet-table"
   | "ipv6-calculator"
   | "vlan-simulator"
@@ -169,6 +172,7 @@ const TOOL_GROUPS: Array<{
     group: "Trainer & Rechner",
     tools: [
       { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
+      { id: "subnetting-cheatsheet", name: "Subnetting-Cheatsheet", hint: "Blockgrößen, Grenzen, VLSM + Rechner" },
       { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
       { id: "ipv6-calculator", name: "IPv6-Rechner", hint: "Adressen kürzen, EUI-64, Präfixe" },
       { id: "verkabelung-trainer", name: "Verkabelungs-Trainer", hint: "Kabeltypen richtig zuordnen" },
@@ -2272,6 +2276,30 @@ function App() {
         <Suspense fallback={null}>
           {activeTool === "subnetting-drill" && (
             <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "subnetting-cheatsheet" && (
+            <div
+              className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Subnetting-Cheatsheet"
+              onClick={() => setActiveTool(null)}
+            >
+              <div
+                className="relative my-4 w-full max-w-4xl rounded-2xl border border-border bg-background shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveTool(null)}
+                  className="absolute right-3 top-3 z-20 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted"
+                  aria-label="Schließen"
+                >
+                  <X size={18} />
+                </button>
+                <SubnettingCheatsheet />
+              </div>
+            </div>
           )}
           {activeTool === "ipv4-subnet-table" && (
             <IPv4SubnetTableDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
