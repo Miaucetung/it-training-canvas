@@ -1321,7 +1321,25 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "192.168.1.254"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `C:\\Users\\cisco\\admin>ipconfig /all
+
+Windows IP Configuration
+   Host Name . . . . . . . . . . . . : DESKTOP-450J9PT
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+
+Wireless LAN adapter Wi-Fi:
+   DHCP Enabled. . . . . . . . . . . : Yes
+   IPv4 Address. . . . . . . . . . . : 192.168.1.224 (Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.100
+   DHCP Server . . . . . . . . . . . : 192.168.1.254
+   DNS Servers . . . . . . . . . . . : 192.168.1.253
+   NetBIOS over Tcpip. . . . . . . . : Enabled`,
+      highlight: ["   DNS Servers . . . . . . . . . . . : 192.168.1.253"],
+    },
   },
   {
     id: "q0104",
@@ -1393,7 +1411,24 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "R7# interface FastEthernet1/0 ip address 10.88.31.126 255.255.255.192 R8# interface FastEthernet0/0 ip address 10.19.63.94 255.255.255.240 R9# interface FastEthernet1/1 ip address 10.23.98.158 255.255.255.224"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r8", type: "router", label: "R8", x: 250, y: 50 },
+        { id: "sw1", type: "switch", label: "SW1", x: 430, y: 50 },
+        { id: "r7", type: "router", label: "R7", x: 80, y: 210 },
+        { id: "r9", type: "router", label: "R9", x: 420, y: 210 },
+      ],
+      links: [
+        { from: "r8", to: "sw1", subnet: "10.88.31.64/26", labelFrom: "Fa1/0" },
+        { from: "r7", to: "r8" },
+        { from: "r8", to: "r9" },
+      ],
+      labels: [
+        { text: "Fa0/0 - 10.19.63.80/28", attachTo: "r7", position: "below" },
+        { text: "Fa1/1 - 10.23.98.128/27", attachTo: "r9", position: "below" },
+      ],
+    },
   },
   {
     id: "q0110",
@@ -1550,7 +1585,34 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "An incorrect type of transceiver has been inserted into a device on the link"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "a", type: "cloud", label: "Site A", x: 70, y: 80 },
+          { id: "b", type: "cloud", label: "Site B", x: 420, y: 80 },
+        ],
+        links: [{ from: "a", to: "b", subnet: "7 km Single-Mode-Fiber" }],
+      },
+      {
+        type: "cli",
+        content: `SiteA#show interface TenGigabitEthernet1/0/0
+TenGigabitEthernet1/0/0 is up, line protocol is up
+  Description: Connection to SiteB
+  Internet address is 10.10.10.1/30
+  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-LR
+
+SiteB#show interface TenGigabitEthernet1/0/0
+TenGigabitEthernet1/0/0 is up, line protocol is up
+  Description: Connection to SiteA
+  Internet address is 10.10.10.2/30
+  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-SR`,
+        highlight: [
+          "  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-LR",
+          "  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-SR",
+        ],
+      },
+    ],
   },
   {
     id: "q0124",
@@ -1624,7 +1686,18 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "Subnet: 10.7.54.0 Subnet mask: 255.255.254.0 Broadcast address: 10.7.55.255 Usable IP address range: 10.7.54.1 10.7.55.254 € \" ג"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r4", type: "router", label: "R4", x: 80, y: 120 },
+        { id: "sw", type: "switch", label: "Switch", x: 250, y: 120 },
+        { id: "pc", type: "pc", label: "PC", x: 420, y: 120 },
+      ],
+      links: [
+        { from: "r4", to: "sw", subnet: "10.7.54.0" },
+        { from: "sw", to: "pc" },
+      ],
+    },
   },
   {
     id: "q0130",
@@ -1636,7 +1709,37 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "interface GigabitEthernet0/0.3 encapsulation dot1Q 10 ip address 10.10.2.10 255.255.255.252"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 60, y: 120 },
+          { id: "sw", type: "switch", label: "SW", x: 230, y: 120 },
+          { id: "v2", type: "pc", label: "VLAN 2", x: 390, y: 50 },
+          { id: "v3", type: "pc", label: "VLAN 3", x: 390, y: 200 },
+        ],
+        links: [
+          { from: "r1", to: "sw", subnet: "g0/0 - native VLAN 10" },
+          { from: "sw", to: "v2" },
+          { from: "sw", to: "v3" },
+        ],
+        labels: [
+          { text: "10.10.10.1/24", attachTo: "v2", position: "below" },
+          { text: "10.10.2.1/23", attachTo: "v3", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1#show run
+Building configuration...
+!
+interface GigabitEthernet0/0.2
+ encapsulation dot1Q 2
+ ip address 10.10.10.10 255.255.255.0
+!
+end`,
+      },
+    ],
   },
   {
     id: "q0133",
@@ -1660,7 +1763,24 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "The interface is operating at a different speed than the connected device."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Router#show interface gig0/0/3
+GigabitEthernet0/0/3 is up, line protocol is up
+  Description: << WAN Link >>
+  Internet address is 192.0.2.2/30
+  Full Duplex, 1000Mbps, link type is auto, media type is RJ45
+  5 minute input rate 7000 bits/sec, 4 packets/sec
+  5 minute output rate 4000 bits/sec, 4 packets/sec
+     22579370 packets input, 8825545968 bytes, 0 no buffer
+     0 runts, 0 giants, 0 throttles
+     3612699 input errors, 3612699 CRC, 0 frame, 0 overrun, 0 ignored
+     12072167 packets output, 1697953637 bytes, 0 underruns
+     0 output errors, 0 collisions, 1 interface resets`,
+      highlight: [
+        "     3612699 input errors, 3612699 CRC, 0 frame, 0 overrun, 0 ignored",
+      ],
+    },
   },
   {
     id: "q0138",
@@ -1708,7 +1828,20 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "The portfast command is missing from the configuration"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "a", type: "switch", label: "Switch A", x: 90, y: 120 },
+        { id: "b", type: "switch", label: "Switch B", x: 430, y: 120 },
+      ],
+      links: [
+        { from: "a", to: "b", subnet: "99 m / 325 ft (Cat5)", labelFrom: "Port 1", labelTo: "Port 2" },
+      ],
+      labels: [
+        { text: "Speed 100 - Duplex Half", attachTo: "a", position: "below" },
+        { text: "Speed 10 - Duplex Half", attachTo: "b", position: "below" },
+      ],
+    },
   },
   {
     id: "q0144",
@@ -1903,7 +2036,23 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "Switch(config)#interface vlan 10 Switch(config-if)#ip address 192.168.0.1 255.255.255.128"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw", type: "switch", label: "Switch", x: 250, y: 60 },
+        { id: "p1", type: "pc", label: "PC1", x: 120, y: 210 },
+        { id: "p2", type: "pc", label: "PC2", x: 250, y: 210 },
+        { id: "p3", type: "pc", label: "PC3", x: 380, y: 210 },
+      ],
+      links: [
+        { from: "sw", to: "p1" },
+        { from: "sw", to: "p2" },
+        { from: "sw", to: "p3" },
+      ],
+      labels: [
+        { text: "Class-C-Netz, + 30 weitere VLANs", attachTo: "sw", position: "above" },
+      ],
+    },
   },
   {
     id: "q0167",
@@ -2060,7 +2209,28 @@ Fa0/1               connected    1       auto      auto     10/100BaseTX`,
     "SW4"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "SW1", x: 250, y: 50 },
+        { id: "sw2", type: "switch", label: "SW2", x: 90, y: 190 },
+        { id: "sw3", type: "switch", label: "SW3", x: 410, y: 190 },
+        { id: "sw4", type: "switch", label: "SW4", x: 250, y: 330 },
+      ],
+      links: [
+        { from: "sw1", to: "sw2" },
+        { from: "sw1", to: "sw3" },
+        { from: "sw2", to: "sw4" },
+        { from: "sw3", to: "sw4" },
+        { from: "sw2", to: "sw3" },
+      ],
+      labels: [
+        { text: "0C:E0:38:41:86:07", attachTo: "sw1", position: "above" },
+        { text: "0C:0E:15:22:05:97", attachTo: "sw2", position: "left" },
+        { text: "0C:0E:15:1A:3C:9D", attachTo: "sw3", position: "right" },
+        { text: "0C:E0:18:1A:1B:19", attachTo: "sw4", position: "below" },
+      ],
+    },
   },
   {
     id: "q0183",
