@@ -221,9 +221,10 @@ export interface Question {
   blueprint?: string;
   /**
    * boolean = Grafik nötig, aber noch nicht gebaut (Platzhalter-Banner);
-   * ExhibitData = strukturiertes Exhibit (cli/topology/table/none) zum Rendern.
+   * ExhibitData | ExhibitData[] = ein oder mehrere strukturierte Exhibits
+   * (z. B. Topologie + CLI) zum Rendern.
    */
-  exhibit?: boolean | ExhibitData;
+  exhibit?: boolean | ExhibitData | ExhibitData[];
 }
 
 export interface Answer {

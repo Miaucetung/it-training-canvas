@@ -1,5 +1,5 @@
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
-import { hasExhibit, getExhibitData } from "@/lib/ccna-question-pool";
+import { hasExhibit, getExhibitList } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
 import { gamificationBus } from "@/lib/gamification/events/event-bus";
 import {
@@ -592,9 +592,13 @@ function QuestionCard({
 
       {/* Exhibit: gerendert wenn strukturiert, sonst Platzhalter-Banner */}
       {hasExhibit(question.exhibit) && !question.imageUrl && (
-        getExhibitData(question.exhibit) ? (
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <ExhibitRenderer exhibit={getExhibitData(question.exhibit)!} />
+        getExhibitList(question.exhibit).length > 0 ? (
+          <div className="space-y-2">
+            {getExhibitList(question.exhibit).map((ex, i) => (
+              <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <ExhibitRenderer exhibit={ex} />
+              </div>
+            ))}
           </div>
         ) : (
           <div

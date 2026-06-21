@@ -12,21 +12,21 @@ import type { ExhibitData } from "@/types/exhibit";
 
 const LETTERS = "abcdefghijklmnop";
 
-/** Normalisiert `exhibit` (boolean | ExhibitData) auf einen Boolean für Altcode. */
-export function hasExhibit(
-  exhibit: boolean | ExhibitData | undefined,
-): boolean {
+type ExhibitField = boolean | ExhibitData | ExhibitData[] | undefined;
+
+/** true, wenn ein renderbares Exhibit existiert ODER ein Platzhalter nötig ist. */
+export function hasExhibit(exhibit: ExhibitField): boolean {
   if (exhibit === undefined) return false;
   if (typeof exhibit === "boolean") return exhibit;
-  return exhibit.type !== "none";
+  const arr = Array.isArray(exhibit) ? exhibit : [exhibit];
+  return arr.some((e) => e.type !== "none");
 }
 
-/** Gibt das strukturierte Exhibit zurück oder null (bei boolean/none/undefined). */
-export function getExhibitData(
-  exhibit: boolean | ExhibitData | undefined,
-): ExhibitData | null {
-  if (exhibit === undefined || typeof exhibit === "boolean") return null;
-  return exhibit;
+/** Liste der renderbaren Exhibits (ohne "none"); leer bei boolean/undefined. */
+export function getExhibitList(exhibit: ExhibitField): ExhibitData[] {
+  if (exhibit === undefined || typeof exhibit === "boolean") return [];
+  const arr = Array.isArray(exhibit) ? exhibit : [exhibit];
+  return arr.filter((e) => e.type !== "none");
 }
 
 /** Wandelt eine Roh-Frage (CCNAQuestion) in das App-`Question`-Modell. */

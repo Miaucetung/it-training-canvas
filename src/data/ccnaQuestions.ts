@@ -12,8 +12,8 @@ export interface CCNAQuestion {
   options: string[];
   correct: CorrectAnswer;
   // boolean = noch nicht migriert (true = Grafik nötig, false = keine);
-  // ExhibitData = strukturiertes Exhibit (cli/topology/table/none).
-  exhibit: boolean | ExhibitData;
+  // ExhibitData | ExhibitData[] = ein oder mehrere strukturierte Exhibits.
+  exhibit: boolean | ExhibitData | ExhibitData[];
 }
 
 export const ccnaQuestions: CCNAQuestion[] = [
@@ -27,9 +27,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "floating static route"
     ],
     correct: 1,
-    exhibit: {
-      type: "cli",
-      content: `R1#sh ip route
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 200, y: 50 },
+          { id: "internet", type: "cloud", label: "Internet", x: 400, y: 50 },
+          { id: "mls1", type: "multilayer-switch", label: "ML.S1", x: 200, y: 180 },
+          { id: "fw", type: "firewall", label: "Firewall", x: 380, y: 180 },
+          { id: "s1", type: "switch", label: "S1", x: 200, y: 310 },
+        ],
+        links: [
+          { from: "r1", to: "internet", subnet: "10.10.10.16/30", labelFrom: ".17", labelTo: ".18" },
+          { from: "r1", to: "mls1", subnet: "10.10.10.0/30" },
+          { from: "mls1", to: "fw" },
+          { from: "mls1", to: "s1" },
+        ],
+        labels: [{ text: "10.10.13.0/25", attachTo: "s1", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `R1#sh ip route
 Gateway of last resort is 10.10.10.18 to network 0.0.0.0
 
       10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks
@@ -38,10 +56,11 @@ O        10.10.13.0/25 [110/6576] via 10.10.10.1, 06:58:21, FastEthernet0/1
 O        10.10.10.16/30 is directly connected, FastEthernet0/24
 O        10.10.13.144/28 [110/10] via 10.10.10.1, 06:58:21, FastEthernet0/1
 B*   0.0.0.0/0 [20/0] via 10.10.10.18, 01:17:58`,
-      highlight: [
-        "O        10.10.13.0/25 [110/6576] via 10.10.10.1, 06:58:21, FastEthernet0/1",
-      ],
-    },
+        highlight: [
+          "O        10.10.13.0/25 [110/6576] via 10.10.10.1, 06:58:21, FastEthernet0/1",
+        ],
+      },
+    ],
   },
   {
     id: "q0002",
@@ -53,9 +72,27 @@ B*   0.0.0.0/0 [20/0] via 10.10.10.18, 01:17:58`,
     "10.10.13.208/29"
     ],
     correct: 3,
-    exhibit: {
-      type: "cli",
-      content: `Router1#show ip route
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "internet", type: "cloud", label: "Internet", x: 40, y: 50 },
+          { id: "mpls", type: "cloud", label: "MPLS", x: 40, y: 190 },
+          { id: "r1", type: "router", label: "Router1", x: 240, y: 120 },
+          { id: "sw1", type: "switch", label: "Switch1", x: 400, y: 120 },
+          { id: "hosta", type: "pc", label: "Host A", x: 540, y: 120 },
+        ],
+        links: [
+          { from: "internet", to: "r1", subnet: "10.10.11.0/30" },
+          { from: "mpls", to: "r1", subnet: "10.10.12.0/30" },
+          { from: "r1", to: "sw1", subnet: "10.10.10.0/28" },
+          { from: "sw1", to: "hosta" },
+        ],
+        labels: [{ text: "10.10.13.214", attachTo: "hosta", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `Router1#show ip route
 Gateway of last resort is 10.10.11.2 to network 0.0.0.0
 
       209.165.200.0/27 is subnetted, 1 subnets
@@ -74,10 +111,11 @@ O        10.10.13.144/28 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
 O        10.10.13.160/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
 O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
 S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
-      highlight: [
-        "O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0",
-      ],
-    },
+        highlight: [
+          "O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0",
+        ],
+      },
+    ],
   },
   {
     id: "q0006",
