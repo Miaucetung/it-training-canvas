@@ -428,7 +428,12 @@ export function QuizDialog({
             Zurück
           </button>
 
-          {/* Question dots */}
+          {/* Question dots — bei großen Pools (z. B. Fragenpool) durch Zähler ersetzen */}
+          {questions.length > 40 ? (
+            <span className={`text-xs font-medium ${textMuted}`}>
+              Frage {state.currentIndex + 1} / {questions.length}
+            </span>
+          ) : (
           <div className="flex gap-1.5">
             {questions.map((q, i) => {
               const answered = !!(state.answers[q.id]?.length || state.textAnswers[q.id]);
@@ -452,6 +457,7 @@ export function QuizDialog({
               );
             })}
           </div>
+          )}
 
           <div className="flex gap-2 items-center">
             {/* Confirm button — shown when answer selected but not yet confirmed */}
@@ -575,9 +581,30 @@ function QuestionCard({
           {question.type === "drag-drop" && "Zuordnung"}
         </span>
         <span className={`text-xs font-medium ${textMuted}`}>
+          {/^q\d+$/.test(question.id) && (
+            <span className="font-mono mr-2 opacity-70">{question.id}</span>
+          )}
           {question.points} Punkte
         </span>
       </div>
+
+      {/* Exhibit-Platzhalter (Grafik wird nachgereicht) */}
+      {question.exhibit && !question.imageUrl && (
+        <div
+          className={`rounded-lg border px-3 py-2 text-sm flex items-start gap-2 ${
+            isDark
+              ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+              : "border-amber-200 bg-amber-50 text-amber-800"
+          }`}
+        >
+          <span aria-hidden>⚠️</span>
+          <span>
+            <strong>Topologie/Grafik wird nachgereicht.</strong> Diese Frage bezieht
+            sich auf ein Exhibit, das noch nachgebaut wird — du kannst sie trotzdem
+            anhand des Texts beantworten.
+          </span>
+        </div>
+      )}
 
       {/* Question text */}
       <h3 className={`text-lg font-semibold ${text}`}>{question.text}</h3>

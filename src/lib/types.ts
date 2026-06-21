@@ -217,6 +217,8 @@ export interface Question {
   answers: Answer[];
   imageUrl?: string;
   blueprint?: string;
+  /** true = Frage benötigt eine Topologie/CLI-Grafik, die noch nachgereicht wird. */
+  exhibit?: boolean;
 }
 
 export interface Answer {

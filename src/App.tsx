@@ -59,6 +59,7 @@ import {
   Tool,
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/use-local-storage";
+import { getQuestionPoolQuiz } from "@/lib/ccna-question-pool";
 import {
   ArrowClockwise,
   BookOpen,
@@ -117,6 +118,9 @@ const IPv4SubnetTableDialog = lazy(() =>
 );
 const SubnettingCheatsheet = lazy(() => import("@/tools/SubnettingCheatsheet"));
 const SubnettingDrillQuiz = lazy(() => import("@/tools/SubnettingDrillQuiz"));
+const QuizDialog = lazy(() =>
+  import("@/components/QuizDialog").then((m) => ({ default: m.QuizDialog })),
+);
 const IPv6CalculatorDialog = lazy(() =>
   import("@/components/IPv6CalculatorDialog").then((m) => ({ default: m.IPv6CalculatorDialog })),
 );
@@ -155,7 +159,8 @@ type ToolId =
   | "routing-simulator"
   | "verkabelung-trainer"
   | "topologie-explorer"
-  | "cli-glossary";
+  | "cli-glossary"
+  | "ccna-question-pool";
 
 const TOOL_GROUPS: Array<{
   group: string;
@@ -186,6 +191,7 @@ const TOOL_GROUPS: Array<{
     tools: [
       { id: "topologie-explorer", name: "Topologie-Explorer", hint: "Referenz-Topologien erkunden" },
       { id: "cli-glossary", name: "CLI-Glossar", hint: "IOS-Befehle nachschlagen" },
+      { id: "ccna-question-pool", name: "CCNA Fragenpool", hint: "1078 Originalfragen — Grafiken folgen" },
     ],
   },
 ];
@@ -2279,6 +2285,14 @@ function App() {
         <Suspense fallback={null}>
           {activeTool === "subnetting-drill" && (
             <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "ccna-question-pool" && (
+            <QuizDialog
+              quiz={getQuestionPoolQuiz()}
+              theme={theme}
+              onComplete={() => {}}
+              onClose={() => setActiveTool(null)}
+            />
           )}
           {activeTool === "subnetting-quiz" && (
             <div
