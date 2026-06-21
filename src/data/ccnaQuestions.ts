@@ -2254,7 +2254,28 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "S4"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "s4", type: "switch", label: "S4", x: 250, y: 50 },
+        { id: "s1", type: "switch", label: "S1", x: 90, y: 190 },
+        { id: "s3", type: "switch", label: "S3", x: 410, y: 190 },
+        { id: "s2", type: "switch", label: "S2", x: 250, y: 330 },
+      ],
+      links: [
+        { from: "s4", to: "s1" },
+        { from: "s4", to: "s3" },
+        { from: "s1", to: "s2" },
+        { from: "s3", to: "s2" },
+        { from: "s1", to: "s3" },
+      ],
+      labels: [
+        { text: "Prio 32768 / 00:00:00:00:00:00", attachTo: "s4", position: "above" },
+        { text: "Prio 32768 / AA:AA:AA:AA:AA:AA", attachTo: "s1", position: "left" },
+        { text: "Prio 30000 / CC:CC:CC:CC:CC:CC", attachTo: "s3", position: "right" },
+        { text: "Prio 30000 / BB:BB:BB:BB:BB:BB", attachTo: "s2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0185",
@@ -2278,7 +2299,40 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "There is a native VLAN mismatch."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw1", type: "switch", label: "Switch 1", x: 120, y: 60 },
+          { id: "sw2", type: "switch", label: "Switch 2", x: 380, y: 60 },
+          { id: "pca", type: "pc", label: "PC A", x: 120, y: 210 },
+          { id: "pcb", type: "pc", label: "PC B", x: 380, y: 210 },
+        ],
+        links: [
+          { from: "sw1", to: "sw2", labelFrom: "G0/1", labelTo: "G0/1" },
+          { from: "sw1", to: "pca", labelFrom: "VLAN 99" },
+          { from: "sw2", to: "pcb", labelFrom: "VLAN 99" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Switch 1:
+Name: G0/1
+Administrative Mode: trunk
+Operational Mode: trunk
+Trunking Native Mode VLAN: 1 (default)
+
+Switch 2:
+Name: G0/1
+Administrative Mode: trunk
+Operational Mode: trunk
+Trunking Native Mode VLAN: 99 (VLAN0099)`,
+        highlight: [
+          "Trunking Native Mode VLAN: 1 (default)",
+          "Trunking Native Mode VLAN: 99 (VLAN0099)",
+        ],
+      },
+    ],
   },
   {
     id: "q0188",
@@ -2302,7 +2356,20 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "show interface"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Router#show cdp neighbor
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone
+
+Device ID   Local Intrfce   Holdtme   Capability   Platform   Port ID
+10.1.1.2    Gig 37/3        176       R I          CPT 600    Gig 36/41
+10.1.1.2    Gig 37/1        174       R I          CPT 600    Gig 36/43
+10.1.1.2    Gig 36/41       134       R I          CPT 600    Gig 37/3
+10.1.1.2    Gig 36/43       134       R I          CPT 600    Gig 37/1
+10.1.1.2    Ten 3/2         132       R I          CPT 600    Ten 4/2
+10.1.1.2    Ten 4/2         174       R I          CPT 600    Ten 3/2`,
+    },
   },
   {
     id: "q0190",
@@ -2363,7 +2430,18 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "It forwards only the VTP advertisements that it receives on its trunk ports."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SW2
+vtp domain cisco
+vtp mode transparent
+vtp password ciscotest
+interface fastethernet0/1
+ description connection to sw1
+ switchport mode trunk
+ switchport trunk encapsulation dot1q`,
+      highlight: ["vtp mode transparent"],
+    },
   },
   {
     id: "q0195",
@@ -2375,7 +2453,26 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "auto"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SW1#sh lacp neighbor
+Flags:  S - Device is requesting Slow LACPDUs
+        F - Device is requesting Fast LACPDUs
+        A - Device is in Active mode      P - Device is in Passive mode
+
+Channel group 35 neighbors
+
+Partner's information:
+
+                LACP port                  Admin Oper  Port    Port
+Port    Flags  Priority   Dev ID         Age key  Key   Number  State
+Et1/0   SP     32768      aabb.cc80.7000  8s  0x0  0x23  0x101   0x3C
+Et1/1   SP     32768      aabb.cc80.7000  8s  0x0  0x23  0x102   0x3C`,
+      highlight: [
+        "Et1/0   SP     32768      aabb.cc80.7000  8s  0x0  0x23  0x101   0x3C",
+        "Et1/1   SP     32768      aabb.cc80.7000  8s  0x0  0x23  0x102   0x3C",
+      ],
+    },
   },
   {
     id: "q0196",
@@ -2423,7 +2520,20 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "switchport trunk native vlan 67"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "Switch 1", x: 120, y: 60 },
+        { id: "sw2", type: "switch", label: "Switch 2", x: 380, y: 60 },
+        { id: "pca", type: "pc", label: "PC A", x: 120, y: 210 },
+        { id: "pcb", type: "pc", label: "PC B", x: 380, y: 210 },
+      ],
+      links: [
+        { from: "sw1", to: "sw2", labelFrom: "G0/1", labelTo: "G0/1" },
+        { from: "sw1", to: "pca" },
+        { from: "sw2", to: "pcb" },
+      ],
+    },
   },
   {
     id: "q0200",
@@ -2449,7 +2559,17 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "int range g0/0-1 channel-group 10 mode on"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Switch#show etherchannel summary
+[output omitted]
+
+Group   Port-channel   Protocol   Ports
+------------------------------------------------------
+10      Po10(SU)       LACP       Gi0/0(P)   Gi0/1(P)
+20      Po20(SU)       LACP       Gi0/2(P)   Gi0/3(P)`,
+      highlight: ["10      Po10(SU)       LACP       Gi0/0(P)   Gi0/1(P)"],
+    },
   },
   {
     id: "q0202",
@@ -2473,7 +2593,19 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "The frame is dropped"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SW1#show run int gig 0/1
+interface GigabitEthernet0/1
+ switchport access vlan 11
+ switchport trunk allowed vlan 1-10
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 5
+ switchport mode trunk
+ speed 1000
+ duplex full`,
+      highlight: [" switchport trunk native vlan 5"],
+    },
   },
   {
     id: "q0204",
@@ -2774,7 +2906,24 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "The spanning-tree mode is Rapid PVST+"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SW1#show spanning-tree vlan 30
+
+VLAN0030
+  Spanning tree enabled protocol rstp
+  Root ID    Priority    32798
+             Address     0025.83e8.c800
+             Cost        19
+             Port        1 (FastEthernet 2/1)
+             Hello Time  2 sec   Max Age 20 sec   Forward Delay 15 sec
+
+[output suppressed]`,
+      highlight: [
+        "  Spanning tree enabled protocol rstp",
+        "             Port        1 (FastEthernet 2/1)",
+      ],
+    },
   },
   {
     id: "q0230",
@@ -2872,7 +3021,22 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "testing1234"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Atlanta#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Atlanta(config)#aaa new-model
+Atlanta(config)#aaa authentication login default local
+Atlanta(config)#line 0 4
+Atlanta(config-line)#login authentication default
+Atlanta(config-line)#exit
+Atlanta(config)#username ciscoadmin password adminadmin123
+Atlanta(config)#username ciscoadmin privilege 15
+Atlanta(config)#enable password cisco123
+Atlanta(config)#enable secret testing1234
+Atlanta(config)#end`,
+      highlight: ["Atlanta(config)#enable secret testing1234"],
+    },
   },
   {
     id: "q0238",
