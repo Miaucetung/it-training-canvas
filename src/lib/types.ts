@@ -1,3 +1,5 @@
+import type { ExhibitData } from "@/types/exhibit";
+
 export type Tool =
   | "pen"
   | "eraser"
@@ -217,8 +219,11 @@ export interface Question {
   answers: Answer[];
   imageUrl?: string;
   blueprint?: string;
-  /** true = Frage benötigt eine Topologie/CLI-Grafik, die noch nachgereicht wird. */
-  exhibit?: boolean;
+  /**
+   * boolean = Grafik nötig, aber noch nicht gebaut (Platzhalter-Banner);
+   * ExhibitData = strukturiertes Exhibit (cli/topology/table/none) zum Rendern.
+   */
+  exhibit?: boolean | ExhibitData;
 }
 
 export interface Answer {

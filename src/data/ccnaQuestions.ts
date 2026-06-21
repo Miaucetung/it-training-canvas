@@ -2,6 +2,8 @@
 // Extrahiert: 1078 Fragen
 // Davon mit Exhibit-Hinweis: 334
 
+import type { ExhibitData } from "../types/exhibit";
+
 export type CorrectAnswer = number | number[];
 
 export interface CCNAQuestion {
@@ -9,7 +11,9 @@ export interface CCNAQuestion {
   question: string;
   options: string[];
   correct: CorrectAnswer;
-  exhibit: boolean;  // true = Topologie/CLI-Grafik nötig, noch nicht implementiert
+  // boolean = noch nicht migriert (true = Grafik nötig, false = keine);
+  // ExhibitData = strukturiertes Exhibit (cli/topology/table/none).
+  exhibit: boolean | ExhibitData;
 }
 
 export const ccnaQuestions: CCNAQuestion[] = [
@@ -23,7 +27,21 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "floating static route"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#sh ip route
+Gateway of last resort is 10.10.10.18 to network 0.0.0.0
+
+      10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks
+O        10.10.10.0/30 is directly connected, FastEthernet0/1
+O        10.10.13.0/25 [110/6576] via 10.10.10.1, 06:58:21, FastEthernet0/1
+O        10.10.10.16/30 is directly connected, FastEthernet0/24
+O        10.10.13.144/28 [110/10] via 10.10.10.1, 06:58:21, FastEthernet0/1
+B*   0.0.0.0/0 [20/0] via 10.10.10.18, 01:17:58`,
+      highlight: [
+        "O        10.10.13.0/25 [110/6576] via 10.10.10.1, 06:58:21, FastEthernet0/1",
+      ],
+    },
   },
   {
     id: "q0002",
@@ -35,7 +53,31 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "10.10.13.208/29"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Router1#show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+
+      209.165.200.0/27 is subnetted, 1 subnets
+B        209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      209.165.201.0/27 is subnetted, 1 subnets
+B        209.165.201.0 [20/0] via 10.10.12.2, 02:26:33
+      209.165.202.0/27 is subnetted, 1 subnets
+B        209.165.202.128 [20/0] via 10.10.12.2, 02:26:03
+      10.0.0.0/8 is variably subnetted, 8 subnets, 4 masks
+C        10.10.10.0/28 is directly connected, GigabitEthernet0/0
+C        10.10.11.0/30 is directly connected, FastEthernet2/0
+C        10.10.12.0/30 is directly connected, GigabitEthernet0/1
+O        10.10.13.0/25 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+O        10.10.13.128/28 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+O        10.10.13.144/28 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+O        10.10.13.160/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
+      highlight: [
+        "O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0",
+      ],
+    },
   },
   {
     id: "q0006",
@@ -156,7 +198,13 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "It is a broadcast IP address."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Router(config)#interface GigabitEthernet 1/0/1
+Router(config-if)#ip address 192.168.16.143 255.255.255.240
+Bad mask /28 for address 192.168.16.143`,
+      highlight: ["Bad mask /28 for address 192.168.16.143"],
+    },
   },
   {
     id: "q0017",
@@ -388,7 +436,26 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "10.10.225.32 255.255.255.224"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 40, y: 60 },
+        { id: "r2", type: "router", label: "R2", x: 200, y: 60 },
+        { id: "r3", type: "router", label: "R3", x: 360, y: 60 },
+        { id: "r4", type: "router", label: "R4", x: 520, y: 60 },
+      ],
+      links: [
+        { from: "r1", to: "r2" },
+        { from: "r2", to: "r3" },
+        { from: "r3", to: "r4" },
+      ],
+      labels: [
+        { text: "10.10.225.0/28", attachTo: "r1", position: "below" },
+        { text: "10.10.225.16/28", attachTo: "r2", position: "below" },
+        { text: "10.10.225.64/26", attachTo: "r3", position: "below" },
+        { text: "20 Hosts (neu)", attachTo: "r4", position: "below" },
+      ],
+    },
   },
   {
     id: "q0036",
@@ -436,7 +503,18 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "The switch rewrites the source and destination MAC addresses with its own. Weil wir im selben VLAN sind"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "Switch1", x: 200, y: 40 },
+        { id: "pca", type: "pc", label: "PC_A", x: 80, y: 200 },
+        { id: "pcb", type: "pc", label: "PC_B", x: 320, y: 200 },
+      ],
+      links: [
+        { from: "sw1", to: "pca", labelFrom: "VLAN 200" },
+        { from: "sw1", to: "pcb", labelFrom: "VLAN 200" },
+      ],
+    },
   },
   {
     id: "q0041",
@@ -575,7 +653,28 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "The router interfaces must be encapsulated with the 802.1Q protocol."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "isp", type: "cloud", label: "ISP", x: 40, y: 60 },
+        { id: "r0", type: "router", label: "Router0", x: 260, y: 60 },
+        { id: "sw1", type: "switch", label: "Switch1", x: 160, y: 200 },
+        { id: "sw2", type: "switch", label: "Switch2", x: 360, y: 200 },
+        { id: "h3", type: "pc", label: "Host 3", x: 90, y: 320 },
+        { id: "h4", type: "pc", label: "Host 4", x: 230, y: 320 },
+        { id: "h5", type: "pc", label: "Host 5", x: 300, y: 320 },
+        { id: "h6", type: "pc", label: "Host 6", x: 440, y: 320 },
+      ],
+      links: [
+        { from: "isp", to: "r0" },
+        { from: "r0", to: "sw1", subnet: "192.168.1.1 /24" },
+        { from: "r0", to: "sw2", subnet: "192.168.1.2 /24" },
+        { from: "sw1", to: "h3" },
+        { from: "sw1", to: "h4" },
+        { from: "sw2", to: "h5" },
+        { from: "sw2", to: "h6" },
+      ],
+    },
   },
   {
     id: "q0054",
@@ -690,7 +789,24 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "source 10.10.1.1 and destination 10.10.2.2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "pc1", type: "pc", label: "PC1", x: 40, y: 120 },
+        { id: "r1", type: "router", label: "R1", x: 200, y: 120 },
+        { id: "r2", type: "router", label: "R2", x: 380, y: 120 },
+        { id: "pc2", type: "pc", label: "PC2", x: 540, y: 120 },
+      ],
+      links: [
+        { from: "pc1", to: "r1", subnet: "192.168.10.0/24", labelTo: "Gi0/0" },
+        { from: "r1", to: "r2", subnet: "10.10.1.0/30" },
+        { from: "r2", to: "pc2", subnet: "192.168.20.0/24", labelFrom: "Gi0/0" },
+      ],
+      labels: [
+        { text: "192.168.10.10", attachTo: "pc1", position: "below" },
+        { text: "192.168.20.10", attachTo: "pc2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0063",
@@ -837,7 +953,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "The sites were connected with the wrong cable type."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SiteA#show interface TenGigabitEthernet1/0/0
+TenGigabitEthernet1/0/0 is up, line protocol is up
+  Hardware is BUILT-IN-EPA-8x10G, address is 780c.f02a.db91
+  Description: Connection to SiteB
+  Internet address is 10.10.10.1/30
+  MTU 8146 bytes, BW 10000000 Kbit/sec, DLY 10 usec,
+     reliability 166/255, txload 1/255, rxload 1/255
+  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-LR
+
+SiteB#show interface TenGigabitEthernet1/0/0
+TenGigabitEthernet1/0/0 is up, line protocol is up
+  Hardware is BUILT-IN-EPA-8x10G, address is 780c.f02a.db26
+  Description: Connection to SiteA
+  Internet address is 10.10.10.2/30
+  MTU 8146 bytes, BW 10000000 Kbit/sec, DLY 10 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Full Duplex, 10000Mbps, link type is force-up, media type is SFP-LR`,
+      highlight: ["     reliability 166/255, txload 1/255, rxload 1/255"],
+    },
   },
   {
     id: "q0076",
@@ -933,7 +1069,26 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "firewall"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r", type: "router", label: "Router", x: 240, y: 40 },
+        { id: "swl", type: "switch", label: "Switch", x: 120, y: 170 },
+        { id: "swr", type: "switch", label: "Switch", x: 360, y: 170 },
+        { id: "pca", type: "pc", label: "PC-A", x: 120, y: 300 },
+        { id: "pcb", type: "pc", label: "PC-B", x: 360, y: 300 },
+      ],
+      links: [
+        { from: "r", to: "swl", labelFrom: "e0/1" },
+        { from: "r", to: "swr", labelFrom: "e0/0" },
+        { from: "swl", to: "pca" },
+        { from: "swr", to: "pcb" },
+      ],
+      labels: [
+        { text: "10.10.10.0 /24", attachTo: "pca", position: "below" },
+        { text: "10.10.100.0 /24", attachTo: "pcb", position: "below" },
+      ],
+    },
   },
   {
     id: "q0086",
@@ -982,7 +1137,7 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "compare the destination IP address to the IP routing table Q0090 LAB12-CIS3 Refer to the exhibit. R1 has just received a packet from host A that is destined to host B. Which route in the routing table is used by R1 to reach host B? 10.10.13.0/25 [110/2] via 10.10.10.2"
     ],
     correct: [3, 1],
-    exhibit: true,
+    exhibit: { type: "none" },
   },
   {
     id: "q0091",
@@ -1019,7 +1174,16 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "There is a speed mismatch on the interface."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `! PC1 (fa0): Manual settings - 100 speed, full duplex
+Switch#show interfaces status
+Port      Name      Status       Vlan    Duplex    Speed    Type
+Fa0/1               connected    1       auto      auto     10/100BaseTX`,
+      highlight: [
+        "Fa0/1               connected    1       auto      auto     10/100BaseTX",
+      ],
+    },
   },
   {
     id: "q0094",
@@ -1079,7 +1243,23 @@ export const ccnaQuestions: CCNAQuestion[] = [
     "ipv6 address 2001:DB8:0:1:C601:42FF:800F:7/64"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "server", type: "pc", label: "Server", x: 220, y: 30 },
+        { id: "hq1", type: "router", label: "HQ1", x: 120, y: 170 },
+        { id: "cloud", type: "cloud", label: "IPv6-Cloud", x: 300, y: 170 },
+        { id: "hosta", type: "pc", label: "Host A", x: 300, y: 300 },
+      ],
+      links: [
+        { from: "server", to: "hq1" },
+        { from: "hq1", to: "cloud", subnet: "2001:DB8:0:1::/64" },
+        { from: "cloud", to: "hosta" },
+      ],
+      labels: [
+        { text: "MAC C601.420F.2007", attachTo: "hq1", position: "below" },
+      ],
+    },
   },
   {
     id: "q0102",

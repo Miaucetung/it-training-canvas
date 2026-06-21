@@ -1,4 +1,6 @@
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
+import { hasExhibit, getExhibitData } from "@/lib/ccna-question-pool";
+import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
 import { gamificationBus } from "@/lib/gamification/events/event-bus";
 import {
   CheckCircle,
@@ -588,22 +590,28 @@ function QuestionCard({
         </span>
       </div>
 
-      {/* Exhibit-Platzhalter (Grafik wird nachgereicht) */}
-      {question.exhibit && !question.imageUrl && (
-        <div
-          className={`rounded-lg border px-3 py-2 text-sm flex items-start gap-2 ${
-            isDark
-              ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-              : "border-amber-200 bg-amber-50 text-amber-800"
-          }`}
-        >
-          <span aria-hidden>⚠️</span>
-          <span>
-            <strong>Topologie/Grafik wird nachgereicht.</strong> Diese Frage bezieht
-            sich auf ein Exhibit, das noch nachgebaut wird — du kannst sie trotzdem
-            anhand des Texts beantworten.
-          </span>
-        </div>
+      {/* Exhibit: gerendert wenn strukturiert, sonst Platzhalter-Banner */}
+      {hasExhibit(question.exhibit) && !question.imageUrl && (
+        getExhibitData(question.exhibit) ? (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <ExhibitRenderer exhibit={getExhibitData(question.exhibit)!} />
+          </div>
+        ) : (
+          <div
+            className={`rounded-lg border px-3 py-2 text-sm flex items-start gap-2 ${
+              isDark
+                ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                : "border-amber-200 bg-amber-50 text-amber-800"
+            }`}
+          >
+            <span aria-hidden>⚠️</span>
+            <span>
+              <strong>Topologie/Grafik wird nachgereicht.</strong> Diese Frage bezieht
+              sich auf ein Exhibit, das noch nachgebaut wird — du kannst sie trotzdem
+              anhand des Texts beantworten.
+            </span>
+          </div>
+        )
       )}
 
       {/* Question text */}
