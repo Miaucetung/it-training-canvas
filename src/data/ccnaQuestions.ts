@@ -4929,7 +4929,13 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "It selects the RIP route because it has the longest prefix inclusive of the destination address."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `EIGRP: 192.168.12.0/24
+RIP:   192.168.12.0/27
+OSPF:  192.168.12.0/28`,
+      highlight: ["RIP:   192.168.12.0/27"],
+    },
   },
   {
     id: "q0348",
@@ -4954,7 +4960,15 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "It selects the EIGRP route because it has the lowest administrative distance"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+D      192.168.10.0/24   [90/2679326] via 192.168.1.1
+R      192.168.10.0/27   [120/3] via 192.168.1.2
+O      192.168.10.0/23   [110/2] via 192.168.1.3
+i L1   192.168.10.0/15   [115/30] via 192.168.1.4`,
+      highlight: ["R      192.168.10.0/27   [120/3] via 192.168.1.2"],
+    },
   },
   {
     id: "q0350",
@@ -4967,7 +4981,15 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "RIP route 10.0.0.0/30"
     ],
     correct: [0, 3],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `IBGP route  10.0.0.0/30
+RIP route   10.0.0.0/30
+OSPF route  10.0.0.0/16
+OSPF route  10.0.0.0/30
+EIGRP route 10.0.0.1/32`,
+      highlight: ["OSPF route  10.0.0.0/30", "EIGRP route 10.0.0.1/32"],
+    },
   },
   {
     id: "q0351",
@@ -4979,7 +5001,42 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "Router5"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "mpls", type: "cloud", label: "MPLS", x: 60, y: 40 },
+          { id: "inet", type: "cloud", label: "Internet", x: 430, y: 40 },
+          { id: "r1", type: "router", label: "Router1", x: 250, y: 110 },
+          { id: "r2", type: "router", label: "Router 2", x: 60, y: 250 },
+          { id: "r3", type: "router", label: "Router 3", x: 230, y: 250 },
+          { id: "r4", type: "router", label: "Router 4", x: 400, y: 250 },
+          { id: "r5", type: "router", label: "Router 5", x: 520, y: 150 },
+        ],
+        links: [
+          { from: "mpls", to: "r1", subnet: "10.10.12.0/30" },
+          { from: "inet", to: "r1", subnet: "10.10.11.0/30" },
+          { from: "r1", to: "r2", subnet: "10.10.10.0/30" },
+          { from: "r1", to: "r3", subnet: "10.10.10.4/30" },
+          { from: "r1", to: "r4", subnet: "10.10.10.8/30" },
+          { from: "r1", to: "r5", subnet: "10.10.10.12/30" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Router1#show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+      209.165.200.0/27 is subnetted, 1 subnets
+B        209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      10.0.0.0/8 is variably subnetted
+O        10.10.13.0/25   [110/2] via 10.10.10.1, GigabitEthernet0/1
+O        10.10.13.128/28 [110/2] via 10.10.10.5, GigabitEthernet0/2
+O        10.10.13.160/29 [110/2] via 10.10.10.5, GigabitEthernet0/2
+O        10.10.13.192/29 [110/2] via 10.10.10.9, GigabitEthernet0/3
+B*    0.0.0.0/0 [20/0] via 10.10.11.2`,
+        highlight: ["O        10.10.13.160/29 [110/2] via 10.10.10.5, GigabitEthernet0/2"],
+      },
+    ],
   },
   {
     id: "q0352",
@@ -5016,7 +5073,43 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "R1(config)#interface ethernet0/0 R1(config-if)#ip address 10.20.20.1 255.255.255.0"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 90, y: 90 },
+          { id: "sw1", type: "switch", label: "SW1", x: 280, y: 90 },
+          { id: "sw2", type: "switch", label: "SW2", x: 460, y: 90 },
+        ],
+        links: [
+          { from: "r1", to: "sw1", labelFrom: "E0/0", labelTo: "E0/0" },
+          { from: "sw1", to: "sw2", labelFrom: "E0/1", labelTo: "E0/0" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1:
+interface Ethernet0/0
+ no ip address
+
+SW1:
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+interface Ethernet0/1
+ switchport trunk allowed vlan 20
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+
+SW2:
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+interface Ethernet0/1
+ switchport access vlan 20
+ switchport mode access`,
+      },
+    ],
   },
   {
     id: "q0355",
@@ -5028,7 +5121,18 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "192.168.0.1"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip interface brief
+Interface           IP-Address     OK? Method Status                 Protocol
+FastEthernet0/0     unassigned     YES NVRAM  administratively down   down
+GigabitEthernet1/0  192.168.0.1    YES NVRAM  up                      up
+GigabitEthernet2/0  10.10.1.10     YES NVRAM  up                      up
+GigabitEthernet3/0  10.10.10.20    YES NVRAM  up                      up
+GigabitEthernet4/0  172.16.15.10   YES NVRAM  administratively down   down
+Loopback0           172.16.15.10   YES manual up                      up`,
+      highlight: ["Loopback0           172.16.15.10   YES manual up                      up"],
+    },
   },
   {
     id: "q0356",
@@ -5041,7 +5145,38 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "ipv6 route 2000::3/128 2023::3"
     ],
     correct: [2, 4],
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "atl", type: "router", label: "Atlanta", x: 70, y: 80 },
+          { id: "ny", type: "router", label: "New York", x: 280, y: 210 },
+          { id: "wsh", type: "router", label: "Washington", x: 490, y: 80 },
+        ],
+        links: [
+          { from: "atl", to: "ny", subnet: "2012::/126", labelFrom: "Se0/0/0" },
+          { from: "ny", to: "wsh", subnet: "2023::/126", labelTo: "Se0/0/0" },
+        ],
+        labels: [
+          { text: "Lo1 2000::1/128", attachTo: "atl", position: "below" },
+          { text: "Lo2 2000::2/128", attachTo: "ny", position: "below" },
+          { text: "Lo3 2000::3/128", attachTo: "wsh", position: "below" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Router", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["Atlanta", "Serial 0/0/0", "2012::1/126"],
+          ["Atlanta", "Loopback1", "2000::1/128"],
+          ["New York", "Serial 0/0/0", "2012::2/126"],
+          ["New York", "Serial 0/0/1", "2023::2/126"],
+          ["New York", "Loopback2", "2000::2/128"],
+          ["Washington", "Serial 0/0/0", "2023::3/126"],
+          ["Washington", "Loopback3", "2000::3/128"],
+        ],
+      },
+    ],
   },
   {
     id: "q0357",
@@ -5053,7 +5188,32 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "The OSPF router IDs are mismatched"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "Router1", x: 110, y: 100 },
+          { id: "r2", type: "router", label: "Router2", x: 430, y: 100 },
+        ],
+        links: [{ from: "r1", to: "r2", labelFrom: "Gi1/1", labelTo: "Gi1/1" }],
+      },
+      {
+        type: "cli",
+        content: `Router1(config)#interface GigabitEthernet1/1
+Router1(config-if)#ip address 10.10.10.1 255.255.255.252
+Router1(config-if)#ip ospf hello-interval 5
+Router1(config-if)#router ospf 1000
+Router1(config-router)#router-id 1.1.1.1
+Router1(config-router)#network 10.10.10.0 0.0.0.3 area 0
+
+Router2(config)#interface GigabitEthernet1/1
+Router2(config-if)#ip address 10.10.10.2 255.255.255.252
+Router2(config-if)#router ospf 1001
+Router2(config-router)#router-id 2.2.2.2
+Router2(config-router)#network 10.10.10.0 0.0.0.3 area 0`,
+        highlight: ["Router1(config-if)#ip ospf hello-interval 5"],
+      },
+    ],
   },
   {
     id: "q0358",
@@ -5065,7 +5225,38 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "default route"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 200, y: 50 },
+          { id: "internet", type: "cloud", label: "Internet", x: 400, y: 50 },
+          { id: "mls1", type: "multilayer-switch", label: "ML.S1", x: 200, y: 180 },
+          { id: "fw", type: "firewall", label: "Firewall", x: 380, y: 180 },
+          { id: "s1", type: "switch", label: "S1", x: 200, y: 310 },
+        ],
+        links: [
+          { from: "r1", to: "internet", subnet: "10.10.10.16/30", labelFrom: ".17", labelTo: ".18" },
+          { from: "r1", to: "mls1", subnet: "10.10.10.0/30" },
+          { from: "mls1", to: "fw" },
+          { from: "mls1", to: "s1" },
+        ],
+        labels: [{ text: "10.10.13.0/25", attachTo: "s1", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `R1#sh ip route
+Gateway of last resort is 10.10.10.18 to network 0.0.0.0
+
+      10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks
+O        10.10.10.0/30 is directly connected, FastEthernet0/1
+O        10.10.13.0/25 is directly connected, FastEthernet0/1
+O        10.10.10.16/30 is directly connected, FastEthernet0/24
+O        10.10.13.144/28 [110/10] via 10.10.10.1, 06:58:21, FastEthernet0/1
+B*   0.0.0.0/0 [20/0] via 10.10.10.18, 01:17:58`,
+        highlight: ["B*   0.0.0.0/0 [20/0] via 10.10.10.18, 01:17:58"],
+      },
+    ],
   },
   {
     id: "q0359",
@@ -5077,7 +5268,37 @@ C        10.10.10.0/24 is directly connected, FastEthernet0/0
     "10.10.10.0/28"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "internet", type: "cloud", label: "Internet", x: 40, y: 50 },
+          { id: "mpls", type: "cloud", label: "MPLS", x: 40, y: 190 },
+          { id: "r1", type: "router", label: "Router1", x: 240, y: 120 },
+          { id: "sw1", type: "switch", label: "Switch1", x: 400, y: 120 },
+          { id: "hosta", type: "pc", label: "Host A", x: 540, y: 120 },
+        ],
+        links: [
+          { from: "internet", to: "r1", subnet: "10.10.11.0/30" },
+          { from: "mpls", to: "r1", subnet: "10.10.12.0/30" },
+          { from: "r1", to: "sw1", subnet: "10.10.10.0/28" },
+          { from: "sw1", to: "hosta" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Router1#show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+      209.165.200.0/27 is subnetted, 1 subnets
+B        209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      10.0.0.0/8 is variably subnetted, 8 subnets, 4 masks
+C        10.10.10.0/28 is directly connected, GigabitEthernet0/0
+O        10.10.13.0/25 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+O        10.10.13.208/29 [110/2] via 10.10.10.1, 00:00:04, GigabitEthernet0/0
+S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
+        highlight: ["S*   0.0.0.0/0 [1/0] via 10.10.11.2"],
+      },
+    ],
   },
   {
     id: "q0360",
