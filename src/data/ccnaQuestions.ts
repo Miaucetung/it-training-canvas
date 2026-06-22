@@ -6233,7 +6233,14 @@ network 10.0.0.0                                network 10.0.0.0`,
     "internal BGP route"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `      10.0.0.0/24 is subnetted, 1 subnets
+C        10.0.0.0 is directly connected, FastEthernet0/1
+C     172.16.0.0/16 is directly connected, FastEthernet0/0
+D     192.168.0.0 [90/3072] via 172.16.2.2, 00:00:03, FastEthernet0/0`,
+      highlight: ["D     192.168.0.0 [90/3072] via 172.16.2.2, 00:00:03, FastEthernet0/0"],
+    },
   },
   {
     id: "q0410",
@@ -6258,7 +6265,20 @@ network 10.0.0.0                                network 10.0.0.0`,
     "209.165.200.246 via Serial0/1/0"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route | begin gateway
+Gateway of last resort is 209.165.200.246 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 209.165.200.246, Serial0/1/0
+      172.16.0.0/16 is variably subnetted, 2 subnets, 2 masks
+S        172.16.5.0/24 is directly connected, Serial0/0/0
+O        172.16.3.0/28 [110/1] via 209.165.200.254, 00:00:26, Serial0/1/0
+      209.165.200.0/24 is variably subnetted, 6 subnets, 2 masks
+C        209.165.200.244/30 is directly connected, Serial0/1/0
+L        209.165.200.245/32 is directly connected, Serial0/1/0
+C        209.165.200.248/30 is directly connected, Serial0/0/0`,
+      highlight: ["S*    0.0.0.0/0 [1/0] via 209.165.200.246, Serial0/1/0"],
+    },
   },
   {
     id: "q0412",
@@ -6270,7 +6290,19 @@ network 10.0.0.0                                network 10.0.0.0`,
     "207.165.200.254 via Serial0/0/1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route | begin gateway
+Gateway of last resort is 209.165.200.246 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 209.165.200.246, Serial0/1/0
+      172.16.0.0/16 is variably subnetted, 2 subnets, 2 masks
+S        172.16.0.0/24 [1/0] via 209.165.200.250, Serial0/0/0
+O        172.16.3.0/28 [110/1] via 207.165.200.254, 00:00:04, Serial0/0/0
+      207.165.200.0/24 is variably subnetted, 6 subnets, 2 masks
+C        207.165.200.244/30 is directly connected, Serial0/1/0
+C        207.165.200.248/30 is directly connected, Serial0/0/0`,
+      highlight: ["O        172.16.3.0/28 [110/1] via 207.165.200.254, 00:00:04, Serial0/0/0"],
+    },
   },
   {
     id: "q0413",
@@ -6282,7 +6314,32 @@ network 10.0.0.0                                network 10.0.0.0`,
     "OSPF"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#config t
+R1(config)#interface gi1/1
+R1(config-if)#ip address 192.168.0.1 255.255.255.0
+R1(config)#router bgp 65000
+R1(config-router)#neighbor 192.168.0.2 remote-as 65001
+R1(config-router)#network 10.1.1.0 mask 255.255.255.0
+R1(config)#router ospf 1
+R1(config-router)#network 192.168.0.1 0.0.0.0 area 0
+R1(config-router)#network 10.1.1.0 0.0.0.255 area 0
+R1(config)#router eigrp 1
+R1(config-router)#network 10.1.1.0 0.0.0.255
+R1(config-router)#network 192.168.0.1 0.0.0.0
+
+R2#config t
+R2(config)#interface gi1/1
+R2(config-if)#ip address 192.168.0.2 255.255.255.0
+R2(config)#router bgp 65001
+R2(config-router)#neighbor 192.168.0.1 remote-as 65000
+R2(config)#router ospf 1
+R2(config-router)#network 192.168.0.0 0.0.0.255 area 0
+R2(config)#router eigrp 1
+R2(config-router)#network 192.168.0.0`,
+      highlight: ["R1(config-router)#neighbor 192.168.0.2 remote-as 65001"],
+    },
   },
   {
     id: "q0414",
@@ -6294,7 +6351,20 @@ network 10.0.0.0                                network 10.0.0.0`,
     "10.0.1.50"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+Codes: C - connected, S - static, R - RIP, B - BGP, D - EIGRP, O - OSPF
+
+Gateway of last resort is not set
+C     1.0.0.0/8 is directly connected, Loopback0
+      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+O        10.0.1.3/32 [110/100] via 10.0.1.3, 00:39:08, Serial0
+C        10.0.1.0/24 is directly connected, Serial0
+O        10.0.1.5/32 [110/5] via 10.0.1.50, 00:39:08, Serial0
+O        10.0.1.4/32 [110/10] via 10.0.1.4, 00:39:08, Serial0`,
+      highlight: ["O        10.0.1.5/32 [110/5] via 10.0.1.50, 00:39:08, Serial0"],
+    },
   },
   {
     id: "q0415",
@@ -6306,7 +6376,38 @@ network 10.0.0.0                                network 10.0.0.0`,
     "Add PC A to the same subnet as the File Server allowing for intra-VLAN communication"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pca", type: "pc", label: "PC A", x: 80, y: 60 },
+          { id: "fs", type: "pc", label: "File Server", x: 410, y: 60 },
+          { id: "swa", type: "switch", label: "Switch A", x: 80, y: 230 },
+          { id: "swb", type: "switch", label: "Switch B", x: 410, y: 230 },
+        ],
+        links: [
+          { from: "pca", to: "swa", labelTo: "Gi0/4" },
+          { from: "swa", to: "swb", subnet: "Trunk", labelFrom: "Gi0/1", labelTo: "Gi0/1" },
+          { from: "swb", to: "fs", labelFrom: "Gi0/3" },
+        ],
+        labels: [
+          { text: "192.168.0.10/23", attachTo: "pca", position: "above" },
+          { text: "192.168.1.20/23", attachTo: "fs", position: "above" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Switch A                       Switch B
+Vlan 10, 11, 12, 13            Vlan 10, 11, 12, 13
+
+interface GigabitEthernet0/1   interface GigabitEthernet0/1
+ switchport mode trunk          switchport mode trunk
+ switchport trunk allowed vlan 10-12
+interface GigabitEthernet0/4   interface GigabitEthernet0/3
+ switchport access vlan 13      switchport access vlan 13`,
+        highlight: [" switchport trunk allowed vlan 10-12"],
+      },
+    ],
   },
   {
     id: "q0417",
@@ -6330,7 +6431,39 @@ network 10.0.0.0                                network 10.0.0.0`,
     "Configure the ip route 0.0.0.0 0.0.0.0 10.10.10.2 command on R2."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r2", type: "router", label: "R2", x: 120, y: 80 },
+          { id: "r1", type: "router", label: "R1", x: 330, y: 80 },
+          { id: "internet", type: "cloud", label: "Internet", x: 500, y: 80 },
+          { id: "sb", type: "cloud", label: "Site B", x: 120, y: 220 },
+          { id: "sa", type: "cloud", label: "Site A", x: 330, y: 220 },
+        ],
+        links: [
+          { from: "r2", to: "r1", subnet: "10.10.10.0/30" },
+          { from: "r1", to: "internet" },
+          { from: "r2", to: "sb" },
+          { from: "r1", to: "sa" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1# show run | begin router ospf
+router ospf 1
+ router-id 1.1.1.1
+ auto-cost reference-bandwidth 10000
+ network 10.10.10.0 0.0.0.3 area 0
+ default-information originate
+
+R1# show ip route
+Gateway of last resort is not set
+! Keine Default-Route (0.0.0.0/0) vorhanden -> nichts zu verteilen
+C    10.10.10.0/30 is directly connected, FastEthernet0/1`,
+        highlight: [" default-information originate"],
+      },
+    ],
   },
   {
     id: "q0419",
@@ -6342,7 +6475,17 @@ network 10.0.0.0                                network 10.0.0.0`,
     "3184439"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route | begin gateway
+Gateway of last resort is 209.165.200.246 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 209.165.200.246, Serial0/0/0
+      172.16.0.0/16 is variably subnetted, 3 subnets, 3 masks
+S        172.16.0.0/24 [1/0] via 209.165.200.250, Serial0/0/0
+O        172.16.2.0/24 [110/65] via 209.165.200.254, 00:00:26, Serial0/0/1
+D        172.16.16.0/24 [90/3184439] via 209.165.200.254, 00:00:23, Serial0/0/1`,
+      highlight: ["D        172.16.16.0/24 [90/3184439] via 209.165.200.254, 00:00:23, Serial0/0/1"],
+    },
   },
   {
     id: "q0420",
@@ -6379,7 +6522,38 @@ network 10.0.0.0                                network 10.0.0.0`,
     "Configure the ipv6 route 2012::/126 s0/0/0 command on the Atlanta router."
     ],
     correct: [1, 3],
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "atl", type: "router", label: "Atlanta", x: 70, y: 80 },
+          { id: "ny", type: "router", label: "New York", x: 280, y: 210 },
+          { id: "wsh", type: "router", label: "Washington", x: 490, y: 80 },
+        ],
+        links: [
+          { from: "atl", to: "ny", subnet: "2012::/126", labelFrom: "Se0/0/0" },
+          { from: "ny", to: "wsh", subnet: "2023::/126", labelTo: "Se0/0/0" },
+        ],
+        labels: [
+          { text: "Lo1 2000::1/128", attachTo: "atl", position: "below" },
+          { text: "Lo2 2000::2/128", attachTo: "ny", position: "below" },
+          { text: "Lo3 2000::3/128", attachTo: "wsh", position: "below" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Router", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["Atlanta", "Serial 0/0/0", "2012::1/126"],
+          ["Atlanta", "Loopback1", "2000::1/128"],
+          ["New York", "Serial 0/0/0", "2012::2/126"],
+          ["New York", "Serial 0/0/1", "2023::2/126"],
+          ["New York", "Loopback2", "2000::2/128"],
+          ["Washington", "Serial 0/0/0", "2023::3/126"],
+          ["Washington", "Loopback3", "2000::3/128"],
+        ],
+      },
+    ],
   },
   {
     id: "q0423",
@@ -6415,7 +6589,15 @@ network 10.0.0.0                                network 10.0.0.0`,
     "192.168.16.0/27"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+D     192.168.16.0/26 [90/2679326] via 192.168.1.1
+R     192.168.16.0/24 [120/3] via 192.168.1.2
+O     192.168.16.0/27 [110/2] via 192.168.1.3
+i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
+      highlight: ["O     192.168.16.0/27 [110/2] via 192.168.1.3"],
+    },
   },
   {
     id: "q0426",
