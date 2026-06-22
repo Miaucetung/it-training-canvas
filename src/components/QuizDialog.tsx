@@ -28,6 +28,27 @@ interface QuizState {
   timeRemaining: number | null;
 }
 
+// Cisco-Bestehensgrenze: 825/1000 (≈82,5 %) — Referenz wie in der Prüfung.
+const CISCO_PASS = 825;
+
+// Leitet aus dem Fragetext eine CCNA-Domäne ab (für die Domain-Analyse).
+const DOMAIN_RULES: Array<[string, RegExp]> = [
+  ["Wireless", /\b(wlan|wireless|access point|\bap\b|ssid|wlc|802\.11|wpa|roaming|antenna|channel|rf\b|lightweight|capwap)\b/i],
+  ["IPv6", /\b(ipv6|eui-64|slaac|fe80|2001:|2000::|fc00|ff02|dual-stack|::)/i],
+  ["Switching & VLANs", /\b(vlan|trunk|switchport|spanning[- ]tree|\bstp\b|rstp|etherchannel|lacp|pagp|mac[- ]address|\bcdp\b|\blldp\b|port[- ]security|portfast|bpdu|native vlan|dtp|vtp)\b/i],
+  ["Routing", /\b(route|routing|ospf|eigrp|\bbgp\b|\brip\b|static|next[- ]hop|administrative distance|gateway of last resort|longest prefix|metric|prefix|router[- ]id)\b/i],
+  ["IPv4 & Subnetting", /\b(subnet|subnetting|wildcard|netmask|broadcast address|\/2[0-9]|\/3[0-2]|255\.255|dhcp|cidr|private ip|rfc 1918)\b/i],
+  ["Security & Services", /\b(\bacl\b|\bnat\b|\bpat\b|\baaa\b|802\.1x|firewall|\bvpn\b|snmp|syslog|\bntp\b|password|\bssh\b|tacacs|radius|dai|snooping)\b/i],
+  ["Architektur & Automation", /\b(spine|leaf|cloud|controller|\bsdn\b|automation|json|rest api|ansible|puppet|chef|hypervisor|virtual machine|three[- ]tier|collapsed|data plane|control plane|northbound|southbound)\b/i],
+  ["Geräte & Medien", /\b(ethernet|fiber|optical|copper|cat ?[56]|sfp|transceiver|duplex|collision|crc|cable|connector|poe|mtu)\b/i],
+];
+
+function categorizeQuestion(textRaw: string): string {
+  const t = textRaw || "";
+  for (const [name, re] of DOMAIN_RULES) if (re.test(t)) return name;
+  return "Grundlagen & Sonstige";
+}
+
 export function QuizDialog({
   quiz,
   onComplete,
@@ -231,6 +252,26 @@ export function QuizDialog({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  // Prüfungs-Auswertung: Score (1000er-Skala), Zeit, Domain-Analyse.
+  const resultStats = useMemo(() => {
+    if (!result) return null;
+    const correct = result.results.filter((r) => r.passed).length;
+    const total = result.results.length;
+    const wrong = total - correct;
+    const score = total > 0 ? Math.round((correct / total) * 1000) : 0;
+    const elapsedSeconds = Math.max(
+      0,
+      Math.round((result.completedAt - state.startedAt) / 1000),
+    );
+    const byDomain: Record<string, { c: number; t: number }> = {};
+    result.results.forEach((r, i) => {
+      const cat = categorizeQuestion(questions[i]?.text ?? "");
+      (byDomain[cat] ??= { c: 0, t: 0 }).t++;
+      if (r.passed) byDomain[cat].c++;
+    });
+    return { correct, total, wrong, score, elapsedSeconds, byDomain };
+  }, [result, questions, state.startedAt]);
+
 
   if (showResult && result) {
     return (
@@ -285,6 +326,76 @@ export function QuizDialog({
                 />
               </div>
             </div>
+
+            {/* Prüfungs-Auswertung: Score (1000er-Skala) + Statistik + Domains */}
+            {resultStats && (
+              <>
+                <div className={`p-4 rounded-xl ${cardBg} mb-4`}>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span
+                      className="text-3xl font-bold"
+                      style={{ color: resultStats.score >= CISCO_PASS ? "#10b981" : "#ef4444" }}
+                    >
+                      {resultStats.score}
+                    </span>
+                    <span className={`text-sm ${textMuted}`}>/ 1000</span>
+                  </div>
+                  <p className={`text-xs ${textMuted} mt-0.5`}>
+                    Cisco-Bestehensgrenze: 825 / 1000
+                  </p>
+                </div>
+
+                {/* Statistik-Kacheln */}
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[
+                    { label: "Richtig", value: String(resultStats.correct), color: "text-green-400" },
+                    { label: "Falsch", value: String(resultStats.wrong), color: "text-red-400" },
+                    { label: "Quote", value: `${result.percentage}%`, color: text },
+                    { label: "Zeit", value: formatTime(resultStats.elapsedSeconds), color: text },
+                  ].map((s) => (
+                    <div key={s.label} className={`p-2.5 rounded-lg ${cardBg} text-center`}>
+                      <div className={`text-lg font-bold ${s.color}`}>{s.value}</div>
+                      <div className={`text-[10px] uppercase tracking-wide ${textMuted}`}>
+                        {s.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Domain-Analyse (schwächste zuerst) */}
+                {Object.keys(resultStats.byDomain).length > 1 && (
+                  <div className="text-left mb-6">
+                    <div className={`text-xs font-semibold uppercase tracking-wide ${textMuted} mb-2`}>
+                      Domain-Analyse
+                    </div>
+                    <div className="space-y-2">
+                      {Object.entries(resultStats.byDomain)
+                        .sort(([, a], [, b]) => a.c / a.t - b.c / b.t)
+                        .map(([cat, { c, t }]) => {
+                          const p = Math.round((c / t) * 100);
+                          const ok = c / t >= CISCO_PASS / 1000;
+                          return (
+                            <div key={cat} className="space-y-0.5">
+                              <div className="flex justify-between text-xs">
+                                <span className={text}>{cat}</span>
+                                <span className={textMuted}>
+                                  {c}/{t} ({p}%)
+                                </span>
+                              </div>
+                              <div className={`h-2 rounded-full overflow-hidden ${isDark ? "bg-slate-700" : "bg-slate-200"}`}>
+                                <div
+                                  className={`h-full rounded-full ${ok ? "bg-green-500" : "bg-red-500"}`}
+                                  style={{ width: `${p}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Question Results with explanation */}
             <div className="space-y-2 text-left mb-6">
