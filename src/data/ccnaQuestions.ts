@@ -5334,7 +5334,18 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "There are six OSPF neighbors on this interface."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip ospf interface
+Designated Router (ID) 10.11.11.11, Interface address 10.10.10.1
+Backup Designated router (ID) 10.3.3.3, Interface address 10.10.10.3
+Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+Neighbor Count is 3, Adjacent neighbor count is 3
+  Adjacent with neighbor 10.1.1.4
+  Adjacent with neighbor 10.2.2.2 (Backup Designated Router)
+  Adjacent with neighbor 10.3.3.3 (Designated Router)`,
+      highlight: ["Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5"],
+    },
   },
   {
     id: "q0363",
@@ -5370,7 +5381,7 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "115 Q0366 Nachfragen CCNA? Refer to the exhibit. An engineer is bringing up a new circuit to the MPLS provider on the Gi0/1 interface of Router 1. The new circuit uses eBGP and learns the route to VLAN25 from the BGP path. What is the expected behavior for the traffic flow for route 10.10.13.0/25? Jonny Route 10.10.13.0/25 learned via the Gi0/0 interface remains in the routing table."
     ],
     correct: [1, 2, 3],
-    exhibit: true,
+    exhibit: { type: "none" },
   },
   {
     id: "q0367",
@@ -5395,7 +5406,34 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "It cannot send packets to 10.10.13.128/25."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sa", type: "cloud", label: "Site A", x: 60, y: 90 },
+          { id: "r1", type: "router", label: "Router1", x: 230, y: 80 },
+          { id: "r2", type: "router", label: "Router2", x: 380, y: 80 },
+          { id: "sb", type: "cloud", label: "Site B", x: 510, y: 90 },
+        ],
+        links: [
+          { from: "sa", to: "r1" },
+          { from: "r1", to: "r2" },
+          { from: "r2", to: "sb" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Router2#show ip route
+Gateway of last resort is not set
+      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+C        10.10.8.0/30 is directly connected, FastEthernet0/2
+C        10.10.12.0/30 is directly connected, FastEthernet0/2
+O        10.10.13.0/25 [110/11] via 10.10.10.5, FastEthernet0/1
+                       [110/11] via 10.10.10.9, FastEthernet0/2
+C        10.10.4.0/30 is directly connected, FastEthernet0/2`,
+        highlight: ["O        10.10.13.0/25 [110/11] via 10.10.10.5, FastEthernet0/1"],
+      },
+    ],
   },
   {
     id: "q0369",
@@ -5421,7 +5459,39 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "Ipv6 route 2000::1/128 2023::3 5"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "atl", type: "router", label: "Atlanta", x: 70, y: 80 },
+          { id: "ny", type: "router", label: "New York", x: 280, y: 210 },
+          { id: "wsh", type: "router", label: "Washington", x: 490, y: 80 },
+        ],
+        links: [
+          { from: "atl", to: "ny", subnet: "2012::/126", labelFrom: "Se0/0/0" },
+          { from: "ny", to: "wsh", subnet: "2023::/126", labelTo: "Se0/0/0" },
+        ],
+        labels: [
+          { text: "Lo1 2000::1/128", attachTo: "atl", position: "below" },
+          { text: "Lo2 2000::2/128", attachTo: "ny", position: "below" },
+          { text: "Lo3 2000::3/128", attachTo: "wsh", position: "below" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Router", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["Atlanta", "Serial 0/0/0", "2012::1/126"],
+          ["Atlanta", "Loopback1", "2000::1/128"],
+          ["New York", "Serial 0/0/0", "2012::2/126"],
+          ["New York", "Serial 0/0/1", "2023::2/126"],
+          ["New York", "Loopback2", "2000::2/128"],
+          ["Washington", "Serial 0/0/0", "2023::3/126"],
+          ["Washington", "Serial 0/0/1", "2013::3/126"],
+          ["Washington", "Loopback3", "2000::3/128"],
+        ],
+      },
+    ],
   },
   {
     id: "q0371",
@@ -5445,7 +5515,24 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "modify network type"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip ospf interface gig0/0
+  Internet Address 10.201.24.6/28, Area 1
+  Process ID 100, Router ID 192.168.1.1, Network Type BROADCAST, Cost: 1
+  State DR, Priority 1
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+
+R2# show ip ospf interface gig0/0
+  Internet Address 10.201.24.1/28, Area 1
+  Process ID 100, Router ID 172.16.1.1, Network Type BROADCAST, Cost: 1
+  State DR, Priority 1
+  Timer intervals configured, Hello 20, Dead 80, Wait 80, Retransmit 5`,
+      highlight: [
+        "  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5",
+        "  Timer intervals configured, Hello 20, Dead 80, Wait 80, Retransmit 5",
+      ],
+    },
   },
   {
     id: "q0373",
@@ -5481,7 +5568,24 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "router1(config)#ip route 5 192.168.202.0 255.255.255.0 192.168.201.2"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "Router1", x: 130, y: 80 },
+        { id: "r2", type: "router", label: "Router2", x: 420, y: 80 },
+        { id: "pc1", type: "pc", label: "PC", x: 130, y: 240 },
+        { id: "pc2", type: "pc", label: "PC", x: 420, y: 240 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "192.168.201.0/30", labelFrom: ".1", labelTo: ".2" },
+        { from: "r1", to: "pc1", labelFrom: "LAN 192.168.200.0/24" },
+        { from: "r2", to: "pc2", labelFrom: "LAN 192.168.202.0/24" },
+      ],
+      labels: [
+        { text: "192.168.200.226", attachTo: "pc1", position: "below" },
+        { text: "192.168.202.129", attachTo: "pc2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0376",
@@ -5530,7 +5634,24 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "ip route 10.0.3.0 255.255.255.0 10.0.4.3"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 120, y: 80 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 80 },
+        { id: "r3", type: "router", label: "R3", x: 270, y: 250 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "10.0.4.0/24", labelFrom: ".1", labelTo: ".2" },
+        { from: "r1", to: "r3", labelTo: "10.0.4.3" },
+        { from: "r2", to: "r3" },
+      ],
+      labels: [
+        { text: "LAN 10.0.1.0/24", attachTo: "r1", position: "above" },
+        { text: "LAN 10.0.2.0/24", attachTo: "r2", position: "above" },
+        { text: "LAN 10.0.3.0/24", attachTo: "r3", position: "below" },
+      ],
+    },
   },
   {
     id: "q0380",
@@ -5543,7 +5664,17 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "A static default route to 10.85.33.14 was defined."
     ],
     correct: [1, 2],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+<Ausgabe gekuerzt - 10.0.0.0/8 ist in 20 Subnetze / Masken unterteilt>
+D     10.10.13.0/24 [90/3072] via 10.80.33.14, TenGigabitEthernet0/0/9
+D     10.10.14.0/25 [90/3072] via 10.80.33.14, TenGigabitEthernet0/0/9
+D     10.20.20.0/27 [90/3072] via 10.80.33.14, TenGigabitEthernet0/0/9
+D     10.30.40.0/29 [90/3072] via 10.80.33.14, TenGigabitEthernet0/0/9
+S*    0.0.0.0/0 [1/0] via 10.85.33.14`,
+      highlight: ["S*    0.0.0.0/0 [1/0] via 10.85.33.14"],
+    },
   },
   {
     id: "q0381",
@@ -5607,7 +5738,25 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "192.168.15.5"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+<Ausgabe gekuerzt>
+Gateway of last resort is 192.168.14.4 to network 0.0.0.0
+
+C     172.16.1.128/25 is directly connected, GigabitEthernet1/1/0
+C     192.168.12.0/24 is directly connected, FastEthernet0/0
+C     192.168.13.0/24 is directly connected, FastEthernet0/0
+C     192.168.14.0/24 is directly connected, FastEthernet0/0
+C     172.16.16.1 is directly connected, Loopback1
+      192.168.10.0/24 is variably subnetted, 3 subnets, 3 masks
+O     192.168.10.0/24 [110/2] via 192.168.14.4, FastEthernet0/0
+O     192.168.10.32/27 [110/1] via 192.168.14.3, FastEthernet0/1
+O     192.168.0.0/16 [110/2] via 192.168.15.5, FastEthernet0/1
+D     192.168.10.1/32 [90/52776] via 192.168.12.2, FastEthernet0/0
+O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
+      highlight: ["O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0"],
+    },
   },
   {
     id: "q0387",
@@ -5619,7 +5768,24 @@ S*   0.0.0.0/0 [1/0] via 10.10.11.2`,
     "EIGRP"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Codes: C - connected, S - static, R - RIP, B - BGP
+       D - EIGRP, O - OSPF, O*E2 - OSPF external type 2
+
+Gateway of last resort is 192.168.14.4 to network 0.0.0.0
+
+C     192.168.12.0/24 is directly connected, FastEthernet0/0
+C     192.168.13.0/24 is directly connected, FastEthernet0/0
+C     192.168.14.0/24 is directly connected, FastEthernet0/0
+      192.168.10.0/24 is variably subnetted, 3 subnets, 3 masks
+O     192.168.10.0/24 [110/2] via 192.168.14.4, FastEthernet0/0
+O     192.168.10.32/27 [110/1] via 192.168.14.3, FastEthernet1/0
+D     192.168.10.1/32 [90/52776] via 192.168.12.2, FastEthernet1/0
+O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
+      highlight: ["D     192.168.10.1/32 [90/52776] via 192.168.12.2, FastEthernet1/0"],
+    },
   },
   {
     id: "q0388",
