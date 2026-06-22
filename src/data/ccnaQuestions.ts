@@ -3961,7 +3961,20 @@ SW2#show run interface fastEthernet 0/1
     "Change the protocol to EtherChannel mode on"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Switch1#show etherchannel summary
+Group  Port-channel  Protocol   Ports
+------+-------------+----------+-----------------
+1      Po1(SD)       LACP       Fa0/2(I) Fa0/3(I)
+
+Switch1                          Switch2
+interface FastEthernet0/1        interface FastEthernet0/1
+ channel-group 1 mode passive     channel-group 1 mode passive
+interface FastEthernet0/2        interface FastEthernet0/2
+ channel-group 1 mode passive     channel-group 1 mode passive`,
+      highlight: ["1      Po1(SD)       LACP       Fa0/2(I) Fa0/3(I)"],
+    },
   },
   {
     id: "q0293",
@@ -3973,7 +3986,36 @@ SW2#show run interface fastEthernet 0/1
     "SW1(config-if)#switchport mode dynamic desirable SW1(config-if)#switchport port- security mac-address 0050.7966.6800 SW1(config-if)#switchport port-security mac-address sticky"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 110, y: 40 },
+          { id: "r2", type: "router", label: "R2", x: 420, y: 40 },
+          { id: "sw1", type: "switch", label: "SW1", x: 110, y: 200 },
+          { id: "sw2", type: "switch", label: "SW2", x: 420, y: 200 },
+          { id: "pc1", type: "pc", label: "PC1", x: 50, y: 340 },
+          { id: "pc2", type: "pc", label: "PC2", x: 180, y: 340 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "10.0.0.0/30", labelFrom: "G0/0 .1", labelTo: "G0/0 .2" },
+          { from: "r1", to: "sw1", labelFrom: "G0/1" },
+          { from: "r2", to: "sw2", labelFrom: "G0/1" },
+          { from: "sw1", to: "pc1", labelFrom: "G0/2" },
+          { from: "sw1", to: "pc2", labelFrom: "G0/3" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Workstation", "MAC-Adresse"],
+        rows: [
+          ["PC 1", "00:50:79:66:68:00"],
+          ["PC 2", "28:39:26:34:82:51"],
+          ["PC 3", "00:50:79:66:68:78"],
+          ["PC 4", "00:50:79:66:68:44"],
+        ],
+      },
+    ],
   },
   {
     id: "q0294",
@@ -4010,7 +4052,24 @@ SW2#show run interface fastEthernet 0/1
     "The root port is FastEthernet 2/1"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `SW1#show spanning-tree vlan 30
+
+VLAN0030
+  Spanning tree enabled protocol rstp
+  Root ID    Priority    32798
+             Address     0025.63e9.c800
+             Cost        19
+             Port        1 (FastEthernet 2/1)
+             Hello Time  2 sec   Max Age 20 sec   Forward Delay 15 sec
+
+[Output suppressed]`,
+      highlight: [
+        "  Spanning tree enabled protocol rstp",
+        "             Port        1 (FastEthernet 2/1)",
+      ],
+    },
   },
   {
     id: "q0297",
@@ -4046,7 +4105,20 @@ SW2#show run interface fastEthernet 0/1
     "interface port-channel 1 channel-group 1 mode passive"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "swa", type: "switch", label: "Switch A", x: 110, y: 80 },
+        { id: "swb", type: "switch", label: "Switch B", x: 430, y: 80 },
+        { id: "ha", type: "pc", label: "Hosts", x: 110, y: 240 },
+        { id: "hb", type: "pc", label: "Hosts", x: 430, y: 240 },
+      ],
+      links: [
+        { from: "swa", to: "swb", subnet: "EtherChannel (Gruppe 1)", labelFrom: "Ge0/0/0-0/15", labelTo: "Ge0/0/0-0/15" },
+        { from: "swa", to: "ha" },
+        { from: "swb", to: "hb" },
+      ],
+    },
   },
   {
     id: "q0300",
@@ -4130,7 +4202,37 @@ SW2#show run interface fastEthernet 0/1
     "interface GigabitEthernet1/2 switchport mode access switchport access vlan 12 ! interface GigabitEthernet1/24 switchport mode trunk switchport trunk allowed vlan 11, 12"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "a1", type: "switch", label: "AccSw1", x: 120, y: 60 },
+          { id: "a2", type: "switch", label: "AccSw2", x: 380, y: 60 },
+          { id: "p1", type: "pc", label: "Staff PC1", x: 120, y: 220 },
+          { id: "p2", type: "pc", label: "Staff PC2", x: 380, y: 220 },
+        ],
+        links: [
+          { from: "a1", to: "a2", labelFrom: "g1/24", labelTo: "g1/24" },
+          { from: "a1", to: "p1", labelFrom: "g1/1" },
+          { from: "a2", to: "p2", labelFrom: "g1/1" },
+        ],
+        labels: [
+          { text: "10.0.1.11/24", attachTo: "p1", position: "below" },
+          { text: "10.0.1.12/24", attachTo: "p2", position: "below" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["VLAN", "Name", "Status", "Ports"],
+        rows: [
+          ["1", "default", "active", "Fa0/3 - Fa0/12, Gi0/2"],
+          ["2", "IT Support", "active", "Fa0/1"],
+          ["3", "Servers", "active", "Fa0/2"],
+          ["11", "Staff", "active", "Fa0/13"],
+          ["12", "Guests", "active", "Gig1/2"],
+        ],
+      },
+    ],
   },
   {
     id: "q0307",
@@ -4142,7 +4244,19 @@ SW2#show run interface fastEthernet 0/1
     "Switch2(config)#lldp timer 1 Switch2(config)#lldp tlv-select 3"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Switch2# show lldp
+Global LLDP Information
+    Status: ACTIVE
+    LLDP advertisements are sent every 30 seconds
+    LLDP hold time advertised is 120 seconds
+    LLDP interface reinitialization delay is 2 seconds`,
+      highlight: [
+        "    LLDP advertisements are sent every 30 seconds",
+        "    LLDP hold time advertised is 120 seconds",
+      ],
+    },
   },
   {
     id: "q0308",
@@ -4154,7 +4268,23 @@ SW2#show run interface fastEthernet 0/1
     "SwitchA(config-if)#switchport mode access SwitchA(config-if)#switchport access vlan 50 SwitchA(config-if)#switchport voice vlan untagged"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "swa", type: "switch", label: "Switch A", x: 120, y: 80 },
+        { id: "swb", type: "switch", label: "Switch B", x: 400, y: 80 },
+        { id: "pa", type: "pc", label: "Phone + PC", x: 120, y: 240 },
+        { id: "pb", type: "pc", label: "Phone + PC", x: 400, y: 240 },
+      ],
+      links: [
+        { from: "swa", to: "swb", labelFrom: "G0/0", labelTo: "G0/0" },
+        { from: "swa", to: "pa", labelFrom: "G0/1" },
+        { from: "swb", to: "pb", labelFrom: "G0/1" },
+      ],
+      labels: [
+        { text: "Data VLAN 50 - Voice VLAN 51", attachTo: "swa", position: "above" },
+      ],
+    },
   },
   {
     id: "q0309",
@@ -4166,7 +4296,39 @@ SW2#show run interface fastEthernet 0/1
     "SwitchA(config)#interface GigabitEthernet0/0 SwitchA(config-if)#spanning-tree portfast SwitchA(config-if)#spanning-tree bpduguard enable SwitchB(config)#interface GigabitEthernet0/0 SwitchB(config-if)#spanning-tree portfast SwitchB(config-if)#spanning-tree bpduguard enable"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "swa", type: "switch", label: "Switch A", x: 120, y: 80 },
+          { id: "swb", type: "switch", label: "Switch B", x: 400, y: 80 },
+          { id: "pa", type: "pc", label: "Sales-PC A", x: 120, y: 240 },
+          { id: "pb", type: "pc", label: "Sales-PC B", x: 400, y: 240 },
+        ],
+        links: [
+          { from: "swa", to: "swb", labelFrom: "G0/0", labelTo: "G0/0" },
+          { from: "swa", to: "pa", labelFrom: "G0/1" },
+          { from: "swb", to: "pb", labelFrom: "G0/1" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Switch A Configuration:        Switch B Configuration:
+vlan 500                       vlan 500
+ name sales                     name sales
+vlan 506                       vlan 506
+ name support                   name support
+
+interface GigabitEthernet1/0   interface GigabitEthernet1/0
+ switchport mode trunk          switchport mode trunk
+
+interface GigabitEthernet0/1   interface GigabitEthernet0/1
+ switchport mode access         switchport mode access
+ spanning-tree portfast         spanning-tree portfast
+ spanning-tree bpduguard enable spanning-tree bpduguard enable`,
+        highlight: [" switchport mode access         switchport mode access"],
+      },
+    ],
   },
   {
     id: "q0310",
@@ -4178,7 +4340,35 @@ SW2#show run interface fastEthernet 0/1
     "NewSW(config)#interface f0/0 • NewSW(config-if)#switchport mode trunk • NewSW(config-if)#switchport trunk allowed vlan 2, 10 • NewSW(config-if)#switchport trunk native vlan 2"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pc1", type: "pc", label: "PC (VLAN 2)", x: 40, y: 70 },
+          { id: "sw1", type: "switch", label: "SW1", x: 200, y: 70 },
+          { id: "sw2", type: "switch", label: "SW2", x: 370, y: 70 },
+          { id: "pc2", type: "pc", label: "PC2 (VLAN 2)", x: 540, y: 70 },
+          { id: "newsw", type: "switch", label: "NewSW", x: 370, y: 240 },
+          { id: "v10a", type: "pc", label: "New VLAN 10", x: 60, y: 240 },
+          { id: "v10b", type: "pc", label: "New VLAN 10", x: 560, y: 240 },
+        ],
+        links: [
+          { from: "pc1", to: "sw1" },
+          { from: "sw1", to: "sw2", labelFrom: "f0/0", labelTo: "f0/0" },
+          { from: "sw2", to: "pc2" },
+          { from: "sw2", to: "newsw", labelTo: "f0/0" },
+          { from: "sw1", to: "v10a" },
+          { from: "newsw", to: "v10b" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1#show interface fastEthernet0/0
+ switchport access vlan 2
+ switchport mode access`,
+        highlight: [" switchport mode access"],
+      },
+    ],
   },
   {
     id: "q0311",
