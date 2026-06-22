@@ -3096,7 +3096,29 @@ Atlanta(config)#end`,
     "Switch 4"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "hq1", type: "multilayer-switch", label: "HQ-1", x: 150, y: 40 },
+        { id: "hq2", type: "multilayer-switch", label: "HQ-2", x: 380, y: 40 },
+        { id: "s1", type: "switch", label: "Switch 1", x: 140, y: 190 },
+        { id: "s2", type: "switch", label: "Switch 2", x: 390, y: 190 },
+        { id: "s3", type: "switch", label: "Switch 3", x: 140, y: 340 },
+        { id: "s4", type: "switch", label: "Switch 4", x: 390, y: 340 },
+      ],
+      links: [
+        { from: "hq1", to: "s1" }, { from: "hq1", to: "s2" },
+        { from: "hq2", to: "s1" }, { from: "hq2", to: "s2" },
+        { from: "s1", to: "s2" }, { from: "s1", to: "s3" },
+        { from: "s2", to: "s4" }, { from: "s3", to: "s4" },
+      ],
+      labels: [
+        { text: "0C:E0:38:81:32:58", attachTo: "s1", position: "left" },
+        { text: "0C:0E:15:22:1A:61", attachTo: "s2", position: "right" },
+        { text: "0C:0E:15:1D:3C:9A", attachTo: "s3", position: "left" },
+        { text: "0C:E0:19:A1:4D:16", attachTo: "s4", position: "right" },
+      ],
+    },
   },
   {
     id: "q0243",
@@ -3156,7 +3178,16 @@ Atlanta(config)#end`,
     "switchport mode trunk"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "SW1", x: 90, y: 120 },
+        { id: "sw2", type: "switch", label: "SW2", x: 430, y: 120 },
+      ],
+      links: [
+        { from: "sw1", to: "sw2", subnet: "Trunk - VLANs 2-20", labelFrom: "Gi1/1", labelTo: "Gi1/1" },
+      ],
+    },
   },
   {
     id: "q0248",
@@ -3168,7 +3199,37 @@ Atlanta(config)#end`,
     "Flood the frame out of all ports except on the port where Sales-1 is connected."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "ssw", type: "switch", label: "Sales-SW", x: 270, y: 50 },
+          { id: "s1", type: "pc", label: "Sales-1", x: 80, y: 210 },
+          { id: "s2", type: "pc", label: "Sales-2", x: 210, y: 210 },
+          { id: "s3", type: "pc", label: "Sales-3", x: 340, y: 210 },
+          { id: "s4", type: "pc", label: "Sales-4", x: 470, y: 210 },
+        ],
+        links: [
+          { from: "ssw", to: "s1", labelTo: "Gi1/0/1" },
+          { from: "ssw", to: "s2", labelTo: "Gi1/0/2" },
+          { from: "ssw", to: "s3", labelTo: "Gi1/0/3" },
+          { from: "ssw", to: "s4", labelTo: "Gi1/0/4" },
+        ],
+        labels: [{ text: "VLAN 10", attachTo: "ssw", position: "above" }],
+      },
+      {
+        type: "cli",
+        content: `Sales-SW#show mac address-table
+          Mac Address Table
+-------------------------------------------
+Vlan    Mac Address       Type      Ports
+----    -----------       ----      -----
+  10    000c.8590.bb7d    DYNAMIC   Gi1/0/1
+  10    3939.1170.1bb7    DYNAMIC   Gi1/0/2
+  10    00d0.d3b6.957c    DYNAMIC   Gi1/0/3`,
+        highlight: ["  10    000c.8590.bb7d    DYNAMIC   Gi1/0/1"],
+      },
+    ],
   },
   {
     id: "q0249",
@@ -3180,7 +3241,17 @@ Atlanta(config)#end`,
     "interface gigabitethernet1/1 switchport mode trunk switchport trunk vlan 300 switchport voice vlan 400"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw10", type: "switch", label: "SW10", x: 170, y: 50 },
+        { id: "ph", type: "pc", label: "IP-Phone + PC", x: 170, y: 210 },
+      ],
+      links: [{ from: "sw10", to: "ph", labelFrom: "Gi1/1" }],
+      labels: [
+        { text: "VLAN 300 = Data - VLAN 400 = Voice", attachTo: "ph", position: "below" },
+      ],
+    },
   },
   {
     id: "q0250",
@@ -3240,7 +3311,28 @@ Atlanta(config)#end`,
     "Branch-4"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "b1", type: "switch", label: "Branch-1", x: 120, y: 70 },
+        { id: "b2", type: "switch", label: "Branch-2", x: 410, y: 70 },
+        { id: "b3", type: "switch", label: "Branch-3", x: 120, y: 300 },
+        { id: "b4", type: "switch", label: "Branch-4", x: 410, y: 300 },
+      ],
+      links: [
+        { from: "b1", to: "b2", subnet: "10G" },
+        { from: "b1", to: "b3", subnet: "10G" },
+        { from: "b2", to: "b4", subnet: "10G" },
+        { from: "b3", to: "b4", subnet: "10G" },
+      ],
+      labels: [
+        { text: "Branch Sales - VLAN 5", attachTo: "b1", position: "above" },
+        { text: "Prio 614440", attachTo: "b1", position: "left" },
+        { text: "Prio 39391170", attachTo: "b2", position: "right" },
+        { text: "Prio niedrigste (permanent)", attachTo: "b3", position: "below" },
+        { text: "root primary (nicht permanent)", attachTo: "b4", position: "below" },
+      ],
+    },
   },
   {
     id: "q0255",
@@ -3313,7 +3405,49 @@ Atlanta(config)#end`,
     "switchport truck allowed vlan remove 10-11"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pca", type: "pc", label: "PC A", x: 80, y: 60 },
+          { id: "fs", type: "pc", label: "File Server", x: 410, y: 60 },
+          { id: "swa", type: "switch", label: "Switch A", x: 80, y: 230 },
+          { id: "swb", type: "switch", label: "Switch B", x: 410, y: 230 },
+        ],
+        links: [
+          { from: "pca", to: "swa", labelTo: "Gi0/4" },
+          { from: "swa", to: "swb", subnet: "Trunk", labelFrom: "Gi0/1", labelTo: "Gi0/1" },
+          { from: "swb", to: "fs", labelFrom: "Gi0/3" },
+        ],
+        labels: [
+          { text: "192.168.0.10/23", attachTo: "pca", position: "above" },
+          { text: "192.168.1.20/23", attachTo: "fs", position: "above" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Switch A
+Vlan 10, 11, 12, 13
+
+interface GigabitEthernet0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 10-12
+!
+interface GigabitEthernet0/4
+ switchport access vlan 13
+
+Switch B
+Vlan 10, 11, 12, 13
+
+interface GigabitEthernet0/1
+ switchport mode trunk
+!
+interface GigabitEthernet0/3
+ switchport access vlan 13
+ switchport mode access`,
+        highlight: [" switchport trunk allowed vlan 10-12"],
+      },
+    ],
   },
   {
     id: "q0264",
@@ -3325,7 +3459,14 @@ Atlanta(config)#end`,
     "The port transitions to the root port."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `switch(config)#interface gigabitEthernet 1/11
+switch(config-if)#switchport mode access
+switch(config-if)#spanning-tree portfast
+switch(config-if)#spanning-tree bpduguard enable`,
+      highlight: ["switch(config-if)#spanning-tree bpduguard enable"],
+    },
   },
   {
     id: "q0265",
@@ -3337,7 +3478,7 @@ Atlanta(config)#end`,
     "using a non-default native VLAN Q0266 Nachfragen Refer to the exhibit. Which action do the switches take on the trunk link? domain. The trunk does not form, but VLAN 99 and VLAN 999 are allowed to traverse the link."
     ],
     correct: [2, 1],
-    exhibit: true,
+    exhibit: { type: "none" },
   },
   {
     id: "q0267",
@@ -3362,7 +3503,23 @@ Atlanta(config)#end`,
     "interface gigabitethernet1/1 switchport mode access switchport access vlan 8 ! interface gigabitethernet1/3 switchport mode access switchport voice vlan 8 switchport access vlan 9"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw11", type: "switch", label: "SW11", x: 250, y: 40 },
+        { id: "pc2", type: "pc", label: "PC-2", x: 440, y: 170 },
+        { id: "ph1", type: "pc", label: "Phone-1", x: 110, y: 180 },
+        { id: "pc1", type: "pc", label: "PC-1", x: 110, y: 330 },
+      ],
+      links: [
+        { from: "sw11", to: "pc2", labelFrom: "Gi1/1" },
+        { from: "sw11", to: "ph1", labelFrom: "Gi1/3" },
+        { from: "ph1", to: "pc1" },
+      ],
+      labels: [
+        { text: "VLAN 8 = Data - VLAN 9 = Voice", attachTo: "pc2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0269",
@@ -3374,7 +3531,19 @@ Atlanta(config)#end`,
     "Select the WPA Policy option with the CCKM option."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "table",
+      headers: ["WLAN-Security-Einstellung", "Wert"],
+      rows: [
+        ["Fast Transition", "Disable"],
+        ["WPA2 Policy", "aktiviert"],
+        ["WPA2 Encryption", "AES"],
+        ["Auth Key Mgmt: 802.1X", "-"],
+        ["Auth Key Mgmt: PSK", "Enable"],
+        ["Auth Key Mgmt: FT 802.1X", "-"],
+        ["Auth Key Mgmt: FT PSK", "-"],
+      ],
+    },
   },
   {
     id: "q0270",
