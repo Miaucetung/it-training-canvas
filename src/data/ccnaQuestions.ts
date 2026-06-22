@@ -3555,7 +3555,17 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "switchport trunk allowed vlan add 104"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "SW1", x: 90, y: 120 },
+        { id: "sw2", type: "switch", label: "SW2", x: 430, y: 120 },
+      ],
+      links: [
+        { from: "sw1", to: "sw2", subnet: "802.1Q - VLANs 1,100,101,102,103", labelFrom: "E0/0", labelTo: "E0/0" },
+      ],
+      labels: [{ text: "Neues VLAN 104", attachTo: "sw1", position: "above" }],
+    },
   },
   {
     id: "q0271",
@@ -3592,7 +3602,35 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "SW4 interface Gi/0/2 switchport mode access switchport access vlan 14 SW11# interface Gi0/2 switchport mode trunk switchport trunk allowed vlan 14 ! interface Gi0/0 switchport mode access switchport access vlan 14 ! interface Gi0/1 switchport mode trunk SW9# interface Gi0/2 switchport mode access switchport access vlan 14"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "SW1", x: 150, y: 50 },
+        { id: "sw9", type: "switch", label: "SW9", x: 380, y: 50 },
+        { id: "sw4", type: "switch", label: "SW4", x: 150, y: 230 },
+        { id: "sw11", type: "switch", label: "SW11", x: 380, y: 230 },
+        { id: "pc7", type: "pc", label: "PC7", x: 530, y: 50 },
+        { id: "pc2", type: "pc", label: "PC2", x: 30, y: 230 },
+        { id: "pc3", type: "pc", label: "PC3", x: 150, y: 380 },
+        { id: "pc9", type: "pc", label: "PC9", x: 380, y: 380 },
+      ],
+      links: [
+        { from: "sw1", to: "sw9", labelFrom: "Gi0/2", labelTo: "Gi0/1" },
+        { from: "sw1", to: "sw4", labelFrom: "Gi0/1", labelTo: "Gi0/7" },
+        { from: "sw9", to: "pc7", labelFrom: "Gi0/0" },
+        { from: "sw9", to: "sw11", labelFrom: "Gi0/2", labelTo: "Gi0/1" },
+        { from: "sw4", to: "sw11", labelFrom: "Gi0/2", labelTo: "Gi0/2" },
+        { from: "sw4", to: "pc2", labelFrom: "Gi0/1" },
+        { from: "sw4", to: "pc3", labelFrom: "Gi0/3" },
+        { from: "sw11", to: "pc9", labelFrom: "Gi0/4" },
+      ],
+      labels: [
+        { text: "VLAN 14", attachTo: "pc7", position: "below" },
+        { text: "VLAN 14", attachTo: "pc2", position: "below" },
+        { text: "VLAN 108", attachTo: "pc3", position: "below" },
+        { text: "VLAN 108", attachTo: "pc9", position: "below" },
+      ],
+    },
   },
   {
     id: "q0275",
@@ -3604,7 +3642,20 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Configure the no lldp tlv-select management-address command globally on Cat9K-2."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Cat9K-1#show lldp entry Cat9K-2
+
+Local Intf: Gi1/0/21
+Chassis Id: 30Sb.b2b3.2880
+Port Id: Gi1/0/21
+Port Description: GigabitEthernet1/0/21
+System Name: Cat9K-2
+
+Management Addresses:
+   IP: 10.5.110.2`,
+      highlight: ["   IP: 10.5.110.2"],
+    },
   },
   {
     id: "q0276",
@@ -3616,7 +3667,46 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "SW1(config)#interface fa0/1 SW1(config-if)#no switchport access vlan 2 SW1(config- if)#switchport access vlan 3 SW1(config-if)#switchport trunk allowed vlan 2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pc1", type: "pc", label: "PC1", x: 90, y: 80 },
+          { id: "sw1", type: "switch", label: "SW1", x: 250, y: 80 },
+          { id: "pc2", type: "pc", label: "PC2", x: 420, y: 80 },
+        ],
+        links: [
+          { from: "pc1", to: "sw1", labelTo: "Fa0/1" },
+          { from: "sw1", to: "pc2", labelFrom: "Fa0/2" },
+        ],
+        labels: [
+          { text: "VLAN 2 - 0007.ec53.4289", attachTo: "pc1", position: "above" },
+          { text: "VLAN 2 - 0007.ec89.7513", attachTo: "pc2", position: "above" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1#show run
+Building configuration...
+!
+interface FastEthernet0/1
+ switchport access vlan 2
+ switchport mode access
+!
+interface FastEthernet0/2
+ switchport access vlan 2
+ switchport trunk allowed vlan 3
+ switchport mode trunk
+
+SW1#show mac-address-table
+       Mac Address Table
+---------------------------------------
+Vlan   Mac Address      Type      Ports
+----   -----------      ----      -----
+  2    0007.ec53.4289   DYNAMIC   Fa0/1`,
+        highlight: [" switchport mode trunk"],
+      },
+    ],
   },
   {
     id: "q0277",
@@ -3628,7 +3718,29 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Switch 4"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "hq1", type: "multilayer-switch", label: "HQ-1", x: 150, y: 40 },
+        { id: "hq2", type: "multilayer-switch", label: "HQ-2", x: 380, y: 40 },
+        { id: "s1", type: "switch", label: "Switch 1", x: 140, y: 190 },
+        { id: "s2", type: "switch", label: "Switch 2", x: 390, y: 190 },
+        { id: "s3", type: "switch", label: "Switch 3", x: 140, y: 340 },
+        { id: "s4", type: "switch", label: "Switch 4", x: 390, y: 340 },
+      ],
+      links: [
+        { from: "hq1", to: "s1" }, { from: "hq1", to: "s2" },
+        { from: "hq2", to: "s1" }, { from: "hq2", to: "s2" },
+        { from: "s1", to: "s2", subnet: "10G" }, { from: "s1", to: "s3", subnet: "10G" },
+        { from: "s2", to: "s4", subnet: "10G" }, { from: "s3", to: "s4", subnet: "10G" },
+      ],
+      labels: [
+        { text: "BID 32778 0018.184e.3c00", attachTo: "s1", position: "left" },
+        { text: "BID 24586 001a.e3ff.a680", attachTo: "s2", position: "right" },
+        { text: "BID 28682 0022.55cf.cc00", attachTo: "s3", position: "left" },
+        { text: "BID 64000 4e15.8403.08f", attachTo: "s4", position: "right" },
+      ],
+    },
   },
   {
     id: "q0279",
@@ -3640,7 +3752,20 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Modify the static EtherChannel configuration of the device to passive mode."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `interface g2/0/0
+ channel-group 1 mode active
+interface g4/0/0
+ channel-group 1 mode active
+interface Port-channel1
+ ip address 203.0.113.65 255.255.255.252
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to down`,
+      highlight: [
+        "%LINEPROTO-5-UPDOWN: Line protocol on Interface Port-channel1, changed state to down",
+      ],
+    },
   },
   {
     id: "q0280",
@@ -3652,7 +3777,16 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Interface range G1/1 ג€ \" 1/3 switchport mode access channel-group 1 mode on no shutdown"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "sw1", type: "switch", label: "SW1", x: 110, y: 100 },
+        { id: "sw2", type: "switch", label: "SW2", x: 430, y: 100 },
+      ],
+      links: [
+        { from: "sw1", to: "sw2", subnet: "LACP EtherChannel", labelFrom: "G1/1-1/3", labelTo: "G1/1-1/3" },
+      ],
+    },
   },
   {
     id: "q0281",
@@ -3676,7 +3810,15 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Configure the cdp timer 10 command on the neighbors of switch Cat9300"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Cat9300#show cdp
+Global CDP information:
+   Sending CDP packets every 60 seconds
+   Sending a holdtime value of 180 seconds
+   Sending CDPv2 advertisements is enabled`,
+      highlight: ["   Sending CDP packets every 60 seconds"],
+    },
   },
   {
     id: "q0283",
@@ -3724,7 +3866,42 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Configure the interface port-channel 1 command on both swtiches"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw1", type: "switch", label: "SW1", x: 110, y: 90 },
+          { id: "sw2", type: "switch", label: "SW2", x: 430, y: 90 },
+        ],
+        links: [
+          { from: "sw1", to: "sw2", subnet: "EtherChannel Po1", labelFrom: "Fa0/1-0/2", labelTo: "Fa0/1-0/2" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1#show run interface fastEthernet 0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 100, 200, 300
+ channel-group 1 mode on
+
+SW1#show run interface fastEthernet 0/2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 100, 200, 300
+ channel-group 1 mode on
+
+SW2#show run interface fastEthernet 0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 100, 200, 300
+ channel-group 1 mode active`,
+        highlight: [
+          " channel-group 1 mode on",
+          " channel-group 1 mode active",
+        ],
+      },
+    ],
   },
   {
     id: "q0288",
@@ -3736,7 +3913,18 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "R5(config)#int Gi0/1 R5(config-if)#no cdp enable R5(config-if)#exit R5(config)#no lldp run R5(config)#cdp run R5#sh cdp neighbor detail R5#sh lldp neighbor"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "internet", type: "cloud", label: "Internet", x: 70, y: 110 },
+        { id: "r5", type: "router", label: "R5", x: 290, y: 110 },
+        { id: "r6", type: "router", label: "R6", x: 480, y: 110 },
+      ],
+      links: [
+        { from: "internet", to: "r5", labelTo: "Gi0/1" },
+        { from: "r5", to: "r6", labelFrom: "Gi0/2", labelTo: "Gi0/2" },
+      ],
+    },
   },
   {
     id: "q0289",
