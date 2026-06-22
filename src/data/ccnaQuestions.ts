@@ -5799,7 +5799,19 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "Network 172.16.1.32 0.0.0.31"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1
+interface Loopback0
+ ip address 172.16.1.33 255.255.255.224
+
+interface FastEthernet0/0
+ ip address 192.168.12.1 255.255.255.0
+
+router bgp 100
+ neighbor 192.168.12.2 remote-as 100`,
+      highlight: [" ip address 172.16.1.33 255.255.255.224"],
+    },
   },
   {
     id: "q0389",
@@ -5837,7 +5849,15 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "192.168.0.0"
     ],
     correct: [0, 2, 3],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `RTR01(config)#router eigrp 103
+RTR01(config-router)#network 10.4.3.0
+RTR01(config-router)#network 172.16.4.0
+RTR01(config-router)#network 192.168.2.0
+RTR01(config-router)#auto-summary`,
+      highlight: ["RTR01(config-router)#auto-summary"],
+    },
   },
   {
     id: "q0392",
@@ -5874,7 +5894,21 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "The router will drop the packet."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `router#show ip route
+Gateway of last resort is 192.168.4.1 to network 0.0.0.0
+
+      10.0.0.0/24 is subnetted, 3 subnets
+C        10.0.2.0 is directly connected, Ethernet1
+D        10.0.3.0 [90/2195456] via 192.168.1.2, Serial0
+D        10.0.4.0 [90/2195456] via 192.168.1.3, Serial1
+C     192.168.1.0/24 is directly connected, Serial0
+D     192.168.2.0/24 [90/2681856] via 192.168.1.2, Serial0
+C     192.168.3.0/24 is directly connected, Serial1
+C     192.168.4.0/24 is directly connected, Serial2`,
+      highlight: ["Gateway of last resort is 192.168.4.1 to network 0.0.0.0"],
+    },
   },
   {
     id: "q0395",
@@ -5900,7 +5934,29 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "The router ids on R1 and R2 are mismatched"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1
+ipv6 unicast-routing
+interface FastEthernet0/0
+ no ip address
+ ipv6 enable
+ ipv6 address 3001:DB8:13::1/64
+ ipv6 ospf 1 area 0
+ipv6 router ospf 1
+ router-id 172.16.1.1
+
+R2
+ipv6 unicast-routing
+interface FastEthernet0/0
+ no ip address
+ ipv6 enable
+ ipv6 address 2001:DB8:12::1/64
+ ipv6 ospf 1 area 3
+ipv6 router ospf 1
+ router-id 172.16.3.3`,
+      highlight: [" ipv6 ospf 1 area 0", " ipv6 ospf 1 area 3"],
+    },
   },
   {
     id: "q0397",
@@ -5926,7 +5982,18 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "Serial0/1.104"
     ],
     correct: [1, 2, 3],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `City#show ip interface brief
+Interface          IP-Address      OK? Method Status Protocol
+FastEthernet0/0    192.168.12.48   Yes manual up     up
+FastEthernet0/1    192.168.12.65   Yes manual up     up
+Serial0/0          192.168.12.121  Yes manual up     up
+Serial0/1          unassigned      Yes unset  up     up
+Serial0/1.102      192.168.12.125  Yes manual up     up
+Serial0/1.103      192.168.12.129  Yes manual up     up
+Serial0/1.104      192.168.12.133  Yes manual up     up`,
+    },
   },
   {
     id: "q0399",
@@ -5938,7 +6005,36 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "No further routing configuration is required."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "cr", type: "router", label: "C-router", x: 110, y: 80 },
+          { id: "sw", type: "switch", label: "Switch", x: 300, y: 80 },
+          { id: "v1", type: "pc", label: "VLAN 1", x: 200, y: 250 },
+          { id: "v2", type: "pc", label: "VLAN 2", x: 320, y: 250 },
+          { id: "v3", type: "pc", label: "VLAN 3", x: 440, y: 250 },
+        ],
+        links: [
+          { from: "cr", to: "sw", labelFrom: "Fa0/0 (Trunk)" },
+          { from: "sw", to: "v1" },
+          { from: "sw", to: "v2" },
+          { from: "sw", to: "v3" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `interface FastEthernet0/0.1
+ encapsulation dot1Q 1
+ ip address 172.19.1.254 255.255.255.0
+interface FastEthernet0/0.2
+ encapsulation dot1Q 2
+ ip address 172.19.2.254 255.255.255.0
+interface FastEthernet0/0.3
+ encapsulation dot1Q 3
+ ip address 172.19.3.254 255.255.255.0`,
+      },
+    ],
   },
   {
     id: "q0400",
@@ -5952,7 +6048,20 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "192.168.25.28 255.255.255.252 •"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Gateway of last resort is not set
+      192.168.25.0/30 is subnetted, 4 subnets
+D     192.168.25.20 [90/2681856] via 192.168.15.5, Serial0/1
+D     192.168.25.16 [90/1823638] via 192.168.15.5, Serial0/1
+D     192.168.25.24 [90/3823238] via 192.168.15.5, Serial0/1
+D     192.168.25.28 [90/8127323] via 192.168.15.5, Serial0/1
+C     192.168.15.4/30 is directly connected, Serial0/1
+C     192.168.2.0/24 is directly connected, FastEthernet0/0`,
+      highlight: [
+        "D     192.168.25.16 [90/1823638] via 192.168.15.5, Serial0/1",
+      ],
+    },
   },
   {
     id: "q0401",
@@ -5964,7 +6073,16 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "192.168.5.3"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `RouterD#show ip interface brief
+Interface          IP-Address     OK? Method Status Protocol
+FastEthernet0/0    192.168.5.3    Yes manual up     up
+FastEthernet0/1    10.1.1.2       Yes manual up     up
+Loopback0          172.16.5.1     Yes NVRAM  up     up
+Loopback1          10.154.154.1   Yes NVRAM  up     up`,
+      highlight: ["Loopback0          172.16.5.1     Yes NVRAM  up     up"],
+    },
   },
   {
     id: "q0402",
@@ -5976,7 +6094,32 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "Router B needs to have two network statements, one for each connected network"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "ra", type: "router", label: "RouterA", x: 90, y: 100 },
+          { id: "rb", type: "router", label: "RouterB", x: 280, y: 100 },
+          { id: "rc", type: "router", label: "RouterC", x: 470, y: 100 },
+        ],
+        links: [
+          { from: "ra", to: "rb", subnet: "10.1.1.0", labelFrom: ".1", labelTo: ".2" },
+          { from: "rb", to: "rc", subnet: "10.2.2.0", labelFrom: ".2", labelTo: ".3" },
+        ],
+        labels: [
+          { text: "172.16.1.1", attachTo: "ra", position: "above" },
+          { text: "192.168.1.1", attachTo: "rc", position: "above" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `RouterA                 RouterB                 RouterC
+router eigrp 100        router eigrp 200        router eigrp 300
+network 172.16.0.0      network 10.0.0.0        network 192.168.1.0
+network 10.0.0.0                                network 10.0.0.0`,
+        highlight: ["router eigrp 100        router eigrp 200        router eigrp 300"],
+      },
+    ],
   },
   {
     id: "q0403",
@@ -6003,7 +6146,29 @@ O*E2  0.0.0.0/0 [110/1] via 192.168.14.4, FastEthernet0/0`,
     "It indicates that RouterB should be elected the DR for the LAN."
     ],
     correct: [1, 2],
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "ra", type: "router", label: "RouterA", x: 100, y: 80 },
+        { id: "rb", type: "router", label: "RouterB", x: 400, y: 80 },
+        { id: "sw", type: "switch", label: "Switch1", x: 250, y: 190 },
+        { id: "rc", type: "router", label: "RouterC", x: 100, y: 300 },
+        { id: "rd", type: "router", label: "RouterD", x: 400, y: 300 },
+      ],
+      links: [
+        { from: "ra", to: "sw", labelFrom: "192.168.1.1" },
+        { from: "rb", to: "sw", labelFrom: "192.168.1.2" },
+        { from: "rc", to: "sw", labelFrom: "192.168.1.3" },
+        { from: "rd", to: "sw", labelFrom: "192.168.1.4" },
+      ],
+      labels: [
+        { text: "Lo0 10.0.1.1", attachTo: "ra", position: "above" },
+        { text: "Lo0 10.0.0.1", attachTo: "rb", position: "above" },
+        { text: "Lo0 10.0.2.1", attachTo: "rc", position: "below" },
+        { text: "Lo0 10.0.3.1", attachTo: "rd", position: "below" },
+        { text: "OSPF Area 0", attachTo: "sw", position: "right" },
+      ],
+    },
   },
   {
     id: "q0405",
