@@ -4392,7 +4392,20 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "Select WPA2 Policy Disable PMF Enable PSK"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "table",
+      headers: ["WLAN-Security (Layer 2)", "Wert"],
+      rows: [
+        ["Layer 2 Security", "WPA + WPA2"],
+        ["MAC Filtering", "deaktiviert"],
+        ["Fast Transition", "deaktiviert"],
+        ["PMF", "Required"],
+        ["Auth Key Mgmt: 802.1X", "Enable"],
+        ["Auth Key Mgmt: PSK", "deaktiviert"],
+        ["Auth Key Mgmt: FT 802.1X", "deaktiviert"],
+        ["Auth Key Mgmt: FT PSK", "deaktiviert"],
+      ],
+    },
   },
   {
     id: "q0313",
@@ -4452,7 +4465,38 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "It maps the Layer 2 MAC address for Fa0/3 to the Layer 3 IP address and towards the frame."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw1", type: "switch", label: "SW1", x: 250, y: 50 },
+          { id: "b1", type: "pc", label: "Br-1", x: 70, y: 210 },
+          { id: "b2", type: "pc", label: "Br-2", x: 190, y: 210 },
+          { id: "b3", type: "pc", label: "Br-3", x: 310, y: 210 },
+          { id: "b4", type: "pc", label: "Br-4", x: 430, y: 210 },
+        ],
+        links: [
+          { from: "sw1", to: "b1", labelTo: "Fa0/1" },
+          { from: "sw1", to: "b2", labelTo: "Fa0/2" },
+          { from: "sw1", to: "b3", labelTo: "Fa0/3" },
+          { from: "sw1", to: "b4", labelTo: "Fa0/4" },
+        ],
+        labels: [
+          { text: "Branch Network", attachTo: "sw1", position: "above" },
+          { text: "VLAN 50", attachTo: "b2", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1#show mac-address-table
+          Mac Address Table
+-----------------------------------------------
+Vlan   Mac Address      Type      Ports
+50     000c.8590.bb7d   DYNAMIC   Fa0/1
+50     010a.7a17.45bc   DYNAMIC   Fa0/3
+50     7aa7.4041.0525   DYNAMIC   Fa0/4`,
+      },
+    ],
   },
   {
     id: "q0318",
@@ -4476,7 +4520,36 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "It floods the frame out of all ports except on the port where PC-1 is connected."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "msw", type: "switch", label: "Marketing-SW1", x: 250, y: 50 },
+          { id: "p1", type: "pc", label: "PC-1", x: 70, y: 210 },
+          { id: "p2", type: "pc", label: "PC-2", x: 190, y: 210 },
+          { id: "p3", type: "pc", label: "PC-3", x: 310, y: 210 },
+          { id: "p4", type: "pc", label: "PC-4", x: 430, y: 210 },
+        ],
+        links: [
+          { from: "msw", to: "p1", labelTo: "Gi1/0" },
+          { from: "msw", to: "p2", labelTo: "Gi1/2" },
+          { from: "msw", to: "p3", labelTo: "Gi1/3" },
+          { from: "msw", to: "p4", labelTo: "Gi1/4" },
+        ],
+        labels: [{ text: "VLAN 101", attachTo: "p2", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `Marketing-SW1#show mac-address-table
+          Mac Address Table
+---------------------------------------------
+VLAN   MAC Address      Type      Ports
+101    000a.000a.000a   DYNAMIC   Gi1/0
+101    3986.3986.3986   DYNAMIC   Gi1/2
+101    00d0.00d0.00d0   DYNAMIC   Gi1/3`,
+        highlight: ["101    000a.000a.000a   DYNAMIC   Gi1/0"],
+      },
+    ],
   },
   {
     id: "q0322",
@@ -4488,7 +4561,30 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "SW4"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "ca", type: "cloud", label: "Company A", x: 250, y: 40 },
+        { id: "fw1", type: "firewall", label: "FW1", x: 170, y: 150 },
+        { id: "fw2", type: "firewall", label: "FW2", x: 330, y: 150 },
+        { id: "sw1", type: "switch", label: "SW1", x: 150, y: 260 },
+        { id: "sw2", type: "switch", label: "SW2", x: 350, y: 260 },
+        { id: "sw3", type: "switch", label: "SW3", x: 150, y: 370 },
+        { id: "sw4", type: "switch", label: "SW4", x: 350, y: 370 },
+      ],
+      links: [
+        { from: "ca", to: "fw1" }, { from: "ca", to: "fw2" },
+        { from: "fw1", to: "sw1" }, { from: "fw1", to: "sw2" },
+        { from: "fw2", to: "sw1" }, { from: "fw2", to: "sw2" },
+        { from: "sw1", to: "sw3" }, { from: "sw2", to: "sw4" }, { from: "sw3", to: "sw4" },
+      ],
+      labels: [
+        { text: "32778 0018.1843.3cb0", attachTo: "sw1", position: "left" },
+        { text: "24586 004a.13e9.3912", attachTo: "sw2", position: "right" },
+        { text: "28682 0022.55cf.cc00", attachTo: "sw3", position: "below" },
+        { text: "64000 0022.66ed.a29f", attachTo: "sw4", position: "below" },
+      ],
+    },
   },
   {
     id: "q0323",
@@ -4500,7 +4596,34 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "It drops the frame from the switch CAM table"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw", type: "switch", label: "SwitchA", x: 250, y: 50 },
+          { id: "a", type: "pc", label: "A", x: 70, y: 210 },
+          { id: "b", type: "pc", label: "B", x: 190, y: 210 },
+          { id: "c", type: "pc", label: "C", x: 310, y: 210 },
+          { id: "dd", type: "pc", label: "D", x: 430, y: 210 },
+        ],
+        links: [
+          { from: "sw", to: "a", labelTo: "Fa0/1" },
+          { from: "sw", to: "b", labelTo: "Fa0/2" },
+          { from: "sw", to: "c", labelTo: "Fa0/3" },
+          { from: "sw", to: "dd", labelTo: "Fa0/4" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SwitchA#show mac-address table
+          Mac Address Table
+-------------------------------------------
+Vlan   Mac Address      Type      Ports
+2      000c.859c.bb7b   DYNAMIC   Fa0/1
+2      0010.11dc.3e91   DYNAMIC   Fa0/2
+2      0041.39d1.c469   DYNAMIC   Fa0/3`,
+      },
+    ],
   },
   {
     id: "q0324",
@@ -4512,7 +4635,29 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "Switch 4"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "hq1", type: "multilayer-switch", label: "HQ-1", x: 150, y: 40 },
+        { id: "hq2", type: "multilayer-switch", label: "HQ-2", x: 380, y: 40 },
+        { id: "s1", type: "switch", label: "Switch 1", x: 140, y: 190 },
+        { id: "s2", type: "switch", label: "Switch 2", x: 390, y: 190 },
+        { id: "s3", type: "switch", label: "Switch 3", x: 140, y: 340 },
+        { id: "s4", type: "switch", label: "Switch 4", x: 390, y: 340 },
+      ],
+      links: [
+        { from: "hq1", to: "s1" }, { from: "hq1", to: "s2" },
+        { from: "hq2", to: "s1" }, { from: "hq2", to: "s2" },
+        { from: "s1", to: "s2", subnet: "100" }, { from: "s1", to: "s3", subnet: "100" },
+        { from: "s2", to: "s4", subnet: "100" }, { from: "s3", to: "s4", subnet: "100" },
+      ],
+      labels: [
+        { text: "BID 32778 0018.184e.3c00", attachTo: "s1", position: "left" },
+        { text: "BID 24586 001a.e3ff.a680", attachTo: "s2", position: "right" },
+        { text: "BID 28682 0022.55cf.cc00", attachTo: "s3", position: "left" },
+        { text: "BID 64000 0e41.4503.00ef", attachTo: "s4", position: "right" },
+      ],
+    },
   },
   {
     id: "q0325",
@@ -4524,7 +4669,7 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "Channel-group mode active. Q 0326 Topic Refer to the exhibit. Which switch become the root of a spanning tree for VLAN 20 if all links are of equal speed? SW4"
     ],
     correct: [1, 0],
-    exhibit: true,
+    exhibit: { type: "none" },
   },
   {
     id: "q0327",
@@ -4656,7 +4801,20 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "Change the Server Status to Disabled"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "table",
+      headers: ["RADIUS Authentication Server (New)", "Wert"],
+      rows: [
+        ["Server Index (Priority)", "1"],
+        ["Server IP Address", "192.168.20.10"],
+        ["Shared Secret Format", "ASCII"],
+        ["Port Number", "1812"],
+        ["Server Status", "Enabled"],
+        ["Support for CoA", "Enabled"],
+        ["Network User", "Enable: deaktiviert"],
+        ["Management", "Enable: aktiviert"],
+      ],
+    },
   },
   {
     id: "q0341",
@@ -4680,7 +4838,15 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "metric"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+<Ausgabe gekürzt>
+D     172.16.32.0/27   [90/2888597172] via 20.1.1.1
+O     172.16.32.0/19   [110/292094] via 20.1.1.1
+R     172.16.32.0/24   [120/2] via 20.1.1.3`,
+      highlight: ["D     172.16.32.0/27   [90/2888597172] via 20.1.1.1"],
+    },
   },
   {
     id: "q0343",
@@ -4692,7 +4858,30 @@ interface GigabitEthernet0/1   interface GigabitEthernet0/1
     "set the default network as 20.20.20.0/24"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 70, y: 110 },
+          { id: "r2", type: "router", label: "R2", x: 280, y: 110 },
+          { id: "r3", type: "router", label: "R3", x: 490, y: 110 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "10.10.10.0/24", labelFrom: "Fa0/0" },
+          { from: "r2", to: "r3", subnet: "20.20.20.0/24", labelTo: "Fa0/1" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1# show ip route
+Gateway of last resort is not set
+
+      10.0.0.0/24 is subnetted, 1 subnets
+C        10.10.10.0/24 is directly connected, FastEthernet0/0
+! Keine Route zu 20.20.20.0/24 -> R3 nicht erreichbar`,
+        highlight: ["! Keine Route zu 20.20.20.0/24 -> R3 nicht erreichbar"],
+      },
+    ],
   },
   {
     id: "q0344",
