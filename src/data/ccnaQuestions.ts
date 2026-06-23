@@ -6971,7 +6971,32 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "R1(config)#ip route 10.0.0.0 255.255.0.0 192.168.0.2 R1(config)#ip route 10.0.0.5 255.255.255.0 172.16.0.2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 60, y: 180 },
+        { id: "r2", type: "router", label: "R2", x: 220, y: 60 },
+        { id: "r3", type: "router", label: "R3", x: 220, y: 300 },
+        { id: "sw", type: "switch", label: "SW", x: 360, y: 180 },
+        { id: "pc1", type: "pc", label: "PC1", x: 500, y: 60 },
+        { id: "pc2", type: "pc", label: "PC2", x: 500, y: 180 },
+        { id: "pc3", type: "pc", label: "PC3", x: 500, y: 300 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "172.16.0.0/24" },
+        { from: "r1", to: "r3", subnet: "192.168.0.0/24" },
+        { from: "r2", to: "sw", subnet: "10.0.0.0/24" },
+        { from: "r3", to: "sw" },
+        { from: "sw", to: "pc1" },
+        { from: "sw", to: "pc2" },
+        { from: "sw", to: "pc3" },
+      ],
+      labels: [
+        { text: "10.0.0.5", attachTo: "pc1", position: "right" },
+        { text: "10.0.0.8", attachTo: "pc2", position: "right" },
+        { text: "10.0.0.12", attachTo: "pc3", position: "right" },
+      ],
+    },
   },
   {
     id: "q0444",
@@ -6983,7 +7008,16 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "192.168.1.224/27 via 192.168.15.5"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `CPE# show ip route
+      192.168.1.0/24 is variably subnetted, 4 subnets, 4 masks
+B        192.168.1.0/24 [20/1] via 192.168.12.2, 00:00:06
+R        192.168.1.128/25 [120/5] via 192.168.13.3, 00:00:25, Ethernet0/1
+O        192.168.1.192/26 [110/11] via 192.168.14.4, 00:02:00, Ethernet0/2
+D        192.168.1.224/27 [90/1024640] via 192.168.15.5, 00:01:40, Ethernet0/3`,
+      highlight: ["D        192.168.1.224/27 [90/1024640] via 192.168.15.5, 00:01:40, Ethernet0/3"],
+    },
   },
   {
     id: "q0445",
@@ -6995,7 +7029,13 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "Set the router B OSPF ID to a nonhost address."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `A# show ip ospf neighbor
+Neighbor ID   Pri  State          Dead Time  Address       Interface
+172.1.1.1     1    EXCHANGE/-     00:00:36   172.16.32.1   Serial0/1`,
+      highlight: ["172.1.1.1     1    EXCHANGE/-     00:00:36   172.16.32.1   Serial0/1"],
+    },
   },
   {
     id: "q0446",
@@ -7008,7 +7048,29 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "R3(config)#interface fastethernet 0/0 R3(config-if)#ip ospf priority 200"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 120, y: 60 },
+          { id: "r2", type: "router", label: "R2", x: 400, y: 60 },
+          { id: "r3", type: "router", label: "R3", x: 260, y: 220 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "192.168.100.0/24", labelFrom: "F0/0", labelTo: "F0/0" },
+          { from: "r1", to: "r3", labelTo: "F0/0" },
+          { from: "r2", to: "r3" },
+        ],
+        labels: [{ text: "OSPF Area 0", attachTo: "r1", position: "left" }],
+      },
+      {
+        type: "cli",
+        content: `R3#show ip ospf neighbor
+Neighbor ID    Pri  State      Dead Time  Address         Interface
+192.168.100.2  1    FULL/BDR   00:00:32   192.168.100.2   FastEthernet0/0
+192.168.100.1  1    FULL/DR    00:00:30   192.168.100.1   FastEthernet0/0`,
+      },
+    ],
   },
   {
     id: "q0447",
@@ -7020,7 +7082,20 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "ip ospf priority 100"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 120, y: 80 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 80 },
+        { id: "l1", type: "pc", label: "LAN 10.0.1.0/24", x: 120, y: 240 },
+        { id: "l2", type: "pc", label: "LAN 10.0.2.0/24", x: 420, y: 240 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "10.0.0.0/30", labelFrom: "Se0/1 .1", labelTo: "Se0/1 .2" },
+        { from: "r1", to: "l1", labelFrom: "Gi0/1" },
+        { from: "r2", to: "l2", labelFrom: "Gi0/1" },
+      ],
+    },
   },
   {
     id: "q0448",
@@ -7032,7 +7107,24 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "R1 ip route 0.0.0.0 0.0.0.0 209.165.200.226 R2 ip route 0.0.0.0 0.0.0.0 209.165.200.225"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 130, y: 80 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 80 },
+        { id: "sw1", type: "switch", label: "SW1", x: 130, y: 240 },
+        { id: "sw2", type: "switch", label: "SW1", x: 420, y: 240 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "209.165.200.224/30", labelFrom: "Gi0/0 .225", labelTo: "Gi0/0 .226" },
+        { from: "r1", to: "sw1", labelFrom: "Gi0/1 .1" },
+        { from: "r2", to: "sw2", labelFrom: "Gi0/1 .1" },
+      ],
+      labels: [
+        { text: "192.168.1.0/24", attachTo: "sw1", position: "below" },
+        { text: "10.1.1.0/24", attachTo: "sw2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0449",
@@ -7044,7 +7136,40 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "10.10.12.2"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "mpls", type: "cloud", label: "MPLS", x: 70, y: 60 },
+          { id: "internet", type: "cloud", label: "Internet", x: 520, y: 60 },
+          { id: "r1", type: "router", label: "Router1", x: 300, y: 110 },
+          { id: "r2", type: "router", label: "Router2", x: 80, y: 240 },
+          { id: "r3", type: "router", label: "Router3", x: 250, y: 270 },
+          { id: "r5", type: "router", label: "Router5", x: 500, y: 240 },
+        ],
+        links: [
+          { from: "r1", to: "mpls", subnet: "10.10.12.0/30" },
+          { from: "r1", to: "internet", subnet: "10.10.11.0/30" },
+          { from: "r1", to: "r2", subnet: "10.10.10.0/30" },
+          { from: "r1", to: "r3", subnet: "10.10.4.0/30" },
+          { from: "r1", to: "r5", subnet: "10.10.6.0/30" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Router1# show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+B     209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      10.0.0.0/8 is variably subnetted, 10 subnets, 4 masks
+O        10.10.13.0/25 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.128/26 [110/3] via 10.10.10.5, GigabitEthernet0/1
+O        10.10.13.144/28 [110/2] via 10.10.10.9, GigabitEthernet0/2
+O        10.10.13.160/29 [110/2] via 10.10.10.13, GigabitEthernet0/3
+O        10.10.13.208/29 [110/3] via 10.10.10.5, GigabitEthernet0/1
+S*    0.0.0.0/0 [1/0] via 10.10.11.2`,
+        highlight: ["O        10.10.13.144/28 [110/2] via 10.10.10.9, GigabitEthernet0/2"],
+      },
+    ],
   },
   {
     id: "q0450",
@@ -7056,7 +7181,16 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "F0/3"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Protocol  Network          Metric       Interface
+RIP       10.1.1.16/28     [120/5]   via F0/0
+OSPF      10.1.1.0/24      [110/30]  via F0/1
+OSPF      10.1.1.0/24      [110/40]  via F0/2
+EIGRP     10.1.0.0/16      [90/20]   via F0/3
+EIGRP     10.0.0.0/8       [90/133]  via F0/4`,
+      highlight: ["RIP       10.1.1.16/28     [120/5]   via F0/0"],
+    },
   },
   {
     id: "q0451",
@@ -7068,7 +7202,35 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "ip route 10.1.1.10 255.255.255.255 172.16.2.2 100"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pc1", type: "pc", label: "PC1", x: 60, y: 100 },
+          { id: "r1", type: "router", label: "R1", x: 250, y: 100 },
+          { id: "r2", type: "router", label: "R2", x: 450, y: 100 },
+        ],
+        links: [
+          { from: "pc1", to: "r1", subnet: "Mgmt 192.168.1.0/24", labelTo: "Gi0/1" },
+          { from: "r1", to: "r2", subnet: "OSPF 172.16.2.0/24", labelFrom: "Gi0/0" },
+        ],
+        labels: [{ text: "Server 10.1.1.0/24", attachTo: "r2", position: "right" }],
+      },
+      {
+        type: "cli",
+        content: `Bei Ausfall:
+R1#show ip route 10.1.1.10
+%Network not in table
+
+Normalbetrieb:
+R1#show ip route 10.1.1.10
+Routing entry for 10.1.1.0/24
+  Known via "ospf 1", distance 110, metric 2, type intra area
+  Last update from 172.16.2.2 on GigabitEthernet0/0, 00:00:18 ago
+  * 172.16.2.2, from 10.1.1.10, via GigabitEthernet0/0`,
+        highlight: ['  Known via "ospf 1", distance 110, metric 2, type intra area'],
+      },
+    ],
   },
   {
     id: "q0452",
@@ -7080,7 +7242,18 @@ O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
     "10.165.20.226"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+Gateway of last resort is not set
+      10.0.0.0/24 is subnetted, 5 subnets
+D        10.1.2.0/24 [90/2370112] via 10.165.20.226, 00:01:30, Serial0/0
+D        10.1.3.0/24 [90/2370112] via 10.165.20.234, 00:01:30, Serial0/1
+D        10.1.2.0/24 [90/2370112] via 10.165.20.246, 00:01:30, Serial0/2
+D        10.1.3.0/24 [90/2370112] via 10.165.20.250, 00:01:30, Serial0/3
+C        10.165.20.224/30 is directly connected, Serial0/0`,
+      highlight: ["D        10.1.2.0/24 [90/2370112] via 10.165.20.226, 00:01:30, Serial0/0"],
+    },
   },
   {
     id: "q0453",
