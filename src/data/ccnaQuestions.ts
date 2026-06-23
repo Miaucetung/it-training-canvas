@@ -7265,7 +7265,19 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "192.168.2.0/24"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route | begin gateway
+Gateway of last resort is not set
+      172.16.0.0/24 is subnetted, 1 subnets
+C        172.16.1.0/24 is directly connected, FastEthernet0/0
+      192.168.0.0/24 is variably subnetted, 4 subnets
+D        192.168.0.0/24 [90/3072] via 207.165.200.254, 00:00:15, Serial0/1
+O        192.168.1.0/24 [110/100] via 207.165.200.254, 00:00:00, Serial0/0
+B        192.168.2.0/24 [20/0] via 207.165.200.250, 00:00:00, Serial0/0
+R        192.168.3.0/24 [120/4] via 207.165.200.250, 00:00:00, Serial0/0`,
+      highlight: ["D        192.168.0.0/24 [90/3072] via 207.165.200.254, 00:00:15, Serial0/1"],
+    },
   },
   {
     id: "q0454",
@@ -7277,7 +7289,40 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "R2(config)#interface gi0/0 • R2(config-if)#ip ospf priority 259 • R3(config)#interface gi0/0 • R3(config-if)#ip ospf priority 256"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw", type: "switch", label: "SW", x: 280, y: 50 },
+          { id: "r1", type: "router", label: "R1", x: 100, y: 50 },
+          { id: "r2", type: "router", label: "R2", x: 460, y: 50 },
+          { id: "r3", type: "router", label: "R3", x: 100, y: 220 },
+          { id: "r4", type: "router", label: "R4", x: 280, y: 220 },
+          { id: "r5", type: "router", label: "R5", x: 460, y: 220 },
+        ],
+        links: [
+          { from: "r1", to: "sw" }, { from: "r2", to: "sw" },
+          { from: "r3", to: "sw" }, { from: "r4", to: "sw" }, { from: "r5", to: "sw" },
+        ],
+        labels: [
+          { text: "172.16.10.0/24 - OSPF Area 0", attachTo: "sw", position: "above" },
+          { text: "1.1.1.1", attachTo: "r1", position: "left" },
+          { text: "2.2.2.2", attachTo: "r2", position: "right" },
+          { text: "3.3.3.3", attachTo: "r3", position: "below" },
+          { text: "4.4.4.4 (BDR)", attachTo: "r4", position: "below" },
+          { text: "5.5.5.5 (DR)", attachTo: "r5", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R3#show ip ospf neighbor
+Neighbor ID    Pri  State          Dead Time  Address       Interface
+1.1.1.1        1    2WAY/DROTHER   00:00:30   172.16.10.1   GigabitEthernet0/0
+2.2.2.2        1    2WAY/DROTHER   00:00:30   172.16.10.2   GigabitEthernet0/0
+4.4.4.4        1    FULL/BDR       00:00:30   172.16.10.4   GigabitEthernet0/0
+5.5.5.5        1    FULL/DR        00:00:30   172.16.10.5   GigabitEthernet0/0`,
+      },
+    ],
   },
   {
     id: "q0455",
@@ -7289,7 +7334,16 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "via next-hop 10.0.1.100"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+Gateway of last resort is not set
+C     10.0.0.0/8 is directly connected, Loopback0
+O     10.0.0.0/24 [110/2] via 10.0.0.5, 00:35:00, GigabitEthernet0/0
+O     10.0.0.0/16 [110/3] via 10.0.1.50, 00:39:08, Serial0
+O     10.0.2.0/24 [110/41] via 10.0.1.50, 00:39:08, GigabitEthernet0/0`,
+      highlight: ["O     10.0.0.0/24 [110/2] via 10.0.0.5, 00:35:00, GigabitEthernet0/0"],
+    },
   },
   {
     id: "q0456",
@@ -7301,7 +7355,17 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "255.255.255.252"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+Gateway of last resort is 172.16.2.2 to network 0.0.0.0
+      10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks
+C        10.0.0.0/28 is directly connected, GigabitEthernet0/0
+C        10.0.10.0/24 is directly connected, GigabitEthernet0/0
+C        10.10.10.0/24 is directly connected, GigabitEthernet0/1
+S*    0.0.0.0/0 [1/0] via 172.16.2.2`,
+      highlight: ["C        10.0.0.0/28 is directly connected, GigabitEthernet0/0"],
+    },
   },
   {
     id: "q0457",
@@ -7313,7 +7377,38 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "interface gigabitethernet0/0 ip address 10.0.1.1 255.255.255.224 ip ospf priority 98"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 120, y: 60 },
+          { id: "r2", type: "router", label: "R2", x: 420, y: 60 },
+          { id: "sw1", type: "switch", label: "SW1", x: 120, y: 200 },
+          { id: "sw2", type: "switch", label: "SW2", x: 420, y: 200 },
+          { id: "w1", type: "pc", label: "Workstations", x: 120, y: 330 },
+          { id: "w2", type: "pc", label: "Workstations", x: 420, y: 330 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "10.0.0.32/27", labelFrom: "G0/0 .33", labelTo: "G0/0 .34" },
+          { from: "r1", to: "sw1" }, { from: "sw1", to: "w1" },
+          { from: "r2", to: "sw2" }, { from: "sw2", to: "w2" },
+        ],
+        labels: [
+          { text: "10.0.1.0/24", attachTo: "w1", position: "below" },
+          { text: "10.0.2.0/24", attachTo: "w2", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1 Konfiguration:
+interface GigabitEthernet0/0
+ ip ospf priority 99
+router ospf 100
+ network 10.0.0.0 0.0.0.31 area 0
+ network 10.0.1.0 0.0.0.255 area 0`,
+        highlight: [" ip ospf priority 99"],
+      },
+    ],
   },
   {
     id: "q0458",
@@ -7337,7 +7432,40 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "R17# ! no ip domain lookup ip cef ipv6 unicast-routing ! interface FastEthernet0/0 no ip address duplex auto speed auto ipv6 address 2001:DB8:2::201/64 ! Interface FastEthernet1/0 no ip address duplex auto speed auto ipv6 address 2001:DB8:3::201/64 ! no cdp log mismatch duplex ipv6 route 2001:DB8:4::/64 2001:DB8:2::201"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r16", type: "router", label: "R16", x: 70, y: 120 },
+          { id: "r17", type: "router", label: "R17", x: 290, y: 120 },
+          { id: "r18", type: "router", label: "R18", x: 500, y: 120 },
+          { id: "pc1", type: "pc", label: "PC1", x: 290, y: 280 },
+          { id: "mk", type: "cloud", label: "Marketing", x: 500, y: 280 },
+          { id: "pc2", type: "pc", label: "PC2", x: 410, y: 360 },
+        ],
+        links: [
+          { from: "r16", to: "r17", subnet: "2001:db8:2::/64", labelFrom: "Fa0/0", labelTo: "Fa0/0" },
+          { from: "r17", to: "r18", subnet: "2001:db8:3::/64", labelFrom: "Fa1/0", labelTo: "Fa1/0" },
+          { from: "r17", to: "pc1", labelFrom: "Fa2/0" },
+          { from: "r18", to: "mk", labelFrom: "Fa0/0" },
+          { from: "mk", to: "pc2" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Gerät", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["R16", "Fa0/0", "2001:db8:2::101/64"],
+          ["R17", "Fa0/0", "2001:db8:2::201/64"],
+          ["R17", "Fa1/0", "2001:db8:3::201/64"],
+          ["R17", "Fa2/0", "2001:db8:5::201/64"],
+          ["R18", "Fa1/0", "2001:db8:3::301/64"],
+          ["R18", "Fa0/0", "2001:db8:4::301/64"],
+          ["PC1", "-", "2001:db8:5::104/64"],
+          ["PC2", "-", "2001:db8:4::302/64"],
+        ],
+      },
+    ],
   },
   {
     id: "q0460",
@@ -7349,7 +7477,20 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "ip route 0.0.0.0 0.0.0.0 192.168.0.2 tracked"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "lan", type: "pc", label: "LAN", x: 60, y: 150 },
+        { id: "r1", type: "router", label: "Router1", x: 250, y: 150 },
+        { id: "primary", type: "cloud", label: "Primary ISP", x: 470, y: 70 },
+        { id: "backup", type: "cloud", label: "Backup ISP", x: 470, y: 240 },
+      ],
+      links: [
+        { from: "lan", to: "r1", labelTo: "G0/1" },
+        { from: "r1", to: "primary", labelFrom: "G1/0" },
+        { from: "r1", to: "backup", labelFrom: "G1/1" },
+      ],
+    },
   },
   {
     id: "q0461",
@@ -7373,7 +7514,24 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "R1(config)#ip route 172.16.2.0 255.255.255.0 192.168.1.5"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "mgmt", type: "pc", label: "Mgmt-Netz", x: 60, y: 110 },
+        { id: "r1", type: "router", label: "R1", x: 230, y: 110 },
+        { id: "r2", type: "router", label: "R2", x: 410, y: 110 },
+        { id: "srv", type: "pc", label: "New Server", x: 560, y: 110 },
+      ],
+      links: [
+        { from: "mgmt", to: "r1", labelTo: "Gi0/1 .10" },
+        { from: "r1", to: "r2", subnet: "192.168.1.0/24", labelFrom: "Gi0/0", labelTo: "Gi0/1" },
+        { from: "r2", to: "srv", labelFrom: "Gi0/0" },
+      ],
+      labels: [
+        { text: "10.1.1.0/24", attachTo: "mgmt", position: "below" },
+        { text: "Server-Netz 172.16.2.0/24", attachTo: "srv", position: "below" },
+      ],
+    },
   },
   {
     id: "q0463",
@@ -7385,7 +7543,26 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "ip route 0.0.0.0 0.0.0.0 g0/1 6"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 250, y: 50 },
+        { id: "srv", type: "pc", label: "192.168.1.0/24", x: 470, y: 50 },
+        { id: "r2", type: "router", label: "R2", x: 90, y: 200 },
+        { id: "r3", type: "router", label: "R3", x: 420, y: 200 },
+        { id: "internet", type: "cloud", label: "Internet", x: 250, y: 330 },
+      ],
+      links: [
+        { from: "r1", to: "srv" },
+        { from: "r1", to: "r2", subnet: "209.165.200.224/27", labelFrom: "g0/1" },
+        { from: "r1", to: "r3", subnet: "209.165.201.0/27", labelFrom: "g0/2" },
+        { from: "r2", to: "internet" },
+        { from: "r3", to: "internet" },
+      ],
+      labels: [
+        { text: "R3 = Primärroute, R2 = Backup", attachTo: "r1", position: "left" },
+      ],
+    },
   },
   {
     id: "q0464",
@@ -7397,7 +7574,23 @@ C        10.165.20.224/30 is directly connected, Serial0/0`,
     "Configure router A with a fixed OSPF router ID"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "ra", type: "router", label: "Router A", x: 120, y: 60 },
+        { id: "rb", type: "router", label: "Router B", x: 400, y: 60 },
+        { id: "rc", type: "router", label: "Router C", x: 260, y: 220 },
+      ],
+      links: [
+        { from: "ra", to: "rb", subnet: "192.168.2.0/24", labelFrom: "G0/0", labelTo: "G0/0" },
+        { from: "rb", to: "rc", subnet: "192.168.3.0/24" },
+        { from: "ra", to: "rc" },
+      ],
+      labels: [
+        { text: "OSPF Area 0", attachTo: "ra", position: "above" },
+        { text: "192.168.1.0/24", attachTo: "ra", position: "left" },
+      ],
+    },
   },
   {
     id: "q0465",
