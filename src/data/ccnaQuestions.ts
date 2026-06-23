@@ -6609,7 +6609,17 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "It ignores the new static route until the existing OSPF default route is removed."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Gateway of last resort is 10.12.0.1 to network 0.0.0.0
+O*E2  0.0.0.0/0 [110/1] via 10.12.0.1, 00:00:01, GigabitEthernet0/0
+      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        10.0.0.0/24 is directly connected, GigabitEthernet0/0
+L        10.0.0.2/32 is directly connected, GigabitEthernet0/0
+C        10.13.0.0/24 is directly connected, GigabitEthernet0/1
+L        10.13.0.2/32 is directly connected, GigabitEthernet0/1`,
+      highlight: ["O*E2  0.0.0.0/0 [110/1] via 10.12.0.1, 00:00:01, GigabitEthernet0/0"],
+    },
   },
   {
     id: "q0427",
@@ -6635,7 +6645,17 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "ip route 0.0.0.0 0.0.0.0 209.165.202.131"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Router2#show ip route
+Gateway of last resort is 209.165.202.131 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 209.165.202.131
+      209.165.200.0/27 is subnetted, 1 subnets
+S        209.165.200.224 [254/0] via 209.165.202.130
+      209.165.201.0/27 is subnetted, 1 subnets
+S        209.165.201.0 [1/0] via 209.165.202.130`,
+      highlight: ["S        209.165.200.224 [254/0] via 209.165.202.130"],
+    },
   },
   {
     id: "q0429",
@@ -6648,7 +6668,38 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "ipv6 route::/0 2000::2"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "atl", type: "router", label: "Atlanta", x: 70, y: 80 },
+          { id: "ny", type: "router", label: "New York", x: 280, y: 210 },
+          { id: "wsh", type: "router", label: "Washington", x: 490, y: 80 },
+        ],
+        links: [
+          { from: "atl", to: "ny", subnet: "2012::/126", labelFrom: "Se0/0/0" },
+          { from: "ny", to: "wsh", subnet: "2023::/126", labelTo: "Se0/0/0" },
+        ],
+        labels: [
+          { text: "Lo1 2000::1/128", attachTo: "atl", position: "below" },
+          { text: "Lo2 2000::2/128", attachTo: "ny", position: "below" },
+          { text: "Lo3 2000::3/128", attachTo: "wsh", position: "below" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Router", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["Atlanta", "Serial 0/0/0", "2012::1/126"],
+          ["Atlanta", "Loopback1", "2000::1/128"],
+          ["New York", "Serial 0/0/0", "2012::2/126"],
+          ["New York", "Serial 0/0/1", "2023::2/126"],
+          ["New York", "Loopback2", "2000::2/128"],
+          ["Washington", "Serial 0/0/0", "2023::3/126"],
+          ["Washington", "Loopback3", "2000::3/128"],
+        ],
+      },
+    ],
   },
   {
     id: "q0430",
@@ -6673,7 +6724,17 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "193"
     ],
     correct: 4,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is 192.168.30.10 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 192.168.30.10
+      192.168.10.0/24 is variably subnetted, 3 subnets, 3 masks
+O IA     192.168.10.0/27 [110/2] via 192.168.30.10, 00:18:49, Serial0/0/1
+O IA     192.168.10.32/29 [110/193] via 192.168.30.10, 00:15:49, Serial0/0/1
+O IA     192.168.10.16/28 [110/65] via 192.168.30.10, 00:18:49, Serial0/0/1`,
+      highlight: ["O IA     192.168.10.32/29 [110/193] via 192.168.30.10, 00:15:49, Serial0/0/1"],
+    },
   },
   {
     id: "q0432",
@@ -6685,7 +6746,17 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "192.168.3.5"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is not set
+C     192.168.3.5/32 is directly connected, Loopback0
+      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+O        10.0.1.0/24 [110/10] via 192.168.0.34, Serial0
+O        10.0.1.190/32 [110/5] via 192.168.0.35, Serial0
+D        10.0.1.0/28 [90/10] via 192.168.0.4, GigabitEthernet0/0`,
+      highlight: ["D        10.0.1.0/28 [90/10] via 192.168.0.4, GigabitEthernet0/0"],
+    },
   },
   {
     id: "q0433",
@@ -6722,7 +6793,12 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "192.168.1.254"
     ],
     correct: [0, 1],
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R2#show ip route
+C     192.168.1.0/26 is directly connected, FastEthernet0/1`,
+      highlight: ["C     192.168.1.0/26 is directly connected, FastEthernet0/1"],
+    },
   },
   {
     id: "q0436",
@@ -6758,7 +6834,42 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "R2 is using the passive-interface default command."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 130, y: 90 },
+          { id: "r2", type: "router", label: "R2", x: 400, y: 90 },
+        ],
+        links: [
+          { from: "r1", to: "r2", labelFrom: "Gi1/0", labelTo: "Gi2/0" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1#show running-config
+interface GigabitEthernet1/0
+ mtu 1600
+ ip address 192.168.0.1 255.255.255.252
+ negotiation auto
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface default
+ no passive-interface GigabitEthernet1/0
+ network 192.168.0.1 0.0.0.0 area 0
+
+R2#show running-config
+interface GigabitEthernet0/0
+ ip address 192.168.0.2 255.255.255.252
+ negotiation auto
+router ospf 1
+ router-id 2.2.2.2
+ passive-interface default
+ no passive-interface GigabitEthernet0/0
+ network 192.168.0.2 0.0.0.0 area 0`,
+        highlight: [" mtu 1600"],
+      },
+    ],
   },
   {
     id: "q0439",
@@ -6770,7 +6881,18 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "10.56.128.19"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is 10.56.0.1 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 10.56.0.1
+      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        10.56.0.0/13 is directly connected, Vlan56
+L        10.56.0.19/32 is directly connected, Vlan56
+C        10.56.128.0/18 is directly connected, Vlan5
+L        10.56.128.19/32 is directly connected, Vlan5`,
+      highlight: ["S*    0.0.0.0/0 [1/0] via 10.56.0.1"],
+    },
   },
   {
     id: "q0440",
@@ -6782,7 +6904,21 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "192.168.7.40"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is not set
+C     172.16.0.0/16 is directly connected, Loopback0
+      172.16.0.0/16 is variably subnetted, 4 subnets, 2 masks
+O        172.16.2.0/24 [110/100] via 172.16.7.8, Serial0
+O        172.16.3.0/24 [110/65] via 172.16.5.16, GigabitEthernet0/0
+O        172.16.1.0/24 [110/100] via 172.16.6.7, Serial0
+O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0`,
+      highlight: [
+        "O        172.16.1.0/24 [110/100] via 172.16.6.7, Serial0",
+        "O        172.16.1.0/24 [110/100] via 172.16.5.16, GigabitEthernet0/0",
+      ],
+    },
   },
   {
     id: "q0441",
@@ -6806,7 +6942,24 @@ i L1  192.168.16.0/27 [115/30] via 192.168.1.4`,
     "R3(config)#interface Gig0/1 R3(config-if)#ip ospf priority 100"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 120, y: 80 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 80 },
+        { id: "r3", type: "router", label: "R3", x: 270, y: 250 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "10.0.4.0/24", labelFrom: "Gi0/1 .1", labelTo: "Gi0/1 .2" },
+        { from: "r1", to: "r3", labelTo: "Gi0/1 .3" },
+        { from: "r2", to: "r3" },
+      ],
+      labels: [
+        { text: "LAN 10.0.1.0/24", attachTo: "r1", position: "above" },
+        { text: "LAN 10.0.2.0/24", attachTo: "r2", position: "above" },
+        { text: "LAN 10.0.3.0/24 - R2 Prio 99", attachTo: "r3", position: "below" },
+      ],
+    },
   },
   {
     id: "q0443",
