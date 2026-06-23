@@ -7602,7 +7602,15 @@ router ospf 100
     "F0/1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Protokoll  Netzwerk          Metrik       Interface
+EIGRP      10.10.10.0/24     [90/2441]   via F0/0
+EIGRP      10.10.10.0/24     [90/144]    via F0/1
+OSPF       10.10.10.0/24     [110/20]    via F0/3
+OSPF       10.10.10.0/24     [110/0]     via F0/4`,
+      highlight: ["EIGRP      10.10.10.0/24     [90/144]    via F0/1"],
+    },
   },
   {
     id: "q0466",
@@ -7614,7 +7622,34 @@ router ospf 100
     "It is unreachable and discards the traffic."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sa", type: "cloud", label: "Site A", x: 60, y: 90 },
+          { id: "r1", type: "router", label: "Router1", x: 230, y: 80 },
+          { id: "r2", type: "router", label: "Router2", x: 380, y: 80 },
+          { id: "sb", type: "cloud", label: "Site B", x: 510, y: 90 },
+        ],
+        links: [
+          { from: "sa", to: "r1" },
+          { from: "r1", to: "r2" },
+          { from: "r2", to: "sb" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `Router2#show ip route
+Gateway of last resort is not set
+      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+C        10.10.10.8/30 is directly connected, FastEthernet0/2
+C        10.10.12.0/30 is directly connected, FastEthernet0/2
+O        10.10.13.0/25 [110/11] via 10.10.10.9, 00:00:03, FastEthernet0/2
+                       [110/11] via 10.10.10.1, 00:00:03, FastEthernet0/1
+C        10.10.4.0/30 is directly connected, FastEthernet0/1`,
+        highlight: ["O        10.10.13.0/25 [110/11] via 10.10.10.9, 00:00:03, FastEthernet0/2"],
+      },
+    ],
   },
   {
     id: "q0467",
@@ -7626,7 +7661,26 @@ router ospf 100
     "GigabitEthernet0/3"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show run
+!
+router ospf 1
+ auto-cost reference-bandwidth 100000
+!
+interface GigabitEthernet0/0
+ bandwidth 10000000
+!
+interface GigabitEthernet0/1
+ bandwidth 100000000
+!
+interface GigabitEthernet0/2
+ ip ospf cost 100
+!
+interface GigabitEthernet0/3
+ ip ospf cost 1000`,
+      highlight: [" bandwidth 100000000"],
+    },
   },
   {
     id: "q0468",
@@ -7638,7 +7692,19 @@ router ospf 100
     "192.168.2.0/24"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R2# show ip route | begin gateway
+Gateway of last resort is 209.165.200.254 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 209.165.200.254, Serial0/0/2
+      172.16.0.0/16 is variably subnetted, 2 subnets, 2 masks
+C        172.16.2.0/24 is directly connected, FastEthernet0/0
+O        172.16.1.0/24 [110/2] via 207.165.200.230, Serial0/1/0
+B        192.168.2.0/24 [20/0] via 207.165.200.226, Serial0/1/0
+D        192.168.3.0/24 [90/2169856] via 207.165.200.232, Serial0/1/0
+C        207.165.200.224/29 is directly connected, Serial0/1/0`,
+      highlight: ["D        192.168.3.0/24 [90/2169856] via 207.165.200.232, Serial0/1/0"],
+    },
   },
   {
     id: "q0469",
@@ -7650,7 +7716,26 @@ router ospf 100
     "ip route 0.0.0.0 0.0.0.0 192.168.2.1 10"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "ra", type: "router", label: "Router A", x: 120, y: 60 },
+          { id: "rb", type: "router", label: "Router B", x: 420, y: 60 },
+          { id: "rc", type: "router", label: "Router C", x: 150, y: 230 },
+        ],
+        links: [
+          { from: "ra", to: "rb", subnet: "192.168.2.0/24", labelFrom: "G0/0/0 .1", labelTo: "G0/0/0 .2" },
+          { from: "ra", to: "rc", subnet: "192.168.1.0/24", labelFrom: "G0/0/1 .1", labelTo: "G0/0/0 .2" },
+          { from: "rb", to: "rc", subnet: "192.168.3.0/24", labelFrom: "G0/0/1 .2", labelTo: "G0/0/1 .1" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `RouterA(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.2`,
+        highlight: ["RouterA(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.2"],
+      },
+    ],
   },
   {
     id: "q0470",
@@ -7662,7 +7747,20 @@ router ospf 100
     "R14# interface FastEthernet0/0 ip address 10.73.65.65 255.255.255.252 ip ospf network broadcast ip ospf priority 255 ip mtu 1500 router ospf 10 router-id 10.10.1.14 network 10.10.1.14 0.0.0.0 area0 network 10.73.65.64 0.0.0.3 area0 R86# interface FastEthernet0/0 ip address 10.73.65.66 255.255.255.252 ip ospf network broadcast ip mtu 1400 router ospf 10 router-id 10.10.1.86 network 10.10.1.86 0.0.0.0 areanetwork 10.73.65.64 0.0.0.3 area"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r14", type: "router", label: "R14", x: 120, y: 90 },
+        { id: "r86", type: "router", label: "R86", x: 420, y: 90 },
+      ],
+      links: [
+        { from: "r14", to: "r86", subnet: "10.73.65.64/30", labelFrom: "Fa0/0", labelTo: "Fa0/0" },
+      ],
+      labels: [
+        { text: "Loopback0 10.10.1.14/32", attachTo: "r14", position: "above" },
+        { text: "Loopback0 10.10.1.86/32", attachTo: "r86", position: "above" },
+      ],
+    },
   },
   {
     id: "q0471",
@@ -7674,7 +7772,24 @@ router ospf 100
     "90"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "ra", type: "router", label: "Router A", x: 80, y: 120 },
+        { id: "rb", type: "router", label: "Router B", x: 250, y: 120 },
+        { id: "rc", type: "router", label: "Router C", x: 440, y: 60 },
+        { id: "rd", type: "router", label: "Router D", x: 440, y: 220 },
+      ],
+      links: [
+        { from: "ra", to: "rb", subnet: "RIPv2" },
+        { from: "rb", to: "rc", subnet: "OSPF Area 1" },
+        { from: "rc", to: "rd", subnet: "OSPF Area 0" },
+      ],
+      labels: [
+        { text: "Subnet 192.168.1.0/24", attachTo: "ra", position: "below" },
+        { text: "Redistribution RIPv2 / OSPF / EIGRP", attachTo: "rb", position: "above" },
+      ],
+    },
   },
   {
     id: "q0472",
@@ -7686,7 +7801,24 @@ router ospf 100
     "R1(config)#ip route 0.0.0.0 0.0.0.0 10.10.10.6 2 R2(config)#ip route 0.0.0.0 0.0.0.0 10.10.10.5 2"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 150, y: 90 },
+        { id: "r2", type: "router", label: "R2", x: 450, y: 90 },
+        { id: "client", type: "pc", label: "Client A", x: 150, y: 260 },
+        { id: "server", type: "pc", label: "Image Server", x: 450, y: 260 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "Primary + Secondary Circuit", labelFrom: ".1 / .5", labelTo: ".2 / .6" },
+        { from: "r1", to: "client" },
+        { from: "r2", to: "server" },
+      ],
+      labels: [
+        { text: "192.168.0.100/24", attachTo: "client", position: "below" },
+        { text: "10.10.13.10/25", attachTo: "server", position: "below" },
+      ],
+    },
   },
   {
     id: "q0473",
@@ -7698,7 +7830,20 @@ router ospf 100
     "R1(config)#ip route 192.168.20.0 255.255.255.0 192.168.30.2"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 260, y: 60 },
+        { id: "r2", type: "router", label: "R2", x: 110, y: 250 },
+        { id: "r3", type: "router", label: "R3", x: 420, y: 250 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "192.168.10.0/24", labelFrom: ".1", labelTo: ".2" },
+        { from: "r1", to: "r3", subnet: "192.168.30.0/24", labelFrom: ".1", labelTo: ".2" },
+        { from: "r2", to: "r3", subnet: "192.168.20.0/24", labelFrom: ".1", labelTo: ".2" },
+      ],
+      labels: [{ text: "OSPF Area 20", attachTo: "r1", position: "below" }],
+    },
   },
   {
     id: "q0474",
@@ -7710,7 +7855,35 @@ router ospf 100
     "R1(config)#interface FastEthernet 0/0 R1(config-if)#ip ospf priority 200 R1#clear ip ospf process"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "sw", type: "switch", label: "SW", x: 280, y: 50 },
+          { id: "r1", type: "router", label: "R1", x: 100, y: 50 },
+          { id: "r2", type: "router", label: "R2", x: 460, y: 50 },
+          { id: "r3", type: "router", label: "R3", x: 280, y: 220 },
+        ],
+        links: [
+          { from: "r1", to: "sw", labelFrom: "Fa0/0" },
+          { from: "r2", to: "sw", labelFrom: "Fa0/2" },
+          { from: "r3", to: "sw", labelFrom: "Fa0/1" },
+        ],
+        labels: [
+          { text: "10.10.10.0/24 - OSPF Area 0", attachTo: "sw", position: "above" },
+          { text: "10.10.10.1", attachTo: "r1", position: "left" },
+          { text: "10.10.10.2", attachTo: "r2", position: "right" },
+          { text: "10.10.10.3", attachTo: "r3", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1#show ip ospf neighbor
+Neighbor ID   Pri  State          Dead Time  Address       Interface
+10.10.10.2    1    FULL/BDR       00:00:37   10.10.10.2    FastEthernet0/0
+10.10.10.3    1    FULL/DR        00:00:39   10.10.10.3    FastEthernet0/0`,
+      },
+    ],
   },
   {
     id: "q0475",
