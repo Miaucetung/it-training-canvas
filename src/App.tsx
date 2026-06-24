@@ -113,6 +113,9 @@ const TerminalEmulator = lazy(() =>
 const SubnettingDrillDialog = lazy(() =>
   import("@/components/SubnettingDrillDialog").then((m) => ({ default: m.SubnettingDrillDialog })),
 );
+const RoutingDrillDialog = lazy(() =>
+  import("@/components/RoutingDrillDialog").then((m) => ({ default: m.RoutingDrillDialog })),
+);
 const IPv4SubnetTableDialog = lazy(() =>
   import("@/components/IPv4SubnetTableDialog").then((m) => ({ default: m.IPv4SubnetTableDialog })),
 );
@@ -149,6 +152,7 @@ const CliGlossaryDialog = lazy(() =>
 // ── Tools-Menü: alle Simulatoren & Trainer zentral startbar ──
 type ToolId =
   | "subnetting-drill"
+  | "routing-drill"
   | "subnetting-quiz"
   | "subnetting-cheatsheet"
   | "ipv4-subnet-table"
@@ -179,6 +183,7 @@ const TOOL_GROUPS: Array<{
     group: "Trainer & Rechner",
     tools: [
       { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
+      { id: "routing-drill", name: "Routing-Endlos-Lab", hint: "ip route schreiben & Longest-Match gegen die Uhr" },
       { id: "subnetting-quiz", name: "Subnetting-Quiz", hint: "Usable Range & Subnetz im Multiple-Choice" },
       { id: "subnetting-cheatsheet", name: "Subnetting-Cheatsheet", hint: "Blockgrößen, Grenzen, VLSM + Rechner" },
       { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
@@ -2285,6 +2290,9 @@ function App() {
         <Suspense fallback={null}>
           {activeTool === "subnetting-drill" && (
             <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "routing-drill" && (
+            <RoutingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
           )}
           {activeTool === "ccna-question-pool" && (
             <QuizDialog
