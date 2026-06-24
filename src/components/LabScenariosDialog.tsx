@@ -2521,6 +2521,132 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // Dynamic NAT (Pool) — aus Cisco Practice Lab 5, Task 3
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "dynamic-nat",
+    icon: <Globe size={20} />,
+    title: "Dynamic NAT (Pool)",
+    subtitle: "Inside-Hosts ↔ Pool öffentlicher IPs",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "Statisches NAT bräuchte pro Host eine feste öffentliche IP, PAT teilt sich nur eine. Dazwischen liegt Dynamic NAT: ein POOL mehrerer öffentlicher Adressen wird bei Bedarf den internen Hosts zugewiesen.",
+      purpose:
+        "Verstehen, wie eine ACL die zu übersetzenden Quellen auswählt und ein NAT-Pool die öffentlichen Adressen bereitstellt — der Unterschied zu PAT (overload) und statischem NAT ist Top-Prüfungsstoff.",
+    },
+    topology: {
+      description:
+        "R1 (Inside-Gateway, mehrere LANs) ist über Se0/0/0 mit dem ISP verbunden. Interne Hosts in 192.168.11.0/24 sollen über einen Pool von 4 öffentlichen Adressen (1.1.1.3–1.1.1.6) ins Internet.",
+      devices: [
+        { type: "router", label: "R1 (NAT-Border)", count: 1 },
+        { type: "router", label: "ISP / Internet", count: 1 },
+        { type: "pc", label: "PC1-1 (192.168.11.25)", count: 1 },
+      ],
+      connections: [
+        "R1 Gi0/1 → Inside-LAN 192.168.11.0/24",
+        "R1 Se0/0/0 → ISP (outside), öffentliche IP 1.1.1.2",
+        "NAT-Pool SITE_1: 1.1.1.3 – 1.1.1.6 /29",
+      ],
+      hint: "Reihenfolge: 1) ACL = WER wird übersetzt, 2) ip nat inside/outside auf die Interfaces, 3) ip nat pool, 4) ip nat inside source list <ACL> pool <NAME>.",
+    },
+    steps: [
+      {
+        title: "1) ACL — welche Quellen übersetzt werden",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "access-list 1 permit 192.168.11.0 0.0.0.255\naccess-list 1 deny any",
+                explanation:
+                  "Standard-ACL listet die INSIDE-LOCAL-Quellen auf, die NAT bekommen sollen (hier das ganze /24, Wildcard 0.0.0.255). Alles andere wird nicht übersetzt.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Inside-/Outside-Interfaces klassifizieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/1\nip nat inside\ninterface se0/0/0\nip nat outside",
+                explanation:
+                  "NAT übersetzt nur an der Grenze: das interne Interface = inside, das ISP-Interface = outside. Ohne diese Markierung passiert KEINE Übersetzung — häufigster Fehler.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Pool anlegen + NAT scharfschalten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "ip nat pool SITE_1 1.1.1.3 1.1.1.6 netmask 255.255.255.248",
+                explanation:
+                  "Definiert den Vorrat öffentlicher Adressen (4 IPs, /29). Die erste freie Pool-Adresse wird einem Inside-Host bei der ersten Verbindung dynamisch zugewiesen.",
+              },
+              {
+                cmd: "ip nat inside source list 1 pool SITE_1 overload",
+                explanation:
+                  "Verknüpft ACL 1 (WER) mit Pool SITE_1 (WOHIN). 'overload' erlaubt zusätzlich PAT je Pool-Adresse (mehr Hosts als IPs). Ohne 'overload' = reines Dynamic NAT (1:1, Pool kann erschöpfen).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Übersetzung testen & prüfen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip nat translations",
+                explanation:
+                  "Nach einem Ping von PC1-1 (192.168.11.25) zu 1.1.1.1 erscheint: inside local 192.168.11.25 ↔ inside global 1.1.1.3 (eine Pool-Adresse). Genau das beweist Dynamic NAT.",
+              },
+              {
+                cmd: "show ip nat statistics",
+                explanation:
+                  "Zeigt Pool-Auslastung (allocated/misses), die NAT-Interfaces und die gebundene ACL. Bei 'misses' ohne Translation: ACL oder inside/outside falsch.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip nat translations", expected: "192.168.11.25 → 1.1.1.3 (Inside Global aus dem Pool)" },
+      { cmd: "show ip nat statistics", expected: "Pool SITE_1: 4 addresses, mind. 1 allocated" },
+      { cmd: "ping 1.1.1.1 (von PC1-1)", expected: "Erfolgreich — Quelle wird auf eine Pool-IP übersetzt" },
+    ],
+    glossary: [
+      { term: "Dynamic NAT", def: "Inside-Hosts bekommen bei Bedarf eine IP aus einem POOL öffentlicher Adressen (1:1, bis Pool leer)." },
+      { term: "NAT-Pool", def: "Vorrat routbarer Adressen: ip nat pool NAME start end netmask M." },
+      { term: "Inside Local", def: "Die private Quelladresse des Hosts (vor der Übersetzung)." },
+      { term: "Inside Global", def: "Die öffentliche Adresse aus dem Pool nach der Übersetzung." },
+      { term: "overload", def: "Aktiviert zusätzlich PAT je Pool-Adresse (Port-Multiplexing) — sonst kann der Pool erschöpfen." },
+      { term: "ip nat inside/outside", def: "Markiert Interfaces; nur an dieser Grenze wird übersetzt." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 8. SSH-Konfiguration
   // ─────────────────────────────────────────────────────────────
   {
@@ -3065,6 +3191,136 @@ export const LABS: LabScenario[] = [
       { term: "ipv6 route", def: "Statische IPv6-Route: Zielpräfix + Next-Hop." },
       { term: "Link-Local (fe80::)", def: "Automatische, nur im Segment gültige Adresse jedes IPv6-Interfaces." },
       { term: "Dual-Stack", def: "Gerät betreibt IPv4 und IPv6 parallel." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // IPv6 Static Routing — aus Cisco Practice Lab (Appendix B Bonus)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ipv6-static",
+    icon: <Network size={20} />,
+    title: "IPv6 Static Routing",
+    subtitle: "Statische + Default-Routen mit IPv6",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "IPv4-Routen reichen nicht — viele Netze laufen Dual-Stack. Statische IPv6-Routen funktionieren analog zu IPv4, aber mit eigener Syntax (ipv6 route) und der Pflicht, IPv6-Routing erst zu aktivieren.",
+      purpose:
+        "Statische IPv6-Routen, eine IPv6-Default-Route und Loopback-Ziele konfigurieren und testen — inklusive der Unterschiede zu IPv4 (ipv6 unicast-routing, Link-Local vs. Global).",
+    },
+    topology: {
+      description:
+        "Ein Internet-Router ist über serielle Links mit den Site-Routern R1 und R2 verbunden. Jeder Site-Router hat eine Loopback (Global Unicast), die der Internet-Router per statischer IPv6-Route erreichen soll und umgekehrt.",
+      devices: [
+        { type: "router", label: "Internet-Router", count: 1 },
+        { type: "router", label: "R1-1 / R2-1", count: 2 },
+      ],
+      connections: [
+        "Internet S0/0/0 ↔ R1-1   2001:DB8:CCA1:1::/64",
+        "Internet S0/1/0 ↔ R2-1   2001:DB8:CCA2:2::/64",
+        "Loopbacks: R1-1 2001:DB8:CCA1:254::1:1/128 · R2-1 2001:DB8:CCA2:254::2:1/128",
+      ],
+      hint: "Ohne 'ipv6 unicast-routing' leitet der Router KEINE IPv6-Pakete weiter (nur Host). Syntax: ipv6 route <ziel>/<präfix> <next-hop|interface>.",
+    },
+    steps: [
+      {
+        title: "1) IPv6-Routing + Interfaces aktivieren (R1-1)",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "global",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing",
+                explanation:
+                  "Schaltet die IPv6-Weiterleitung global ein — Pflicht, sonst ist der Router nur ein IPv6-Host. Gegenstück zu IPv4, wo Routing per Default an ist.",
+              },
+              {
+                cmd: "interface se0/0/0\nipv6 address 2001:DB8:CCA1:1::2/64\nno shutdown\ninterface loopback0\nipv6 address 2001:DB8:CCA1:254::1:1/128",
+                explanation:
+                  "Globale Unicast-Adressen setzen. Eine Link-Local-Adresse (fe80::) entsteht automatisch — sie wird als Next-Hop in Routen oft genutzt.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Statische Route + Default-Route auf R1-1",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "global",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "ipv6 route 2001:DB8:CCAF:254::1/128 2001:DB8:CCA1:1::1",
+                explanation:
+                  "Statische Host-Route (/128) zum Loopback des Internet-Routers über dessen Global-Unicast-Next-Hop. Syntax exakt wie IPv4, nur mit 'ipv6 route'.",
+              },
+              {
+                cmd: "ipv6 route ::/0 2001:DB8:CCA1:1::1",
+                explanation:
+                  "IPv6-Default-Route: ::/0 ist das Pendant zu 0.0.0.0/0. Schickt alles Unbekannte zum Internet-Router (Gateway of last resort).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Gegenrouten auf dem Internet-Router",
+        blocks: [
+          {
+            device: "Internet",
+            mode: "global",
+            modeLabel: "Internet(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing\nipv6 route 2001:DB8:CCA1:254::1:1/128 2001:DB8:CCA1:1::2\nipv6 route 2001:DB8:CCA2:254::2:1/128 2001:DB8:CCA2:2::2",
+                explanation:
+                  "Der Internet-Router braucht für jede Site-Loopback eine statische Route über den jeweiligen Link-Next-Hop. Ohne Rückroute kommt der Ping-Antwortweg nicht zurück.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) IPv6-Routing prüfen & testen",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "privileged",
+            modeLabel: "R1-1#",
+            commands: [
+              {
+                cmd: "show ipv6 route static",
+                explanation:
+                  "Statische Routen erscheinen mit 'S'. ::/0 ist die Default-Route. AD steht in [1/0] (statisch = AD 1).",
+              },
+              {
+                cmd: "ping 2001:DB8:CCAF:254::1",
+                explanation:
+                  "Test zum Loopback des Internet-Routers. Erfolgreich nur, wenn Hin- UND Rückroute existieren — typischer Fehler ist die fehlende Gegenroute.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ipv6 route static", expected: "S 2001:DB8:CCAF:254::1/128 [1/0] via ... + S ::/0" },
+      { cmd: "show ipv6 interface brief", expected: "Se0/0/0 mit Global-Unicast + fe80:: Link-Local, Status up/up" },
+      { cmd: "ping 2001:DB8:CCAF:254::1", expected: "!!!!! — Erfolg (Hin- und Rückroute vorhanden)" },
+    ],
+    glossary: [
+      { term: "ipv6 unicast-routing", def: "Aktiviert die IPv6-Weiterleitung — ohne den Befehl routet das Gerät kein IPv6." },
+      { term: "ipv6 route", def: "Statische IPv6-Route: ipv6 route <präfix>/<länge> <next-hop|interface> [AD]." },
+      { term: "::/0", def: "IPv6-Default-Route (Pendant zu 0.0.0.0/0) — Gateway of last resort." },
+      { term: "/128", def: "Host-Route auf genau eine IPv6-Adresse (meist Loopback)." },
+      { term: "Link-Local (fe80::)", def: "Automatisch erzeugte Adresse pro Interface, nur im lokalen Segment gültig — oft Next-Hop." },
+      { term: "Global Unicast", def: "Routbare öffentliche IPv6-Adresse (2000::/3), hier 2001:DB8::/32 (Doku-Präfix)." },
     ],
   },
 
@@ -3933,6 +4189,127 @@ export const LABS: LabScenario[] = [
       { term: "AS-Nummer", def: "Autonomous-System-Nummer (hier 100) — muss auf allen EIGRP-Routern gleich sein." },
       { term: "no auto-summary", def: "Schaltet die Zusammenfassung an Klassengrenzen ab (wie bei RIPv2)." },
       { term: "show ip eigrp topology", def: "Zeigt Successor + Feasible Successor mit FD/AD je Ziel." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // GRE-Tunnel-VPN — aus Cisco Practice Lab 6
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "gre-tunnel",
+    icon: <Network size={20} />,
+    title: "GRE-Tunnel-VPN zwischen Sites",
+    subtitle: "Site-to-Site Tunnel über das Internet + OSPF darüber",
+    difficulty: "Fortgeschritten",
+    duration: "30 min",
+    context: {
+      problem:
+        "Zwei Standorte sind nur über das öffentliche Internet verbunden. Private Netze und ein dynamisches Routing-Protokoll (OSPF, Multicast!) lassen sich nicht direkt über das Internet transportieren.",
+      purpose:
+        "Ein GRE-Tunnel bildet eine virtuelle Punkt-zu-Punkt-Leitung über das Internet. Darin laufen private IPs UND OSPF — als ob die Sites direkt verkabelt wären. (GRE allein ist unverschlüsselt; in der Praxis kombiniert mit IPsec.)",
+    },
+    topology: {
+      description:
+        "R1-1 (Site 1) und R2-1 (Site 2) haben je eine öffentliche IP am Internet-Interface. Über diese öffentlichen Adressen wird ein GRE-Tunnel (Tunnel12) mit eigenem privatem /30 aufgebaut; OSPF läuft über das Tunnel-Subnetz.",
+      devices: [
+        { type: "router", label: "R1-1 (Site 1)", count: 1 },
+        { type: "router", label: "R2-1 (Site 2)", count: 1 },
+        { type: "router", label: "Internet", count: 1 },
+      ],
+      connections: [
+        "R1-1 Se0/0/0 öffentlich 1.1.1.2  ↔ Internet",
+        "R2-1 Se0/0/0 öffentlich 2.2.2.2  ↔ Internet",
+        "Tunnel12 (GRE): 216.145.12.1/30 (R1-1) ↔ 216.145.12.2/30 (R2-1)",
+      ],
+      hint: "tunnel source = eigenes öffentliches Interface, tunnel destination = öffentliche IP der Gegenseite. Die Tunnel-IP ist privat und liegt im OSPF. Voraussetzung: die öffentlichen Adressen sind erreichbar (Default-Route ins Internet).",
+    },
+    steps: [
+      {
+        title: "1) GRE-Tunnel-Interface auf R1-1",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "interface",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 2.2.2.2\nip address 216.145.12.1 255.255.255.252\nno shutdown",
+                explanation:
+                  "tunnel source = eigenes Internet-Interface, tunnel destination = öffentliche IP von R2-1. Die Tunnel-IP (216.145.12.1/30) ist die LOGISCHE Punkt-zu-Punkt-Adresse. Default-Encap ist GRE/IP.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Spiegelbildlicher Tunnel auf R2-1",
+        blocks: [
+          {
+            device: "R2-1",
+            mode: "interface",
+            modeLabel: "R2-1(config)#",
+            commands: [
+              {
+                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 1.1.1.2\nip address 216.145.12.2 255.255.255.252\nno shutdown",
+                explanation:
+                  "Source/Destination sind exakt vertauscht zu R1-1, die Tunnel-IP ist die zweite Adresse im selben /30. Sobald beide Seiten stehen, geht 'line protocol' auf up.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) OSPF über den Tunnel laufen lassen",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "router",
+            modeLabel: "R1-1(config-router)#",
+            commands: [
+              {
+                cmd: "router ospf 1\nnetwork 216.145.12.0 0.0.0.3 area 0",
+                explanation:
+                  "Das Tunnel-Subnetz wird in OSPF aufgenommen (Wildcard 0.0.0.3 = /30). Dadurch bilden R1-1 und R2-1 ÜBER den Tunnel eine OSPF-Nachbarschaft und tauschen ihre LAN-Routen aus. R2-1 analog.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Tunnel + OSPF verifizieren",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "privileged",
+            modeLabel: "R1-1#",
+            commands: [
+              {
+                cmd: "show interface tunnel 12",
+                explanation:
+                  "Erwartet: 'Tunnel12 is up, line protocol is up', 'Tunnel protocol/transport GRE/IP', source/destination korrekt. Bei 'line protocol down' ist die Gegenseite (destination) nicht erreichbar.",
+              },
+              {
+                cmd: "show ip ospf neighbor",
+                explanation:
+                  "Der OSPF-Nachbar (R2-1) muss im State FULL erscheinen — über das Tunnel-Interface. Danach zeigt 'show ip route ospf' die Remote-LANs als O-Routen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show interface tunnel 12", expected: "Tunnel12 up/up, Tunnel protocol/transport GRE/IP" },
+      { cmd: "show ip ospf neighbor", expected: "Nachbar über Tunnel12 im State FULL" },
+      { cmd: "show ip route ospf", expected: "Remote-LANs als O-Routen via 216.145.12.x (Tunnel)" },
+      { cmd: "ping <Remote-LAN-IP>", expected: "Erfolgreich — privater Verkehr fließt durch den GRE-Tunnel" },
+    ],
+    glossary: [
+      { term: "GRE", def: "Generic Routing Encapsulation — kapselt beliebige L3-Pakete in IP; bildet eine virtuelle P2P-Leitung. Unverschlüsselt." },
+      { term: "tunnel source/destination", def: "Die ÖFFENTLICHEN Endpunkt-IPs des Tunnels (eigenes Interface bzw. Gegenseite)." },
+      { term: "Tunnel-IP", def: "Logische private Adresse des Tunnel-Interfaces (hier /30) — Basis für das Routing darüber." },
+      { term: "OSPF over GRE", def: "Weil GRE Multicast transportiert, kann OSPF (224.0.0.5/6) über den Tunnel Nachbarschaften bilden — über reines Internet nicht möglich." },
+      { term: "GRE vs. IPsec", def: "GRE kapselt (auch Multicast), verschlüsselt aber nicht. Produktiv: GRE over IPsec für Vertraulichkeit." },
     ],
   },
 
