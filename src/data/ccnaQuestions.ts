@@ -7919,7 +7919,16 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "GigabitEthernet0/2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route
+Gateway of last resort is 192.168.0.1 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 192.168.0.1
+C     10.0.0.0/24 is directly connected, GigabitEthernet0/0
+O     192.168.0.0/26 [110/65] via 10.0.0.2, GigabitEthernet0/1
+C     192.168.0.0/24 is directly connected, GigabitEthernet0/2`,
+      highlight: ["O     192.168.0.0/26 [110/65] via 10.0.0.2, GigabitEthernet0/1"],
+    },
   },
   {
     id: "q0478",
@@ -7931,7 +7940,17 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "ipv6 route ::/0 2001:db8:1234:2::1 2"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `CPE# show ipv6 route
+IPv6 Routing Table - default - 4 entries
+Codes: C - Connected, L - Local, S - Static, R - RIP, B - BGP
+C   ::/0 [0/0] via 2001:db8:1234:2::1, Ethernet0/0
+S   2001:db8:1234:2::/64 [1/0] via 2001:db8:1234:2::1, Ethernet0/0
+C   2001:db8:1234:2::/64 [0/0] via Ethernet0/0, receive
+L   FF00::/8 [0/0] via Null0, receive`,
+      highlight: ["C   ::/0 [0/0] via 2001:db8:1234:2::1, Ethernet0/0"],
+    },
   },
   {
     id: "q0479",
@@ -7943,7 +7962,28 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "OldR(config)#router ospf 1 OldR(config-router)#no router-id 192.168.1.1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `OldR#show ip ospf interface
+GigabitEthernet0/0/0 is up, line protocol is up
+  Internet address is 192.168.1.2/24, Area 0
+  Process ID 1, Router ID 192.168.1.2, Network Type BROADCAST, Cost: 1
+  State DROTHER, Priority 1
+  Designated Router (ID) 192.168.1.1, Interface address 192.168.1.1
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+
+R2#show ip ospf interface
+GigabitEthernet0/0 is up, line protocol is up
+  Internet address is 192.168.1.1/24, Area 0
+  Process ID 1, Router ID 192.168.1.1, Network Type BROADCAST, Cost: 1
+  State DR, Priority 1
+  Designated Router (ID) 192.168.1.1, Interface address 192.168.1.1
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5`,
+      highlight: [
+        "  Process ID 1, Router ID 192.168.1.2, Network Type BROADCAST, Cost: 1",
+        "  Process ID 1, Router ID 192.168.1.1, Network Type BROADCAST, Cost: 1",
+      ],
+    },
   },
   {
     id: "q0481",
@@ -7955,7 +7995,17 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "255.255.240.0"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1# show ip route | begin Gateway
+Gateway of last resort is 0.0.0.0 to network 0.0.0.0
+S*    0.0.0.0/0 is directly connected, Serial0/0/1
+      172.16.0.0/16 is variably subnetted, 4 subnets, 2 masks
+C        172.16.2.0/24 is directly connected, GigabitEthernet0/0
+C        172.16.4.0/21 is directly connected, GigabitEthernet0/1
+L        172.16.4.0/24 is directly connected, Serial0/0/1`,
+      highlight: ["C        172.16.4.0/21 is directly connected, GigabitEthernet0/1"],
+    },
   },
   {
     id: "q0482",
@@ -7967,7 +8017,20 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "ip route 172.21.34.0 255.255.128.0 10.73.65.64"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r14", type: "router", label: "R14", x: 120, y: 90 },
+        { id: "r86", type: "router", label: "R86", x: 420, y: 90 },
+      ],
+      links: [
+        { from: "r14", to: "r86", subnet: "10.73.65.64/30", labelFrom: "Fa0/0 .65", labelTo: "Fa0/0 .66" },
+      ],
+      labels: [
+        { text: "Loopback0 10.10.1.14/32", attachTo: "r14", position: "above" },
+        { text: "Loopback0 10.10.1.86/32 (172.21.34.0/25)", attachTo: "r86", position: "above" },
+      ],
+    },
   },
   {
     id: "q0483",
@@ -7979,7 +8042,24 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "R2(config)#router ospf 1 R2(config-router)#router-id 192.168.1.2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip ospf interface g0/0/0
+GigabitEthernet0/0/0 is up, line protocol is up
+  Internet address is 192.168.1.2/24, Area 0
+  Process ID 1, Router ID 192.168.1.2, Network Type POINT-TO-POINT, Cost: 1
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+
+R2#show ip ospf interface g0/0/0
+GigabitEthernet0/0/0 is up, line protocol is up
+  Internet address is 192.168.1.1/24, Area 0
+  Process ID 1, Router ID 10.10.1.1, Network Type POINT-TO-POINT, Cost: 1
+  Timer intervals configured, Hello 45, Dead 45, Wait 15, Retransmit 5`,
+      highlight: [
+        "  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5",
+        "  Timer intervals configured, Hello 45, Dead 45, Wait 15, Retransmit 5",
+      ],
+    },
   },
   {
     id: "q0484",
@@ -7991,7 +8071,20 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "R14# interface Loopback0 ip ospf 10 areainterface FastEthernet0/0 ip address 10.73.65.65 255.255.255.252 ip ospf priority 255 ip ospf 10 areaip mtu 1500 router ospf 10 router-id 10.10.1.14 R86# interface Loopback0 ip ospf 10 areainterface FastEthernet0/0 ip address 10.73.65.66 255.255.255.252 ip ospf 10 areaip mtu 1500 router ospf 10 router-id 10.10.1.86"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r14", type: "router", label: "R14", x: 120, y: 90 },
+        { id: "r86", type: "router", label: "R86", x: 420, y: 90 },
+      ],
+      links: [
+        { from: "r14", to: "r86", subnet: "10.73.65.64/30", labelFrom: "Fa0/0", labelTo: "Fa0/0" },
+      ],
+      labels: [
+        { text: "Loopback0 10.10.1.14/32", attachTo: "r14", position: "above" },
+        { text: "Loopback0 10.10.1.86/32", attachTo: "r86", position: "above" },
+      ],
+    },
   },
   {
     id: "q0485",
@@ -8015,7 +8108,26 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "router ospf 10 network 10.0.0.0 0.0.0.3 area0 network 10.0.2.0 0.0.0.255 area0"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 120, y: 60 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 60 },
+        { id: "sw1", type: "switch", label: "SW1", x: 120, y: 200 },
+        { id: "sw2", type: "switch", label: "SW2", x: 420, y: 200 },
+        { id: "w1", type: "pc", label: "Workstations", x: 120, y: 330 },
+        { id: "w2", type: "pc", label: "Workstations", x: 420, y: 330 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "10.0.0.0/30", labelFrom: "G0/0 .1", labelTo: "G0/0 .2" },
+        { from: "r1", to: "sw1" }, { from: "sw1", to: "w1" },
+        { from: "r2", to: "sw2" }, { from: "sw2", to: "w2" },
+      ],
+      labels: [
+        { text: "10.0.1.0/24", attachTo: "w1", position: "below" },
+        { text: "10.0.2.0/24", attachTo: "w2", position: "below" },
+      ],
+    },
   },
   {
     id: "q0487",
@@ -8027,7 +8139,27 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "R2(config)#intergface gi0/0 R2(config-if)#ip ospf priority 1"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "net", type: "switch", label: "Netz", x: 280, y: 150 },
+        { id: "r1", type: "router", label: "R1", x: 280, y: 40 },
+        { id: "r4", type: "router", label: "R4", x: 470, y: 100 },
+        { id: "dr", type: "router", label: "DR", x: 90, y: 150 },
+        { id: "bdr", type: "router", label: "BDR", x: 280, y: 270 },
+      ],
+      links: [
+        { from: "r1", to: "net" }, { from: "r4", to: "net" },
+        { from: "dr", to: "net" }, { from: "bdr", to: "net" },
+      ],
+      labels: [
+        { text: "OSPF 1", attachTo: "net", position: "right" },
+        { text: "RID 192.168.2.1", attachTo: "r1", position: "above" },
+        { text: "RID 192.168.2.4", attachTo: "r4", position: "right" },
+        { text: "RID 192.168.2.8 (DR)", attachTo: "dr", position: "left" },
+        { text: "RID 192.168.2.8 (BDR)", attachTo: "bdr", position: "below" },
+      ],
+    },
   },
   {
     id: "q0488",
@@ -8040,7 +8172,23 @@ Neighbor ID   Pri  State          Dead Time  Address       Interface
     "ip route 10.10.10.0 255.255.255.248 192.168.2.2"
     ],
     correct: [0, 1],
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "pc1", type: "pc", label: "PC1", x: 40, y: 150 },
+        { id: "r1", type: "router", label: "R1", x: 190, y: 150 },
+        { id: "r2", type: "router", label: "R2", x: 370, y: 60 },
+        { id: "r3", type: "router", label: "R3", x: 370, y: 250 },
+        { id: "lan", type: "pc", label: "PCs 10.10.10.0/24", x: 540, y: 150 },
+      ],
+      links: [
+        { from: "pc1", to: "r1", subnet: "172.16.5.0/24" },
+        { from: "r1", to: "r2", subnet: "192.168.2.0/24", labelTo: "g0/1 .3" },
+        { from: "r1", to: "r3", subnet: "192.168.2.0/24", labelTo: "g0/1 .2" },
+        { from: "r2", to: "lan", subnet: "10.10.10.0/24" },
+        { from: "r3", to: "lan" },
+      ],
+    },
   },
   {
     id: "q0489",
