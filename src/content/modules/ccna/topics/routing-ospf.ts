@@ -309,6 +309,70 @@ router eigrp 100
   `.trim(),
 };
 
+export const CONCEPT_RIPV1: Concept = {
+  id: "ripv1",
+  title: "RIPv1 — das classful Urgestein (und seine Grenzen)",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["routing", "rip", "ripv1", "distance-vector", "classful", "legacy"],
+  content: `
+## RIPv1 in einem Satz
+**RIP Version 1** (RFC 1058, 1988) ist das einfachste dynamische Routing-Protokoll:
+Distance-Vector, Metrik = **Hop-Count**, AD **120** — aber **classful** und damit heute
+fast nur noch als Negativbeispiel relevant. Wer versteht, was RIPv1 **nicht** kann,
+versteht, warum es RIPv2, OSPF & EIGRP gibt.
+
+## Wie RIPv1 arbeitet
+- Sendet die **komplette Routing-Tabelle alle 30 s** an die Nachbarn.
+- **Broadcast** an \`255.255.255.255\` — jeder im Segment hört mit (v2 nutzt Multicast 224.0.0.9).
+- Metrik = **Hop-Count**, Maximum **15** (16 = "infinity" = unerreichbar) → nicht für große Netze.
+- Loop-Schutz: **Split Horizon, Route Poisoning, Hold-Down** (180 s), Triggered Updates.
+
+\`\`\`
+R1(config)# router rip
+R1(config-router)# network 192.168.1.0      ! CLASSFUL — kein /Präfix, keine Wildcard
+R1(config-router)# network 10.0.0.0         ! aktiviert ALLE Interfaces im 10er-Netz
+\`\`\`
+
+## Der eine, alles entscheidende Haken: **classful**
+RIPv1-Updates enthalten **keine Subnetzmaske**. Der Empfänger "rät" die Maske:
+- gleiche Major-Net-Zugehörigkeit → eigene Interface-Maske annehmen,
+- über eine **Klassengrenze** hinweg → **klassenbasierte** Standardmaske (/8, /16, /24).
+
+Daraus folgen die drei Killer-Limits:
+
+| Limit | Bedeutung |
+|-------|-----------|
+| **Kein VLSM** | Ein Major-Netz muss **überall dieselbe Maske** haben — kein /30-WAN neben /24-LAN. |
+| **Kein CIDR / keine Supernets** | Präfixe wie 10.0.0.0/12 sind nicht darstellbar. |
+| **Auto-Summary erzwungen** | Fasst an Klassengrenzen **immer** zusammen (nicht abschaltbar) → **discontiguous networks** brechen. |
+
+> 🔎 **Discontiguous-Beispiel:** Zwei Subnetze von 172.16.0.0, getrennt durch ein 10er-Netz.
+> Beide Router melden classful "172.16.0.0/16" → der mittlere Router bekommt zwei gleich
+> aussehende Routen und kann nicht mehr unterscheiden → Verbindung kaputt.
+
+## RIPv1 vs. RIPv2 — die Prüfungstabelle
+| Merkmal | **RIPv1** | **RIPv2** |
+|---------|-----------|-----------|
+| Maske im Update | **nein** (classful) | **ja** (classless) |
+| Adressierung | **Broadcast** 255.255.255.255 | **Multicast** 224.0.0.9 |
+| VLSM / CIDR | ❌ | ✅ |
+| Auto-Summary | erzwungen | abschaltbar (\`no auto-summary\`) |
+| Authentifizierung | ❌ | ✅ (MD5) |
+| Metrik / Max-Hops / AD | Hop-Count / 15 / 120 | identisch |
+
+> 🎯 **Faustregeln**
+> - RIP läuft per Default als **Version 1** — \`version 2\` + \`no auto-summary\` macht es brauchbar.
+> - Sieht eine Aufgabe **gemischte Masken** (z. B. /30 + /24) im selben Netz → RIPv1 **kann das nicht**, Antwort = v2/OSPF.
+> - \`debug ip rip\` zeigt sofort die Version: v1 = "via 255.255.255.255" **ohne** Maske.
+> - \`network\` bei RIP ist **classful** (kein Wildcard) — anders als OSPF/EIGRP.
+
+> 🧪 **Lab:** „RIPv1 — Classful Distance-Vector" (Labs) — saubere /24-Konfiguration plus ein
+> Schritt, der VLSM/discontiguous gezielt brechen lässt und auf v2 umstellt.
+
+[[dynamic-routing-deep]] · [[routing-fundamentals]]
+  `.trim(),
+};
+
 export const CONCEPT_OSPF: Concept = {
   id: "ospf",
   title: "OSPF — Open Shortest Path First",
@@ -684,6 +748,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "routing-ttl-traceroute",
     "static-routing-deep",
     "dynamic-routing-deep",
+    "ripv1",
     "routing-simulator",
     "ospf",
     "ospf-neighbor-states",
@@ -704,6 +769,7 @@ export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "routing-ttl-traceroute": CONCEPT_ROUTING_TTL_TRACEROUTE,
   "static-routing-deep": CONCEPT_STATIC_ROUTING_DEEP,
   "dynamic-routing-deep": CONCEPT_DYNAMIC_ROUTING_DEEP,
+  ripv1: CONCEPT_RIPV1,
   "routing-simulator": CONCEPT_ROUTING_SIMULATOR,
   ospf: CONCEPT_OSPF,
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,

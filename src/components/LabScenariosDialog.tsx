@@ -1580,6 +1580,156 @@ export const LABS: LabScenario[] = [
 
 
   // ─────────────────────────────────────────────────────────────
+  // RIPv1 (CIS2 — klassisches classful Distance-Vector)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "rip-v1",
+    icon: <Shuffle size={20} />,
+    title: "RIPv1 — Classful Distance-Vector",
+    subtitle: "3 Router · classful · Broadcast · keine VLSM",
+    difficulty: "Anfänger",
+    duration: "20 min",
+    context: {
+      problem:
+        "Das älteste dynamische Routing-Protokoll: RIPv1 (RFC 1058) verteilt Routen automatisch — aber CLASSFUL. In seinen Updates fehlt die Subnetzmaske, es sendet per Broadcast und kennt weder VLSM noch CIDR oder Authentifizierung.",
+      purpose:
+        "Verstehen, wie RIPv1 funktioniert UND warum es heute fast immer durch RIPv2 ersetzt wird. Das Lab zeigt eine saubere classful-Konfiguration (einheitliche /24-Masken) und macht die RIPv1-Grenzen sichtbar.",
+    },
+    topology: {
+      description:
+        "Drei Router in Reihe (R1 — R2 — R3), jeder mit eigenem /24-LAN. WICHTIG für RIPv1: ALLE Subnetze eines Major-Netzes nutzen dieselbe Maske (hier durchgehend /24), sonst scheitert RIPv1.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3", count: 3 },
+        { type: "switch", label: "SW1–SW3", count: 3 },
+        { type: "pc", label: "PC0–PC2", count: 3 },
+      ],
+      connections: [
+        "R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/24)",
+        "R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/24)",
+        "LANs: R1=192.168.1.0/24, R2=192.168.2.0/24, R3=192.168.3.0/24",
+      ],
+      hint: "RIPv1 ist classful: keine Masken in Updates, Broadcast 255.255.255.255, keine VLSM/CIDR, keine Auth. AD = 120, Metrik = Hop-Count (max 15).",
+    },
+    steps: [
+      {
+        title: "Interfaces konfigurieren — alle gleiche /24-Maske!",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\ninterface gi0/1\nip address 10.0.12.1 255.255.255.0\nno shutdown",
+                explanation:
+                  "LAN + WAN-Link zu R2. Beachte: auch der WAN-Link ist /24 (nicht /30!) — RIPv1 verträgt KEINE gemischten Masken im selben Major-Netz. R2/R3 analog.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "RIPv1 aktivieren (Default-Version!)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router rip\nnetwork 192.168.1.0\nnetwork 10.0.0.0",
+                explanation:
+                  "Ohne 'version 2' läuft RIP im Default = Version 1. network nimmt das CLASSFUL-Netz (10.0.0.0, nicht 10.0.12.0) und aktiviert ALLE Interfaces dieses Major-Netzes.",
+              },
+              {
+                cmd: "passive-interface gi0/0",
+                explanation:
+                  "Keine RIP-Broadcasts ins LAN senden (dort hängt kein Router). RIPv1 broadcastet auf 255.255.255.255 — das würde sonst jeder LAN-Host sehen.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "router",
+            modeLabel: "R2(config-router)#",
+            commands: [
+              {
+                cmd: "router rip\nnetwork 192.168.2.0\nnetwork 10.0.0.0",
+                explanation: "R2 sitzt zwischen beiden WAN-Links (beide im 10er-Netz). R3 analog mit network 192.168.3.0 und 10.0.0.0.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Konvergenz prüfen & v1 nachweisen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation:
+                  "R-Einträge mit [120/1] / [120/2]: AD 120, Metrik = Hops. Die LANs erscheinen als /24, weil hier ALLE Masken /24 sind — RIPv1 kann die Maske nur über die eigene Interface-Maske 'raten'.",
+              },
+              {
+                cmd: "show ip protocols",
+                explanation:
+                  "Zeigt 'Sending updates every 30 seconds', 'default version control: send version 1, receive 1'. Timer: Invalid 180s, Holddown 180s, Flush 240s — Prüfungsstoff.",
+              },
+              {
+                cmd: "debug ip rip",
+                explanation:
+                  "Beweist v1: 'sending v1 update ... via Ethernet (255.255.255.255)' — Broadcast statt Multicast, und KEINE Subnetzmaske im Update. Danach 'undebug all'.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Die RIPv1-Grenzen (Stolperfallen)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "! VLSM-Test (scheitert mit RIPv1):\n! interface gi0/1 → ip address 10.0.12.1 255.255.255.252 (/30)\n! → R2 lernt das Netz NICHT korrekt: keine Maske im Update",
+                explanation:
+                  "RIPv1 trägt keine Subnetzmaske → VLSM (z. B. /30-WAN + /24-LAN im selben Major-Netz) ist unmöglich. Discontiguous Networks werden an Klassengrenzen falsch zu 10.0.0.0/8 zusammengefasst (auto-summary, nicht abschaltbar in v1).",
+              },
+              {
+                cmd: "version 2\nno auto-summary",
+                explanation:
+                  "Die Lösung für ALLE diese Grenzen: auf RIPv2 wechseln. v2 sendet Masken mit (classless), nutzt Multicast 224.0.0.9, unterstützt VLSM/CIDR und Authentifizierung. → siehe Lab 'RIPv2'.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route rip", expected: "R 192.168.3.0/24 [120/2] via 10.0.12.2 (auf R1)" },
+      { cmd: "show ip protocols", expected: "default version control: send version 1, receive version 1" },
+      { cmd: "debug ip rip", expected: "sending v1 update ... via 255.255.255.255 (Broadcast, ohne Maske)" },
+      { cmd: "ping 192.168.3.10 (von PC0)", expected: "Erfolgreich — solange alle Masken /24 sind" },
+    ],
+    glossary: [
+      { term: "RIPv1", def: "Routing Information Protocol Version 1 (RFC 1058) — classful Distance-Vector, AD 120." },
+      { term: "classful", def: "Routing nach Adressklassen (A/B/C) OHNE Subnetzmaske in den Updates." },
+      { term: "Broadcast-Update", def: "RIPv1 sendet Updates an 255.255.255.255 (jeder im Segment hört mit) — v2 nutzt Multicast 224.0.0.9." },
+      { term: "keine VLSM", def: "Weil die Maske fehlt, muss ein Major-Netz überall dieselbe Maske haben — kein /30-WAN neben /24-LAN." },
+      { term: "auto-summary", def: "RIPv1 fasst an Klassengrenzen IMMER zusammen (nicht abschaltbar) → Probleme bei discontiguous networks." },
+      { term: "Hop-Count", def: "RIP-Metrik = Anzahl Router bis zum Ziel. Maximum 15 (16 = unerreichbar)." },
+      { term: "Timer", def: "Update 30s · Invalid 180s · Holddown 180s · Flush 240s." },
+      { term: "version 2", def: "Behebt alle v1-Grenzen: classless (Masken), Multicast, VLSM/CIDR, Authentifizierung." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // RIPv2 (CIS2 — dynamisches Routing Grundlagen)
   // ─────────────────────────────────────────────────────────────
   {
