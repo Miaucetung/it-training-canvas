@@ -63,7 +63,7 @@ function randNet(): { net: string; cidr: number } {
   return { net: parts.join("."), cidr };
 }
 
-export function generateIpRouteTask(id = 0): IpRouteTask {
+export function generateIpRouteTask(_id = 0): IpRouteTask {
   const scenario = pick<IpRouteTask["scenario"]>(["normal", "default", "floating", "host"]);
   const nextHop = `10.0.${randInt(0, 9)}.${randInt(1, 254)}`;
   if (scenario === "default") {
@@ -155,7 +155,7 @@ export interface MatchTask {
 
 const IFACES = ["GigabitEthernet0/0", "GigabitEthernet0/1", "Serial0/0/0", "Serial0/0/1"];
 
-export function generateMatchTask(id = 0): MatchTask {
+export function generateMatchTask(_id = 0): MatchTask {
   // gemeinsames Basisnetz, mehrere Präfixlängen, plus Ablenker + Default
   const base = `10.${randInt(10, 60)}.${randInt(0, 200)}.0`;
   const cidrs = [16, 24, 26, 28].sort(() => Math.random() - 0.5).slice(0, 3);

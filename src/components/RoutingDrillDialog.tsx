@@ -201,7 +201,7 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                     autoFocus
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") (checked ? handleNext() : handleCheck()); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { if (checked) handleNext(); else handleCheck(); } }}
                     placeholder="ip route ..."
                     className={inputCls}
                     spellCheck={false}
