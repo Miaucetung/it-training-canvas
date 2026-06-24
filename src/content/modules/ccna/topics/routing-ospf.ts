@@ -59,6 +59,256 @@ R1(config)# ip route 192.168.2.0 255.255.255.0 192.168.1.2 200  ! AD=200
   `.trim(),
 };
 
+export const CONCEPT_ROUTING_TTL_TRACEROUTE: Concept = {
+  id: "routing-ttl-traceroute",
+  title: "TTL & Traceroute — den Weg eines Pakets sichtbar machen",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["routing", "ttl", "traceroute", "tracert", "icmp", "troubleshooting"],
+  content: `
+## TTL — die "Lebensdauer" eines Pakets
+
+**TTL (Time To Live)** ist ein 8-Bit-Feld im IPv4-Header (bei IPv6 heißt es **Hop Limit**).
+Es verhindert, dass Pakete bei einem Routing-Loop **ewig** im Kreis laufen.
+
+> **Die eine Regel, die du dir merken musst:**
+> **Jeder Router, der ein Paket weiterleitet, zieht 1 von der TTL ab.**
+> Wird die TTL dabei **0**, verwirft der Router das Paket und schickt eine
+> **ICMP-Meldung "Time Exceeded" (Type 11, Code 0)** an den Absender zurück.
+
+\`\`\`
+PC (TTL=64) ──▶ R1 (TTL 64→63) ──▶ R2 (63→62) ──▶ R3 (62→61) ──▶ Ziel
+\`\`\`
+
+Typische Start-TTL je Betriebssystem (gut zum Fingerprinting):
+
+| System | Start-TTL |
+|--------|-----------|
+| Windows | 128 |
+| Linux / macOS | 64 |
+| Cisco IOS / Router | 255 |
+
+> 🔎 **Trick:** Eine Antwort mit TTL **57** ist sehr wahrscheinlich von einem Linux-Host
+> (64) gekommen, der **7 Hops** entfernt ist (64 − 57). Bei TTL **120** → Windows (128), 8 Hops.
+
+## Traceroute — der geniale TTL-Trick
+
+Traceroute nutzt genau diese TTL-Regel, um **jeden Hop** auf dem Weg sichtbar zu machen:
+
+1. Sende ein Paket mit **TTL = 1** → der **1. Router** dekrementiert auf 0, verwirft es
+   und meldet sich mit **Time Exceeded** → seine IP ist jetzt bekannt.
+2. Sende ein Paket mit **TTL = 2** → der 2. Router meldet sich.
+3. … TTL = 3, 4, 5 … bis das **Ziel** antwortet (mit Echo Reply oder Port Unreachable).
+
+\`\`\`
+Tracing route to 8.8.8.8 over a maximum of 30 hops
+ 1    1 ms   1 ms   1 ms   192.168.1.1      ← TTL 1: Default Gateway
+ 2   12 ms  11 ms  12 ms   100.64.0.1       ← TTL 2: ISP
+ 3    *      *      *       Request timed out ← Router blockt ICMP (kein Fehler!)
+ 4   18 ms  17 ms  18 ms   8.8.8.8          ← Ziel erreicht
+\`\`\`
+
+### tracert vs traceroute — verschiedene Probe-Pakete
+| Tool | System | Probe-Paket |
+|------|--------|-------------|
+| \`tracert\` | Windows | **ICMP** Echo Request |
+| \`traceroute\` | Linux/macOS | **UDP** (hohe Ports, 33434+) |
+| \`traceroute\` | Cisco IOS | **UDP** |
+
+Das ist wichtig fürs Troubleshooting: Blockt eine Firewall **UDP**, scheitert Linux-traceroute,
+Windows-tracert (ICMP) kommt aber evtl. durch — und umgekehrt.
+
+### Sterne (\`* * *\`) richtig deuten
+Ein \`*\` heißt **nicht** automatisch "kaputt":
+- Der Router antwortet absichtlich **nicht** auf ICMP/UDP (Policy) → trotzdem leitet er weiter.
+- Erst wenn **ab einem Hop alles** \`*\` ist **und** das Ziel nie antwortet, liegt dort das Problem.
+
+> 🎯 **Prüfungs-/Praxisknackpunkt:** Traceroute zeigt den Pfad **hin**. Der **Rückweg** kann
+> asymmetrisch ein anderer sein — die Latenzwerte sind immer Round-Trip.
+
+## Mini-Lab (Packet Tracer / echtes Gerät)
+\`\`\`
+PC>  tracert 8.8.8.8          ! Windows-PC
+R1#  traceroute 10.0.0.5      ! Cisco-Router
+R1#  ping 10.0.0.5            ! erst Erreichbarkeit, dann Pfad
+\`\`\`
+1. Baue PC1 — R1 — R2 — R3 — Server.
+2. \`tracert\` vom PC zum Server → du siehst R1, R2, R3, Server (4 Zeilen).
+3. Zieh ein Kabel an R2 raus → \`tracert\` endet jetzt bei R1 + Timeouts → Fehler **lokalisiert**.
+
+> 🧪 **Interaktiv:** Im **Routing- & OSPF-Simulator → Tab "Paketreise"** siehst du die
+> TTL live an jedem Hop sinken und die MAC-Adressen neu geschrieben werden (IP bleibt gleich).
+
+[[icmp]] · [[routing-fundamentals]]
+  `.trim(),
+};
+
+export const CONCEPT_STATIC_ROUTING_DEEP: Concept = {
+  id: "static-routing-deep",
+  title: "Statisches Routing in der Tiefe",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["routing", "static-routes", "default-route", "floating-static", "troubleshooting"],
+  content: `
+## Wann statisches Routing?
+- **Kleine / stabile** Netze, Stub-Netze (nur ein Weg raus)
+- **Default-Route** zum ISP
+- **Backup-Pfade** (Floating Static)
+- Volle **Kontrolle** & **0 Protokoll-Overhead** — aber **keine Selbstheilung** bei Ausfall
+
+## Die \`ip route\`-Syntax — drei Varianten
+\`\`\`
+ip route <ziel-netz> <maske> { <next-hop-ip> | <ausgangs-interface> | <iface> <next-hop> }  [AD]
+\`\`\`
+
+| Variante | Beispiel | Verhalten |
+|----------|----------|-----------|
+| **Next-Hop** | \`ip route 10.2.0.0 255.255.255.0 10.0.0.2\` | rekursiver Lookup: erst Next-Hop suchen |
+| **Exit-Interface** | \`ip route 10.2.0.0 255.255.255.0 Gi0/1\` | nur auf **P2P**-Links sinnvoll |
+| **Fully specified** | \`ip route 10.2.0.0 255.255.255.0 Gi0/1 10.0.0.2\` | **beste** Wahl auf Multi-Access (Ethernet) |
+
+> ⚠️ **Klassiker-Fehler:** Auf einem **Ethernet** nur das Exit-Interface angeben. Der Router
+> muss dann für **jede** Ziel-IP ein ARP machen ("Proxy-ARP-Krücke") → unsauber. Auf Ethernet
+> immer **Next-Hop** oder **fully specified** nehmen.
+
+## Spezielle statische Routen
+\`\`\`
+! Default-Route ("Gateway of last resort") — matcht ALLES
+ip route 0.0.0.0 0.0.0.0 203.0.113.1
+
+! Host-Route (/32) — exakt EINE Adresse, schlägt jede kürzere Route (Longest Prefix!)
+ip route 10.2.0.50 255.255.255.255 10.0.0.6
+
+! Summary/Aggregat — eine Route statt vieler
+ip route 10.2.0.0 255.255.0.0 10.0.0.2
+
+! Null-Route (Blackhole) — Traffic gezielt verwerfen
+ip route 172.16.99.0 255.255.255.0 Null0
+\`\`\`
+
+## Floating Static Route — der Backup-Trick
+Eine statische Route hat AD **1**. Gibst du ihr eine **höhere AD** als das dynamische
+Protokoll, "schwebt" sie im Hintergrund und wird **nur aktiv, wenn die Hauptroute ausfällt**:
+\`\`\`
+! Primär: OSPF lernt 10.2.0.0/24 (AD 110)
+! Backup über zweite Leitung, AD 130 > 110 → nur bei Ausfall aktiv:
+ip route 10.2.0.0 255.255.255.0 10.9.9.2 130
+\`\`\`
+
+## So liest du eine statische Route in der Tabelle
+\`\`\`
+S    10.2.0.0/24 [1/0] via 10.0.0.2
+S*   0.0.0.0/0   [1/0] via 203.0.113.1   ← * = Kandidat für Default
+\`\`\`
+\`[AD/Metric]\` — bei statisch ist die **Metric immer 0**.
+
+## Troubleshooting-Checkliste
+1. \`show ip route\` — taucht die Route überhaupt auf? (Next-Hop **erreichbar**?)
+2. Next-Hop pingbar? Sonst wird die Route **nicht installiert** (recursive lookup failt).
+3. **Hin- UND Rückweg** geroutet? Ziel braucht auch eine Route **zurück** (häufigster Fehler!).
+4. Maske richtig? \`/24\` vs \`/32\` vs \`/0\` — Longest Prefix gewinnt.
+
+> 🎯 **Faustregeln**
+> - "**Ping geht hin, aber nicht zurück**" → Rückroute auf dem Zielrouter fehlt.
+> - Default-Route am Stub-Router, **spezifische** Routen Richtung Core.
+> - Floating Static = **AD höher** als das Protokoll, das es ersetzen soll.
+
+> 🧪 **Interaktiv:** Simulator → Tab **"Routing-Tabelle & AD"**: Static (AD 1) gegen OSPF/RIP
+> toggeln und sehen, wer die RIB gewinnt.
+
+[[routing-fundamentals]] · [[dynamic-routing-deep]]
+  `.trim(),
+};
+
+export const CONCEPT_DYNAMIC_ROUTING_DEEP: Concept = {
+  id: "dynamic-routing-deep",
+  title: "Dynamisches Routing & Routing-Protokolle",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["routing", "dynamic-routing", "rip", "ospf", "eigrp", "bgp", "metric", "convergence"],
+  content: `
+## Warum dynamisch?
+Router **lernen Routen automatisch** voneinander und **passen sich an Ausfälle an**
+(Konvergenz). Preis: CPU-, RAM- und Bandbreiten-Overhead durch Protokoll-Verkehr.
+
+## Die zwei großen Familien
+| | **Distance-Vector** | **Link-State** |
+|--|---------------------|----------------|
+| Idee | "Routing by **rumor**" — sag dem Nachbarn nur **Distanz + Richtung** | jeder baut die **ganze Karte** (LSDB) und rechnet selbst |
+| Beispiele | RIP, (EIGRP = advanced DV) | OSPF, IS-IS |
+| Algorithmus | Bellman-Ford | Dijkstra (SPF) |
+| Sieht | nur was Nachbarn erzählen | komplette Topologie der Area |
+| Konvergenz | langsamer | schneller |
+| Ressourcen | wenig | mehr CPU/RAM |
+
+> **Bild:** Distance-Vector ist wie nach dem Weg fragen ("3 Straßen geradeaus");
+> Link-State ist wie eine **Landkarte** haben und selbst den kürzesten Weg suchen.
+
+## Die CCNA-Protokolle im Vergleich
+| Protokoll | Typ | Metrik | AD | Algorithmus | Multicast |
+|-----------|-----|--------|----|-------------|-----------|
+| **RIPv2** | Distance-Vector | **Hop-Count** (max 15!) | 120 | Bellman-Ford | 224.0.0.9 |
+| **OSPF** | Link-State | **Cost** (= Ref-BW / BW) | 110 | Dijkstra/SPF | 224.0.0.5/.6 |
+| **EIGRP** | Advanced DV | **BW + Delay** (k-Werte) | 90 (int) | DUAL | 224.0.0.10 |
+| **BGP** | Path-Vector | **Pfad-Attribute** | 20/200 | Best-Path | — (TCP 179) |
+
+> 📌 **AD-Reihenfolge auswendig:** Connected 0 · Static 1 · **EIGRP 90 · OSPF 110 · RIP 120** · iBGP 200.
+> Bei mehreren Quellen für dasselbe Netz gewinnt die **kleinste AD**.
+
+## Metric vs. Administrative Distance — nicht verwechseln!
+- **AD** entscheidet **zwischen Protokollen** ("wem glaube ich?") → in die RIB kommt die kleinste AD.
+- **Metric** entscheidet **innerhalb eines Protokolls** ("welcher Pfad ist besser?").
+
+\`\`\`
+O   10.0.0.0/8 [110/2] via 192.168.1.2
+                 │   └─ Metric (OSPF-Cost) — protokoll-intern
+                 └───── AD (110 = OSPF) — protokoll-übergreifend
+\`\`\`
+
+## Konvergenz & Loop-Vermeidung (Distance-Vector)
+- **Split Horizon** — eine Route nicht über das Interface zurückschicken, über das man sie gelernt hat.
+- **Route Poisoning** — ausgefallene Route mit "unendlich" (RIP: 16 Hops) markieren.
+- **Hold-Down-Timer** — kurz keine schlechteren Updates für ein Netz annehmen.
+- **Triggered Updates** — Änderungen sofort melden, statt aufs Intervall zu warten.
+
+## Minimal-Konfiguration (Vergleich)
+\`\`\`
+! RIPv2
+router rip
+ version 2
+ no auto-summary
+ network 10.0.0.0
+
+! OSPF (Wildcard-Maske!)
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.0.0 0.0.0.255 area 0
+
+! EIGRP
+router eigrp 100
+ no auto-summary
+ network 10.0.0.0 0.0.0.255
+\`\`\`
+
+## Welches Protokoll wann?
+| Situation | Wahl |
+|-----------|------|
+| Reines Cisco, schnelle Konvergenz | EIGRP |
+| Multi-Vendor, Standard, große Netze | OSPF |
+| Sehr klein / Legacy | RIPv2 |
+| Zwischen Autonomen Systemen / Internet | BGP |
+
+> 🎯 **Tipps & Tricks**
+> - **\`show ip route\`** ist deine Wahrheit — was hier nicht steht, wird nicht geroutet.
+> - **\`show ip protocols\`** zeigt aktive Protokolle, Timer, Netze, AD.
+> - OSPF-Nachbarschaft kommt nicht zustande? → **MTU, Area, Hello/Dead-Timer, Subnetz, Auth** prüfen (siehe [[ospf-neighbor-states]]).
+> - RIP zählt **Hops**, nicht Bandbreite → eine 1-Hop-56k-Leitung schlägt bei RIP eine 3-Hop-Glasfaser (Schwäche!).
+> - "**Passive-Interface**" stoppt Protokoll-Updates auf einem Interface (z. B. LAN zum Endnutzer), ohne das Netz aus dem Routing zu nehmen.
+
+> 🧪 **Interaktiv:** Simulator → Tab **"OSPF SPF/Cost"** (Link-Kosten verschieben, Pfad neu rechnen)
+> und Tab **"Routing-Tabelle & AD"** (Protokoll-Quellen vergleichen).
+
+[[ospf]] · [[static-routing-deep]] · [[routing-fundamentals]]
+  `.trim(),
+};
+
 export const CONCEPT_OSPF: Concept = {
   id: "ospf",
   title: "OSPF — Open Shortest Path First",
@@ -428,6 +678,9 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "Routing-Grundlagen, statische Routen, OSPF Single- und Multi-Area, Inter-VLAN Routing — Layer-3-Vermittlung meistern.",
   conceptIds: [
     "routing-fundamentals",
+    "routing-ttl-traceroute",
+    "static-routing-deep",
+    "dynamic-routing-deep",
     "routing-simulator",
     "ospf",
     "ospf-neighbor-states",
@@ -445,6 +698,9 @@ export const TOPIC_ROUTING_OSPF: Topic = {
 
 export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "routing-fundamentals": CONCEPT_ROUTING_FUNDAMENTALS,
+  "routing-ttl-traceroute": CONCEPT_ROUTING_TTL_TRACEROUTE,
+  "static-routing-deep": CONCEPT_STATIC_ROUTING_DEEP,
+  "dynamic-routing-deep": CONCEPT_DYNAMIC_ROUTING_DEEP,
   "routing-simulator": CONCEPT_ROUTING_SIMULATOR,
   ospf: CONCEPT_OSPF,
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
