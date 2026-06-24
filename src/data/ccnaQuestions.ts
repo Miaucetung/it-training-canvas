@@ -8200,7 +8200,42 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "255.255.255.248"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "internet", type: "cloud", label: "Internet", x: 40, y: 50 },
+          { id: "mpls", type: "cloud", label: "MPLS", x: 40, y: 190 },
+          { id: "r1", type: "router", label: "Router1", x: 240, y: 120 },
+          { id: "sw1", type: "switch", label: "Switch1", x: 400, y: 120 },
+          { id: "hosta", type: "pc", label: "Host A", x: 530, y: 120 },
+        ],
+        links: [
+          { from: "internet", to: "r1", subnet: "10.10.11.0/30" },
+          { from: "mpls", to: "r1", subnet: "10.10.12.0/30" },
+          { from: "r1", to: "sw1", subnet: "10.10.10.0/28" },
+          { from: "sw1", to: "hosta" },
+        ],
+        labels: [{ text: "10.10.13.214", attachTo: "hosta", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `Router1#show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+B     209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      10.0.0.0/8 is variably subnetted, 8 subnets, 4 masks
+C        10.10.10.0/28 is directly connected, GigabitEthernet0/0
+C        10.10.11.0/30 is directly connected, FastEthernet2/0
+C        10.10.12.0/30 is directly connected, GigabitEthernet0/1
+O        10.10.13.0/25 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.128/26 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.144/28 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.160/29 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.208/29 [110/2] via 10.10.10.1, GigabitEthernet0/0
+S*    0.0.0.0/0 [1/0] via 10.10.11.2`,
+        highlight: ["O        10.10.13.160/29 [110/2] via 10.10.10.1, GigabitEthernet0/0"],
+      },
+    ],
   },
   {
     id: "q0490",
@@ -8213,7 +8248,24 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "ipv6 route 2001:db8:23::14/64 fd00:12::2"
     ],
     correct: [1, 2],
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 280, y: 50 },
+        { id: "r2", type: "router", label: "R2", x: 110, y: 170 },
+        { id: "r3", type: "router", label: "R3", x: 450, y: 170 },
+        { id: "lan", type: "switch", label: "LAN", x: 280, y: 250 },
+        { id: "host", type: "pc", label: "Host", x: 280, y: 360 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "fd00:12::/64", labelFrom: "::1", labelTo: "::2" },
+        { from: "r1", to: "r3", subnet: "fd00:13::/64", labelFrom: "::1", labelTo: "::3" },
+        { from: "r2", to: "lan", subnet: "2001:db8:23::/64" },
+        { from: "r3", to: "lan" },
+        { from: "lan", to: "host" },
+      ],
+      labels: [{ text: "2001:db8:23::14/64", attachTo: "host", position: "below" }],
+    },
   },
   {
     id: "q0491",
@@ -8225,7 +8277,33 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "ip route 10.10.2.1 255.255.255.255192.168.1.4 100"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 120, y: 130 },
+          { id: "r2", type: "router", label: "R2", x: 380, y: 50 },
+          { id: "r3", type: "router", label: "R3", x: 380, y: 210 },
+          { id: "lan", type: "pc", label: "10.10.2.0/24", x: 540, y: 130 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "192.168.1.0/24", labelTo: ".2" },
+          { from: "r1", to: "r3", subnet: "192.168.1.0/24", labelTo: ".4" },
+          { from: "r2", to: "lan" },
+          { from: "r3", to: "lan" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1#show ip route 10.10.2.1
+Routing entry for 10.10.2.0/24
+  Known via "ospf 1", distance 110, metric 2, type intra area
+  Last update from 192.168.1.2 on GigabitEthernet0/0, 01:23:15 ago
+  * 192.168.1.2, from 192.168.1.2, via GigabitEthernet0/0
+      Route metric is 2, traffic share count is 1`,
+        highlight: ["  * 192.168.1.2, from 192.168.1.2, via GigabitEthernet0/0"],
+      },
+    ],
   },
   {
     id: "q0492",
@@ -8237,7 +8315,36 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "R1(config)#ip route 10.10.13.10 255.255.255.255 10.10.10.2 R2(config)#ip route 192.168.0.100 255.255.255.255 10.10.10.1"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r1", type: "router", label: "R1", x: 150, y: 80 },
+          { id: "r2", type: "router", label: "R2", x: 450, y: 80 },
+          { id: "client", type: "pc", label: "Client A", x: 150, y: 250 },
+          { id: "server", type: "pc", label: "Image Server", x: 450, y: 250 },
+        ],
+        links: [
+          { from: "r1", to: "r2", subnet: "10.10.10.0/30 + 10.10.16.0/30", labelFrom: ".1 / .5", labelTo: ".2 / .6" },
+          { from: "r1", to: "client" },
+          { from: "r2", to: "server" },
+        ],
+        labels: [
+          { text: "192.168.0.100/24", attachTo: "client", position: "below" },
+          { text: "10.10.13.10/25", attachTo: "server", position: "below" },
+        ],
+      },
+      {
+        type: "cli",
+        content: `R1#show ip route
+Gateway of last resort is 10.10.10.2 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 10.10.10.2
+
+R2#show ip route
+Gateway of last resort is 10.10.16.1 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 10.10.16.1`,
+      },
+    ],
   },
   {
     id: "q0493",
@@ -8249,7 +8356,19 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "S 192.168.1.0/30 [1/0] via 10.1.1.1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is not set
+      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        10.1.1.0/30 is directly connected, GigabitEthernet0/0
+L        10.1.1.2/32 is directly connected, GigabitEthernet0/0
+S     192.168.0.0/20 [1/0] via 10.1.1.1
+S     192.168.1.0/30 [1/0] via 10.1.1.1
+S     192.168.2.0/28 [1/0] via 10.1.1.1
+S     192.168.2.0/29 [1/0] via 10.1.1.1`,
+      highlight: ["S     192.168.2.0/29 [1/0] via 10.1.1.1"],
+    },
   },
   {
     id: "q0495",
@@ -8261,7 +8380,42 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "/29"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "internet", type: "cloud", label: "Internet", x: 40, y: 50 },
+          { id: "mpls", type: "cloud", label: "MPLS", x: 40, y: 190 },
+          { id: "r1", type: "router", label: "Router1", x: 240, y: 120 },
+          { id: "sw1", type: "switch", label: "Switch1", x: 400, y: 120 },
+          { id: "hosta", type: "pc", label: "Host A", x: 530, y: 120 },
+        ],
+        links: [
+          { from: "internet", to: "r1", subnet: "10.10.11.0/30" },
+          { from: "mpls", to: "r1", subnet: "10.10.12.0/30" },
+          { from: "r1", to: "sw1", subnet: "10.10.10.0/28" },
+          { from: "sw1", to: "hosta" },
+        ],
+        labels: [{ text: "10.10.13.214", attachTo: "hosta", position: "below" }],
+      },
+      {
+        type: "cli",
+        content: `Router1#show ip route
+Gateway of last resort is 10.10.11.2 to network 0.0.0.0
+B     209.165.200.224 [20/0] via 10.10.12.2, 03:22:14
+      10.0.0.0/8 is variably subnetted, 8 subnets, 4 masks
+C        10.10.10.0/28 is directly connected, GigabitEthernet0/0
+C        10.10.11.0/30 is directly connected, FastEthernet2/0
+C        10.10.12.0/30 is directly connected, GigabitEthernet0/1
+O        10.10.13.0/25 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.128/26 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.144/28 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.160/29 [110/2] via 10.10.10.1, GigabitEthernet0/0
+O        10.10.13.208/29 [110/2] via 10.10.10.1, GigabitEthernet0/0
+S*    0.0.0.0/0 [1/0] via 10.10.11.2`,
+        highlight: ["O        10.10.13.208/29 [110/2] via 10.10.10.1, GigabitEthernet0/0"],
+      },
+    ],
   },
   {
     id: "q0496",
@@ -8273,7 +8427,37 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "They are routed to 172.16.20.2"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          { id: "r16", type: "router", label: "R16", x: 70, y: 120 },
+          { id: "r17", type: "router", label: "R17", x: 290, y: 120 },
+          { id: "r18", type: "router", label: "R18", x: 500, y: 120 },
+          { id: "pc1", type: "pc", label: "PC1", x: 290, y: 280 },
+          { id: "pc3", type: "pc", label: "PC3", x: 500, y: 280 },
+        ],
+        links: [
+          { from: "r16", to: "r17", subnet: "2001:db8:2::/64", labelFrom: "Fa0/0", labelTo: "Fa0/0" },
+          { from: "r17", to: "r18", subnet: "2001:db8:3::/64 (S0/0/0 + S0/0/1)", labelFrom: "Fa1/0", labelTo: "Fa1/0" },
+          { from: "r17", to: "pc1", labelFrom: "Fa2/0" },
+          { from: "r18", to: "pc3" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Gerät", "Interface", "IPv6-Adresse"],
+        rows: [
+          ["R16", "Fa0/0", "2001:db8:2::101/64"],
+          ["R17", "Fa0/0", "2001:db8:2::201/64"],
+          ["R17", "Fa1/0", "2001:db8:3::201/64"],
+          ["R18", "Fa1/0", "2001:db8:3::301/64"],
+          ["R18", "Fa0/0", "2001:db8:4::301/64"],
+          ["PC1", "-", "2001:db8:5::104/64"],
+          ["PC3", "-", "2001:db8:4::302/64"],
+        ],
+      },
+    ],
   },
   {
     id: "q0497",
@@ -8285,7 +8469,17 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "Vlan60"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Gateway of last resort is 10.56.0.1 to network 0.0.0.0
+S*    0.0.0.0/0 [1/0] via 10.56.0.1
+C     10.56.0.0/16 is directly connected, Null0
+C     10.56.0.0/26 is directly connected, Vlan58
+C     10.56.0.0/24 is directly connected, Vlan59
+C     10.56.0.0/24 is directly connected, Vlan60`,
+      highlight: ["C     10.56.0.0/26 is directly connected, Vlan58"],
+    },
   },
   {
     id: "q0498",
@@ -8297,7 +8491,20 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "Router(config)#interface GigabitEthernet 0/0 Router(config-if)#ip ospf network point-to- point"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "cli",
+      content: `Aktuelle Nachbarbeziehung
+Neighbor ID  Pri  State      Dead Time  Address       Interface
+192.168.1.1  1    FULL/DR    00:00:33   192.168.1.1   GigabitEthernet0/0
+
+Gewünschte Nachbarbeziehung
+Neighbor ID  Pri  State      Dead Time  Address       Interface
+192.168.1.1  0    FULL/-     00:00:31   192.168.1.1   GigabitEthernet0/0`,
+      highlight: [
+        "192.168.1.1  1    FULL/DR    00:00:33   192.168.1.1   GigabitEthernet0/0",
+        "192.168.1.1  0    FULL/-     00:00:31   192.168.1.1   GigabitEthernet0/0",
+      ],
+    },
   },
   {
     id: "q0499",
@@ -8382,7 +8589,24 @@ GigabitEthernet0/0/0 is up, line protocol is up
     "ip route 10.0.15.0 255.255.255.0 10.0.20.3"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: {
+      type: "topology",
+      devices: [
+        { id: "r1", type: "router", label: "R1", x: 120, y: 60 },
+        { id: "r2", type: "router", label: "R2", x: 420, y: 60 },
+        { id: "r3", type: "router", label: "R3", x: 270, y: 220 },
+        { id: "lan", type: "pc", label: "LAN 10.0.15.0/24", x: 270, y: 350 },
+      ],
+      links: [
+        { from: "r1", to: "r2", subnet: "10.0.20.0/24", labelFrom: ".1", labelTo: ".2" },
+        { from: "r1", to: "r3", labelTo: "10.0.20.3" },
+        { from: "r3", to: "lan" },
+      ],
+      labels: [
+        { text: "10.0.0.64/26", attachTo: "r1", position: "above" },
+        { text: "10.0.0.128/26", attachTo: "r2", position: "above" },
+      ],
+    },
   },
   {
     id: "q0507",
