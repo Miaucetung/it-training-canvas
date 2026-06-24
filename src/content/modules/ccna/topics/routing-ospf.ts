@@ -655,16 +655,19 @@ export const CONCEPT_ROUTING_SIMULATOR: Concept = {
   content: `
 ## Interaktiver Routing- & OSPF-Simulator
 
-Vier zusammenhängende Visualisierungen — eigenständig verständlich, ohne Vorwissen:
+Fünf zusammenhängende Visualisierungen — eigenständig verständlich, ohne Vorwissen:
 
 1. **Paketreise (Hop-by-Hop)** — verfolge ein Paket PC1 → R1 → R2 → R3 → PC2 und sieh live, wie an jedem Router
    die Routing-Tabelle befragt, die TTL dekrementiert und die MAC-Adressen neu geschrieben werden — die IP
    bleibt dabei konstant.
-2. **Routing-Tabelle & Administrative Distance** — Toggle Connected/Static/EIGRP/OSPF/RIP für denselben Zielprefix
+2. **Traceroute (TTL-Trick)** — Schritt für Schritt TTL=1, 2, 3 … aussenden und sehen, wie jeder Router beim
+   TTL=0 mit „ICMP Time Exceeded" antwortet und so seine IP verrät, bis das Ziel erreicht ist — inkl. live
+   wachsendem \`tracert\`-Output.
+3. **Routing-Tabelle & Administrative Distance** — Toggle Connected/Static/EIGRP/OSPF/RIP für denselben Zielprefix
    und sieh, welche Quelle die RIB gewinnt (niedrigste AD wins).
-3. **OSPF Neighbor-States** — klick dich durch Down → Init → 2-Way → ExStart → Exchange → Loading → Full mit
+4. **OSPF Neighbor-States** — klick dich durch Down → Init → 2-Way → ExStart → Exchange → Loading → Full mit
    Paket-Animation und Troubleshooting-Hinweis je State.
-4. **OSPF SPF / Cost** — Dijkstra-Visualisierung mit 4 Routern. Verschiebe Link-Kosten und sieh, wie sich der
+5. **OSPF SPF / Cost** — Dijkstra-Visualisierung mit 4 Routern. Verschiebe Link-Kosten und sieh, wie sich der
    beste Pfad sofort neu berechnet.
 
 → Direkt im Topic-Detail über den CTA "Routing- & OSPF-Simulator" starten.

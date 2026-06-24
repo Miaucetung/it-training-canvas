@@ -21,7 +21,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Tab = "journey" | "table" | "neighbor" | "spf";
+type Tab = "journey" | "traceroute" | "table" | "neighbor" | "spf";
 
 // ════════════════════════════════════════════════════════════
 // Tab-Daten 1: Paketreise (Hop-by-Hop)
@@ -361,9 +361,10 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
           {(
             [
               { id: "journey", label: "1 · Paketreise" },
-              { id: "table", label: "2 · Routing-Tabelle & AD" },
-              { id: "neighbor", label: "3 · OSPF Neighbor-States" },
-              { id: "spf", label: "4 · OSPF SPF / Cost" },
+              { id: "traceroute", label: "2 · Traceroute (TTL)" },
+              { id: "table", label: "3 · Routing-Tabelle & AD" },
+              { id: "neighbor", label: "4 · OSPF Neighbor-States" },
+              { id: "spf", label: "5 · OSPF SPF / Cost" },
             ] as { id: Tab; label: string }[]
           ).map((t) => (
             <button
@@ -387,6 +388,7 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
         {/* Content */}
         <div className="p-6">
           {tab === "journey" && <JourneyTab dark={dark} />}
+          {tab === "traceroute" && <TracerouteTab dark={dark} />}
           {tab === "table" && <TableTab dark={dark} />}
           {tab === "neighbor" && <NeighborTab dark={dark} />}
           {tab === "spf" && <SpfTab dark={dark} />}
@@ -670,6 +672,187 @@ function FieldRow({ label, value, dark, highlight }: { label: string; value: str
       >
         {value}
       </span>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════
+// Tab 5: Traceroute (TTL-Trick)
+// ════════════════════════════════════════════════════════════
+
+interface TraceHop {
+  node: "r1" | "r2" | "r3" | "server";
+  cx: number;
+  ip: string;
+  role: string;
+  rtt: [string, string, string];
+  reply: string;
+  isTarget?: boolean;
+}
+
+const TRACE: TraceHop[] = [
+  { node: "r1", cx: 220, ip: "192.168.1.1", role: "Default-Gateway (LAN)", rtt: ["1 ms", "1 ms", "2 ms"], reply: "ICMP Time Exceeded (Type 11)" },
+  { node: "r2", cx: 380, ip: "100.64.0.1", role: "ISP-Zugangsrouter", rtt: ["11 ms", "12 ms", "11 ms"], reply: "ICMP Time Exceeded (Type 11)" },
+  { node: "r3", cx: 540, ip: "203.0.113.9", role: "Backbone / Transit", rtt: ["18 ms", "17 ms", "18 ms"], reply: "ICMP Time Exceeded (Type 11)" },
+  { node: "server", cx: 700, ip: "8.8.8.8", role: "Ziel-Host", rtt: ["19 ms", "18 ms", "19 ms"], reply: "Echo Reply — Ziel erreicht ✓", isTarget: true },
+];
+
+function TracerouteTab({ dark }: { dark: boolean }) {
+  const [step, setStep] = useState(0); // aktueller Probe-Index (0 = TTL 1 → R1)
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!playing) return;
+    const t = window.setInterval(() => {
+      setStep((s) => {
+        if (s >= TRACE.length - 1) {
+          setPlaying(false);
+          return s;
+        }
+        return s + 1;
+      });
+    }, 2200);
+    return () => window.clearInterval(t);
+  }, [playing]);
+
+  const ttl = step + 1;
+  const hop = TRACE[step];
+  const subText = dark ? "text-slate-400" : "text-slate-600";
+  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const nodes: Array<{ key: TraceHop["node"]; cx: number; kind: "pc" | "router"; label: string }> = [
+    { key: "r1", cx: 220, kind: "router", label: "R1" },
+    { key: "r2", cx: 380, kind: "router", label: "R2" },
+    { key: "r3", cx: 540, kind: "router", label: "R3" },
+    { key: "server", cx: 700, kind: "pc", label: "Server" },
+  ];
+  const line = dark ? "#475569" : "#cbd5e1";
+  const linkColor = (toCx: number) => (toCx <= hop.cx ? "#0ea5e9" : line);
+
+  return (
+    <div className="space-y-4">
+      {/* Intro */}
+      <div className={`rounded-lg border p-4 ${cardBg}`}>
+        <h3 className="font-semibold mb-1">Der Traceroute-Trick</h3>
+        <p className={`text-sm ${subText}`}>
+          Traceroute schickt absichtlich Pakete mit zu kleiner <strong>TTL</strong>: zuerst TTL=1, dann 2, 3 …
+          Jeder Router zieht 1 ab — wird die TTL <strong>0</strong>, verwirft er das Paket und meldet sich mit
+          <strong> ICMP Time Exceeded</strong>. So verrät jeder Hop nacheinander seine IP. Erst das Ziel antwortet
+          „normal“ → Trace fertig.
+        </p>
+      </div>
+
+      {/* Topologie */}
+      <div className={`rounded-lg border p-4 ${cardBg}`}>
+        <div className={`mb-1 text-center text-xs ${subText}`}>
+          Sonde mit <span className="font-mono font-semibold">TTL = {ttl}</span> → verfällt bei Hop {ttl}
+        </div>
+        <svg viewBox="0 0 760 190" className="w-full h-auto" style={{ maxHeight: 230 }}>
+          {/* Links + TTL-Werte je Segment für die aktuelle Sonde */}
+          {nodes.map((n, i) => {
+            const fromCx = i === 0 ? 70 : nodes[i - 1].cx;
+            const ttlAtSeg = ttl - i; // TTL beim Eintreffen an Knoten i
+            const reached = n.cx <= hop.cx;
+            return (
+              <g key={n.key}>
+                <line x1={fromCx + 30} y1="110" x2={n.cx - 30} y2="110" stroke={linkColor(n.cx)} strokeWidth="3" />
+                {reached && (
+                  <text x={(fromCx + n.cx) / 2} y="100" textAnchor="middle" fontSize="11" fontWeight="bold" fill={ttlAtSeg <= 0 ? "#ef4444" : "#0ea5e9"}>
+                    {Math.max(ttlAtSeg, 0)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* PC */}
+          <DeviceIcon x={40} y={85} kind="pc" label="PC" active={false} dark={dark} />
+          <text x={70} y="165" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+            192.168.1.10
+          </text>
+
+          {/* Hops */}
+          {nodes.map((n) => (
+            <g key={n.key}>
+              <DeviceIcon x={n.cx - 30} y={85} kind={n.kind} label={n.label} active={n.key === hop.node} dark={dark} />
+              <text x={n.cx} y="165" textAnchor="middle" fontSize="10" fill={n.key === hop.node ? "#0ea5e9" : dark ? "#cbd5e1" : "#475569"}>
+                {TRACE.find((t) => t.node === n.key)?.ip}
+              </text>
+            </g>
+          ))}
+
+          {/* Paket-Dot am Verfall-Hop */}
+          <g style={{ transition: "all 0.6s ease-in-out", transform: `translateX(${hop.cx - 70}px)` }}>
+            <circle cx={70} cy={110} r="11" fill={hop.isTarget ? "#10b981" : "#ef4444"} stroke="#fff" strokeWidth="2">
+              <animate attributeName="r" values="11;15;11" dur="1.2s" repeatCount="indefinite" />
+            </circle>
+            <text x={70} y={114} textAnchor="middle" fontSize="9" fill="#fff" fontWeight="bold">
+              {hop.isTarget ? "✓" : "0"}
+            </text>
+          </g>
+        </svg>
+      </div>
+
+      {/* Erklärung aktueller Hop */}
+      <div className={`rounded-lg border p-4 ${cardBg}`}>
+        <div className="flex items-center justify-between">
+          <span className="font-semibold">
+            Sonde {ttl}: {hop.role}
+          </span>
+          <span className="font-mono text-xs">{hop.ip}</span>
+        </div>
+        <p className={`mt-1 text-sm ${subText}`}>
+          PC sendet TTL={ttl}. An jedem Router −1 → bei <strong>{hop.isTarget ? "Server" : hop.node.toUpperCase()}</strong>{" "}
+          {hop.isTarget ? (
+            <>erreicht das Paket das Ziel und bekommt eine <strong>{hop.reply}</strong>.</>
+          ) : (
+            <>wird TTL=0 → Paket verworfen, Antwort: <strong>{hop.reply}</strong> von {hop.ip}.</>
+          )}
+        </p>
+      </div>
+
+      {/* Output */}
+      <div className={`rounded-lg border p-3 font-mono text-xs ${dark ? "bg-slate-950 border-slate-700 text-slate-200" : "bg-slate-900 border-slate-700 text-slate-100"}`}>
+        <div className="text-slate-400">C:\&gt; tracert 8.8.8.8</div>
+        <div className="text-slate-400 mb-1">Routenverfolgung zu 8.8.8.8 über maximal 30 Hops:</div>
+        {TRACE.slice(0, step + 1).map((t, i) => (
+          <div key={t.node} className={t.isTarget ? "text-emerald-400" : ""}>
+            {String(i + 1).padStart(2, " ")}   {t.rtt.join("   ")}   {t.ip}
+            {t.isTarget ? "   ← Ziel" : ""}
+          </div>
+        ))}
+        {step >= TRACE.length - 1 && <div className="text-emerald-400">Ablaufverfolgung beendet.</div>}
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          disabled={step === 0}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium disabled:opacity-40 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+        >
+          ← Zurück
+        </button>
+        <button
+          onClick={() => setPlaying((p) => !p)}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 ${dark ? "bg-sky-500 hover:bg-sky-400 text-white" : "bg-sky-600 hover:bg-sky-700 text-white"}`}
+        >
+          {playing ? <Pause size={14} weight="bold" /> : <Play size={14} weight="bold" />}
+          {playing ? "Pause" : "Auto-Play"}
+        </button>
+        <button
+          onClick={() => setStep((s) => Math.min(TRACE.length - 1, s + 1))}
+          disabled={step >= TRACE.length - 1}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 disabled:opacity-40 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+        >
+          Weiter <ArrowRight size={14} weight="bold" />
+        </button>
+        <button
+          onClick={() => { setStep(0); setPlaying(false); }}
+          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+        >
+          <SkipForward size={14} weight="bold" style={{ transform: "scaleX(-1)" }} /> Reset
+        </button>
+      </div>
     </div>
   );
 }
