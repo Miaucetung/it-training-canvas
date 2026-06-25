@@ -628,6 +628,93 @@ area <id> range <netz> <maske>     ! Route Summarization am ABR konfigurieren
   `.trim(),
 };
 
+export const CONCEPT_RIP_OSPF_VERDICHTUNG: Concept = {
+  id: "rip-ospf-verdichtung",
+  title: "Verdichtung: RIPv2 & OSPF Single-Area (CIS4-Lektion)",
+  appliesTo: ["ccna"],
+  tags: ["routing", "rip", "ripv2", "ospf", "wildcard", "verdichtung", "exam"],
+  content: `
+Kompakte Prüfungs-Review-Karte zur Lektion **RIP Teil II, RIPv2 & OSPF-Grundlagen**.
+Vertiefungen: [[ripv1]] · [[dynamic-routing-deep]] · [[ospf]] · [[ospf-neighbor-states]] · [[ospf-dr-bdr]].
+
+## 1) Passive Interface (RIP **und** OSPF)
+\`\`\`
+R(config-router)# passive-interface GigabitEthernet0/0
+\`\`\`
+- Unterdrückt Routing-Updates auf einem Interface — typisch für **LAN-Seiten ohne Nachbar-Router**.
+- **Unterschied:** Bei **RIP** wird auf dem Interface nichts gesendet **und** nichts empfangen.
+  Bei **OSPF** werden **keine Hellos** mehr gesendet (→ keine Adjacency), das Netz wird aber **weiter angekündigt**.
+
+## 2) RIPv2 in einer Tabelle
+| Merkmal | RIPv1 | **RIPv2** |
+|---|---|---|
+| Typ | classful | **classless** |
+| Maske im Update | nein | **ja** |
+| Update-Ziel | Broadcast 255.255.255.255 | **Multicast 224.0.0.9** |
+| Abwärtskompatibel | – | ja (zu v1) |
+
+\`\`\`
+R(config)# router rip
+R(config-router)# version 2          ! classless aktivieren
+R(config-router)# no auto-summary    ! Zusammenfassung an Klassengrenzen AUS
+R(config-router)# network 10.0.0.0   ! classful-Netzangabe, KEIN Wildcard
+\`\`\`
+- **no auto-summary**: verhindert, dass Subnetze fälschlich zu classful-Netzen zusammengefasst werden (discontiguous!).
+- **Load Balancing:** RIP nutzt per Default **4 gleichwertige Pfade** (Equal-Cost), erweiterbar auf **6** (\`maximum-paths 6\`).
+- Metrik = **Hop-Count** (max 15), **AD 120**. Erwartete Route: \`R 192.168.0.0/24 [120/3] via 10.1.0.2\`.
+
+## 3) OSPF — Hello & Adjacency
+Jeder OSPF-Router sendet **Hello** an **224.0.0.5** (All-OSPF-Routers). Inhalt: Router-ID, Subnetz, Maske, Area, **Hello-Intervall**.
+
+**Adjacency entsteht nur, wenn diese 4 Parameter übereinstimmen:**
+1. gleiches **Subnetz**
+2. gleiche **Subnetzmaske**
+3. gleiches **Hello-/Dead-Intervall**
+4. gleiche **Area**
+
+> 🎯 „Keine OSPF-Nachbarn" → genau diese 4 prüfen (Subnetz / Maske / Hello-Intervall / Area).
+
+**Neighbor-Phasen (Kurzform):** DOWN → INIT → **2-WAY** (sehen sich gegenseitig, DR/BDR-Wahl) → ExStart → Exchange → Loading → **FULL** (alle LSAs synchron). Details: [[ospf-neighbor-states]].
+
+## 4) OSPF Areas & ABR
+- **Area 0 = Backbone** ist Pflicht; **jede** andere Area (1–65535) braucht eine **direkte** Verbindung zu Area 0.
+- **ABR (Area Border Router):** in **zwei** Areas, vermittelt Routen zwischen ihnen (und fasst sie ggf. zusammen: \`area <id> range\`).
+- **Single-Area** = alle \`network … area 0\`.
+
+\`\`\`
+R(config)# router ospf 1
+R(config-router)# router-id 1.1.1.1
+R(config-router)# network 192.168.1.0 0.0.0.255 area 0   ! /24 → Wildcard 0.0.0.255
+R(config-router)# network 192.168.10.0 0.0.0.3 area 0    ! /30 → Wildcard 0.0.0.3
+\`\`\`
+
+## 5) Router-ID — Auswahlreihenfolge
+1. **Manuell** \`router-id A.B.C.D\` (gewinnt immer)
+2. sonst **höchste Loopback-IP** (Loopback ist immer up/up → stabil!)
+3. sonst **höchste IP eines physischen Interface**
+
+> 💡 Darum auf jedem Router ein **Loopback** (\`ip address X.X.X.X 255.255.255.255\`) für eine stabile RID anlegen.
+
+## 6) Wildcard-Maske
+- Wildcard = **invertierte** Subnetzmaske (Bit \`1\` = „egal/don't care"). Bits müssen **von rechts** aufgefüllt sein (keine Lücken — \`0.0.0.16\` ist **ungültig**).
+
+| Präfix | Subnetzmaske | **Wildcard** |
+|---|---|---|
+| /24 | 255.255.255.0 | **0.0.0.255** |
+| /25 | 255.255.255.128 | **0.0.0.127** |
+| /16 | 255.255.0.0 | **0.0.255.255** |
+| /8 | 255.0.0.0 | **0.255.255.255** |
+| /30 | 255.255.255.252 | **0.0.0.3** |
+| /32 | 255.255.255.255 | **0.0.0.0** |
+
+> ⚠️ Im \`network\`-Befehl steht die **Wildcard**, nicht die Subnetzmaske — \`network 192.168.1.0 255.255.255.0 area 0\` ist falsch.
+
+## Übungen in den Labs
+- **„RIPv2 + Passive Interface (4 Router)"** — version 2 / no auto-summary / passive-interface, erwartete \`[120/3]\`-Routen.
+- **„OSPF Single-Area — Loopback-RID & Wildcard"** — Loopbacks als RID, alle Netze in Area 0, Wildcard-Drill, Troubleshooting.
+  `.trim(),
+};
+
 export const CONCEPT_INTER_VLAN_ROUTING_OVERVIEW: Concept = {
   id: "inter-vlan-routing-overview",
   title: "Inter-VLAN Routing — Überblick",
@@ -754,6 +841,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "ospf-neighbor-states",
     "ospf-dr-bdr",
     "ospf-lsa-types",
+    "rip-ospf-verdichtung",
     "inter-vlan-routing-overview",
     "routing-ospf-guide",
   ],
@@ -775,6 +863,7 @@ export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
   "ospf-dr-bdr": CONCEPT_OSPF_DR_BDR,
   "ospf-lsa-types": CONCEPT_OSPF_LSA_TYPES,
+  "rip-ospf-verdichtung": CONCEPT_RIP_OSPF_VERDICHTUNG,
   "inter-vlan-routing-overview": CONCEPT_INTER_VLAN_ROUTING_OVERVIEW,
   "routing-ospf-guide": CONCEPT_ROUTING_OSPF_GUIDE,
 };

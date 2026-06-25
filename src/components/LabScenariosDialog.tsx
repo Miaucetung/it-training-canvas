@@ -289,95 +289,6 @@ export const LABS: LabScenario[] = [
   },
 
   {
-    id: "drill-access-ports",
-    icon: <Stack size={20} />,
-    title: "Drill: Access-Ports im Akkord",
-    subtitle: "16 Ports · 2 VLANs · 2 Switches",
-    difficulty: "Drill",
-    duration: "12 min",
-    context: {
-      problem:
-        "In jedem Switch müssen viele Ports dem richtigen VLAN zugeordnet werden. Einzeln ist das langsam und fehleranfällig.",
-      purpose:
-        "Trainiert den Dreierschritt range → mode access → access vlan samt PortFast im Akkord, damit VLAN-Zuweisung zur Routine wird.",
-    },
-    topology: {
-      description:
-        "Auf zwei Switches werden jeweils 16 Ports in zwei VLANs aufgeteilt — mit interface range immer im selben Dreierschritt: range → mode access → access vlan.",
-      devices: [
-        { type: "switch", label: "SW1 / SW2", count: 2 },
-      ],
-      connections: [
-        "Keine Verkabelung nötig — reines Konfigurationstraining",
-      ],
-      hint: "Der Dreierschritt sitzt, wenn du ihn sprechen kannst: 'range — access — vlan'. Portfast obendrauf, weil es Access-Ports sind.",
-    },
-    steps: [
-      {
-        title: "SW1: VLANs anlegen + Ports zuweisen",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              {
-                cmd: "vlan 10\nname BUERO\nvlan 20\nname LABOR",
-                explanation: "VLANs zuerst — sonst landet die Port-Zuweisung in einem nicht existierenden VLAN.",
-              },
-              {
-                cmd: "interface range fa0/1 - 8\nswitchport mode access\nswitchport access vlan 10\nspanning-tree portfast",
-                explanation:
-                  "Der Dreierschritt + Portfast für die ersten 8 Ports. `interface range` ist der wichtigste Zeitsparer der Prüfung.",
-              },
-              {
-                cmd: "interface range fa0/9 - 16\nswitchport mode access\nswitchport access vlan 20\nspanning-tree portfast",
-                explanation: "Dieselbe Sequenz für VLAN 20 — ohne nachzudenken.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "SW2: identisch wiederholen",
-        blocks: [
-          {
-            device: "SW2",
-            mode: "global",
-            modeLabel: "SW2(config)#",
-            commands: [
-              {
-                cmd: "(komplette Sequenz von SW1 wiederholen)",
-                explanation:
-                  "Runde 2 aus dem Gedächtnis: 2 VLANs, 2× Dreierschritt. Stoppuhr: unter 90 Sekunden ist das Ziel.",
-              },
-              {
-                cmd: "do show vlan brief",
-                explanation:
-                  "Sofort-Kontrolle ohne den Config-Modus zu verlassen: Fa0/1–8 in VLAN 10, Fa0/9–16 in VLAN 20?",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show vlan brief", expected: "VLAN 10 BUERO: Fa0/1-8, VLAN 20 LABOR: Fa0/9-16 (auf beiden Switches)" },
-      { cmd: "show interfaces fa0/1 switchport", expected: "Administrative Mode: static access, Access Mode VLAN: 10" },
-      { cmd: "show running-config | section interface", expected: "Jeder Port: mode access + access vlan + portfast" },
-    ],
-    glossary: [
-      { term: "VLAN", def: "Virtual LAN — logische Aufteilung eines Switches in getrennte Broadcast-Domänen." },
-      { term: "Access-Port", def: "Switch-Port, der genau zu EINEM VLAN gehört und ungetaggte Frames eines Endgeräts überträgt." },
-      { term: "switchport mode access", def: "Setzt den Port fest in den Access-Modus (kein Trunk, keine DTP-Verhandlung)." },
-      { term: "switchport access vlan <id>", def: "Weist den Access-Port dem angegebenen VLAN zu." },
-      { term: "interface range", def: "Konfiguriert mehrere Interfaces gleichzeitig — der wichtigste Zeitsparer der Prüfung." },
-      { term: "PortFast", def: "Überspringt die STP-Phasen, sodass ein Access-Port sofort forwardet. Nur für Endgeräte-Ports!" },
-      { term: "show vlan brief", def: "Zeigt alle VLANs mit Namen, Status und zugeordneten Access-Ports." },
-    ],
-  },
-
-  {
     id: "drill-interfaces",
     icon: <Network size={20} />,
     title: "Drill: Router-Interfaces hochziehen",
@@ -477,357 +388,73 @@ export const LABS: LabScenario[] = [
     ],
   },
 
-
-  // ---------------------------------------------------------------
-  // Inter-VLAN Routing via SVI (L3-Switch) -- Roter Faden / PDF
-  // ---------------------------------------------------------------
   {
-    id: "ivr-svi",
-    icon: <Network size={20} />,
-    title: "Inter-VLAN Routing (L3-Switch / SVI)",
-    subtitle: "Multilayer-Switch routet zwischen VLANs -- ohne Router",
-    difficulty: "Mittel",
-    duration: "18 min",
+    id: "drill-access-ports",
+    icon: <Stack size={20} />,
+    title: "Drill: Access-Ports im Akkord",
+    subtitle: "16 Ports · 2 VLANs · 2 Switches",
+    difficulty: "Drill",
+    duration: "12 min",
     context: {
       problem:
-        "Router-on-a-Stick hat einen Engpass: aller Inter-VLAN-Verkehr teilt sich einen Trunk-Link. In größeren Netzen routet man lieber direkt im Switch.",
+        "In jedem Switch müssen viele Ports dem richtigen VLAN zugeordnet werden. Einzeln ist das langsam und fehleranfällig.",
       purpose:
-        "Ein Layer-3-Switch routet per SVIs (interface vlan) at Wire-Speed in Hardware zwischen VLANs — der moderne Campus-Standard. Zeigt die häufige Falle „ip routing vergessen\".",
+        "Trainiert den Dreierschritt range → mode access → access vlan samt PortFast im Akkord, damit VLAN-Zuweisung zur Routine wird.",
     },
     topology: {
       description:
-        "Statt Router-on-a-Stick übernimmt ein Layer-3-Switch das Routing zwischen den VLANs über SVIs (interface vlan). Moderner Standard im Campus-Netz.",
+        "Auf zwei Switches werden jeweils 16 Ports in zwei VLANs aufgeteilt — mit interface range immer im selben Dreierschritt: range → mode access → access vlan.",
       devices: [
-        { type: "switch", label: "MLS1 (Layer-3)", count: 1 },
-        { type: "pc", label: "PC-Sales / PC-Mrkt", count: 2 },
+        { type: "switch", label: "SW1 / SW2", count: 2 },
       ],
       connections: [
-        "PC-Sales → MLS1 Gi1/0/1  (VLAN 10)",
-        "PC-Mrkt  → MLS1 Gi1/0/2  (VLAN 20)",
+        "Keine Verkabelung nötig — reines Konfigurationstraining",
       ],
-      hint: "Das SVI (interface vlan 10) ist das Gateway der Hosts. Ohne 'ip routing' bleibt es ein reiner L2-Switch -- häufigster Fehler!",
+      hint: "Der Dreierschritt sitzt, wenn du ihn sprechen kannst: 'range — access — vlan'. Portfast obendrauf, weil es Access-Ports sind.",
     },
     steps: [
       {
-        title: "VLANs anlegen + Access-Ports zuweisen",
-        blocks: [
-          {
-            device: "MLS1",
-            mode: "global",
-            modeLabel: "MLS1(config)#",
-            commands: [
-              {
-                cmd: "vlan 10\nname SALES\nvlan 20\nname MRKT",
-                explanation:
-                  "VLANs zuerst in der Datenbank anlegen -- sonst landet die Port-Zuweisung im Leeren.",
-              },
-              {
-                cmd: "interface gi1/0/1\nswitchport mode access\nswitchport access vlan 10\ninterface gi1/0/2\nswitchport mode access\nswitchport access vlan 20",
-                explanation:
-                  "Jeder PC-Port ist ein Access-Port in seinem VLAN -- wie beim normalen L2-Switch.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Routing aktivieren + SVIs als Gateways",
-        blocks: [
-          {
-            device: "MLS1",
-            mode: "global",
-            modeLabel: "MLS1(config)#",
-            commands: [
-              {
-                cmd: "ip routing",
-                explanation:
-                  "DER entscheidende Befehl: erst damit wird aus dem Switch ein Router. Vergisst man ihn, pingen sich nur Hosts im selben VLAN.",
-              },
-              {
-                cmd: "interface vlan 10\nip address 192.168.10.254 255.255.255.0\nno shutdown",
-                explanation:
-                  "Das SVI für VLAN 10. Diese IP trägst du bei PC-Sales als Default Gateway ein.",
-              },
-              {
-                cmd: "interface vlan 20\nip address 192.168.20.254 255.255.255.0\nno shutdown",
-                explanation:
-                  "SVI für VLAN 20 -- Gateway für PC-Mrkt. Beide SVIs gehen 'up', sobald je ein aktiver Access-Port im VLAN ist.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Endgeräte konfigurieren + testen",
-        blocks: [
-          {
-            device: "PC-Sales / PC-Mrkt",
-            mode: "desktop",
-            modeLabel: "Desktop > IP Configuration",
-            commands: [
-              {
-                cmd: "PC-Sales: 192.168.10.1 /24  GW 192.168.10.254\nPC-Mrkt : 192.168.20.1 /24  GW 192.168.20.254",
-                explanation:
-                  "Gateway = die SVI-IP des eigenen VLANs. Ohne korrektes Gateway scheitert das Inter-VLAN-Routing trotz richtiger Switch-Konfig.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ip route (auf MLS1)", expected: "C 192.168.10.0/24 + C 192.168.20.0/24 über Vlan10/Vlan20 (connected)" },
-      { cmd: "show ip interface brief | include Vlan", expected: "Vlan10 + Vlan20: up/up mit ihren SVI-IPs" },
-      { cmd: "ping 192.168.20.1 (von PC-Sales)", expected: "Erfolgreich -- Routing zwischen den VLANs über den L3-Switch" },
-    ],
-    glossary: [
-      { term: "Layer-3-Switch", def: "Multilayer-Switch mit integrierter Routing-Engine — kein externer Router nötig." },
-      { term: "SVI", def: "Switch Virtual Interface (interface vlan X) — virtuelles L3-Interface, das als Gateway eines VLANs dient." },
-      { term: "ip routing", def: "Aktiviert IPv4-Routing auf dem L3-Switch. OHNE diesen Befehl bleibt es ein reiner L2-Switch — häufigster Fehler." },
-      { term: "interface vlan <id>", def: "Erstellt/öffnet das SVI eines VLANs zur IP-Konfiguration." },
-      { term: "Inter-VLAN-Routing", def: "Routing zwischen VLANs — hier in Switch-Hardware statt über einen Router." },
-      { term: "Connected Route", def: "Route (C in show ip route), die ein Gerät für ein direkt anliegendes Netz automatisch kennt." },
-    ],
-  },
-
-  // ---------------------------------------------------------------
-  // Password Recovery (Router + Switch) -- PDF
-  // ---------------------------------------------------------------
-  {
-    id: "password-recovery",
-    icon: <Key size={20} />,
-    title: "Password Recovery",
-    subtitle: "Router (0x2142) & Switch (flash_init) ohne Passwort retten",
-    difficulty: "Mittel",
-    duration: "15 min",
-    context: {
-      problem:
-        "Kennt niemand mehr das enable secret eines Geräts, ist es ohne Recovery nicht mehr administrierbar — ein realer Notfall im Betrieb.",
-      purpose:
-        "Standard-Admin-Prozedur, um Router (über ROMMON) und Switch (über den Boot-Loader) wieder unter Kontrolle zu bringen, OHNE die bestehende Konfiguration zu verlieren.",
-    },
-    topology: {
-      description:
-        "Klassische Admin-Aufgabe: ein Gerät, dessen enable-secret niemand mehr kennt, wieder unter Kontrolle bringen -- über Konsolenzugang und Boot-Loader.",
-      devices: [
-        { type: "router", label: "R1 (Passwort unbekannt)", count: 1 },
-        { type: "switch", label: "SW1 (Passwort unbekannt)", count: 1 },
-      ],
-      connections: [
-        "Konsolenkabel (Rollover) → PC mit Terminalprogramm",
-      ],
-      hint: "Kernidee: das Gerät so booten, dass die startup-config (mit dem Passwort) NICHT geladen wird -- dann Passwort neu setzen und sauber zurückstellen.",
-    },
-    steps: [
-      {
-        title: "Router: Register lesen + ROMMON",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "show version",
-                explanation:
-                  "Ganz unten: 'Configuration register is 0x2102'. 0x2102 = startup-config laden, 0x2142 = startup-config überspringen.",
-              },
-              {
-                cmd: "(Router neu starten + während des Bootens Strg+Pause/Break)",
-                explanation:
-                  "Unterbricht den Boot und fällt in den ROMMON-Modus (rommon 1>). In Packet Tracer: Ctrl+C.",
-              },
-            ],
-          },
-          {
-            device: "R1",
-            mode: "rommon",
-            modeLabel: "rommon 1>",
-            commands: [
-              {
-                cmd: "confreg 0x2142\nreset",
-                explanation:
-                  "Setzt das Register so, dass die startup-config beim nächsten Boot übersprungen wird, und startet neu. Gerät bootet jetzt OHNE Passwort.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Router: Passwort neu setzen + Register zurücksetzen",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "Router#",
-            commands: [
-              {
-                cmd: "copy startup-config running-config",
-                explanation:
-                  "WICHTIG: erst die alte Config zurückholen -- sonst überschreibst du beim Speichern die komplette Konfiguration mit einer leeren!",
-              },
-              {
-                cmd: "configure terminal\nenable secret cisco123\nconfig-register 0x2102",
-                explanation:
-                  "Neues Passwort setzen UND das Register auf 0x2102 zurücksetzen -- sonst ignoriert der Router auch beim nächsten Start die startup-config.",
-              },
-              {
-                cmd: "end\nwrite memory",
-                explanation:
-                  "Speichern. Beim nächsten Reload bootet der Router normal mit neuem Passwort.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Switch: Recovery über den Boot-Loader",
+        title: "SW1: VLANs anlegen + Ports zuweisen",
         blocks: [
           {
             device: "SW1",
-            mode: "switch",
-            modeLabel: "switch:",
-            commands: [
-              {
-                cmd: "flash_init",
-                explanation:
-                  "Switch beim Booten mit gedrueckter MODE-Taste in den Boot-Loader bringen, dann Flash initialisieren.",
-              },
-              {
-                cmd: "rename flash:config.text flash:config.old\nboot",
-                explanation:
-                  "Die startup-config (config.text) umbenennen → Switch bootet ohne Passwort. Nach dem Boot zurückbenennen und mit 'copy startup running' zurückholen.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show version | include register", expected: "Configuration register is 0x2102 (will be 0x2102 at next reload)" },
-      { cmd: "show running-config | include enable", expected: "enable secret 5 ... (neuer Hash)" },
-      { cmd: "reload + Login", expected: "Gerät bootet normal, neues Passwort wird akzeptiert, alte Config intakt" },
-    ],
-    glossary: [
-      { term: "Configuration Register", def: "16-Bit-Wert (zeigt show version), der das Boot-Verhalten steuert." },
-      { term: "0x2102", def: "Standard-Register: der Router lädt beim Booten die startup-config." },
-      { term: "0x2142", def: "Register, das die startup-config beim Booten ÜBERSPRINGT — der Kern des Router-Recovery." },
-      { term: "ROMMON", def: "ROM Monitor — minimaler Boot-Modus des Routers, erreichbar durch Boot-Unterbrechung (Strg+Pause)." },
-      { term: "confreg", def: "ROMMON-Befehl zum Setzen des Configuration Registers (z. B. confreg 0x2142)." },
-      { term: "config-register", def: "IOS-Befehl im Config-Modus, um das Register nach dem Recovery wieder auf 0x2102 zu setzen." },
-      { term: "flash_init", def: "Boot-Loader-Befehl des Switches, der den Flash initialisiert, bevor config.text umbenannt wird." },
-      { term: "config.text", def: "Datei im Switch-Flash, die die startup-config enthält. Umbenennen = Switch bootet ohne Passwort." },
-      { term: "copy startup-config running-config", def: "Holt die gesicherte Config zurück — WICHTIG vor dem Speichern, sonst überschreibt man alles mit Leer." },
-    ],
-  },
-
-  // ---------------------------------------------------------------
-  // IOS Backup & Upgrade (TFTP) -- PDF
-  // ---------------------------------------------------------------
-  {
-    id: "ios-backup-upgrade",
-    icon: <Stack size={20} />,
-    title: "IOS-Backup & Upgrade (TFTP)",
-    subtitle: "Image sichern, neues laden, Bootreihenfolge setzen",
-    difficulty: "Mittel",
-    duration: "20 min",
-    context: {
-      problem:
-        "Vor einem IOS-Upgrade muss alles gesichert sein. Ein defektes oder falsches Image kann ein Gerät unbootbar machen.",
-      purpose:
-        "Wartungsroutine: Config und altes Image per TFTP sichern, neues Image laden, MD5 prüfen, Bootreihenfolge setzen. Genau so läuft IOS-Pflege in der Praxis.",
-    },
-    topology: {
-      description:
-        "Wartungsroutine: vor jedem IOS-Upgrade erst Config und altes Image auf einen TFTP-Server sichern, dann das neue Image laden und den Boot festlegen.",
-      devices: [
-        { type: "router", label: "R1", count: 1 },
-        { type: "server", label: "TFTP-Server", count: 1 },
-      ],
-      connections: [
-        "R1 Gi0/0 → TFTP-Server  (gleiches Subnetz, z. B. 10.1.1.0/24)",
-      ],
-      hint: "Reihenfolge merken: Erreichbarkeit prüfen → Config sichern → Image sichern → Platz prüfen → neues Image laden → verify md5 → boot system → reload.",
-    },
-    steps: [
-      {
-        title: "Vorbereitung: Erreichbarkeit + Platz",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "ping 10.1.1.10",
-                explanation:
-                  "Der TFTP-Server muss erreichbar sein -- ohne Konnektivitaet schlägt jedes copy fehl.",
-              },
-              {
-                cmd: "show flash:",
-                explanation:
-                  "Aktuelles Image und freier Speicher. Genug Platz für das neue Image? Sonst altes erst löschen.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Backup von Config + IOS-Image",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "copy running-config tftp:",
-                explanation:
-                  "Erst die Konfiguration sichern. Bei der Abfrage die TFTP-Server-IP (10.1.1.10) und den Dateinamen angeben.",
-              },
-              {
-                cmd: "copy flash: tftp:",
-                explanation:
-                  "Dann das aktuelle IOS-Image sichern -- das ist die Rückfallebene, falls das neue Image defekt ist.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Neues Image laden + Boot festlegen",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "copy tftp: flash:",
-                explanation:
-                  "Neues Image vom Server in den Flash laden. Server-IP + exakter Dateiname nötig.",
-              },
-              {
-                cmd: "verify /md5 flash:c2900-universalk9-mz.SPA.bin",
-                explanation:
-                  "MD5-Prüfsumme gegen Ciscos Angabe vergleichen -- so erkennst du eine beschädigte Datei VOR dem Reload.",
-              },
-            ],
-          },
-          {
-            device: "R1",
             mode: "global",
-            modeLabel: "R1(config)#",
+            modeLabel: "SW1(config)#",
             commands: [
               {
-                cmd: "boot system flash:c2900-universalk9-mz.SPA.bin",
-                explanation:
-                  "Legt fest, welches Image beim nächsten Start geladen wird. Ohne diesen Befehl nimmt der Router das erste Image im Flash.",
+                cmd: "vlan 10\nname BUERO\nvlan 20\nname LABOR",
+                explanation: "VLANs zuerst — sonst landet die Port-Zuweisung in einem nicht existierenden VLAN.",
               },
               {
-                cmd: "exit\nwrite memory\nreload",
+                cmd: "interface range fa0/1 - 8\nswitchport mode access\nswitchport access vlan 10\nspanning-tree portfast",
                 explanation:
-                  "Speichern und neu starten. Nach dem Boot mit 'show version' die neue IOS-Version prüfen.",
+                  "Der Dreierschritt + Portfast für die ersten 8 Ports. `interface range` ist der wichtigste Zeitsparer der Prüfung.",
+              },
+              {
+                cmd: "interface range fa0/9 - 16\nswitchport mode access\nswitchport access vlan 20\nspanning-tree portfast",
+                explanation: "Dieselbe Sequenz für VLAN 20 — ohne nachzudenken.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW2: identisch wiederholen",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "(komplette Sequenz von SW1 wiederholen)",
+                explanation:
+                  "Runde 2 aus dem Gedächtnis: 2 VLANs, 2× Dreierschritt. Stoppuhr: unter 90 Sekunden ist das Ziel.",
+              },
+              {
+                cmd: "do show vlan brief",
+                explanation:
+                  "Sofort-Kontrolle ohne den Config-Modus zu verlassen: Fa0/1–8 in VLAN 10, Fa0/9–16 in VLAN 20?",
               },
             ],
           },
@@ -835,20 +462,18 @@ export const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      { cmd: "show version", expected: "Neue IOS-Version in der ersten Zeile (z. B. Version 15.2 statt 15.1)" },
-      { cmd: "show flash:", expected: "Neues + altes Image vorhanden, genug freier Speicher" },
-      { cmd: "show boot / show bootvar", expected: "BOOT path-list zeigt das neue Image" },
+      { cmd: "show vlan brief", expected: "VLAN 10 BUERO: Fa0/1-8, VLAN 20 LABOR: Fa0/9-16 (auf beiden Switches)" },
+      { cmd: "show interfaces fa0/1 switchport", expected: "Administrative Mode: static access, Access Mode VLAN: 10" },
+      { cmd: "show running-config | section interface", expected: "Jeder Port: mode access + access vlan + portfast" },
     ],
     glossary: [
-      { term: "TFTP", def: "Trivial File Transfer Protocol (UDP 69) — einfacher Dateitransfer, Standard für IOS-/Config-Backups." },
-      { term: "Flash", def: "Nichtflüchtiger Speicher des Geräts, in dem das IOS-Image liegt." },
-      { term: "IOS-Image", def: "Die Betriebssystem-Datei von Cisco-Geräten (z. B. c2900-universalk9-mz.SPA.bin)." },
-      { term: "copy flash: tftp:", def: "Sichert ein Image (oder Config) aus dem Flash auf einen TFTP-Server." },
-      { term: "copy tftp: flash:", def: "Lädt ein neues Image vom TFTP-Server in den Flash." },
-      { term: "verify /md5", def: "Prüft die MD5-Summe einer Datei gegen Ciscos Angabe — erkennt ein beschädigtes Image VOR dem Reload." },
-      { term: "boot system", def: "Legt fest, welches Image beim nächsten Start geladen wird." },
-      { term: "show flash:", def: "Zeigt Inhalt und freien Speicher des Flash — genug Platz fürs neue Image?" },
-      { term: "reload", def: "Startet das Gerät neu, damit das neue Image aktiv wird." },
+      { term: "VLAN", def: "Virtual LAN — logische Aufteilung eines Switches in getrennte Broadcast-Domänen." },
+      { term: "Access-Port", def: "Switch-Port, der genau zu EINEM VLAN gehört und ungetaggte Frames eines Endgeräts überträgt." },
+      { term: "switchport mode access", def: "Setzt den Port fest in den Access-Modus (kein Trunk, keine DTP-Verhandlung)." },
+      { term: "switchport access vlan <id>", def: "Weist den Access-Port dem angegebenen VLAN zu." },
+      { term: "interface range", def: "Konfiguriert mehrere Interfaces gleichzeitig — der wichtigste Zeitsparer der Prüfung." },
+      { term: "PortFast", def: "Überspringt die STP-Phasen, sodass ein Access-Port sofort forwardet. Nur für Endgeräte-Ports!" },
+      { term: "show vlan brief", def: "Zeigt alle VLANs mit Namen, Status und zugeordneten Access-Ports." },
     ],
   },
 
@@ -1311,6 +936,191 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // 11. EtherChannel (LACP)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "etherchannel",
+    icon: <Lightning size={20} />,
+    title: "EtherChannel (LACP)",
+    subtitle: "2 Switches · gebündelte Links",
+    difficulty: "Fortgeschritten",
+    duration: "15 min",
+    context: {
+      problem:
+        "Ein einzelner Link zwischen zwei Switches ist Flaschenhals und Single Point of Failure — und STP würde einen zweiten, parallelen Link blockieren statt nutzen.",
+      purpose:
+        "Mehrere physische Links zu EINEM logischen Port-Channel bündeln: mehr Bandbreite und Redundanz, und STP sieht nur einen logischen Link (blockiert nichts).",
+    },
+    topology: {
+      description:
+        "Zwei physische Links zwischen Switches werden zu einem logischen Port-Channel gebündelt.",
+      devices: [
+        { type: "switch", label: "SW1 / SW2", count: 2 },
+      ],
+      connections: [
+        "SW1 Fa0/1 ↔ SW2 Fa0/1  (Link 1)",
+        "SW1 Fa0/2 ↔ SW2 Fa0/2  (Link 2)",
+      ],
+      hint: "Zwei Switches mit 2 parallelen Copper-Kabeln verbinden.",
+    },
+    steps: [
+      {
+        title: "EtherChannel auf SW1 konfigurieren",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "interface",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "interface range FastEthernet0/1 - 2",
+                explanation:
+                  "'interface range' konfiguriert mehrere Interfaces gleichzeitig. Ports Fa0/1 und Fa0/2 gemeinsam.",
+              },
+              {
+                cmd: "channel-group 1 mode active",
+                explanation:
+                  "'active' = LACP aktiv. SW1 sendet LACP-Pakete und wartet auf Antwort. 'passive' wartet nur. Für LACP braucht mindestens eine Seite 'active'.",
+              },
+              {
+                cmd: "exit",
+                explanation: "Verlässt Interface-Range-Modus.",
+              },
+              {
+                cmd: "interface Port-channel1",
+                explanation:
+                  "Konfiguriert den logischen Port-Channel. Muss mit den Mitglieds-Interfaces übereinstimmen.",
+              },
+              {
+                cmd: "switchport mode trunk",
+                explanation:
+                  "Port-Channel als Trunk konfigurieren. Die Mitglieds-Interfaces erben diese Einstellung.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SW2 spiegelgleich konfigurieren",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "interface",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "interface range FastEthernet0/1 - 2\nchannel-group 1 mode active\nexit\ninterface Port-channel1\nswitchport mode trunk",
+                explanation:
+                  "Identische Konfiguration auf SW2. Beide Seiten 'active' ist OK bei LACP.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show etherchannel summary", expected: "Po1 (SU) — S=Layer2, U=in use" },
+      { cmd: "show interfaces Port-channel1", expected: "Bandbreite = 2× Fa0 = 200Mbit/s" },
+    ],
+    glossary: [
+      { term: "EtherChannel", def: "Bündelung mehrerer physischer Links zu einem logischen — Link Aggregation." },
+      { term: "Port-Channel", def: "Das logische Interface (Port-channel1), das die Mitglieds-Ports zusammenfasst." },
+      { term: "LACP", def: "Link Aggregation Control Protocol (IEEE 802.3ad, offen) — Modi active/passive." },
+      { term: "PAgP", def: "Port Aggregation Protocol (Cisco-proprietär) — Modi desirable/auto." },
+      { term: "channel-group <n> mode <mode>", def: "Fügt ein Interface einem EtherChannel hinzu: active/passive (LACP), desirable/auto (PAgP), on (statisch)." },
+      { term: "show etherchannel summary", def: "Status aller Port-Channels (P = in-use/gebündelt, D = down)." },
+      { term: "Single Point of Failure", def: "Eine Komponente, deren Ausfall die ganze Verbindung lahmlegt — durch Bündelung vermieden." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 13. Spanning Tree (PortFast + BPDU Guard)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "stp",
+    icon: <BookOpen size={20} />,
+    title: "STP — PortFast & BPDU Guard",
+    subtitle: "2 Switches · PCs",
+    difficulty: "Mittel",
+    duration: "15 min",
+    context: {
+      problem:
+        "Redundante Verbindungen zwischen Switches erzeugen ohne Schutz Layer-2-Loops. Ein Frame kreist endlos, ein Broadcast-Sturm legt binnen Sekunden das ganze Netz lahm.",
+      purpose:
+        "STP wählt automatisch eine Root-Bridge und blockiert überflüssige Pfade, sodass genau ein loopfreier Baum bleibt. PortFast + BPDU-Guard sichern dabei die Access-Ports ab.",
+    },
+    topology: {
+      description:
+        "STP verhindert Loops. PortFast beschleunigt den Port-Übergang für Endgeräte.",
+      devices: [
+        { type: "switch", label: "SW1 (Root) / SW2", count: 2 },
+        { type: "pc", label: "PC0 / PC1", count: 2 },
+      ],
+      connections: [
+        "SW1 Gi0/1 ↔ SW2 Gi0/1",
+        "PC0 → SW1 Fa0/1",
+        "PC1 → SW2 Fa0/1",
+      ],
+      hint: "SW1 wird Root Bridge durch niedrigere Priority.",
+    },
+    steps: [
+      {
+        title: "Root Bridge und PortFast konfigurieren",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "spanning-tree vlan 1 priority 4096",
+                explanation:
+                  "Setzt STP-Priority. Niedrigster Wert = Root Bridge. Standard ist 32768. Empfohlene Werte: Vielfache von 4096.",
+              },
+              {
+                cmd: "interface FastEthernet0/1\nspanning-tree portfast\nspanning-tree bpduguard enable",
+                explanation:
+                  "PortFast: Port überspringt Listening/Learning-Phasen (spart ~30s Wartezeit). Nur für Endgeräte! BPDU Guard: Wenn ein Switch an diesem Port angeschlossen wird, wird der Port sofort deaktiviert (err-disabled) — schützt vor Loop-Einschleusung.",
+              },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              {
+                cmd: "interface FastEthernet0/1\nspanning-tree portfast\nspanning-tree bpduguard enable",
+                explanation: "Gleiche Sicherheitskonfiguration für PC1-Port.",
+              },
+              {
+                cmd: "spanning-tree portfast default",
+                explanation:
+                  "Aktiviert PortFast global für alle Access-Ports. Effizient wenn alle Non-Trunk-Ports zu Endgeräten gehen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show spanning-tree", expected: "SW1: Root Bridge, SW2: Port blocked" },
+      { cmd: "show spanning-tree vlan 1 detail", expected: "Root ID Priority 4096 SW1 MAC" },
+    ],
+    glossary: [
+      { term: "STP", def: "Spanning Tree Protocol (802.1D) — verhindert Layer-2-Loops, indem es redundante Pfade blockiert." },
+      { term: "Root-Bridge", def: "Der zentrale Referenz-Switch des Baums — gewählt über die niedrigste Bridge-ID." },
+      { term: "Bridge-Priority", def: "Erster Teil der Bridge-ID (Default 32768). Niedriger gewinnt; bei Gleichstand entscheidet die MAC." },
+      { term: "BPDU", def: "Bridge Protocol Data Unit — STP-Nachricht, mit der Switches die Topologie aushandeln." },
+      { term: "Root Port (RP)", def: "Der Port eines Switches mit dem günstigsten Pfad zur Root-Bridge." },
+      { term: "Designated Port (DP)", def: "Pro Segment der weiterleitende Port; an der Root-Bridge sind alle Ports DP." },
+      { term: "Blocking", def: "Zustand eines Ports, der zur Loop-Vermeidung keine Daten weiterleitet." },
+      { term: "PortFast", def: "Bringt einen Access-Port sofort in Forwarding (überspringt STP-Phasen). Nur für Endgeräte!" },
+      { term: "BPDU-Guard", def: "Deaktiviert einen PortFast-Port (err-disabled), sobald dort eine BPDU eintrifft — schützt vor fremden Switches." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 3. Inter-VLAN Routing (Router-on-a-Stick)
   // ─────────────────────────────────────────────────────────────
   {
@@ -1463,6 +1273,119 @@ export const LABS: LabScenario[] = [
     ],
   },
 
+
+  // ---------------------------------------------------------------
+  // Inter-VLAN Routing via SVI (L3-Switch) -- Roter Faden / PDF
+  // ---------------------------------------------------------------
+  {
+    id: "ivr-svi",
+    icon: <Network size={20} />,
+    title: "Inter-VLAN Routing (L3-Switch / SVI)",
+    subtitle: "Multilayer-Switch routet zwischen VLANs -- ohne Router",
+    difficulty: "Mittel",
+    duration: "18 min",
+    context: {
+      problem:
+        "Router-on-a-Stick hat einen Engpass: aller Inter-VLAN-Verkehr teilt sich einen Trunk-Link. In größeren Netzen routet man lieber direkt im Switch.",
+      purpose:
+        "Ein Layer-3-Switch routet per SVIs (interface vlan) at Wire-Speed in Hardware zwischen VLANs — der moderne Campus-Standard. Zeigt die häufige Falle „ip routing vergessen\".",
+    },
+    topology: {
+      description:
+        "Statt Router-on-a-Stick übernimmt ein Layer-3-Switch das Routing zwischen den VLANs über SVIs (interface vlan). Moderner Standard im Campus-Netz.",
+      devices: [
+        { type: "switch", label: "MLS1 (Layer-3)", count: 1 },
+        { type: "pc", label: "PC-Sales / PC-Mrkt", count: 2 },
+      ],
+      connections: [
+        "PC-Sales → MLS1 Gi1/0/1  (VLAN 10)",
+        "PC-Mrkt  → MLS1 Gi1/0/2  (VLAN 20)",
+      ],
+      hint: "Das SVI (interface vlan 10) ist das Gateway der Hosts. Ohne 'ip routing' bleibt es ein reiner L2-Switch -- häufigster Fehler!",
+    },
+    steps: [
+      {
+        title: "VLANs anlegen + Access-Ports zuweisen",
+        blocks: [
+          {
+            device: "MLS1",
+            mode: "global",
+            modeLabel: "MLS1(config)#",
+            commands: [
+              {
+                cmd: "vlan 10\nname SALES\nvlan 20\nname MRKT",
+                explanation:
+                  "VLANs zuerst in der Datenbank anlegen -- sonst landet die Port-Zuweisung im Leeren.",
+              },
+              {
+                cmd: "interface gi1/0/1\nswitchport mode access\nswitchport access vlan 10\ninterface gi1/0/2\nswitchport mode access\nswitchport access vlan 20",
+                explanation:
+                  "Jeder PC-Port ist ein Access-Port in seinem VLAN -- wie beim normalen L2-Switch.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Routing aktivieren + SVIs als Gateways",
+        blocks: [
+          {
+            device: "MLS1",
+            mode: "global",
+            modeLabel: "MLS1(config)#",
+            commands: [
+              {
+                cmd: "ip routing",
+                explanation:
+                  "DER entscheidende Befehl: erst damit wird aus dem Switch ein Router. Vergisst man ihn, pingen sich nur Hosts im selben VLAN.",
+              },
+              {
+                cmd: "interface vlan 10\nip address 192.168.10.254 255.255.255.0\nno shutdown",
+                explanation:
+                  "Das SVI für VLAN 10. Diese IP trägst du bei PC-Sales als Default Gateway ein.",
+              },
+              {
+                cmd: "interface vlan 20\nip address 192.168.20.254 255.255.255.0\nno shutdown",
+                explanation:
+                  "SVI für VLAN 20 -- Gateway für PC-Mrkt. Beide SVIs gehen 'up', sobald je ein aktiver Access-Port im VLAN ist.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Endgeräte konfigurieren + testen",
+        blocks: [
+          {
+            device: "PC-Sales / PC-Mrkt",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              {
+                cmd: "PC-Sales: 192.168.10.1 /24  GW 192.168.10.254\nPC-Mrkt : 192.168.20.1 /24  GW 192.168.20.254",
+                explanation:
+                  "Gateway = die SVI-IP des eigenen VLANs. Ohne korrektes Gateway scheitert das Inter-VLAN-Routing trotz richtiger Switch-Konfig.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route (auf MLS1)", expected: "C 192.168.10.0/24 + C 192.168.20.0/24 über Vlan10/Vlan20 (connected)" },
+      { cmd: "show ip interface brief | include Vlan", expected: "Vlan10 + Vlan20: up/up mit ihren SVI-IPs" },
+      { cmd: "ping 192.168.20.1 (von PC-Sales)", expected: "Erfolgreich -- Routing zwischen den VLANs über den L3-Switch" },
+    ],
+    glossary: [
+      { term: "Layer-3-Switch", def: "Multilayer-Switch mit integrierter Routing-Engine — kein externer Router nötig." },
+      { term: "SVI", def: "Switch Virtual Interface (interface vlan X) — virtuelles L3-Interface, das als Gateway eines VLANs dient." },
+      { term: "ip routing", def: "Aktiviert IPv4-Routing auf dem L3-Switch. OHNE diesen Befehl bleibt es ein reiner L2-Switch — häufigster Fehler." },
+      { term: "interface vlan <id>", def: "Erstellt/öffnet das SVI eines VLANs zur IP-Konfiguration." },
+      { term: "Inter-VLAN-Routing", def: "Routing zwischen VLANs — hier in Switch-Hardware statt über einen Router." },
+      { term: "Connected Route", def: "Route (C in show ip route), die ein Gerät für ein direkt anliegendes Netz automatisch kennt." },
+    ],
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 4. Statisches Routing
   // ─────────────────────────────────────────────────────────────
@@ -1575,6 +1498,83 @@ export const LABS: LabScenario[] = [
       { term: "Administrative Distanz", def: "Vertrauenswürdigkeit einer Routenquelle — statische Route hat AD 1." },
       { term: "Rückroute", def: "Die Gegenroute für den Rückweg. Ohne sie scheitert die Antwort (asymmetrisches Problem)." },
       { term: "/30", def: "Maske 255.255.255.252 — 2 nutzbare Hosts, typisch für Router-zu-Router-Links." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 20. Floating Static Route
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "floating-static",
+    icon: <Network size={20} />,
+    title: "Floating Static Route",
+    subtitle: "Backup-Route über Admin-Distance",
+    difficulty: "Mittel",
+    duration: "10 min",
+    context: {
+      problem:
+        "Eine einzelne statische Default-Route hat keinen Ersatz: fällt der Uplink aus, ist das Internet weg, bis jemand von Hand umkonfiguriert.",
+      purpose:
+        "Eine zweite Default-Route mit höherer Administrativer Distanz (Floating Static) als Reserve hinterlegen. Sie wird erst aktiv, wenn die primäre Route verschwindet — automatisches Failover, optional per IP SLA Tracking.",
+    },
+    topology: {
+      description:
+        "Branch-Router R1 hat einen primären MPLS-Uplink und einen Backup-Internet-DSL-Link. Floating Static aktiviert den Backup nur, wenn der primäre Pfad ausfällt.",
+      devices: [{ type: "router", label: "R1 (Branch)", count: 1 }],
+      connections: [
+        "R1 Gi0/0 → ISP-MPLS  (Next-Hop 10.1.1.1, AD 1)",
+        "R1 Gi0/1 → DSL-Modem (Next-Hop 10.2.2.1, AD 200 = Floating)",
+      ],
+      hint: "Die Backup-Route hat eine höhere Administrative Distance — sie 'floats' über der primären und wird nur eingesetzt, wenn die primäre verschwindet.",
+    },
+    steps: [
+      {
+        title: "Primäre & Backup-Route",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Default-Route via MPLS, Default-AD = 1 (Static)." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.2.2.1 200", explanation: "FLOATING: gleiche Route, aber AD 200 → wird NUR aktiv, wenn die AD-1-Route verschwindet (Interface down)." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "IP-SLA für aktives Failover (Bonus)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "ip sla 1", explanation: "Anlegen eines SLA-Probes." },
+              { cmd: "icmp-echo 8.8.8.8 source-interface Gi0/0", explanation: "Pingt 8.8.8.8 über MPLS — fällt der Ping aus, wird die Route entfernt." },
+              { cmd: "frequency 5", explanation: "Alle 5 Sek." },
+              { cmd: "exit", explanation: "" },
+              { cmd: "ip sla schedule 1 life forever start-time now", explanation: "Sofort starten, dauerhaft laufen." },
+              { cmd: "track 1 ip sla 1 reachability", explanation: "Track-Objekt 1 verfolgt Erreichbarkeit." },
+              { cmd: "no ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Alte Route weg." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1 track 1", explanation: "Route nur aktiv, wenn track 1 'up' ist → echtes End-to-End-Failover." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route", expected: "S* 0.0.0.0/0 [1/0] via 10.1.1.1 (nur primär sichtbar)" },
+      { cmd: "show ip sla statistics", expected: "Return Code: OK, Latest RTT: 12ms" },
+      { cmd: "show track", expected: "Track 1 IP SLA 1 reachability  Reachability is Up" },
+    ],
+    glossary: [
+      { term: "Default-Route", def: "ip route 0.0.0.0 0.0.0.0 <next-hop> — Weg für alle Ziele, die sonst nirgends passen (Gateway of Last Resort)." },
+      { term: "Floating Static Route", def: "Statische Backup-Route mit absichtlich höherer AD; floatet inaktiv, bis die primäre ausfällt." },
+      { term: "Administrative Distanz (AD)", def: "Je niedriger, desto bevorzugter. Standard-Statik = 1; Floating z. B. 200." },
+      { term: "IP SLA", def: "Misst aktiv die Erreichbarkeit (z. B. per Ping) und meldet Ausfälle an das Tracking." },
+      { term: "track", def: "Objekt, das eine Route an ein IP-SLA-Ergebnis koppelt — fällt der Ping aus, fällt die Route." },
+      { term: "Failover", def: "Automatischer Wechsel auf den Backup-Pfad bei Ausfall des primären." },
     ],
   },
 
@@ -1858,6 +1858,153 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // RIPv2 + Passive Interface (CIS4-Übung 25.06.2026, 4 Router)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "rip-v2-passive",
+    icon: <Shuffle size={20} />,
+    title: "RIPv2 + Passive Interface (4 Router)",
+    subtitle: "version 2 · no auto-summary · passive-interface · [120/3]",
+    difficulty: "Mittel",
+    duration: "30 min",
+    context: {
+      problem:
+        "Vier Router, zwei entfernte Server-LANs, ein gemeinsames Transit-Segment. Statische Routen wären mühsam — und RIP soll keine Updates in die LANs schicken, wo keine Router stehen.",
+      purpose:
+        "RIPv2 auf allen vier Routern aktivieren (classless, no auto-summary), LAN-Interfaces als passive-interface setzen und die erwartete Metrik [120/3] verifizieren — exakt die CIS4-Übung.",
+    },
+    topology: {
+      description:
+        "R1 (LAN 172.16.0.0/24, PC0) → R2 → gemeinsames Transit 10.0.0.8/29 über SW1 → R3 (LAN 192.168.0.0/24, Server0) und R4 (LAN 192.168.1.0/24, Server1).",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3 / R4", count: 4 },
+        { type: "switch", label: "SW1 (2960)", count: 1 },
+        { type: "pc", label: "PC0 + Server0/1", count: 3 },
+      ],
+      connections: [
+        "R1 Gi0/0 172.16.0.254/24 (PC0 .101) — R1 Gi0/1 10.1.0.1/30 ↔ R2 Gi0/1 10.1.0.2/30",
+        "R2 Gi0/0 10.0.0.9/29 — SW1 — R3 Fa/Gi 10.0.0.10/29 · R4 10.0.0.11/29  (Segment 10.0.0.8/29)",
+        "R3 Gi0/0 192.168.0.254/24 (Server0 .11) · R4 Gi0/0 192.168.1.254/24 (Server1 .11)",
+      ],
+      hint: "RIP nimmt CLASSFUL-network-Angaben (10.0.0.0 deckt 10.1.0.0/30 UND 10.0.0.8/29). version 2 + no auto-summary sind Pflicht, sonst werden die Subnetze falsch zusammengefasst.",
+    },
+    steps: [
+      {
+        title: "1) Grundkonfiguration prüfen (alle Interfaces up/up)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip interface brief",
+                explanation:
+                  "Alle genutzten Interfaces müssen up/up zeigen. IP-Plan exakt nach Tabelle setzen — eine falsche /30- oder /29-Maske bricht RIP später lautlos.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) RIPv2 auf allen vier Routern aktivieren",
+        blocks: [
+          {
+            device: "R2",
+            mode: "router",
+            modeLabel: "R2(config-router)#",
+            commands: [
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 10.0.0.0",
+                explanation:
+                  "R2 hat nur 10er-Netze (10.1.0.0/30 + 10.0.0.8/29) → eine classful network-Zeile 10.0.0.0 genügt. version 2 = classless, no auto-summary verhindert die Zusammenfassung an der Klassengrenze.",
+              },
+              {
+                cmd: "! R1: network 172.16.0.0 + network 10.0.0.0\n! R3: network 192.168.0.0 + network 10.0.0.0\n! R4: network 192.168.1.0 + network 10.0.0.0",
+                explanation:
+                  "Jeder Router bekommt ALLE direkt verbundenen classful-Netze. R3/R4 hängen am selben Transit-Segment 10.0.0.8/29 und lernen die Gegenseite über RIP.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Passive Interface auf den LAN-Seiten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "passive-interface GigabitEthernet0/0",
+                explanation:
+                  "R1 Gi0/0 zeigt ins PC-LAN — dort ist kein RIP-Nachbar. passive-interface sendet/empfängt dort keine Updates mehr (spart Bandbreite, verhindert Manipulation).",
+              },
+              {
+                cmd: "! Gleiches auf R3 Gi0/0 (Server0-LAN) und R4 Gi0/0 (Server1-LAN)",
+                explanation:
+                  "Auf R3 und R4 ebenfalls das LAN-Interface passiv setzen. NICHT die 10er-Transit-Interfaces — dort müssen die Router Nachbarn bleiben!",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Verifikation & erwartete Routen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation:
+                  "Erwartet auf R1: 'R 192.168.0.0/24 [120/3] via 10.1.0.2' und 'R 192.168.1.0/24 [120/3] via 10.1.0.2'. [120/3] = AD 120, 3 Hops.",
+              },
+              {
+                cmd: "show ip protocols",
+                explanation:
+                  "Zeigt 'send version 2, receive 2', die passiven Interfaces und die Timer (30/180/240 s). Bestätigt classless RIP.",
+              },
+              {
+                cmd: "show ip rip database",
+                explanation:
+                  "Die RIP-Datenbank listet jedes gelernte Subnetz mit Metrik und Quelle — gut, um fehlende network-Anweisungen zu finden.",
+              },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0>",
+            commands: [
+              {
+                cmd: "ping 192.168.0.11\nping 192.168.1.11\ntracert 192.168.0.11",
+                explanation:
+                  "Beide Server müssen erreichbar sein. tracert zeigt den Pfad PC0 → R1 → R2 → R3/R4 → Server.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip route rip (auf R1)", expected: "R 192.168.0.0/24 [120/3] via 10.1.0.2 + R 192.168.1.0/24 [120/3] via 10.1.0.2" },
+      { cmd: "show ip protocols", expected: "send version 2 / receive 2, passive interfaces: Gi0/0" },
+      { cmd: "ping 192.168.0.11 / 192.168.1.11 (PC0)", expected: "Beide erfolgreich" },
+    ],
+    glossary: [
+      { term: "version 2", def: "Macht RIP classless (Subnetzmasken werden mitgesendet, Multicast 224.0.0.9)." },
+      { term: "no auto-summary", def: "Verhindert die Zusammenfassung an Klassengrenzen — bei /30+/29 im 10er-Netz Pflicht." },
+      { term: "passive-interface", def: "Kein RIP-Senden/Empfangen auf dem Interface — für LAN-Seiten ohne Nachbar-Router." },
+      { term: "network (classful)", def: "RIP nimmt das classful-Netz (10.0.0.0) ohne Wildcard — aktiviert alle Interfaces darin." },
+      { term: "[120/3]", def: "AD 120 (RIP), Metrik 3 Hops bis zum Zielnetz." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 5. OSPF Single Area
   // ─────────────────────────────────────────────────────────────
   {
@@ -2006,6 +2153,714 @@ export const LABS: LabScenario[] = [
       { term: "network <netz> <wildcard> area <n>", def: "Aktiviert OSPF auf passenden Interfaces und ordnet sie einer Area zu." },
       { term: "Cost", def: "OSPF-Metrik, abgeleitet aus der Bandbreite (niedriger = besser)." },
       { term: "Adjacency", def: "Voll ausgehandelte OSPF-Nachbarschaft, über die Routen ausgetauscht werden." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // OSPF Single-Area: Loopback-RID & Wildcard (CIS4-Übung)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ospf-rid-wildcard",
+    icon: <Globe size={20} />,
+    title: "OSPF Single-Area — Loopback-RID & Wildcard",
+    subtitle: "3 Router · alle in Area 0 · Wildcard-Drill · Troubleshooting",
+    difficulty: "Mittel",
+    duration: "30 min",
+    context: {
+      problem:
+        "Drei Router in Reihe, zwei End-LANs. OSPF soll alle Netze in einer einzigen Area verteilen — mit stabilen Router-IDs und korrekten Wildcard-Masken im network-Befehl.",
+      purpose:
+        "OSPF Single-Area (Area 0) sauber aufsetzen: Loopbacks als stabile RID, network mit der richtigen Wildcard, Nachbarschaften bis FULL prüfen und die typischen Adjacency-Fehler verstehen.",
+    },
+    topology: {
+      description:
+        "PC-links — R1 — R2 — R3 — PC-rechts. Zwei /24-LANs an den Enden, zwei /30-Punkt-zu-Punkt-Links zwischen den Routern. Jeder Router hat ein Loopback für die RID.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3", count: 3 },
+        { type: "pc", label: "PC-links / PC-rechts", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/0 192.168.1.254/24 (PC-links .11) — R1 Gi0/1 192.168.10.1/30 ↔ R2 Gi0/2 192.168.10.2/30",
+        "R2 Gi0/1 192.168.20.1/30 ↔ R3 Gi0/2 192.168.20.2/30",
+        "R3 Gi0/0 192.168.4.254/24 (PC-rechts .11) · Loopbacks: R1 1.1.1.1 · R2 2.2.2.2 · R3 3.3.3.3",
+      ],
+      hint: "Wildcard = invertierte Maske: /24 → 0.0.0.255, /30 → 0.0.0.3. Im network-Befehl steht die WILDCARD, nicht die Subnetzmaske.",
+    },
+    steps: [
+      {
+        title: "1) Loopbacks als stabile Router-ID",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "interface loopback 0\nip address 1.1.1.1 255.255.255.255",
+                explanation:
+                  "Ein Loopback ist immer up/up → ideale, stabile RID. R2 bekommt 2.2.2.2/32, R3 3.3.3.3/32. RID-Auswahl: manuell > höchste Loopback-IP > höchste physische IP.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) OSPF Single-Area auf allen drei Routern",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router ospf 1\nrouter-id 1.1.1.1\nnetwork 192.168.1.0 0.0.0.255 area 0\nnetwork 192.168.10.0 0.0.0.3 area 0",
+                explanation:
+                  "router-id explizit setzen (überschreibt die Auto-Wahl). LAN /24 → Wildcard 0.0.0.255, Link /30 → Wildcard 0.0.0.3. Alle Netze in area 0 = Single-Area.",
+              },
+              {
+                cmd: "! R2: router-id 2.2.2.2 · network 192.168.10.0 0.0.0.3 area 0 · network 192.168.20.0 0.0.0.3 area 0\n! R3: router-id 3.3.3.3 · network 192.168.20.0 0.0.0.3 area 0 · network 192.168.4.0 0.0.0.255 area 0",
+                explanation:
+                  "R2 verbindet beide /30-Links, R3 trägt das rechte LAN. Jeder Router kündigt nur seine direkt verbundenen Netze an.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Verifikation — Nachbarn müssen FULL sein",
+        blocks: [
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
+              {
+                cmd: "show ip ospf neighbor",
+                explanation:
+                  "Erwartet: R2 sieht R1 (1.1.1.1) UND R3 (3.3.3.3) als FULL. R1 und R3 sehen jeweils nur R2 (2.2.2.2) als FULL.",
+              },
+              {
+                cmd: "show ip ospf interface brief\nshow ip route ospf",
+                explanation:
+                  "interface brief zeigt die OSPF-Interfaces + Cost. route ospf zeigt die gelernten 'O'-Routen (entfernte LANs).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Wildcard-Drill & Konnektivität",
+        blocks: [
+          {
+            device: "PC-links",
+            mode: "desktop",
+            modeLabel: "PC-links>",
+            commands: [
+              {
+                cmd: "ping 192.168.4.11\ntracert 192.168.4.11",
+                explanation:
+                  "Ende-zu-Ende-Test über R1 → R2 → R3. Wildcard-Übung: /24→0.0.0.255 · /25→0.0.0.127 · /16→0.0.255.255 · /30→0.0.0.3 · /8→0.255.255.255.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip ospf neighbor (R2)", expected: "R1 (1.1.1.1) FULL und R3 (3.3.3.3) FULL" },
+      { cmd: "show ip route ospf (R1)", expected: "O 192.168.4.0/24 [110/x] via 192.168.10.2" },
+      { cmd: "ping 192.168.4.11 (PC-links)", expected: "Erfolgreich, tracert-Pfad R1 → R2 → R3" },
+    ],
+    glossary: [
+      { term: "Router-ID", def: "Eindeutige 32-Bit-ID: manuell > höchste Loopback-IP > höchste physische IP." },
+      { term: "Loopback", def: "Logisches Interface, immer up/up — stabile Basis für die RID." },
+      { term: "Wildcard-Maske", def: "Invertierte Subnetzmaske; 1-Bit = 'egal'. Im OSPF-network-Befehl statt der Maske." },
+      { term: "Single-Area", def: "Alle Netze in Area 0 (Backbone) — keine ABRs nötig." },
+      { term: "FULL", def: "Endzustand der Adjacency: alle LSAs synchronisiert." },
+      { term: "Adjacency-Voraussetzung", def: "Gleiches Subnetz, gleiche Maske, gleiches Hello-/Dead-Intervall, gleiche Area." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 18. OSPF Multi-Area
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ospf-multiarea",
+    icon: <Stack size={20} />,
+    title: "OSPF Multi-Area",
+    subtitle: "Area 0 + Area 1 mit ABR, LSA-Typen, Stub-Area",
+    difficulty: "Fortgeschritten",
+    duration: "25 min",
+    context: {
+      problem:
+        "Ein einziges großes OSPF-Area zwingt jeden Router, die vollständige Topologie-Datenbank zu halten und bei jeder Änderung neu zu rechnen — das skaliert schlecht.",
+      purpose:
+        "OSPF in mehrere Areas aufteilen, die alle an Area 0 hängen. ABRs fassen zwischen den Areas zusammen und begrenzen so den Rechen-/Speicheraufwand. Grundprinzip hierarchischer OSPF-Netze.",
+    },
+    topology: {
+      description:
+        "3 Router: R1 in Area 0, R2 ist ABR (Area Border Router) zwischen Area 0 und Area 1, R3 in Area 1. Area 1 wird als Stub konfiguriert.",
+      devices: [{ type: "router", label: "R1, R2, R3", count: 3 }],
+      connections: ["R1 ↔ R2 Gi0/0 (10.0.0.0/30, Area 0)", "R2 ↔ R3 Gi0/1 (10.0.0.4/30, Area 1)"],
+      hint: "ABR (R2) hat Interfaces in MEHREREN Areas. Er generiert LSA Type 3 (Summary), um Routen zwischen Areas zu propagieren.",
+    },
+    steps: [
+      {
+        title: "R1 — Backbone (Area 0)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "router ospf 1", explanation: "Process-ID 1 (lokal bedeutsam, muss nicht überall gleich sein)." },
+              { cmd: "router-id 1.1.1.1", explanation: "Explizite Router-ID — sonst wählt OSPF die höchste Loopback-IP." },
+              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Backbone-Link in Area 0 (Wildcard-Maske 0.0.0.3 = /30)." },
+              { cmd: "network 192.168.1.0 0.0.0.255 area 0", explanation: "Lokales User-Netz auch in Area 0." },
+              { cmd: "passive-interface Gi0/2", explanation: "Kein OSPF-Hello auf User-Interface — Sicherheit." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R2 — ABR (Area 0 + Area 1)",
+        blocks: [
+          {
+            device: "R2",
+            mode: "global",
+            modeLabel: "R2(config)#",
+            commands: [
+              { cmd: "router ospf 1", explanation: "" },
+              { cmd: "router-id 2.2.2.2", explanation: "" },
+              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Link zu R1 in Area 0." },
+              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Link zu R3 in Area 1. R2 ist jetzt ABR." },
+              { cmd: "area 1 stub", explanation: "Area 1 als Stub: keine externen Routen (LSA 5) — R2 sendet stattdessen Default-Route nach Area 1." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R3 — Stub Area 1",
+        blocks: [
+          {
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
+            commands: [
+              { cmd: "router ospf 1", explanation: "" },
+              { cmd: "router-id 3.3.3.3", explanation: "" },
+              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Eigenes Backbone-Interface in Area 1." },
+              { cmd: "area 1 stub", explanation: "PFLICHT: Stub-Konfiguration muss auf ALLEN Routern der Area gleich sein, sonst keine Adjacency." },
+              { cmd: "network 192.168.3.0 0.0.0.255 area 1", explanation: "Lokales User-Netz in Area 1." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip ospf neighbor", expected: "R1: FULL/BDR (auf R2), R3: FULL/BDR" },
+      { cmd: "show ip ospf database", expected: "Type-1 (Router), Type-2 (Network), Type-3 (Summary) sichtbar" },
+      { cmd: "show ip route ospf", expected: "O IA 192.168.1.0/24 (Inter-Area), O*IA 0.0.0.0/0 (Default in Stub)" },
+    ],
+    glossary: [
+      { term: "Multi-Area OSPF", def: "Aufteilung der OSPF-Domäne in mehrere Areas zur besseren Skalierung." },
+      { term: "Area 0 (Backbone)", def: "Zentrale Area; jede andere Area muss direkt mit ihr verbunden sein." },
+      { term: "ABR", def: "Area Border Router — Router mit Interfaces in mehreren Areas; verbindet sie mit Area 0." },
+      { term: "LSA", def: "Link State Advertisement — Bausteine der OSPF-Topologie-Datenbank." },
+      { term: "Backbone-Regel", def: "Alle Nicht-Backbone-Areas müssen an Area 0 angebunden sein." },
+      { term: "Summarization", def: "Zusammenfassung mehrerer Netze zu einer Route am ABR — entlastet andere Areas." },
+      { term: "router-id", def: "Eindeutige Router-Kennung, hier je Router manuell gesetzt (1.1.1.1 …)." },
+    ],
+  },
+
+
+  // ─────────────────────────────────────────────────────────────
+  // EIGRP (CIS3 — Advanced Distance Vector)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "eigrp",
+    icon: <Lightning size={20} />,
+    title: "EIGRP Grundlagen",
+    subtitle: "3 Router · DUAL · Successor & Feasible Successor",
+    difficulty: "Fortgeschritten",
+    duration: "25 min",
+    context: {
+      problem:
+        "Man will OSPF-schnelle Konvergenz, aber einfacher zu konfigurieren — und mit einem Backup-Pfad, der ohne Neuberechnung sofort bereitsteht.",
+      purpose:
+        "EIGRP (Advanced Distance-Vector) nutzt den DUAL-Algorithmus mit Successor + Feasible Successor für Failover im Sub-Sekunden-Bereich. Das Lab zeigt AS-Nummer, Wildcard-network und no auto-summary.",
+    },
+    topology: {
+      description:
+        "Drei Router im Dreieck (Redundanz!). EIGRP berechnet per DUAL-Algorithmus den besten Pfad (Successor) und hält einen Backup-Pfad (Feasible Successor) sofort bereit.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3", count: 3 },
+        { type: "switch", label: "SW1 / SW3", count: 2 },
+        { type: "pc", label: "PC0 / PC1", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)",
+        "R2 Gi0/2 ↔ R3 Gi0/2  (10.0.23.0/30)",
+        "R1 Gi0/2 ↔ R3 Gi0/1  (10.0.13.0/30) — Dreieck!",
+        "LANs: R1=192.168.1.0/24, R3=192.168.3.0/24",
+      ],
+      hint: "EIGRP: Cisco-proprietär (heute teils offen), AD 90 intern / 170 extern, Multicast 224.0.0.10, Metrik aus Bandbreite + Delay.",
+    },
+    steps: [
+      {
+        title: "EIGRP mit gleicher AS-Nummer starten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router eigrp 100",
+                explanation:
+                  "Die AS-Nummer (100) MUSS auf allen Routern identisch sein, sonst entsteht keine Nachbarschaft — der häufigste EIGRP-Fehler in der Prüfung.",
+              },
+              {
+                cmd: "network 192.168.1.0 0.0.0.255\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.13.0 0.0.0.3",
+                explanation:
+                  "EIGRP nutzt Wildcard-Masken wie OSPF (Maske invertiert: /30 → 0.0.0.3). Präziser als RIPs classful network-Befehl.",
+              },
+              {
+                cmd: "no auto-summary\npassive-interface gi0/0",
+                explanation:
+                  "Auto-Summary deaktivieren (wie bei RIP), keine Hellos ins LAN.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "router",
+            modeLabel: "R2(config-router)#",
+            commands: [
+              {
+                cmd: "router eigrp 100\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary",
+                explanation: "R2 ist reiner Transit-Router. R3 analog mit seinen Netzen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Nachbarschaften & Topologie analysieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip eigrp neighbors",
+                explanation:
+                  "Nachbartabelle: Hello alle 5s über 224.0.0.10, Hold-Time 15s. Beide Nachbarn (R2 direkt, R3 direkt) müssen erscheinen.",
+              },
+              {
+                cmd: "show ip eigrp topology",
+                explanation:
+                  "Die Topologie-Tabelle ist das EIGRP-Herzstück: P = Passive (stabil), zeigt Successor UND Feasible Successor mit FD/AD. Feasibility Condition: Backup-AD < Successor-FD.",
+              },
+              {
+                cmd: "show ip route eigrp",
+                explanation:
+                  "D-Einträge mit [90/...]: AD 90, zusammengesetzte Metrik aus Bandbreite + Delay (K1/K3 default).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "DUAL-Failover testen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/2\nshutdown",
+                explanation:
+                  "Direkten Link zu R3 kappen. DUAL schaltet SOFORT auf den Feasible Successor über R2 um — ohne Neuberechnung, das ist EIGRPs Konvergenz-Vorteil gegenüber RIP/OSPF.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route eigrp",
+                explanation:
+                  "192.168.3.0/24 zeigt jetzt den Pfad über 10.0.12.2 (R2) — Failover in unter einer Sekunde. Danach: no shutdown.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip eigrp neighbors", expected: "2 Nachbarn mit Hold-Time < 15s, Interface Gi0/1 + Gi0/2" },
+      { cmd: "show ip eigrp topology", expected: "P 192.168.3.0/24: 1 Successor, FD + Feasible Successor sichtbar" },
+      { cmd: "show ip route eigrp", expected: "D 192.168.3.0/24 [90/...] — AD 90 für internes EIGRP" },
+      { cmd: "ping 192.168.3.10 nach shutdown Gi0/2", expected: "Weiterhin erfolgreich — DUAL-Failover über R2" },
+    ],
+    glossary: [
+      { term: "EIGRP", def: "Enhanced Interior Gateway Routing Protocol — Cisco, AD 90 (intern), Multicast 224.0.0.10." },
+      { term: "Advanced Distance-Vector", def: "Hybrid aus Distance-Vector und Link-State-Eigenschaften." },
+      { term: "DUAL", def: "Diffusing Update Algorithm — berechnet schleifenfreie Pfade und hält Backups bereit." },
+      { term: "Successor", def: "Der aktuell beste, in die Routingtabelle eingetragene Pfad zum Ziel." },
+      { term: "Feasible Successor", def: "Vorberechneter Backup-Pfad; bei Ausfall des Successors sofort aktiv (kein Neuberechnen)." },
+      { term: "AS-Nummer", def: "Autonomous-System-Nummer (hier 100) — muss auf allen EIGRP-Routern gleich sein." },
+      { term: "no auto-summary", def: "Schaltet die Zusammenfassung an Klassengrenzen ab (wie bei RIPv2)." },
+      { term: "show ip eigrp topology", def: "Zeigt Successor + Feasible Successor mit FD/AD je Ziel." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 12. IPv6 Grundkonfiguration
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ipv6",
+    icon: <Globe size={20} weight="fill" />,
+    title: "IPv6 Grundkonfiguration",
+    subtitle: "2 Router · 2 PCs",
+    difficulty: "Mittel",
+    duration: "15 min",
+    context: {
+      problem:
+        "Die IPv4-Adressen sind weltweit aufgebraucht. Moderne Netze brauchen den riesigen IPv6-Adressraum — und Router müssen IPv6 erst explizit aktivieren, sonst routen sie es nicht.",
+      purpose:
+        "IPv6 auf Interfaces vergeben, IPv6-Routing einschalten und zwei Netze mit statischen IPv6-Routen verbinden. Grundlage jedes Dual-Stack-Netzes.",
+    },
+    topology: {
+      description:
+        "IPv6 unicast routing zwischen zwei Routern und ihren LANs.",
+      devices: [
+        { type: "router", label: "R1 / R2", count: 2 },
+        { type: "pc", label: "PC0 / PC1", count: 2 },
+      ],
+      connections: [
+        "PC0 → R1 Gi0/0  (2001:db8:1::/64)",
+        "R1 Gi0/1 ↔ R2 Gi0/1  (2001:db8:12::/64)",
+        "R2 Gi0/0 → PC1  (2001:db8:2::/64)",
+      ],
+      hint: "Gleiche Topologie wie statisches Routing, aber mit IPv6-Adressen.",
+    },
+    steps: [
+      {
+        title: "IPv6 Unicast Routing aktivieren + R1",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing",
+                explanation:
+                  "Aktiviert IPv6-Routing auf dem Router. Standardmäßig deaktiviert — ohne diesen Befehl routet der Router kein IPv6!",
+              },
+              {
+                cmd: "interface GigabitEthernet0/0\nipv6 address 2001:db8:1::1/64\nno shutdown",
+                explanation:
+                  "Setzt IPv6-Adresse. ::1 = komprimierte Form von 0000:0000:0000:0001. /64 ist Standard-Präfixlänge für LANs.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\nipv6 address 2001:db8:12::1/64\nno shutdown",
+                explanation: "WAN-Link zu R2.",
+              },
+              {
+                cmd: "ipv6 route 2001:db8:2::/64 2001:db8:12::2",
+                explanation:
+                  "Statische IPv6-Route. Syntax ähnlich wie IPv4: Zielnetz + Next-Hop. Next-Hop ist R2's WAN-IPv6.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R2 konfigurieren",
+        blocks: [
+          {
+            device: "R2",
+            mode: "global",
+            modeLabel: "R2(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing",
+                explanation: "Pflicht auf jedem IPv6-Router.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/0\nipv6 address 2001:db8:2::1/64\nno shutdown",
+                explanation: "LAN-Interface von R2.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\nipv6 address 2001:db8:12::2/64\nno shutdown",
+                explanation: "WAN-Interface gegenüber R1.",
+              },
+              {
+                cmd: "ipv6 route 2001:db8:1::/64 2001:db8:12::1",
+                explanation: "Rückroute zu R1's LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "PCs konfigurieren",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "gui",
+            modeLabel: "PC0 Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "IPv6 Address:    2001:db8:1::10/64\nIPv6 Gateway:    2001:db8:1::1",
+                explanation: "PC0 mit manueller IPv6-Adresse.",
+              },
+            ],
+          },
+          {
+            device: "PC1",
+            mode: "gui",
+            modeLabel: "PC1 Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "IPv6 Address:    2001:db8:2::10/64\nIPv6 Gateway:    2001:db8:2::1",
+                explanation: "PC1 mit manueller IPv6-Adresse.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ipv6 route", expected: "S 2001:db8:2::/64 via Gi0/1" },
+      { cmd: "ping ipv6 2001:db8:2::10", expected: "!!!!! von PC0 zu PC1" },
+    ],
+    glossary: [
+      { term: "IPv6", def: "128-Bit-Adressierung als Nachfolger von IPv4 — praktisch unbegrenzter Adressraum." },
+      { term: "ipv6 unicast-routing", def: "Schaltet IPv6-Routing global ein. Ohne diesen Befehl leitet der Router kein IPv6 weiter." },
+      { term: "/64", def: "Standard-Präfixlänge eines IPv6-Subnetzes (64 Bit Netz, 64 Bit Interface-ID)." },
+      { term: "2001:db8::/32", def: "Reservierter Dokumentations-Präfix (RFC 3849) — wie 192.0.2.0 bei IPv4." },
+      { term: "ipv6 address", def: "Weist einem Interface eine globale IPv6-Adresse zu." },
+      { term: "ipv6 route", def: "Statische IPv6-Route: Zielpräfix + Next-Hop." },
+      { term: "Link-Local (fe80::)", def: "Automatische, nur im Segment gültige Adresse jedes IPv6-Interfaces." },
+      { term: "Dual-Stack", def: "Gerät betreibt IPv4 und IPv6 parallel." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // IPv6 Static Routing — aus Cisco Practice Lab (Appendix B Bonus)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ipv6-static",
+    icon: <Network size={20} />,
+    title: "IPv6 Static Routing",
+    subtitle: "Statische + Default-Routen mit IPv6",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "IPv4-Routen reichen nicht — viele Netze laufen Dual-Stack. Statische IPv6-Routen funktionieren analog zu IPv4, aber mit eigener Syntax (ipv6 route) und der Pflicht, IPv6-Routing erst zu aktivieren.",
+      purpose:
+        "Statische IPv6-Routen, eine IPv6-Default-Route und Loopback-Ziele konfigurieren und testen — inklusive der Unterschiede zu IPv4 (ipv6 unicast-routing, Link-Local vs. Global).",
+    },
+    topology: {
+      description:
+        "Ein Internet-Router ist über serielle Links mit den Site-Routern R1 und R2 verbunden. Jeder Site-Router hat eine Loopback (Global Unicast), die der Internet-Router per statischer IPv6-Route erreichen soll und umgekehrt.",
+      devices: [
+        { type: "router", label: "Internet-Router", count: 1 },
+        { type: "router", label: "R1-1 / R2-1", count: 2 },
+      ],
+      connections: [
+        "Internet S0/0/0 ↔ R1-1   2001:DB8:CCA1:1::/64",
+        "Internet S0/1/0 ↔ R2-1   2001:DB8:CCA2:2::/64",
+        "Loopbacks: R1-1 2001:DB8:CCA1:254::1:1/128 · R2-1 2001:DB8:CCA2:254::2:1/128",
+      ],
+      hint: "Ohne 'ipv6 unicast-routing' leitet der Router KEINE IPv6-Pakete weiter (nur Host). Syntax: ipv6 route <ziel>/<präfix> <next-hop|interface>.",
+    },
+    steps: [
+      {
+        title: "1) IPv6-Routing + Interfaces aktivieren (R1-1)",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "global",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing",
+                explanation:
+                  "Schaltet die IPv6-Weiterleitung global ein — Pflicht, sonst ist der Router nur ein IPv6-Host. Gegenstück zu IPv4, wo Routing per Default an ist.",
+              },
+              {
+                cmd: "interface se0/0/0\nipv6 address 2001:DB8:CCA1:1::2/64\nno shutdown\ninterface loopback0\nipv6 address 2001:DB8:CCA1:254::1:1/128",
+                explanation:
+                  "Globale Unicast-Adressen setzen. Eine Link-Local-Adresse (fe80::) entsteht automatisch — sie wird als Next-Hop in Routen oft genutzt.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Statische Route + Default-Route auf R1-1",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "global",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "ipv6 route 2001:DB8:CCAF:254::1/128 2001:DB8:CCA1:1::1",
+                explanation:
+                  "Statische Host-Route (/128) zum Loopback des Internet-Routers über dessen Global-Unicast-Next-Hop. Syntax exakt wie IPv4, nur mit 'ipv6 route'.",
+              },
+              {
+                cmd: "ipv6 route ::/0 2001:DB8:CCA1:1::1",
+                explanation:
+                  "IPv6-Default-Route: ::/0 ist das Pendant zu 0.0.0.0/0. Schickt alles Unbekannte zum Internet-Router (Gateway of last resort).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Gegenrouten auf dem Internet-Router",
+        blocks: [
+          {
+            device: "Internet",
+            mode: "global",
+            modeLabel: "Internet(config)#",
+            commands: [
+              {
+                cmd: "ipv6 unicast-routing\nipv6 route 2001:DB8:CCA1:254::1:1/128 2001:DB8:CCA1:1::2\nipv6 route 2001:DB8:CCA2:254::2:1/128 2001:DB8:CCA2:2::2",
+                explanation:
+                  "Der Internet-Router braucht für jede Site-Loopback eine statische Route über den jeweiligen Link-Next-Hop. Ohne Rückroute kommt der Ping-Antwortweg nicht zurück.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) IPv6-Routing prüfen & testen",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "privileged",
+            modeLabel: "R1-1#",
+            commands: [
+              {
+                cmd: "show ipv6 route static",
+                explanation:
+                  "Statische Routen erscheinen mit 'S'. ::/0 ist die Default-Route. AD steht in [1/0] (statisch = AD 1).",
+              },
+              {
+                cmd: "ping 2001:DB8:CCAF:254::1",
+                explanation:
+                  "Test zum Loopback des Internet-Routers. Erfolgreich nur, wenn Hin- UND Rückroute existieren — typischer Fehler ist die fehlende Gegenroute.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ipv6 route static", expected: "S 2001:DB8:CCAF:254::1/128 [1/0] via ... + S ::/0" },
+      { cmd: "show ipv6 interface brief", expected: "Se0/0/0 mit Global-Unicast + fe80:: Link-Local, Status up/up" },
+      { cmd: "ping 2001:DB8:CCAF:254::1", expected: "!!!!! — Erfolg (Hin- und Rückroute vorhanden)" },
+    ],
+    glossary: [
+      { term: "ipv6 unicast-routing", def: "Aktiviert die IPv6-Weiterleitung — ohne den Befehl routet das Gerät kein IPv6." },
+      { term: "ipv6 route", def: "Statische IPv6-Route: ipv6 route <präfix>/<länge> <next-hop|interface> [AD]." },
+      { term: "::/0", def: "IPv6-Default-Route (Pendant zu 0.0.0.0/0) — Gateway of last resort." },
+      { term: "/128", def: "Host-Route auf genau eine IPv6-Adresse (meist Loopback)." },
+      { term: "Link-Local (fe80::)", def: "Automatisch erzeugte Adresse pro Interface, nur im lokalen Segment gültig — oft Next-Hop." },
+      { term: "Global Unicast", def: "Routbare öffentliche IPv6-Adresse (2000::/3), hier 2001:DB8::/32 (Doku-Präfix)." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 19. OSPFv3 für IPv6
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ospfv3-ipv6",
+    icon: <Globe size={20} />,
+    title: "OSPFv3 für IPv6",
+    subtitle: "Separater Process, link-local Neighborships",
+    difficulty: "Fortgeschritten",
+    duration: "15 min",
+    context: {
+      problem:
+        "Das klassische OSPF für IPv4 kennt keine IPv6-Routen. Für dynamisches Routing im IPv6-Netz braucht es OSPFv3.",
+      purpose:
+        "OSPFv3 für IPv6 einrichten: Area-Zuweisung direkt am Interface, manuelle Router-ID (Pflicht ohne IPv4) und passive-interface. Dynamisches IPv6-Routing statt statischer Routen.",
+    },
+    topology: {
+      description:
+        "2 Router, beide IPv6-only. OSPFv3 läuft als eigener Prozess parallel zu OSPFv2 (IPv4).",
+      devices: [{ type: "router", label: "R1, R2", count: 2 }],
+      connections: ["R1 Gi0/0 ↔ R2 Gi0/0  (2001:db8::/64)"],
+      hint: "OSPFv3 nutzt link-local fe80::/10 für Neighborships — nicht die globale Unicast-Adresse.",
+    },
+    steps: [
+      {
+        title: "IPv6 routing aktivieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "ipv6 unicast-routing", explanation: "PFLICHT: aktiviert IPv6-Forwarding auf dem Router." },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "interface Gi0/0", explanation: "" },
+              { cmd: "ipv6 address 2001:db8::1/64", explanation: "Globale Unicast-Adresse." },
+              { cmd: "ipv6 ospf 1 area 0", explanation: "OSPFv3 direkt am Interface aktivieren — keine 'network'-Statements wie bei OSPFv2!" },
+            ],
+          },
+        ],
+      },
+      {
+        title: "OSPFv3 Prozess",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "ipv6 router ospf 1", explanation: "Separater Process für IPv6 (kann gleiche oder andere Process-ID wie IPv4 haben)." },
+              { cmd: "router-id 1.1.1.1", explanation: "Router-ID ist trotz IPv6 ein 32-Bit-Wert (IPv4-Notation) — muss manuell gesetzt werden, falls keine IPv4-Adresse vorhanden!" },
+              { cmd: "passive-interface default", explanation: "Alle Interfaces passiv per Default." },
+              { cmd: "no passive-interface Gi0/0", explanation: "Nur auf Gi0/0 aktiv." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ipv6 ospf neighbor", expected: "Neighbor ID 2.2.2.2 — FULL, Interface ID, Address fe80::..." },
+      { cmd: "show ipv6 route ospf", expected: "O   2001:db8:1::/64 [110/2] via FE80::..." },
+      { cmd: "show ipv6 ospf interface brief", expected: "Gi0/0 1 0 fe80::... 1" },
+    ],
+    glossary: [
+      { term: "OSPFv3", def: "OSPF-Version für IPv6 (RFC 5340) — Link-State, AD 110." },
+      { term: "ipv6 ospf <pid> area <n>", def: "Aktiviert OSPFv3 direkt am Interface und ordnet es einer Area zu (statt network-Befehl)." },
+      { term: "ipv6 router ospf", def: "Öffnet den OSPFv3-Prozess für globale Parameter (router-id, passive-interface)." },
+      { term: "router-id", def: "32-Bit-Kennung — bei reinem IPv6 MANUELL nötig, da keine IPv4-Adresse als ID dient." },
+      { term: "passive-interface default", def: "Setzt alle Interfaces passiv; mit no passive-interface gezielt freigeben." },
+      { term: "Link-Local-Nachbarschaft", def: "OSPFv3-Nachbarn kommunizieren über ihre fe80::-Adressen." },
+      { term: "Area 0", def: "Backbone-Area, hier am Interface zugewiesen." },
     ],
   },
 
@@ -2311,122 +3166,6 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // DHCP Troubleshooting — 3 eingebaute Fehler finden & beheben
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "dhcp-troubleshoot-lab",
-    icon: <Shield size={20} />,
-    title: "DHCP Troubleshooting: 3 Fehler finden",
-    subtitle: "APIPA-Diagnose · helper-address · excluded-address · SVI down",
-    difficulty: "Fortgeschritten",
-    duration: "25 min",
-    context: {
-      problem:
-        "In einer fertig verdrahteten Umgebung bekommen Clients keine oder falsche IPs (169.254.x.x bzw. Gateway-Konflikt). Drei typische Konfigurationsfehler sind absichtlich eingebaut.",
-      purpose:
-        "Systematische Fehlersuche trainieren: Symptom lesen (APIPA = kein DHCP), Ursache eingrenzen und gezielt beheben — Helper-Adresse auf der richtigen Seite, fehlende Exclusion, abgeschaltetes SVI.",
-    },
-    topology: {
-      description:
-        "Eine fertig 'verkabelte' Umgebung mit drei eingebauten Konfigurationsfehlern: Clients bekommen keine oder falsche IPs (169.254.x.x / Gateway-Konflikt). Aufgabe: systematisch diagnostizieren und beheben.",
-      devices: [
-        { type: "router", label: "R1 (DHCP-Relay + SVI VLAN1)", count: 1 },
-        { type: "switch", label: "SW1", count: 1 },
-        { type: "server", label: "DHCP-Server 192.168.2.11", count: 1 },
-        { type: "pc", label: "Clients VLAN 51 / 61", count: 2 },
-      ],
-      connections: [
-        "R1 Gi0/0 ↔ SW1 (Trunk) · DHCP-Server in VLAN 71",
-        "Clients in VLAN 51 (Rot) und VLAN 61 (Blau)",
-      ],
-      hint: "Symptom zuerst lesen: 169.254.x.x = gar keine DHCP-Antwort. Eine Adresse aus dem richtigen Netz, aber Konflikt = excluded-address-Problem.",
-    },
-    steps: [
-      {
-        title: "Fehler 1: Client Rot bekommt 169.254.x.x (APIPA)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "show running-config interface gi0/0.51",
-                explanation:
-                  "Diagnose: Der Helper steht fälschlich auf gi0/0.71 (Server-seitig) statt auf gi0/0.51 (Client-seitig). Darum entsteht kein korrektes giaddr für die Rot-Clients → keine Antwort → APIPA.",
-              },
-              {
-                cmd: "interface gi0/0.51\nip helper-address 192.168.2.11",
-                explanation:
-                  "FIX: Helper auf das CLIENT-Subinterface setzen. (Auf gi0/0.71 wieder entfernen: 'no ip helper-address 192.168.2.11'.)",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Fehler 2: Client Blau bekommt IP, aber Adresskonflikt",
-        blocks: [
-          {
-            device: "DHCP-Server",
-            mode: "service",
-            modeLabel: "Server > Services > DHCP",
-            commands: [
-              {
-                cmd: "Pool Blau prüfen: Start-IP = 172.16.61.1 (= Gateway!)",
-                explanation:
-                  "Diagnose: Der Pool beginnt bei 172.16.61.1 — das ist die Gateway-IP des Routers (gi0/0.61). Der Server vergibt sie an einen Client → Konflikt, 'show ip dhcp conflict' / Doppel-IP-Warnung.",
-              },
-              {
-                cmd: "FIX: Start-IP auf 172.16.61.10 setzen (Gateway .1 ausnehmen)",
-                explanation:
-                  "Auf einem IOS-DHCP-Server entspricht das 'ip dhcp excluded-address 172.16.61.1'. In Packet Tracer: Start-Adresse über das Gateway hinaus legen.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Fehler 3: Management-Zugriff im VLAN 1 schlägt fehl",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "privileged",
-            modeLabel: "SW1#",
-            commands: [
-              {
-                cmd: "show ip interface brief | include Vlan1",
-                explanation:
-                  "Diagnose: Vlan1 ist 'administratively down'. Das Management-SVI ist nie hochgekommen — der Switch ist nicht per Telnet/SSH erreichbar.",
-              },
-              {
-                cmd: "interface vlan 1\nip address 192.168.2.50 255.255.255.0\nno shutdown",
-                explanation:
-                  "FIX: SVI mit IP versehen und mit 'no shutdown' aktivieren. SVIs sind per Default down — der häufigste Management-Fehler.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "ipconfig (Client Rot)", expected: "Echte IP 172.16.51.x statt 169.254.x.x" },
-      { cmd: "ipconfig (Client Blau)", expected: "IP ab 172.16.61.10, kein Konflikt mit Gateway" },
-      { cmd: "show ip dhcp conflict (Server)", expected: "Keine Konflikte mehr gelistet" },
-      { cmd: "show ip interface brief (SW1)", expected: "Vlan1: up/up mit Management-IP" },
-    ],
-    glossary: [
-      { term: "APIPA", def: "169.254.x.x — Selbstadresse eines Clients, wenn KEIN DHCP antwortet. Sicheres Zeichen für ein DHCP-Problem." },
-      { term: "ip helper-address", def: "Muss auf dem CLIENT-seitigen Interface stehen; auf der Server-Seite entsteht kein korrektes giaddr." },
-      { term: "giaddr", def: "Feld, in das der Relay seine Interface-IP einträgt; der Server wählt daran den Pool." },
-      { term: "ip dhcp excluded-address", def: "Fehlt sie für die Gateway-IP, vergibt der Server diese — Adresskonflikt." },
-      { term: "SVI", def: "interface vlan X; ist es administratively down, fehlt das Gateway/Management." },
-      { term: "administratively down", def: "Per shutdown abgeschaltetes Interface — mit no shutdown aktivieren." },
-      { term: "Adresskonflikt", def: "Zwei Geräte beanspruchen dieselbe IP (z. B. Gateway + Client)." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
   // 7. NAT / PAT (Overload)
   // ─────────────────────────────────────────────────────────────
   {
@@ -2647,6 +3386,312 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // 22. NTP + Syslog + SNMPv3
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ntp-syslog-snmp",
+    icon: <Info size={20} />,
+    title: "NTP + Syslog + SNMPv3",
+    subtitle: "Time-Sync, zentrales Logging, sicheres Monitoring",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "Ohne synchronisierte Uhren lassen sich Logs verschiedener Geräte nicht korrelieren — und ohne zentrales Logging übersieht man Vorfälle ganz.",
+      purpose:
+        "Betriebsgrundlagen einrichten: NTP für eine einheitliche, authentifizierte Zeit und Syslog für zentrale Logs mit korrekten Zeitstempeln.",
+    },
+    topology: {
+      description:
+        "Switch SW1 als 'managed Device'. NTP-Server 10.0.0.10, Syslog-Server 10.0.0.20, SNMPv3 Monitoring von 10.0.0.30 mit Auth+Priv.",
+      devices: [
+        { type: "switch", label: "SW1", count: 1 },
+        { type: "server", label: "NTP, Syslog, SNMP-Manager", count: 3 },
+      ],
+      connections: ["SW1 Gi0/1 → Server-VLAN 99"],
+      hint: "Ohne korrekte Zeit sind Logs WERTLOS — NTP zuerst, dann alles andere.",
+    },
+    steps: [
+      {
+        title: "NTP-Client mit Authentication",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "clock timezone CET 1", explanation: "Zeitzone Mitteleuropa = UTC+1." },
+              { cmd: "clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00", explanation: "Sommerzeit-Regel automatisch." },
+              { cmd: "ntp authentication-key 1 md5 CCNAntpKey", explanation: "Authentication-Key 1, MD5-Hash." },
+              { cmd: "ntp authenticate", explanation: "Server-Auth einschalten." },
+              { cmd: "ntp trusted-key 1", explanation: "Erlaubte Key-IDs." },
+              { cmd: "ntp server 10.0.0.10 key 1 prefer", explanation: "Primärer NTP-Server, signiert mit Key 1." },
+              { cmd: "ntp source Loopback0", explanation: "Stabile Quell-IP." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Syslog zentral senden",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "logging host 10.0.0.20", explanation: "Syslog-Server." },
+              { cmd: "logging trap informational", explanation: "Severity 6 — alles ab informational (0-7: emerg/alert/crit/err/warn/notif/info/debug)." },
+              { cmd: "logging facility local6", explanation: "Facility (Default local7) — hilft Server beim Sortieren." },
+              { cmd: "logging source-interface Loopback0", explanation: "Quell-IP konstant halten." },
+              { cmd: "service timestamps log datetime msec localtime show-timezone", explanation: "Logs mit Millisekunden-Zeitstempel + Zeitzone." },
+              { cmd: "service sequence-numbers", explanation: "Jede Log-Zeile nummerieren — keine Logs verloren." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "SNMPv3 (Auth + Priv)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "snmp-server view RO-VIEW iso included", explanation: "View definieren — was darf gelesen werden." },
+              { cmd: "snmp-server group MONGRP v3 priv read RO-VIEW", explanation: "Gruppe MONGRP mit SNMPv3 priv (auth + encryption)." },
+              { cmd: "snmp-server user monitor MONGRP v3 auth sha CcnaAuth1! priv aes 128 CcnaPriv1!", explanation: "User 'monitor' mit SHA-Auth + AES-128-Encryption." },
+              { cmd: "snmp-server host 10.0.0.30 version 3 priv monitor", explanation: "Trap-Empfänger." },
+              { cmd: "snmp-server enable traps", explanation: "Alle Standard-Traps senden." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ntp status", expected: "Clock is synchronized, stratum 4, reference is 10.0.0.10" },
+      { cmd: "show ntp associations", expected: "*~10.0.0.10  (* = sys.peer)" },
+      { cmd: "show logging", expected: "Trap logging: level informational, 0 messages lost, Logging to 10.0.0.20" },
+      { cmd: "show snmp user", expected: "User name: monitor, Auth Protocol: SHA, Privacy: AES128" },
+    ],
+    glossary: [
+      { term: "NTP", def: "Network Time Protocol (UDP 123) — synchronisiert die Uhren aller Geräte." },
+      { term: "Stratum", def: "Distanz zur Referenzuhr; je niedriger, desto vertrauenswürdiger die Zeitquelle." },
+      { term: "ntp authenticate", def: "Aktiviert NTP-Authentifizierung (mit ntp authentication-key … md5)." },
+      { term: "Syslog", def: "Standard für Geräte-Logmeldungen, üblicherweise an einen zentralen Server (logging host)." },
+      { term: "logging trap <level>", def: "Legt fest, ab welchem Schweregrad Meldungen zum Server gehen." },
+      { term: "Severity-Level", def: "0 (Emergency) bis 7 (Debug) — Schweregrad einer Syslog-Meldung." },
+      { term: "service timestamps", def: "Versieht Log-/Debug-Zeilen mit Datum/Uhrzeit — Voraussetzung für Korrelation." },
+      { term: "facility", def: "Kategorie/Quelle einer Syslog-Meldung (z. B. local6)." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 21. HSRP (FHRP)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "hsrp",
+    icon: <Shuffle size={20} />,
+    title: "HSRP First-Hop Redundancy",
+    subtitle: "Virtuelles Gateway, Priority, Preempt, Tracking",
+    difficulty: "Fortgeschritten",
+    duration: "20 min",
+    context: {
+      problem:
+        "Ein einzelnes Default-Gateway ist ein Single Point of Failure: fällt der Router aus, verlieren alle Hosts ihre Verbindung nach außen.",
+      purpose:
+        "HSRP gibt zwei Routern eine gemeinsame virtuelle Gateway-IP. Fällt der Active-Router aus, übernimmt der Standby unbemerkt — die Clients merken nichts. FHRP-Standard für Gateway-Redundanz.",
+    },
+    topology: {
+      description:
+        "Zwei Distribution-Router teilen sich ein virtuelles Default Gateway. Fällt R1 (Active) aus, übernimmt R2 (Standby) in <3s.",
+      devices: [{ type: "router", label: "R1, R2", count: 2 }],
+      connections: [
+        "R1 Gi0/0 — 192.168.1.2/24 (HSRP Active, Priority 110)",
+        "R2 Gi0/0 — 192.168.1.3/24 (HSRP Standby, Priority 100)",
+        "Virtuelle IP — 192.168.1.1 (Default Gateway der Clients)",
+      ],
+      hint: "Clients kennen NUR 192.168.1.1. HSRP-Gruppe nutzt eine virtuelle MAC 0000.0c07.acXX (XX = Gruppen-ID hex).",
+    },
+    steps: [
+      {
+        title: "R1 — Active (höhere Priority)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "interface Gi0/0", explanation: "" },
+              { cmd: "ip address 192.168.1.2 255.255.255.0", explanation: "Eigene IP." },
+              { cmd: "standby version 2", explanation: "HSRPv2 (statt Default v1) — unterstützt IPv6 und größere Group-IDs." },
+              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gruppen-ID 1, virtuelle Gateway-IP." },
+              { cmd: "standby 1 priority 110", explanation: "Priorität (Default 100). Höhere wins." },
+              { cmd: "standby 1 preempt", explanation: "Übernimmt SOFORT die Active-Rolle, wenn online (sonst bleibt der bisherige Active)." },
+              { cmd: "standby 1 timers msec 200 msec 750", explanation: "Hello 200ms, Hold 750ms → schnelles Failover." },
+              { cmd: "standby 1 track Gi0/1 30", explanation: "Wenn Uplink Gi0/1 ausfällt → Priority sinkt um 30 (110→80) → R2 (100) übernimmt." },
+              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "MD5-Auth gegen Rogue-HSRP-Spoofing." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "R2 — Standby (Default-Priority)",
+        blocks: [
+          {
+            device: "R2",
+            mode: "interface",
+            modeLabel: "R2(config)#",
+            commands: [
+              { cmd: "interface Gi0/0", explanation: "" },
+              { cmd: "ip address 192.168.1.3 255.255.255.0", explanation: "" },
+              { cmd: "standby version 2", explanation: "Muss übereinstimmen." },
+              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gleiche Virtual-IP." },
+              { cmd: "standby 1 preempt", explanation: "Damit es bei R1-Recovery die Rolle auch wieder zurückgeben kann." },
+              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "Gleiches Auth-Pass." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show standby brief", expected: "Grp 1, State Active (R1) / Standby (R2), Virtual IP 192.168.1.1" },
+      { cmd: "show standby Gi0/0 1", expected: "Hellos sent, Priority 110, Track Gi0/1 line-protocol Up" },
+      { cmd: "ping 192.168.1.1 (vom PC)", expected: "Antwortet, MAC = 0000.0c9f.f001" },
+    ],
+    glossary: [
+      { term: "HSRP", def: "Hot Standby Router Protocol (Cisco) — zwei Router teilen sich eine virtuelle Gateway-IP." },
+      { term: "FHRP", def: "First Hop Redundancy Protocol — Oberbegriff (HSRP, VRRP, GLBP)." },
+      { term: "Virtuelle IP/MAC", def: "Gemeinsame Adresse, die die Clients als Gateway nutzen; wandert beim Failover mit." },
+      { term: "Active / Standby", def: "Der Active leitet weiter; der Standby wartet bereit und übernimmt bei Ausfall." },
+      { term: "priority", def: "Höhere Priorität wird Active (Default 100)." },
+      { term: "preempt", def: "Erlaubt einem zurückkehrenden Router, die Active-Rolle zurückzuholen." },
+      { term: "Object Tracking", def: "Senkt die Priorität bei Uplink-Ausfall (standby track), sodass der Standby übernimmt." },
+      { term: "standby version 2", def: "HSRPv2 — unterstützt mehr Gruppen und msec-Timer." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // GRE-Tunnel-VPN — aus Cisco Practice Lab 6
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "gre-tunnel",
+    icon: <Network size={20} />,
+    title: "GRE-Tunnel-VPN zwischen Sites",
+    subtitle: "Site-to-Site Tunnel über das Internet + OSPF darüber",
+    difficulty: "Fortgeschritten",
+    duration: "30 min",
+    context: {
+      problem:
+        "Zwei Standorte sind nur über das öffentliche Internet verbunden. Private Netze und ein dynamisches Routing-Protokoll (OSPF, Multicast!) lassen sich nicht direkt über das Internet transportieren.",
+      purpose:
+        "Ein GRE-Tunnel bildet eine virtuelle Punkt-zu-Punkt-Leitung über das Internet. Darin laufen private IPs UND OSPF — als ob die Sites direkt verkabelt wären. (GRE allein ist unverschlüsselt; in der Praxis kombiniert mit IPsec.)",
+    },
+    topology: {
+      description:
+        "R1-1 (Site 1) und R2-1 (Site 2) haben je eine öffentliche IP am Internet-Interface. Über diese öffentlichen Adressen wird ein GRE-Tunnel (Tunnel12) mit eigenem privatem /30 aufgebaut; OSPF läuft über das Tunnel-Subnetz.",
+      devices: [
+        { type: "router", label: "R1-1 (Site 1)", count: 1 },
+        { type: "router", label: "R2-1 (Site 2)", count: 1 },
+        { type: "router", label: "Internet", count: 1 },
+      ],
+      connections: [
+        "R1-1 Se0/0/0 öffentlich 1.1.1.2  ↔ Internet",
+        "R2-1 Se0/0/0 öffentlich 2.2.2.2  ↔ Internet",
+        "Tunnel12 (GRE): 216.145.12.1/30 (R1-1) ↔ 216.145.12.2/30 (R2-1)",
+      ],
+      hint: "tunnel source = eigenes öffentliches Interface, tunnel destination = öffentliche IP der Gegenseite. Die Tunnel-IP ist privat und liegt im OSPF. Voraussetzung: die öffentlichen Adressen sind erreichbar (Default-Route ins Internet).",
+    },
+    steps: [
+      {
+        title: "1) GRE-Tunnel-Interface auf R1-1",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "interface",
+            modeLabel: "R1-1(config)#",
+            commands: [
+              {
+                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 2.2.2.2\nip address 216.145.12.1 255.255.255.252\nno shutdown",
+                explanation:
+                  "tunnel source = eigenes Internet-Interface, tunnel destination = öffentliche IP von R2-1. Die Tunnel-IP (216.145.12.1/30) ist die LOGISCHE Punkt-zu-Punkt-Adresse. Default-Encap ist GRE/IP.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Spiegelbildlicher Tunnel auf R2-1",
+        blocks: [
+          {
+            device: "R2-1",
+            mode: "interface",
+            modeLabel: "R2-1(config)#",
+            commands: [
+              {
+                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 1.1.1.2\nip address 216.145.12.2 255.255.255.252\nno shutdown",
+                explanation:
+                  "Source/Destination sind exakt vertauscht zu R1-1, die Tunnel-IP ist die zweite Adresse im selben /30. Sobald beide Seiten stehen, geht 'line protocol' auf up.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) OSPF über den Tunnel laufen lassen",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "router",
+            modeLabel: "R1-1(config-router)#",
+            commands: [
+              {
+                cmd: "router ospf 1\nnetwork 216.145.12.0 0.0.0.3 area 0",
+                explanation:
+                  "Das Tunnel-Subnetz wird in OSPF aufgenommen (Wildcard 0.0.0.3 = /30). Dadurch bilden R1-1 und R2-1 ÜBER den Tunnel eine OSPF-Nachbarschaft und tauschen ihre LAN-Routen aus. R2-1 analog.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Tunnel + OSPF verifizieren",
+        blocks: [
+          {
+            device: "R1-1",
+            mode: "privileged",
+            modeLabel: "R1-1#",
+            commands: [
+              {
+                cmd: "show interface tunnel 12",
+                explanation:
+                  "Erwartet: 'Tunnel12 is up, line protocol is up', 'Tunnel protocol/transport GRE/IP', source/destination korrekt. Bei 'line protocol down' ist die Gegenseite (destination) nicht erreichbar.",
+              },
+              {
+                cmd: "show ip ospf neighbor",
+                explanation:
+                  "Der OSPF-Nachbar (R2-1) muss im State FULL erscheinen — über das Tunnel-Interface. Danach zeigt 'show ip route ospf' die Remote-LANs als O-Routen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show interface tunnel 12", expected: "Tunnel12 up/up, Tunnel protocol/transport GRE/IP" },
+      { cmd: "show ip ospf neighbor", expected: "Nachbar über Tunnel12 im State FULL" },
+      { cmd: "show ip route ospf", expected: "Remote-LANs als O-Routen via 216.145.12.x (Tunnel)" },
+      { cmd: "ping <Remote-LAN-IP>", expected: "Erfolgreich — privater Verkehr fließt durch den GRE-Tunnel" },
+    ],
+    glossary: [
+      { term: "GRE", def: "Generic Routing Encapsulation — kapselt beliebige L3-Pakete in IP; bildet eine virtuelle P2P-Leitung. Unverschlüsselt." },
+      { term: "tunnel source/destination", def: "Die ÖFFENTLICHEN Endpunkt-IPs des Tunnels (eigenes Interface bzw. Gegenseite)." },
+      { term: "Tunnel-IP", def: "Logische private Adresse des Tunnel-Interfaces (hier /30) — Basis für das Routing darüber." },
+      { term: "OSPF over GRE", def: "Weil GRE Multicast transportiert, kann OSPF (224.0.0.5/6) über den Tunnel Nachbarschaften bilden — über reines Internet nicht möglich." },
+      { term: "GRE vs. IPsec", def: "GRE kapselt (auch Multicast), verschlüsselt aber nicht. Produktiv: GRE over IPsec für Vertraulichkeit." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 8. SSH-Konfiguration
   // ─────────────────────────────────────────────────────────────
   {
@@ -2779,6 +3824,209 @@ export const LABS: LabScenario[] = [
       { term: "line vty 0 4", def: "Die virtuellen Terminal-Lines für den Fernzugriff." },
       { term: "login local", def: "Authentifizierung gegen die lokale Benutzerdatenbank." },
       { term: "transport input ssh", def: "Erlaubt auf den VTY-Lines nur SSH (kein Telnet)." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 25. Banner & Local Hardening
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "device-hardening",
+    icon: <Shield size={20} />,
+    title: "Device Hardening",
+    subtitle: "Banner, Password-Policy, Login-Block, Service-Cleanup",
+    difficulty: "Mittel",
+    duration: "12 min",
+    context: {
+      problem:
+        "Ein Gerät mit Standardeinstellungen ist leicht angreifbar: schwache Passwort-Hashes, Brute-Force auf den Login und fehlende rechtliche Warnbanner.",
+      purpose:
+        "Das Gerät absichern: starke Hash-Algorithmen (scrypt), Mindest-Passwortlänge, Brute-Force-Schutz am Login und Warnbanner — die Basis-Härtung jedes produktiven Geräts.",
+    },
+    topology: {
+      description:
+        "Standalone Switch SW1 oder Router R1 — Erstkonfiguration in einem 'sicher per Default'-Setup.",
+      devices: [{ type: "switch", label: "SW1 / R1", count: 1 }],
+      connections: ["Standalone — gleichzeitig auf jedem Cisco-Gerät anwendbar"],
+      hint: "Das hier ist die 'Day-1 Checkliste' für jedes neue Cisco-Gerät vor Produktivnahme.",
+    },
+    steps: [
+      {
+        title: "Login-Banner (rechtlich relevant!)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "banner motd ^\n*** AUTHORIZED ACCESS ONLY ***\nAll activities are monitored and logged.\nUnauthorized access will be prosecuted.\n^", explanation: "MOTD-Banner — wichtig für Gerichtsfähigkeit gegen Eindringlinge. '^' ist Delimiter (beliebiges, nicht im Text vorkommendes Zeichen)." },
+              { cmd: "banner login ^\nPlease enter your credentials.\n^", explanation: "Erscheint nach MOTD vor dem Username-Prompt." },
+              { cmd: "banner exec ^\nWelcome — type ? for help.\n^", explanation: "Nach erfolgreichem Login." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Password-Hardening",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "service password-encryption", explanation: "Verschlüsselt alle Klartext-Passwörter in der config mit Type-7 (schwach, aber besser als nichts)." },
+              { cmd: "security passwords min-length 12", explanation: "Mindestens 12 Zeichen für neue Passwörter." },
+              { cmd: "enable algorithm-type scrypt secret EnablePass!2024", explanation: "Type-9 (scrypt) — sehr stark, nicht reversibel." },
+              { cmd: "username admin algorithm-type scrypt secret AdminPass!2024", explanation: "User mit scrypt-Hash." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Login-Block & Brute-Force-Protection",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "login block-for 120 attempts 5 within 60", explanation: "Bei 5 fehlgeschlagenen Logins in 60s → 120s Komplett-Block aller VTYs." },
+              { cmd: "login delay 3", explanation: "3 Sekunden Verzögerung zwischen Login-Versuchen." },
+              { cmd: "login on-failure log every 1", explanation: "Jeden Fehlversuch loggen." },
+              { cmd: "login on-success log", explanation: "Erfolgreiche Logins auch loggen." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Unsichere Services deaktivieren",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "no ip http server", explanation: "HTTP-Webserver aus (unverschlüsselt)." },
+              { cmd: "ip http secure-server", explanation: "Falls Web-UI nötig: nur HTTPS." },
+              { cmd: "no service pad", explanation: "Veraltetes X.25 PAD — deaktivieren." },
+              { cmd: "no ip source-route", explanation: "Source-Routing deaktivieren — gegen IP-Spoofing." },
+              { cmd: "no cdp run", explanation: "(Optional) CDP global aus oder nur an Trunks erlauben." },
+              { cmd: "no ip domain-lookup", explanation: "Verhindert lästige DNS-Lookups bei Tippfehlern in der CLI." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "VTY-Lines härten",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "line vty 0 15", explanation: "Alle 16 VTY-Lines." },
+              { cmd: "transport input ssh", explanation: "Nur SSH, kein Telnet." },
+              { cmd: "exec-timeout 10 0", explanation: "Auto-Logout nach 10 Min Inaktivität." },
+              { cmd: "logging synchronous", explanation: "Verhindert, dass Log-Messages deine Eingabe überschreiben." },
+              { cmd: "access-class MGMT-ACL in", explanation: "Nur erlaubte Source-IPs dürfen sich verbinden (ACL muss vorher definiert sein)." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show running-config | section line vty", expected: "transport input ssh, exec-timeout 10" },
+      { cmd: "show login", expected: "Login Block-for 120 seconds, 5 attempts within 60s" },
+      { cmd: "show users", expected: "Aktive Sessions" },
+    ],
+    glossary: [
+      { term: "Device Hardening", def: "Maßnahmen, die die Angriffsfläche eines Geräts verkleinern." },
+      { term: "banner motd / login / exec", def: "Textbanner zu verschiedenen Zeitpunkten — u. a. rechtlicher Warnhinweis." },
+      { term: "algorithm-type scrypt", def: "Moderner, sehr starker Passwort-Hash (Type 9) für enable/username secret." },
+      { term: "security passwords min-length", def: "Erzwingt eine Mindestlänge für neue Passwörter." },
+      { term: "login block-for", def: "Sperrt Logins nach zu vielen Fehlversuchen für eine Zeitspanne (Brute-Force-Schutz)." },
+      { term: "login delay", def: "Verzögerung zwischen Login-Versuchen — bremst automatisierte Angriffe." },
+      { term: "service password-encryption", def: "Verschleiert Klartext-Passwörter in der Konfiguration (schwach, aber Pflicht)." },
+      { term: "Brute-Force", def: "Angriff, der systematisch Passwörter durchprobiert." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 17. Port Security
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "port-security",
+    icon: <Shield size={20} />,
+    title: "Port Security",
+    subtitle: "MAC-Limit, Sticky-MAC, Violation-Modus, err-disable Recovery",
+    difficulty: "Mittel",
+    duration: "12 min",
+    context: {
+      problem:
+        "An einem offenen Switch-Port kann jeder ein eigenes Gerät anstecken — oder per MAC-Flooding die MAC-Tabelle überlaufen lassen, sodass der Switch wie ein Hub alles flutet.",
+      purpose:
+        "Port-Security begrenzt die erlaubten MAC-Adressen pro Port, lernt sie sticky in die Konfiguration und reagiert bei Verstoß automatisch (protect/restrict/shutdown).",
+    },
+    topology: {
+      description:
+        "Access-Switch SW1 mit einem PC pro Port. Wir schützen Ports vor unauthorisierten MAC-Adressen und limitieren die Anzahl gelernter MACs.",
+      devices: [
+        { type: "switch", label: "SW1", count: 1 },
+        { type: "pc", label: "PC1, PC2", count: 2 },
+      ],
+      connections: ["PC1 → SW1 Fa0/1", "PC2 → SW1 Fa0/2"],
+      hint: "Sticky-MAC merkt sich die erste MAC dauerhaft in der running-config — nach 'wr mem' überlebt sie den Reboot.",
+    },
+    steps: [
+      {
+        title: "Port Security auf Access-Port",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "interface",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "interface Fa0/1", explanation: "Endgerät-Port." },
+              { cmd: "switchport mode access", explanation: "Port Security funktioniert NUR auf Access- oder statischen Trunk-Ports." },
+              { cmd: "switchport port-security", explanation: "Feature aktivieren. Default-Limit = 1 MAC." },
+              { cmd: "switchport port-security maximum 2", explanation: "Erlaubt bis zu 2 MACs (z.B. PC + VoIP-Phone)." },
+              { cmd: "switchport port-security mac-address sticky", explanation: "Sticky: dynamisch gelernte MACs werden in die running-config geschrieben." },
+              { cmd: "switchport port-security violation restrict", explanation: "Violation-Modi: protect (silent drop) | restrict (drop + log + counter) | shutdown (default, err-disable)." },
+              { cmd: "switchport port-security aging time 60", explanation: "Aging: gelernte MAC wird nach 60 Min vergessen, falls Port inaktiv." },
+              { cmd: "switchport port-security aging type inactivity", explanation: "Aging zählt nur bei Inaktivität, nicht absolute Zeit." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Err-disable Recovery",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "errdisable recovery cause psecure-violation", explanation: "Automatisches Wiederhochfahren des Ports nach Verletzung." },
+              { cmd: "errdisable recovery interval 300", explanation: "Recovery alle 5 Minuten." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show port-security interface Fa0/1", expected: "Port Security: Enabled, Max: 2, Sticky MACs: 1" },
+      { cmd: "show port-security address", expected: "VLAN, MAC, Type=SecureSticky, Port" },
+      { cmd: "show errdisable recovery", expected: "psecure-violation: Enabled, Interval 300s" },
+    ],
+    glossary: [
+      { term: "Port-Security", def: "Switch-Funktion, die je Port nur bestimmte/begrenzte MAC-Adressen zulässt." },
+      { term: "maximum <n>", def: "Maximale Anzahl erlaubter MAC-Adressen am Port." },
+      { term: "sticky MAC", def: "Lernt die erlaubte MAC dynamisch und schreibt sie fest in die running-config." },
+      { term: "Violation: protect", def: "Verwirft Verkehr unbekannter MACs ohne Meldung." },
+      { term: "Violation: restrict", def: "Verwirft + zählt + meldet (Syslog/SNMP), Port bleibt aktiv." },
+      { term: "Violation: shutdown", def: "Default — Port geht bei Verstoß in err-disabled." },
+      { term: "err-disabled", def: "Abgeschalteter Zustand nach einer Verletzung; per errdisable recovery automatisch rückholbar." },
+      { term: "MAC-Flooding", def: "Angriff, der die MAC-Tabelle mit Fake-Adressen füllt, bis der Switch wie ein Hub flutet." },
     ],
   },
 
@@ -2963,655 +4211,6 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 11. EtherChannel (LACP)
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "etherchannel",
-    icon: <Lightning size={20} />,
-    title: "EtherChannel (LACP)",
-    subtitle: "2 Switches · gebündelte Links",
-    difficulty: "Fortgeschritten",
-    duration: "15 min",
-    context: {
-      problem:
-        "Ein einzelner Link zwischen zwei Switches ist Flaschenhals und Single Point of Failure — und STP würde einen zweiten, parallelen Link blockieren statt nutzen.",
-      purpose:
-        "Mehrere physische Links zu EINEM logischen Port-Channel bündeln: mehr Bandbreite und Redundanz, und STP sieht nur einen logischen Link (blockiert nichts).",
-    },
-    topology: {
-      description:
-        "Zwei physische Links zwischen Switches werden zu einem logischen Port-Channel gebündelt.",
-      devices: [
-        { type: "switch", label: "SW1 / SW2", count: 2 },
-      ],
-      connections: [
-        "SW1 Fa0/1 ↔ SW2 Fa0/1  (Link 1)",
-        "SW1 Fa0/2 ↔ SW2 Fa0/2  (Link 2)",
-      ],
-      hint: "Zwei Switches mit 2 parallelen Copper-Kabeln verbinden.",
-    },
-    steps: [
-      {
-        title: "EtherChannel auf SW1 konfigurieren",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "interface",
-            modeLabel: "SW1(config)#",
-            commands: [
-              {
-                cmd: "interface range FastEthernet0/1 - 2",
-                explanation:
-                  "'interface range' konfiguriert mehrere Interfaces gleichzeitig. Ports Fa0/1 und Fa0/2 gemeinsam.",
-              },
-              {
-                cmd: "channel-group 1 mode active",
-                explanation:
-                  "'active' = LACP aktiv. SW1 sendet LACP-Pakete und wartet auf Antwort. 'passive' wartet nur. Für LACP braucht mindestens eine Seite 'active'.",
-              },
-              {
-                cmd: "exit",
-                explanation: "Verlässt Interface-Range-Modus.",
-              },
-              {
-                cmd: "interface Port-channel1",
-                explanation:
-                  "Konfiguriert den logischen Port-Channel. Muss mit den Mitglieds-Interfaces übereinstimmen.",
-              },
-              {
-                cmd: "switchport mode trunk",
-                explanation:
-                  "Port-Channel als Trunk konfigurieren. Die Mitglieds-Interfaces erben diese Einstellung.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "SW2 spiegelgleich konfigurieren",
-        blocks: [
-          {
-            device: "SW2",
-            mode: "interface",
-            modeLabel: "SW2(config)#",
-            commands: [
-              {
-                cmd: "interface range FastEthernet0/1 - 2\nchannel-group 1 mode active\nexit\ninterface Port-channel1\nswitchport mode trunk",
-                explanation:
-                  "Identische Konfiguration auf SW2. Beide Seiten 'active' ist OK bei LACP.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show etherchannel summary", expected: "Po1 (SU) — S=Layer2, U=in use" },
-      { cmd: "show interfaces Port-channel1", expected: "Bandbreite = 2× Fa0 = 200Mbit/s" },
-    ],
-    glossary: [
-      { term: "EtherChannel", def: "Bündelung mehrerer physischer Links zu einem logischen — Link Aggregation." },
-      { term: "Port-Channel", def: "Das logische Interface (Port-channel1), das die Mitglieds-Ports zusammenfasst." },
-      { term: "LACP", def: "Link Aggregation Control Protocol (IEEE 802.3ad, offen) — Modi active/passive." },
-      { term: "PAgP", def: "Port Aggregation Protocol (Cisco-proprietär) — Modi desirable/auto." },
-      { term: "channel-group <n> mode <mode>", def: "Fügt ein Interface einem EtherChannel hinzu: active/passive (LACP), desirable/auto (PAgP), on (statisch)." },
-      { term: "show etherchannel summary", def: "Status aller Port-Channels (P = in-use/gebündelt, D = down)." },
-      { term: "Single Point of Failure", def: "Eine Komponente, deren Ausfall die ganze Verbindung lahmlegt — durch Bündelung vermieden." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 12. IPv6 Grundkonfiguration
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "ipv6",
-    icon: <Globe size={20} weight="fill" />,
-    title: "IPv6 Grundkonfiguration",
-    subtitle: "2 Router · 2 PCs",
-    difficulty: "Mittel",
-    duration: "15 min",
-    context: {
-      problem:
-        "Die IPv4-Adressen sind weltweit aufgebraucht. Moderne Netze brauchen den riesigen IPv6-Adressraum — und Router müssen IPv6 erst explizit aktivieren, sonst routen sie es nicht.",
-      purpose:
-        "IPv6 auf Interfaces vergeben, IPv6-Routing einschalten und zwei Netze mit statischen IPv6-Routen verbinden. Grundlage jedes Dual-Stack-Netzes.",
-    },
-    topology: {
-      description:
-        "IPv6 unicast routing zwischen zwei Routern und ihren LANs.",
-      devices: [
-        { type: "router", label: "R1 / R2", count: 2 },
-        { type: "pc", label: "PC0 / PC1", count: 2 },
-      ],
-      connections: [
-        "PC0 → R1 Gi0/0  (2001:db8:1::/64)",
-        "R1 Gi0/1 ↔ R2 Gi0/1  (2001:db8:12::/64)",
-        "R2 Gi0/0 → PC1  (2001:db8:2::/64)",
-      ],
-      hint: "Gleiche Topologie wie statisches Routing, aber mit IPv6-Adressen.",
-    },
-    steps: [
-      {
-        title: "IPv6 Unicast Routing aktivieren + R1",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              {
-                cmd: "ipv6 unicast-routing",
-                explanation:
-                  "Aktiviert IPv6-Routing auf dem Router. Standardmäßig deaktiviert — ohne diesen Befehl routet der Router kein IPv6!",
-              },
-              {
-                cmd: "interface GigabitEthernet0/0\nipv6 address 2001:db8:1::1/64\nno shutdown",
-                explanation:
-                  "Setzt IPv6-Adresse. ::1 = komprimierte Form von 0000:0000:0000:0001. /64 ist Standard-Präfixlänge für LANs.",
-              },
-              {
-                cmd: "interface GigabitEthernet0/1\nipv6 address 2001:db8:12::1/64\nno shutdown",
-                explanation: "WAN-Link zu R2.",
-              },
-              {
-                cmd: "ipv6 route 2001:db8:2::/64 2001:db8:12::2",
-                explanation:
-                  "Statische IPv6-Route. Syntax ähnlich wie IPv4: Zielnetz + Next-Hop. Next-Hop ist R2's WAN-IPv6.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "R2 konfigurieren",
-        blocks: [
-          {
-            device: "R2",
-            mode: "global",
-            modeLabel: "R2(config)#",
-            commands: [
-              {
-                cmd: "ipv6 unicast-routing",
-                explanation: "Pflicht auf jedem IPv6-Router.",
-              },
-              {
-                cmd: "interface GigabitEthernet0/0\nipv6 address 2001:db8:2::1/64\nno shutdown",
-                explanation: "LAN-Interface von R2.",
-              },
-              {
-                cmd: "interface GigabitEthernet0/1\nipv6 address 2001:db8:12::2/64\nno shutdown",
-                explanation: "WAN-Interface gegenüber R1.",
-              },
-              {
-                cmd: "ipv6 route 2001:db8:1::/64 2001:db8:12::1",
-                explanation: "Rückroute zu R1's LAN.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "PCs konfigurieren",
-        blocks: [
-          {
-            device: "PC0",
-            mode: "gui",
-            modeLabel: "PC0 Desktop → IP Configuration",
-            commands: [
-              {
-                cmd: "IPv6 Address:    2001:db8:1::10/64\nIPv6 Gateway:    2001:db8:1::1",
-                explanation: "PC0 mit manueller IPv6-Adresse.",
-              },
-            ],
-          },
-          {
-            device: "PC1",
-            mode: "gui",
-            modeLabel: "PC1 Desktop → IP Configuration",
-            commands: [
-              {
-                cmd: "IPv6 Address:    2001:db8:2::10/64\nIPv6 Gateway:    2001:db8:2::1",
-                explanation: "PC1 mit manueller IPv6-Adresse.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ipv6 route", expected: "S 2001:db8:2::/64 via Gi0/1" },
-      { cmd: "ping ipv6 2001:db8:2::10", expected: "!!!!! von PC0 zu PC1" },
-    ],
-    glossary: [
-      { term: "IPv6", def: "128-Bit-Adressierung als Nachfolger von IPv4 — praktisch unbegrenzter Adressraum." },
-      { term: "ipv6 unicast-routing", def: "Schaltet IPv6-Routing global ein. Ohne diesen Befehl leitet der Router kein IPv6 weiter." },
-      { term: "/64", def: "Standard-Präfixlänge eines IPv6-Subnetzes (64 Bit Netz, 64 Bit Interface-ID)." },
-      { term: "2001:db8::/32", def: "Reservierter Dokumentations-Präfix (RFC 3849) — wie 192.0.2.0 bei IPv4." },
-      { term: "ipv6 address", def: "Weist einem Interface eine globale IPv6-Adresse zu." },
-      { term: "ipv6 route", def: "Statische IPv6-Route: Zielpräfix + Next-Hop." },
-      { term: "Link-Local (fe80::)", def: "Automatische, nur im Segment gültige Adresse jedes IPv6-Interfaces." },
-      { term: "Dual-Stack", def: "Gerät betreibt IPv4 und IPv6 parallel." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // IPv6 Static Routing — aus Cisco Practice Lab (Appendix B Bonus)
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "ipv6-static",
-    icon: <Network size={20} />,
-    title: "IPv6 Static Routing",
-    subtitle: "Statische + Default-Routen mit IPv6",
-    difficulty: "Mittel",
-    duration: "20 min",
-    context: {
-      problem:
-        "IPv4-Routen reichen nicht — viele Netze laufen Dual-Stack. Statische IPv6-Routen funktionieren analog zu IPv4, aber mit eigener Syntax (ipv6 route) und der Pflicht, IPv6-Routing erst zu aktivieren.",
-      purpose:
-        "Statische IPv6-Routen, eine IPv6-Default-Route und Loopback-Ziele konfigurieren und testen — inklusive der Unterschiede zu IPv4 (ipv6 unicast-routing, Link-Local vs. Global).",
-    },
-    topology: {
-      description:
-        "Ein Internet-Router ist über serielle Links mit den Site-Routern R1 und R2 verbunden. Jeder Site-Router hat eine Loopback (Global Unicast), die der Internet-Router per statischer IPv6-Route erreichen soll und umgekehrt.",
-      devices: [
-        { type: "router", label: "Internet-Router", count: 1 },
-        { type: "router", label: "R1-1 / R2-1", count: 2 },
-      ],
-      connections: [
-        "Internet S0/0/0 ↔ R1-1   2001:DB8:CCA1:1::/64",
-        "Internet S0/1/0 ↔ R2-1   2001:DB8:CCA2:2::/64",
-        "Loopbacks: R1-1 2001:DB8:CCA1:254::1:1/128 · R2-1 2001:DB8:CCA2:254::2:1/128",
-      ],
-      hint: "Ohne 'ipv6 unicast-routing' leitet der Router KEINE IPv6-Pakete weiter (nur Host). Syntax: ipv6 route <ziel>/<präfix> <next-hop|interface>.",
-    },
-    steps: [
-      {
-        title: "1) IPv6-Routing + Interfaces aktivieren (R1-1)",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "global",
-            modeLabel: "R1-1(config)#",
-            commands: [
-              {
-                cmd: "ipv6 unicast-routing",
-                explanation:
-                  "Schaltet die IPv6-Weiterleitung global ein — Pflicht, sonst ist der Router nur ein IPv6-Host. Gegenstück zu IPv4, wo Routing per Default an ist.",
-              },
-              {
-                cmd: "interface se0/0/0\nipv6 address 2001:DB8:CCA1:1::2/64\nno shutdown\ninterface loopback0\nipv6 address 2001:DB8:CCA1:254::1:1/128",
-                explanation:
-                  "Globale Unicast-Adressen setzen. Eine Link-Local-Adresse (fe80::) entsteht automatisch — sie wird als Next-Hop in Routen oft genutzt.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "2) Statische Route + Default-Route auf R1-1",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "global",
-            modeLabel: "R1-1(config)#",
-            commands: [
-              {
-                cmd: "ipv6 route 2001:DB8:CCAF:254::1/128 2001:DB8:CCA1:1::1",
-                explanation:
-                  "Statische Host-Route (/128) zum Loopback des Internet-Routers über dessen Global-Unicast-Next-Hop. Syntax exakt wie IPv4, nur mit 'ipv6 route'.",
-              },
-              {
-                cmd: "ipv6 route ::/0 2001:DB8:CCA1:1::1",
-                explanation:
-                  "IPv6-Default-Route: ::/0 ist das Pendant zu 0.0.0.0/0. Schickt alles Unbekannte zum Internet-Router (Gateway of last resort).",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "3) Gegenrouten auf dem Internet-Router",
-        blocks: [
-          {
-            device: "Internet",
-            mode: "global",
-            modeLabel: "Internet(config)#",
-            commands: [
-              {
-                cmd: "ipv6 unicast-routing\nipv6 route 2001:DB8:CCA1:254::1:1/128 2001:DB8:CCA1:1::2\nipv6 route 2001:DB8:CCA2:254::2:1/128 2001:DB8:CCA2:2::2",
-                explanation:
-                  "Der Internet-Router braucht für jede Site-Loopback eine statische Route über den jeweiligen Link-Next-Hop. Ohne Rückroute kommt der Ping-Antwortweg nicht zurück.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "4) IPv6-Routing prüfen & testen",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "privileged",
-            modeLabel: "R1-1#",
-            commands: [
-              {
-                cmd: "show ipv6 route static",
-                explanation:
-                  "Statische Routen erscheinen mit 'S'. ::/0 ist die Default-Route. AD steht in [1/0] (statisch = AD 1).",
-              },
-              {
-                cmd: "ping 2001:DB8:CCAF:254::1",
-                explanation:
-                  "Test zum Loopback des Internet-Routers. Erfolgreich nur, wenn Hin- UND Rückroute existieren — typischer Fehler ist die fehlende Gegenroute.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ipv6 route static", expected: "S 2001:DB8:CCAF:254::1/128 [1/0] via ... + S ::/0" },
-      { cmd: "show ipv6 interface brief", expected: "Se0/0/0 mit Global-Unicast + fe80:: Link-Local, Status up/up" },
-      { cmd: "ping 2001:DB8:CCAF:254::1", expected: "!!!!! — Erfolg (Hin- und Rückroute vorhanden)" },
-    ],
-    glossary: [
-      { term: "ipv6 unicast-routing", def: "Aktiviert die IPv6-Weiterleitung — ohne den Befehl routet das Gerät kein IPv6." },
-      { term: "ipv6 route", def: "Statische IPv6-Route: ipv6 route <präfix>/<länge> <next-hop|interface> [AD]." },
-      { term: "::/0", def: "IPv6-Default-Route (Pendant zu 0.0.0.0/0) — Gateway of last resort." },
-      { term: "/128", def: "Host-Route auf genau eine IPv6-Adresse (meist Loopback)." },
-      { term: "Link-Local (fe80::)", def: "Automatisch erzeugte Adresse pro Interface, nur im lokalen Segment gültig — oft Next-Hop." },
-      { term: "Global Unicast", def: "Routbare öffentliche IPv6-Adresse (2000::/3), hier 2001:DB8::/32 (Doku-Präfix)." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 13. Spanning Tree (PortFast + BPDU Guard)
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "stp",
-    icon: <BookOpen size={20} />,
-    title: "STP — PortFast & BPDU Guard",
-    subtitle: "2 Switches · PCs",
-    difficulty: "Mittel",
-    duration: "15 min",
-    context: {
-      problem:
-        "Redundante Verbindungen zwischen Switches erzeugen ohne Schutz Layer-2-Loops. Ein Frame kreist endlos, ein Broadcast-Sturm legt binnen Sekunden das ganze Netz lahm.",
-      purpose:
-        "STP wählt automatisch eine Root-Bridge und blockiert überflüssige Pfade, sodass genau ein loopfreier Baum bleibt. PortFast + BPDU-Guard sichern dabei die Access-Ports ab.",
-    },
-    topology: {
-      description:
-        "STP verhindert Loops. PortFast beschleunigt den Port-Übergang für Endgeräte.",
-      devices: [
-        { type: "switch", label: "SW1 (Root) / SW2", count: 2 },
-        { type: "pc", label: "PC0 / PC1", count: 2 },
-      ],
-      connections: [
-        "SW1 Gi0/1 ↔ SW2 Gi0/1",
-        "PC0 → SW1 Fa0/1",
-        "PC1 → SW2 Fa0/1",
-      ],
-      hint: "SW1 wird Root Bridge durch niedrigere Priority.",
-    },
-    steps: [
-      {
-        title: "Root Bridge und PortFast konfigurieren",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              {
-                cmd: "spanning-tree vlan 1 priority 4096",
-                explanation:
-                  "Setzt STP-Priority. Niedrigster Wert = Root Bridge. Standard ist 32768. Empfohlene Werte: Vielfache von 4096.",
-              },
-              {
-                cmd: "interface FastEthernet0/1\nspanning-tree portfast\nspanning-tree bpduguard enable",
-                explanation:
-                  "PortFast: Port überspringt Listening/Learning-Phasen (spart ~30s Wartezeit). Nur für Endgeräte! BPDU Guard: Wenn ein Switch an diesem Port angeschlossen wird, wird der Port sofort deaktiviert (err-disabled) — schützt vor Loop-Einschleusung.",
-              },
-            ],
-          },
-          {
-            device: "SW2",
-            mode: "global",
-            modeLabel: "SW2(config)#",
-            commands: [
-              {
-                cmd: "interface FastEthernet0/1\nspanning-tree portfast\nspanning-tree bpduguard enable",
-                explanation: "Gleiche Sicherheitskonfiguration für PC1-Port.",
-              },
-              {
-                cmd: "spanning-tree portfast default",
-                explanation:
-                  "Aktiviert PortFast global für alle Access-Ports. Effizient wenn alle Non-Trunk-Ports zu Endgeräten gehen.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show spanning-tree", expected: "SW1: Root Bridge, SW2: Port blocked" },
-      { cmd: "show spanning-tree vlan 1 detail", expected: "Root ID Priority 4096 SW1 MAC" },
-    ],
-    glossary: [
-      { term: "STP", def: "Spanning Tree Protocol (802.1D) — verhindert Layer-2-Loops, indem es redundante Pfade blockiert." },
-      { term: "Root-Bridge", def: "Der zentrale Referenz-Switch des Baums — gewählt über die niedrigste Bridge-ID." },
-      { term: "Bridge-Priority", def: "Erster Teil der Bridge-ID (Default 32768). Niedriger gewinnt; bei Gleichstand entscheidet die MAC." },
-      { term: "BPDU", def: "Bridge Protocol Data Unit — STP-Nachricht, mit der Switches die Topologie aushandeln." },
-      { term: "Root Port (RP)", def: "Der Port eines Switches mit dem günstigsten Pfad zur Root-Bridge." },
-      { term: "Designated Port (DP)", def: "Pro Segment der weiterleitende Port; an der Root-Bridge sind alle Ports DP." },
-      { term: "Blocking", def: "Zustand eines Ports, der zur Loop-Vermeidung keine Daten weiterleitet." },
-      { term: "PortFast", def: "Bringt einen Access-Port sofort in Forwarding (überspringt STP-Phasen). Nur für Endgeräte!" },
-      { term: "BPDU-Guard", def: "Deaktiviert einen PortFast-Port (err-disabled), sobald dort eine BPDU eintrifft — schützt vor fremden Switches." },
-    ],
-  },
-
-  // ═════════════════════════════════════════════════════════════
-  // ERWEITERTE LABS (14–31)
-  // ═════════════════════════════════════════════════════════════
-
-  // ─────────────────────────────────────────────────────────────
-  // 14. VLAN-Hopping & Mitigation
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "vlan-hopping",
-    icon: <Shield size={20} />,
-    title: "VLAN-Hopping & Mitigation",
-    subtitle: "Switch-Spoofing + Double-Tagging verhindern",
-    difficulty: "Fortgeschritten",
-    duration: "20 min",
-    context: {
-      problem:
-        "Ein Angreifer kann per Double-Tagging (zwei 802.1Q-Tags) oder einem erschlichenen Trunk (DTP) Frames in ein fremdes VLAN einschleusen, das er eigentlich nicht erreichen darf.",
-      purpose:
-        "Die Standard-Gegenmaßnahmen gegen VLAN-Hopping umsetzen: ein ungenutztes Native-VLAN als Blackhole, DTP per nonegotiate abschalten und Access-Ports härten.",
-    },
-    topology: {
-      description:
-        "Angriffsszenario: Ein PC versucht durch Switch-Spoofing (DTP) oder Double-Tagging in fremde VLANs zu gelangen. Wir härten die Switch-Ports.",
-      devices: [
-        { type: "switch", label: "SW1, SW2", count: 2 },
-        { type: "pc", label: "Angreifer + 2 normale PCs", count: 3 },
-      ],
-      connections: [
-        "SW1 ↔ SW2 trunk (Gi0/1)",
-        "Angreifer-PC → SW1 Fa0/1 (versucht DTP-Trunk)",
-        "Normale PCs → VLAN 10/20",
-      ],
-      hint: "Default-DTP-Modus 'dynamic auto' erlaubt einem Angreifer, einen Trunk auszuhandeln → Zugang zu ALLEN VLANs!",
-    },
-    steps: [
-      {
-        title: "Access-Port hart konfigurieren (gegen Switch-Spoofing)",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "interface",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "interface Fa0/1", explanation: "Port des Endgeräts/möglichen Angreifers." },
-              { cmd: "switchport mode access", explanation: "Explizit Access — kein DTP-Aushandeln mehr möglich." },
-              { cmd: "switchport access vlan 10", explanation: "Statisch VLAN 10 zugewiesen." },
-              { cmd: "switchport nonegotiate", explanation: "Deaktiviert DTP komplett. Port verschickt keine DTP-Frames mehr." },
-              { cmd: "spanning-tree portfast", explanation: "Sofort Forwarding für Endgeräte." },
-              { cmd: "spanning-tree bpduguard enable", explanation: "Bei BPDU-Empfang → err-disabled. Schutz wenn jemand einen Switch ansteckt." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Trunk-Port härten (gegen Double-Tagging)",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "interface",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "interface Gi0/1", explanation: "Trunk zwischen den Switches." },
-              { cmd: "switchport mode trunk", explanation: "Hart Trunk — kein Auto/Desirable." },
-              { cmd: "switchport nonegotiate", explanation: "Kein DTP." },
-              { cmd: "switchport trunk native vlan 999", explanation: "Native VLAN ändern (nicht VLAN 1)! Double-Tag-Angriff nutzt das Default-Native-VLAN." },
-              { cmd: "switchport trunk allowed vlan 10,20", explanation: "Nur erlaubte VLANs auf dem Trunk — kein VLAN 1 für User-Daten." },
-            ],
-          },
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "vlan 999", explanation: "Black-Hole-VLAN für Native VLAN anlegen." },
-              { cmd: "name BLACKHOLE-NATIVE", explanation: "Klar dokumentieren." },
-              { cmd: "exit", explanation: "" },
-              { cmd: "interface Gi0/1", explanation: "Zurück zum Trunk." },
-              { cmd: "switchport trunk native vlan tag", explanation: "(Optional) zwingt den Switch, auch Native VLAN zu taggen → killt Double-Tag-Angriff sicher." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show interfaces switchport", expected: "Operational Mode: static access, Negotiation: Off" },
-      { cmd: "show interfaces trunk", expected: "Native vlan: 999, Allowed: 10,20" },
-    ],
-    glossary: [
-      { term: "VLAN-Hopping", def: "Angriff, der Frames in ein anderes VLAN bringt — per Double-Tagging oder Switch-Spoofing (DTP)." },
-      { term: "Double-Tagging", def: "Angreifer setzt zwei 802.1Q-Tags; der erste wird am Trunk entfernt, der zweite leitet ins Ziel-VLAN." },
-      { term: "Native VLAN", def: "Das eine VLAN, dessen Frames am Trunk UNgetaggt laufen — Einfallstor für Double-Tagging." },
-      { term: "Blackhole-VLAN", def: "Ein leeres, nirgends genutztes VLAN, das man als Native VLAN setzt, damit getaggter Angriffsverkehr ins Leere läuft." },
-      { term: "switchport nonegotiate", def: "Schaltet DTP ab, damit kein Port automatisch zum Trunk verhandelt wird (Switch-Spoofing-Schutz)." },
-      { term: "DTP", def: "Dynamic Trunking Protocol — automatische Trunk-Verhandlung, die ein Angreifer ausnutzen kann." },
-      { term: "BPDU-Guard", def: "Sichert Access-Ports zusätzlich gegen eingeschleuste Switches ab." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 15. STP Root-Bridge Hardening
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "stp-hardening",
-    icon: <Lightning size={20} />,
-    title: "STP Root-Bridge Hardening",
-    subtitle: "Root/BPDU/Loop Guard kombiniert einsetzen",
-    difficulty: "Fortgeschritten",
-    duration: "15 min",
-    context: {
-      problem:
-        "Standard-STP konvergiert langsam und ist manipulierbar: ein fremder Switch mit niedriger Priorität kann Root werden und den Verkehr umleiten, fehlerhafte Links können Loops erzeugen.",
-      purpose:
-        "STP produktionsreif härten: Rapid-PVST für schnelle Konvergenz, Root bewusst festlegen, PortFast+BPDU-Guard global, Root-Guard/Loop-Guard und automatische errdisable-Recovery.",
-    },
-    topology: {
-      description:
-        "3 Switches im Triangle. Wir definieren bewusst die Root Bridge, schützen sie gegen unerlaubte Übernahme und sichern alle Trunk-Links gegen Loops.",
-      devices: [{ type: "switch", label: "Core, Dist1, Dist2", count: 3 }],
-      connections: ["Core ↔ Dist1 (Gi0/1)", "Core ↔ Dist2 (Gi0/2)", "Dist1 ↔ Dist2 (Gi0/3) — wird per STP blockiert"],
-      hint: "Core MUSS Root sein. Falls ein Mitarbeiter versehentlich einen Heim-Switch ansteckt, darf er NIE Root werden.",
-    },
-    steps: [
-      {
-        title: "Core hart als Root setzen",
-        blocks: [
-          {
-            device: "Core",
-            mode: "global",
-            modeLabel: "Core(config)#",
-            commands: [
-              { cmd: "spanning-tree mode rapid-pvst", explanation: "RSTP (802.1w) statt klassisches STP → Konvergenz <1s." },
-              { cmd: "spanning-tree vlan 1-100 priority 4096", explanation: "Niedrigste Priority = garantiert Root für alle VLANs 1-100." },
-              { cmd: "spanning-tree vlan 1-100 root primary", explanation: "Alternative Schreibweise — setzt Priority auf 24576 (oder niedriger als der bisherige Root)." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Backup-Root auf Dist1",
-        blocks: [
-          {
-            device: "Dist1",
-            mode: "global",
-            modeLabel: "Dist1(config)#",
-            commands: [
-              { cmd: "spanning-tree mode rapid-pvst", explanation: "Gleicher Mode wie Core." },
-              { cmd: "spanning-tree vlan 1-100 root secondary", explanation: "Priority 28672 — übernimmt sofort, falls Core ausfällt." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Access-Ports: BPDU Guard global",
-        blocks: [
-          {
-            device: "Core",
-            mode: "global",
-            modeLabel: "Core(config)#",
-            commands: [
-              { cmd: "spanning-tree portfast default", explanation: "PortFast automatisch für alle Access-Ports → sofortiges Forwarding." },
-              { cmd: "spanning-tree portfast bpduguard default", explanation: "BPDU Guard global — alle PortFast-Ports gehen bei BPDU-Empfang err-disabled." },
-              { cmd: "errdisable recovery cause bpduguard", explanation: "Auto-Recovery nach Default 5 Min." },
-              { cmd: "errdisable recovery interval 300", explanation: "Recovery-Interval explizit auf 5 Min." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Trunk-Ports: Loop Guard + Root Guard",
-        blocks: [
-          {
-            device: "Core",
-            mode: "interface",
-            modeLabel: "Core(config)#",
-            commands: [
-              { cmd: "interface range Gi0/1 - 2", explanation: "Trunks zu Dist1 und Dist2." },
-              { cmd: "spanning-tree guard root", explanation: "Root Guard: Verhindert, dass über diesen Port ein 'überlegener' BPDU akzeptiert wird → wenn jemand am Trunk eine 'bessere' Switch ansteckt: root-inconsistent." },
-              { cmd: "spanning-tree guard loop", explanation: "Loop Guard: Wenn BPDUs auf einem RP/AP plötzlich ausbleiben (unidirektionaler Link) → loop-inconsistent statt versehentlich Forwarding." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show spanning-tree root", expected: "Root ID Priority 4096, This bridge IS the root" },
-      { cmd: "show spanning-tree summary", expected: "PortFast Default ON, BPDU Guard Default ON" },
-      { cmd: "show spanning-tree interface Gi0/1 detail", expected: "Root guard: enabled" },
-    ],
-    glossary: [
-      { term: "Rapid-PVST+", def: "Ciscos schnelle STP-Variante (802.1w) pro VLAN — Konvergenz in Sekunden statt ~50 s." },
-      { term: "root primary / secondary", def: "Setzt die Bridge-Priority so, dass ein Switch sicher Root (bzw. Backup-Root) wird." },
-      { term: "Root Guard", def: "Verhindert, dass über einen Port ein fremder Switch Root-Bridge wird (Port geht in root-inconsistent)." },
-      { term: "Loop Guard", def: "Schützt vor Loops, wenn ein Blocking-Port durch ausbleibende BPDUs fälschlich forwardet." },
-      { term: "PortFast default", def: "Aktiviert PortFast global auf allen Access-Ports." },
-      { term: "BPDU-Guard default", def: "Aktiviert BPDU-Guard global auf allen PortFast-Ports." },
-      { term: "err-disabled", def: "Sicherheits-Aus-Zustand eines Ports nach einer Verletzung (z. B. BPDU auf PortFast-Port)." },
-      { term: "errdisable recovery", def: "Holt err-disabled Ports nach einem Intervall automatisch zurück (cause + interval)." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
   // 16. DHCP Snooping + DAI + IP Source Guard
   // ─────────────────────────────────────────────────────────────
   {
@@ -3718,783 +4317,202 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 17. Port Security
+  // 15. STP Root-Bridge Hardening
   // ─────────────────────────────────────────────────────────────
   {
-    id: "port-security",
-    icon: <Shield size={20} />,
-    title: "Port Security",
-    subtitle: "MAC-Limit, Sticky-MAC, Violation-Modus, err-disable Recovery",
-    difficulty: "Mittel",
-    duration: "12 min",
-    context: {
-      problem:
-        "An einem offenen Switch-Port kann jeder ein eigenes Gerät anstecken — oder per MAC-Flooding die MAC-Tabelle überlaufen lassen, sodass der Switch wie ein Hub alles flutet.",
-      purpose:
-        "Port-Security begrenzt die erlaubten MAC-Adressen pro Port, lernt sie sticky in die Konfiguration und reagiert bei Verstoß automatisch (protect/restrict/shutdown).",
-    },
-    topology: {
-      description:
-        "Access-Switch SW1 mit einem PC pro Port. Wir schützen Ports vor unauthorisierten MAC-Adressen und limitieren die Anzahl gelernter MACs.",
-      devices: [
-        { type: "switch", label: "SW1", count: 1 },
-        { type: "pc", label: "PC1, PC2", count: 2 },
-      ],
-      connections: ["PC1 → SW1 Fa0/1", "PC2 → SW1 Fa0/2"],
-      hint: "Sticky-MAC merkt sich die erste MAC dauerhaft in der running-config — nach 'wr mem' überlebt sie den Reboot.",
-    },
-    steps: [
-      {
-        title: "Port Security auf Access-Port",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "interface",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "interface Fa0/1", explanation: "Endgerät-Port." },
-              { cmd: "switchport mode access", explanation: "Port Security funktioniert NUR auf Access- oder statischen Trunk-Ports." },
-              { cmd: "switchport port-security", explanation: "Feature aktivieren. Default-Limit = 1 MAC." },
-              { cmd: "switchport port-security maximum 2", explanation: "Erlaubt bis zu 2 MACs (z.B. PC + VoIP-Phone)." },
-              { cmd: "switchport port-security mac-address sticky", explanation: "Sticky: dynamisch gelernte MACs werden in die running-config geschrieben." },
-              { cmd: "switchport port-security violation restrict", explanation: "Violation-Modi: protect (silent drop) | restrict (drop + log + counter) | shutdown (default, err-disable)." },
-              { cmd: "switchport port-security aging time 60", explanation: "Aging: gelernte MAC wird nach 60 Min vergessen, falls Port inaktiv." },
-              { cmd: "switchport port-security aging type inactivity", explanation: "Aging zählt nur bei Inaktivität, nicht absolute Zeit." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Err-disable Recovery",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "errdisable recovery cause psecure-violation", explanation: "Automatisches Wiederhochfahren des Ports nach Verletzung." },
-              { cmd: "errdisable recovery interval 300", explanation: "Recovery alle 5 Minuten." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show port-security interface Fa0/1", expected: "Port Security: Enabled, Max: 2, Sticky MACs: 1" },
-      { cmd: "show port-security address", expected: "VLAN, MAC, Type=SecureSticky, Port" },
-      { cmd: "show errdisable recovery", expected: "psecure-violation: Enabled, Interval 300s" },
-    ],
-    glossary: [
-      { term: "Port-Security", def: "Switch-Funktion, die je Port nur bestimmte/begrenzte MAC-Adressen zulässt." },
-      { term: "maximum <n>", def: "Maximale Anzahl erlaubter MAC-Adressen am Port." },
-      { term: "sticky MAC", def: "Lernt die erlaubte MAC dynamisch und schreibt sie fest in die running-config." },
-      { term: "Violation: protect", def: "Verwirft Verkehr unbekannter MACs ohne Meldung." },
-      { term: "Violation: restrict", def: "Verwirft + zählt + meldet (Syslog/SNMP), Port bleibt aktiv." },
-      { term: "Violation: shutdown", def: "Default — Port geht bei Verstoß in err-disabled." },
-      { term: "err-disabled", def: "Abgeschalteter Zustand nach einer Verletzung; per errdisable recovery automatisch rückholbar." },
-      { term: "MAC-Flooding", def: "Angriff, der die MAC-Tabelle mit Fake-Adressen füllt, bis der Switch wie ein Hub flutet." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 18. OSPF Multi-Area
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "ospf-multiarea",
-    icon: <Stack size={20} />,
-    title: "OSPF Multi-Area",
-    subtitle: "Area 0 + Area 1 mit ABR, LSA-Typen, Stub-Area",
-    difficulty: "Fortgeschritten",
-    duration: "25 min",
-    context: {
-      problem:
-        "Ein einziges großes OSPF-Area zwingt jeden Router, die vollständige Topologie-Datenbank zu halten und bei jeder Änderung neu zu rechnen — das skaliert schlecht.",
-      purpose:
-        "OSPF in mehrere Areas aufteilen, die alle an Area 0 hängen. ABRs fassen zwischen den Areas zusammen und begrenzen so den Rechen-/Speicheraufwand. Grundprinzip hierarchischer OSPF-Netze.",
-    },
-    topology: {
-      description:
-        "3 Router: R1 in Area 0, R2 ist ABR (Area Border Router) zwischen Area 0 und Area 1, R3 in Area 1. Area 1 wird als Stub konfiguriert.",
-      devices: [{ type: "router", label: "R1, R2, R3", count: 3 }],
-      connections: ["R1 ↔ R2 Gi0/0 (10.0.0.0/30, Area 0)", "R2 ↔ R3 Gi0/1 (10.0.0.4/30, Area 1)"],
-      hint: "ABR (R2) hat Interfaces in MEHREREN Areas. Er generiert LSA Type 3 (Summary), um Routen zwischen Areas zu propagieren.",
-    },
-    steps: [
-      {
-        title: "R1 — Backbone (Area 0)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "router ospf 1", explanation: "Process-ID 1 (lokal bedeutsam, muss nicht überall gleich sein)." },
-              { cmd: "router-id 1.1.1.1", explanation: "Explizite Router-ID — sonst wählt OSPF die höchste Loopback-IP." },
-              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Backbone-Link in Area 0 (Wildcard-Maske 0.0.0.3 = /30)." },
-              { cmd: "network 192.168.1.0 0.0.0.255 area 0", explanation: "Lokales User-Netz auch in Area 0." },
-              { cmd: "passive-interface Gi0/2", explanation: "Kein OSPF-Hello auf User-Interface — Sicherheit." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "R2 — ABR (Area 0 + Area 1)",
-        blocks: [
-          {
-            device: "R2",
-            mode: "global",
-            modeLabel: "R2(config)#",
-            commands: [
-              { cmd: "router ospf 1", explanation: "" },
-              { cmd: "router-id 2.2.2.2", explanation: "" },
-              { cmd: "network 10.0.0.0 0.0.0.3 area 0", explanation: "Link zu R1 in Area 0." },
-              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Link zu R3 in Area 1. R2 ist jetzt ABR." },
-              { cmd: "area 1 stub", explanation: "Area 1 als Stub: keine externen Routen (LSA 5) — R2 sendet stattdessen Default-Route nach Area 1." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "R3 — Stub Area 1",
-        blocks: [
-          {
-            device: "R3",
-            mode: "global",
-            modeLabel: "R3(config)#",
-            commands: [
-              { cmd: "router ospf 1", explanation: "" },
-              { cmd: "router-id 3.3.3.3", explanation: "" },
-              { cmd: "network 10.0.0.4 0.0.0.3 area 1", explanation: "Eigenes Backbone-Interface in Area 1." },
-              { cmd: "area 1 stub", explanation: "PFLICHT: Stub-Konfiguration muss auf ALLEN Routern der Area gleich sein, sonst keine Adjacency." },
-              { cmd: "network 192.168.3.0 0.0.0.255 area 1", explanation: "Lokales User-Netz in Area 1." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ip ospf neighbor", expected: "R1: FULL/BDR (auf R2), R3: FULL/BDR" },
-      { cmd: "show ip ospf database", expected: "Type-1 (Router), Type-2 (Network), Type-3 (Summary) sichtbar" },
-      { cmd: "show ip route ospf", expected: "O IA 192.168.1.0/24 (Inter-Area), O*IA 0.0.0.0/0 (Default in Stub)" },
-    ],
-    glossary: [
-      { term: "Multi-Area OSPF", def: "Aufteilung der OSPF-Domäne in mehrere Areas zur besseren Skalierung." },
-      { term: "Area 0 (Backbone)", def: "Zentrale Area; jede andere Area muss direkt mit ihr verbunden sein." },
-      { term: "ABR", def: "Area Border Router — Router mit Interfaces in mehreren Areas; verbindet sie mit Area 0." },
-      { term: "LSA", def: "Link State Advertisement — Bausteine der OSPF-Topologie-Datenbank." },
-      { term: "Backbone-Regel", def: "Alle Nicht-Backbone-Areas müssen an Area 0 angebunden sein." },
-      { term: "Summarization", def: "Zusammenfassung mehrerer Netze zu einer Route am ABR — entlastet andere Areas." },
-      { term: "router-id", def: "Eindeutige Router-Kennung, hier je Router manuell gesetzt (1.1.1.1 …)." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 19. OSPFv3 für IPv6
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "ospfv3-ipv6",
-    icon: <Globe size={20} />,
-    title: "OSPFv3 für IPv6",
-    subtitle: "Separater Process, link-local Neighborships",
+    id: "stp-hardening",
+    icon: <Lightning size={20} />,
+    title: "STP Root-Bridge Hardening",
+    subtitle: "Root/BPDU/Loop Guard kombiniert einsetzen",
     difficulty: "Fortgeschritten",
     duration: "15 min",
     context: {
       problem:
-        "Das klassische OSPF für IPv4 kennt keine IPv6-Routen. Für dynamisches Routing im IPv6-Netz braucht es OSPFv3.",
+        "Standard-STP konvergiert langsam und ist manipulierbar: ein fremder Switch mit niedriger Priorität kann Root werden und den Verkehr umleiten, fehlerhafte Links können Loops erzeugen.",
       purpose:
-        "OSPFv3 für IPv6 einrichten: Area-Zuweisung direkt am Interface, manuelle Router-ID (Pflicht ohne IPv4) und passive-interface. Dynamisches IPv6-Routing statt statischer Routen.",
+        "STP produktionsreif härten: Rapid-PVST für schnelle Konvergenz, Root bewusst festlegen, PortFast+BPDU-Guard global, Root-Guard/Loop-Guard und automatische errdisable-Recovery.",
     },
     topology: {
       description:
-        "2 Router, beide IPv6-only. OSPFv3 läuft als eigener Prozess parallel zu OSPFv2 (IPv4).",
-      devices: [{ type: "router", label: "R1, R2", count: 2 }],
-      connections: ["R1 Gi0/0 ↔ R2 Gi0/0  (2001:db8::/64)"],
-      hint: "OSPFv3 nutzt link-local fe80::/10 für Neighborships — nicht die globale Unicast-Adresse.",
+        "3 Switches im Triangle. Wir definieren bewusst die Root Bridge, schützen sie gegen unerlaubte Übernahme und sichern alle Trunk-Links gegen Loops.",
+      devices: [{ type: "switch", label: "Core, Dist1, Dist2", count: 3 }],
+      connections: ["Core ↔ Dist1 (Gi0/1)", "Core ↔ Dist2 (Gi0/2)", "Dist1 ↔ Dist2 (Gi0/3) — wird per STP blockiert"],
+      hint: "Core MUSS Root sein. Falls ein Mitarbeiter versehentlich einen Heim-Switch ansteckt, darf er NIE Root werden.",
     },
     steps: [
       {
-        title: "IPv6 routing aktivieren",
+        title: "Core hart als Root setzen",
         blocks: [
           {
-            device: "R1",
+            device: "Core",
             mode: "global",
-            modeLabel: "R1(config)#",
+            modeLabel: "Core(config)#",
             commands: [
-              { cmd: "ipv6 unicast-routing", explanation: "PFLICHT: aktiviert IPv6-Forwarding auf dem Router." },
-            ],
-          },
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "interface Gi0/0", explanation: "" },
-              { cmd: "ipv6 address 2001:db8::1/64", explanation: "Globale Unicast-Adresse." },
-              { cmd: "ipv6 ospf 1 area 0", explanation: "OSPFv3 direkt am Interface aktivieren — keine 'network'-Statements wie bei OSPFv2!" },
+              { cmd: "spanning-tree mode rapid-pvst", explanation: "RSTP (802.1w) statt klassisches STP → Konvergenz <1s." },
+              { cmd: "spanning-tree vlan 1-100 priority 4096", explanation: "Niedrigste Priority = garantiert Root für alle VLANs 1-100." },
+              { cmd: "spanning-tree vlan 1-100 root primary", explanation: "Alternative Schreibweise — setzt Priority auf 24576 (oder niedriger als der bisherige Root)." },
             ],
           },
         ],
       },
       {
-        title: "OSPFv3 Prozess",
+        title: "Backup-Root auf Dist1",
         blocks: [
           {
-            device: "R1",
+            device: "Dist1",
             mode: "global",
-            modeLabel: "R1(config)#",
+            modeLabel: "Dist1(config)#",
             commands: [
-              { cmd: "ipv6 router ospf 1", explanation: "Separater Process für IPv6 (kann gleiche oder andere Process-ID wie IPv4 haben)." },
-              { cmd: "router-id 1.1.1.1", explanation: "Router-ID ist trotz IPv6 ein 32-Bit-Wert (IPv4-Notation) — muss manuell gesetzt werden, falls keine IPv4-Adresse vorhanden!" },
-              { cmd: "passive-interface default", explanation: "Alle Interfaces passiv per Default." },
-              { cmd: "no passive-interface Gi0/0", explanation: "Nur auf Gi0/0 aktiv." },
+              { cmd: "spanning-tree mode rapid-pvst", explanation: "Gleicher Mode wie Core." },
+              { cmd: "spanning-tree vlan 1-100 root secondary", explanation: "Priority 28672 — übernimmt sofort, falls Core ausfällt." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Access-Ports: BPDU Guard global",
+        blocks: [
+          {
+            device: "Core",
+            mode: "global",
+            modeLabel: "Core(config)#",
+            commands: [
+              { cmd: "spanning-tree portfast default", explanation: "PortFast automatisch für alle Access-Ports → sofortiges Forwarding." },
+              { cmd: "spanning-tree portfast bpduguard default", explanation: "BPDU Guard global — alle PortFast-Ports gehen bei BPDU-Empfang err-disabled." },
+              { cmd: "errdisable recovery cause bpduguard", explanation: "Auto-Recovery nach Default 5 Min." },
+              { cmd: "errdisable recovery interval 300", explanation: "Recovery-Interval explizit auf 5 Min." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Trunk-Ports: Loop Guard + Root Guard",
+        blocks: [
+          {
+            device: "Core",
+            mode: "interface",
+            modeLabel: "Core(config)#",
+            commands: [
+              { cmd: "interface range Gi0/1 - 2", explanation: "Trunks zu Dist1 und Dist2." },
+              { cmd: "spanning-tree guard root", explanation: "Root Guard: Verhindert, dass über diesen Port ein 'überlegener' BPDU akzeptiert wird → wenn jemand am Trunk eine 'bessere' Switch ansteckt: root-inconsistent." },
+              { cmd: "spanning-tree guard loop", explanation: "Loop Guard: Wenn BPDUs auf einem RP/AP plötzlich ausbleiben (unidirektionaler Link) → loop-inconsistent statt versehentlich Forwarding." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show ipv6 ospf neighbor", expected: "Neighbor ID 2.2.2.2 — FULL, Interface ID, Address fe80::..." },
-      { cmd: "show ipv6 route ospf", expected: "O   2001:db8:1::/64 [110/2] via FE80::..." },
-      { cmd: "show ipv6 ospf interface brief", expected: "Gi0/0 1 0 fe80::... 1" },
+      { cmd: "show spanning-tree root", expected: "Root ID Priority 4096, This bridge IS the root" },
+      { cmd: "show spanning-tree summary", expected: "PortFast Default ON, BPDU Guard Default ON" },
+      { cmd: "show spanning-tree interface Gi0/1 detail", expected: "Root guard: enabled" },
     ],
     glossary: [
-      { term: "OSPFv3", def: "OSPF-Version für IPv6 (RFC 5340) — Link-State, AD 110." },
-      { term: "ipv6 ospf <pid> area <n>", def: "Aktiviert OSPFv3 direkt am Interface und ordnet es einer Area zu (statt network-Befehl)." },
-      { term: "ipv6 router ospf", def: "Öffnet den OSPFv3-Prozess für globale Parameter (router-id, passive-interface)." },
-      { term: "router-id", def: "32-Bit-Kennung — bei reinem IPv6 MANUELL nötig, da keine IPv4-Adresse als ID dient." },
-      { term: "passive-interface default", def: "Setzt alle Interfaces passiv; mit no passive-interface gezielt freigeben." },
-      { term: "Link-Local-Nachbarschaft", def: "OSPFv3-Nachbarn kommunizieren über ihre fe80::-Adressen." },
-      { term: "Area 0", def: "Backbone-Area, hier am Interface zugewiesen." },
+      { term: "Rapid-PVST+", def: "Ciscos schnelle STP-Variante (802.1w) pro VLAN — Konvergenz in Sekunden statt ~50 s." },
+      { term: "root primary / secondary", def: "Setzt die Bridge-Priority so, dass ein Switch sicher Root (bzw. Backup-Root) wird." },
+      { term: "Root Guard", def: "Verhindert, dass über einen Port ein fremder Switch Root-Bridge wird (Port geht in root-inconsistent)." },
+      { term: "Loop Guard", def: "Schützt vor Loops, wenn ein Blocking-Port durch ausbleibende BPDUs fälschlich forwardet." },
+      { term: "PortFast default", def: "Aktiviert PortFast global auf allen Access-Ports." },
+      { term: "BPDU-Guard default", def: "Aktiviert BPDU-Guard global auf allen PortFast-Ports." },
+      { term: "err-disabled", def: "Sicherheits-Aus-Zustand eines Ports nach einer Verletzung (z. B. BPDU auf PortFast-Port)." },
+      { term: "errdisable recovery", def: "Holt err-disabled Ports nach einem Intervall automatisch zurück (cause + interval)." },
     ],
   },
 
+  // ═════════════════════════════════════════════════════════════
+  // ERWEITERTE LABS (14–31)
+  // ═════════════════════════════════════════════════════════════
+
   // ─────────────────────────────────────────────────────────────
-  // 20. Floating Static Route
+  // 14. VLAN-Hopping & Mitigation
   // ─────────────────────────────────────────────────────────────
   {
-    id: "floating-static",
-    icon: <Network size={20} />,
-    title: "Floating Static Route",
-    subtitle: "Backup-Route über Admin-Distance",
-    difficulty: "Mittel",
-    duration: "10 min",
+    id: "vlan-hopping",
+    icon: <Shield size={20} />,
+    title: "VLAN-Hopping & Mitigation",
+    subtitle: "Switch-Spoofing + Double-Tagging verhindern",
+    difficulty: "Fortgeschritten",
+    duration: "20 min",
     context: {
       problem:
-        "Eine einzelne statische Default-Route hat keinen Ersatz: fällt der Uplink aus, ist das Internet weg, bis jemand von Hand umkonfiguriert.",
+        "Ein Angreifer kann per Double-Tagging (zwei 802.1Q-Tags) oder einem erschlichenen Trunk (DTP) Frames in ein fremdes VLAN einschleusen, das er eigentlich nicht erreichen darf.",
       purpose:
-        "Eine zweite Default-Route mit höherer Administrativer Distanz (Floating Static) als Reserve hinterlegen. Sie wird erst aktiv, wenn die primäre Route verschwindet — automatisches Failover, optional per IP SLA Tracking.",
+        "Die Standard-Gegenmaßnahmen gegen VLAN-Hopping umsetzen: ein ungenutztes Native-VLAN als Blackhole, DTP per nonegotiate abschalten und Access-Ports härten.",
     },
     topology: {
       description:
-        "Branch-Router R1 hat einen primären MPLS-Uplink und einen Backup-Internet-DSL-Link. Floating Static aktiviert den Backup nur, wenn der primäre Pfad ausfällt.",
-      devices: [{ type: "router", label: "R1 (Branch)", count: 1 }],
-      connections: [
-        "R1 Gi0/0 → ISP-MPLS  (Next-Hop 10.1.1.1, AD 1)",
-        "R1 Gi0/1 → DSL-Modem (Next-Hop 10.2.2.1, AD 200 = Floating)",
+        "Angriffsszenario: Ein PC versucht durch Switch-Spoofing (DTP) oder Double-Tagging in fremde VLANs zu gelangen. Wir härten die Switch-Ports.",
+      devices: [
+        { type: "switch", label: "SW1, SW2", count: 2 },
+        { type: "pc", label: "Angreifer + 2 normale PCs", count: 3 },
       ],
-      hint: "Die Backup-Route hat eine höhere Administrative Distance — sie 'floats' über der primären und wird nur eingesetzt, wenn die primäre verschwindet.",
+      connections: [
+        "SW1 ↔ SW2 trunk (Gi0/1)",
+        "Angreifer-PC → SW1 Fa0/1 (versucht DTP-Trunk)",
+        "Normale PCs → VLAN 10/20",
+      ],
+      hint: "Default-DTP-Modus 'dynamic auto' erlaubt einem Angreifer, einen Trunk auszuhandeln → Zugang zu ALLEN VLANs!",
     },
     steps: [
       {
-        title: "Primäre & Backup-Route",
+        title: "Access-Port hart konfigurieren (gegen Switch-Spoofing)",
         blocks: [
           {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
+            device: "SW1",
+            mode: "interface",
+            modeLabel: "SW1(config)#",
             commands: [
-              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Default-Route via MPLS, Default-AD = 1 (Static)." },
-              { cmd: "ip route 0.0.0.0 0.0.0.0 10.2.2.1 200", explanation: "FLOATING: gleiche Route, aber AD 200 → wird NUR aktiv, wenn die AD-1-Route verschwindet (Interface down)." },
+              { cmd: "interface Fa0/1", explanation: "Port des Endgeräts/möglichen Angreifers." },
+              { cmd: "switchport mode access", explanation: "Explizit Access — kein DTP-Aushandeln mehr möglich." },
+              { cmd: "switchport access vlan 10", explanation: "Statisch VLAN 10 zugewiesen." },
+              { cmd: "switchport nonegotiate", explanation: "Deaktiviert DTP komplett. Port verschickt keine DTP-Frames mehr." },
+              { cmd: "spanning-tree portfast", explanation: "Sofort Forwarding für Endgeräte." },
+              { cmd: "spanning-tree bpduguard enable", explanation: "Bei BPDU-Empfang → err-disabled. Schutz wenn jemand einen Switch ansteckt." },
             ],
           },
         ],
       },
       {
-        title: "IP-SLA für aktives Failover (Bonus)",
+        title: "Trunk-Port härten (gegen Double-Tagging)",
         blocks: [
           {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
+            device: "SW1",
+            mode: "interface",
+            modeLabel: "SW1(config)#",
             commands: [
-              { cmd: "ip sla 1", explanation: "Anlegen eines SLA-Probes." },
-              { cmd: "icmp-echo 8.8.8.8 source-interface Gi0/0", explanation: "Pingt 8.8.8.8 über MPLS — fällt der Ping aus, wird die Route entfernt." },
-              { cmd: "frequency 5", explanation: "Alle 5 Sek." },
+              { cmd: "interface Gi0/1", explanation: "Trunk zwischen den Switches." },
+              { cmd: "switchport mode trunk", explanation: "Hart Trunk — kein Auto/Desirable." },
+              { cmd: "switchport nonegotiate", explanation: "Kein DTP." },
+              { cmd: "switchport trunk native vlan 999", explanation: "Native VLAN ändern (nicht VLAN 1)! Double-Tag-Angriff nutzt das Default-Native-VLAN." },
+              { cmd: "switchport trunk allowed vlan 10,20", explanation: "Nur erlaubte VLANs auf dem Trunk — kein VLAN 1 für User-Daten." },
+            ],
+          },
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "vlan 999", explanation: "Black-Hole-VLAN für Native VLAN anlegen." },
+              { cmd: "name BLACKHOLE-NATIVE", explanation: "Klar dokumentieren." },
               { cmd: "exit", explanation: "" },
-              { cmd: "ip sla schedule 1 life forever start-time now", explanation: "Sofort starten, dauerhaft laufen." },
-              { cmd: "track 1 ip sla 1 reachability", explanation: "Track-Objekt 1 verfolgt Erreichbarkeit." },
-              { cmd: "no ip route 0.0.0.0 0.0.0.0 10.1.1.1", explanation: "Alte Route weg." },
-              { cmd: "ip route 0.0.0.0 0.0.0.0 10.1.1.1 track 1", explanation: "Route nur aktiv, wenn track 1 'up' ist → echtes End-to-End-Failover." },
+              { cmd: "interface Gi0/1", explanation: "Zurück zum Trunk." },
+              { cmd: "switchport trunk native vlan tag", explanation: "(Optional) zwingt den Switch, auch Native VLAN zu taggen → killt Double-Tag-Angriff sicher." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show ip route", expected: "S* 0.0.0.0/0 [1/0] via 10.1.1.1 (nur primär sichtbar)" },
-      { cmd: "show ip sla statistics", expected: "Return Code: OK, Latest RTT: 12ms" },
-      { cmd: "show track", expected: "Track 1 IP SLA 1 reachability  Reachability is Up" },
+      { cmd: "show interfaces switchport", expected: "Operational Mode: static access, Negotiation: Off" },
+      { cmd: "show interfaces trunk", expected: "Native vlan: 999, Allowed: 10,20" },
     ],
     glossary: [
-      { term: "Default-Route", def: "ip route 0.0.0.0 0.0.0.0 <next-hop> — Weg für alle Ziele, die sonst nirgends passen (Gateway of Last Resort)." },
-      { term: "Floating Static Route", def: "Statische Backup-Route mit absichtlich höherer AD; floatet inaktiv, bis die primäre ausfällt." },
-      { term: "Administrative Distanz (AD)", def: "Je niedriger, desto bevorzugter. Standard-Statik = 1; Floating z. B. 200." },
-      { term: "IP SLA", def: "Misst aktiv die Erreichbarkeit (z. B. per Ping) und meldet Ausfälle an das Tracking." },
-      { term: "track", def: "Objekt, das eine Route an ein IP-SLA-Ergebnis koppelt — fällt der Ping aus, fällt die Route." },
-      { term: "Failover", def: "Automatischer Wechsel auf den Backup-Pfad bei Ausfall des primären." },
-    ],
-  },
-
-
-  // ─────────────────────────────────────────────────────────────
-  // EIGRP (CIS3 — Advanced Distance Vector)
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "eigrp",
-    icon: <Lightning size={20} />,
-    title: "EIGRP Grundlagen",
-    subtitle: "3 Router · DUAL · Successor & Feasible Successor",
-    difficulty: "Fortgeschritten",
-    duration: "25 min",
-    context: {
-      problem:
-        "Man will OSPF-schnelle Konvergenz, aber einfacher zu konfigurieren — und mit einem Backup-Pfad, der ohne Neuberechnung sofort bereitsteht.",
-      purpose:
-        "EIGRP (Advanced Distance-Vector) nutzt den DUAL-Algorithmus mit Successor + Feasible Successor für Failover im Sub-Sekunden-Bereich. Das Lab zeigt AS-Nummer, Wildcard-network und no auto-summary.",
-    },
-    topology: {
-      description:
-        "Drei Router im Dreieck (Redundanz!). EIGRP berechnet per DUAL-Algorithmus den besten Pfad (Successor) und hält einen Backup-Pfad (Feasible Successor) sofort bereit.",
-      devices: [
-        { type: "router", label: "R1 / R2 / R3", count: 3 },
-        { type: "switch", label: "SW1 / SW3", count: 2 },
-        { type: "pc", label: "PC0 / PC1", count: 2 },
-      ],
-      connections: [
-        "R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)",
-        "R2 Gi0/2 ↔ R3 Gi0/2  (10.0.23.0/30)",
-        "R1 Gi0/2 ↔ R3 Gi0/1  (10.0.13.0/30) — Dreieck!",
-        "LANs: R1=192.168.1.0/24, R3=192.168.3.0/24",
-      ],
-      hint: "EIGRP: Cisco-proprietär (heute teils offen), AD 90 intern / 170 extern, Multicast 224.0.0.10, Metrik aus Bandbreite + Delay.",
-    },
-    steps: [
-      {
-        title: "EIGRP mit gleicher AS-Nummer starten",
-        blocks: [
-          {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
-            commands: [
-              {
-                cmd: "router eigrp 100",
-                explanation:
-                  "Die AS-Nummer (100) MUSS auf allen Routern identisch sein, sonst entsteht keine Nachbarschaft — der häufigste EIGRP-Fehler in der Prüfung.",
-              },
-              {
-                cmd: "network 192.168.1.0 0.0.0.255\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.13.0 0.0.0.3",
-                explanation:
-                  "EIGRP nutzt Wildcard-Masken wie OSPF (Maske invertiert: /30 → 0.0.0.3). Präziser als RIPs classful network-Befehl.",
-              },
-              {
-                cmd: "no auto-summary\npassive-interface gi0/0",
-                explanation:
-                  "Auto-Summary deaktivieren (wie bei RIP), keine Hellos ins LAN.",
-              },
-            ],
-          },
-          {
-            device: "R2",
-            mode: "router",
-            modeLabel: "R2(config-router)#",
-            commands: [
-              {
-                cmd: "router eigrp 100\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary",
-                explanation: "R2 ist reiner Transit-Router. R3 analog mit seinen Netzen.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Nachbarschaften & Topologie analysieren",
-        blocks: [
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "show ip eigrp neighbors",
-                explanation:
-                  "Nachbartabelle: Hello alle 5s über 224.0.0.10, Hold-Time 15s. Beide Nachbarn (R2 direkt, R3 direkt) müssen erscheinen.",
-              },
-              {
-                cmd: "show ip eigrp topology",
-                explanation:
-                  "Die Topologie-Tabelle ist das EIGRP-Herzstück: P = Passive (stabil), zeigt Successor UND Feasible Successor mit FD/AD. Feasibility Condition: Backup-AD < Successor-FD.",
-              },
-              {
-                cmd: "show ip route eigrp",
-                explanation:
-                  "D-Einträge mit [90/...]: AD 90, zusammengesetzte Metrik aus Bandbreite + Delay (K1/K3 default).",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "DUAL-Failover testen",
-        blocks: [
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config-if)#",
-            commands: [
-              {
-                cmd: "interface gi0/2\nshutdown",
-                explanation:
-                  "Direkten Link zu R3 kappen. DUAL schaltet SOFORT auf den Feasible Successor über R2 um — ohne Neuberechnung, das ist EIGRPs Konvergenz-Vorteil gegenüber RIP/OSPF.",
-              },
-            ],
-          },
-          {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
-            commands: [
-              {
-                cmd: "show ip route eigrp",
-                explanation:
-                  "192.168.3.0/24 zeigt jetzt den Pfad über 10.0.12.2 (R2) — Failover in unter einer Sekunde. Danach: no shutdown.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ip eigrp neighbors", expected: "2 Nachbarn mit Hold-Time < 15s, Interface Gi0/1 + Gi0/2" },
-      { cmd: "show ip eigrp topology", expected: "P 192.168.3.0/24: 1 Successor, FD + Feasible Successor sichtbar" },
-      { cmd: "show ip route eigrp", expected: "D 192.168.3.0/24 [90/...] — AD 90 für internes EIGRP" },
-      { cmd: "ping 192.168.3.10 nach shutdown Gi0/2", expected: "Weiterhin erfolgreich — DUAL-Failover über R2" },
-    ],
-    glossary: [
-      { term: "EIGRP", def: "Enhanced Interior Gateway Routing Protocol — Cisco, AD 90 (intern), Multicast 224.0.0.10." },
-      { term: "Advanced Distance-Vector", def: "Hybrid aus Distance-Vector und Link-State-Eigenschaften." },
-      { term: "DUAL", def: "Diffusing Update Algorithm — berechnet schleifenfreie Pfade und hält Backups bereit." },
-      { term: "Successor", def: "Der aktuell beste, in die Routingtabelle eingetragene Pfad zum Ziel." },
-      { term: "Feasible Successor", def: "Vorberechneter Backup-Pfad; bei Ausfall des Successors sofort aktiv (kein Neuberechnen)." },
-      { term: "AS-Nummer", def: "Autonomous-System-Nummer (hier 100) — muss auf allen EIGRP-Routern gleich sein." },
-      { term: "no auto-summary", def: "Schaltet die Zusammenfassung an Klassengrenzen ab (wie bei RIPv2)." },
-      { term: "show ip eigrp topology", def: "Zeigt Successor + Feasible Successor mit FD/AD je Ziel." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // GRE-Tunnel-VPN — aus Cisco Practice Lab 6
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "gre-tunnel",
-    icon: <Network size={20} />,
-    title: "GRE-Tunnel-VPN zwischen Sites",
-    subtitle: "Site-to-Site Tunnel über das Internet + OSPF darüber",
-    difficulty: "Fortgeschritten",
-    duration: "30 min",
-    context: {
-      problem:
-        "Zwei Standorte sind nur über das öffentliche Internet verbunden. Private Netze und ein dynamisches Routing-Protokoll (OSPF, Multicast!) lassen sich nicht direkt über das Internet transportieren.",
-      purpose:
-        "Ein GRE-Tunnel bildet eine virtuelle Punkt-zu-Punkt-Leitung über das Internet. Darin laufen private IPs UND OSPF — als ob die Sites direkt verkabelt wären. (GRE allein ist unverschlüsselt; in der Praxis kombiniert mit IPsec.)",
-    },
-    topology: {
-      description:
-        "R1-1 (Site 1) und R2-1 (Site 2) haben je eine öffentliche IP am Internet-Interface. Über diese öffentlichen Adressen wird ein GRE-Tunnel (Tunnel12) mit eigenem privatem /30 aufgebaut; OSPF läuft über das Tunnel-Subnetz.",
-      devices: [
-        { type: "router", label: "R1-1 (Site 1)", count: 1 },
-        { type: "router", label: "R2-1 (Site 2)", count: 1 },
-        { type: "router", label: "Internet", count: 1 },
-      ],
-      connections: [
-        "R1-1 Se0/0/0 öffentlich 1.1.1.2  ↔ Internet",
-        "R2-1 Se0/0/0 öffentlich 2.2.2.2  ↔ Internet",
-        "Tunnel12 (GRE): 216.145.12.1/30 (R1-1) ↔ 216.145.12.2/30 (R2-1)",
-      ],
-      hint: "tunnel source = eigenes öffentliches Interface, tunnel destination = öffentliche IP der Gegenseite. Die Tunnel-IP ist privat und liegt im OSPF. Voraussetzung: die öffentlichen Adressen sind erreichbar (Default-Route ins Internet).",
-    },
-    steps: [
-      {
-        title: "1) GRE-Tunnel-Interface auf R1-1",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "interface",
-            modeLabel: "R1-1(config)#",
-            commands: [
-              {
-                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 2.2.2.2\nip address 216.145.12.1 255.255.255.252\nno shutdown",
-                explanation:
-                  "tunnel source = eigenes Internet-Interface, tunnel destination = öffentliche IP von R2-1. Die Tunnel-IP (216.145.12.1/30) ist die LOGISCHE Punkt-zu-Punkt-Adresse. Default-Encap ist GRE/IP.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "2) Spiegelbildlicher Tunnel auf R2-1",
-        blocks: [
-          {
-            device: "R2-1",
-            mode: "interface",
-            modeLabel: "R2-1(config)#",
-            commands: [
-              {
-                cmd: "interface tunnel 12\ntunnel source se0/0/0\ntunnel destination 1.1.1.2\nip address 216.145.12.2 255.255.255.252\nno shutdown",
-                explanation:
-                  "Source/Destination sind exakt vertauscht zu R1-1, die Tunnel-IP ist die zweite Adresse im selben /30. Sobald beide Seiten stehen, geht 'line protocol' auf up.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "3) OSPF über den Tunnel laufen lassen",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "router",
-            modeLabel: "R1-1(config-router)#",
-            commands: [
-              {
-                cmd: "router ospf 1\nnetwork 216.145.12.0 0.0.0.3 area 0",
-                explanation:
-                  "Das Tunnel-Subnetz wird in OSPF aufgenommen (Wildcard 0.0.0.3 = /30). Dadurch bilden R1-1 und R2-1 ÜBER den Tunnel eine OSPF-Nachbarschaft und tauschen ihre LAN-Routen aus. R2-1 analog.",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "4) Tunnel + OSPF verifizieren",
-        blocks: [
-          {
-            device: "R1-1",
-            mode: "privileged",
-            modeLabel: "R1-1#",
-            commands: [
-              {
-                cmd: "show interface tunnel 12",
-                explanation:
-                  "Erwartet: 'Tunnel12 is up, line protocol is up', 'Tunnel protocol/transport GRE/IP', source/destination korrekt. Bei 'line protocol down' ist die Gegenseite (destination) nicht erreichbar.",
-              },
-              {
-                cmd: "show ip ospf neighbor",
-                explanation:
-                  "Der OSPF-Nachbar (R2-1) muss im State FULL erscheinen — über das Tunnel-Interface. Danach zeigt 'show ip route ospf' die Remote-LANs als O-Routen.",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show interface tunnel 12", expected: "Tunnel12 up/up, Tunnel protocol/transport GRE/IP" },
-      { cmd: "show ip ospf neighbor", expected: "Nachbar über Tunnel12 im State FULL" },
-      { cmd: "show ip route ospf", expected: "Remote-LANs als O-Routen via 216.145.12.x (Tunnel)" },
-      { cmd: "ping <Remote-LAN-IP>", expected: "Erfolgreich — privater Verkehr fließt durch den GRE-Tunnel" },
-    ],
-    glossary: [
-      { term: "GRE", def: "Generic Routing Encapsulation — kapselt beliebige L3-Pakete in IP; bildet eine virtuelle P2P-Leitung. Unverschlüsselt." },
-      { term: "tunnel source/destination", def: "Die ÖFFENTLICHEN Endpunkt-IPs des Tunnels (eigenes Interface bzw. Gegenseite)." },
-      { term: "Tunnel-IP", def: "Logische private Adresse des Tunnel-Interfaces (hier /30) — Basis für das Routing darüber." },
-      { term: "OSPF over GRE", def: "Weil GRE Multicast transportiert, kann OSPF (224.0.0.5/6) über den Tunnel Nachbarschaften bilden — über reines Internet nicht möglich." },
-      { term: "GRE vs. IPsec", def: "GRE kapselt (auch Multicast), verschlüsselt aber nicht. Produktiv: GRE over IPsec für Vertraulichkeit." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 21. HSRP (FHRP)
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "hsrp",
-    icon: <Shuffle size={20} />,
-    title: "HSRP First-Hop Redundancy",
-    subtitle: "Virtuelles Gateway, Priority, Preempt, Tracking",
-    difficulty: "Fortgeschritten",
-    duration: "20 min",
-    context: {
-      problem:
-        "Ein einzelnes Default-Gateway ist ein Single Point of Failure: fällt der Router aus, verlieren alle Hosts ihre Verbindung nach außen.",
-      purpose:
-        "HSRP gibt zwei Routern eine gemeinsame virtuelle Gateway-IP. Fällt der Active-Router aus, übernimmt der Standby unbemerkt — die Clients merken nichts. FHRP-Standard für Gateway-Redundanz.",
-    },
-    topology: {
-      description:
-        "Zwei Distribution-Router teilen sich ein virtuelles Default Gateway. Fällt R1 (Active) aus, übernimmt R2 (Standby) in <3s.",
-      devices: [{ type: "router", label: "R1, R2", count: 2 }],
-      connections: [
-        "R1 Gi0/0 — 192.168.1.2/24 (HSRP Active, Priority 110)",
-        "R2 Gi0/0 — 192.168.1.3/24 (HSRP Standby, Priority 100)",
-        "Virtuelle IP — 192.168.1.1 (Default Gateway der Clients)",
-      ],
-      hint: "Clients kennen NUR 192.168.1.1. HSRP-Gruppe nutzt eine virtuelle MAC 0000.0c07.acXX (XX = Gruppen-ID hex).",
-    },
-    steps: [
-      {
-        title: "R1 — Active (höhere Priority)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "interface Gi0/0", explanation: "" },
-              { cmd: "ip address 192.168.1.2 255.255.255.0", explanation: "Eigene IP." },
-              { cmd: "standby version 2", explanation: "HSRPv2 (statt Default v1) — unterstützt IPv6 und größere Group-IDs." },
-              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gruppen-ID 1, virtuelle Gateway-IP." },
-              { cmd: "standby 1 priority 110", explanation: "Priorität (Default 100). Höhere wins." },
-              { cmd: "standby 1 preempt", explanation: "Übernimmt SOFORT die Active-Rolle, wenn online (sonst bleibt der bisherige Active)." },
-              { cmd: "standby 1 timers msec 200 msec 750", explanation: "Hello 200ms, Hold 750ms → schnelles Failover." },
-              { cmd: "standby 1 track Gi0/1 30", explanation: "Wenn Uplink Gi0/1 ausfällt → Priority sinkt um 30 (110→80) → R2 (100) übernimmt." },
-              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "MD5-Auth gegen Rogue-HSRP-Spoofing." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "R2 — Standby (Default-Priority)",
-        blocks: [
-          {
-            device: "R2",
-            mode: "interface",
-            modeLabel: "R2(config)#",
-            commands: [
-              { cmd: "interface Gi0/0", explanation: "" },
-              { cmd: "ip address 192.168.1.3 255.255.255.0", explanation: "" },
-              { cmd: "standby version 2", explanation: "Muss übereinstimmen." },
-              { cmd: "standby 1 ip 192.168.1.1", explanation: "Gleiche Virtual-IP." },
-              { cmd: "standby 1 preempt", explanation: "Damit es bei R1-Recovery die Rolle auch wieder zurückgeben kann." },
-              { cmd: "standby 1 authentication md5 key-string CCNAhsrp", explanation: "Gleiches Auth-Pass." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show standby brief", expected: "Grp 1, State Active (R1) / Standby (R2), Virtual IP 192.168.1.1" },
-      { cmd: "show standby Gi0/0 1", expected: "Hellos sent, Priority 110, Track Gi0/1 line-protocol Up" },
-      { cmd: "ping 192.168.1.1 (vom PC)", expected: "Antwortet, MAC = 0000.0c9f.f001" },
-    ],
-    glossary: [
-      { term: "HSRP", def: "Hot Standby Router Protocol (Cisco) — zwei Router teilen sich eine virtuelle Gateway-IP." },
-      { term: "FHRP", def: "First Hop Redundancy Protocol — Oberbegriff (HSRP, VRRP, GLBP)." },
-      { term: "Virtuelle IP/MAC", def: "Gemeinsame Adresse, die die Clients als Gateway nutzen; wandert beim Failover mit." },
-      { term: "Active / Standby", def: "Der Active leitet weiter; der Standby wartet bereit und übernimmt bei Ausfall." },
-      { term: "priority", def: "Höhere Priorität wird Active (Default 100)." },
-      { term: "preempt", def: "Erlaubt einem zurückkehrenden Router, die Active-Rolle zurückzuholen." },
-      { term: "Object Tracking", def: "Senkt die Priorität bei Uplink-Ausfall (standby track), sodass der Standby übernimmt." },
-      { term: "standby version 2", def: "HSRPv2 — unterstützt mehr Gruppen und msec-Timer." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 22. NTP + Syslog + SNMPv3
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "ntp-syslog-snmp",
-    icon: <Info size={20} />,
-    title: "NTP + Syslog + SNMPv3",
-    subtitle: "Time-Sync, zentrales Logging, sicheres Monitoring",
-    difficulty: "Mittel",
-    duration: "20 min",
-    context: {
-      problem:
-        "Ohne synchronisierte Uhren lassen sich Logs verschiedener Geräte nicht korrelieren — und ohne zentrales Logging übersieht man Vorfälle ganz.",
-      purpose:
-        "Betriebsgrundlagen einrichten: NTP für eine einheitliche, authentifizierte Zeit und Syslog für zentrale Logs mit korrekten Zeitstempeln.",
-    },
-    topology: {
-      description:
-        "Switch SW1 als 'managed Device'. NTP-Server 10.0.0.10, Syslog-Server 10.0.0.20, SNMPv3 Monitoring von 10.0.0.30 mit Auth+Priv.",
-      devices: [
-        { type: "switch", label: "SW1", count: 1 },
-        { type: "server", label: "NTP, Syslog, SNMP-Manager", count: 3 },
-      ],
-      connections: ["SW1 Gi0/1 → Server-VLAN 99"],
-      hint: "Ohne korrekte Zeit sind Logs WERTLOS — NTP zuerst, dann alles andere.",
-    },
-    steps: [
-      {
-        title: "NTP-Client mit Authentication",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "clock timezone CET 1", explanation: "Zeitzone Mitteleuropa = UTC+1." },
-              { cmd: "clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00", explanation: "Sommerzeit-Regel automatisch." },
-              { cmd: "ntp authentication-key 1 md5 CCNAntpKey", explanation: "Authentication-Key 1, MD5-Hash." },
-              { cmd: "ntp authenticate", explanation: "Server-Auth einschalten." },
-              { cmd: "ntp trusted-key 1", explanation: "Erlaubte Key-IDs." },
-              { cmd: "ntp server 10.0.0.10 key 1 prefer", explanation: "Primärer NTP-Server, signiert mit Key 1." },
-              { cmd: "ntp source Loopback0", explanation: "Stabile Quell-IP." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Syslog zentral senden",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "logging host 10.0.0.20", explanation: "Syslog-Server." },
-              { cmd: "logging trap informational", explanation: "Severity 6 — alles ab informational (0-7: emerg/alert/crit/err/warn/notif/info/debug)." },
-              { cmd: "logging facility local6", explanation: "Facility (Default local7) — hilft Server beim Sortieren." },
-              { cmd: "logging source-interface Loopback0", explanation: "Quell-IP konstant halten." },
-              { cmd: "service timestamps log datetime msec localtime show-timezone", explanation: "Logs mit Millisekunden-Zeitstempel + Zeitzone." },
-              { cmd: "service sequence-numbers", explanation: "Jede Log-Zeile nummerieren — keine Logs verloren." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "SNMPv3 (Auth + Priv)",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "snmp-server view RO-VIEW iso included", explanation: "View definieren — was darf gelesen werden." },
-              { cmd: "snmp-server group MONGRP v3 priv read RO-VIEW", explanation: "Gruppe MONGRP mit SNMPv3 priv (auth + encryption)." },
-              { cmd: "snmp-server user monitor MONGRP v3 auth sha CcnaAuth1! priv aes 128 CcnaPriv1!", explanation: "User 'monitor' mit SHA-Auth + AES-128-Encryption." },
-              { cmd: "snmp-server host 10.0.0.30 version 3 priv monitor", explanation: "Trap-Empfänger." },
-              { cmd: "snmp-server enable traps", explanation: "Alle Standard-Traps senden." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show ntp status", expected: "Clock is synchronized, stratum 4, reference is 10.0.0.10" },
-      { cmd: "show ntp associations", expected: "*~10.0.0.10  (* = sys.peer)" },
-      { cmd: "show logging", expected: "Trap logging: level informational, 0 messages lost, Logging to 10.0.0.20" },
-      { cmd: "show snmp user", expected: "User name: monitor, Auth Protocol: SHA, Privacy: AES128" },
-    ],
-    glossary: [
-      { term: "NTP", def: "Network Time Protocol (UDP 123) — synchronisiert die Uhren aller Geräte." },
-      { term: "Stratum", def: "Distanz zur Referenzuhr; je niedriger, desto vertrauenswürdiger die Zeitquelle." },
-      { term: "ntp authenticate", def: "Aktiviert NTP-Authentifizierung (mit ntp authentication-key … md5)." },
-      { term: "Syslog", def: "Standard für Geräte-Logmeldungen, üblicherweise an einen zentralen Server (logging host)." },
-      { term: "logging trap <level>", def: "Legt fest, ab welchem Schweregrad Meldungen zum Server gehen." },
-      { term: "Severity-Level", def: "0 (Emergency) bis 7 (Debug) — Schweregrad einer Syslog-Meldung." },
-      { term: "service timestamps", def: "Versieht Log-/Debug-Zeilen mit Datum/Uhrzeit — Voraussetzung für Korrelation." },
-      { term: "facility", def: "Kategorie/Quelle einer Syslog-Meldung (z. B. local6)." },
+      { term: "VLAN-Hopping", def: "Angriff, der Frames in ein anderes VLAN bringt — per Double-Tagging oder Switch-Spoofing (DTP)." },
+      { term: "Double-Tagging", def: "Angreifer setzt zwei 802.1Q-Tags; der erste wird am Trunk entfernt, der zweite leitet ins Ziel-VLAN." },
+      { term: "Native VLAN", def: "Das eine VLAN, dessen Frames am Trunk UNgetaggt laufen — Einfallstor für Double-Tagging." },
+      { term: "Blackhole-VLAN", def: "Ein leeres, nirgends genutztes VLAN, das man als Native VLAN setzt, damit getaggter Angriffsverkehr ins Leere läuft." },
+      { term: "switchport nonegotiate", def: "Schaltet DTP ab, damit kein Port automatisch zum Trunk verhandelt wird (Switch-Spoofing-Schutz)." },
+      { term: "DTP", def: "Dynamic Trunking Protocol — automatische Trunk-Verhandlung, die ein Angreifer ausnutzen kann." },
+      { term: "BPDU-Guard", def: "Sichert Access-Ports zusätzlich gegen eingeschleuste Switches ab." },
     ],
   },
 
@@ -4610,84 +4628,43 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 24. NetFlow / Flexible NetFlow
+  // 27. Zone-Based Firewall (ZBFW)
   // ─────────────────────────────────────────────────────────────
   {
-    id: "netflow",
-    icon: <Stack size={20} />,
-    title: "NetFlow / Flexible NetFlow",
-    subtitle: "Flow-Monitor, Exporter, Top-Talker erkennen",
+    id: "zbfw",
+    icon: <Shield size={20} />,
+    title: "Zone-Based Firewall (ZBFW)",
+    subtitle: "Zonen, Class-Map, Policy-Map, Zone-Pair",
     difficulty: "Fortgeschritten",
-    duration: "15 min",
+    duration: "20 min",
     context: {
       problem:
-        "Ohne Verkehrsanalyse weiß man nicht, wer wieviel Traffic verursacht — entscheidend für Kapazitätsplanung, Abrechnung und das Erkennen von Anomalien.",
+        "Ohne Firewall-Policy erreicht jeder Bereich jeden anderen. Internes Netz, DMZ und Internet brauchen klar getrennte, kontrollierte Verkehrsregeln.",
       purpose:
-        "Flexible NetFlow erfasst Flows (Quelle, Ziel, Ports, Protokoll) und exportiert sie an einen Collector. Verschafft Sichtbarkeit über den tatsächlichen Datenverkehr.",
+        "Zone-Based Firewall einrichten: Interfaces Sicherheitszonen zuordnen und per Policy steuern, welcher Verkehr zwischen welchen Zonen erlaubt ist (z. B. INSIDE→OUTSIDE erlaubt, OUTSIDE→INSIDE blockiert).",
     },
     topology: {
       description:
-        "Router R1 exportiert Flow-Records an einen Collector (z. B. Cisco Stealthwatch, ntopng).",
+        "Edge-Router R1 mit 3 Zonen: INSIDE (LAN), OUTSIDE (Internet), DMZ (Webserver). Wir erlauben LAN→Internet (NAT), LAN→DMZ und Internet→DMZ:80.",
       devices: [
-        { type: "router", label: "R1", count: 1 },
-        { type: "server", label: "Flow-Collector", count: 1 },
+        { type: "router", label: "R1 (Edge)", count: 1 },
+        { type: "server", label: "Webserver in DMZ", count: 1 },
       ],
-      connections: ["R1 Gi0/0 (LAN) — wird beobachtet", "R1 Mgmt → Collector 10.0.0.60:9996"],
-      hint: "Flexible NetFlow (FNF) ist der moderne Nachfolger von Traditional NetFlow. Definiere selbst, WELCHE Felder du erfassen willst.",
+      connections: ["Gi0/0 = INSIDE (192.168.1.0/24)", "Gi0/1 = OUTSIDE (Internet)", "Gi0/2 = DMZ (192.168.99.0/24)"],
+      hint: "ZBFW: ohne explizites Zone-Pair → ALLES verboten. 'Default deny' — viel sicherer als ACLs.",
     },
     steps: [
       {
-        title: "Flow Record definieren",
+        title: "Zonen anlegen + Interfaces zuweisen",
         blocks: [
           {
             device: "R1",
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "flow record FNF-RECORD", explanation: "Eigenes Record-Template anlegen." },
-              { cmd: "match ipv4 source address", explanation: "Key-Field: Quell-IP." },
-              { cmd: "match ipv4 destination address", explanation: "Key-Field: Ziel-IP." },
-              { cmd: "match transport source-port", explanation: "Key-Field." },
-              { cmd: "match transport destination-port", explanation: "Key-Field." },
-              { cmd: "match ipv4 protocol", explanation: "TCP/UDP/ICMP unterscheiden." },
-              { cmd: "collect counter bytes", explanation: "Non-Key: Bytes pro Flow." },
-              { cmd: "collect counter packets", explanation: "Non-Key: Pakete pro Flow." },
-              { cmd: "collect timestamp sys-uptime first", explanation: "Wann Flow gestartet." },
-              { cmd: "collect timestamp sys-uptime last", explanation: "Wann letzter Paket des Flows." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Flow Exporter (UDP zu Collector)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "flow exporter FNF-EXP", explanation: "Exporter-Konfig." },
-              { cmd: "destination 10.0.0.60", explanation: "Collector-IP." },
-              { cmd: "source Loopback0", explanation: "Stabile Quell-IP." },
-              { cmd: "transport udp 9996", explanation: "UDP-Port. Standard 2055 oder 9996." },
-              { cmd: "template data timeout 60", explanation: "Templates alle 60s neu senden — Collector vergisst sonst." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Flow Monitor & am Interface anwenden",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "flow monitor FNF-MON", explanation: "Verknüpft Record + Exporter." },
-              { cmd: "record FNF-RECORD", explanation: "" },
-              { cmd: "exporter FNF-EXP", explanation: "" },
-              { cmd: "cache timeout active 60", explanation: "Lange Flows alle 60s exportieren." },
-              { cmd: "cache timeout inactive 15", explanation: "Inaktive Flows nach 15s exportieren." },
+              { cmd: "zone security INSIDE", explanation: "Zone für vertrauenswürdiges LAN." },
+              { cmd: "zone security OUTSIDE", explanation: "Internet." },
+              { cmd: "zone security DMZ", explanation: "Halbvertrauenswürdig." },
             ],
           },
           {
@@ -4695,152 +4672,88 @@ export const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "interface Gi0/0", explanation: "Beobachtetes Interface." },
-              { cmd: "ip flow monitor FNF-MON input", explanation: "Ingress-Flow erfassen." },
-              { cmd: "ip flow monitor FNF-MON output", explanation: "Egress-Flow erfassen — beidseitige Sicht." },
+              { cmd: "interface Gi0/0", explanation: "LAN-Interface." },
+              { cmd: "zone-member security INSIDE", explanation: "Interface der Zone INSIDE zuweisen." },
+              { cmd: "exit", explanation: "" },
+              { cmd: "interface Gi0/1", explanation: "Internet-Interface." },
+              { cmd: "zone-member security OUTSIDE", explanation: "" },
+              { cmd: "exit", explanation: "" },
+              { cmd: "interface Gi0/2", explanation: "DMZ-Interface." },
+              { cmd: "zone-member security DMZ", explanation: "" },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Class-Map: Traffic klassifizieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "class-map type inspect match-any LAN-TO-NET", explanation: "Class für LAN→Internet (HTTP, HTTPS, DNS, ICMP)." },
+              { cmd: "match protocol http", explanation: "" },
+              { cmd: "match protocol https", explanation: "" },
+              { cmd: "match protocol dns", explanation: "" },
+              { cmd: "match protocol icmp", explanation: "" },
+              { cmd: "exit", explanation: "" },
+              { cmd: "class-map type inspect match-any NET-TO-DMZ-WEB", explanation: "Class für Internet→DMZ:80/443." },
+              { cmd: "match protocol http", explanation: "" },
+              { cmd: "match protocol https", explanation: "" },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Policy-Map: Aktionen definieren",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "policy-map type inspect LAN-NET-POLICY", explanation: "Policy für LAN→Internet." },
+              { cmd: "class type inspect LAN-TO-NET", explanation: "Verwendet die Class von oben." },
+              { cmd: "inspect", explanation: "Stateful Inspection — Return-Traffic wird automatisch erlaubt. Alternativen: pass (keine State-Table), drop, log." },
+              { cmd: "exit", explanation: "" },
+              { cmd: "class class-default", explanation: "Alle nicht-erwähnten Pakete." },
+              { cmd: "drop", explanation: "Silently droppen (Default-Verhalten)." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Zone-Pair: Policy zwischen 2 Zonen anwenden",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "zone-pair security INSIDE-TO-OUTSIDE source INSIDE destination OUTSIDE", explanation: "Definiert: Traffic von INSIDE nach OUTSIDE." },
+              { cmd: "service-policy type inspect LAN-NET-POLICY", explanation: "Wendet die Policy an." },
+              { cmd: "exit", explanation: "" },
+              { cmd: "zone-pair security OUTSIDE-TO-DMZ source OUTSIDE destination DMZ", explanation: "Internet → DMZ." },
+              { cmd: "service-policy type inspect NET-DMZ-POLICY", explanation: "(Diese Policy analog zu LAN-NET-POLICY, aber mit class NET-TO-DMZ-WEB)" },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show flow monitor FNF-MON cache", expected: "Flow-Liste mit Bytes/Packets pro Flow" },
-      { cmd: "show flow exporter FNF-EXP statistics", expected: "Records sent, errors 0" },
-      { cmd: "show flow monitor FNF-MON cache aggregate ipv4 source address sort highest counter bytes top 10", expected: "Top-Talker Liste" },
+      { cmd: "show zone security", expected: "Zone INSIDE, OUTSIDE, DMZ mit Member-Interfaces" },
+      { cmd: "show zone-pair security", expected: "INSIDE-TO-OUTSIDE / OUTSIDE-TO-DMZ" },
+      { cmd: "show policy-map type inspect zone-pair sessions", expected: "Aktive Inspection-Sessions" },
     ],
     glossary: [
-      { term: "NetFlow", def: "Cisco-Technik zur Erfassung von Verkehrsflüssen pro Gerät." },
-      { term: "Flow", def: "Folge von Paketen mit gleichem 5-Tupel (Quelle/Ziel-IP, Quelle/Ziel-Port, Protokoll)." },
-      { term: "Flow Record", def: "Definiert, welche Felder erfasst werden (match) und welche Zähler (collect)." },
-      { term: "match / collect", def: "match = Schlüsselfelder eines Flows; collect = mitgezählte Werte (Bytes, Pakete, Zeit)." },
-      { term: "Flow Exporter", def: "Sendet die gesammelten Flows an einen externen Collector." },
-      { term: "Flow Monitor", def: "Verknüpft Record + Exporter und wird auf ein Interface angewendet." },
-      { term: "Collector", def: "Server, der NetFlow-Daten empfängt und auswertet." },
-      { term: "5-Tupel", def: "Die fünf Felder, die einen Flow eindeutig identifizieren." },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 25. Banner & Local Hardening
-  // ─────────────────────────────────────────────────────────────
-  {
-    id: "device-hardening",
-    icon: <Shield size={20} />,
-    title: "Device Hardening",
-    subtitle: "Banner, Password-Policy, Login-Block, Service-Cleanup",
-    difficulty: "Mittel",
-    duration: "12 min",
-    context: {
-      problem:
-        "Ein Gerät mit Standardeinstellungen ist leicht angreifbar: schwache Passwort-Hashes, Brute-Force auf den Login und fehlende rechtliche Warnbanner.",
-      purpose:
-        "Das Gerät absichern: starke Hash-Algorithmen (scrypt), Mindest-Passwortlänge, Brute-Force-Schutz am Login und Warnbanner — die Basis-Härtung jedes produktiven Geräts.",
-    },
-    topology: {
-      description:
-        "Standalone Switch SW1 oder Router R1 — Erstkonfiguration in einem 'sicher per Default'-Setup.",
-      devices: [{ type: "switch", label: "SW1 / R1", count: 1 }],
-      connections: ["Standalone — gleichzeitig auf jedem Cisco-Gerät anwendbar"],
-      hint: "Das hier ist die 'Day-1 Checkliste' für jedes neue Cisco-Gerät vor Produktivnahme.",
-    },
-    steps: [
-      {
-        title: "Login-Banner (rechtlich relevant!)",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "banner motd ^\n*** AUTHORIZED ACCESS ONLY ***\nAll activities are monitored and logged.\nUnauthorized access will be prosecuted.\n^", explanation: "MOTD-Banner — wichtig für Gerichtsfähigkeit gegen Eindringlinge. '^' ist Delimiter (beliebiges, nicht im Text vorkommendes Zeichen)." },
-              { cmd: "banner login ^\nPlease enter your credentials.\n^", explanation: "Erscheint nach MOTD vor dem Username-Prompt." },
-              { cmd: "banner exec ^\nWelcome — type ? for help.\n^", explanation: "Nach erfolgreichem Login." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Password-Hardening",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "service password-encryption", explanation: "Verschlüsselt alle Klartext-Passwörter in der config mit Type-7 (schwach, aber besser als nichts)." },
-              { cmd: "security passwords min-length 12", explanation: "Mindestens 12 Zeichen für neue Passwörter." },
-              { cmd: "enable algorithm-type scrypt secret EnablePass!2024", explanation: "Type-9 (scrypt) — sehr stark, nicht reversibel." },
-              { cmd: "username admin algorithm-type scrypt secret AdminPass!2024", explanation: "User mit scrypt-Hash." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Login-Block & Brute-Force-Protection",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "login block-for 120 attempts 5 within 60", explanation: "Bei 5 fehlgeschlagenen Logins in 60s → 120s Komplett-Block aller VTYs." },
-              { cmd: "login delay 3", explanation: "3 Sekunden Verzögerung zwischen Login-Versuchen." },
-              { cmd: "login on-failure log every 1", explanation: "Jeden Fehlversuch loggen." },
-              { cmd: "login on-success log", explanation: "Erfolgreiche Logins auch loggen." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Unsichere Services deaktivieren",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "no ip http server", explanation: "HTTP-Webserver aus (unverschlüsselt)." },
-              { cmd: "ip http secure-server", explanation: "Falls Web-UI nötig: nur HTTPS." },
-              { cmd: "no service pad", explanation: "Veraltetes X.25 PAD — deaktivieren." },
-              { cmd: "no ip source-route", explanation: "Source-Routing deaktivieren — gegen IP-Spoofing." },
-              { cmd: "no cdp run", explanation: "(Optional) CDP global aus oder nur an Trunks erlauben." },
-              { cmd: "no ip domain-lookup", explanation: "Verhindert lästige DNS-Lookups bei Tippfehlern in der CLI." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "VTY-Lines härten",
-        blocks: [
-          {
-            device: "SW1",
-            mode: "global",
-            modeLabel: "SW1(config)#",
-            commands: [
-              { cmd: "line vty 0 15", explanation: "Alle 16 VTY-Lines." },
-              { cmd: "transport input ssh", explanation: "Nur SSH, kein Telnet." },
-              { cmd: "exec-timeout 10 0", explanation: "Auto-Logout nach 10 Min Inaktivität." },
-              { cmd: "logging synchronous", explanation: "Verhindert, dass Log-Messages deine Eingabe überschreiben." },
-              { cmd: "access-class MGMT-ACL in", explanation: "Nur erlaubte Source-IPs dürfen sich verbinden (ACL muss vorher definiert sein)." },
-            ],
-          },
-        ],
-      },
-    ],
-    verifyCommands: [
-      { cmd: "show running-config | section line vty", expected: "transport input ssh, exec-timeout 10" },
-      { cmd: "show login", expected: "Login Block-for 120 seconds, 5 attempts within 60s" },
-      { cmd: "show users", expected: "Aktive Sessions" },
-    ],
-    glossary: [
-      { term: "Device Hardening", def: "Maßnahmen, die die Angriffsfläche eines Geräts verkleinern." },
-      { term: "banner motd / login / exec", def: "Textbanner zu verschiedenen Zeitpunkten — u. a. rechtlicher Warnhinweis." },
-      { term: "algorithm-type scrypt", def: "Moderner, sehr starker Passwort-Hash (Type 9) für enable/username secret." },
-      { term: "security passwords min-length", def: "Erzwingt eine Mindestlänge für neue Passwörter." },
-      { term: "login block-for", def: "Sperrt Logins nach zu vielen Fehlversuchen für eine Zeitspanne (Brute-Force-Schutz)." },
-      { term: "login delay", def: "Verzögerung zwischen Login-Versuchen — bremst automatisierte Angriffe." },
-      { term: "service password-encryption", def: "Verschleiert Klartext-Passwörter in der Konfiguration (schwach, aber Pflicht)." },
-      { term: "Brute-Force", def: "Angriff, der systematisch Passwörter durchprobiert." },
+      { term: "ZBFW", def: "Zone-Based Policy Firewall — Cisco-Firewall auf Basis von Sicherheitszonen." },
+      { term: "Security Zone", def: "Logische Gruppe von Interfaces mit gleichem Vertrauensniveau (INSIDE/OUTSIDE/DMZ)." },
+      { term: "zone-member", def: "Ordnet ein Interface einer Zone zu." },
+      { term: "Zone-Pair", def: "Richtungspaar (Quelle→Ziel-Zone), auf das eine Policy angewendet wird." },
+      { term: "Class-Map / Policy-Map", def: "Class-Map klassifiziert Verkehr, Policy-Map legt die Aktion fest (inspect/pass/drop)." },
+      { term: "inspect", def: "Stateful-Inspection — erlaubt Rückverkehr einer initiierten Verbindung automatisch." },
+      { term: "Self Zone", def: "Spezialzone für Verkehr zum/vom Router selbst (Management)." },
     ],
   },
 
@@ -4986,43 +4899,84 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // 27. Zone-Based Firewall (ZBFW)
+  // 24. NetFlow / Flexible NetFlow
   // ─────────────────────────────────────────────────────────────
   {
-    id: "zbfw",
-    icon: <Shield size={20} />,
-    title: "Zone-Based Firewall (ZBFW)",
-    subtitle: "Zonen, Class-Map, Policy-Map, Zone-Pair",
+    id: "netflow",
+    icon: <Stack size={20} />,
+    title: "NetFlow / Flexible NetFlow",
+    subtitle: "Flow-Monitor, Exporter, Top-Talker erkennen",
     difficulty: "Fortgeschritten",
-    duration: "20 min",
+    duration: "15 min",
     context: {
       problem:
-        "Ohne Firewall-Policy erreicht jeder Bereich jeden anderen. Internes Netz, DMZ und Internet brauchen klar getrennte, kontrollierte Verkehrsregeln.",
+        "Ohne Verkehrsanalyse weiß man nicht, wer wieviel Traffic verursacht — entscheidend für Kapazitätsplanung, Abrechnung und das Erkennen von Anomalien.",
       purpose:
-        "Zone-Based Firewall einrichten: Interfaces Sicherheitszonen zuordnen und per Policy steuern, welcher Verkehr zwischen welchen Zonen erlaubt ist (z. B. INSIDE→OUTSIDE erlaubt, OUTSIDE→INSIDE blockiert).",
+        "Flexible NetFlow erfasst Flows (Quelle, Ziel, Ports, Protokoll) und exportiert sie an einen Collector. Verschafft Sichtbarkeit über den tatsächlichen Datenverkehr.",
     },
     topology: {
       description:
-        "Edge-Router R1 mit 3 Zonen: INSIDE (LAN), OUTSIDE (Internet), DMZ (Webserver). Wir erlauben LAN→Internet (NAT), LAN→DMZ und Internet→DMZ:80.",
+        "Router R1 exportiert Flow-Records an einen Collector (z. B. Cisco Stealthwatch, ntopng).",
       devices: [
-        { type: "router", label: "R1 (Edge)", count: 1 },
-        { type: "server", label: "Webserver in DMZ", count: 1 },
+        { type: "router", label: "R1", count: 1 },
+        { type: "server", label: "Flow-Collector", count: 1 },
       ],
-      connections: ["Gi0/0 = INSIDE (192.168.1.0/24)", "Gi0/1 = OUTSIDE (Internet)", "Gi0/2 = DMZ (192.168.99.0/24)"],
-      hint: "ZBFW: ohne explizites Zone-Pair → ALLES verboten. 'Default deny' — viel sicherer als ACLs.",
+      connections: ["R1 Gi0/0 (LAN) — wird beobachtet", "R1 Mgmt → Collector 10.0.0.60:9996"],
+      hint: "Flexible NetFlow (FNF) ist der moderne Nachfolger von Traditional NetFlow. Definiere selbst, WELCHE Felder du erfassen willst.",
     },
     steps: [
       {
-        title: "Zonen anlegen + Interfaces zuweisen",
+        title: "Flow Record definieren",
         blocks: [
           {
             device: "R1",
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "zone security INSIDE", explanation: "Zone für vertrauenswürdiges LAN." },
-              { cmd: "zone security OUTSIDE", explanation: "Internet." },
-              { cmd: "zone security DMZ", explanation: "Halbvertrauenswürdig." },
+              { cmd: "flow record FNF-RECORD", explanation: "Eigenes Record-Template anlegen." },
+              { cmd: "match ipv4 source address", explanation: "Key-Field: Quell-IP." },
+              { cmd: "match ipv4 destination address", explanation: "Key-Field: Ziel-IP." },
+              { cmd: "match transport source-port", explanation: "Key-Field." },
+              { cmd: "match transport destination-port", explanation: "Key-Field." },
+              { cmd: "match ipv4 protocol", explanation: "TCP/UDP/ICMP unterscheiden." },
+              { cmd: "collect counter bytes", explanation: "Non-Key: Bytes pro Flow." },
+              { cmd: "collect counter packets", explanation: "Non-Key: Pakete pro Flow." },
+              { cmd: "collect timestamp sys-uptime first", explanation: "Wann Flow gestartet." },
+              { cmd: "collect timestamp sys-uptime last", explanation: "Wann letzter Paket des Flows." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Flow Exporter (UDP zu Collector)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "flow exporter FNF-EXP", explanation: "Exporter-Konfig." },
+              { cmd: "destination 10.0.0.60", explanation: "Collector-IP." },
+              { cmd: "source Loopback0", explanation: "Stabile Quell-IP." },
+              { cmd: "transport udp 9996", explanation: "UDP-Port. Standard 2055 oder 9996." },
+              { cmd: "template data timeout 60", explanation: "Templates alle 60s neu senden — Collector vergisst sonst." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Flow Monitor & am Interface anwenden",
+        blocks: [
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              { cmd: "flow monitor FNF-MON", explanation: "Verknüpft Record + Exporter." },
+              { cmd: "record FNF-RECORD", explanation: "" },
+              { cmd: "exporter FNF-EXP", explanation: "" },
+              { cmd: "cache timeout active 60", explanation: "Lange Flows alle 60s exportieren." },
+              { cmd: "cache timeout inactive 15", explanation: "Inaktive Flows nach 15s exportieren." },
             ],
           },
           {
@@ -5030,88 +4984,28 @@ export const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "interface Gi0/0", explanation: "LAN-Interface." },
-              { cmd: "zone-member security INSIDE", explanation: "Interface der Zone INSIDE zuweisen." },
-              { cmd: "exit", explanation: "" },
-              { cmd: "interface Gi0/1", explanation: "Internet-Interface." },
-              { cmd: "zone-member security OUTSIDE", explanation: "" },
-              { cmd: "exit", explanation: "" },
-              { cmd: "interface Gi0/2", explanation: "DMZ-Interface." },
-              { cmd: "zone-member security DMZ", explanation: "" },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Class-Map: Traffic klassifizieren",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "class-map type inspect match-any LAN-TO-NET", explanation: "Class für LAN→Internet (HTTP, HTTPS, DNS, ICMP)." },
-              { cmd: "match protocol http", explanation: "" },
-              { cmd: "match protocol https", explanation: "" },
-              { cmd: "match protocol dns", explanation: "" },
-              { cmd: "match protocol icmp", explanation: "" },
-              { cmd: "exit", explanation: "" },
-              { cmd: "class-map type inspect match-any NET-TO-DMZ-WEB", explanation: "Class für Internet→DMZ:80/443." },
-              { cmd: "match protocol http", explanation: "" },
-              { cmd: "match protocol https", explanation: "" },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Policy-Map: Aktionen definieren",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "policy-map type inspect LAN-NET-POLICY", explanation: "Policy für LAN→Internet." },
-              { cmd: "class type inspect LAN-TO-NET", explanation: "Verwendet die Class von oben." },
-              { cmd: "inspect", explanation: "Stateful Inspection — Return-Traffic wird automatisch erlaubt. Alternativen: pass (keine State-Table), drop, log." },
-              { cmd: "exit", explanation: "" },
-              { cmd: "class class-default", explanation: "Alle nicht-erwähnten Pakete." },
-              { cmd: "drop", explanation: "Silently droppen (Default-Verhalten)." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Zone-Pair: Policy zwischen 2 Zonen anwenden",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "zone-pair security INSIDE-TO-OUTSIDE source INSIDE destination OUTSIDE", explanation: "Definiert: Traffic von INSIDE nach OUTSIDE." },
-              { cmd: "service-policy type inspect LAN-NET-POLICY", explanation: "Wendet die Policy an." },
-              { cmd: "exit", explanation: "" },
-              { cmd: "zone-pair security OUTSIDE-TO-DMZ source OUTSIDE destination DMZ", explanation: "Internet → DMZ." },
-              { cmd: "service-policy type inspect NET-DMZ-POLICY", explanation: "(Diese Policy analog zu LAN-NET-POLICY, aber mit class NET-TO-DMZ-WEB)" },
+              { cmd: "interface Gi0/0", explanation: "Beobachtetes Interface." },
+              { cmd: "ip flow monitor FNF-MON input", explanation: "Ingress-Flow erfassen." },
+              { cmd: "ip flow monitor FNF-MON output", explanation: "Egress-Flow erfassen — beidseitige Sicht." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show zone security", expected: "Zone INSIDE, OUTSIDE, DMZ mit Member-Interfaces" },
-      { cmd: "show zone-pair security", expected: "INSIDE-TO-OUTSIDE / OUTSIDE-TO-DMZ" },
-      { cmd: "show policy-map type inspect zone-pair sessions", expected: "Aktive Inspection-Sessions" },
+      { cmd: "show flow monitor FNF-MON cache", expected: "Flow-Liste mit Bytes/Packets pro Flow" },
+      { cmd: "show flow exporter FNF-EXP statistics", expected: "Records sent, errors 0" },
+      { cmd: "show flow monitor FNF-MON cache aggregate ipv4 source address sort highest counter bytes top 10", expected: "Top-Talker Liste" },
     ],
     glossary: [
-      { term: "ZBFW", def: "Zone-Based Policy Firewall — Cisco-Firewall auf Basis von Sicherheitszonen." },
-      { term: "Security Zone", def: "Logische Gruppe von Interfaces mit gleichem Vertrauensniveau (INSIDE/OUTSIDE/DMZ)." },
-      { term: "zone-member", def: "Ordnet ein Interface einer Zone zu." },
-      { term: "Zone-Pair", def: "Richtungspaar (Quelle→Ziel-Zone), auf das eine Policy angewendet wird." },
-      { term: "Class-Map / Policy-Map", def: "Class-Map klassifiziert Verkehr, Policy-Map legt die Aktion fest (inspect/pass/drop)." },
-      { term: "inspect", def: "Stateful-Inspection — erlaubt Rückverkehr einer initiierten Verbindung automatisch." },
-      { term: "Self Zone", def: "Spezialzone für Verkehr zum/vom Router selbst (Management)." },
+      { term: "NetFlow", def: "Cisco-Technik zur Erfassung von Verkehrsflüssen pro Gerät." },
+      { term: "Flow", def: "Folge von Paketen mit gleichem 5-Tupel (Quelle/Ziel-IP, Quelle/Ziel-Port, Protokoll)." },
+      { term: "Flow Record", def: "Definiert, welche Felder erfasst werden (match) und welche Zähler (collect)." },
+      { term: "match / collect", def: "match = Schlüsselfelder eines Flows; collect = mitgezählte Werte (Bytes, Pakete, Zeit)." },
+      { term: "Flow Exporter", def: "Sendet die gesammelten Flows an einen externen Collector." },
+      { term: "Flow Monitor", def: "Verknüpft Record + Exporter und wird auf ein Interface angewendet." },
+      { term: "Collector", def: "Server, der NetFlow-Daten empfängt und auswertet." },
+      { term: "5-Tupel", def: "Die fünf Felder, die einen Flow eindeutig identifizieren." },
     ],
   },
 
@@ -5290,112 +5184,265 @@ export const LABS: LabScenario[] = [
     ],
   },
 
-  // ─────────────────────────────────────────────────────────────
-  // 30. Show-Cheat-Lab (Troubleshooting)
-  // ─────────────────────────────────────────────────────────────
+  // ---------------------------------------------------------------
+  // Password Recovery (Router + Switch) -- PDF
+  // ---------------------------------------------------------------
   {
-    id: "troubleshooting-cheat",
-    icon: <Info size={20} />,
-    title: "Show-Cheat-Lab (Troubleshooting)",
-    subtitle: "Strukturierte Fehlersuche von L1 nach L7",
+    id: "password-recovery",
+    icon: <Key size={20} />,
+    title: "Password Recovery",
+    subtitle: "Router (0x2142) & Switch (flash_init) ohne Passwort retten",
     difficulty: "Mittel",
-    duration: "20 min",
+    duration: "15 min",
     context: {
       problem:
-        "Bei einer Störung weiß man oft nicht, wo anfangen. Strukturierte Diagnose nach Schichten spart Zeit gegenüber wildem Herumprobieren.",
+        "Kennt niemand mehr das enable secret eines Geräts, ist es ohne Recovery nicht mehr administrierbar — ein realer Notfall im Betrieb.",
       purpose:
-        "Eine nach OSI-Schichten sortierte show-Befehl-Referenz als Spickzettel für die systematische Fehlersuche — von Layer 1 (Interfaces) bis Layer 3 (Routing).",
+        "Standard-Admin-Prozedur, um Router (über ROMMON) und Switch (über den Boot-Loader) wieder unter Kontrolle zu bringen, OHNE die bestehende Konfiguration zu verlieren.",
     },
     topology: {
       description:
-        "Beliebige Topologie — der Workflow funktioniert immer. Ein PC erreicht angeblich nicht den Webserver. Wir gehen die Layer systematisch durch.",
-      devices: [{ type: "any", label: "Bestehendes Netz", count: 1 }],
-      connections: ["PC → SW1 → R1 → Internet → Webserver"],
-      hint: "Beginne IMMER bei Layer 1 und arbeite dich nach oben. Nicht wild raten!",
+        "Klassische Admin-Aufgabe: ein Gerät, dessen enable-secret niemand mehr kennt, wieder unter Kontrolle bringen -- über Konsolenzugang und Boot-Loader.",
+      devices: [
+        { type: "router", label: "R1 (Passwort unbekannt)", count: 1 },
+        { type: "switch", label: "SW1 (Passwort unbekannt)", count: 1 },
+      ],
+      connections: [
+        "Konsolenkabel (Rollover) → PC mit Terminalprogramm",
+      ],
+      hint: "Kernidee: das Gerät so booten, dass die startup-config (mit dem Passwort) NICHT geladen wird -- dann Passwort neu setzen und sauber zurückstellen.",
     },
     steps: [
       {
-        title: "Layer 1+2: Physische Verbindung & Switching",
+        title: "Router: Register lesen + ROMMON",
         blocks: [
           {
-            device: "Router/Switch",
+            device: "R1",
             mode: "privileged",
-            modeLabel: "#",
+            modeLabel: "R1#",
             commands: [
-              { cmd: "show ip interface brief", explanation: "Quick-Check: alle Interfaces, IP, Status. 'administratively down' = no shutdown vergessen. 'up/down' = Layer 1 ok, Layer 2 down (z. B. Speed/Duplex Mismatch)." },
-              { cmd: "show interfaces status", explanation: "Switch-Spezifisch: Port-Status, VLAN, Duplex, Speed, Type." },
-              { cmd: "show interfaces counters errors", explanation: "CRC-Errors → schlechtes Kabel. Late-Collisions → Duplex-Mismatch. Input-Errors → Hardware-Defekt." },
-              { cmd: "show cdp neighbors detail", explanation: "Zeigt direkt verbundene Cisco-Geräte mit IP und Port — perfekt für 'wo bin ich angeschlossen?'." },
-              { cmd: "show lldp neighbors detail", explanation: "Wie CDP, aber Vendor-neutral (802.1AB)." },
-              { cmd: "show mac address-table dynamic", explanation: "MAC-Adresstabelle des Switches — wo ist welche MAC gelernt." },
+              {
+                cmd: "show version",
+                explanation:
+                  "Ganz unten: 'Configuration register is 0x2102'. 0x2102 = startup-config laden, 0x2142 = startup-config überspringen.",
+              },
+              {
+                cmd: "(Router neu starten + während des Bootens Strg+Pause/Break)",
+                explanation:
+                  "Unterbricht den Boot und fällt in den ROMMON-Modus (rommon 1>). In Packet Tracer: Ctrl+C.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "rommon",
+            modeLabel: "rommon 1>",
+            commands: [
+              {
+                cmd: "confreg 0x2142\nreset",
+                explanation:
+                  "Setzt das Register so, dass die startup-config beim nächsten Boot übersprungen wird, und startet neu. Gerät bootet jetzt OHNE Passwort.",
+              },
             ],
           },
         ],
       },
       {
-        title: "Layer 2: VLAN & STP",
+        title: "Router: Passwort neu setzen + Register zurücksetzen",
         blocks: [
           {
-            device: "Switch",
+            device: "R1",
             mode: "privileged",
-            modeLabel: "SW#",
+            modeLabel: "Router#",
             commands: [
-              { cmd: "show vlan brief", explanation: "Welche VLANs existieren, welche Ports sind zugeordnet." },
-              { cmd: "show interfaces trunk", explanation: "Welche Ports sind Trunk, welche VLANs erlaubt, Native VLAN." },
-              { cmd: "show spanning-tree", explanation: "Wer ist Root, welche Ports sind Blocked/Forwarding." },
-              { cmd: "show spanning-tree blockedports", explanation: "Schnellcheck blockierter Ports." },
+              {
+                cmd: "copy startup-config running-config",
+                explanation:
+                  "WICHTIG: erst die alte Config zurückholen -- sonst überschreibst du beim Speichern die komplette Konfiguration mit einer leeren!",
+              },
+              {
+                cmd: "configure terminal\nenable secret cisco123\nconfig-register 0x2102",
+                explanation:
+                  "Neues Passwort setzen UND das Register auf 0x2102 zurücksetzen -- sonst ignoriert der Router auch beim nächsten Start die startup-config.",
+              },
+              {
+                cmd: "end\nwrite memory",
+                explanation:
+                  "Speichern. Beim nächsten Reload bootet der Router normal mit neuem Passwort.",
+              },
             ],
           },
         ],
       },
       {
-        title: "Layer 3: IP-Connectivity",
+        title: "Switch: Recovery über den Boot-Loader",
         blocks: [
           {
-            device: "Router",
-            mode: "privileged",
-            modeLabel: "R#",
+            device: "SW1",
+            mode: "switch",
+            modeLabel: "switch:",
             commands: [
-              { cmd: "show ip route", explanation: "Routing-Tabelle — fehlt die Default-Route? Welche Routen sind dynamisch (O/D/B)?" },
-              { cmd: "show ip route 8.8.8.8", explanation: "Longest-Match für eine spezifische IP — über welches Interface geht das?" },
-              { cmd: "show ip arp", explanation: "ARP-Tabelle — MAC ↔ IP. Wenn leer für ein Ziel: Layer-2-Problem oder Ziel nicht im selben Subnetz." },
-              { cmd: "ping 8.8.8.8 source Loopback0", explanation: "Explizite Source-IP — wichtig bei NAT/Routing-Tests." },
-              { cmd: "traceroute 8.8.8.8", explanation: "Wo bleibt der Pfad hängen? '* * *' = Router antwortet nicht (ICMP rate-limit oder Firewall)." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Layer 4+: Service-Layer",
-        blocks: [
-          {
-            device: "Router",
-            mode: "privileged",
-            modeLabel: "R#",
-            commands: [
-              { cmd: "telnet 10.0.0.20 80", explanation: "TCP-Connection-Test ohne Browser. '%Open' = Port erreichbar. Verbindungsabbruch = Port zu/Firewall." },
-              { cmd: "show ip nat translations", explanation: "Aktive NAT-Sessions — bei Internet-Problemen." },
-              { cmd: "show ip access-lists", explanation: "ACL-Counter — werden Pakete von einer Deny-Regel getroffen?" },
-              { cmd: "debug ip icmp", explanation: "Live-Debug von ICMP. ACHTUNG: hohe CPU-Last → nach Test sofort 'undebug all'!" },
-              { cmd: "undebug all", explanation: "Alle Debugs abschalten — PFLICHT nach jedem Debug." },
+              {
+                cmd: "flash_init",
+                explanation:
+                  "Switch beim Booten mit gedrueckter MODE-Taste in den Boot-Loader bringen, dann Flash initialisieren.",
+              },
+              {
+                cmd: "rename flash:config.text flash:config.old\nboot",
+                explanation:
+                  "Die startup-config (config.text) umbenennen → Switch bootet ohne Passwort. Nach dem Boot zurückbenennen und mit 'copy startup running' zurückholen.",
+              },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show tech-support", expected: "Komplett-Snapshot — sendest du an TAC bei Eskalation" },
-      { cmd: "show logging | last 50", expected: "Letzte 50 Log-Zeilen — oft steht das Problem direkt drin" },
+      { cmd: "show version | include register", expected: "Configuration register is 0x2102 (will be 0x2102 at next reload)" },
+      { cmd: "show running-config | include enable", expected: "enable secret 5 ... (neuer Hash)" },
+      { cmd: "reload + Login", expected: "Gerät bootet normal, neues Passwort wird akzeptiert, alte Config intakt" },
     ],
     glossary: [
-      { term: "show ip interface brief", def: "Schneller Überblick: welche L3-Interfaces sind up/up und haben eine IP." },
-      { term: "show interfaces status", def: "Port-Übersicht mit VLAN, Duplex, Speed und Verbindungsstatus." },
-      { term: "show interfaces counters errors", def: "Fehlerzähler je Port (CRC, Runts, Giants) — Layer-1-Diagnose." },
-      { term: "CDP / LLDP neighbors", def: "Zeigt direkt verbundene Nachbargeräte und an welchem Port." },
-      { term: "show mac address-table", def: "Welche MAC ist an welchem Port/VLAN gelernt — L2-Weiterleitung." },
-      { term: "show vlan brief", def: "VLANs und ihre zugeordneten Access-Ports." },
-      { term: "show interfaces trunk", def: "Trunk-Status und erlaubte/aktive VLANs." },
-      { term: "show spanning-tree", def: "Root-Bridge, Port-Rollen und -Zustände — L2-Loop-Diagnose." },
+      { term: "Configuration Register", def: "16-Bit-Wert (zeigt show version), der das Boot-Verhalten steuert." },
+      { term: "0x2102", def: "Standard-Register: der Router lädt beim Booten die startup-config." },
+      { term: "0x2142", def: "Register, das die startup-config beim Booten ÜBERSPRINGT — der Kern des Router-Recovery." },
+      { term: "ROMMON", def: "ROM Monitor — minimaler Boot-Modus des Routers, erreichbar durch Boot-Unterbrechung (Strg+Pause)." },
+      { term: "confreg", def: "ROMMON-Befehl zum Setzen des Configuration Registers (z. B. confreg 0x2142)." },
+      { term: "config-register", def: "IOS-Befehl im Config-Modus, um das Register nach dem Recovery wieder auf 0x2102 zu setzen." },
+      { term: "flash_init", def: "Boot-Loader-Befehl des Switches, der den Flash initialisiert, bevor config.text umbenannt wird." },
+      { term: "config.text", def: "Datei im Switch-Flash, die die startup-config enthält. Umbenennen = Switch bootet ohne Passwort." },
+      { term: "copy startup-config running-config", def: "Holt die gesicherte Config zurück — WICHTIG vor dem Speichern, sonst überschreibt man alles mit Leer." },
+    ],
+  },
+
+  // ---------------------------------------------------------------
+  // IOS Backup & Upgrade (TFTP) -- PDF
+  // ---------------------------------------------------------------
+  {
+    id: "ios-backup-upgrade",
+    icon: <Stack size={20} />,
+    title: "IOS-Backup & Upgrade (TFTP)",
+    subtitle: "Image sichern, neues laden, Bootreihenfolge setzen",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "Vor einem IOS-Upgrade muss alles gesichert sein. Ein defektes oder falsches Image kann ein Gerät unbootbar machen.",
+      purpose:
+        "Wartungsroutine: Config und altes Image per TFTP sichern, neues Image laden, MD5 prüfen, Bootreihenfolge setzen. Genau so läuft IOS-Pflege in der Praxis.",
+    },
+    topology: {
+      description:
+        "Wartungsroutine: vor jedem IOS-Upgrade erst Config und altes Image auf einen TFTP-Server sichern, dann das neue Image laden und den Boot festlegen.",
+      devices: [
+        { type: "router", label: "R1", count: 1 },
+        { type: "server", label: "TFTP-Server", count: 1 },
+      ],
+      connections: [
+        "R1 Gi0/0 → TFTP-Server  (gleiches Subnetz, z. B. 10.1.1.0/24)",
+      ],
+      hint: "Reihenfolge merken: Erreichbarkeit prüfen → Config sichern → Image sichern → Platz prüfen → neues Image laden → verify md5 → boot system → reload.",
+    },
+    steps: [
+      {
+        title: "Vorbereitung: Erreichbarkeit + Platz",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "ping 10.1.1.10",
+                explanation:
+                  "Der TFTP-Server muss erreichbar sein -- ohne Konnektivitaet schlägt jedes copy fehl.",
+              },
+              {
+                cmd: "show flash:",
+                explanation:
+                  "Aktuelles Image und freier Speicher. Genug Platz für das neue Image? Sonst altes erst löschen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Backup von Config + IOS-Image",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "copy running-config tftp:",
+                explanation:
+                  "Erst die Konfiguration sichern. Bei der Abfrage die TFTP-Server-IP (10.1.1.10) und den Dateinamen angeben.",
+              },
+              {
+                cmd: "copy flash: tftp:",
+                explanation:
+                  "Dann das aktuelle IOS-Image sichern -- das ist die Rückfallebene, falls das neue Image defekt ist.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Neues Image laden + Boot festlegen",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "copy tftp: flash:",
+                explanation:
+                  "Neues Image vom Server in den Flash laden. Server-IP + exakter Dateiname nötig.",
+              },
+              {
+                cmd: "verify /md5 flash:c2900-universalk9-mz.SPA.bin",
+                explanation:
+                  "MD5-Prüfsumme gegen Ciscos Angabe vergleichen -- so erkennst du eine beschädigte Datei VOR dem Reload.",
+              },
+            ],
+          },
+          {
+            device: "R1",
+            mode: "global",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "boot system flash:c2900-universalk9-mz.SPA.bin",
+                explanation:
+                  "Legt fest, welches Image beim nächsten Start geladen wird. Ohne diesen Befehl nimmt der Router das erste Image im Flash.",
+              },
+              {
+                cmd: "exit\nwrite memory\nreload",
+                explanation:
+                  "Speichern und neu starten. Nach dem Boot mit 'show version' die neue IOS-Version prüfen.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show version", expected: "Neue IOS-Version in der ersten Zeile (z. B. Version 15.2 statt 15.1)" },
+      { cmd: "show flash:", expected: "Neues + altes Image vorhanden, genug freier Speicher" },
+      { cmd: "show boot / show bootvar", expected: "BOOT path-list zeigt das neue Image" },
+    ],
+    glossary: [
+      { term: "TFTP", def: "Trivial File Transfer Protocol (UDP 69) — einfacher Dateitransfer, Standard für IOS-/Config-Backups." },
+      { term: "Flash", def: "Nichtflüchtiger Speicher des Geräts, in dem das IOS-Image liegt." },
+      { term: "IOS-Image", def: "Die Betriebssystem-Datei von Cisco-Geräten (z. B. c2900-universalk9-mz.SPA.bin)." },
+      { term: "copy flash: tftp:", def: "Sichert ein Image (oder Config) aus dem Flash auf einen TFTP-Server." },
+      { term: "copy tftp: flash:", def: "Lädt ein neues Image vom TFTP-Server in den Flash." },
+      { term: "verify /md5", def: "Prüft die MD5-Summe einer Datei gegen Ciscos Angabe — erkennt ein beschädigtes Image VOR dem Reload." },
+      { term: "boot system", def: "Legt fest, welches Image beim nächsten Start geladen wird." },
+      { term: "show flash:", def: "Zeigt Inhalt und freien Speicher des Flash — genug Platz fürs neue Image?" },
+      { term: "reload", def: "Startet das Gerät neu, damit das neue Image aktiv wird." },
     ],
   },
 
@@ -5521,6 +5568,231 @@ export const LABS: LabScenario[] = [
       { term: "Late Collisions", def: "Kollision spät im Frame — fast immer ein Duplex-Mismatch (kritisch!)." },
       { term: "Duplex-Mismatch", def: "Eine Seite Full-, die andere Half-Duplex — verursacht Late Collisions und CRC." },
       { term: "show interfaces counters errors", def: "Listet alle Fehlerzähler je Port auf." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 30. Show-Cheat-Lab (Troubleshooting)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "troubleshooting-cheat",
+    icon: <Info size={20} />,
+    title: "Show-Cheat-Lab (Troubleshooting)",
+    subtitle: "Strukturierte Fehlersuche von L1 nach L7",
+    difficulty: "Mittel",
+    duration: "20 min",
+    context: {
+      problem:
+        "Bei einer Störung weiß man oft nicht, wo anfangen. Strukturierte Diagnose nach Schichten spart Zeit gegenüber wildem Herumprobieren.",
+      purpose:
+        "Eine nach OSI-Schichten sortierte show-Befehl-Referenz als Spickzettel für die systematische Fehlersuche — von Layer 1 (Interfaces) bis Layer 3 (Routing).",
+    },
+    topology: {
+      description:
+        "Beliebige Topologie — der Workflow funktioniert immer. Ein PC erreicht angeblich nicht den Webserver. Wir gehen die Layer systematisch durch.",
+      devices: [{ type: "any", label: "Bestehendes Netz", count: 1 }],
+      connections: ["PC → SW1 → R1 → Internet → Webserver"],
+      hint: "Beginne IMMER bei Layer 1 und arbeite dich nach oben. Nicht wild raten!",
+    },
+    steps: [
+      {
+        title: "Layer 1+2: Physische Verbindung & Switching",
+        blocks: [
+          {
+            device: "Router/Switch",
+            mode: "privileged",
+            modeLabel: "#",
+            commands: [
+              { cmd: "show ip interface brief", explanation: "Quick-Check: alle Interfaces, IP, Status. 'administratively down' = no shutdown vergessen. 'up/down' = Layer 1 ok, Layer 2 down (z. B. Speed/Duplex Mismatch)." },
+              { cmd: "show interfaces status", explanation: "Switch-Spezifisch: Port-Status, VLAN, Duplex, Speed, Type." },
+              { cmd: "show interfaces counters errors", explanation: "CRC-Errors → schlechtes Kabel. Late-Collisions → Duplex-Mismatch. Input-Errors → Hardware-Defekt." },
+              { cmd: "show cdp neighbors detail", explanation: "Zeigt direkt verbundene Cisco-Geräte mit IP und Port — perfekt für 'wo bin ich angeschlossen?'." },
+              { cmd: "show lldp neighbors detail", explanation: "Wie CDP, aber Vendor-neutral (802.1AB)." },
+              { cmd: "show mac address-table dynamic", explanation: "MAC-Adresstabelle des Switches — wo ist welche MAC gelernt." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Layer 2: VLAN & STP",
+        blocks: [
+          {
+            device: "Switch",
+            mode: "privileged",
+            modeLabel: "SW#",
+            commands: [
+              { cmd: "show vlan brief", explanation: "Welche VLANs existieren, welche Ports sind zugeordnet." },
+              { cmd: "show interfaces trunk", explanation: "Welche Ports sind Trunk, welche VLANs erlaubt, Native VLAN." },
+              { cmd: "show spanning-tree", explanation: "Wer ist Root, welche Ports sind Blocked/Forwarding." },
+              { cmd: "show spanning-tree blockedports", explanation: "Schnellcheck blockierter Ports." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Layer 3: IP-Connectivity",
+        blocks: [
+          {
+            device: "Router",
+            mode: "privileged",
+            modeLabel: "R#",
+            commands: [
+              { cmd: "show ip route", explanation: "Routing-Tabelle — fehlt die Default-Route? Welche Routen sind dynamisch (O/D/B)?" },
+              { cmd: "show ip route 8.8.8.8", explanation: "Longest-Match für eine spezifische IP — über welches Interface geht das?" },
+              { cmd: "show ip arp", explanation: "ARP-Tabelle — MAC ↔ IP. Wenn leer für ein Ziel: Layer-2-Problem oder Ziel nicht im selben Subnetz." },
+              { cmd: "ping 8.8.8.8 source Loopback0", explanation: "Explizite Source-IP — wichtig bei NAT/Routing-Tests." },
+              { cmd: "traceroute 8.8.8.8", explanation: "Wo bleibt der Pfad hängen? '* * *' = Router antwortet nicht (ICMP rate-limit oder Firewall)." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Layer 4+: Service-Layer",
+        blocks: [
+          {
+            device: "Router",
+            mode: "privileged",
+            modeLabel: "R#",
+            commands: [
+              { cmd: "telnet 10.0.0.20 80", explanation: "TCP-Connection-Test ohne Browser. '%Open' = Port erreichbar. Verbindungsabbruch = Port zu/Firewall." },
+              { cmd: "show ip nat translations", explanation: "Aktive NAT-Sessions — bei Internet-Problemen." },
+              { cmd: "show ip access-lists", explanation: "ACL-Counter — werden Pakete von einer Deny-Regel getroffen?" },
+              { cmd: "debug ip icmp", explanation: "Live-Debug von ICMP. ACHTUNG: hohe CPU-Last → nach Test sofort 'undebug all'!" },
+              { cmd: "undebug all", explanation: "Alle Debugs abschalten — PFLICHT nach jedem Debug." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show tech-support", expected: "Komplett-Snapshot — sendest du an TAC bei Eskalation" },
+      { cmd: "show logging | last 50", expected: "Letzte 50 Log-Zeilen — oft steht das Problem direkt drin" },
+    ],
+    glossary: [
+      { term: "show ip interface brief", def: "Schneller Überblick: welche L3-Interfaces sind up/up und haben eine IP." },
+      { term: "show interfaces status", def: "Port-Übersicht mit VLAN, Duplex, Speed und Verbindungsstatus." },
+      { term: "show interfaces counters errors", def: "Fehlerzähler je Port (CRC, Runts, Giants) — Layer-1-Diagnose." },
+      { term: "CDP / LLDP neighbors", def: "Zeigt direkt verbundene Nachbargeräte und an welchem Port." },
+      { term: "show mac address-table", def: "Welche MAC ist an welchem Port/VLAN gelernt — L2-Weiterleitung." },
+      { term: "show vlan brief", def: "VLANs und ihre zugeordneten Access-Ports." },
+      { term: "show interfaces trunk", def: "Trunk-Status und erlaubte/aktive VLANs." },
+      { term: "show spanning-tree", def: "Root-Bridge, Port-Rollen und -Zustände — L2-Loop-Diagnose." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // DHCP Troubleshooting — 3 eingebaute Fehler finden & beheben
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "dhcp-troubleshoot-lab",
+    icon: <Shield size={20} />,
+    title: "DHCP Troubleshooting: 3 Fehler finden",
+    subtitle: "APIPA-Diagnose · helper-address · excluded-address · SVI down",
+    difficulty: "Fortgeschritten",
+    duration: "25 min",
+    context: {
+      problem:
+        "In einer fertig verdrahteten Umgebung bekommen Clients keine oder falsche IPs (169.254.x.x bzw. Gateway-Konflikt). Drei typische Konfigurationsfehler sind absichtlich eingebaut.",
+      purpose:
+        "Systematische Fehlersuche trainieren: Symptom lesen (APIPA = kein DHCP), Ursache eingrenzen und gezielt beheben — Helper-Adresse auf der richtigen Seite, fehlende Exclusion, abgeschaltetes SVI.",
+    },
+    topology: {
+      description:
+        "Eine fertig 'verkabelte' Umgebung mit drei eingebauten Konfigurationsfehlern: Clients bekommen keine oder falsche IPs (169.254.x.x / Gateway-Konflikt). Aufgabe: systematisch diagnostizieren und beheben.",
+      devices: [
+        { type: "router", label: "R1 (DHCP-Relay + SVI VLAN1)", count: 1 },
+        { type: "switch", label: "SW1", count: 1 },
+        { type: "server", label: "DHCP-Server 192.168.2.11", count: 1 },
+        { type: "pc", label: "Clients VLAN 51 / 61", count: 2 },
+      ],
+      connections: [
+        "R1 Gi0/0 ↔ SW1 (Trunk) · DHCP-Server in VLAN 71",
+        "Clients in VLAN 51 (Rot) und VLAN 61 (Blau)",
+      ],
+      hint: "Symptom zuerst lesen: 169.254.x.x = gar keine DHCP-Antwort. Eine Adresse aus dem richtigen Netz, aber Konflikt = excluded-address-Problem.",
+    },
+    steps: [
+      {
+        title: "Fehler 1: Client Rot bekommt 169.254.x.x (APIPA)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show running-config interface gi0/0.51",
+                explanation:
+                  "Diagnose: Der Helper steht fälschlich auf gi0/0.71 (Server-seitig) statt auf gi0/0.51 (Client-seitig). Darum entsteht kein korrektes giaddr für die Rot-Clients → keine Antwort → APIPA.",
+              },
+              {
+                cmd: "interface gi0/0.51\nip helper-address 192.168.2.11",
+                explanation:
+                  "FIX: Helper auf das CLIENT-Subinterface setzen. (Auf gi0/0.71 wieder entfernen: 'no ip helper-address 192.168.2.11'.)",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Fehler 2: Client Blau bekommt IP, aber Adresskonflikt",
+        blocks: [
+          {
+            device: "DHCP-Server",
+            mode: "service",
+            modeLabel: "Server > Services > DHCP",
+            commands: [
+              {
+                cmd: "Pool Blau prüfen: Start-IP = 172.16.61.1 (= Gateway!)",
+                explanation:
+                  "Diagnose: Der Pool beginnt bei 172.16.61.1 — das ist die Gateway-IP des Routers (gi0/0.61). Der Server vergibt sie an einen Client → Konflikt, 'show ip dhcp conflict' / Doppel-IP-Warnung.",
+              },
+              {
+                cmd: "FIX: Start-IP auf 172.16.61.10 setzen (Gateway .1 ausnehmen)",
+                explanation:
+                  "Auf einem IOS-DHCP-Server entspricht das 'ip dhcp excluded-address 172.16.61.1'. In Packet Tracer: Start-Adresse über das Gateway hinaus legen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "Fehler 3: Management-Zugriff im VLAN 1 schlägt fehl",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "privileged",
+            modeLabel: "SW1#",
+            commands: [
+              {
+                cmd: "show ip interface brief | include Vlan1",
+                explanation:
+                  "Diagnose: Vlan1 ist 'administratively down'. Das Management-SVI ist nie hochgekommen — der Switch ist nicht per Telnet/SSH erreichbar.",
+              },
+              {
+                cmd: "interface vlan 1\nip address 192.168.2.50 255.255.255.0\nno shutdown",
+                explanation:
+                  "FIX: SVI mit IP versehen und mit 'no shutdown' aktivieren. SVIs sind per Default down — der häufigste Management-Fehler.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ipconfig (Client Rot)", expected: "Echte IP 172.16.51.x statt 169.254.x.x" },
+      { cmd: "ipconfig (Client Blau)", expected: "IP ab 172.16.61.10, kein Konflikt mit Gateway" },
+      { cmd: "show ip dhcp conflict (Server)", expected: "Keine Konflikte mehr gelistet" },
+      { cmd: "show ip interface brief (SW1)", expected: "Vlan1: up/up mit Management-IP" },
+    ],
+    glossary: [
+      { term: "APIPA", def: "169.254.x.x — Selbstadresse eines Clients, wenn KEIN DHCP antwortet. Sicheres Zeichen für ein DHCP-Problem." },
+      { term: "ip helper-address", def: "Muss auf dem CLIENT-seitigen Interface stehen; auf der Server-Seite entsteht kein korrektes giaddr." },
+      { term: "giaddr", def: "Feld, in das der Relay seine Interface-IP einträgt; der Server wählt daran den Pool." },
+      { term: "ip dhcp excluded-address", def: "Fehlt sie für die Gateway-IP, vergibt der Server diese — Adresskonflikt." },
+      { term: "SVI", def: "interface vlan X; ist es administratively down, fehlt das Gateway/Management." },
+      { term: "administratively down", def: "Per shutdown abgeschaltetes Interface — mit no shutdown aktivieren." },
+      { term: "Adresskonflikt", def: "Zwei Geräte beanspruchen dieselbe IP (z. B. Gateway + Client)." },
     ],
   },
 
