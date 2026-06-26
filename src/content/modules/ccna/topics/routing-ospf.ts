@@ -570,6 +570,73 @@ show ip ospf interface Gi0/0       ! Netzwerktyp, Priority, DR, BDR, Timer
 ip ospf priority <0-255>           ! Priority setzen
 ip ospf network point-to-point     ! Netzwerktyp überschreiben
 \`\`\`
+
+---
+
+## Vertiefung: Election, Priority, RID-Tiebreaker & DR im Detail
+
+### Router-ID — woher der „Tiebreaker" kommt
+Die **Router-ID (RID)** ist eine 32-Bit-Zahl im IP-Format, die jeden OSPF-Router **eindeutig** identifiziert. IOS wählt sie beim OSPF-Start in dieser Reihenfolge:
+
+1. **Manuell** gesetzt: \`router-id A.B.C.D\` (gewinnt immer, empfohlen)
+2. sonst **höchste IP eines Loopback-Interface**
+3. sonst **höchste IP eines aktiven physischen Interface**
+
+> 💡 **Warum Loopback?** Ein Loopback ist ein logisches Interface und **immer up/up** — es fällt nie aus, egal welches Kabel gezogen wird. Damit bleibt die RID (und die DR/BDR-Wahl) **stabil**. Deshalb bekommt in diesem Lab jeder Router ein \`Lo0\` aus 192.168.254.0/24.
+
+Die RID ist auch der **Tiebreaker** der DR/BDR-Wahl: Sind alle Priorities gleich (Default 1), entscheidet die **höchste RID** = höchste Loopback-IP.
+
+### Die Wahl Schritt für Schritt
+1. Interface wird aktiv → Router lauscht **Dead-Interval** lang (40 s) auf Hellos, bevor er wählt (\`Waiting\`-State). So „übernimmt" niemand vorschnell ein laufendes Segment.
+2. Aus allen Hellos werden **Priority** und **RID** gelesen.
+3. **BDR zuerst**: unter den Kandidaten (Priority > 0, die sich nicht selbst schon als DR sehen) gewinnt die höchste Priority, bei Gleichstand die höchste RID.
+4. **DR danach**: gibt es bereits einen DR, bleibt er (non-preemptive); sonst wird der beste Kandidat DR, der BDR rückt nach.
+5. Ergebnis steht in jedem \`Hello\` (Felder *Designated Router* / *Backup DR*) und in \`show ip ospf interface\`.
+
+### Neighbor-States lesen: FULL vs. 2-WAY
+Auf einem Broadcast-Segment bildet **jeder Router Full-Adjacency NUR mit DR und BDR**. Zwei **DROTHER** untereinander bleiben absichtlich im Zustand **2-WAY** — das ist **kein Fehler**, sondern genau der Sparmechanismus.
+
+\`\`\`
+R1# show ip ospf neighbor
+Neighbor ID     Pri  State        Dead Time  Address    Interface
+192.168.254.2     1  FULL/BDR     00:00:35   10.1.0.2   GigabitEthernet0/1
+192.168.254.3     0  2-WAY/DROTHER 00:00:33  10.1.0.3   GigabitEthernet0/1
+192.168.254.4     1  2-WAY/DROTHER 00:00:31  10.1.0.4   GigabitEthernet0/1
+\`\`\`
+- \`FULL/BDR\` → voll synchronisiert mit dem BDR.
+- \`2-WAY/DROTHER\` → bewusst nur 2-Way (beide sind DROTHER). Details der Phasen: [[ospf-neighbor-states]].
+
+### Durchgerechnetes Beispiel (dieses Lab)
+Vier Router an einem Switch, Loopbacks 192.168.254.**1–4**, alle Priority 1 (Default):
+
+| Router | Priority | RID (Loopback) | Rolle |
+|--------|----------|----------------|-------|
+| R1 | 1 | 192.168.254.1 | DROTHER |
+| R2 | 1 | 192.168.254.2 | DROTHER |
+| R3 | 1 | 192.168.254.3 | **BDR** |
+| R4 | 1 | 192.168.254.4 | **DR** |
+
+→ Höchste RID (R4) wird DR, zweithöchste (R3) BDR — **reiner Loopback-Tiebreaker**, weil alle Priorities gleich sind.
+
+Jetzt gezielt steuern: \`ip ospf priority 255\` auf R1, \`100\` auf R2, \`0\` auf R3 → danach \`clear ip ospf process\` auf allen:
+
+| Router | Priority | Rolle danach |
+|--------|----------|--------------|
+| R1 | 255 | **DR** |
+| R2 | 100 | **BDR** |
+| R3 | 0 | DROTHER (dauerhaft — nie wählbar) |
+| R4 | 1 | DROTHER |
+
+→ Jetzt entscheidet die **Priority**, nicht mehr die RID. Priority **0** nimmt R3 komplett aus der Wahl.
+
+### Troubleshooting-Schnellcheck
+- **„Nachbar bleibt 2-WAY"** → völlig normal zwischen zwei DROTHERn. Nur DR/BDR müssen FULL sein.
+- **Neuer Router wird nicht DR** trotz Priority 255 → Wahl ist **non-preemptive**: \`clear ip ospf process\` (auf dem ganzen Segment) erzwingt die Neuwahl.
+- **Gar kein DR (alle DROTHER)** → alle Interfaces haben Priority **0**. Mindestens einem eine Priority > 0 geben.
+- **Unerwarteter DR** → jemand hat ein höheres Loopback/Priority. \`show ip ospf interface\` zeigt DR, BDR, eigene Priority und Netzwerktyp.
+- **Kein DR/BDR, obwohl Ethernet** → Interface wurde auf \`ip ospf network point-to-point\` gestellt.
+
+> 🧪 **Lab dazu:** „OSPF DR/BDR-Wahl (Multi-Access)" — baut genau diese Topologie nach und lässt dich Priority, RID-Tiebreaker und die non-preemptive Neuwahl selbst auslösen.
   `.trim(),
 };
 

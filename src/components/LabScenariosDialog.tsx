@@ -2282,6 +2282,161 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // OSPF DR/BDR-Wahl auf Multi-Access (Broadcast-Segment via Switch)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ospf-dr-bdr-election",
+    icon: <Globe size={20} />,
+    title: "OSPF DR/BDR-Wahl (Multi-Access)",
+    subtitle: "Election · Priority · RID-/Loopback-Tiebreaker · DROTHER",
+    difficulty: "Fortgeschritten",
+    duration: "35 min",
+    context: {
+      problem:
+        "Auf einem gemeinsamen Broadcast-Segment (mehrere Router an einem Switch) würde jeder Router mit jedem eine Full-Adjacency bilden — n·(n-1)/2 Beziehungen und LSA-Fluten. Das skaliert nicht.",
+      purpose:
+        "OSPF wählt pro Multi-Access-Segment einen Designated Router (DR) und Backup (BDR) als zentrale Sammelstelle. Dieses Lab zeigt die Wahl, wie Priority sie steuert und warum der RID (höchste Loopback) der Tiebreaker ist.",
+    },
+    topology: {
+      description:
+        "Vier Router R1–R4 hängen über Switch Sw1 am selben Broadcast-Segment 10.1.0.0/29 (.1–.4). Jeder hat ein eigenes /24-LAN und ein Loopback Lo0 (192.168.254.1–4/32) als RID-Quelle. Alles in Area 0.",
+      devices: [
+        { type: "router", label: "R1 / R2 / R3 / R4", count: 4 },
+        { type: "switch", label: "Sw1 (Broadcast-Domäne)", count: 1 },
+        { type: "pc", label: "PC0 + Server0/1/2", count: 4 },
+      ],
+      connections: [
+        "R1..R4 Gi0/1 → Sw1 → gemeinsames Segment 10.1.0.0/29 (R1 .1 · R2 .2 · R3 .3 · R4 .4)",
+        "LANs: R1 192.168.1.0/24 (PC0) · R2 192.168.2.0/24 · R3 192.168.3.0/24 · R4 192.168.4.0/24 (alle .254, Hosts .11)",
+        "Loopbacks Lo0: R1 192.168.254.1/32 · R2 .2 · R3 .3 · R4 .4  (= Router-ID)",
+      ],
+      hint: "DR/BDR-Wahl nur auf Multi-Access (Broadcast). Reihenfolge: höchste PRIORITY gewinnt, bei Gleichstand höchste ROUTER-ID. Priority 0 = nie DR/BDR. Die Wahl ist NICHT preemptiv.",
+    },
+    steps: [
+      {
+        title: "1) Interfaces + Loopback (Loopback = RID-Quelle)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config)#",
+            commands: [
+              {
+                cmd: "interface gi0/1\nip address 10.1.0.1 255.255.255.248\nno shutdown\ninterface gi0/0\nip address 192.168.1.254 255.255.255.0\nno shutdown\ninterface loopback 0\nip address 192.168.254.1 255.255.255.255",
+                explanation:
+                  "Segment-IP /29, LAN-Gateway, und ein Loopback. Ohne manuelle router-id nimmt OSPF die HÖCHSTE Loopback-IP als RID. R2/R3/R4 analog mit .2/.3/.4.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) OSPF aktivieren — Default-Wahl beobachten",
+        blocks: [
+          {
+            device: "R1",
+            mode: "router",
+            modeLabel: "R1(config-router)#",
+            commands: [
+              {
+                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.1.0 0.0.0.255 area 0",
+                explanation:
+                  "Segment (/29 → Wildcard 0.0.0.7) und LAN in Area 0. Auf allen vier Routern. Loopback kann mit 'network 192.168.254.x 0.0.0.0 area 0' ebenfalls angekündigt werden.",
+              },
+              {
+                cmd: "! Default: alle Priority 1 → RID entscheidet\n! DR  = höchste RID = R4 (192.168.254.4)\n! BDR = zweithöchste RID = R3 (192.168.254.3)\n! R1, R2 = DROTHER",
+                explanation:
+                  "Bei gleicher Priority (Default 1) gewinnt die höchste Router-ID. Die Loopbacks .1–.4 sind die RIDs → R4 wird DR, R3 BDR. Das ist der Loopback-Tiebreaker in Aktion.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Election per Priority steuern",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/1\nip ospf priority 255",
+                explanation:
+                  "Priority (0–255, Default 1) wird PRO Interface auf dem Segment gesetzt und schlägt die RID. 255 = stärkster DR-Kandidat. R1 soll DR werden.",
+              },
+              {
+                cmd: "! R2: ip ospf priority 100   (→ BDR)\n! R3: ip ospf priority 0     (→ nie DR/BDR, bleibt DROTHER)\n! R4: Priority 1 (Default)",
+                explanation:
+                  "Priority 0 nimmt einen Router komplett aus der Wahl (dauerhaft DROTHER). So bestimmst du DR/BDR gezielt statt über die zufällige RID.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Neuwahl erzwingen (Wahl ist NICHT preemptiv!)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "clear ip ospf process",
+                explanation:
+                  "Ein bestehender DR bleibt DR, auch wenn später ein Router mit höherer Priority dazukommt (non-preemptive). Erst 'clear ip ospf process' (auf allen Routern des Segments, mit 'yes' bestätigen) erzwingt die Neuwahl → jetzt DR=R1, BDR=R2.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Verifikation — DR/BDR/DROTHER & States",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip ospf neighbor",
+                explanation:
+                  "Spalte 'State' zeigt FULL/DR und FULL/BDR zu DR und BDR, aber 2-WAY/DROTHER zwischen zwei DROTHERn — DROTHER bilden untereinander BEWUSST keine Full-Adjacency (normal, kein Fehler!).",
+              },
+              {
+                cmd: "show ip ospf interface gi0/1",
+                explanation:
+                  "Zeigt 'Designated Router (ID) 192.168.254.1', 'Backup Designated Router (ID) 192.168.254.2', die eigene 'Router Priority' und 'State DR/BDR/DROTHER'. Der zentrale Nachweis der Wahl.",
+              },
+              {
+                cmd: "show ip ospf neighbor detail | include Priority",
+                explanation:
+                  "Bestätigt die wirksame Priority je Nachbar — gut, um einen versehentlich auf 0 gesetzten Router zu finden.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip ospf interface gi0/1 (R1)", expected: "State DR, Designated Router (ID) 192.168.254.1, Backup DR 192.168.254.2" },
+      { cmd: "show ip ospf neighbor (R1)", expected: "Nachbarn als FULL/BDR bzw. FULL/DROTHER; zwischen DROTHERn 2-WAY/DROTHER" },
+      { cmd: "Default ohne Priority", expected: "DR = R4 (RID 192.168.254.4), BDR = R3 — höchste/zweithöchste Router-ID" },
+      { cmd: "clear ip ospf process", expected: "Erzwingt Neuwahl nach Priority-Änderung (non-preemptive)" },
+    ],
+    glossary: [
+      { term: "DR (Designated Router)", def: "Zentrale Sammelstelle auf einem Multi-Access-Segment; jeder Router bildet Full-Adjacency nur mit DR und BDR." },
+      { term: "BDR", def: "Backup Designated Router — übernimmt sofort, wenn der DR ausfällt." },
+      { term: "DROTHER", def: "Router, der weder DR noch BDR ist; bleibt mit anderen DROTHERn im Zustand 2-WAY." },
+      { term: "Priority", def: "ip ospf priority 0–255 (Default 1), pro Interface. Höchste gewinnt DR; 0 = nie DR/BDR." },
+      { term: "Router-ID (Tiebreaker)", def: "Bei gleicher Priority gewinnt die höchste RID = höchste Loopback-IP (sonst höchste physische IP)." },
+      { term: "non-preemptive", def: "Ein gewählter DR wird NICHT verdrängt; Neuwahl nur per 'clear ip ospf process' oder Ausfall." },
+      { term: "224.0.0.6", def: "AllDRouters-Multicast: DROTHER sprechen DR/BDR darüber an (DR flutet auf 224.0.0.5)." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 18. OSPF Multi-Area
   // ─────────────────────────────────────────────────────────────
   {
