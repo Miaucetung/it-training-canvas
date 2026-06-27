@@ -119,6 +119,9 @@ const RoutingDrillDialog = lazy(() =>
 const OspfWildcardDrillDialog = lazy(() =>
   import("@/components/OspfWildcardDrillDialog").then((m) => ({ default: m.OspfWildcardDrillDialog })),
 );
+const SlideDeckDialog = lazy(() =>
+  import("@/components/SlideDeckDialog").then((m) => ({ default: m.SlideDeckDialog })),
+);
 const IPv4SubnetTableDialog = lazy(() =>
   import("@/components/IPv4SubnetTableDialog").then((m) => ({ default: m.IPv4SubnetTableDialog })),
 );
@@ -168,6 +171,7 @@ type ToolId =
   | "verkabelung-trainer"
   | "topologie-explorer"
   | "cli-glossary"
+  | "ccna-slides"
   | "ccna-question-pool";
 
 const TOOL_GROUPS: Array<{
@@ -201,6 +205,7 @@ const TOOL_GROUPS: Array<{
     tools: [
       { id: "topologie-explorer", name: "Topologie-Explorer", hint: "Referenz-Topologien erkunden" },
       { id: "cli-glossary", name: "CLI-Glossar", hint: "IOS-Befehle nachschlagen" },
+      { id: "ccna-slides", name: "CCNA Reference Slides", hint: "10 Referenz-Slides (STP, OSI, VLAN, Subnetting …)" },
       { id: "ccna-question-pool", name: "CCNA Fragenpool", hint: "1078 Originalfragen — Grafiken folgen" },
     ],
   },
@@ -2301,6 +2306,9 @@ function App() {
           )}
           {activeTool === "ospf-wildcard-drill" && (
             <OspfWildcardDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "ccna-slides" && (
+            <SlideDeckDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
           )}
           {activeTool === "ccna-question-pool" && (
             <QuizDialog

@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#06101e;}
+*{box-sizing:border-box;}
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+<!-- ═══════════════════════════════════════════════════ SLIDE 1: STP ═══ -->
+<section data-label="Spanning Tree Protocol" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #3b82f6;flex-shrink:0;">
+    <div style="background:#3b82f6;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">LAYER 2</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Spanning Tree Protocol <span style="color:#3b82f6;">(STP)</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Preventing Loops · Ensuring Stability · IEEE 802.1D</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#3b82f6;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">WHAT IS STP?</div>
+        <ul style="margin:0;padding-left:16px;font-size:13px;line-height:1.85;color:#cbd5e1;">
+          <li>A <strong style="color:#f1f5f9;">Layer 2 protocol</strong> that prevents loops in switched Ethernet networks</li>
+          <li>Creates a <strong style="color:#f1f5f9;">loop-free logical topology</strong> by selectively blocking redundant links</li>
+          <li>Defined in <strong style="color:#3b82f6;">IEEE 802.1D</strong> — runs automatically on all switches</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#7c3aed;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:12px;">HOW STP WORKS</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:12.5px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:#7c3aed;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</div>
+            <div><strong style="color:#f1f5f9;">Elect Root Bridge</strong><br><span style="color:#94a3b8;font-size:11.5px;">All switches exchange BPDUs — lowest Bridge ID wins</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:#7c3aed;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</div>
+            <div><strong style="color:#f1f5f9;">Select Root Ports</strong><br><span style="color:#94a3b8;font-size:11.5px;">Each non-root switch selects 1 RP — lowest path cost to root</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:#7c3aed;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">3</div>
+            <div><strong style="color:#f1f5f9;">Select Designated Ports</strong><br><span style="color:#94a3b8;font-size:11.5px;">Each segment has 1 DP — best path back to root bridge</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:#7c3aed;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">4</div>
+            <div><strong style="color:#f1f5f9;">Block Redundant Ports</strong><br><span style="color:#94a3b8;font-size:11.5px;">All remaining ports enter Blocking state — loop eliminated</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#ef4444;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">THE PROBLEM: LAYER 2 LOOPS</div>
+        <p style="margin:0 0 6px;font-size:12px;color:#94a3b8;">Without STP, loops cause:</p>
+        <ul style="margin:0;padding-left:16px;font-size:12.5px;line-height:1.9;color:#fca5a5;">
+          <li>Broadcast storms (frames loop forever)</li>
+          <li>MAC address table instability</li>
+          <li>Duplicate frames delivered to hosts</li>
+          <li>High CPU utilization on all switches</li>
+          <li>Complete network outage</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;display:flex;flex-direction:column;">
+        <div style="background:#0891b2;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:8px;align-self:flex-start;">STP TOPOLOGY EXAMPLE</div>
+        <svg viewBox="0 0 380 240" style="width:100%;flex:1;">
+          <rect x="145" y="8" width="90" height="36" rx="5" fill="#0d2040" stroke="#3b82f6" stroke-width="2"/>
+          <text x="190" y="23" text-anchor="middle" fill="#f1f5f9" font-size="12" font-weight="600" font-family="Space Grotesk,sans-serif">SW1</text>
+          <text x="190" y="37" text-anchor="middle" fill="#3b82f6" font-size="9" font-family="Space Grotesk,sans-serif">Root Bridge</text>
+          <rect x="28" y="178" width="82" height="32" rx="5" fill="#0d1a2e" stroke="#475569" stroke-width="1.5"/>
+          <text x="69" y="198" text-anchor="middle" fill="#f1f5f9" font-size="12" font-weight="600" font-family="Space Grotesk,sans-serif">SW2</text>
+          <rect x="270" y="178" width="82" height="32" rx="5" fill="#0d1a2e" stroke="#475569" stroke-width="1.5"/>
+          <text x="311" y="198" text-anchor="middle" fill="#f1f5f9" font-size="12" font-weight="600" font-family="Space Grotesk,sans-serif">SW3</text>
+          <line x1="155" y1="44" x2="69" y2="178" stroke="#22c55e" stroke-width="2"/>
+          <text x="87" y="120" fill="#22c55e" font-size="9" font-family="Space Grotesk,sans-serif" text-anchor="middle">RP</text>
+          <line x1="225" y1="44" x2="311" y2="178" stroke="#22c55e" stroke-width="2"/>
+          <text x="293" y="120" fill="#22c55e" font-size="9" font-family="Space Grotesk,sans-serif" text-anchor="middle">RP</text>
+          <line x1="110" y1="194" x2="270" y2="194" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="7,4"/>
+          <text x="190" y="217" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold" font-family="Space Grotesk,sans-serif">✕  BLOCKED PORT</text>
+          <text x="140" y="72" fill="#f97316" font-size="9" font-family="Space Grotesk,sans-serif" text-anchor="middle">DP</text>
+          <text x="242" y="72" fill="#f97316" font-size="9" font-family="Space Grotesk,sans-serif" text-anchor="middle">DP</text>
+        </svg>
+        <div style="display:flex;gap:14px;font-size:10px;margin-top:4px;flex-shrink:0;">
+          <span style="color:#22c55e;">● RP – Root Port</span>
+          <span style="color:#f97316;">● DP – Designated Port</span>
+          <span style="color:#ef4444;">✕ Blocked Port</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#f97316;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">STP PORT STATES</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#475569;flex-shrink:0;"></div><span><strong style="color:#f1f5f9;">Blocking</strong> <span style="color:#94a3b8;">— no frames, no MAC learning</span></span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#eab308;flex-shrink:0;"></div><span><strong style="color:#f1f5f9;">Listening</strong> <span style="color:#94a3b8;">— processes BPDUs, no forwarding</span></span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div><span><strong style="color:#f1f5f9;">Learning</strong> <span style="color:#94a3b8;">— learns MACs, no forwarding</span></span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div><span><strong style="color:#f1f5f9;">Forwarding</strong> <span style="color:#94a3b8;">— full operation</span></span></div>
+        </div>
+        <div style="margin-top:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:4px;font-size:11px;color:#94a3b8;">
+          <strong style="color:#f1f5f9;">Default Timers:</strong> Hello 2s · Max Age 20s · Forward Delay 15s
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#16a34a;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">BPDU INFORMATION</div>
+        <p style="margin:0 0 6px;font-size:12px;color:#94a3b8;">BPDUs contain:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:12.5px;color:#86efac;">
+          <span>✓ Root Bridge ID</span><span>✓ Root Path Cost</span>
+          <span>✓ Sender Bridge ID</span><span>✓ Port ID</span>
+          <span>✓ Timer values</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#06b6d4;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">BRIDGE ID PRIORITY</div>
+        <p style="margin:0 0 6px;font-size:12.5px;font-weight:600;color:#f1f5f9;">Bridge ID = Priority + MAC Address</p>
+        <div style="font-size:12px;color:#94a3b8;line-height:1.8;">
+          <div>✓ Lower value = Higher priority</div>
+          <div>✓ Default: <strong style="color:#f1f5f9;">32768</strong> · Range: 0–61440 (steps of 4096)</div>
+          <div>✓ Tie-break: lowest MAC address wins</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#6366f1;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">STP VARIANTS</div>
+        <div style="font-size:12.5px;line-height:2.1;">
+          <div><span style="color:#3b82f6;font-weight:700;">802.1D STP</span> <span style="color:#475569;">—</span> <span style="color:#94a3b8;">Legacy standard, slow convergence</span></div>
+          <div><span style="color:#22c55e;font-weight:700;">802.1w RSTP</span> <span style="color:#475569;">—</span> <span style="color:#94a3b8;">Rapid STP, faster convergence</span></div>
+          <div><span style="color:#f97316;font-weight:700;">802.1s MSTP</span> <span style="color:#475569;">—</span> <span style="color:#94a3b8;">Multiple spanning trees per VLAN</span></div>
+          <div><span style="color:#a855f7;font-weight:700;">PVST+ / Rapid PVST+</span> <span style="color:#475569;">—</span> <span style="color:#94a3b8;">Cisco proprietary</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+    <span style="color:#eab308;font-weight:700;font-size:14px;">KEY</span>
+    <p style="margin:0;font-size:12px;color:#fef3c7;">STP automatically creates a loop-free topology by blocking redundant links while keeping backup paths available — ensuring network stability and preventing broadcast storms.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════ SLIDE 2: OSI MODEL ═══ -->
+<section data-label="OSI Model" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #8b5cf6;flex-shrink:0;">
+    <div style="background:#8b5cf6;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">REFERENCE MODEL</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">OSI Model <span style="color:#8b5cf6;">— Open Systems Interconnection</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">A standard conceptual model that defines how data is transmitted over a network</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#8b5cf6;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">WHAT IS OSI?</div>
+        <p style="margin:0 0 6px;font-size:12.5px;color:#cbd5e1;">OSI stands for <strong style="color:#f1f5f9;">Open Systems Interconnection</strong> — a 7-layer reference model developed by ISO to standardize communication between systems.</p>
+        <p style="margin:0;font-size:12px;color:#94a3b8;">It divides network communication into 7 layers, each with specific functions and responsibilities.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#3b82f6;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">KEY FEATURES</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:#cbd5e1;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✓</span><span>Standard reference model for communication</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✓</span><span>Divides complex communication into 7 layers</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✓</span><span>Easy troubleshooting by isolating layers</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✓</span><span>Vendor-independent model</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✓</span><span>Supports interoperability between different systems</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#f97316;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">COMMUNICATION EXAMPLE</div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#94a3b8;">
+          <div>
+            <div style="color:#f97316;font-weight:600;margin-bottom:4px;font-size:11px;">SENDER</div>
+            <div style="line-height:1.85;">7 APPLICATION<br>6 PRESENTATION<br>5 SESSION<br>4 TRANSPORT<br>3 NETWORK<br>2 DATA LINK<br>1 PHYSICAL</div>
+            <div style="color:#94a3b8;font-size:10px;margin-top:4px;">Data goes DOWN</div>
+          </div>
+          <div style="display:flex;align-items:center;font-size:18px;color:#475569;">⟷</div>
+          <div>
+            <div style="color:#3b82f6;font-weight:600;margin-bottom:4px;font-size:11px;">RECEIVER</div>
+            <div style="line-height:1.85;">7 APPLICATION<br>6 PRESENTATION<br>5 SESSION<br>4 TRANSPORT<br>3 NETWORK<br>2 DATA LINK<br>1 PHYSICAL</div>
+            <div style="color:#94a3b8;font-size:10px;margin-top:4px;">Data comes UP</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="background:#3b82f6;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:4px;">LAYERED ARCHITECTURE</div>
+      <div style="display:grid;grid-template-columns:28px 1fr auto;gap:4px 0;align-items:center;">
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#8b5cf6;border-left:3px solid #8b5cf6;">7</div>
+          <div style="background:rgba(139,92,246,0.1);padding:3px 10px;font-size:12.5px;font-weight:600;color:#c4b5fd;">APPLICATION</div>
+          <div style="background:rgba(139,92,246,0.1);padding:3px 8px;font-size:10px;font-weight:600;color:#94a3b8;border-radius:0 3px 3px 0;text-align:right;">DATA</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#3b82f6;border-left:3px solid #3b82f6;">6</div>
+          <div style="background:rgba(59,130,246,0.1);padding:3px 10px;font-size:12.5px;font-weight:600;color:#93c5fd;">PRESENTATION</div>
+          <div style="background:rgba(59,130,246,0.1);padding:3px 8px;font-size:10px;font-weight:600;color:#94a3b8;border-radius:0 3px 3px 0;text-align:right;">DATA</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#06b6d4;border-left:3px solid #06b6d4;">5</div>
+          <div style="background:rgba(6,182,212,0.1);padding:3px 10px;font-size:12.5px;font-weight:600;color:#67e8f9;">SESSION</div>
+          <div style="background:rgba(6,182,212,0.1);padding:3px 8px;font-size:10px;font-weight:600;color:#94a3b8;border-radius:0 3px 3px 0;text-align:right;">DATA</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#f97316;border-left:3px solid #f97316;">4</div>
+          <div style="background:rgba(249,115,22,0.12);padding:3px 10px;font-size:12.5px;font-weight:600;color:#fb923c;">TRANSPORT</div>
+          <div style="background:rgba(249,115,22,0.12);padding:3px 8px;font-size:10px;font-weight:600;color:#f97316;border-radius:0 3px 3px 0;text-align:right;">SEGMENT</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#22c55e;border-left:3px solid #22c55e;">3</div>
+          <div style="background:rgba(34,197,94,0.1);padding:3px 10px;font-size:12.5px;font-weight:600;color:#86efac;">NETWORK</div>
+          <div style="background:rgba(34,197,94,0.1);padding:3px 8px;font-size:10px;font-weight:600;color:#22c55e;border-radius:0 3px 3px 0;text-align:right;">PACKET</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#ef4444;border-left:3px solid #ef4444;">2</div>
+          <div style="background:rgba(239,68,68,0.1);padding:3px 10px;font-size:12.5px;font-weight:600;color:#fca5a5;">DATA LINK</div>
+          <div style="background:rgba(239,68,68,0.1);padding:3px 8px;font-size:10px;font-weight:600;color:#ef4444;border-radius:0 3px 3px 0;text-align:right;">FRAME</div>
+        </div>
+        <div style="display:contents;">
+          <div style="background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:3px 0 0 3px;text-align:center;font-size:11px;font-weight:700;color:#64748b;border-left:3px solid #64748b;">1</div>
+          <div style="background:rgba(100,116,139,0.12);padding:3px 10px;font-size:12.5px;font-weight:600;color:#94a3b8;">PHYSICAL</div>
+          <div style="background:rgba(100,116,139,0.12);padding:3px 8px;font-size:10px;font-weight:600;color:#64748b;border-radius:0 3px 3px 0;text-align:right;">BIT</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:#22c55e;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:2px;">LAYER FUNCTIONS &amp; PROTOCOLS</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11.5px;flex:1;">
+        <div style="background:rgba(139,92,246,0.08);border-left:2px solid #8b5cf6;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#c4b5fd;font-weight:600;font-size:11px;">7 APPLICATION</div>
+          <div style="color:#94a3b8;font-size:11px;">Network services to apps · HTTP, FTP, SMTP, DNS, SNMP</div>
+        </div>
+        <div style="background:rgba(59,130,246,0.08);border-left:2px solid #3b82f6;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#93c5fd;font-weight:600;font-size:11px;">6 PRESENTATION</div>
+          <div style="color:#94a3b8;font-size:11px;">Data translation, encryption, compression · SSL/TLS, JPEG</div>
+        </div>
+        <div style="background:rgba(6,182,212,0.08);border-left:2px solid #06b6d4;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#67e8f9;font-weight:600;font-size:11px;">5 SESSION</div>
+          <div style="color:#94a3b8;font-size:11px;">Manages sessions, establishes &amp; terminates · NetBIOS, RPC</div>
+        </div>
+        <div style="background:rgba(249,115,22,0.08);border-left:2px solid #f97316;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#fb923c;font-weight:600;font-size:11px;">4 TRANSPORT</div>
+          <div style="color:#94a3b8;font-size:11px;">End-to-end communication, flow control · TCP, UDP</div>
+        </div>
+        <div style="background:rgba(34,197,94,0.08);border-left:2px solid #22c55e;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#86efac;font-weight:600;font-size:11px;">3 NETWORK</div>
+          <div style="color:#94a3b8;font-size:11px;">Logical addressing, routing, packet forwarding · IP, ICMP, OSPF</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.08);border-left:2px solid #ef4444;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#fca5a5;font-weight:600;font-size:11px;">2 DATA LINK</div>
+          <div style="color:#94a3b8;font-size:11px;">Node-to-node delivery, framing, MAC · Ethernet, ARP, PPP</div>
+        </div>
+        <div style="background:rgba(100,116,139,0.1);border-left:2px solid #64748b;padding:5px 9px;border-radius:0 4px 4px 0;">
+          <div style="color:#94a3b8;font-weight:600;font-size:11px;">1 PHYSICAL</div>
+          <div style="color:#94a3b8;font-size:11px;">Transmits raw bits over physical medium · Cables, Hub, Signals</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ SLIDE 3: SWITCH COMMANDS ═══ -->
+<section data-label="Switch Commands Cheat Sheet" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #22c55e;flex-shrink:0;">
+    <div style="background:#22c55e;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">CISCO IOS</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Switch Configuration <span style="color:#22c55e;">Cheat Sheet</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Essential Cisco IOS Commands for Switch Configuration</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px;flex:1;min-height:0;">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#1d4ed8;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">1 — BASIC SWITCH SETUP</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">enable</code><span style="color:#94a3b8;">Enter privileged EXEC mode</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">configure terminal</code><span style="color:#94a3b8;">Enter global config mode</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">hostname SW1</code><span style="color:#94a3b8;">Set switch hostname</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">no ip domain-lookup</code><span style="color:#94a3b8;">Disable DNS lookup</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">enable secret class</code><span style="color:#94a3b8;">Set encrypted enable password</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">line console 0</code><span style="color:#94a3b8;">Enter console line config</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">password cisco / login</code><span style="color:#94a3b8;">Set console password</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">line vty 0 15</code><span style="color:#94a3b8;">Enter VTY terminal lines</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">copy running-config startup-config</code><span style="color:#94a3b8;">Save config</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show running-config</code><span style="color:#94a3b8;">Display running config</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#16a34a;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">2 — INTERFACE CONFIGURATION</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">interface fa0/1</code><span style="color:#94a3b8;">Select FastEthernet 0/1</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">interface range fa0/1-24</code><span style="color:#94a3b8;">Select multiple interfaces</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">description Uplink</code><span style="color:#94a3b8;">Add description to interface</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">no shutdown</code><span style="color:#94a3b8;">Enable interface</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">shutdown</code><span style="color:#94a3b8;">Disable interface</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">speed 100 / speed 1000</code><span style="color:#94a3b8;">Set interface speed</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">duplex full</code><span style="color:#94a3b8;">Set full duplex</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show ip interface brief</code><span style="color:#94a3b8;">Show interface summary</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show interfaces status</code><span style="color:#94a3b8;">Show port status</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#7c3aed;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">3 — VLAN CONFIGURATION</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">vlan 10</code><span style="color:#94a3b8;">Create VLAN 10</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">name SALES</code><span style="color:#94a3b8;">Name VLAN 10 as SALES</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">vlan 20 / name HR</code><span style="color:#94a3b8;">Create VLAN 20 named HR</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show vlan brief</code><span style="color:#94a3b8;">Show VLAN summary</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">delete vlan 10</code><span style="color:#94a3b8;">Delete VLAN 10</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show vlan id 10</code><span style="color:#94a3b8;">Show specific VLAN info</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#ea580c;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">4 — ACCESS PORT CONFIGURATION</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport mode access</code><span style="color:#94a3b8;">Set port as access port</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport access vlan 10</code><span style="color:#94a3b8;">Assign port to VLAN 10</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport port-security</code><span style="color:#94a3b8;">Enable port security</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport port-security maximum 2</code><span style="color:#94a3b8;">Allow max 2 MACs</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">...violation restrict</code><span style="color:#94a3b8;">Set violation to restrict</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport portfast</code><span style="color:#94a3b8;">Enable PortFast (end devices)</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">spanning-tree bpduguard enable</code><span style="color:#94a3b8;">Enable BPDU Guard</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show port-security</code><span style="color:#94a3b8;">Show port security status</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#0891b2;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">5 — TRUNK PORT CONFIGURATION</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">interface fa0/24</code><span style="color:#94a3b8;">Select uplink interface</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport mode trunk</code><span style="color:#94a3b8;">Set port as trunk</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport trunk allowed vlan 10,20,30</code><span style="color:#94a3b8;">Allow VLANs</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport trunk native vlan 99</code><span style="color:#94a3b8;">Set native VLAN</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport nonegotiate</code><span style="color:#94a3b8;">Disable DTP</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show interfaces trunk</code><span style="color:#94a3b8;">Show trunk status</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#0d9488;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">6 — SPANNING TREE (STP)</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">spanning-tree mode rapid-pvst</code><span style="color:#94a3b8;">Set Rapid PVST mode</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">spanning-tree vlan 10 priority 4096</code><span style="color:#94a3b8;">Set priority</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">spanning-tree vlan 10 root primary</code><span style="color:#94a3b8;">Make root for VLAN 10</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show spanning-tree</code><span style="color:#94a3b8;">Show STP status</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show spanning-tree vlan 10</code><span style="color:#94a3b8;">Show STP for VLAN 10</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#4f46e5;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">7 — PORT CHANNEL (ETHERCHANNEL)</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">interface range fa0/1-2</code><span style="color:#94a3b8;">Select multiple interfaces</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">channel-group 1 mode active</code><span style="color:#94a3b8;">Add to EtherChannel (LACP)</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">interface port-channel 1</code><span style="color:#94a3b8;">Enter Port-channel interface</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">switchport mode trunk</code><span style="color:#94a3b8;">Set Port-channel as trunk</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show etherchannel summary</code><span style="color:#94a3b8;">Show EtherChannel status</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#b45309;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">8 — MAC ADDRESS TABLE</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show mac address-table</code><span style="color:#94a3b8;">Show full MAC table</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show mac address-table dynamic</code><span style="color:#94a3b8;">Show dynamic entries</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show mac address-table vlan 10</code><span style="color:#94a3b8;">MAC table for VLAN 10</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">clear mac address-table dynamic</code><span style="color:#94a3b8;">Clear dynamic MAC table</span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#be123c;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">9 — USEFUL SHOW COMMANDS</div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:1px 10px;font-size:11px;line-height:1.7;">
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show running-config</code><span style="color:#94a3b8;">Display running configuration</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show startup-config</code><span style="color:#94a3b8;">Display startup config</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show version</code><span style="color:#94a3b8;">Show IOS version info</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show vlan brief</code><span style="color:#94a3b8;">Show VLAN summary</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show cdp neighbors</code><span style="color:#94a3b8;">Show CDP neighbor info</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show interfaces status</code><span style="color:#94a3b8;">Show all port status</span>
+        <code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">show logging</code><span style="color:#94a3b8;">Show system logs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SLIDE 4: VLAN SEGMENTATION ═══ -->
+<section data-label="VLAN Segmentation" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #06b6d4;flex-shrink:0;">
+    <div style="background:#06b6d4;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">VLAN DESIGN</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">VLAN Segmentation <span style="color:#06b6d4;">— Real-World Network Design</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Secure · Organized · Scalable · High Performance</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#06b6d4;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">DESIGN GOALS</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:#a5f3fc;">
+          <div>✓ Segment traffic for Security</div>
+          <div>✓ Improve Performance</div>
+          <div>✓ Reduce Broadcast Domains</div>
+          <div>✓ Easy Management &amp; Scalability</div>
+          <div>✓ Apply Least Privilege Access</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#7c3aed;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">SEGMENTATION &amp; SECURITY RULES</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+          <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;">
+            <div style="color:#c4b5fd;font-weight:600;font-size:11px;margin-bottom:2px;">VLAN 10 – Management</div>
+            <div style="color:#94a3b8;">SSH, HTTPS, SNMP access only for IT Admin</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;">
+            <div style="color:#86efac;font-weight:600;font-size:11px;margin-bottom:2px;">VLAN 20/30/40 – Users</div>
+            <div style="color:#94a3b8;">Internet access (HTTP/HTTPS/DNS) only</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;">
+            <div style="color:#fcd34d;font-weight:600;font-size:11px;margin-bottom:2px;">VLAN 20 – Sales</div>
+            <div style="color:#94a3b8;">Access to VLAN 30 Accounts (Reports, DB)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;">
+            <div style="color:#fca5a5;font-weight:600;font-size:11px;margin-bottom:2px;">VLAN 50 – Guest WiFi</div>
+            <div style="color:#94a3b8;display:flex;align-items:center;gap:4px;">Blocked from internal VLANs <span style="color:#ef4444;font-weight:700;">✕</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#1d4ed8;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">VLAN &amp; IP ADDRESSING PLAN</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.06);">
+              <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;font-weight:700;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">VLAN</th>
+              <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;font-weight:700;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">NAME</th>
+              <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;font-weight:700;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">SUBNET</th>
+              <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;font-weight:700;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">GATEWAY (SVI)</th>
+              <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;font-weight:700;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">USAGE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#1d4ed8;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">10</span></td><td style="padding:5px 8px;color:#93c5fd;font-weight:600;">MANAGEMENT</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.10.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.10.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Network Mgmt</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#16a34a;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">20</span></td><td style="padding:5px 8px;color:#86efac;font-weight:600;">SALES</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.20.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.20.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Sales Team</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#ea580c;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">30</span></td><td style="padding:5px 8px;color:#fdba74;font-weight:600;">ACCOUNTS / FINANCE</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.30.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.30.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Finance Team</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#7c3aed;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">40</span></td><td style="padding:5px 8px;color:#c4b5fd;font-weight:600;">HR</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.40.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.40.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">HR Team</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#0891b2;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">50</span></td><td style="padding:5px 8px;color:#67e8f9;font-weight:600;">GUEST WIFI</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.50.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.50.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Guest Users</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#475569;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">99</span></td><td style="padding:5px 8px;color:#94a3b8;font-weight:600;">NATIVE / UNUSED</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#475569;font-size:11px;">—</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#475569;font-size:11px;">—</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Native VLAN</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;"><span style="background:#b45309;color:white;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;">100</span></td><td style="padding:5px 8px;color:#fcd34d;font-weight:600;">SERVERS / DMZ</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.100.0/24</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;font-size:11px;">192.168.100.1</td><td style="padding:5px 8px;color:#94a3b8;font-size:11px;">Public Services</td></tr>
+            <tr><td style="padding:5px 8px;"><span style="background:#1e293b;color:#64748b;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;border:1px solid #334155;">999</span></td><td style="padding:5px 8px;color:#64748b;font-weight:600;">BLACKHOLE</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#475569;font-size:11px;">N/A</td><td style="padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#475569;font-size:11px;">N/A</td><td style="padding:5px 8px;color:#64748b;font-size:11px;">Unused / Parking</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;">
+          <div style="background:#16a34a;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">CORE SWITCH (L3) CONFIG</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.75;color:#94a3b8;">
+            <div style="color:#fbbf24;">! Create VLANs</div>
+            <div><span style="color:#4ade80;">vlan 10</span> / <span style="color:#4ade80;">name MANAGEMENT</span></div>
+            <div><span style="color:#4ade80;">vlan 20</span> / <span style="color:#4ade80;">name SALES</span></div>
+            <div style="color:#fbbf24;margin-top:4px;">! SVIs (Gateways)</div>
+            <div><span style="color:#4ade80;">interface vlan 10</span></div>
+            <div><span style="color:#67e8f9;">ip address 192.168.10.1 255.255.255.0</span></div>
+            <div><span style="color:#4ade80;">no shutdown</span></div>
+            <div style="color:#fbbf24;margin-top:4px;">! Enable IP Routing</div>
+            <div><span style="color:#4ade80;">ip routing</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;">
+          <div style="background:#0891b2;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">ACCESS SWITCH CONFIG</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.75;color:#94a3b8;">
+            <div style="color:#fbbf24;">! Access Port (User)</div>
+            <div><span style="color:#4ade80;">interface range fa0/1 - 24</span></div>
+            <div><span style="color:#4ade80;">switchport mode access</span></div>
+            <div><span style="color:#4ade80;">switchport access vlan 20</span></div>
+            <div><span style="color:#4ade80;">switchport portfast</span></div>
+            <div style="color:#fbbf24;margin-top:4px;">! Trunk Port (Uplink)</div>
+            <div><span style="color:#4ade80;">interface gig0/1</span></div>
+            <div><span style="color:#4ade80;">switchport mode trunk</span></div>
+            <div><span style="color:#67e8f9;">switchport trunk allowed vlan 10,20,30,40,50,99,100</span></div>
+            <div><span style="color:#4ade80;">switchport trunk native vlan 99</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ SLIDE 5: SUBNETTING ═══ -->
+<section data-label="Subnetting Guide" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #f97316;flex-shrink:0;">
+    <div style="background:#f97316;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">IP ADDRESSING</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">How to Calculate <span style="color:#f97316;">Subnetting</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Step-by-Step Guide</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="min-width:30px;height:30px;border-radius:50%;background:#f97316;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">1</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f97316;margin-bottom:4px;">IDENTIFY IP CLASS</div>
+          <div style="display:flex;gap:16px;font-size:12.5px;color:#94a3b8;">
+            <div><strong style="color:#f1f5f9;">Class A</strong> → /8</div>
+            <div><strong style="color:#f1f5f9;">Class B</strong> → /16</div>
+            <div><strong style="color:#f1f5f9;">Class C</strong> → /24</div>
+          </div>
+          <div style="margin-top:8px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:5px;padding:7px 10px;font-size:11.5px;color:#94a3b8;">
+            <div><strong style="color:#fdba74;">Class A:</strong> 1.0.0.0 – 126.255.255.255</div>
+            <div><strong style="color:#fdba74;">Class B:</strong> 128.0.0.0 – 191.255.255.255</div>
+            <div><strong style="color:#fdba74;">Class C:</strong> 192.0.0.0 – 223.255.255.255</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="min-width:30px;height:30px;border-radius:50%;background:#f97316;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">2</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f97316;margin-bottom:6px;">HOST FORMULA</div>
+          <div style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:6px;padding:8px 14px;font-size:18px;font-weight:700;color:#f1f5f9;font-family:'JetBrains Mono',monospace;text-align:center;">2<sup>n</sup> – 2 ≥ Required Hosts</div>
+          <div style="margin-top:6px;font-size:11.5px;color:#94a3b8;">Where <strong style="color:#f1f5f9;">n</strong> = number of host bits (remaining bits after borrowing)</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="min-width:30px;height:30px;border-radius:50%;background:#f97316;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">3</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f97316;margin-bottom:6px;">SUBNET MASK CALCULATION</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-family:'JetBrains Mono',monospace;">
+            <span style="background:rgba(255,255,255,0.06);padding:4px 10px;border-radius:4px;color:#4ade80;">Borrow bits</span>
+            <span style="color:#475569;">→</span>
+            <span style="background:rgba(255,255,255,0.06);padding:4px 10px;border-radius:4px;color:#4ade80;">New Prefix</span>
+            <span style="color:#475569;">→</span>
+            <span style="background:rgba(255,255,255,0.06);padding:4px 10px;border-radius:4px;color:#4ade80;">Subnet Mask</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="min-width:30px;height:30px;border-radius:50%;background:#f97316;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">4</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#f97316;margin-bottom:6px;">BLOCK SIZE FORMULA</div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:6px;padding:6px 14px;font-size:16px;font-weight:700;color:#f1f5f9;font-family:'JetBrains Mono',monospace;">256 – Last Subnet Octet</div>
+            <div style="font-size:11.5px;color:#94a3b8;"><strong style="color:#f1f5f9;">Example:</strong><br>Last octet = 192<br>Block = 256–192 = <strong style="color:#f97316;">64</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="min-width:30px;height:30px;border-radius:50%;background:#f97316;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">5</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#f97316;margin-bottom:8px;">SUBNET TABLE EXAMPLE</div>
+          <table style="width:100%;border-collapse:collapse;font-size:11.5px;font-family:'JetBrains Mono',monospace;">
+            <thead>
+              <tr style="background:rgba(249,115,22,0.15);">
+                <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;color:#f97316;border-bottom:1px solid rgba(249,115,22,0.3);font-family:'Space Grotesk',sans-serif;">NETWORK</th>
+                <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;color:#f97316;border-bottom:1px solid rgba(249,115,22,0.3);font-family:'Space Grotesk',sans-serif;">FIRST HOST</th>
+                <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;color:#f97316;border-bottom:1px solid rgba(249,115,22,0.3);font-family:'Space Grotesk',sans-serif;">LAST HOST</th>
+                <th style="padding:5px 8px;text-align:left;font-size:10px;letter-spacing:1px;color:#f97316;border-bottom:1px solid rgba(249,115,22,0.3);font-family:'Space Grotesk',sans-serif;">BROADCAST</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;color:#4ade80;">192.168.1.0/26</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.1</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.62</td><td style="padding:5px 8px;color:#f97316;">192.168.1.63</td></tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:5px 8px;color:#4ade80;">192.168.1.64/26</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.65</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.126</td><td style="padding:5px 8px;color:#f97316;">192.168.1.127</td></tr>
+              <tr><td style="padding:5px 8px;color:#4ade80;">192.168.1.128/26</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.129</td><td style="padding:5px 8px;color:#94a3b8;">192.168.1.190</td><td style="padding:5px 8px;color:#f97316;">192.168.1.191</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="background:rgba(249,115,22,0.07);border:1px solid rgba(249,115,22,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#c2410c;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">QUICK REFERENCE — CIDR</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center;">
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px 6px;"><div style="font-size:16px;font-weight:700;color:#f97316;font-family:'JetBrains Mono',monospace;">/25</div><div style="font-size:12px;font-weight:600;color:#f1f5f9;margin-top:2px;">126</div><div style="font-size:10px;color:#64748b;">hosts</div></div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px 6px;"><div style="font-size:16px;font-weight:700;color:#f97316;font-family:'JetBrains Mono',monospace;">/26</div><div style="font-size:12px;font-weight:600;color:#f1f5f9;margin-top:2px;">62</div><div style="font-size:10px;color:#64748b;">hosts</div></div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px 6px;"><div style="font-size:16px;font-weight:700;color:#f97316;font-family:'JetBrains Mono',monospace;">/27</div><div style="font-size:12px;font-weight:600;color:#f1f5f9;margin-top:2px;">30</div><div style="font-size:10px;color:#64748b;">hosts</div></div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px 6px;"><div style="font-size:16px;font-weight:700;color:#f97316;font-family:'JetBrains Mono',monospace;">/28</div><div style="font-size:12px;font-weight:600;color:#f1f5f9;margin-top:2px;">14</div><div style="font-size:10px;color:#64748b;">hosts</div></div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:10px 6px;"><div style="font-size:16px;font-weight:700;color:#f97316;font-family:'JetBrains Mono',monospace;">/29</div><div style="font-size:12px;font-weight:600;color:#f1f5f9;margin-top:2px;">6</div><div style="font-size:10px;color:#64748b;">hosts</div></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#b45309;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">COMMON SUBNET MASKS</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead><tr style="background:rgba(255,255,255,0.05);"><th style="padding:4px 8px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.08);">PREFIX</th><th style="padding:4px 8px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.08);">SUBNET MASK</th><th style="padding:4px 8px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.08);">HOSTS</th><th style="padding:4px 8px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.08);">SUBNETS (from /24)</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#f97316;">/24</td><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;">255.255.255.0</td><td style="padding:4px 8px;color:#f1f5f9;">254</td><td style="padding:4px 8px;color:#64748b;">1</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#f97316;">/25</td><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;">255.255.255.128</td><td style="padding:4px 8px;color:#f1f5f9;">126</td><td style="padding:4px 8px;color:#64748b;">2</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#f97316;">/26</td><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;">255.255.255.192</td><td style="padding:4px 8px;color:#f1f5f9;">62</td><td style="padding:4px 8px;color:#64748b;">4</td></tr>
+            <tr><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#f97316;">/27</td><td style="padding:4px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;">255.255.255.224</td><td style="padding:4px 8px;color:#f1f5f9;">30</td><td style="padding:4px 8px;color:#64748b;">8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════ SLIDE 6: NATIVE VLAN ═══ -->
+<section data-label="Native VLAN" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #6366f1;flex-shrink:0;">
+    <div style="background:#6366f1;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">802.1Q</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Native VLAN <span style="color:#6366f1;">— Default VLAN for Untagged Traffic</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">The Default VLAN for Untagged Traffic on Trunk Links</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:14px;flex:1;display:flex;flex-direction:column;">
+        <div style="background:#6366f1;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;align-self:flex-start;">TRUNK LINK DIAGRAM</div>
+        <svg viewBox="0 0 500 260" style="width:100%;flex:1;">
+          <text x="250" y="18" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600" font-family="Space Grotesk,sans-serif">TRUNK LINK BETWEEN SWITCHES</text>
+          <rect x="20" y="35" width="150" height="55" rx="5" fill="#0d1a3a" stroke="#6366f1" stroke-width="2"/>
+          <text x="95" y="57" text-anchor="middle" fill="#f1f5f9" font-size="11" font-weight="700" font-family="Space Grotesk,sans-serif">SWITCH 1</text>
+          <rect x="25" y="68" width="8" height="5" rx="1" fill="#22c55e"/>
+          <rect x="36" y="68" width="8" height="5" rx="1" fill="#22c55e"/>
+          <rect x="47" y="68" width="8" height="5" rx="1" fill="#22c55e"/>
+          <rect x="58" y="68" width="8" height="5" rx="1" fill="#3b82f6"/>
+          <rect x="69" y="68" width="8" height="5" rx="1" fill="#3b82f6"/>
+          <rect x="80" y="68" width="8" height="5" rx="1" fill="#f97316"/>
+          <rect x="330" y="35" width="150" height="55" rx="5" fill="#0d1a3a" stroke="#6366f1" stroke-width="2"/>
+          <text x="405" y="57" text-anchor="middle" fill="#f1f5f9" font-size="11" font-weight="700" font-family="Space Grotesk,sans-serif">SWITCH 2</text>
+          <rect x="335" y="68" width="8" height="5" rx="1" fill="#22c55e"/>
+          <rect x="346" y="68" width="8" height="5" rx="1" fill="#22c55e"/>
+          <rect x="357" y="68" width="8" height="5" rx="1" fill="#3b82f6"/>
+          <rect x="368" y="68" width="8" height="5" rx="1" fill="#3b82f6"/>
+          <rect x="379" y="68" width="8" height="5" rx="1" fill="#f97316"/>
+          <line x1="170" y1="52" x2="330" y2="52" stroke="#3b82f6" stroke-width="2.5"/>
+          <line x1="170" y1="62" x2="330" y2="62" stroke="#22c55e" stroke-width="2.5"/>
+          <line x1="170" y1="72" x2="330" y2="72" stroke="#f97316" stroke-width="3.5"/>
+          <rect x="200" y="76" width="100" height="18" rx="3" fill="#f97316"/>
+          <text x="250" y="88" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="Space Grotesk,sans-serif">NATIVE VLAN (UNTAGGED)</text>
+          <text x="155" y="48" text-anchor="end" fill="#3b82f6" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 10</text>
+          <text x="155" y="62" text-anchor="end" fill="#22c55e" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 20</text>
+          <rect x="45" y="165" width="60" height="42" rx="3" fill="#0d2040" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="75" y="182" text-anchor="middle" fill="#f1f5f9" font-size="9" font-family="Space Grotesk,sans-serif">PC</text>
+          <text x="75" y="196" text-anchor="middle" fill="#3b82f6" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 10</text>
+          <line x1="75" y1="165" x2="75" y2="90" stroke="#3b82f6" stroke-width="1.5"/>
+          <rect x="120" y="165" width="60" height="42" rx="3" fill="#0d2a18" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="150" y="182" text-anchor="middle" fill="#f1f5f9" font-size="9" font-family="Space Grotesk,sans-serif">PC</text>
+          <text x="150" y="196" text-anchor="middle" fill="#22c55e" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 20</text>
+          <line x1="150" y1="165" x2="150" y2="90" stroke="#22c55e" stroke-width="1.5"/>
+          <rect x="355" y="165" width="60" height="42" rx="3" fill="#0d2040" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="385" y="182" text-anchor="middle" fill="#f1f5f9" font-size="9" font-family="Space Grotesk,sans-serif">PC</text>
+          <text x="385" y="196" text-anchor="middle" fill="#3b82f6" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 10</text>
+          <line x1="385" y1="165" x2="385" y2="90" stroke="#3b82f6" stroke-width="1.5"/>
+          <rect x="430" y="165" width="60" height="42" rx="3" fill="#0d2a18" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="460" y="182" text-anchor="middle" fill="#f1f5f9" font-size="9" font-family="Space Grotesk,sans-serif">PC</text>
+          <text x="460" y="196" text-anchor="middle" fill="#22c55e" font-size="9" font-family="Space Grotesk,sans-serif">VLAN 20</text>
+          <line x1="460" y1="165" x2="460" y2="90" stroke="#22c55e" stroke-width="1.5"/>
+          <rect x="130" y="228" width="240" height="26" rx="4" fill="rgba(99,102,241,0.15)" style=""/>
+          <text x="250" y="244" text-anchor="middle" fill="#a5b4fc" font-size="10" font-family="Space Grotesk,sans-serif">Native VLAN traffic is sent UNTAGGED · All others tagged with 802.1Q</text>
+        </svg>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:14px;">
+        <div style="background:#6366f1;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">KEY CONCEPTS</div>
+        <ul style="margin:0;padding-left:16px;font-size:13px;line-height:1.9;color:#cbd5e1;">
+          <li>Native VLAN traffic is sent <strong style="color:#f97316;">untagged</strong> over the trunk</li>
+          <li>All other VLANs are tagged using <strong style="color:#f1f5f9;">802.1Q</strong></li>
+          <li>Both ends of the trunk must have the <strong style="color:#f1f5f9;">same</strong> native VLAN</li>
+          <li>Default native VLAN is <strong style="color:#a5b4fc;">VLAN 1</strong> (change for security)</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#4f46e5;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">CONFIGURATION EXAMPLE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <div style="color:#a5b4fc;font-weight:600;font-size:11px;margin-bottom:6px;padding:3px 8px;background:rgba(99,102,241,0.15);border-radius:3px;display:inline-block;">SWITCH 1</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.85;color:#94a3b8;">
+              <div><span style="color:#f1f5f9;">Switch1#</span> configure terminal</div>
+              <div><span style="color:#f1f5f9;">Switch1(config)#</span> <span style="color:#4ade80;">interface g0/1</span></div>
+              <div><span style="color:#f1f5f9;">Switch1(config-if)#</span> <span style="color:#4ade80;">switchport mode trunk</span></div>
+              <div><span style="color:#f1f5f9;">Switch1(config-if)#</span> <span style="color:#67e8f9;">switchport trunk native vlan 99</span></div>
+              <div><span style="color:#f1f5f9;">Switch1(config-if)#</span> end</div>
+            </div>
+          </div>
+          <div>
+            <div style="color:#a5b4fc;font-weight:600;font-size:11px;margin-bottom:6px;padding:3px 8px;background:rgba(99,102,241,0.15);border-radius:3px;display:inline-block;">SWITCH 2</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.85;color:#94a3b8;">
+              <div><span style="color:#f1f5f9;">Switch2#</span> configure terminal</div>
+              <div><span style="color:#f1f5f9;">Switch2(config)#</span> <span style="color:#4ade80;">interface g0/1</span></div>
+              <div><span style="color:#f1f5f9;">Switch2(config-if)#</span> <span style="color:#4ade80;">switchport mode trunk</span></div>
+              <div><span style="color:#f1f5f9;">Switch2(config-if)#</span> <span style="color:#67e8f9;">switchport trunk native vlan 99</span></div>
+              <div><span style="color:#f1f5f9;">Switch2(config-if)#</span> end</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+        <span style="color:#eab308;font-weight:700;font-size:13px;">BEST PRACTICE</span>
+        <p style="margin:0;font-size:12px;color:#fef3c7;">Use an <strong>unused VLAN</strong> as the Native VLAN (not VLAN 1) to improve security and prevent VLAN hopping attacks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SLIDE 7: CONSOLE ACCESS ═══ -->
+<section data-label="Console Access" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #10b981;flex-shrink:0;">
+    <div style="background:#10b981;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">INITIAL SETUP</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Access Cisco Switch <span style="color:#10b981;">via Console</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Connect · Access · Configure · Save</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex-shrink:0;">
+    <div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:14px;">
+      <div style="background:#10b981;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:12px;">PHYSICAL CONNECTION</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="min-width:24px;height:24px;border-radius:50%;background:#10b981;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">1</div>
+          <div>Connect the <strong style="color:#f1f5f9;">RJ-45 Console cable</strong> to the console port on the Cisco Switch</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="min-width:24px;height:24px;border-radius:50%;background:#10b981;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">2</div>
+          <div>Connect the <strong style="color:#f1f5f9;">USB end</strong> to your PC / Laptop</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="min-width:24px;height:24px;border-radius:50%;background:#10b981;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">3</div>
+          <div>Open a terminal (<strong style="color:#f1f5f9;">PuTTY</strong>) → Speed: <strong style="color:#10b981;">9600</strong> baud · 8N1</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:5px;padding:8px 12px;font-size:11.5px;color:#6ee7b7;">
+        <strong style="color:#f1f5f9;">TIP:</strong> Use the console connection for initial configuration and management when SSH/Telnet is not yet configured.
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+      <div style="background:#0d9488;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">KEY POINTS</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;">
+        <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:#10b981;font-weight:700;flex-shrink:0;">✓</span><span style="color:#cbd5e1;">Console access used for <strong style="color:#f1f5f9;">initial configuration</strong></span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:#10b981;font-weight:700;flex-shrink:0;">✓</span><span style="color:#cbd5e1;"><strong style="color:#f1f5f9;">VLAN 1</strong> is used for management by default</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:#10b981;font-weight:700;flex-shrink:0;">✓</span><span style="color:#cbd5e1;">Always set <strong style="color:#f1f5f9;">enable secret</strong> for security</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:#eab308;font-weight:700;flex-shrink:0;">!</span><span style="color:#cbd5e1;"><strong style="color:#f1f5f9;">Default gateway</strong> required for remote management</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:5px;padding:6px 10px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:#10b981;font-weight:700;flex-shrink:0;">✓</span><span style="color:#cbd5e1;">Save config with <strong style="color:#f1f5f9;">write memory</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;min-height:0;">
+    <div style="background:#059669;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">INITIAL CONFIGURATION VIA CLI (PuTTY)</div>
+    <div style="display:grid;grid-template-columns:24px max-content auto 1fr;gap:2px 10px;font-size:11.5px;line-height:1.75;align-items:center;">
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">01</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">Switch&gt; enable</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Enter privileged EXEC mode</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">02</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">Switch# configure terminal</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Enter global configuration mode</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">03</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">Switch(config)# hostname SW1</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Set switch hostname</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">04</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config)# line console 0</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Enter console line configuration mode</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">05</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-line)# password cisco</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Set console password</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">06</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-line)# login</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Enable password on console login</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">07</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-line)# exit</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Return to global config mode</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">08</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config)# enable secret admin123</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Set privileged EXEC password</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">09</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config)# interface vlan 1</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Select management interface (VLAN 1)</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">10</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-if)# ip address 192.168.1.10 255.255.255.0</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Assign IP</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">11</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-if)# no shutdown</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Enable the interface</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">12</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config-if)# exit</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Return to global config mode</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">13</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config)# ip default-gateway 192.168.1.1</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Set default gateway</span>
+      <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;border-radius:3px;padding:0 4px;text-align:center;font-size:10px;">14</span><code style="font-family:'JetBrains Mono',monospace;color:#4ade80;white-space:nowrap;">SW1(config)# end  /  SW1# write memory</code><span style="color:#475569;">→</span><span style="color:#94a3b8;">Return &amp; save config to NVRAM</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SLIDE 8: OFFICE NETWORK SETUP ═══ -->
+<section data-label="Office Network Setup" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #14b8a6;flex-shrink:0;">
+    <div style="background:#14b8a6;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">NETWORK DESIGN</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Medium Office <span style="color:#14b8a6;">Network Setup</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Secure · Scalable · Reliable</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:12px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(20,184,166,0.07);border:1px solid rgba(20,184,166,0.25);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#14b8a6;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:12px;">NETWORK HIERARCHY</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;">
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#3b82f6;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">01</div>
+            <div><strong style="color:#93c5fd;">INTERNET</strong><br><span style="color:#94a3b8;font-size:11.5px;">Connection from ISP</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#22c55e;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">02</div>
+            <div><strong style="color:#86efac;">ISP MODEM / ONT</strong><br><span style="color:#94a3b8;font-size:11.5px;">Provided by Internet Service Provider</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#ef4444;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">03</div>
+            <div><strong style="color:#fca5a5;">NEXT-GEN FIREWALL</strong><br><span style="color:#94a3b8;font-size:11.5px;">VPN · IPS/IDS · App Control · Web Filtering</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#f97316;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">04</div>
+            <div><strong style="color:#fdba74;">CORE SWITCH (L3)</strong><br><span style="color:#94a3b8;font-size:11.5px;">Inter-VLAN Routing · High Performance</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#8b5cf6;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">05</div>
+            <div><strong style="color:#c4b5fd;">DISTRIBUTION SWITCH</strong><br><span style="color:#94a3b8;font-size:11.5px;">Redundancy · Aggregation (Redundant)</span></div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="background:#0891b2;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">06</div>
+            <div><strong style="color:#67e8f9;">ACCESS SWITCHES</strong><br><span style="color:#94a3b8;font-size:11.5px;">Connect end devices per VLAN segment</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#1d4ed8;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">VLAN OVERVIEW</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead><tr style="background:rgba(255,255,255,0.06);"><th style="padding:5px 7px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">VLAN</th><th style="padding:5px 7px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">PURPOSE</th><th style="padding:5px 7px;text-align:left;font-size:10px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.1);">SUBNET</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#1d4ed8;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">10</span></td><td style="padding:4px 7px;color:#93c5fd;">Management</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.10.0/24</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#16a34a;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">20</span></td><td style="padding:4px 7px;color:#86efac;">Staff</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.20.0/24</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#0891b2;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">30</span></td><td style="padding:4px 7px;color:#67e8f9;">Servers</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.30.0/24</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#7c3aed;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">40</span></td><td style="padding:4px 7px;color:#c4b5fd;">Guest Wi-Fi</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.40.0/24</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#ea580c;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">50</span></td><td style="padding:4px 7px;color:#fdba74;">Voice</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.50.0/24</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 7px;"><span style="background:#475569;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">60</span></td><td style="padding:4px 7px;color:#94a3b8;">CCTV / IoT</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.60.0/24</td></tr>
+            <tr><td style="padding:4px 7px;"><span style="background:#b45309;color:white;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;">70</span></td><td style="padding:4px 7px;color:#fcd34d;">Printers</td><td style="padding:4px 7px;font-family:'JetBrains Mono',monospace;color:#64748b;font-size:10.5px;">192.168.70.0/24</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#0d9488;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">NETWORK SERVICES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:12px;color:#cbd5e1;">
+          <div style="display:flex;gap:6px;align-items:center;"><span style="color:#14b8a6;font-weight:700;">▸</span><span><strong style="color:#f1f5f9;">AD / DNS</strong> — Directory &amp; Name Resolution</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span style="color:#14b8a6;font-weight:700;">▸</span><span><strong style="color:#f1f5f9;">DHCP</strong> — Automatic IP Assignment</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span style="color:#14b8a6;font-weight:700;">▸</span><span><strong style="color:#f1f5f9;">NTP</strong> — Time Synchronization</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span style="color:#14b8a6;font-weight:700;">▸</span><span><strong style="color:#f1f5f9;">Syslog</strong> — Centralized Log Collection</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:14px;flex:1;">
+        <div style="background:#dc2626;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:12px;">SECURITY FEATURES</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#cbd5e1;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Stateful Firewall</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Intrusion Prevention System (IPS)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>VPN Remote Access</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Web &amp; Content Filtering</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Application Control</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Secure Network Segmentation (VLANs)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#22c55e;flex-shrink:0;">✓</span><span>Guest Network Isolation</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;">
+        <div style="background:#16a34a;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">BEST PRACTICES</div>
+        <div style="font-size:12px;color:#94a3b8;line-height:1.8;">
+          <div>✓ Use meaningful VLAN names</div>
+          <div>✓ Keep VLANs aligned with departments</div>
+          <div>✓ Use dedicated management VLAN</div>
+          <div>✓ Use ACLs for inter-VLAN traffic control</div>
+          <div>✓ Keep Native VLAN unused (e.g. VLAN 99)</div>
+          <div>✓ Enable Port Security &amp; BPDU Guard</div>
+          <div>✓ Regularly monitor &amp; backup configs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ SLIDE 9: SUBNET MASK vs WILDCARD ═══ -->
+<section data-label="Subnet Mask vs Wildcard" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #f43f5e;flex-shrink:0;">
+    <div style="background:#f43f5e;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">IP MASKING</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Subnet Mask <span style="color:#64748b;">vs</span> <span style="color:#f43f5e;">Wildcard Mask</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Understanding the key differences and use cases</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0;">
+    <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;">
+      <div>
+        <div style="background:#2563eb;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">SUBNET MASK</div>
+        <ul style="margin:0;padding-left:16px;font-size:13px;line-height:1.85;color:#cbd5e1;">
+          <li>Defines <strong style="color:#f1f5f9;">network and host</strong> portion of an IP address</li>
+          <li><strong style="color:#93c5fd;">1 = Network bit</strong>, <strong style="color:#94a3b8;">0 = Host bit</strong></li>
+          <li>Used in <strong style="color:#f1f5f9;">IP addressing and subnetting</strong></li>
+          <li>Applied directly to IP interfaces</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-bottom:6px;letter-spacing:0.5px;">EXAMPLE: /24</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;">
+          <div><span style="color:#64748b;">Subnet Mask: </span><span style="color:#93c5fd;font-weight:600;">255.255.255.0</span></div>
+          <div><span style="color:#64748b;">Binary:      </span><span style="color:#4ade80;font-size:11px;">11111111.11111111.11111111.<span style="color:#f97316;">00000000</span></span></div>
+        </div>
+      </div>
+      <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:6px;padding:10px 12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px;font-weight:600;">COMMON SUBNET MASKS</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;">
+          <span style="color:#3b82f6;">/8</span><span style="color:#94a3b8;">255.0.0.0</span>
+          <span style="color:#3b82f6;">/16</span><span style="color:#94a3b8;">255.255.0.0</span>
+          <span style="color:#3b82f6;">/24</span><span style="color:#94a3b8;">255.255.255.0</span>
+          <span style="color:#3b82f6;">/25</span><span style="color:#94a3b8;">255.255.255.128</span>
+          <span style="color:#3b82f6;">/26</span><span style="color:#94a3b8;">255.255.255.192</span>
+          <span style="color:#3b82f6;">/27</span><span style="color:#94a3b8;">255.255.255.224</span>
+          <span style="color:#3b82f6;">/28</span><span style="color:#94a3b8;">255.255.255.240</span>
+          <span style="color:#3b82f6;">/30</span><span style="color:#94a3b8;">255.255.255.252</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(244,63,94,0.07);border:1px solid rgba(244,63,94,0.3);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;">
+      <div>
+        <div style="background:#e11d48;color:white;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:1.5px;display:inline-block;margin-bottom:10px;">WILDCARD MASK</div>
+        <ul style="margin:0;padding-left:16px;font-size:13px;line-height:1.85;color:#cbd5e1;">
+          <li>The <strong style="color:#f1f5f9;">inverse</strong> of the subnet mask</li>
+          <li><strong style="color:#fca5a5;">0 = Must match</strong>, <strong style="color:#94a3b8;">1 = Ignore (wildcard)</strong></li>
+          <li>Used in <strong style="color:#f1f5f9;">ACLs and routing protocols</strong> (OSPF, EIGRP)</li>
+          <li>Cisco uses it to match IP address ranges</li>
+        </ul>
+      </div>
+      <div>
+        <div style="background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.25);border-radius:6px;padding:10px 12px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">
+          <div style="font-size:11px;color:#64748b;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;">FORMULA</div>
+          <div style="color:#f1f5f9;">Wildcard = <span style="color:#fca5a5;">255.255.255.255</span> − <span style="color:#93c5fd;">Subnet Mask</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-bottom:6px;letter-spacing:0.5px;">EXAMPLE: /24 → Wildcard</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;">
+          <div><span style="color:#64748b;">Subnet:   </span><span style="color:#4ade80;font-size:11px;">11111111.11111111.11111111.<span style="color:#f97316;">00000000</span></span></div>
+          <div><span style="color:#64748b;">Wildcard: </span><span style="color:#fca5a5;font-size:11px;"><span style="color:#475569;">00000000.00000000.00000000.</span>11111111</span></div>
+          <div style="margin-top:4px;"><span style="color:#64748b;">Result:   </span><span style="color:#f43f5e;font-weight:600;">0.0.0.255</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:6px;font-weight:600;letter-spacing:1px;">WILDCARD EXAMPLES (ACL USE)</div>
+        <div style="display:grid;grid-template-columns:auto auto 1fr;gap:2px 10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;">
+          <span style="color:#f43f5e;">0.0.0.0</span><span style="color:#475569;">/32</span><span style="color:#94a3b8;">Match exact host</span>
+          <span style="color:#f43f5e;">0.0.0.255</span><span style="color:#475569;">/24</span><span style="color:#94a3b8;">Match entire /24 subnet</span>
+          <span style="color:#f43f5e;">0.0.255.255</span><span style="color:#475569;">/16</span><span style="color:#94a3b8;">Match entire /16 range</span>
+          <span style="color:#f43f5e;">255.255.255.255</span><span style="color:#475569;"></span><span style="color:#94a3b8;">Match any IP address</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SLIDE 10: NETWORKING DEVICES ═══ -->
+<section data-label="Networking Devices" style="background:#06101e;color:#f1f5f9;font-family:'Space Grotesk',sans-serif;padding:20px 28px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid #f59e0b;flex-shrink:0;">
+    <div style="background:#f59e0b;color:white;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1.5px;">HARDWARE</div>
+    <div>
+      <h1 style="margin:0;font-size:34px;font-weight:700;line-height:1.1;">Networking Devices <span style="color:#f59e0b;">— Building Blocks of Every Network</span></h1>
+      <p style="margin:0;font-size:13px;color:#64748b;margin-top:2px;">Connect · Communicate · Secure · Optimize</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;min-height:0;">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#1d4ed8;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">1 — NETWORK INTERFACE DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;">
+        <div style="border-left:2px solid #3b82f6;padding-left:8px;"><strong style="color:#93c5fd;">NIC (Network Interface Card)</strong><br><span style="color:#94a3b8;">Connects device to network. Provides physical MAC address.</span></div>
+        <div style="border-left:2px solid #3b82f6;padding-left:8px;"><strong style="color:#93c5fd;">Wireless Adapter</strong><br><span style="color:#94a3b8;">Connects devices to wireless networks.</span></div>
+        <div style="border-left:2px solid #3b82f6;padding-left:8px;"><strong style="color:#93c5fd;">Modem</strong><br><span style="color:#94a3b8;">Modulates/demodulates signals for ISP (DSL, Cable, Fiber).</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#16a34a;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">2 — CONNECTIVITY DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div style="border-left:2px solid #22c55e;padding-left:8px;"><strong style="color:#86efac;">Repeater</strong> <span style="color:#94a3b8;">— Regenerates &amp; amplifies signals to extend range</span></div>
+        <div style="border-left:2px solid #22c55e;padding-left:8px;"><strong style="color:#86efac;">Hub (Legacy)</strong> <span style="color:#94a3b8;">— Connects devices, broadcasts to all ports</span></div>
+        <div style="border-left:2px solid #22c55e;padding-left:8px;"><strong style="color:#86efac;">Bridge</strong> <span style="color:#94a3b8;">— Connects two segments, filters using MAC addresses</span></div>
+        <div style="border-left:2px solid #22c55e;padding-left:8px;"><strong style="color:#86efac;">Switch</strong> <span style="color:#94a3b8;">— Connects LAN devices, uses MAC table to forward frames</span></div>
+        <div style="border-left:2px solid #22c55e;padding-left:8px;"><strong style="color:#86efac;">Wireless AP</strong> <span style="color:#94a3b8;">— Provides Wi-Fi, bridges wireless to wired network</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#7c3aed;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">3 — DISTRIBUTION DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div style="border-left:2px solid #a855f7;padding-left:8px;"><strong style="color:#c4b5fd;">Router</strong> <span style="color:#94a3b8;">— Connects multiple networks, routes packets by IP</span></div>
+        <div style="border-left:2px solid #a855f7;padding-left:8px;"><strong style="color:#c4b5fd;">Layer 3 Switch</strong> <span style="color:#94a3b8;">— Switching + routing. High-speed inter-VLAN routing</span></div>
+        <div style="border-left:2px solid #a855f7;padding-left:8px;"><strong style="color:#c4b5fd;">Gateway</strong> <span style="color:#94a3b8;">— Connects dissimilar networks using different protocols</span></div>
+        <div style="border-left:2px solid #a855f7;padding-left:8px;"><strong style="color:#c4b5fd;">Firewall</strong> <span style="color:#94a3b8;">— Monitors and controls incoming/outgoing traffic</span></div>
+        <div style="border-left:2px solid #a855f7;padding-left:8px;"><strong style="color:#c4b5fd;">UTM</strong> <span style="color:#94a3b8;">— Unified Threat: firewall + IPS + VPN + AV</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#dc2626;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">4 — SECURITY DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div style="border-left:2px solid #ef4444;padding-left:8px;"><strong style="color:#fca5a5;">IDS</strong> <span style="color:#94a3b8;">— Intrusion Detection: monitors traffic for malicious activity</span></div>
+        <div style="border-left:2px solid #ef4444;padding-left:8px;"><strong style="color:#fca5a5;">IPS</strong> <span style="color:#94a3b8;">— Intrusion Prevention: detects &amp; blocks malicious traffic</span></div>
+        <div style="border-left:2px solid #ef4444;padding-left:8px;"><strong style="color:#fca5a5;">VPN Concentrator</strong> <span style="color:#94a3b8;">— Terminates VPN tunnels, manages secure connections</span></div>
+        <div style="border-left:2px solid #ef4444;padding-left:8px;"><strong style="color:#fca5a5;">NAC</strong> <span style="color:#94a3b8;">— Network Access Control: policy &amp; identity-based access</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#0891b2;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">5 — WAN &amp; EDGE DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div style="border-left:2px solid #06b6d4;padding-left:8px;"><strong style="color:#67e8f9;">CSU/DSU</strong> <span style="color:#94a3b8;">— Connects routers to digital circuits (T1/E1)</span></div>
+        <div style="border-left:2px solid #06b6d4;padding-left:8px;"><strong style="color:#67e8f9;">WAN Optimizer</strong> <span style="color:#94a3b8;">— Improves application performance over WAN</span></div>
+        <div style="border-left:2px solid #06b6d4;padding-left:8px;"><strong style="color:#67e8f9;">Load Balancer</strong> <span style="color:#94a3b8;">— Distributes traffic across multiple links/servers</span></div>
+        <div style="border-left:2px solid #06b6d4;padding-left:8px;"><strong style="color:#67e8f9;">SD-WAN Edge Device</strong> <span style="color:#94a3b8;">— Optimizes WAN connectivity using SD-WAN</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;overflow:hidden;">
+      <div style="background:#b45309;color:white;padding:2px 8px;border-radius:3px;font-size:9.5px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;">6 — DATA CENTER DEVICES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div style="border-left:2px solid #f59e0b;padding-left:8px;"><strong style="color:#fcd34d;">Core Switch</strong> <span style="color:#94a3b8;">— High-speed switching at the core of the network</span></div>
+        <div style="border-left:2px solid #f59e0b;padding-left:8px;"><strong style="color:#fcd34d;">ToR Switch</strong> <span style="color:#94a3b8;">— Top-of-Rack: connects servers within racks</span></div>
+        <div style="border-left:2px solid #f59e0b;padding-left:8px;"><strong style="color:#fcd34d;">SAN Switch</strong> <span style="color:#94a3b8;">— Storage Area Network: connects servers to storage</span></div>
+        <div style="border-left:2px solid #f59e0b;padding-left:8px;"><strong style="color:#fcd34d;">Server</strong> <span style="color:#94a3b8;">— Provides services, applications and data to clients</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 16px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:0;justify-content:center;">
+      <div style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:5px;padding:6px 14px;text-align:center;font-size:12px;"><strong style="color:#93c5fd;">CLIENT</strong><br><span style="color:#64748b;font-size:10px;">LAN Device</span></div>
+      <div style="color:#475569;font-size:20px;padding:0 8px;">→</div>
+      <div style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:5px;padding:6px 14px;text-align:center;font-size:12px;"><strong style="color:#86efac;">SWITCH</strong><br><span style="color:#64748b;font-size:10px;">LAN Switching</span></div>
+      <div style="color:#475569;font-size:20px;padding:0 8px;">→</div>
+      <div style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:5px;padding:6px 14px;text-align:center;font-size:12px;"><strong style="color:#fdba74;">ROUTER</strong><br><span style="color:#64748b;font-size:10px;">Routing / L3</span></div>
+      <div style="color:#475569;font-size:20px;padding:0 8px;">→</div>
+      <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:5px;padding:6px 14px;text-align:center;font-size:12px;"><strong style="color:#fca5a5;">FIREWALL</strong><br><span style="color:#64748b;font-size:10px;">Security / Filter</span></div>
+      <div style="color:#475569;font-size:20px;padding:0 8px;">→</div>
+      <div style="background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.3);border-radius:5px;padding:6px 14px;text-align:center;font-size:12px;"><strong style="color:#5eead4;">INTERNET</strong><br><span style="color:#64748b;font-size:10px;">WAN / ISP</span></div>
+    </div>
+  </div>
+</section>
+
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1920, &quot;height&quot;: 1080}
+}"></script>
+</body>
+</html>
