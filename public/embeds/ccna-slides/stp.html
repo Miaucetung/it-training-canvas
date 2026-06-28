@@ -1,25 +1,19 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#080b12;overflow:hidden;}
+  *{box-sizing:border-box;}
+  #wrap{position:relative;width:100%;overflow:hidden;}
+  #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
+  #stage > section{width:1920px;height:1080px;}
+</style>
 </head>
 <body>
-<x-dc>
-
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-body{margin:0;background:#080b12;}
-*{box-sizing:border-box;}
-button:hover{filter:brightness(1.18);}
-</style>
-</helmet>
-
-<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<div id="wrap"><div id="stage">
 <section data-label="Spanning Tree Protocol" data-speaker-notes="Klick durch die 5 Phasen des STP-Wahlprozesses: BPDU-Austausch, Root-Wahl, Root-Ports, Designated-Ports, Blocking." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
   <div style="display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #6366f1;flex-shrink:0;">
     <div style="background:#6366f1;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">LAYER 2</div>
@@ -161,51 +155,12 @@ button:hover{filter:brightness(1.18);}
     </div>
   </div>
 </section>
-</x-import>
-
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  state = { step: 0 };
-  renderVals() {
-    const s = this.state.step;
-    const titles = ['BPDU-Austausch', 'Root-Bridge-Wahl', 'Root-Ports (RP)', 'Designated-Ports (DP)', 'Blocking & Forwarding'];
-    const descs = [
-      'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
-      'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
-      'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
-      'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
-      'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
-    ];
-    const accent = '#6366f1', off = '#2b3647';
-    return {
-      stpStep: s + 1,
-      stpTitle: titles[s],
-      stpDesc: descs[s],
-      stpNext: () => this.setState(p => ({ step: Math.min(4, p.step + 1) })),
-      stpPrev: () => this.setState(p => ({ step: Math.max(0, p.step - 1) })),
-      dot1: s >= 1 ? accent : off,
-      dot2: s >= 2 ? accent : off,
-      dot3: s >= 3 ? accent : off,
-      dot4: s >= 4 ? accent : off,
-      bpduOp: s === 0 ? 1 : 0,
-      sw1NormalOp: s === 0 ? 1 : 0,
-      sw1RootOp: s >= 1 ? 1 : 0,
-      rpOp: s >= 2 ? 1 : 0,
-      dpOp: s >= 3 ? 1 : 0,
-      blkOp: s >= 4 ? 1 : 0,
-      flowOp: s >= 4 ? 1 : 0,
-      l12GrayOp: s >= 4 ? 0 : 1,
-      l13GrayOp: s >= 4 ? 0 : 1,
-      l24GrayOp: s >= 4 ? 0 : 1,
-      l34GrayOp: s >= 4 ? 0 : 1,
-      l12GreenOp: s >= 4 ? 1 : 0,
-      l13GreenOp: s >= 4 ? 1 : 0,
-      l24GreenOp: s >= 4 ? 1 : 0,
-      l34BlkOp: s >= 4 ? 1 : 0
-    };
-  }
-}
+</div></div>
+<script>
+(function(){var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
+ function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
+ if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
+ fit();})();
 </script>
 </body>
 </html>
