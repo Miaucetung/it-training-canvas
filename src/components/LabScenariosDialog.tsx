@@ -1001,7 +1001,7 @@ export const LABS: LabScenario[] = [
         ],
       },
       {
-        title: "SW2 spiegelgleich konfigurieren",
+        title: "SW2 konfigurieren (dieselben Befehle wie SW1)",
         blocks: [
           {
             device: "SW2",
@@ -1612,57 +1612,85 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "Interfaces konfigurieren — alle gleiche /24-Maske!",
+        title: "1) R1 — komplett (alle Masken /24!)",
         blocks: [
           {
             device: "R1",
-            mode: "interface",
+            mode: "global",
             modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\ninterface gi0/1\nip address 10.0.12.1 255.255.255.0\nno shutdown",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
+                explanation: "Basis: Hostname, Enable-Secret, no ip domain-lookup gegen Tippfehler-Hänger.",
+              },
+              {
+                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 10.0.12.1 255.255.255.0\nno shutdown\nexit",
                 explanation:
-                  "LAN + WAN-Link zu R2. Beachte: auch der WAN-Link ist /24 (nicht /30!) — RIPv1 verträgt KEINE gemischten Masken im selben Major-Netz. R2/R3 analog.",
+                  "Gi0/0 = LAN 192.168.1.0/24, Gi0/1 = WAN-Link zu R2. WICHTIG bei RIPv1: auch der WAN-Link ist /24 (nicht /30!) — gemischte Masken im selben Major-Netz sind unmöglich.",
+              },
+              {
+                cmd: "router rip\nnetwork 192.168.1.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "Ohne 'version 2' läuft RIP im Default = Version 1. network nimmt das CLASSFUL-Netz (10.0.0.0, nicht 10.0.12.0). passive-interface Gi0/0 = keine Broadcasts ins LAN (RIPv1 broadcastet auf 255.255.255.255).",
               },
             ],
           },
         ],
       },
       {
-        title: "RIPv1 aktivieren (Default-Version!)",
+        title: "2) R2 — komplett (eigenes LAN + zwei WAN-Links)",
         blocks: [
           {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
-            commands: [
-              {
-                cmd: "router rip\nnetwork 192.168.1.0\nnetwork 10.0.0.0",
-                explanation:
-                  "Ohne 'version 2' läuft RIP im Default = Version 1. network nimmt das CLASSFUL-Netz (10.0.0.0, nicht 10.0.12.0) und aktiviert ALLE Interfaces dieses Major-Netzes.",
-              },
-              {
-                cmd: "passive-interface gi0/0",
-                explanation:
-                  "Keine RIP-Broadcasts ins LAN senden (dort hängt kein Router). RIPv1 broadcastet auf 255.255.255.255 — das würde sonst jeder LAN-Host sehen.",
-              },
-            ],
-          },
-          {
             device: "R2",
-            mode: "router",
-            modeLabel: "R2(config-router)#",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router rip\nnetwork 192.168.2.0\nnetwork 10.0.0.0",
-                explanation: "R2 sitzt zwischen beiden WAN-Links (beide im 10er-Netz). R3 analog mit network 192.168.3.0 und 10.0.0.0.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface gi0/0\nip address 192.168.2.1 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 10.0.12.2 255.255.255.0\nno shutdown\nexit\ninterface gi0/2\nip address 10.0.23.1 255.255.255.0\nno shutdown\nexit",
+                explanation:
+                  "Gi0/0 = LAN 192.168.2.0/24, Gi0/1 = Link zu R1 (10.0.12.2), Gi0/2 = Link zu R3 (10.0.23.1). Alle /24, alle no shutdown.",
+              },
+              {
+                cmd: "router rip\nnetwork 192.168.2.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "R2 hat ein eigenes LAN (192.168.2.0) und beide WAN-Links im 10er-Netz → network 192.168.2.0 + classful 10.0.0.0 (deckt 10.0.12.0 UND 10.0.23.0). passive nur Gi0/0 (LAN).",
               },
             ],
           },
         ],
       },
       {
-        title: "Konvergenz prüfen & v1 nachweisen",
+        title: "3) R3 — komplett (LAN 192.168.3.0/24)",
+        blocks: [
+          {
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface gi0/1\nip address 10.0.23.2 255.255.255.0\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.3.1 255.255.255.0\nno shutdown\nexit",
+                explanation:
+                  "Gi0/1 = WAN-Link zu R2 (10.0.23.2), Gi0/0 = LAN 192.168.3.0/24. Beide /24, beide no shutdown.",
+              },
+              {
+                cmd: "router rip\nnetwork 192.168.3.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "network 192.168.3.0 (LAN) + classful 10.0.0.0 (WAN). passive-interface Gi0/0 ins LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Konvergenz prüfen & v1 nachweisen (pro Router)",
         blocks: [
           {
             device: "R1",
@@ -1670,19 +1698,33 @@ export const LABS: LabScenario[] = [
             modeLabel: "R1#",
             commands: [
               {
+                cmd: "show ip route rip\nshow ip protocols\ndebug ip rip",
+                explanation:
+                  "Erwartet: 'R 192.168.2.0/24 [120/1] via 10.0.12.2' und 'R 192.168.3.0/24 [120/2] via 10.0.12.2'. show ip protocols → 'send version 1, receive 1', Timer 30/180/240 s. debug ip rip beweist v1: 'sending v1 update via 255.255.255.255' (Broadcast, OHNE Maske). Danach 'undebug all'.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
+              {
                 cmd: "show ip route rip",
                 explanation:
-                  "R-Einträge mit [120/1] / [120/2]: AD 120, Metrik = Hops. Die LANs erscheinen als /24, weil hier ALLE Masken /24 sind — RIPv1 kann die Maske nur über die eigene Interface-Maske 'raten'.",
+                  "R2 sieht 'R 192.168.1.0/24 [120/1] via 10.0.12.1' und 'R 192.168.3.0/24 [120/1] via 10.0.23.2'.",
               },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "privileged",
+            modeLabel: "R3#",
+            commands: [
               {
-                cmd: "show ip protocols",
+                cmd: "show ip route rip",
                 explanation:
-                  "Zeigt 'Sending updates every 30 seconds', 'default version control: send version 1, receive 1'. Timer: Invalid 180s, Holddown 180s, Flush 240s — Prüfungsstoff.",
-              },
-              {
-                cmd: "debug ip rip",
-                explanation:
-                  "Beweist v1: 'sending v1 update ... via Ethernet (255.255.255.255)' — Broadcast statt Multicast, und KEINE Subnetzmaske im Update. Danach 'undebug all'.",
+                  "R3 sieht 'R 192.168.2.0/24 [120/1] via 10.0.23.1' und 'R 192.168.1.0/24 [120/2] via 10.0.23.1'.",
               },
             ],
           },
@@ -1762,62 +1804,138 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "Interfaces konfigurieren (alle Router)",
+        title: "1) R1 — komplett (LAN + WAN + RIPv2)",
         blocks: [
           {
             device: "R1",
-            mode: "interface",
+            mode: "global",
             modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\ninterface gi0/1\nip address 10.0.12.1 255.255.255.252\nno shutdown",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
+                explanation: "Basis: Hostname, Enable-Secret, no ip domain-lookup.",
+              },
+              {
+                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 10.0.12.1 255.255.255.252\nno shutdown\nexit",
+                explanation: "Gi0/0 = LAN 192.168.1.0/24 (Gateway .1), Gi0/1 = WAN-/30 zu R2 (.1).",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 192.168.1.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
                 explanation:
-                  "LAN + WAN-Link zu R2. R2 und R3 analog mit ihren Subnetzen konfigurieren.",
+                  "version 2 = classless (Masken mit, Multicast 224.0.0.9), no auto-summary verhindert die Zusammenfassung an Klassengrenzen. network classful für 192.168.1.0 (LAN) und 10.0.0.0 (WAN). passive-interface Gi0/0 ins LAN.",
               },
             ],
           },
         ],
       },
       {
-        title: "RIPv2 aktivieren",
+        title: "2) R2 — komplett (LAN + zwei WAN-Links)",
         blocks: [
           {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
-            commands: [
-              {
-                cmd: "router rip\nversion 2\nno auto-summary",
-                explanation:
-                  "version 2 macht RIP classless (Subnetzmasken werden mitgesendet, Multicast 224.0.0.9 statt Broadcast). no auto-summary verhindert falsche Zusammenfassung an Klassengrenzen — Top-Prüfungsfrage!",
-              },
-              {
-                cmd: "network 192.168.1.0\nnetwork 10.0.0.0",
-                explanation:
-                  "RIP nimmt CLASSFUL-Netzangaben ohne Wildcard-Maske: 10.0.0.0 aktiviert ALLE Interfaces im 10er-Netz. Anders als OSPF/EIGRP!",
-              },
-              {
-                cmd: "passive-interface gi0/0",
-                explanation:
-                  "Keine RIP-Updates ins LAN senden (dort ist kein Router) — spart Bandbreite und verhindert Manipulation.",
-              },
-            ],
-          },
-          {
             device: "R2",
-            mode: "router",
-            modeLabel: "R2(config-router)#",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 192.168.2.0\nnetwork 10.0.0.0",
-                explanation: "R2 kennt beide WAN-Links über das 10er-Netz. R3 analog.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface gi0/0\nip address 192.168.2.1 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 10.0.12.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/2\nip address 10.0.23.1 255.255.255.252\nno shutdown\nexit",
+                explanation:
+                  "Gi0/0 = LAN 192.168.2.0/24, Gi0/1 = /30 zu R1 (.2), Gi0/2 = /30 zu R3 (.1).",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 192.168.2.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "network 192.168.2.0 (LAN) + classful 10.0.0.0 (deckt 10.0.12.0/30 UND 10.0.23.0/30). passive nur Gi0/0 (LAN); beide WAN-Interfaces bleiben aktiv.",
               },
             ],
           },
         ],
       },
       {
-        title: "Konvergenz beobachten",
+        title: "3) R3 — komplett (LAN 192.168.3.0/24)",
+        blocks: [
+          {
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface gi0/1\nip address 10.0.23.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.3.1 255.255.255.0\nno shutdown\nexit",
+                explanation: "Gi0/1 = /30 zu R2 (.2), Gi0/0 = LAN 192.168.3.0/24 (Gateway .1).",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 192.168.3.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "network 192.168.3.0 (LAN) + classful 10.0.0.0 (WAN). passive-interface Gi0/0 ins LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Switches (SW1–SW3) + Endgeräte (PC0–PC2)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname SW1",
+                explanation: "Reiner Layer-2-Access-Switch im R1-LAN — alle Ports Default-VLAN 1, keine IP nötig. SW2 und SW3 identisch mit 'hostname SW2' bzw. 'hostname SW3'.",
+              },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "global",
+            modeLabel: "SW2(config)#",
+            commands: [
+              { cmd: "enable\nconfigure terminal\nhostname SW2", explanation: "Access-Switch im R2-LAN." },
+            ],
+          },
+          {
+            device: "SW3",
+            mode: "global",
+            modeLabel: "SW3(config)#",
+            commands: [
+              { cmd: "enable\nconfigure terminal\nhostname SW3", explanation: "Access-Switch im R3-LAN." },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.1.10\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.1.1", explanation: "Gateway = R1 Gi0/0." },
+            ],
+          },
+          {
+            device: "PC1",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.2.10\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.2.1", explanation: "Gateway = R2 Gi0/0." },
+            ],
+          },
+          {
+            device: "PC2",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.3.10\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.3.1", explanation: "Gateway = R3 Gi0/0." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Konvergenz & Verifikation (pro Gerät)",
         blocks: [
           {
             device: "R1",
@@ -1825,14 +1943,42 @@ export const LABS: LabScenario[] = [
             modeLabel: "R1#",
             commands: [
               {
-                cmd: "show ip route rip",
+                cmd: "show ip route rip\nshow ip protocols",
                 explanation:
-                  "R-Einträge mit [120/1] und [120/2]: AD 120, Metrik = Hop-Count. 192.168.3.0/24 hat 2 Hops (über R2 und R3).",
+                  "Erwartet: 'R 192.168.2.0/24 [120/1] via 10.0.12.2' und 'R 192.168.3.0/24 [120/2] via 10.0.12.2'. show ip protocols zeigt Version 2, passive Gi0/0, Timer 30/180/240 s.",
               },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
               {
-                cmd: "show ip protocols",
-                explanation:
-                  "Zeigt Timer (Update 30s, Invalid 180s, Flush 240s), Version und passive Interfaces — die Timer sind Prüfungsstoff.",
+                cmd: "show ip route rip",
+                explanation: "R2 sieht 'R 192.168.1.0/24 [120/1] via 10.0.12.1' und 'R 192.168.3.0/24 [120/1] via 10.0.23.2'.",
+              },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "privileged",
+            modeLabel: "R3#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation: "R3 sieht 'R 192.168.2.0/24 [120/1] via 10.0.23.1' und 'R 192.168.1.0/24 [120/2] via 10.0.23.1'.",
+              },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0> (Command Prompt)",
+            commands: [
+              {
+                cmd: "ping 192.168.3.10\ntracert 192.168.3.10",
+                explanation: "Ende-zu-Ende über 2 Router-Hops; tracert zeigt PC0 → R1 → R2 → R3 → PC2.",
               },
             ],
           },
@@ -1890,95 +2036,215 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "1) Grundkonfiguration prüfen (alle Interfaces up/up)",
+        title: "1) R1 — komplett (hostname → Interfaces → RIPv2 → passive)",
         blocks: [
           {
             device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
+            mode: "global",
+            modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "show ip interface brief",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
                 explanation:
-                  "Alle genutzten Interfaces müssen up/up zeigen. IP-Plan exakt nach Tabelle setzen — eine falsche /30- oder /29-Maske bricht RIP später lautlos.",
+                  "Basis: Privileged-Mode, Hostname, verschlüsseltes Enable-Passwort, und no ip domain-lookup gegen Tippfehler-Hänger.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/0\nip address 172.16.0.254 255.255.255.0\nno shutdown\nexit\ninterface GigabitEthernet0/1\nip address 10.1.0.1 255.255.255.252\nno shutdown\nexit",
+                explanation:
+                  "Gi0/0 = PC0-LAN (.254 Gateway), Gi0/1 = WAN-/30 zu R2 (.1). Beide mit no shutdown aktivieren.",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 172.16.0.0\nnetwork 10.0.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "version 2 = classless, no auto-summary verhindert die Zusammenfassung an der Klassengrenze. network für BEIDE direkt verbundenen classful-Netze (172.16.0.0 LAN, 10.0.0.0 WAN). passive-interface Gi0/0 = keine RIP-Updates ins PC-LAN.",
               },
             ],
           },
         ],
       },
       {
-        title: "2) RIPv2 auf allen vier Routern aktivieren",
+        title: "2) R2 — komplett (Transit-Router, kein LAN)",
         blocks: [
           {
             device: "R2",
-            mode: "router",
-            modeLabel: "R2(config-router)#",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 10.0.0.0",
-                explanation:
-                  "R2 hat nur 10er-Netze (10.1.0.0/30 + 10.0.0.8/29) → eine classful network-Zeile 10.0.0.0 genügt. version 2 = classless, no auto-summary verhindert die Zusammenfassung an der Klassengrenze.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "! R1: network 172.16.0.0 + network 10.0.0.0\n! R3: network 192.168.0.0 + network 10.0.0.0\n! R4: network 192.168.1.0 + network 10.0.0.0",
+                cmd: "interface GigabitEthernet0/1\nip address 10.1.0.2 255.255.255.252\nno shutdown\nexit\ninterface GigabitEthernet0/0\nip address 10.0.0.9 255.255.255.248\nno shutdown\nexit",
                 explanation:
-                  "Jeder Router bekommt ALLE direkt verbundenen classful-Netze. R3/R4 hängen am selben Transit-Segment 10.0.0.8/29 und lernen die Gegenseite über RIP.",
+                  "Gi0/1 = WAN-/30 zu R1 (.2), Gi0/0 = Transit-Segment 10.0.0.8/29 zu SW1 (.9). Beide no shutdown.",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 10.0.0.0\nexit",
+                explanation:
+                  "R2 hat NUR 10er-Netze (10.1.0.0/30 + 10.0.0.8/29) → eine classful network-Zeile 10.0.0.0 genügt. KEIN passive-interface — beide Interfaces zeigen zu Routern.",
               },
             ],
           },
         ],
       },
       {
-        title: "3) Passive Interface auf den LAN-Seiten",
+        title: "3) R3 — komplett (LAN 192.168.0.0/24, Server0)",
         blocks: [
           {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
             commands: [
               {
-                cmd: "passive-interface GigabitEthernet0/0",
-                explanation:
-                  "R1 Gi0/0 zeigt ins PC-LAN — dort ist kein RIP-Nachbar. passive-interface sendet/empfängt dort keine Updates mehr (spart Bandbreite, verhindert Manipulation).",
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "! Gleiches auf R3 Gi0/0 (Server0-LAN) und R4 Gi0/0 (Server1-LAN)",
+                cmd: "interface GigabitEthernet0/1\nip address 10.0.0.10 255.255.255.248\nno shutdown\nexit\ninterface GigabitEthernet0/0\nip address 192.168.0.254 255.255.255.0\nno shutdown\nexit",
                 explanation:
-                  "Auf R3 und R4 ebenfalls das LAN-Interface passiv setzen. NICHT die 10er-Transit-Interfaces — dort müssen die Router Nachbarn bleiben!",
+                  "Gi0/1 = Transit-Segment (.10), Gi0/0 = Server0-LAN (.254 Gateway). Beide no shutdown.",
+              },
+              {
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 10.0.0.0\nnetwork 192.168.0.0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "network für beide classful-Netze (10.0.0.0 Transit, 192.168.0.0 LAN). passive-interface Gi0/0 = keine Updates ins Server-LAN; das Transit-Interface bleibt aktiv.",
               },
             ],
           },
         ],
       },
       {
-        title: "4) Verifikation & erwartete Routen",
+        title: "4) R4 — komplett (LAN 192.168.1.0/24, Server1)",
         blocks: [
           {
-            device: "R1",
-            mode: "privileged",
-            modeLabel: "R1#",
+            device: "R4",
+            mode: "global",
+            modeLabel: "R4(config)#",
             commands: [
               {
-                cmd: "show ip route rip",
-                explanation:
-                  "Erwartet auf R1: 'R 192.168.0.0/24 [120/3] via 10.1.0.2' und 'R 192.168.1.0/24 [120/3] via 10.1.0.2'. [120/3] = AD 120, 3 Hops.",
+                cmd: "enable\nconfigure terminal\nhostname R4\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "show ip protocols",
+                cmd: "interface GigabitEthernet0/1\nip address 10.0.0.11 255.255.255.248\nno shutdown\nexit\ninterface GigabitEthernet0/0\nip address 192.168.1.254 255.255.255.0\nno shutdown\nexit",
                 explanation:
-                  "Zeigt 'send version 2, receive 2', die passiven Interfaces und die Timer (30/180/240 s). Bestätigt classless RIP.",
+                  "Gi0/1 = Transit-Segment (.11), Gi0/0 = Server1-LAN (.254 Gateway). Beide no shutdown.",
               },
               {
-                cmd: "show ip rip database",
+                cmd: "router rip\nversion 2\nno auto-summary\nnetwork 10.0.0.0\nnetwork 192.168.1.0\npassive-interface GigabitEthernet0/0\nexit",
                 explanation:
-                  "Die RIP-Datenbank listet jedes gelernte Subnetz mit Metrik und Quelle — gut, um fehlende network-Anweisungen zu finden.",
+                  "network für 10.0.0.0 (Transit) und 192.168.1.0 (LAN). passive-interface Gi0/0 ins Server-LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) SW1 + Endgeräte (PC0, Server0, Server1)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname SW1",
+                explanation:
+                  "Der 2960 ist reiner Layer-2-Transit für das Segment 10.0.0.8/29 — alle Ports bleiben im Default-VLAN 1 (Access), keine IP nötig. Nur Hostname zur Wiedererkennung.",
               },
             ],
           },
           {
             device: "PC0",
             mode: "desktop",
-            modeLabel: "PC0>",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "IP-Adresse:    172.16.0.101\nSubnetzmaske:  255.255.255.0\nGateway:       172.16.0.254",
+                explanation: "Statisch am PC0. Gateway = R1 Gi0/0.",
+              },
+            ],
+          },
+          {
+            device: "Server0",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "IP-Adresse:    192.168.0.11\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.0.254",
+                explanation: "Gateway = R3 Gi0/0.",
+              },
+            ],
+          },
+          {
+            device: "Server1",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "IP-Adresse:    192.168.1.11\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.1.254",
+                explanation: "Gateway = R4 Gi0/0.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Verifikation — jedes Gerät einzeln",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip route rip\nshow ip protocols",
+                explanation:
+                  "Erwartet: 'R 192.168.0.0/24 [120/2] via 10.1.0.2' und 'R 192.168.1.0/24 [120/2] via 10.1.0.2' — [120/2] = AD 120, 2 Hops (über R2 → R3/R4). show ip protocols zeigt send/receive version 2, passive interface Gi0/0, Timer 30/180/240 s.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
+              {
+                cmd: "show ip route rip\nshow ip rip database",
+                explanation:
+                  "R2 lernt 172.16.0.0/24 [120/1] (von R1) sowie 192.168.0.0/24 und 192.168.1.0/24 je [120/1] (von R3/R4). Die RIP-Datenbank listet jedes Subnetz mit Metrik/Quelle.",
+              },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "privileged",
+            modeLabel: "R3#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation:
+                  "R3 sieht 172.16.0.0/24 [120/2] (via R2) und 192.168.1.0/24 [120/2] (R4 über dasselbe Segment, via R2).",
+              },
+            ],
+          },
+          {
+            device: "R4",
+            mode: "privileged",
+            modeLabel: "R4#",
+            commands: [
+              {
+                cmd: "show ip route rip",
+                explanation:
+                  "R4 sieht 172.16.0.0/24 [120/2] und 192.168.0.0/24 [120/2].",
+              },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0> (Command Prompt)",
             commands: [
               {
                 cmd: "ping 192.168.0.11\nping 192.168.1.11\ntracert 192.168.0.11",
@@ -1991,8 +2257,8 @@ export const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      { cmd: "show ip route rip (auf R1)", expected: "R 192.168.0.0/24 [120/3] via 10.1.0.2 + R 192.168.1.0/24 [120/3] via 10.1.0.2" },
-      { cmd: "show ip protocols", expected: "send version 2 / receive 2, passive interfaces: Gi0/0" },
+      { cmd: "show ip route rip (R1)", expected: "R 192.168.0.0/24 [120/2] via 10.1.0.2 + R 192.168.1.0/24 [120/2] via 10.1.0.2" },
+      { cmd: "show ip protocols (R1/R3/R4)", expected: "send version 2 / receive 2, passive interfaces: Gi0/0" },
       { cmd: "ping 192.168.0.11 / 192.168.1.11 (PC0)", expected: "Beide erfolgreich" },
     ],
     glossary: [
@@ -2000,7 +2266,7 @@ export const LABS: LabScenario[] = [
       { term: "no auto-summary", def: "Verhindert die Zusammenfassung an Klassengrenzen — bei /30+/29 im 10er-Netz Pflicht." },
       { term: "passive-interface", def: "Kein RIP-Senden/Empfangen auf dem Interface — für LAN-Seiten ohne Nachbar-Router." },
       { term: "network (classful)", def: "RIP nimmt das classful-Netz (10.0.0.0) ohne Wildcard — aktiviert alle Interfaces darin." },
-      { term: "[120/3]", def: "AD 120 (RIP), Metrik 3 Hops bis zum Zielnetz." },
+      { term: "[120/2]", def: "AD 120 (RIP), Metrik 2 Hops bis zum Zielnetz (R1 → R2 → R3/R4)." },
     ],
   },
 
@@ -2104,7 +2370,7 @@ export const LABS: LabScenario[] = [
         ],
       },
       {
-        title: "R2 & R3 analog konfigurieren",
+        title: "R2 und R3 vollständig konfigurieren",
         blocks: [
           {
             device: "R2",
@@ -2188,46 +2454,114 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "1) Loopbacks als stabile Router-ID",
+        title: "1) R1 — komplett (Loopback-RID, Interfaces, OSPF)",
         blocks: [
           {
             device: "R1",
-            mode: "interface",
+            mode: "global",
             modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "interface loopback 0\nip address 1.1.1.1 255.255.255.255",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
+                explanation: "Basis: Hostname, Enable-Secret, no ip domain-lookup.",
+              },
+              {
+                cmd: "interface loopback 0\nip address 1.1.1.1 255.255.255.255\nexit",
                 explanation:
-                  "Ein Loopback ist immer up/up → ideale, stabile RID. R2 bekommt 2.2.2.2/32, R3 3.3.3.3/32. RID-Auswahl: manuell > höchste Loopback-IP > höchste physische IP.",
+                  "Loopback ist immer up/up → stabile RID. RID-Auswahl: manuell > höchste Loopback-IP > höchste physische IP.",
+              },
+              {
+                cmd: "interface gi0/0\nip address 192.168.1.254 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 192.168.10.1 255.255.255.252\nno shutdown\nexit",
+                explanation: "Gi0/0 = LAN 192.168.1.0/24 (PC-links, Gateway .254), Gi0/1 = /30-Link zu R2 (.1).",
+              },
+              {
+                cmd: "router ospf 1\nrouter-id 1.1.1.1\nnetwork 192.168.1.0 0.0.0.255 area 0\nnetwork 192.168.10.0 0.0.0.3 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "router-id explizit. LAN /24 → Wildcard 0.0.0.255, Link /30 → 0.0.0.3, alle in area 0. passive-interface Gi0/0 (LAN ohne Nachbar-Router).",
               },
             ],
           },
         ],
       },
       {
-        title: "2) OSPF Single-Area auf allen drei Routern",
+        title: "2) R2 — komplett (Transit, zwei /30-Links)",
         blocks: [
           {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
+            device: "R2",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router ospf 1\nrouter-id 1.1.1.1\nnetwork 192.168.1.0 0.0.0.255 area 0\nnetwork 192.168.10.0 0.0.0.3 area 0",
-                explanation:
-                  "router-id explizit setzen (überschreibt die Auto-Wahl). LAN /24 → Wildcard 0.0.0.255, Link /30 → Wildcard 0.0.0.3. Alle Netze in area 0 = Single-Area.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "! R2: router-id 2.2.2.2 · network 192.168.10.0 0.0.0.3 area 0 · network 192.168.20.0 0.0.0.3 area 0\n! R3: router-id 3.3.3.3 · network 192.168.20.0 0.0.0.3 area 0 · network 192.168.4.0 0.0.0.255 area 0",
-                explanation:
-                  "R2 verbindet beide /30-Links, R3 trägt das rechte LAN. Jeder Router kündigt nur seine direkt verbundenen Netze an.",
+                cmd: "interface loopback 0\nip address 2.2.2.2 255.255.255.255\nexit",
+                explanation: "Loopback-RID 2.2.2.2.",
+              },
+              {
+                cmd: "interface gi0/2\nip address 192.168.10.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/1\nip address 192.168.20.1 255.255.255.252\nno shutdown\nexit",
+                explanation: "Gi0/2 = /30 zu R1 (.2), Gi0/1 = /30 zu R3 (.1). R2 hat kein LAN.",
+              },
+              {
+                cmd: "router ospf 1\nrouter-id 2.2.2.2\nnetwork 192.168.10.0 0.0.0.3 area 0\nnetwork 192.168.20.0 0.0.0.3 area 0\nexit",
+                explanation: "Beide /30-Links in area 0. Kein passive-interface — beide Interfaces zeigen zu Routern.",
               },
             ],
           },
         ],
       },
       {
-        title: "3) Verifikation — Nachbarn müssen FULL sein",
+        title: "3) R3 — komplett (LAN 192.168.4.0/24, PC-rechts)",
+        blocks: [
+          {
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface loopback 0\nip address 3.3.3.3 255.255.255.255\nexit",
+                explanation: "Loopback-RID 3.3.3.3.",
+              },
+              {
+                cmd: "interface gi0/2\nip address 192.168.20.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.4.254 255.255.255.0\nno shutdown\nexit",
+                explanation: "Gi0/2 = /30 zu R2 (.2), Gi0/0 = LAN 192.168.4.0/24 (PC-rechts, Gateway .254).",
+              },
+              {
+                cmd: "router ospf 1\nrouter-id 3.3.3.3\nnetwork 192.168.20.0 0.0.0.3 area 0\nnetwork 192.168.4.0 0.0.0.255 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "Link /30 + LAN /24 in area 0. passive-interface Gi0/0 ins LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Endgeräte (PC-links, PC-rechts)",
+        blocks: [
+          {
+            device: "PC-links",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.1.11\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.1.254", explanation: "Gateway = R1 Gi0/0." },
+            ],
+          },
+          {
+            device: "PC-rechts",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.4.11\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.4.254", explanation: "Gateway = R3 Gi0/0." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Verifikation (pro Gerät) + Wildcard-Drill",
         blocks: [
           {
             device: "R2",
@@ -2235,31 +2569,43 @@ export const LABS: LabScenario[] = [
             modeLabel: "R2#",
             commands: [
               {
-                cmd: "show ip ospf neighbor",
+                cmd: "show ip ospf neighbor\nshow ip ospf interface brief",
                 explanation:
-                  "Erwartet: R2 sieht R1 (1.1.1.1) UND R3 (3.3.3.3) als FULL. R1 und R3 sehen jeweils nur R2 (2.2.2.2) als FULL.",
-              },
-              {
-                cmd: "show ip ospf interface brief\nshow ip route ospf",
-                explanation:
-                  "interface brief zeigt die OSPF-Interfaces + Cost. route ospf zeigt die gelernten 'O'-Routen (entfernte LANs).",
+                  "R2 sieht R1 (1.1.1.1) UND R3 (3.3.3.3) als FULL. interface brief zeigt die OSPF-Interfaces + Cost.",
               },
             ],
           },
-        ],
-      },
-      {
-        title: "4) Wildcard-Drill & Konnektivität",
-        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "show ip ospf neighbor\nshow ip route ospf",
+                explanation: "R1 sieht nur R2 (2.2.2.2) als FULL. route ospf zeigt 'O 192.168.4.0/24 [110/x] via 192.168.10.2'.",
+              },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "privileged",
+            modeLabel: "R3#",
+            commands: [
+              {
+                cmd: "show ip route ospf",
+                explanation: "R3 sieht 'O 192.168.1.0/24 [110/x] via 192.168.20.1'.",
+              },
+            ],
+          },
           {
             device: "PC-links",
             mode: "desktop",
-            modeLabel: "PC-links>",
+            modeLabel: "PC-links> (Command Prompt)",
             commands: [
               {
                 cmd: "ping 192.168.4.11\ntracert 192.168.4.11",
                 explanation:
-                  "Ende-zu-Ende-Test über R1 → R2 → R3. Wildcard-Übung: /24→0.0.0.255 · /25→0.0.0.127 · /16→0.0.255.255 · /30→0.0.0.3 · /8→0.255.255.255.",
+                  "Ende-zu-Ende über R1 → R2 → R3. Wildcard-Übung zum Mitrechnen: /24→0.0.0.255 · /25→0.0.0.127 · /16→0.0.255.255 · /30→0.0.0.3 · /8→0.255.255.255.",
               },
             ],
           },
@@ -2314,68 +2660,140 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "1) Interfaces + Loopback (Loopback = RID-Quelle)",
+        title: "1) R1 — komplett (Loopback-RID, Segment, LAN, OSPF)",
         blocks: [
           {
             device: "R1",
-            mode: "interface",
+            mode: "global",
             modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "interface gi0/1\nip address 10.1.0.1 255.255.255.248\nno shutdown\ninterface gi0/0\nip address 192.168.1.254 255.255.255.0\nno shutdown\ninterface loopback 0\nip address 192.168.254.1 255.255.255.255",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
+                explanation: "Basis: Hostname, Enable-Secret, no ip domain-lookup.",
+              },
+              {
+                cmd: "interface loopback 0\nip address 192.168.254.1 255.255.255.255\nexit\ninterface gi0/1\nip address 10.1.0.1 255.255.255.248\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.1.254 255.255.255.0\nno shutdown\nexit",
                 explanation:
-                  "Segment-IP /29, LAN-Gateway, und ein Loopback. Ohne manuelle router-id nimmt OSPF die HÖCHSTE Loopback-IP als RID. R2/R3/R4 analog mit .2/.3/.4.",
+                  "Loopback (= RID-Quelle), Gi0/1 = Broadcast-Segment 10.1.0.0/29 (.1), Gi0/0 = LAN 192.168.1.0/24 (Gateway .254).",
+              },
+              {
+                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.1.0 0.0.0.255 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation:
+                  "Segment (/29 → Wildcard 0.0.0.7) und LAN in Area 0. Ohne manuelle router-id nimmt OSPF die höchste Loopback-IP als RID (192.168.254.1). passive-interface Gi0/0 ins LAN — das Segment-Interface bleibt aktiv (dort läuft die Wahl).",
               },
             ],
           },
         ],
       },
       {
-        title: "2) OSPF aktivieren — Default-Wahl beobachten",
+        title: "2) R2 — komplett",
         blocks: [
           {
-            device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
+            device: "R2",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.1.0 0.0.0.255 area 0",
-                explanation:
-                  "Segment (/29 → Wildcard 0.0.0.7) und LAN in Area 0. Auf allen vier Routern. Loopback kann mit 'network 192.168.254.x 0.0.0.0 area 0' ebenfalls angekündigt werden.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "! Default: alle Priority 1 → RID entscheidet\n! DR  = höchste RID = R4 (192.168.254.4)\n! BDR = zweithöchste RID = R3 (192.168.254.3)\n! R1, R2 = DROTHER",
-                explanation:
-                  "Bei gleicher Priority (Default 1) gewinnt die höchste Router-ID. Die Loopbacks .1–.4 sind die RIDs → R4 wird DR, R3 BDR. Das ist der Loopback-Tiebreaker in Aktion.",
+                cmd: "interface loopback 0\nip address 192.168.254.2 255.255.255.255\nexit\ninterface gi0/1\nip address 10.1.0.2 255.255.255.248\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.2.254 255.255.255.0\nno shutdown\nexit",
+                explanation: "Loopback-RID .2, Segment .2, LAN 192.168.2.0/24.",
+              },
+              {
+                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.2.0 0.0.0.255 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "Segment + LAN in Area 0, passive ins LAN.",
               },
             ],
           },
         ],
       },
       {
-        title: "3) Election per Priority steuern",
+        title: "3) R3 — komplett",
         blocks: [
           {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config-if)#",
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
             commands: [
               {
-                cmd: "interface gi0/1\nip ospf priority 255",
-                explanation:
-                  "Priority (0–255, Default 1) wird PRO Interface auf dem Segment gesetzt und schlägt die RID. 255 = stärkster DR-Kandidat. R1 soll DR werden.",
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
               {
-                cmd: "! R2: ip ospf priority 100   (→ BDR)\n! R3: ip ospf priority 0     (→ nie DR/BDR, bleibt DROTHER)\n! R4: Priority 1 (Default)",
-                explanation:
-                  "Priority 0 nimmt einen Router komplett aus der Wahl (dauerhaft DROTHER). So bestimmst du DR/BDR gezielt statt über die zufällige RID.",
+                cmd: "interface loopback 0\nip address 192.168.254.3 255.255.255.255\nexit\ninterface gi0/1\nip address 10.1.0.3 255.255.255.248\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.3.254 255.255.255.0\nno shutdown\nexit",
+                explanation: "Loopback-RID .3, Segment .3, LAN 192.168.3.0/24.",
+              },
+              {
+                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.3.0 0.0.0.255 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "Segment + LAN in Area 0, passive ins LAN.",
               },
             ],
           },
         ],
       },
       {
-        title: "4) Neuwahl erzwingen (Wahl ist NICHT preemptiv!)",
+        title: "4) R4 — komplett",
+        blocks: [
+          {
+            device: "R4",
+            mode: "global",
+            modeLabel: "R4(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname R4\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface loopback 0\nip address 192.168.254.4 255.255.255.255\nexit\ninterface gi0/1\nip address 10.1.0.4 255.255.255.248\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.4.254 255.255.255.0\nno shutdown\nexit",
+                explanation: "Loopback-RID .4 (höchste!), Segment .4, LAN 192.168.4.0/24.",
+              },
+              {
+                cmd: "router ospf 1\nnetwork 10.1.0.0 0.0.0.7 area 0\nnetwork 192.168.4.0 0.0.0.255 area 0\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "Segment + LAN in Area 0, passive ins LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Sw1 (Broadcast-Domäne) + Endgeräte",
+        blocks: [
+          {
+            device: "Sw1",
+            mode: "global",
+            modeLabel: "Sw1(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname Sw1",
+                explanation: "Reiner Layer-2-Switch für das Segment 10.1.0.0/29 (alle 4 Router hängen dran) — Default-VLAN 1, keine IP nötig.",
+              },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.1.11\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.1.254", explanation: "R1-LAN." },
+            ],
+          },
+          {
+            device: "Server0 / Server1 / Server2",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              {
+                cmd: "Server0:  192.168.2.11  / 255.255.255.0 / GW 192.168.2.254\nServer1:  192.168.3.11  / 255.255.255.0 / GW 192.168.3.254\nServer2:  192.168.4.11  / 255.255.255.0 / GW 192.168.4.254",
+                explanation: "Je ein Host in den LANs von R2/R3/R4.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Default-Wahl beobachten (vor Priority)",
         blocks: [
           {
             device: "R1",
@@ -2383,16 +2801,97 @@ export const LABS: LabScenario[] = [
             modeLabel: "R1#",
             commands: [
               {
-                cmd: "clear ip ospf process",
+                cmd: "show ip ospf neighbor",
                 explanation:
-                  "Ein bestehender DR bleibt DR, auch wenn später ein Router mit höherer Priority dazukommt (non-preemptive). Erst 'clear ip ospf process' (auf allen Routern des Segments, mit 'yes' bestätigen) erzwingt die Neuwahl → jetzt DR=R1, BDR=R2.",
+                  "Alle Priority 1 (Default) → höchste RID gewinnt: DR = R4 (192.168.254.4), BDR = R3 (192.168.254.3). R1 sieht R4 als FULL/DR, R3 als FULL/BDR, R2 als 2-WAY/DROTHER. Das ist der Loopback-Tiebreaker.",
               },
             ],
           },
         ],
       },
       {
-        title: "5) Verifikation — DR/BDR/DROTHER & States",
+        title: "7) Election per Priority steuern (pro Router)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "interface",
+            modeLabel: "R1(config-if)#",
+            commands: [
+              {
+                cmd: "interface gi0/1\nip ospf priority 255\nexit",
+                explanation: "Priority 255 = stärkster DR-Kandidat → R1 soll DR werden. Priority (0–255) wird PRO Segment-Interface gesetzt und schlägt die RID.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "interface",
+            modeLabel: "R2(config-if)#",
+            commands: [
+              { cmd: "interface gi0/1\nip ospf priority 100\nexit", explanation: "Priority 100 → R2 soll BDR werden." },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "interface",
+            modeLabel: "R3(config-if)#",
+            commands: [
+              { cmd: "interface gi0/1\nip ospf priority 0\nexit", explanation: "Priority 0 = dauerhaft DROTHER (nie wählbar)." },
+            ],
+          },
+          {
+            device: "R4",
+            mode: "interface",
+            modeLabel: "R4(config-if)#",
+            commands: [
+              { cmd: "! R4 behält Priority 1 (Default) — keine Änderung nötig", explanation: "R4 bleibt auf Default-Priority 1 → wird nach der Neuwahl DROTHER." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "8) Neuwahl erzwingen (Wahl ist NICHT preemptiv!)",
+        blocks: [
+          {
+            device: "R1",
+            mode: "privileged",
+            modeLabel: "R1#",
+            commands: [
+              {
+                cmd: "clear ip ospf process\n(Bestätigen mit: yes)",
+                explanation:
+                  "Ein bestehender DR bleibt DR, auch wenn später ein Router mit höherer Priority dazukommt (non-preemptive). 'clear ip ospf process' erzwingt die Neuwahl.",
+              },
+            ],
+          },
+          {
+            device: "R2",
+            mode: "privileged",
+            modeLabel: "R2#",
+            commands: [
+              { cmd: "clear ip ospf process\n(Bestätigen mit: yes)", explanation: "Auf JEDEM Router des Segments ausführen." },
+            ],
+          },
+          {
+            device: "R3",
+            mode: "privileged",
+            modeLabel: "R3#",
+            commands: [
+              { cmd: "clear ip ospf process\n(Bestätigen mit: yes)", explanation: "Auch auf R3." },
+            ],
+          },
+          {
+            device: "R4",
+            mode: "privileged",
+            modeLabel: "R4#",
+            commands: [
+              { cmd: "clear ip ospf process\n(Bestätigen mit: yes)", explanation: "Auch auf R4. Ergebnis nach Neuwahl: DR = R1 (Priority 255), BDR = R2 (Priority 100), R3/R4 = DROTHER." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "9) Verifikation — DR/BDR/DROTHER & States",
         blocks: [
           {
             device: "R1",
@@ -2563,39 +3062,111 @@ export const LABS: LabScenario[] = [
     },
     steps: [
       {
-        title: "EIGRP mit gleicher AS-Nummer starten",
+        title: "1) R1 — komplett (LAN + 2 WAN-Links + EIGRP)",
         blocks: [
           {
             device: "R1",
-            mode: "router",
-            modeLabel: "R1(config-router)#",
+            mode: "global",
+            modeLabel: "R1(config)#",
             commands: [
               {
-                cmd: "router eigrp 100",
-                explanation:
-                  "Die AS-Nummer (100) MUSS auf allen Routern identisch sein, sonst entsteht keine Nachbarschaft — der häufigste EIGRP-Fehler in der Prüfung.",
+                cmd: "enable\nconfigure terminal\nhostname R1\nenable secret class\nno ip domain-lookup",
+                explanation: "Basis: Hostname, Enable-Secret, no ip domain-lookup.",
               },
               {
-                cmd: "network 192.168.1.0 0.0.0.255\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.13.0 0.0.0.3",
-                explanation:
-                  "EIGRP nutzt Wildcard-Masken wie OSPF (Maske invertiert: /30 → 0.0.0.3). Präziser als RIPs classful network-Befehl.",
+                cmd: "interface gi0/0\nip address 192.168.1.1 255.255.255.0\nno shutdown\nexit\ninterface gi0/1\nip address 10.0.12.1 255.255.255.252\nno shutdown\nexit\ninterface gi0/2\nip address 10.0.13.1 255.255.255.252\nno shutdown\nexit",
+                explanation: "Gi0/0 = LAN 192.168.1.0/24 (Gateway .1), Gi0/1 = /30 zu R2 (.1), Gi0/2 = /30 zu R3 (.1) — das Dreieck.",
               },
               {
-                cmd: "no auto-summary\npassive-interface gi0/0",
+                cmd: "router eigrp 100\nnetwork 192.168.1.0 0.0.0.255\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.13.0 0.0.0.3\nno auto-summary\npassive-interface GigabitEthernet0/0\nexit",
                 explanation:
-                  "Auto-Summary deaktivieren (wie bei RIP), keine Hellos ins LAN.",
+                  "AS-Nummer 100 MUSS auf allen Routern identisch sein (sonst keine Nachbarschaft). EIGRP nutzt Wildcard-Masken (/30 → 0.0.0.3). no auto-summary + passive ins LAN.",
               },
             ],
           },
+        ],
+      },
+      {
+        title: "2) R2 — komplett (Transit, zwei /30-Links)",
+        blocks: [
           {
             device: "R2",
-            mode: "router",
-            modeLabel: "R2(config-router)#",
+            mode: "global",
+            modeLabel: "R2(config)#",
             commands: [
               {
-                cmd: "router eigrp 100\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary",
-                explanation: "R2 ist reiner Transit-Router. R3 analog mit seinen Netzen.",
+                cmd: "enable\nconfigure terminal\nhostname R2\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
               },
+              {
+                cmd: "interface gi0/1\nip address 10.0.12.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/2\nip address 10.0.23.1 255.255.255.252\nno shutdown\nexit",
+                explanation: "Gi0/1 = /30 zu R1 (.2), Gi0/2 = /30 zu R3 (.1). R2 hat kein LAN.",
+              },
+              {
+                cmd: "router eigrp 100\nnetwork 10.0.12.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary\nexit",
+                explanation: "Gleiche AS 100. Beide /30-Links. Kein passive-interface — beide Interfaces zeigen zu Routern.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) R3 — komplett (LAN + 2 WAN-Links)",
+        blocks: [
+          {
+            device: "R3",
+            mode: "global",
+            modeLabel: "R3(config)#",
+            commands: [
+              {
+                cmd: "enable\nconfigure terminal\nhostname R3\nenable secret class\nno ip domain-lookup",
+                explanation: "Basiskonfiguration wie auf R1.",
+              },
+              {
+                cmd: "interface gi0/1\nip address 10.0.13.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/2\nip address 10.0.23.2 255.255.255.252\nno shutdown\nexit\ninterface gi0/0\nip address 192.168.3.1 255.255.255.0\nno shutdown\nexit",
+                explanation: "Gi0/1 = /30 zu R1 (.2), Gi0/2 = /30 zu R2 (.2), Gi0/0 = LAN 192.168.3.0/24 (Gateway .1).",
+              },
+              {
+                cmd: "router eigrp 100\nnetwork 192.168.3.0 0.0.0.255\nnetwork 10.0.13.0 0.0.0.3\nnetwork 10.0.23.0 0.0.0.3\nno auto-summary\npassive-interface GigabitEthernet0/0\nexit",
+                explanation: "Gleiche AS 100. LAN + beide /30-Links. no auto-summary + passive ins LAN.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Switches (SW1, SW3) + Endgeräte (PC0, PC1)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "global",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "enable\nconfigure terminal\nhostname SW1", explanation: "Access-Switch im R1-LAN, Default-VLAN 1." },
+            ],
+          },
+          {
+            device: "SW3",
+            mode: "global",
+            modeLabel: "SW3(config)#",
+            commands: [
+              { cmd: "enable\nconfigure terminal\nhostname SW3", explanation: "Access-Switch im R3-LAN, Default-VLAN 1." },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.1.10\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.1.1", explanation: "Gateway = R1 Gi0/0." },
+            ],
+          },
+          {
+            device: "PC1",
+            mode: "desktop",
+            modeLabel: "Desktop → IP Configuration",
+            commands: [
+              { cmd: "IP-Adresse:    192.168.3.10\nSubnetzmaske:  255.255.255.0\nGateway:       192.168.3.1", explanation: "Gateway = R3 Gi0/0." },
             ],
           },
         ],
@@ -4874,6 +5445,13 @@ export const LABS: LabScenario[] = [
               { cmd: "exit", explanation: "" },
               { cmd: "class class-default", explanation: "Alle nicht-erwähnten Pakete." },
               { cmd: "drop", explanation: "Silently droppen (Default-Verhalten)." },
+              { cmd: "exit", explanation: "Zurück in den Global-Config-Modus." },
+              { cmd: "policy-map type inspect NET-DMZ-POLICY", explanation: "Zweite Policy: Internet → DMZ (nur Webzugriff)." },
+              { cmd: "class type inspect NET-TO-DMZ-WEB", explanation: "Verwendet die Class für Internet→DMZ:80/443 (oben definiert)." },
+              { cmd: "inspect", explanation: "Stateful Inspection für eingehenden Webverkehr zum DMZ-Server." },
+              { cmd: "exit", explanation: "" },
+              { cmd: "class class-default", explanation: "Aller übrige Internet→DMZ-Verkehr." },
+              { cmd: "drop", explanation: "Silently droppen — nur :80/:443 dürfen in die DMZ." },
             ],
           },
         ],
@@ -4890,7 +5468,7 @@ export const LABS: LabScenario[] = [
               { cmd: "service-policy type inspect LAN-NET-POLICY", explanation: "Wendet die Policy an." },
               { cmd: "exit", explanation: "" },
               { cmd: "zone-pair security OUTSIDE-TO-DMZ source OUTSIDE destination DMZ", explanation: "Internet → DMZ." },
-              { cmd: "service-policy type inspect NET-DMZ-POLICY", explanation: "(Diese Policy analog zu LAN-NET-POLICY, aber mit class NET-TO-DMZ-WEB)" },
+              { cmd: "service-policy type inspect NET-DMZ-POLICY", explanation: "Wendet die NET-DMZ-POLICY an (im vorigen Schritt definiert)." },
             ],
           },
         ],
