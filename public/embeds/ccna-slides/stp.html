@@ -10,157 +10,52 @@
   #wrap{position:relative;width:100%;overflow:hidden;}
   #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
   #stage > section{width:1920px;height:1080px;}
+  [data-act]{cursor:pointer;}
 </style>
 </head>
 <body>
-<div id="wrap"><div id="stage">
-<section data-label="Spanning Tree Protocol" data-speaker-notes="Klick durch die 5 Phasen des STP-Wahlprozesses: BPDU-Austausch, Root-Wahl, Root-Ports, Designated-Ports, Blocking." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
-  <div style="display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #6366f1;flex-shrink:0;">
-    <div style="background:#6366f1;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">LAYER 2</div>
-    <div>
-      <h1 style="margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;">Spanning Tree Protocol <span style="color:#818cf8;">(STP)</span></h1>
-      <p style="margin:6px 0 0;font-size:23px;color:#94a3b8;">Schleifen verhindern · IEEE 802.1D · <strong style="color:#a78bfa;">Klick rechts durch den Wahlprozess →</strong></p>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1.6fr 3fr;gap:20px;flex:1;min-height:0;">
-    <div style="display:flex;flex-direction:column;gap:14px;overflow:hidden;">
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;">
-        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">WAS IST STP?</div>
-        <ul style="margin:0;padding-left:22px;font-size:22px;line-height:1.8;color:#cbd5e1;">
-          <li>Verhindert Ethernet-<strong style="color:#fb7185;">Loops</strong> auf Layer 2</li>
-          <li>Erzeugt eine <strong style="color:#f8fafc;">schleifenfreie Topologie</strong></li>
-          <li>Standard <strong style="color:#818cf8;">IEEE 802.1D</strong>, läuft automatisch</li>
-          <li>Ohne STP → <span style="color:#fb7185;">Broadcast-Sturm</span>, MAC-Flapping</li>
-        </ul>
-      </div>
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;">
-        <div style="background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">PORT-ZUSTÄNDE</div>
-        <div style="display:flex;flex-direction:column;gap:9px;font-size:21px;">
-          <div style="display:flex;align-items:center;gap:11px;"><div style="width:13px;height:13px;border-radius:50%;background:#3d4a5e;flex-shrink:0;"></div><span><strong style="color:#f8fafc;">Blocking</strong><span style="color:#5b6a80;"> · empfängt nur BPDUs</span></span></div>
-          <div style="display:flex;align-items:center;gap:11px;"><div style="width:13px;height:13px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div><span><strong style="color:#f8fafc;">Listening</strong><span style="color:#5b6a80;"> · sendet/empfängt BPDUs</span></span></div>
-          <div style="display:flex;align-items:center;gap:11px;"><div style="width:13px;height:13px;border-radius:50%;background:#0ea5e9;flex-shrink:0;"></div><span><strong style="color:#f8fafc;">Learning</strong><span style="color:#5b6a80;"> · baut MAC-Tabelle</span></span></div>
-          <div style="display:flex;align-items:center;gap:11px;"><div style="width:13px;height:13px;border-radius:50%;background:#10b981;flex-shrink:0;"></div><span><strong style="color:#f8fafc;">Forwarding</strong><span style="color:#5b6a80;"> · voller Betrieb</span></span></div>
-        </div>
-        <div style="margin-top:12px;padding:9px 14px;background:#080b12;border:1px solid #2b3647;border-radius:8px;font-size:19px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">Hello <strong style="color:#f8fafc;">2s</strong> · MaxAge <strong style="color:#f8fafc;">20s</strong> · FwdDelay <strong style="color:#f8fafc;">15s</strong></div>
-      </div>
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;flex:1;">
-        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">STP-VARIANTEN</div>
-        <div style="display:flex;flex-direction:column;gap:9px;font-size:21px;">
-          <div><span style="color:#38bdf8;font-weight:600;">802.1D</span> <span style="color:#5b6a80;">— Legacy, 30–50s Konvergenz</span></div>
-          <div><span style="color:#34d399;font-weight:600;">802.1w RSTP</span> <span style="color:#5b6a80;">— Rapid, &lt;1s</span></div>
-          <div><span style="color:#fbbf24;font-weight:600;">802.1s MSTP</span> <span style="color:#5b6a80;">— Instanzen pro VLAN-Gruppe</span></div>
-          <div><span style="color:#a78bfa;font-weight:600;">PVST+ / RPVST+</span> <span style="color:#5b6a80;">— Cisco per-VLAN</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;">INTERAKTIV · STP-WAHLPROZESS</div>
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <div style="width:11px;height:11px;border-radius:50%;background:#6366f1;"></div>
-            <div style="width:11px;height:11px;border-radius:50%;background:{{ dot1 }};"></div>
-            <div style="width:11px;height:11px;border-radius:50%;background:{{ dot2 }};"></div>
-            <div style="width:11px;height:11px;border-radius:50%;background:{{ dot3 }};"></div>
-            <div style="width:11px;height:11px;border-radius:50%;background:{{ dot4 }};"></div>
-          </div>
-        </div>
-      </div>
-
-      <svg viewBox="0 0 520 300" style="width:100%;flex:1;min-height:0;" xmlns="http://www.w3.org/2000/svg">
-        <rect width="520" height="300" fill="#080b12" rx="8"/>
-        <line x1="237" y1="44" x2="80" y2="134" stroke="#2b3647" stroke-width="3" opacity="{{ l12GrayOp }}"/>
-        <line x1="283" y1="44" x2="440" y2="134" stroke="#2b3647" stroke-width="3" opacity="{{ l13GrayOp }}"/>
-        <line x1="80" y1="170" x2="237" y2="240" stroke="#2b3647" stroke-width="3" opacity="{{ l24GrayOp }}"/>
-        <line x1="440" y1="170" x2="283" y2="240" stroke="#2b3647" stroke-width="3" opacity="{{ l34GrayOp }}"/>
-        <line x1="237" y1="44" x2="80" y2="134" stroke="#10b981" stroke-width="3" opacity="{{ l12GreenOp }}"/>
-        <line x1="283" y1="44" x2="440" y2="134" stroke="#10b981" stroke-width="3" opacity="{{ l13GreenOp }}"/>
-        <line x1="80" y1="170" x2="237" y2="240" stroke="#10b981" stroke-width="3" opacity="{{ l24GreenOp }}"/>
-        <line x1="440" y1="170" x2="283" y2="240" stroke="#f43f5e" stroke-width="3" stroke-dasharray="9,5" opacity="{{ l34BlkOp }}"/>
-
-        <g opacity="{{ flowOp }}">
-          <circle r="6" fill="#10b981"><animate attributeName="cx" from="237" to="80" dur="1.1s" repeatCount="indefinite"/><animate attributeName="cy" from="240" to="170" dur="1.1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.1s" repeatCount="indefinite"/></circle>
-          <circle r="6" fill="#10b981"><animate attributeName="cx" from="80" to="237" dur="1.1s" repeatCount="indefinite" begin="0.25s"/><animate attributeName="cy" from="134" to="44" dur="1.1s" repeatCount="indefinite" begin="0.25s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.1s" repeatCount="indefinite" begin="0.25s"/></circle>
-          <circle r="6" fill="#0ea5e9"><animate attributeName="cx" from="283" to="440" dur="1.3s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="cy" from="44" to="134" dur="1.3s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite" begin="0.5s"/></circle>
-        </g>
-
-        <g opacity="{{ bpduOp }}">
-          <circle r="6" fill="#6366f1"><animate attributeName="cx" from="237" to="80" dur="1.6s" repeatCount="indefinite"/><animate attributeName="cy" from="44" to="134" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.9;0.9;0" dur="1.6s" repeatCount="indefinite"/></circle>
-          <circle r="6" fill="#5b6a80"><animate attributeName="cx" from="80" to="237" dur="1.6s" repeatCount="indefinite" begin="0.8s"/><animate attributeName="cy" from="134" to="44" dur="1.6s" repeatCount="indefinite" begin="0.8s"/><animate attributeName="opacity" values="0;0.9;0.9;0" dur="1.6s" repeatCount="indefinite" begin="0.8s"/></circle>
-          <circle r="6" fill="#6366f1"><animate attributeName="cx" from="283" to="440" dur="1.6s" repeatCount="indefinite" begin="0.3s"/><animate attributeName="cy" from="44" to="134" dur="1.6s" repeatCount="indefinite" begin="0.3s"/><animate attributeName="opacity" values="0;0.9;0.9;0" dur="1.6s" repeatCount="indefinite" begin="0.3s"/></circle>
-          <circle r="6" fill="#5b6a80"><animate attributeName="cx" from="80" to="237" dur="1.6s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="cy" from="170" to="240" dur="1.6s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0;0.9;0.9;0" dur="1.6s" repeatCount="indefinite" begin="0.5s"/></circle>
-          <circle r="6" fill="#5b6a80"><animate attributeName="cx" from="440" to="283" dur="1.6s" repeatCount="indefinite" begin="0.7s"/><animate attributeName="cy" from="170" to="240" dur="1.6s" repeatCount="indefinite" begin="0.7s"/><animate attributeName="opacity" values="0;0.9;0.9;0" dur="1.6s" repeatCount="indefinite" begin="0.7s"/></circle>
-          <text x="158" y="96" fill="#818cf8" font-size="11" font-family="IBM Plex Sans,sans-serif" text-anchor="middle">Hello BPDU</text>
-          <text x="362" y="96" fill="#818cf8" font-size="11" font-family="IBM Plex Sans,sans-serif" text-anchor="middle">Hello BPDU</text>
-        </g>
-
-        <g opacity="{{ sw1NormalOp }}">
-          <rect x="213" y="8" width="94" height="40" rx="7" fill="#1a2230" stroke="#6366f1" stroke-width="2"/>
-          <text x="260" y="26" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="600" font-family="IBM Plex Sans,sans-serif">SW1</text>
-          <text x="260" y="41" text-anchor="middle" fill="#818cf8" font-size="10" font-family="IBM Plex Sans,sans-serif">Priority 4096</text>
-        </g>
-        <g opacity="{{ sw1RootOp }}">
-          <rect x="207" y="1" width="106" height="13" rx="3" fill="#f59e0b"/>
-          <text x="260" y="11" text-anchor="middle" fill="#1c1917" font-size="8.5" font-weight="700" font-family="IBM Plex Sans,sans-serif">★  ROOT BRIDGE  ★</text>
-          <rect x="213" y="17" width="94" height="40" rx="7" fill="#1a2230" stroke="#f59e0b" stroke-width="3"/>
-          <text x="260" y="35" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="600" font-family="IBM Plex Sans,sans-serif">SW1</text>
-          <text x="260" y="50" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="IBM Plex Sans,sans-serif">Priority 4096 ★</text>
-        </g>
-
-        <rect x="33" y="134" width="94" height="40" rx="7" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
-        <text x="80" y="152" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="600" font-family="IBM Plex Sans,sans-serif">SW2</text>
-        <text x="80" y="167" text-anchor="middle" fill="#5b6a80" font-size="10" font-family="IBM Plex Sans,sans-serif">Priority 32768</text>
-        <rect x="393" y="134" width="94" height="40" rx="7" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
-        <text x="440" y="152" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="600" font-family="IBM Plex Sans,sans-serif">SW3</text>
-        <text x="440" y="167" text-anchor="middle" fill="#5b6a80" font-size="10" font-family="IBM Plex Sans,sans-serif">Priority 32768</text>
-        <rect x="213" y="240" width="94" height="40" rx="7" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
-        <text x="260" y="258" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="600" font-family="IBM Plex Sans,sans-serif">SW4</text>
-        <text x="260" y="273" text-anchor="middle" fill="#5b6a80" font-size="10" font-family="IBM Plex Sans,sans-serif">Priority 32768</text>
-
-        <g opacity="{{ dpOp }}">
-          <rect x="174" y="76" width="28" height="15" rx="3" fill="#f59e0b"/><text x="188" y="87" text-anchor="middle" fill="#1c1917" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">DP</text>
-          <rect x="318" y="76" width="28" height="15" rx="3" fill="#f59e0b"/><text x="332" y="87" text-anchor="middle" fill="#1c1917" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">DP</text>
-          <rect x="96" y="168" width="28" height="15" rx="3" fill="#f59e0b"/><text x="110" y="179" text-anchor="middle" fill="#1c1917" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">DP</text>
-          <rect x="388" y="168" width="28" height="15" rx="3" fill="#f59e0b"/><text x="402" y="179" text-anchor="middle" fill="#1c1917" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">DP</text>
-        </g>
-        <g opacity="{{ rpOp }}">
-          <rect x="96" y="129" width="26" height="14" rx="3" fill="#10b981"/><text x="109" y="139" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">RP</text>
-          <rect x="398" y="129" width="26" height="14" rx="3" fill="#10b981"/><text x="411" y="139" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">RP</text>
-          <rect x="211" y="237" width="26" height="14" rx="3" fill="#10b981"/><text x="224" y="247" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">RP</text>
-        </g>
-        <g opacity="{{ blkOp }}">
-          <rect x="283" y="237" width="30" height="14" rx="3" fill="#f43f5e"/><text x="298" y="247" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">BLK</text>
-          <text x="374" y="212" fill="#f43f5e" font-size="22" font-weight="700" font-family="IBM Plex Sans,sans-serif" text-anchor="middle">✕</text>
-        </g>
-
-        <g transform="translate(130,288)" font-family="IBM Plex Sans,sans-serif">
-          <rect x="0" y="0" width="11" height="11" fill="#10b981" rx="2"/><text x="15" y="10" fill="#5b6a80" font-size="9.5">RP Root Port</text>
-          <rect x="95" y="0" width="11" height="11" fill="#f59e0b" rx="2"/><text x="110" y="10" fill="#5b6a80" font-size="9.5">DP Designated</text>
-          <rect x="205" y="0" width="11" height="11" fill="#f43f5e" rx="2"/><text x="220" y="10" fill="#5b6a80" font-size="9.5">BLK Blocking</text>
-          <circle r="5.5" fill="#6366f1" cx="312" cy="5.5"/><text x="322" y="10" fill="#5b6a80" font-size="9.5">BPDU</text>
-        </g>
-      </svg>
-
-      <div style="background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px 18px;flex-shrink:0;min-height:104px;">
-        <div style="font-size:18px;font-weight:600;color:#a78bfa;margin-bottom:5px;">Phase {{ stpStep }} / 5 — {{ stpTitle }}</div>
-        <div style="font-size:20px;color:#cbd5e1;line-height:1.55;">{{ stpDesc }}</div>
-      </div>
-
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-        <button onClick="{{ stpPrev }}" style="background:#1a2230;border:1px solid #2b3647;color:#f1f5f9;padding:11px 30px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;">← Zurück</button>
-        <div style="font-size:17px;color:#5b6a80;">Schritt für Schritt durch die STP-Konvergenz</div>
-        <button onClick="{{ stpNext }}" style="background:#6366f1;border:none;color:#fff;padding:11px 34px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;">Weiter →</button>
-      </div>
-    </div>
-  </div>
-</section>
-</div></div>
+<div id="wrap"><div id="stage"></div></div>
 <script>
-(function(){var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
- function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
- if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
- fit();})();
+(function(){
+  var TPL="<section data-label=\"Spanning Tree Protocol\" data-speaker-notes=\"Klick durch die 5 Phasen des STP-Wahlprozesses: BPDU-Austausch, Root-Wahl, Root-Ports, Designated-Ports, Blocking.\" style=\"background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;\">\n  <div style=\"display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #6366f1;flex-shrink:0;\">\n    <div style=\"background:#6366f1;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;\">LAYER 2</div>\n    <div>\n      <h1 style=\"margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;\">Spanning Tree Protocol <span style=\"color:#818cf8;\">(STP)</span></h1>\n      <p style=\"margin:6px 0 0;font-size:23px;color:#94a3b8;\">Schleifen verhindern \u00b7 IEEE 802.1D \u00b7 <strong style=\"color:#a78bfa;\">Klick rechts durch den Wahlprozess \u2192</strong></p>\n    </div>\n  </div>\n  <div style=\"display:grid;grid-template-columns:1.6fr 3fr;gap:20px;flex:1;min-height:0;\">\n    <div style=\"display:flex;flex-direction:column;gap:14px;overflow:hidden;\">\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;\">\n        <div style=\"background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;\">WAS IST STP?</div>\n        <ul style=\"margin:0;padding-left:22px;font-size:22px;line-height:1.8;color:#cbd5e1;\">\n          <li>Verhindert Ethernet-<strong style=\"color:#fb7185;\">Loops</strong> auf Layer 2</li>\n          <li>Erzeugt eine <strong style=\"color:#f8fafc;\">schleifenfreie Topologie</strong></li>\n          <li>Standard <strong style=\"color:#818cf8;\">IEEE 802.1D</strong>, l\u00e4uft automatisch</li>\n          <li>Ohne STP \u2192 <span style=\"color:#fb7185;\">Broadcast-Sturm</span>, MAC-Flapping</li>\n        </ul>\n      </div>\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;\">\n        <div style=\"background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;\">PORT-ZUST\u00c4NDE</div>\n        <div style=\"display:flex;flex-direction:column;gap:9px;font-size:21px;\">\n          <div style=\"display:flex;align-items:center;gap:11px;\"><div style=\"width:13px;height:13px;border-radius:50%;background:#3d4a5e;flex-shrink:0;\"></div><span><strong style=\"color:#f8fafc;\">Blocking</strong><span style=\"color:#5b6a80;\"> \u00b7 empf\u00e4ngt nur BPDUs</span></span></div>\n          <div style=\"display:flex;align-items:center;gap:11px;\"><div style=\"width:13px;height:13px;border-radius:50%;background:#f59e0b;flex-shrink:0;\"></div><span><strong style=\"color:#f8fafc;\">Listening</strong><span style=\"color:#5b6a80;\"> \u00b7 sendet/empf\u00e4ngt BPDUs</span></span></div>\n          <div style=\"display:flex;align-items:center;gap:11px;\"><div style=\"width:13px;height:13px;border-radius:50%;background:#0ea5e9;flex-shrink:0;\"></div><span><strong style=\"color:#f8fafc;\">Learning</strong><span style=\"color:#5b6a80;\"> \u00b7 baut MAC-Tabelle</span></span></div>\n          <div style=\"display:flex;align-items:center;gap:11px;\"><div style=\"width:13px;height:13px;border-radius:50%;background:#10b981;flex-shrink:0;\"></div><span><strong style=\"color:#f8fafc;\">Forwarding</strong><span style=\"color:#5b6a80;\"> \u00b7 voller Betrieb</span></span></div>\n        </div>\n        <div style=\"margin-top:12px;padding:9px 14px;background:#080b12;border:1px solid #2b3647;border-radius:8px;font-size:19px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;\">Hello <strong style=\"color:#f8fafc;\">2s</strong> \u00b7 MaxAge <strong style=\"color:#f8fafc;\">20s</strong> \u00b7 FwdDelay <strong style=\"color:#f8fafc;\">15s</strong></div>\n      </div>\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:20px 24px;flex:1;\">\n        <div style=\"background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;\">STP-VARIANTEN</div>\n        <div style=\"display:flex;flex-direction:column;gap:9px;font-size:21px;\">\n          <div><span style=\"color:#38bdf8;font-weight:600;\">802.1D</span> <span style=\"color:#5b6a80;\">\u2014 Legacy, 30\u201350s Konvergenz</span></div>\n          <div><span style=\"color:#34d399;font-weight:600;\">802.1w RSTP</span> <span style=\"color:#5b6a80;\">\u2014 Rapid, &lt;1s</span></div>\n          <div><span style=\"color:#fbbf24;font-weight:600;\">802.1s MSTP</span> <span style=\"color:#5b6a80;\">\u2014 Instanzen pro VLAN-Gruppe</span></div>\n          <div><span style=\"color:#a78bfa;font-weight:600;\">PVST+ / RPVST+</span> <span style=\"color:#5b6a80;\">\u2014 Cisco per-VLAN</span></div>\n        </div>\n      </div>\n    </div>\n\n    <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;\">\n      <div style=\"display:flex;align-items:center;justify-content:space-between;flex-shrink:0;\">\n        <div style=\"background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;\">INTERAKTIV \u00b7 STP-WAHLPROZESS</div>\n        <div style=\"display:flex;align-items:center;gap:14px;\">\n          <div style=\"display:flex;gap:8px;align-items:center;\">\n            <div style=\"width:11px;height:11px;border-radius:50%;background:#6366f1;\"></div>\n            <div style=\"width:11px;height:11px;border-radius:50%;background:{{ dot1 }};\"></div>\n            <div style=\"width:11px;height:11px;border-radius:50%;background:{{ dot2 }};\"></div>\n            <div style=\"width:11px;height:11px;border-radius:50%;background:{{ dot3 }};\"></div>\n            <div style=\"width:11px;height:11px;border-radius:50%;background:{{ dot4 }};\"></div>\n          </div>\n        </div>\n      </div>\n\n      <svg viewBox=\"0 0 520 300\" style=\"width:100%;flex:1;min-height:0;\" xmlns=\"http://www.w3.org/2000/svg\">\n        <rect width=\"520\" height=\"300\" fill=\"#080b12\" rx=\"8\"/>\n        <line x1=\"237\" y1=\"44\" x2=\"80\" y2=\"134\" stroke=\"#2b3647\" stroke-width=\"3\" opacity=\"{{ l12GrayOp }}\"/>\n        <line x1=\"283\" y1=\"44\" x2=\"440\" y2=\"134\" stroke=\"#2b3647\" stroke-width=\"3\" opacity=\"{{ l13GrayOp }}\"/>\n        <line x1=\"80\" y1=\"170\" x2=\"237\" y2=\"240\" stroke=\"#2b3647\" stroke-width=\"3\" opacity=\"{{ l24GrayOp }}\"/>\n        <line x1=\"440\" y1=\"170\" x2=\"283\" y2=\"240\" stroke=\"#2b3647\" stroke-width=\"3\" opacity=\"{{ l34GrayOp }}\"/>\n        <line x1=\"237\" y1=\"44\" x2=\"80\" y2=\"134\" stroke=\"#10b981\" stroke-width=\"3\" opacity=\"{{ l12GreenOp }}\"/>\n        <line x1=\"283\" y1=\"44\" x2=\"440\" y2=\"134\" stroke=\"#10b981\" stroke-width=\"3\" opacity=\"{{ l13GreenOp }}\"/>\n        <line x1=\"80\" y1=\"170\" x2=\"237\" y2=\"240\" stroke=\"#10b981\" stroke-width=\"3\" opacity=\"{{ l24GreenOp }}\"/>\n        <line x1=\"440\" y1=\"170\" x2=\"283\" y2=\"240\" stroke=\"#f43f5e\" stroke-width=\"3\" stroke-dasharray=\"9,5\" opacity=\"{{ l34BlkOp }}\"/>\n\n        <g opacity=\"{{ flowOp }}\">\n          <circle r=\"6\" fill=\"#10b981\"><animate attributeName=\"cx\" from=\"237\" to=\"80\" dur=\"1.1s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"240\" to=\"170\" dur=\"1.1s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.1s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"6\" fill=\"#10b981\"><animate attributeName=\"cx\" from=\"80\" to=\"237\" dur=\"1.1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/><animate attributeName=\"cy\" from=\"134\" to=\"44\" dur=\"1.1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.1s\" repeatCount=\"indefinite\" begin=\"0.25s\"/></circle>\n          <circle r=\"6\" fill=\"#0ea5e9\"><animate attributeName=\"cx\" from=\"283\" to=\"440\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"cy\" from=\"44\" to=\"134\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.5s\"/></circle>\n        </g>\n\n        <g opacity=\"{{ bpduOp }}\">\n          <circle r=\"6\" fill=\"#6366f1\"><animate attributeName=\"cx\" from=\"237\" to=\"80\" dur=\"1.6s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"44\" to=\"134\" dur=\"1.6s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" dur=\"1.6s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"6\" fill=\"#5b6a80\"><animate attributeName=\"cx\" from=\"80\" to=\"237\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.8s\"/><animate attributeName=\"cy\" from=\"134\" to=\"44\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.8s\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.8s\"/></circle>\n          <circle r=\"6\" fill=\"#6366f1\"><animate attributeName=\"cx\" from=\"283\" to=\"440\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.3s\"/><animate attributeName=\"cy\" from=\"44\" to=\"134\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.3s\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.3s\"/></circle>\n          <circle r=\"6\" fill=\"#5b6a80\"><animate attributeName=\"cx\" from=\"80\" to=\"237\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"cy\" from=\"170\" to=\"240\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.5s\"/></circle>\n          <circle r=\"6\" fill=\"#5b6a80\"><animate attributeName=\"cx\" from=\"440\" to=\"283\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.7s\"/><animate attributeName=\"cy\" from=\"170\" to=\"240\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.7s\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" dur=\"1.6s\" repeatCount=\"indefinite\" begin=\"0.7s\"/></circle>\n          <text x=\"158\" y=\"96\" fill=\"#818cf8\" font-size=\"11\" font-family=\"IBM Plex Sans,sans-serif\" text-anchor=\"middle\">Hello BPDU</text>\n          <text x=\"362\" y=\"96\" fill=\"#818cf8\" font-size=\"11\" font-family=\"IBM Plex Sans,sans-serif\" text-anchor=\"middle\">Hello BPDU</text>\n        </g>\n\n        <g opacity=\"{{ sw1NormalOp }}\">\n          <rect x=\"213\" y=\"8\" width=\"94\" height=\"40\" rx=\"7\" fill=\"#1a2230\" stroke=\"#6366f1\" stroke-width=\"2\"/>\n          <text x=\"260\" y=\"26\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"15\" font-weight=\"600\" font-family=\"IBM Plex Sans,sans-serif\">SW1</text>\n          <text x=\"260\" y=\"41\" text-anchor=\"middle\" fill=\"#818cf8\" font-size=\"10\" font-family=\"IBM Plex Sans,sans-serif\">Priority 4096</text>\n        </g>\n        <g opacity=\"{{ sw1RootOp }}\">\n          <rect x=\"207\" y=\"1\" width=\"106\" height=\"13\" rx=\"3\" fill=\"#f59e0b\"/>\n          <text x=\"260\" y=\"11\" text-anchor=\"middle\" fill=\"#1c1917\" font-size=\"8.5\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">\u2605  ROOT BRIDGE  \u2605</text>\n          <rect x=\"213\" y=\"17\" width=\"94\" height=\"40\" rx=\"7\" fill=\"#1a2230\" stroke=\"#f59e0b\" stroke-width=\"3\"/>\n          <text x=\"260\" y=\"35\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"15\" font-weight=\"600\" font-family=\"IBM Plex Sans,sans-serif\">SW1</text>\n          <text x=\"260\" y=\"50\" text-anchor=\"middle\" fill=\"#fbbf24\" font-size=\"10\" font-family=\"IBM Plex Sans,sans-serif\">Priority 4096 \u2605</text>\n        </g>\n\n        <rect x=\"33\" y=\"134\" width=\"94\" height=\"40\" rx=\"7\" fill=\"#1a2230\" stroke=\"#3d4a5e\" stroke-width=\"1.5\"/>\n        <text x=\"80\" y=\"152\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"15\" font-weight=\"600\" font-family=\"IBM Plex Sans,sans-serif\">SW2</text>\n        <text x=\"80\" y=\"167\" text-anchor=\"middle\" fill=\"#5b6a80\" font-size=\"10\" font-family=\"IBM Plex Sans,sans-serif\">Priority 32768</text>\n        <rect x=\"393\" y=\"134\" width=\"94\" height=\"40\" rx=\"7\" fill=\"#1a2230\" stroke=\"#3d4a5e\" stroke-width=\"1.5\"/>\n        <text x=\"440\" y=\"152\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"15\" font-weight=\"600\" font-family=\"IBM Plex Sans,sans-serif\">SW3</text>\n        <text x=\"440\" y=\"167\" text-anchor=\"middle\" fill=\"#5b6a80\" font-size=\"10\" font-family=\"IBM Plex Sans,sans-serif\">Priority 32768</text>\n        <rect x=\"213\" y=\"240\" width=\"94\" height=\"40\" rx=\"7\" fill=\"#1a2230\" stroke=\"#3d4a5e\" stroke-width=\"1.5\"/>\n        <text x=\"260\" y=\"258\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"15\" font-weight=\"600\" font-family=\"IBM Plex Sans,sans-serif\">SW4</text>\n        <text x=\"260\" y=\"273\" text-anchor=\"middle\" fill=\"#5b6a80\" font-size=\"10\" font-family=\"IBM Plex Sans,sans-serif\">Priority 32768</text>\n\n        <g opacity=\"{{ dpOp }}\">\n          <rect x=\"174\" y=\"76\" width=\"28\" height=\"15\" rx=\"3\" fill=\"#f59e0b\"/><text x=\"188\" y=\"87\" text-anchor=\"middle\" fill=\"#1c1917\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">DP</text>\n          <rect x=\"318\" y=\"76\" width=\"28\" height=\"15\" rx=\"3\" fill=\"#f59e0b\"/><text x=\"332\" y=\"87\" text-anchor=\"middle\" fill=\"#1c1917\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">DP</text>\n          <rect x=\"96\" y=\"168\" width=\"28\" height=\"15\" rx=\"3\" fill=\"#f59e0b\"/><text x=\"110\" y=\"179\" text-anchor=\"middle\" fill=\"#1c1917\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">DP</text>\n          <rect x=\"388\" y=\"168\" width=\"28\" height=\"15\" rx=\"3\" fill=\"#f59e0b\"/><text x=\"402\" y=\"179\" text-anchor=\"middle\" fill=\"#1c1917\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">DP</text>\n        </g>\n        <g opacity=\"{{ rpOp }}\">\n          <rect x=\"96\" y=\"129\" width=\"26\" height=\"14\" rx=\"3\" fill=\"#10b981\"/><text x=\"109\" y=\"139\" text-anchor=\"middle\" fill=\"#fff\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">RP</text>\n          <rect x=\"398\" y=\"129\" width=\"26\" height=\"14\" rx=\"3\" fill=\"#10b981\"/><text x=\"411\" y=\"139\" text-anchor=\"middle\" fill=\"#fff\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">RP</text>\n          <rect x=\"211\" y=\"237\" width=\"26\" height=\"14\" rx=\"3\" fill=\"#10b981\"/><text x=\"224\" y=\"247\" text-anchor=\"middle\" fill=\"#fff\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">RP</text>\n        </g>\n        <g opacity=\"{{ blkOp }}\">\n          <rect x=\"283\" y=\"237\" width=\"30\" height=\"14\" rx=\"3\" fill=\"#f43f5e\"/><text x=\"298\" y=\"247\" text-anchor=\"middle\" fill=\"#fff\" font-size=\"9\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">BLK</text>\n          <text x=\"374\" y=\"212\" fill=\"#f43f5e\" font-size=\"22\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\" text-anchor=\"middle\">\u2715</text>\n        </g>\n\n        <g transform=\"translate(130,288)\" font-family=\"IBM Plex Sans,sans-serif\">\n          <rect x=\"0\" y=\"0\" width=\"11\" height=\"11\" fill=\"#10b981\" rx=\"2\"/><text x=\"15\" y=\"10\" fill=\"#5b6a80\" font-size=\"9.5\">RP Root Port</text>\n          <rect x=\"95\" y=\"0\" width=\"11\" height=\"11\" fill=\"#f59e0b\" rx=\"2\"/><text x=\"110\" y=\"10\" fill=\"#5b6a80\" font-size=\"9.5\">DP Designated</text>\n          <rect x=\"205\" y=\"0\" width=\"11\" height=\"11\" fill=\"#f43f5e\" rx=\"2\"/><text x=\"220\" y=\"10\" fill=\"#5b6a80\" font-size=\"9.5\">BLK Blocking</text>\n          <circle r=\"5.5\" fill=\"#6366f1\" cx=\"312\" cy=\"5.5\"/><text x=\"322\" y=\"10\" fill=\"#5b6a80\" font-size=\"9.5\">BPDU</text>\n        </g>\n      </svg>\n\n      <div style=\"background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px 18px;flex-shrink:0;min-height:104px;\">\n        <div style=\"font-size:18px;font-weight:600;color:#a78bfa;margin-bottom:5px;\">Phase {{ stpStep }} / 5 \u2014 {{ stpTitle }}</div>\n        <div style=\"font-size:20px;color:#cbd5e1;line-height:1.55;\">{{ stpDesc }}</div>\n      </div>\n\n      <div style=\"display:flex;align-items:center;justify-content:space-between;flex-shrink:0;\">\n        <button data-act=\"prev\" style=\"background:#1a2230;border:1px solid #2b3647;color:#f1f5f9;padding:11px 30px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;\">\u2190 Zur\u00fcck</button>\n        <div style=\"font-size:17px;color:#5b6a80;\">Schritt f\u00fcr Schritt durch die STP-Konvergenz</div>\n        <button data-act=\"next\" style=\"background:#6366f1;border:none;color:#fff;padding:11px 34px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;\">Weiter \u2192</button>\n      </div>\n    </div>\n  </div>\n</section>";
+  
+function compute(s){
+  var titles=['BPDU-Austausch','Root-Bridge-Wahl','Root-Ports (RP)','Designated-Ports (DP)','Blocking & Forwarding'];
+  var descs=[
+    'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
+    'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
+    'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
+    'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
+    'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
+  ];
+  var accent='#6366f1', off='#2b3647';
+  return {
+    stpStep:s+1, stpTitle:titles[s], stpDesc:descs[s],
+    dot1:s>=1?accent:off, dot2:s>=2?accent:off, dot3:s>=3?accent:off, dot4:s>=4?accent:off,
+    bpduOp:s===0?1:0, sw1NormalOp:s===0?1:0, sw1RootOp:s>=1?1:0,
+    rpOp:s>=2?1:0, dpOp:s>=3?1:0, blkOp:s>=4?1:0, flowOp:s>=4?1:0,
+    l12GrayOp:s>=4?0:1, l13GrayOp:s>=4?0:1, l24GrayOp:s>=4?0:1, l34GrayOp:s>=4?0:1,
+    l12GreenOp:s>=4?1:0, l13GreenOp:s>=4?1:0, l24GreenOp:s>=4?1:0, l34BlkOp:s>=4?1:0
+  };
+}
+var MAXSTEP=4;
+
+  var stage=document.getElementById('stage'), wrap=document.getElementById('wrap');
+  var step=0;
+  function render(){
+    var v=compute(step);
+    stage.innerHTML=TPL.replace(/\{\{\s*(\w+)\s*\}\}/g,function(m,k){return (k in v)?String(v[k]):m;});
+  }
+  stage.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    if(b.getAttribute('data-act')==='next') step=Math.min(MAXSTEP,step+1);
+    else step=Math.max(0,step-1);
+    render();
+  });
+  function fit(){var sc=wrap.clientWidth/1920;stage.style.transform='scale('+sc+')';wrap.style.height=(1080*sc)+'px';}
+  if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
+  render(); fit();
+})();
 </script>
 </body>
 </html>

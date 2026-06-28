@@ -10,147 +10,54 @@
   #wrap{position:relative;width:100%;overflow:hidden;}
   #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
   #stage > section{width:1920px;height:1080px;}
+  [data-act]{cursor:pointer;}
 </style>
 </head>
 <body>
-<div id="wrap"><div id="stage">
-<section data-label="OSPF Basics" data-speaker-notes="OSPF Grundkonzepte, DR/BDR-Wahl, Pakettypen, interaktiver Nachbarschaftsstatus-Automat: Down → Init → 2-Way → Exstart → Exchange → Loading → Full." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
-  <div style="display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #8b5cf6;flex-shrink:0;">
-    <div style="background:#8b5cf6;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">LINK-STATE</div>
-    <div>
-      <h1 style="margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;">OSPF <span style="color:#a78bfa;">— Open Shortest Path First</span></h1>
-      <p style="margin:4px 0 0;font-size:22px;color:#94a3b8;"><strong style="color:#c4b5fd;">Klick rechts durch die 7 Nachbarschaftszustände →</strong></p>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1.4fr 2.8fr;gap:20px;flex:1;min-height:0;">
-    <div style="display:flex;flex-direction:column;gap:13px;">
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
-        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">KERNKONZEPTE</div>
-        <div style="display:flex;flex-direction:column;gap:7px;font-size:18px;color:#cbd5e1;">
-          <div><strong style="color:#c4b5fd;">LSDB</strong> <span style="color:#5b6a80;">— Link-State Database (Topologiekarte)</span></div>
-          <div><strong style="color:#c4b5fd;">LSA</strong> <span style="color:#5b6a80;">— Link-State Advertisement (Routen-Info)</span></div>
-          <div><strong style="color:#c4b5fd;">SPF</strong> <span style="color:#5b6a80;">— Dijkstra-Algorithmus, berechnet kürzesten Pfad</span></div>
-          <div><strong style="color:#c4b5fd;">Router-ID</strong> <span style="color:#5b6a80;">— eindeutige ID (höchste Loopback-IP oder conf.)</span></div>
-          <div><strong style="color:#c4b5fd;">Metrik</strong> <span style="color:#5b6a80;">— Cost = 10⁸ / Bandbreite (bps)</span></div>
-        </div>
-      </div>
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
-        <div style="background:#a78bfa;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">DR / BDR · MULTI-ACCESS</div>
-        <div style="display:flex;flex-direction:column;gap:6px;font-size:16px;color:#cbd5e1;">
-          <div><strong style="color:#f8fafc;">DR</strong> — Designated Router · Multicast <span style="font-family:'IBM Plex Mono';color:#fbbf24;font-size:14px;">224.0.0.6</span></div>
-          <div><strong style="color:#f8fafc;">BDR</strong> — Backup DR · übernimmt bei DR-Ausfall</div>
-          <div><strong style="color:#f8fafc;">DROther</strong> — nur Adjacency mit DR &amp; BDR</div>
-          <div style="margin-top:4px;font-size:15px;color:#5b6a80;">Wahl: höchste Priority (default 1) → höchste RID</div>
-          <div style="font-family:'IBM Plex Mono';font-size:14px;color:#fbbf24;">AllSPF: 224.0.0.5 · AllDR: 224.0.0.6</div>
-        </div>
-      </div>
-      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
-        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">OSPF-PAKETTYPEN</div>
-        <div style="display:flex;flex-direction:column;gap:6px;font-size:15px;">
-          <div style="display:flex;gap:8px;align-items:center;"><span style="background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';">T1</span><span style="color:#c4b5fd;font-weight:600;">Hello</span> <span style="color:#5b6a80;">— Nachbarn entdecken &amp; halten</span></div>
-          <div style="display:flex;gap:8px;align-items:center;"><span style="background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';">T2</span><span style="color:#c4b5fd;font-weight:600;">DBD</span> <span style="color:#5b6a80;">— Database Description (LSDB-Zusammenfassung)</span></div>
-          <div style="display:flex;gap:8px;align-items:center;"><span style="background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';">T3</span><span style="color:#c4b5fd;font-weight:600;">LSR</span> <span style="color:#5b6a80;">— Link-State Request (fehlende LSAs anfragen)</span></div>
-          <div style="display:flex;gap:8px;align-items:center;"><span style="background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';">T4</span><span style="color:#c4b5fd;font-weight:600;">LSU</span> <span style="color:#5b6a80;">— Link-State Update (LSAs liefern)</span></div>
-          <div style="display:flex;gap:8px;align-items:center;"><span style="background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';">T5</span><span style="color:#c4b5fd;font-weight:600;">LSAck</span> <span style="color:#5b6a80;">— Bestätigung</span></div>
-        </div>
-      </div>
-    </div>
-    <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;">INTERAKTIV · OSPF NACHBARSCHAFTSSTATUS-AUTOMAT</div>
-        <div style="display:flex;gap:7px;">
-          <div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD1 }};"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD2 }};"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD3 }};"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD4 }};"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD5 }};"></div>
-          <div style="width:10px;height:10px;border-radius:50%;background:{{ ospfD6 }};"></div>
-        </div>
-      </div>
-      <svg viewBox="0 0 660 260" style="width:100%;flex:1;min-height:0;" xmlns="http://www.w3.org/2000/svg">
-        <rect width="660" height="260" fill="#080b12" rx="8"/>
-        <!-- Dynamic link between routers -->
-        <line x1="160" y1="130" x2="500" y2="130" stroke="{{ ospfLinkColor }}" stroke-width="5"/>
-        <!-- State badge on link -->
-        <rect x="250" y="112" width="160" height="36" rx="7" fill="{{ ospfLinkColor }}"/>
-        <text x="330" y="134" text-anchor="middle" fill="#fff" font-size="15" font-weight="700" font-family="IBM Plex Sans,sans-serif">{{ ospfTitle }}</text>
-        <!-- R1 router box -->
-        <rect x="30" y="96" width="130" height="68" rx="8" fill="#1a2230" stroke="#8b5cf6" stroke-width="2"/>
-        <text x="95" y="122" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="700" font-family="IBM Plex Sans,sans-serif">R1</text>
-        <text x="95" y="143" text-anchor="middle" fill="#a78bfa" font-size="12" font-family="IBM Plex Mono,monospace">Router-ID</text>
-        <text x="95" y="158" text-anchor="middle" fill="#818cf8" font-size="13" font-family="IBM Plex Mono,monospace">1.1.1.1</text>
-        <!-- R2 router box -->
-        <rect x="500" y="96" width="130" height="68" rx="8" fill="#1a2230" stroke="#8b5cf6" stroke-width="2"/>
-        <text x="565" y="122" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="700" font-family="IBM Plex Sans,sans-serif">R2</text>
-        <text x="565" y="143" text-anchor="middle" fill="#a78bfa" font-size="12" font-family="IBM Plex Mono,monospace">Router-ID</text>
-        <text x="565" y="158" text-anchor="middle" fill="#818cf8" font-size="13" font-family="IBM Plex Mono,monospace">2.2.2.2</text>
-        <!-- Hello R2→R1 only (Init state) -->
-        <g opacity="{{ ospfHelloOneOp }}">
-          <circle r="6" fill="#f59e0b"><animate attributeName="cx" from="500" to="160" dur="1.6s" repeatCount="indefinite"/><animate attributeName="cy" from="122" to="122" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.6s" repeatCount="indefinite"/></circle>
-          <text x="330" y="96" text-anchor="middle" fill="#fbbf24" font-size="12" font-family="IBM Plex Sans,sans-serif">Hello ← (R2 sendet, R1 antwortet noch nicht)</text>
-        </g>
-        <!-- Hello bidirectional (2-Way+) -->
-        <g opacity="{{ ospfHelloBidiOp }}">
-          <circle r="6" fill="#0ea5e9"><animate attributeName="cx" from="160" to="500" dur="1.8s" repeatCount="indefinite"/><animate attributeName="cy" from="120" to="120" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" repeatCount="indefinite"/></circle>
-          <circle r="6" fill="#0ea5e9"><animate attributeName="cx" from="500" to="160" dur="1.8s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="cy" from="140" to="140" dur="1.8s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.8s" repeatCount="indefinite" begin="0.9s"/></circle>
-          <text x="330" y="96" text-anchor="middle" fill="#38bdf8" font-size="12" font-family="IBM Plex Sans,sans-serif">Hello ↔ (bidirektional bestätigt)</text>
-        </g>
-        <!-- DBD packets (Exstart/Exchange) -->
-        <g opacity="{{ ospfDbdOp }}">
-          <circle r="6" fill="#8b5cf6"><animate attributeName="cx" from="500" to="160" dur="1.4s" repeatCount="indefinite"/><animate attributeName="cy" from="122" to="122" dur="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite"/></circle>
-          <circle r="6" fill="#a78bfa"><animate attributeName="cx" from="160" to="500" dur="1.4s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="cy" from="140" to="140" dur="1.4s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite" begin="0.5s"/></circle>
-          <text x="330" y="96" text-anchor="middle" fill="#c4b5fd" font-size="12" font-family="IBM Plex Sans,sans-serif">DBD ↔ (LSDB-Zusammenfassung austauschen)</text>
-        </g>
-        <!-- LSR/LSU packets (Loading) -->
-        <g opacity="{{ ospfLsrOp }}">
-          <circle r="6" fill="#10b981"><animate attributeName="cx" from="160" to="500" dur="1.3s" repeatCount="indefinite"/><animate attributeName="cy" from="122" to="122" dur="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite"/></circle>
-          <circle r="5" fill="#34d399"><animate attributeName="cx" from="500" to="160" dur="1.3s" repeatCount="indefinite" begin="0.4s"/><animate attributeName="cy" from="140" to="140" dur="1.3s" repeatCount="indefinite" begin="0.4s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite" begin="0.4s"/></circle>
-          <text x="160" y="90" text-anchor="middle" fill="#10b981" font-size="11" font-family="IBM Plex Sans,sans-serif">LSR →</text>
-          <text x="500" y="90" text-anchor="middle" fill="#10b981" font-size="11" font-family="IBM Plex Sans,sans-serif">← LSU</text>
-        </g>
-        <!-- Full adjacency -->
-        <g opacity="{{ ospfDataOp }}">
-          <circle r="5.5" fill="#34d399"><animate attributeName="cx" from="160" to="500" dur="1.2s" repeatCount="indefinite"/><animate attributeName="cy" from="125" to="125" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.2s" repeatCount="indefinite"/></circle>
-          <circle r="5.5" fill="#34d399"><animate attributeName="cx" from="500" to="160" dur="1.2s" repeatCount="indefinite" begin="0.6s"/><animate attributeName="cy" from="135" to="135" dur="1.2s" repeatCount="indefinite" begin="0.6s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.2s" repeatCount="indefinite" begin="0.6s"/></circle>
-          <text x="330" y="90" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700" font-family="IBM Plex Sans,sans-serif">✓ LSDB synchronisiert — Adjacency FULL</text>
-        </g>
-        <!-- State labels at bottom -->
-        <g transform="translate(40, 210)" font-family="IBM Plex Sans,sans-serif" font-size="12">
-          <rect x="0" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="90" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="180" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="270" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="360" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="450" y="-14" width="84" height="20" rx="4" fill="#2b3647"/>
-          <rect x="540" y="-14" width="74" height="20" rx="4" fill="#2b3647"/>
-          <text x="42" y="0" text-anchor="middle" fill="#94a3b8">1 · DOWN</text>
-          <text x="132" y="0" text-anchor="middle" fill="#94a3b8">2 · INIT</text>
-          <text x="222" y="0" text-anchor="middle" fill="#94a3b8">3 · 2-WAY</text>
-          <text x="312" y="0" text-anchor="middle" fill="#94a3b8">4 · EXSTART</text>
-          <text x="402" y="0" text-anchor="middle" fill="#94a3b8">5 · EXCHANGE</text>
-          <text x="492" y="0" text-anchor="middle" fill="#94a3b8">6 · LOADING</text>
-          <text x="577" y="0" text-anchor="middle" fill="#94a3b8">7 · FULL</text>
-        </g>
-      </svg>
-      <div style="background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px 18px;flex-shrink:0;min-height:92px;">
-        <div style="font-size:18px;font-weight:600;color:#a78bfa;margin-bottom:5px;">Zustand {{ ospfStep }} / 7 — {{ ospfTitle }}</div>
-        <div style="font-size:20px;color:#cbd5e1;line-height:1.5;">{{ ospfDesc }}</div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-        <button onClick="{{ ospfPrev }}" style="background:#1a2230;border:1px solid #2b3647;color:#f1f5f9;padding:11px 30px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;">← Zurück</button>
-        <div style="font-size:16px;color:#5b6a80;">Schritt für Schritt durch die OSPF-Nachbarschaft</div>
-        <button onClick="{{ ospfNext }}" style="background:#8b5cf6;border:none;color:#fff;padding:11px 34px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;">Weiter →</button>
-      </div>
-    </div>
-  </div>
-</section>
-</div></div>
+<div id="wrap"><div id="stage"></div></div>
 <script>
-(function(){var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
- function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
- if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
- fit();})();
+(function(){
+  var TPL="<section data-label=\"OSPF Basics\" data-speaker-notes=\"OSPF Grundkonzepte, DR/BDR-Wahl, Pakettypen, interaktiver Nachbarschaftsstatus-Automat: Down \u2192 Init \u2192 2-Way \u2192 Exstart \u2192 Exchange \u2192 Loading \u2192 Full.\" style=\"background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;\">\n  <div style=\"display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #8b5cf6;flex-shrink:0;\">\n    <div style=\"background:#8b5cf6;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;\">LINK-STATE</div>\n    <div>\n      <h1 style=\"margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;\">OSPF <span style=\"color:#a78bfa;\">\u2014 Open Shortest Path First</span></h1>\n      <p style=\"margin:4px 0 0;font-size:22px;color:#94a3b8;\"><strong style=\"color:#c4b5fd;\">Klick rechts durch die 7 Nachbarschaftszust\u00e4nde \u2192</strong></p>\n    </div>\n  </div>\n  <div style=\"display:grid;grid-template-columns:1.4fr 2.8fr;gap:20px;flex:1;min-height:0;\">\n    <div style=\"display:flex;flex-direction:column;gap:13px;\">\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;\">\n        <div style=\"background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;\">KERNKONZEPTE</div>\n        <div style=\"display:flex;flex-direction:column;gap:7px;font-size:18px;color:#cbd5e1;\">\n          <div><strong style=\"color:#c4b5fd;\">LSDB</strong> <span style=\"color:#5b6a80;\">\u2014 Link-State Database (Topologiekarte)</span></div>\n          <div><strong style=\"color:#c4b5fd;\">LSA</strong> <span style=\"color:#5b6a80;\">\u2014 Link-State Advertisement (Routen-Info)</span></div>\n          <div><strong style=\"color:#c4b5fd;\">SPF</strong> <span style=\"color:#5b6a80;\">\u2014 Dijkstra-Algorithmus, berechnet k\u00fcrzesten Pfad</span></div>\n          <div><strong style=\"color:#c4b5fd;\">Router-ID</strong> <span style=\"color:#5b6a80;\">\u2014 eindeutige ID (h\u00f6chste Loopback-IP oder conf.)</span></div>\n          <div><strong style=\"color:#c4b5fd;\">Metrik</strong> <span style=\"color:#5b6a80;\">\u2014 Cost = 10\u2078 / Bandbreite (bps)</span></div>\n        </div>\n      </div>\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;\">\n        <div style=\"background:#a78bfa;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;\">DR / BDR \u00b7 MULTI-ACCESS</div>\n        <div style=\"display:flex;flex-direction:column;gap:6px;font-size:16px;color:#cbd5e1;\">\n          <div><strong style=\"color:#f8fafc;\">DR</strong> \u2014 Designated Router \u00b7 Multicast <span style=\"font-family:'IBM Plex Mono';color:#fbbf24;font-size:14px;\">224.0.0.6</span></div>\n          <div><strong style=\"color:#f8fafc;\">BDR</strong> \u2014 Backup DR \u00b7 \u00fcbernimmt bei DR-Ausfall</div>\n          <div><strong style=\"color:#f8fafc;\">DROther</strong> \u2014 nur Adjacency mit DR &amp; BDR</div>\n          <div style=\"margin-top:4px;font-size:15px;color:#5b6a80;\">Wahl: h\u00f6chste Priority (default 1) \u2192 h\u00f6chste RID</div>\n          <div style=\"font-family:'IBM Plex Mono';font-size:14px;color:#fbbf24;\">AllSPF: 224.0.0.5 \u00b7 AllDR: 224.0.0.6</div>\n        </div>\n      </div>\n      <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;\">\n        <div style=\"background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;\">OSPF-PAKETTYPEN</div>\n        <div style=\"display:flex;flex-direction:column;gap:6px;font-size:15px;\">\n          <div style=\"display:flex;gap:8px;align-items:center;\"><span style=\"background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';\">T1</span><span style=\"color:#c4b5fd;font-weight:600;\">Hello</span> <span style=\"color:#5b6a80;\">\u2014 Nachbarn entdecken &amp; halten</span></div>\n          <div style=\"display:flex;gap:8px;align-items:center;\"><span style=\"background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';\">T2</span><span style=\"color:#c4b5fd;font-weight:600;\">DBD</span> <span style=\"color:#5b6a80;\">\u2014 Database Description (LSDB-Zusammenfassung)</span></div>\n          <div style=\"display:flex;gap:8px;align-items:center;\"><span style=\"background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';\">T3</span><span style=\"color:#c4b5fd;font-weight:600;\">LSR</span> <span style=\"color:#5b6a80;\">\u2014 Link-State Request (fehlende LSAs anfragen)</span></div>\n          <div style=\"display:flex;gap:8px;align-items:center;\"><span style=\"background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';\">T4</span><span style=\"color:#c4b5fd;font-weight:600;\">LSU</span> <span style=\"color:#5b6a80;\">\u2014 Link-State Update (LSAs liefern)</span></div>\n          <div style=\"display:flex;gap:8px;align-items:center;\"><span style=\"background:#8b5cf6;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono';\">T5</span><span style=\"color:#c4b5fd;font-weight:600;\">LSAck</span> <span style=\"color:#5b6a80;\">\u2014 Best\u00e4tigung</span></div>\n        </div>\n      </div>\n    </div>\n    <div style=\"background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;\">\n      <div style=\"display:flex;align-items:center;justify-content:space-between;flex-shrink:0;\">\n        <div style=\"background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;\">INTERAKTIV \u00b7 OSPF NACHBARSCHAFTSSTATUS-AUTOMAT</div>\n        <div style=\"display:flex;gap:7px;\">\n          <div style=\"width:10px;height:10px;border-radius:50%;background:#8b5cf6;\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD1 }};\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD2 }};\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD3 }};\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD4 }};\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD5 }};\"></div>\n          <div style=\"width:10px;height:10px;border-radius:50%;background:{{ ospfD6 }};\"></div>\n        </div>\n      </div>\n      <svg viewBox=\"0 0 660 260\" style=\"width:100%;flex:1;min-height:0;\" xmlns=\"http://www.w3.org/2000/svg\">\n        <rect width=\"660\" height=\"260\" fill=\"#080b12\" rx=\"8\"/>\n        <!-- Dynamic link between routers -->\n        <line x1=\"160\" y1=\"130\" x2=\"500\" y2=\"130\" stroke=\"{{ ospfLinkColor }}\" stroke-width=\"5\"/>\n        <!-- State badge on link -->\n        <rect x=\"250\" y=\"112\" width=\"160\" height=\"36\" rx=\"7\" fill=\"{{ ospfLinkColor }}\"/>\n        <text x=\"330\" y=\"134\" text-anchor=\"middle\" fill=\"#fff\" font-size=\"15\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">{{ ospfTitle }}</text>\n        <!-- R1 router box -->\n        <rect x=\"30\" y=\"96\" width=\"130\" height=\"68\" rx=\"8\" fill=\"#1a2230\" stroke=\"#8b5cf6\" stroke-width=\"2\"/>\n        <text x=\"95\" y=\"122\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"16\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">R1</text>\n        <text x=\"95\" y=\"143\" text-anchor=\"middle\" fill=\"#a78bfa\" font-size=\"12\" font-family=\"IBM Plex Mono,monospace\">Router-ID</text>\n        <text x=\"95\" y=\"158\" text-anchor=\"middle\" fill=\"#818cf8\" font-size=\"13\" font-family=\"IBM Plex Mono,monospace\">1.1.1.1</text>\n        <!-- R2 router box -->\n        <rect x=\"500\" y=\"96\" width=\"130\" height=\"68\" rx=\"8\" fill=\"#1a2230\" stroke=\"#8b5cf6\" stroke-width=\"2\"/>\n        <text x=\"565\" y=\"122\" text-anchor=\"middle\" fill=\"#f8fafc\" font-size=\"16\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">R2</text>\n        <text x=\"565\" y=\"143\" text-anchor=\"middle\" fill=\"#a78bfa\" font-size=\"12\" font-family=\"IBM Plex Mono,monospace\">Router-ID</text>\n        <text x=\"565\" y=\"158\" text-anchor=\"middle\" fill=\"#818cf8\" font-size=\"13\" font-family=\"IBM Plex Mono,monospace\">2.2.2.2</text>\n        <!-- Hello R2\u2192R1 only (Init state) -->\n        <g opacity=\"{{ ospfHelloOneOp }}\">\n          <circle r=\"6\" fill=\"#f59e0b\"><animate attributeName=\"cx\" from=\"500\" to=\"160\" dur=\"1.6s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"122\" to=\"122\" dur=\"1.6s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.6s\" repeatCount=\"indefinite\"/></circle>\n          <text x=\"330\" y=\"96\" text-anchor=\"middle\" fill=\"#fbbf24\" font-size=\"12\" font-family=\"IBM Plex Sans,sans-serif\">Hello \u2190 (R2 sendet, R1 antwortet noch nicht)</text>\n        </g>\n        <!-- Hello bidirectional (2-Way+) -->\n        <g opacity=\"{{ ospfHelloBidiOp }}\">\n          <circle r=\"6\" fill=\"#0ea5e9\"><animate attributeName=\"cx\" from=\"160\" to=\"500\" dur=\"1.8s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"120\" to=\"120\" dur=\"1.8s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.8s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"6\" fill=\"#0ea5e9\"><animate attributeName=\"cx\" from=\"500\" to=\"160\" dur=\"1.8s\" repeatCount=\"indefinite\" begin=\"0.9s\"/><animate attributeName=\"cy\" from=\"140\" to=\"140\" dur=\"1.8s\" repeatCount=\"indefinite\" begin=\"0.9s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.8s\" repeatCount=\"indefinite\" begin=\"0.9s\"/></circle>\n          <text x=\"330\" y=\"96\" text-anchor=\"middle\" fill=\"#38bdf8\" font-size=\"12\" font-family=\"IBM Plex Sans,sans-serif\">Hello \u2194 (bidirektional best\u00e4tigt)</text>\n        </g>\n        <!-- DBD packets (Exstart/Exchange) -->\n        <g opacity=\"{{ ospfDbdOp }}\">\n          <circle r=\"6\" fill=\"#8b5cf6\"><animate attributeName=\"cx\" from=\"500\" to=\"160\" dur=\"1.4s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"122\" to=\"122\" dur=\"1.4s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.4s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"6\" fill=\"#a78bfa\"><animate attributeName=\"cx\" from=\"160\" to=\"500\" dur=\"1.4s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"cy\" from=\"140\" to=\"140\" dur=\"1.4s\" repeatCount=\"indefinite\" begin=\"0.5s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.4s\" repeatCount=\"indefinite\" begin=\"0.5s\"/></circle>\n          <text x=\"330\" y=\"96\" text-anchor=\"middle\" fill=\"#c4b5fd\" font-size=\"12\" font-family=\"IBM Plex Sans,sans-serif\">DBD \u2194 (LSDB-Zusammenfassung austauschen)</text>\n        </g>\n        <!-- LSR/LSU packets (Loading) -->\n        <g opacity=\"{{ ospfLsrOp }}\">\n          <circle r=\"6\" fill=\"#10b981\"><animate attributeName=\"cx\" from=\"160\" to=\"500\" dur=\"1.3s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"122\" to=\"122\" dur=\"1.3s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.3s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"5\" fill=\"#34d399\"><animate attributeName=\"cx\" from=\"500\" to=\"160\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.4s\"/><animate attributeName=\"cy\" from=\"140\" to=\"140\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.4s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.3s\" repeatCount=\"indefinite\" begin=\"0.4s\"/></circle>\n          <text x=\"160\" y=\"90\" text-anchor=\"middle\" fill=\"#10b981\" font-size=\"11\" font-family=\"IBM Plex Sans,sans-serif\">LSR \u2192</text>\n          <text x=\"500\" y=\"90\" text-anchor=\"middle\" fill=\"#10b981\" font-size=\"11\" font-family=\"IBM Plex Sans,sans-serif\">\u2190 LSU</text>\n        </g>\n        <!-- Full adjacency -->\n        <g opacity=\"{{ ospfDataOp }}\">\n          <circle r=\"5.5\" fill=\"#34d399\"><animate attributeName=\"cx\" from=\"160\" to=\"500\" dur=\"1.2s\" repeatCount=\"indefinite\"/><animate attributeName=\"cy\" from=\"125\" to=\"125\" dur=\"1.2s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.2s\" repeatCount=\"indefinite\"/></circle>\n          <circle r=\"5.5\" fill=\"#34d399\"><animate attributeName=\"cx\" from=\"500\" to=\"160\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6s\"/><animate attributeName=\"cy\" from=\"135\" to=\"135\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6s\"/><animate attributeName=\"opacity\" values=\"0;1;1;0\" dur=\"1.2s\" repeatCount=\"indefinite\" begin=\"0.6s\"/></circle>\n          <text x=\"330\" y=\"90\" text-anchor=\"middle\" fill=\"#34d399\" font-size=\"13\" font-weight=\"700\" font-family=\"IBM Plex Sans,sans-serif\">\u2713 LSDB synchronisiert \u2014 Adjacency FULL</text>\n        </g>\n        <!-- State labels at bottom -->\n        <g transform=\"translate(40, 210)\" font-family=\"IBM Plex Sans,sans-serif\" font-size=\"12\">\n          <rect x=\"0\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"90\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"180\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"270\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"360\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"450\" y=\"-14\" width=\"84\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <rect x=\"540\" y=\"-14\" width=\"74\" height=\"20\" rx=\"4\" fill=\"#2b3647\"/>\n          <text x=\"42\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">1 \u00b7 DOWN</text>\n          <text x=\"132\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">2 \u00b7 INIT</text>\n          <text x=\"222\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">3 \u00b7 2-WAY</text>\n          <text x=\"312\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">4 \u00b7 EXSTART</text>\n          <text x=\"402\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">5 \u00b7 EXCHANGE</text>\n          <text x=\"492\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">6 \u00b7 LOADING</text>\n          <text x=\"577\" y=\"0\" text-anchor=\"middle\" fill=\"#94a3b8\">7 \u00b7 FULL</text>\n        </g>\n      </svg>\n      <div style=\"background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px 18px;flex-shrink:0;min-height:92px;\">\n        <div style=\"font-size:18px;font-weight:600;color:#a78bfa;margin-bottom:5px;\">Zustand {{ ospfStep }} / 7 \u2014 {{ ospfTitle }}</div>\n        <div style=\"font-size:20px;color:#cbd5e1;line-height:1.5;\">{{ ospfDesc }}</div>\n      </div>\n      <div style=\"display:flex;align-items:center;justify-content:space-between;flex-shrink:0;\">\n        <button data-act=\"prev\" style=\"background:#1a2230;border:1px solid #2b3647;color:#f1f5f9;padding:11px 30px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;\">\u2190 Zur\u00fcck</button>\n        <div style=\"font-size:16px;color:#5b6a80;\">Schritt f\u00fcr Schritt durch die OSPF-Nachbarschaft</div>\n        <button data-act=\"next\" style=\"background:#8b5cf6;border:none;color:#fff;padding:11px 34px;border-radius:9px;font-size:19px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;\">Weiter \u2192</button>\n      </div>\n    </div>\n  </div>\n</section>";
+  
+function compute(os){
+  var t=['DOWN','INIT','2-WAY','EXSTART','EXCHANGE','LOADING','FULL'];
+  var d=[
+    'Kein Hello empfangen. Kein OSPF-Nachbar auf diesem Interface sichtbar oder Link ist down.',
+    "Hello von R2 empfangen — aber R1's Router-ID (1.1.1.1) erscheint noch NICHT im Hello von R2.",
+    "R1 sieht sich selbst in R2's Hello → bidirektionale Kommunikation bestätigt. Auf Multi-Access-Netzen: DR/BDR-Wahl.",
+    'Master/Slave-Verhandlung per DBD-Paketen. Höhere Router-ID (2.2.2.2) wird Master und setzt die Sequenznummer.',
+    'DBD-Pakete (LSDB-Zusammenfassung) werden ausgetauscht. Jeder Router markiert fehlende LSAs für den nächsten Schritt.',
+    'R1 sendet LSR (Link-State Request) für fehlende LSAs → R2 antwortet mit LSU → R1 bestätigt per LSAck.',
+    'LSDB vollständig synchronisiert! Vollständige OSPF-Nachbarschaft etabliert. SPF-Baum wird berechnet.'
+  ];
+  var colors=['#2b3647','#f59e0b','#0ea5e9','#8b5cf6','#a78bfa','#10b981','#34d399'];
+  var oa='#8b5cf6', off='#2b3647';
+  return {
+    ospfStep:os+1, ospfTitle:t[os], ospfDesc:d[os], ospfLinkColor:colors[os],
+    ospfHelloOneOp:os===1?1:0, ospfHelloBidiOp:(os>=2&&os<=6)?1:0,
+    ospfDbdOp:(os===3||os===4)?1:0, ospfLsrOp:os===5?1:0, ospfDataOp:os===6?1:0,
+    ospfD1:os>=1?oa:off, ospfD2:os>=2?oa:off, ospfD3:os>=3?oa:off,
+    ospfD4:os>=4?oa:off, ospfD5:os>=5?oa:off, ospfD6:os>=6?oa:off
+  };
+}
+var MAXSTEP=6;
+
+  var stage=document.getElementById('stage'), wrap=document.getElementById('wrap');
+  var step=0;
+  function render(){
+    var v=compute(step);
+    stage.innerHTML=TPL.replace(/\{\{\s*(\w+)\s*\}\}/g,function(m,k){return (k in v)?String(v[k]):m;});
+  }
+  stage.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act]'); if(!b) return;
+    if(b.getAttribute('data-act')==='next') step=Math.min(MAXSTEP,step+1);
+    else step=Math.max(0,step-1);
+    render();
+  });
+  function fit(){var sc=wrap.clientWidth/1920;stage.style.transform='scale('+sc+')';wrap.style.height=(1080*sc)+'px';}
+  if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
+  render(); fit();
+})();
 </script>
 </body>
 </html>
