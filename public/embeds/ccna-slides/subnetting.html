@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#080b12;}
+*{box-sizing:border-box;}
+button:hover{filter:brightness(1.18);}
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<section data-label="Subnetting" data-speaker-notes="4-Schritt-Methode, Binär-Visualisierung der Netz-/Hostbits, Subnetz-Tabelle und Masken-Referenz." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:18px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:16px;border-bottom:2px solid #f59e0b;flex-shrink:0;">
+    <div style="background:#f59e0b;color:#1c1917;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">IP-ADRESSIERUNG</div>
+    <h1 style="margin:0;font-size:48px;font-weight:700;line-height:1.05;color:#f8fafc;">Subnetting <span style="color:#fbbf24;">berechnen</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="min-width:38px;height:38px;border-radius:50%;background:#f59e0b;color:#1c1917;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex-shrink:0;">1</div>
+        <div><div style="font-size:20px;font-weight:600;color:#fbbf24;margin-bottom:5px;">IP-KLASSE ERKENNEN</div><div style="display:flex;gap:18px;font-size:18px;color:#94a3b8;"><div><strong style="color:#f8fafc;">A</strong> /8</div><div><strong style="color:#f8fafc;">B</strong> /16</div><div><strong style="color:#f8fafc;">C</strong> /24</div></div><div style="margin-top:6px;font-size:15px;color:#5b6a80;font-family:'IBM Plex Mono';">A 1–126 · B 128–191 · C 192–223</div></div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="min-width:38px;height:38px;border-radius:50%;background:#f59e0b;color:#1c1917;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex-shrink:0;">2</div>
+        <div style="flex:1;"><div style="font-size:20px;font-weight:600;color:#fbbf24;margin-bottom:8px;">HOST-FORMEL</div><div style="background:#080b12;border:1px solid #4a3a18;border-radius:8px;padding:10px;font-size:26px;font-weight:600;color:#f8fafc;font-family:'IBM Plex Mono';text-align:center;">2ⁿ − 2 ≥ benötigte Hosts</div><div style="margin-top:6px;font-size:16px;color:#94a3b8;"><strong style="color:#f8fafc;">n</strong> = verbleibende Hostbits</div></div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="min-width:38px;height:38px;border-radius:50%;background:#f59e0b;color:#1c1917;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex-shrink:0;">3</div>
+        <div style="flex:1;"><div style="font-size:20px;font-weight:600;color:#fbbf24;margin-bottom:8px;">BLOCK-SIZE</div><div style="display:flex;gap:10px;align-items:center;font-size:17px;font-family:'IBM Plex Mono';"><span style="background:#080b12;border:1px solid #2b3647;padding:6px 12px;border-radius:6px;color:#34d399;">256 − Masken-Oktett</span><span style="color:#5b6a80;">=</span><span style="background:#080b12;border:1px solid #4a3a18;padding:6px 12px;border-radius:6px;color:#fbbf24;">Block</span></div><div style="font-size:15px;color:#94a3b8;margin-top:6px;">z.B. .192 → 256−192 = <strong style="color:#fbbf24;">64</strong></div></div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;flex:1;">
+        <div style="background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">CIDR-SCHNELLREFERENZ</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center;">
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 4px;"><div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:'IBM Plex Mono';">/25</div><div style="font-size:18px;color:#f8fafc;">126</div><div style="font-size:13px;color:#5b6a80;">Hosts</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 4px;"><div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:'IBM Plex Mono';">/26</div><div style="font-size:18px;color:#f8fafc;">62</div><div style="font-size:13px;color:#5b6a80;">Hosts</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 4px;"><div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:'IBM Plex Mono';">/27</div><div style="font-size:18px;color:#f8fafc;">30</div><div style="font-size:13px;color:#5b6a80;">Hosts</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 4px;"><div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:'IBM Plex Mono';">/28</div><div style="font-size:18px;color:#f8fafc;">14</div><div style="font-size:13px;color:#5b6a80;">Hosts</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 4px;"><div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:'IBM Plex Mono';">/29</div><div style="font-size:18px;color:#f8fafc;">6</div><div style="font-size:13px;color:#5b6a80;">Hosts</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">BINÄR-VISUALISIERUNG · /26</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;">
+          <div style="color:#5b6a80;margin-bottom:6px;font-size:13px;">IP: 192.168.1.0</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <span style="color:#94a3b8;width:74px;font-size:13px;">Binär</span>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <div style="background:rgba(16,185,129,0.15);border:1px solid #16463a;padding:4px 6px;border-radius:4px;color:#6ee7b7;">11000000</div><span style="color:#3d4a5e;">.</span>
+              <div style="background:rgba(16,185,129,0.15);border:1px solid #16463a;padding:4px 6px;border-radius:4px;color:#6ee7b7;">10101000</div><span style="color:#3d4a5e;">.</span>
+              <div style="background:rgba(16,185,129,0.15);border:1px solid #16463a;padding:4px 6px;border-radius:4px;color:#6ee7b7;">00000001</div><span style="color:#3d4a5e;">.</span>
+              <div style="display:flex;"><div style="background:rgba(16,185,129,0.15);border:1px solid #16463a;padding:4px 5px;border-radius:4px 0 0 4px;color:#6ee7b7;">00</div><div style="background:rgba(245,158,11,0.2);border:1px solid #4a3a18;padding:4px 5px;border-radius:0 4px 4px 0;color:#fbbf24;">000000</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+            <span style="color:#94a3b8;width:74px;font-size:13px;">Maske /26</span>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <div style="background:#080b12;border:1px solid #2b3647;padding:4px 6px;border-radius:4px;color:#5b6a80;">11111111</div><span style="color:#3d4a5e;">.</span>
+              <div style="background:#080b12;border:1px solid #2b3647;padding:4px 6px;border-radius:4px;color:#5b6a80;">11111111</div><span style="color:#3d4a5e;">.</span>
+              <div style="background:#080b12;border:1px solid #2b3647;padding:4px 6px;border-radius:4px;color:#5b6a80;">11111111</div><span style="color:#3d4a5e;">.</span>
+              <div style="display:flex;"><div style="background:rgba(16,185,129,0.2);border:1px solid #16463a;padding:4px 5px;border-radius:4px 0 0 4px;color:#6ee7b7;">11</div><div style="background:#080b12;border:1px solid #2b3647;padding:4px 5px;border-radius:0 4px 4px 0;color:#5b6a80;">000000</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:20px;font-size:15px;">
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;background:rgba(16,185,129,0.45);border:1px solid #10b981;border-radius:3px;"></div><span style="color:#6ee7b7;">Netzbits (26)</span></div>
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;background:rgba(245,158,11,0.45);border:1px solid #f59e0b;border-radius:3px;"></div><span style="color:#fbbf24;">Hostbits (6) → 2⁶−2 = <strong>62</strong></span></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="font-size:20px;font-weight:600;color:#fbbf24;margin-bottom:10px;">SUBNETZ-TABELLE · 192.168.1.0/26</div>
+        <table style="width:100%;border-collapse:collapse;font-size:16px;font-family:'IBM Plex Mono',monospace;">
+          <thead><tr><th style="padding:5px 6px;text-align:left;font-size:12px;color:#fbbf24;border-bottom:1px solid #4a3a18;font-family:'IBM Plex Sans';">NETZ</th><th style="padding:5px 6px;text-align:left;font-size:12px;color:#fbbf24;border-bottom:1px solid #4a3a18;font-family:'IBM Plex Sans';">1. HOST</th><th style="padding:5px 6px;text-align:left;font-size:12px;color:#fbbf24;border-bottom:1px solid #4a3a18;font-family:'IBM Plex Sans';">LETZTER</th><th style="padding:5px 6px;text-align:left;font-size:12px;color:#fbbf24;border-bottom:1px solid #4a3a18;font-family:'IBM Plex Sans';">BROADCAST</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:5px 6px;color:#34d399;">.0/26</td><td style="padding:5px 6px;color:#94a3b8;">.1</td><td style="padding:5px 6px;color:#94a3b8;">.62</td><td style="padding:5px 6px;color:#fbbf24;">.63</td></tr>
+            <tr><td style="padding:5px 6px;color:#34d399;">.64/26</td><td style="padding:5px 6px;color:#94a3b8;">.65</td><td style="padding:5px 6px;color:#94a3b8;">.126</td><td style="padding:5px 6px;color:#fbbf24;">.127</td></tr>
+            <tr><td style="padding:5px 6px;color:#34d399;">.128/26</td><td style="padding:5px 6px;color:#94a3b8;">.129</td><td style="padding:5px 6px;color:#94a3b8;">.190</td><td style="padding:5px 6px;color:#fbbf24;">.191</td></tr>
+            <tr><td style="padding:5px 6px;color:#34d399;">.192/26</td><td style="padding:5px 6px;color:#94a3b8;">.193</td><td style="padding:5px 6px;color:#94a3b8;">.254</td><td style="padding:5px 6px;color:#fbbf24;">.255</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;flex:1;">
+        <div style="background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">GÄNGIGE SUBNETZMASKEN</div>
+        <table style="width:100%;border-collapse:collapse;font-size:16px;">
+          <thead><tr><th style="padding:5px 8px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">PRÄFIX</th><th style="padding:5px 8px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">MASKE</th><th style="padding:5px 8px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">HOSTS</th><th style="padding:5px 8px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">SUBNETZE</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#fbbf24;">/24</td><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#94a3b8;">255.255.255.0</td><td style="padding:5px 8px;color:#f8fafc;">254</td><td style="padding:5px 8px;color:#5b6a80;">1</td></tr>
+            <tr><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#fbbf24;">/25</td><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#94a3b8;">255.255.255.128</td><td style="padding:5px 8px;color:#f8fafc;">126</td><td style="padding:5px 8px;color:#5b6a80;">2</td></tr>
+            <tr><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#fbbf24;">/26</td><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#94a3b8;">255.255.255.192</td><td style="padding:5px 8px;color:#f8fafc;">62</td><td style="padding:5px 8px;color:#5b6a80;">4</td></tr>
+            <tr><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#fbbf24;">/27</td><td style="padding:5px 8px;font-family:'IBM Plex Mono';color:#94a3b8;">255.255.255.224</td><td style="padding:5px 8px;color:#f8fafc;">30</td><td style="padding:5px 8px;color:#5b6a80;">8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: 0 };
+  renderVals() {
+    const s = this.state.step;
+    const titles = ['BPDU-Austausch', 'Root-Bridge-Wahl', 'Root-Ports (RP)', 'Designated-Ports (DP)', 'Blocking & Forwarding'];
+    const descs = [
+      'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
+      'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
+      'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
+      'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
+      'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
+    ];
+    const accent = '#6366f1', off = '#2b3647';
+    return {
+      stpStep: s + 1,
+      stpTitle: titles[s],
+      stpDesc: descs[s],
+      stpNext: () => this.setState(p => ({ step: Math.min(4, p.step + 1) })),
+      stpPrev: () => this.setState(p => ({ step: Math.max(0, p.step - 1) })),
+      dot1: s >= 1 ? accent : off,
+      dot2: s >= 2 ? accent : off,
+      dot3: s >= 3 ? accent : off,
+      dot4: s >= 4 ? accent : off,
+      bpduOp: s === 0 ? 1 : 0,
+      sw1NormalOp: s === 0 ? 1 : 0,
+      sw1RootOp: s >= 1 ? 1 : 0,
+      rpOp: s >= 2 ? 1 : 0,
+      dpOp: s >= 3 ? 1 : 0,
+      blkOp: s >= 4 ? 1 : 0,
+      flowOp: s >= 4 ? 1 : 0,
+      l12GrayOp: s >= 4 ? 0 : 1,
+      l13GrayOp: s >= 4 ? 0 : 1,
+      l24GrayOp: s >= 4 ? 0 : 1,
+      l34GrayOp: s >= 4 ? 0 : 1,
+      l12GreenOp: s >= 4 ? 1 : 0,
+      l13GreenOp: s >= 4 ? 1 : 0,
+      l24GreenOp: s >= 4 ? 1 : 0,
+      l34BlkOp: s >= 4 ? 1 : 0
+    };
+  }
+}
+</script>
+</body>
+</html>

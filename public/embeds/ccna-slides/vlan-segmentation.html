@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#080b12;}
+*{box-sizing:border-box;}
+button:hover{filter:brightness(1.18);}
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<section data-label="VLAN Segmentation" data-speaker-notes="Hierarchische Topologie mit animiertem VLAN-Verkehr über Trunks, IP-Plan und Security-Regeln." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:18px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:16px;border-bottom:2px solid #0ea5e9;flex-shrink:0;">
+    <div style="background:#0ea5e9;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">VLAN-DESIGN</div>
+    <h1 style="margin:0;font-size:48px;font-weight:700;line-height:1.05;color:#f8fafc;">VLAN-Segmentierung <span style="color:#38bdf8;">— Topologie &amp; Datenfluss</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 2fr 1.1fr;gap:18px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">DESIGN-ZIELE</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:20px;color:#cbd5e1;">
+          <div><span style="color:#34d399;">✓</span> Segmentierung für Sicherheit</div>
+          <div><span style="color:#34d399;">✓</span> Kleinere Broadcast-Domänen</div>
+          <div><span style="color:#34d399;">✓</span> Bessere Performance</div>
+          <div><span style="color:#34d399;">✓</span> Least-Privilege-Zugriff</div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">SECURITY-REGELN</div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="background:#080b12;border-radius:7px;padding:8px 12px;"><div style="color:#a5b4fc;font-weight:600;font-size:17px;">VLAN 10 · Management</div><div style="color:#94a3b8;font-size:15px;">SSH/HTTPS/SNMP · nur IT-Admin</div></div>
+          <div style="background:#080b12;border-radius:7px;padding:8px 12px;"><div style="color:#6ee7b7;font-weight:600;font-size:17px;">VLAN 20/30 · Staff</div><div style="color:#94a3b8;font-size:15px;">nur Internet (HTTP/DNS)</div></div>
+          <div style="background:#080b12;border-radius:7px;padding:8px 12px;"><div style="color:#fcd34d;font-weight:600;font-size:17px;">VLAN 40 · Finance</div><div style="color:#94a3b8;font-size:15px;">Zugriff auf VLAN 100 Server</div></div>
+          <div style="background:#080b12;border-radius:7px;padding:8px 12px;"><div style="color:#fda4af;font-weight:600;font-size:17px;">VLAN 50 · Guest <span style="color:#f43f5e;">✕</span></div><div style="color:#94a3b8;font-size:15px;">von internen VLANs gesperrt</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;display:flex;flex-direction:column;">
+      <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;align-self:flex-start;">TOPOLOGIE · ANIMIERTER VLAN-VERKEHR</div>
+      <svg viewBox="0 0 560 360" style="width:100%;flex:1;" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="280" cy="22" rx="56" ry="19" fill="#080b12" stroke="#2b3647" stroke-width="1.5"/>
+        <text x="280" y="28" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="600" font-family="IBM Plex Sans,sans-serif">☁ INTERNET</text>
+        <line x1="280" y1="41" x2="280" y2="56" stroke="#3d4a5e" stroke-width="2"/>
+        <rect x="240" y="56" width="80" height="36" rx="6" fill="#1a2230" stroke="#f43f5e" stroke-width="2"/>
+        <text x="280" y="71" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="600" font-family="IBM Plex Sans,sans-serif">FIREWALL</text>
+        <text x="280" y="85" text-anchor="middle" fill="#fb7185" font-size="10" font-family="IBM Plex Sans,sans-serif">NGFW / IPS</text>
+        <line x1="280" y1="92" x2="280" y2="116" stroke="#3d4a5e" stroke-width="2"/>
+        <rect x="186" y="116" width="188" height="44" rx="7" fill="#1a2230" stroke="#6366f1" stroke-width="2.5"/>
+        <text x="280" y="135" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="600" font-family="IBM Plex Sans,sans-serif">L3 CORE-SWITCH</text>
+        <text x="280" y="151" text-anchor="middle" fill="#818cf8" font-size="11" font-family="IBM Plex Sans,sans-serif">Inter-VLAN-Routing · SVIs</text>
+
+        <line x1="218" y1="160" x2="85" y2="228" stroke="#243042" stroke-width="6"/>
+        <line x1="280" y1="160" x2="280" y2="228" stroke="#243042" stroke-width="6"/>
+        <line x1="342" y1="160" x2="475" y2="228" stroke="#243042" stroke-width="6"/>
+        <text x="135" y="197" text-anchor="middle" fill="#3d4a5e" font-size="9" font-family="IBM Plex Sans,sans-serif" transform="rotate(-35,135,197)">TRUNK</text>
+        <text x="267" y="198" text-anchor="middle" fill="#3d4a5e" font-size="9" font-family="IBM Plex Sans,sans-serif">TRUNK</text>
+        <text x="426" y="197" text-anchor="middle" fill="#3d4a5e" font-size="9" font-family="IBM Plex Sans,sans-serif" transform="rotate(32,426,197)">TRUNK</text>
+
+        <circle r="5.5" fill="#6366f1"><animate attributeName="cx" from="218" to="85" dur="1.6s" repeatCount="indefinite"/><animate attributeName="cy" from="160" to="228" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.6s" repeatCount="indefinite"/></circle>
+        <circle r="5.5" fill="#10b981"><animate attributeName="cx" from="218" to="85" dur="1.6s" repeatCount="indefinite" begin="0.55s"/><animate attributeName="cy" from="160" to="228" dur="1.6s" repeatCount="indefinite" begin="0.55s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.6s" repeatCount="indefinite" begin="0.55s"/></circle>
+        <circle r="5.5" fill="#f59e0b"><animate attributeName="cx" from="280" to="280" dur="1.4s" repeatCount="indefinite" begin="0.1s"/><animate attributeName="cy" from="160" to="228" dur="1.4s" repeatCount="indefinite" begin="0.1s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite" begin="0.1s"/></circle>
+        <circle r="5.5" fill="#8b5cf6"><animate attributeName="cx" from="280" to="280" dur="1.4s" repeatCount="indefinite" begin="0.65s"/><animate attributeName="cy" from="160" to="228" dur="1.4s" repeatCount="indefinite" begin="0.65s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite" begin="0.65s"/></circle>
+        <circle r="5.5" fill="#0ea5e9"><animate attributeName="cx" from="342" to="475" dur="1.7s" repeatCount="indefinite" begin="0.25s"/><animate attributeName="cy" from="160" to="228" dur="1.7s" repeatCount="indefinite" begin="0.25s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.7s" repeatCount="indefinite" begin="0.25s"/></circle>
+        <circle r="4.5" fill="#f1f5f9" opacity="0.5"><animate attributeName="cx" from="85" to="218" dur="1.6s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="cy" from="228" to="160" dur="1.6s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="opacity" values="0;0.5;0.5;0" dur="1.6s" repeatCount="indefinite" begin="0.9s"/></circle>
+        <circle r="4.5" fill="#f1f5f9"><animate attributeName="cx" from="280" to="280" dur="1.2s" repeatCount="indefinite"/><animate attributeName="cy" from="41" to="116" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.8;0.8;0" dur="1.2s" repeatCount="indefinite"/></circle>
+
+        <rect x="28" y="228" width="114" height="40" rx="6" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
+        <text x="85" y="245" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="600" font-family="IBM Plex Sans,sans-serif">ACCESS-SW1</text>
+        <text x="85" y="259" text-anchor="middle" fill="#5b6a80" font-size="9.5" font-family="IBM Plex Sans,sans-serif">SALES / MGMT</text>
+        <rect x="28" y="262" width="57" height="6" fill="#6366f1" opacity="0.7"/><rect x="85" y="262" width="57" height="6" fill="#10b981" opacity="0.7"/>
+        <rect x="220" y="228" width="120" height="40" rx="6" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
+        <text x="280" y="245" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="600" font-family="IBM Plex Sans,sans-serif">ACCESS-SW2</text>
+        <text x="280" y="259" text-anchor="middle" fill="#5b6a80" font-size="9.5" font-family="IBM Plex Sans,sans-serif">FINANCE / HR</text>
+        <rect x="220" y="262" width="60" height="6" fill="#f59e0b" opacity="0.7"/><rect x="280" y="262" width="60" height="6" fill="#8b5cf6" opacity="0.7"/>
+        <rect x="418" y="228" width="118" height="40" rx="6" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
+        <text x="477" y="245" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="600" font-family="IBM Plex Sans,sans-serif">ACCESS-SW3</text>
+        <text x="477" y="259" text-anchor="middle" fill="#5b6a80" font-size="9.5" font-family="IBM Plex Sans,sans-serif">GUEST / IoT</text>
+        <rect x="418" y="262" width="118" height="6" fill="#0ea5e9" opacity="0.7"/>
+
+        <line x1="55" y1="268" x2="42" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="85" y1="268" x2="85" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="115" y1="268" x2="128" y2="298" stroke="#2b3647" stroke-width="1.5"/>
+        <line x1="250" y1="268" x2="237" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="280" y1="268" x2="280" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="310" y1="268" x2="323" y2="298" stroke="#2b3647" stroke-width="1.5"/>
+        <line x1="450" y1="268" x2="437" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="477" y1="268" x2="477" y2="298" stroke="#2b3647" stroke-width="1.5"/><line x1="504" y1="268" x2="517" y2="298" stroke="#2b3647" stroke-width="1.5"/>
+
+        <rect x="22" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#6366f1" stroke-width="1"/><text x="41" y="314" text-anchor="middle" fill="#818cf8" font-size="9" font-family="IBM Plex Sans,sans-serif">V10</text>
+        <rect x="66" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#6366f1" stroke-width="1"/><text x="85" y="314" text-anchor="middle" fill="#818cf8" font-size="9" font-family="IBM Plex Sans,sans-serif">V10</text>
+        <rect x="110" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#10b981" stroke-width="1"/><text x="129" y="314" text-anchor="middle" fill="#34d399" font-size="9" font-family="IBM Plex Sans,sans-serif">V20</text>
+        <rect x="218" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#f59e0b" stroke-width="1"/><text x="237" y="314" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="IBM Plex Sans,sans-serif">V30</text>
+        <rect x="262" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#f59e0b" stroke-width="1"/><text x="281" y="314" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="IBM Plex Sans,sans-serif">V30</text>
+        <rect x="306" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#8b5cf6" stroke-width="1"/><text x="325" y="314" text-anchor="middle" fill="#a78bfa" font-size="9" font-family="IBM Plex Sans,sans-serif">V40</text>
+        <rect x="418" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#0ea5e9" stroke-width="1"/><text x="437" y="314" text-anchor="middle" fill="#38bdf8" font-size="9" font-family="IBM Plex Sans,sans-serif">V50</text>
+        <rect x="458" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#0ea5e9" stroke-width="1"/><text x="477" y="314" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-family="IBM Plex Sans,sans-serif">WiFi</text>
+        <rect x="498" y="298" width="38" height="24" rx="3" fill="#080b12" stroke="#5b6a80" stroke-width="1"/><text x="517" y="314" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="IBM Plex Sans,sans-serif">IoT</text>
+
+        <g transform="translate(8,344)" font-family="IBM Plex Sans,sans-serif">
+          <rect x="0" y="0" width="10" height="10" fill="#6366f1" rx="2"/><text x="14" y="9" fill="#5b6a80" font-size="9.5">V10 Mgmt</text>
+          <rect x="92" y="0" width="10" height="10" fill="#10b981" rx="2"/><text x="106" y="9" fill="#5b6a80" font-size="9.5">V20 Sales</text>
+          <rect x="182" y="0" width="10" height="10" fill="#f59e0b" rx="2"/><text x="196" y="9" fill="#5b6a80" font-size="9.5">V30 Finance</text>
+          <rect x="284" y="0" width="10" height="10" fill="#8b5cf6" rx="2"/><text x="298" y="9" fill="#5b6a80" font-size="9.5">V40 HR</text>
+          <rect x="360" y="0" width="10" height="10" fill="#0ea5e9" rx="2"/><text x="374" y="9" fill="#5b6a80" font-size="9.5">V50 Guest</text>
+        </g>
+      </svg>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 20px;flex:1;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">IP-ADRESSPLAN</div>
+        <table style="width:100%;border-collapse:collapse;font-size:16px;">
+          <thead><tr><th style="padding:5px 6px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">VLAN</th><th style="padding:5px 6px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">NAME</th><th style="padding:5px 6px;text-align:left;font-size:12px;color:#5b6a80;border-bottom:1px solid #2b3647;">SUBNETZ</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:6px;"><span style="background:#6366f1;color:#fff;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">10</span></td><td style="padding:6px;color:#a5b4fc;font-weight:600;">MGMT</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.10.0/24</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#10b981;color:#fff;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">20</span></td><td style="padding:6px;color:#6ee7b7;font-weight:600;">SALES</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.20.0/24</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#f59e0b;color:#1c1917;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">30</span></td><td style="padding:6px;color:#fcd34d;font-weight:600;">FINANCE</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.30.0/24</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#8b5cf6;color:#fff;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">40</span></td><td style="padding:6px;color:#c4b5fd;font-weight:600;">HR</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.40.0/24</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#0ea5e9;color:#fff;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">50</span></td><td style="padding:6px;color:#7dd3fc;font-weight:600;">GUEST</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.50.0/24</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#5b6a80;color:#fff;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">99</span></td><td style="padding:6px;color:#94a3b8;font-weight:600;">NATIVE</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#5b6a80;font-size:13px;">— unbenutzt —</td></tr>
+            <tr><td style="padding:6px;"><span style="background:#f59e0b;color:#1c1917;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:700;">100</span></td><td style="padding:6px;color:#fcd34d;font-weight:600;">SERVER</td><td style="padding:6px;font-family:'IBM Plex Mono';color:#94a3b8;font-size:13px;">192.168.100.0/24</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">TRUNK-KONFIG</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;line-height:1.7;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:12px 14px;">
+          <div style="color:#fbbf24;">! Uplink zum Core</div>
+          <div style="color:#34d399;">interface gig0/1</div>
+          <div style="color:#34d399;">switchport mode trunk</div>
+          <div style="color:#7dd3fc;">switchport trunk allowed</div>
+          <div style="color:#7dd3fc;"> vlan 10,20,30,40,50,99,100</div>
+          <div style="color:#34d399;">switchport trunk native vlan 99</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: 0 };
+  renderVals() {
+    const s = this.state.step;
+    const titles = ['BPDU-Austausch', 'Root-Bridge-Wahl', 'Root-Ports (RP)', 'Designated-Ports (DP)', 'Blocking & Forwarding'];
+    const descs = [
+      'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
+      'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
+      'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
+      'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
+      'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
+    ];
+    const accent = '#6366f1', off = '#2b3647';
+    return {
+      stpStep: s + 1,
+      stpTitle: titles[s],
+      stpDesc: descs[s],
+      stpNext: () => this.setState(p => ({ step: Math.min(4, p.step + 1) })),
+      stpPrev: () => this.setState(p => ({ step: Math.max(0, p.step - 1) })),
+      dot1: s >= 1 ? accent : off,
+      dot2: s >= 2 ? accent : off,
+      dot3: s >= 3 ? accent : off,
+      dot4: s >= 4 ? accent : off,
+      bpduOp: s === 0 ? 1 : 0,
+      sw1NormalOp: s === 0 ? 1 : 0,
+      sw1RootOp: s >= 1 ? 1 : 0,
+      rpOp: s >= 2 ? 1 : 0,
+      dpOp: s >= 3 ? 1 : 0,
+      blkOp: s >= 4 ? 1 : 0,
+      flowOp: s >= 4 ? 1 : 0,
+      l12GrayOp: s >= 4 ? 0 : 1,
+      l13GrayOp: s >= 4 ? 0 : 1,
+      l24GrayOp: s >= 4 ? 0 : 1,
+      l34GrayOp: s >= 4 ? 0 : 1,
+      l12GreenOp: s >= 4 ? 1 : 0,
+      l13GreenOp: s >= 4 ? 1 : 0,
+      l24GreenOp: s >= 4 ? 1 : 0,
+      l34BlkOp: s >= 4 ? 1 : 0
+    };
+  }
+}
+</script>
+</body>
+</html>

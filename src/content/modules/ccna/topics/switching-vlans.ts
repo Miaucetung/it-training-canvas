@@ -118,6 +118,8 @@ export const CONCEPT_STP: Concept = {
 
 ---
 
+:::slide:stp:::
+
 ## 1. Das Problem — warum brauchen wir STP überhaupt?
 
 Stell dir vor, du verbindest drei Switches zu einem **Dreieck** (für Redundanz – fällt ein Kabel aus, gibt es noch einen Weg). Ohne STP passiert in Sekunden ein **Layer-2-Meltdown**:

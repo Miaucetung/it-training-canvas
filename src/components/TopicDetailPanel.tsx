@@ -23,8 +23,9 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { lazy, Suspense, useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { SlideEmbed } from "./SlideEmbed";
 import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
 import {
   exportLessonAsMarkdown,
@@ -68,20 +69,9 @@ const RoutingSimulatorDialog = lazy(() =>
 const RouterOnAStickDialog = lazy(() =>
   import("./RouterOnAStickDialog").then((m) => ({ default: m.RouterOnAStickDialog })),
 );
-const SlideDeckDialog = lazy(() =>
-  import("./SlideDeckDialog").then((m) => ({ default: m.SlideDeckDialog })),
-);
-
-// Audit: welche Referenz-Slide (1-indiziert) am besten zu welchem Topic passt.
-// Das Deck ist voll navigierbar — der Eintrag öffnet bei der relevantesten Slide.
-const SLIDE_DECK_MAP: Record<string, { slide: number; label: string }> = {
-  "networking-fundamentals": { slide: 2, label: "OSI-Modell, Netzwerkgeräte & Office-Design" },
-  "switching-vlans": { slide: 1, label: "Spanning Tree & Switch-Konfiguration" },
-  "vlan-advanced": { slide: 4, label: "VLAN-Segmentierung & Native VLAN" },
-  "ipv4-addressing": { slide: 5, label: "Subnetting berechnen & Wildcard" },
-  "ios-cli": { slide: 7, label: "Switch per Konsole erreichen" },
-  "routing-ospf": { slide: 9, label: "Subnetzmaske vs. Wildcard-Maske" },
-};
+// Inline-Slides (Auffrischung zwischen Textabschnitten) werden im Concept-Markdown
+// per Sentinel  :::slide:<slug>:::  platziert und über <SlideEmbed> gerendert.
+const SLIDE_SENTINEL = /^:::slide:([a-z0-9-]+):::\s*$/m;
 
 interface TopicDetailPanelProps {
   topic: Topic;
@@ -154,9 +144,7 @@ export function TopicDetailPanel({
   const [osiSimOpen, setOsiSimOpen] = useState(false);
   const [routingSimOpen, setRoutingSimOpen] = useState(false);
   const [roasAnimOpen, setRoasAnimOpen] = useState(false);
-  const [slideDeckOpen, setSlideDeckOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
-  const slideDeck = SLIDE_DECK_MAP[topic.id];
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
@@ -498,34 +486,6 @@ export function TopicDetailPanel({
           </section>
         )}
 
-        {/* ── CCNA Reference Slides CTA (Claude-Design-Deck) ── */}
-        {slideDeck && (
-          <section>
-            <button
-              type="button"
-              onClick={() => setSlideDeckOpen(true)}
-              className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
-                dark
-                  ? "bg-sky-500/10 border-sky-500/30 hover:bg-sky-500/20 text-sky-200"
-                  : "bg-sky-50 border-sky-200 hover:bg-sky-100 text-sky-800"
-              }`}
-            >
-              <div
-                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-lg ${
-                  dark ? "bg-sky-500/30 text-sky-200" : "bg-sky-100 text-sky-700"
-                }`}
-              >
-                📊
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold">CCNA Reference Slides</div>
-                <div className="text-xs opacity-80 mt-0.5">{slideDeck.label} · ← → zum Blättern</div>
-              </div>
-              <span className={`text-xs ${dark ? "text-sky-300" : "text-sky-600"}`}>Öffnen →</span>
-            </button>
-          </section>
-        )}
-
         {/* ── OSI-Simulator CTA ── */}
         {hasOsiSimulator && (
           <section>
@@ -854,9 +814,8 @@ export function TopicDetailPanel({
                       </div>
                       {/* Phase 6c-3a: full Markdown rendering with custom components */}
                       <div className="mt-2">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
+                        {(() => {
+                          const mdComponents: Components = {
                             h1: ({ children }) => (
                               <h1
                                 className={`text-base font-bold mt-3 mb-1 ${dark ? "text-white" : "text-slate-900"}`}
@@ -977,10 +936,23 @@ export function TopicDetailPanel({
                                 className={`my-3 ${dark ? "border-slate-700" : "border-slate-200"}`}
                               />
                             ),
-                          }}
-                        >
-                          {concept.content}
-                        </ReactMarkdown>
+                          };
+                          return concept.content
+                            .split(SLIDE_SENTINEL)
+                            .map((part, i) =>
+                              i % 2 === 1 ? (
+                                <SlideEmbed key={i} slug={part} dark={dark} />
+                              ) : part.trim() ? (
+                                <ReactMarkdown
+                                  key={i}
+                                  remarkPlugins={[remarkGfm]}
+                                  components={mdComponents}
+                                >
+                                  {part}
+                                </ReactMarkdown>
+                              ) : null,
+                            );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -1206,15 +1178,6 @@ export function TopicDetailPanel({
         <RouterOnAStickDialog
           dark={dark}
           onClose={() => setRoasAnimOpen(false)}
-        />
-      )}
-
-      {slideDeck && slideDeckOpen && (
-        <SlideDeckDialog
-          dark={dark}
-          startSlide={slideDeck.slide}
-          subtitle={`${slideDeck.label} · ← → zum Blättern · 10 Slides`}
-          onClose={() => setSlideDeckOpen(false)}
         />
       )}
 

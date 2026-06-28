@@ -29,6 +29,8 @@ Das **ISO/OSI-Modell** (Open Systems Interconnection) ist ein 7-schichtiges Refe
 ### Merkhilfe (Schicht 7→1)
 **A**ll **P**eople **S**eem **T**o **N**eed **D**ata **P**rocessing
 
+:::slide:osi:::
+
 ### Schichten im Detail
 
 **Schicht 1 — Physical Layer (Bitübertragungsschicht)**

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#080b12;}
+*{box-sizing:border-box;}
+button:hover{filter:brightness(1.18);}
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<section data-label="Console Access" data-speaker-notes="Physische Verbindung Laptop↔Switch, Putty-Parameter, Login-Befehlskette und SSH-Hinweis." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:18px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:16px;border-bottom:2px solid #10b981;flex-shrink:0;">
+    <div style="background:#10b981;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">ERSTZUGRIFF</div>
+    <h1 style="margin:0;font-size:48px;font-weight:700;line-height:1.05;color:#f8fafc;">Switch-Zugriff <span style="color:#34d399;">über Konsole</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:18px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#10b981;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">PHYSISCHE VERBINDUNG</div>
+        <svg viewBox="0 0 500 150" style="width:100%;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="14" y="34" width="100" height="66" rx="7" fill="#080b12" stroke="#10b981" stroke-width="2"/>
+          <rect x="20" y="40" width="88" height="48" rx="4" fill="#0e131c"/>
+          <text x="64" y="68" text-anchor="middle" fill="#34d399" font-size="13" font-family="IBM Plex Mono,monospace">~$ _</text>
+          <rect x="8" y="100" width="112" height="7" rx="2" fill="#1a2230" stroke="#2b3647" stroke-width="1"/>
+          <text x="64" y="124" text-anchor="middle" fill="#94a3b8" font-size="12" font-family="IBM Plex Sans,sans-serif">Laptop · PuTTY</text>
+          <!-- console cable -->
+          <line x1="120" y1="67" x2="250" y2="67" stroke="#0ea5e9" stroke-width="3" stroke-dasharray="2,3"/>
+          <circle r="4" fill="#38bdf8"><animate attributeName="cx" from="120" to="250" dur="1.4s" repeatCount="indefinite"/><animate attributeName="cy" from="67" to="67" dur="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite"/></circle>
+          <rect x="148" y="44" width="74" height="17" rx="4" fill="#080b12" stroke="#0ea5e9" stroke-width="1"/>
+          <text x="185" y="56" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="IBM Plex Sans,sans-serif">Rollover/USB</text>
+          <!-- switch -->
+          <rect x="250" y="40" width="236" height="54" rx="7" fill="#080b12" stroke="#10b981" stroke-width="2"/>
+          <text x="368" y="58" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="600" font-family="IBM Plex Sans,sans-serif">CISCO CATALYST SWITCH</text>
+          <g>
+            <rect x="266" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="284" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="302" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="320" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="338" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="356" y="68" width="14" height="11" rx="1.5" fill="#1a2230" stroke="#2b3647"/>
+            <rect x="450" y="66" width="20" height="14" rx="2" fill="#0e131c" stroke="#0ea5e9" stroke-width="1.5"/>
+            <text x="460" y="90" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-family="IBM Plex Sans,sans-serif">CONSOLE</text>
+          </g>
+          <line x1="250" y1="67" x2="250" y2="67" stroke="#0ea5e9" stroke-width="3"/>
+        </svg>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;flex:1;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">SERIELLE PARAMETER · 9600 8N1</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:24px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono';">9600</div><div style="font-size:13px;color:#5b6a80;">Baud / Speed</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:24px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono';">8</div><div style="font-size:13px;color:#5b6a80;">Data Bits</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:24px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono';">None</div><div style="font-size:13px;color:#5b6a80;">Parity</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:24px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono';">1</div><div style="font-size:13px;color:#5b6a80;">Stop Bit</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:24px;font-weight:700;color:#38bdf8;font-family:'IBM Plex Mono';">None</div><div style="font-size:13px;color:#5b6a80;">Flow Ctrl</div></div>
+          <div style="background:#080b12;border:1px solid #16463a;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:#34d399;font-family:'IBM Plex Mono';">Serial</div><div style="font-size:13px;color:#5b6a80;">Conn-Type</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#10b981;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">LOGIN-BEFEHLSKETTE</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;line-height:1.65;background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px 16px;">
+          <div style="color:#5b6a80;">! 1 · Konsole sichern</div>
+          <div><span style="color:#818cf8;">Switch&gt;</span> <span style="color:#34d399;">enable</span></div>
+          <div><span style="color:#818cf8;">Switch#</span> <span style="color:#34d399;">configure terminal</span></div>
+          <div style="color:#34d399;">line console 0</div>
+          <div style="color:#34d399;"> password cisco</div>
+          <div style="color:#34d399;"> login</div>
+          <div style="color:#34d399;"> exec-timeout 5 0</div>
+          <div style="color:#34d399;"> logging synchronous</div>
+          <div style="color:#5b6a80;margin-top:6px;">! 2 · Privileged absichern</div>
+          <div style="color:#34d399;">enable secret class</div>
+          <div style="color:#34d399;">service password-encryption</div>
+          <div style="color:#5b6a80;margin-top:6px;">! 3 · Speichern</div>
+          <div><span style="color:#818cf8;">Switch#</span> <span style="color:#34d399;">copy running-config startup-config</span></div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">DANACH: REMOTE PER SSH</div>
+        <div style="display:flex;gap:14px;align-items:center;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;line-height:1.6;color:#94a3b8;flex:1;">
+            <div style="color:#34d399;">ip domain-name lab.local</div>
+            <div style="color:#34d399;">crypto key generate rsa</div>
+            <div style="color:#34d399;">line vty 0 15</div>
+            <div style="color:#34d399;"> transport input ssh</div>
+          </div>
+          <div style="padding:10px 14px;background:rgba(244,63,94,0.1);border:1px solid #4a1a25;border-radius:8px;font-size:14px;color:#fda4af;flex:1;">
+            <strong style="color:#fb7185;">Merke:</strong> Konsole ist Out-of-Band — funktioniert auch ohne IP-Konfiguration und bei Netzwerkausfall.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: 0 };
+  renderVals() {
+    const s = this.state.step;
+    const titles = ['BPDU-Austausch', 'Root-Bridge-Wahl', 'Root-Ports (RP)', 'Designated-Ports (DP)', 'Blocking & Forwarding'];
+    const descs = [
+      'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
+      'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
+      'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
+      'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
+      'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
+    ];
+    const accent = '#6366f1', off = '#2b3647';
+    return {
+      stpStep: s + 1,
+      stpTitle: titles[s],
+      stpDesc: descs[s],
+      stpNext: () => this.setState(p => ({ step: Math.min(4, p.step + 1) })),
+      stpPrev: () => this.setState(p => ({ step: Math.max(0, p.step - 1) })),
+      dot1: s >= 1 ? accent : off,
+      dot2: s >= 2 ? accent : off,
+      dot3: s >= 3 ? accent : off,
+      dot4: s >= 4 ? accent : off,
+      bpduOp: s === 0 ? 1 : 0,
+      sw1NormalOp: s === 0 ? 1 : 0,
+      sw1RootOp: s >= 1 ? 1 : 0,
+      rpOp: s >= 2 ? 1 : 0,
+      dpOp: s >= 3 ? 1 : 0,
+      blkOp: s >= 4 ? 1 : 0,
+      flowOp: s >= 4 ? 1 : 0,
+      l12GrayOp: s >= 4 ? 0 : 1,
+      l13GrayOp: s >= 4 ? 0 : 1,
+      l24GrayOp: s >= 4 ? 0 : 1,
+      l34GrayOp: s >= 4 ? 0 : 1,
+      l12GreenOp: s >= 4 ? 1 : 0,
+      l13GreenOp: s >= 4 ? 1 : 0,
+      l24GreenOp: s >= 4 ? 1 : 0,
+      l34BlkOp: s >= 4 ? 1 : 0
+    };
+  }
+}
+</script>
+</body>
+</html>

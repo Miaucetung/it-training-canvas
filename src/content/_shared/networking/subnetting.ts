@@ -23,6 +23,8 @@ export const CONCEPT_SUBNETTING: Concept = {
 Eine IP-Adresse mit Präfixlänge, z.B. **192.168.1.0/24**
 - /24 → erste 24 Bits = Netzanteil → Subnetzmaske 255.255.255.0
 
+:::slide:subnetting:::
+
 ### Subnetzmasken-Tabelle
 | CIDR | Subnetzmaske | Hosts | Block-Größe |
 |------|-------------|-------|------------|

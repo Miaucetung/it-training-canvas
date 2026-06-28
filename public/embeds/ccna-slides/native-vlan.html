@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#080b12;}
+*{box-sizing:border-box;}
+button:hover{filter:brightness(1.18);}
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+<section data-label="Native VLAN" data-speaker-notes="802.1Q-Frameformat mit Tag-Breakdown, Trunk-Diagramm tagged/untagged, Config beider Switches und Best Practice." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:18px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:16px;border-bottom:2px solid #6366f1;flex-shrink:0;">
+    <div style="background:#6366f1;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">802.1Q</div>
+    <h1 style="margin:0;font-size:48px;font-weight:700;line-height:1.05;color:#f8fafc;">Native VLAN <span style="color:#818cf8;">— Tagging &amp; Trunk-Links</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:18px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">802.1Q-FRAMEFORMAT</div>
+        <div style="display:flex;gap:2px;align-items:stretch;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;">
+          <div style="background:rgba(99,102,241,0.18);border:1px solid #2c2e63;border-radius:5px 0 0 5px;padding:7px 6px;text-align:center;flex:2;"><div style="color:#a5b4fc;font-weight:700;font-size:12px;">DST MAC</div><div style="color:#5b6a80;font-size:11px;">6 B</div></div>
+          <div style="background:rgba(16,185,129,0.18);border:1px solid #16463a;padding:7px 6px;text-align:center;flex:2;"><div style="color:#6ee7b7;font-weight:700;font-size:12px;">SRC MAC</div><div style="color:#5b6a80;font-size:11px;">6 B</div></div>
+          <div style="background:rgba(245,158,11,0.25);border:2px solid #f59e0b;padding:7px 6px;text-align:center;flex:1.6;"><div style="color:#fbbf24;font-weight:700;font-size:12px;">802.1Q</div><div style="color:#fbbf24;font-size:11px;">4 B</div></div>
+          <div style="background:rgba(139,92,246,0.18);border:1px solid #3b3357;padding:7px 4px;text-align:center;flex:1;"><div style="color:#c4b5fd;font-weight:700;font-size:11px;">TYPE</div><div style="color:#5b6a80;font-size:11px;">2B</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;padding:7px 6px;text-align:center;flex:3.5;"><div style="color:#94a3b8;font-weight:700;font-size:12px;">PAYLOAD</div><div style="color:#5b6a80;font-size:11px;">46–1500 B</div></div>
+          <div style="background:rgba(244,63,94,0.18);border:1px solid #4a1a25;border-radius:0 5px 5px 0;padding:7px 4px;text-align:center;flex:1;"><div style="color:#fda4af;font-weight:700;font-size:11px;">FCS</div><div style="color:#5b6a80;font-size:11px;">4B</div></div>
+        </div>
+        <div style="background:#080b12;border:1px solid #4a3a18;border-radius:8px;padding:10px 12px;">
+          <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:8px;letter-spacing:0.5px;">802.1Q-TAG · 4 BYTES AUFGESCHLÜSSELT</div>
+          <div style="display:flex;gap:2px;font-family:'IBM Plex Mono',monospace;">
+            <div style="background:rgba(99,102,241,0.16);border:1px solid #2c2e63;border-radius:4px;padding:5px 6px;text-align:center;flex:2;"><div style="color:#a5b4fc;font-weight:700;font-size:12px;">TPID</div><div style="color:#818cf8;font-size:12px;">0x8100</div><div style="color:#5b6a80;font-size:10px;">2 B</div></div>
+            <div style="background:rgba(245,158,11,0.14);border:1px solid #4a3a18;border-radius:4px;padding:5px 6px;text-align:center;flex:1;"><div style="color:#fbbf24;font-weight:700;font-size:12px;">PCP</div><div style="color:#f59e0b;font-size:12px;">3 bit</div><div style="color:#5b6a80;font-size:10px;">QoS</div></div>
+            <div style="background:#0e131c;border:1px solid #2b3647;border-radius:4px;padding:5px 4px;text-align:center;flex:0.7;"><div style="color:#94a3b8;font-weight:700;font-size:12px;">DEI</div><div style="color:#5b6a80;font-size:12px;">1</div></div>
+            <div style="background:rgba(245,158,11,0.22);border:2px solid #f59e0b;border-radius:4px;padding:5px 6px;text-align:center;flex:2.2;"><div style="color:#fbbf24;font-weight:700;font-size:12px;">VLAN ID</div><div style="color:#fbbf24;font-size:12px;">12 bit</div><div style="color:#5b6a80;font-size:10px;">1–4094</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+          <div style="background:rgba(245,158,11,0.1);border:1px solid #4a3a18;border-radius:7px;padding:8px 12px;"><div style="color:#fbbf24;font-weight:700;font-size:15px;">TAGGED</div><div style="color:#94a3b8;font-size:14px;">Tag enthält VLAN-ID → nur dieses VLAN empfängt</div></div>
+          <div style="background:#080b12;border:1px solid #2b3647;border-radius:7px;padding:8px 12px;"><div style="color:#94a3b8;font-weight:700;font-size:15px;">UNTAGGED</div><div style="color:#94a3b8;font-size:14px;">kein Tag → Switch nutzt <strong style="color:#f8fafc;">Native VLAN</strong></div></div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;flex:1;display:flex;flex-direction:column;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:8px;align-self:flex-start;">TRUNK-LINK · TAGGED vs UNTAGGED</div>
+        <svg viewBox="0 0 500 195" style="width:100%;flex:1;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="14" y="28" width="140" height="52" rx="7" fill="#080b12" stroke="#6366f1" stroke-width="2"/>
+          <text x="84" y="50" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="600" font-family="IBM Plex Sans,sans-serif">SWITCH 1</text>
+          <text x="84" y="68" text-anchor="middle" fill="#818cf8" font-size="11" font-family="IBM Plex Mono,monospace">native vlan 99</text>
+          <rect x="346" y="28" width="140" height="52" rx="7" fill="#080b12" stroke="#6366f1" stroke-width="2"/>
+          <text x="416" y="50" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="600" font-family="IBM Plex Sans,sans-serif">SWITCH 2</text>
+          <text x="416" y="68" text-anchor="middle" fill="#818cf8" font-size="11" font-family="IBM Plex Mono,monospace">native vlan 99</text>
+          <line x1="154" y1="46" x2="346" y2="46" stroke="#6366f1" stroke-width="4"/>
+          <line x1="154" y1="56" x2="346" y2="56" stroke="#10b981" stroke-width="4"/>
+          <text x="250" y="42" text-anchor="middle" fill="#a5b4fc" font-size="9.5" font-family="IBM Plex Sans,sans-serif">VLAN 10 tagged</text>
+          <text x="250" y="78" text-anchor="middle" fill="#6ee7b7" font-size="9.5" font-family="IBM Plex Sans,sans-serif">VLAN 20 tagged</text>
+          <rect x="198" y="60" width="104" height="15" rx="4" fill="#f59e0b"/>
+          <text x="250" y="71" text-anchor="middle" fill="#1c1917" font-size="9" font-weight="700" font-family="IBM Plex Sans,sans-serif">VLAN 99 UNTAGGED</text>
+          <circle r="4.5" fill="#6366f1"><animate attributeName="cx" from="154" to="346" dur="1.5s" repeatCount="indefinite"/><animate attributeName="cy" from="46" to="46" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.5s" repeatCount="indefinite"/></circle>
+          <circle r="4.5" fill="#10b981"><animate attributeName="cx" from="346" to="154" dur="1.5s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="cy" from="56" to="56" dur="1.5s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/></circle>
+          <rect x="20" y="120" width="58" height="28" rx="4" fill="#080b12" stroke="#6366f1" stroke-width="1"/><text x="49" y="138" text-anchor="middle" fill="#818cf8" font-size="10" font-family="IBM Plex Sans,sans-serif">VLAN 10</text>
+          <rect x="88" y="120" width="58" height="28" rx="4" fill="#080b12" stroke="#10b981" stroke-width="1"/><text x="117" y="138" text-anchor="middle" fill="#34d399" font-size="10" font-family="IBM Plex Sans,sans-serif">VLAN 20</text>
+          <line x1="49" y1="120" x2="49" y2="80" stroke="#2b3647" stroke-width="1.5"/><line x1="117" y1="120" x2="117" y2="80" stroke="#2b3647" stroke-width="1.5"/>
+          <rect x="354" y="120" width="58" height="28" rx="4" fill="#080b12" stroke="#6366f1" stroke-width="1"/><text x="383" y="138" text-anchor="middle" fill="#818cf8" font-size="10" font-family="IBM Plex Sans,sans-serif">VLAN 10</text>
+          <rect x="422" y="120" width="58" height="28" rx="4" fill="#080b12" stroke="#10b981" stroke-width="1"/><text x="451" y="138" text-anchor="middle" fill="#34d399" font-size="10" font-family="IBM Plex Sans,sans-serif">VLAN 20</text>
+          <line x1="383" y1="120" x2="383" y2="80" stroke="#2b3647" stroke-width="1.5"/><line x1="451" y1="120" x2="451" y2="80" stroke="#2b3647" stroke-width="1.5"/>
+          <text x="250" y="170" text-anchor="middle" fill="#5b6a80" font-size="10" font-family="IBM Plex Sans,sans-serif">Native-Verkehr UNTAGGED · beide Seiten MÜSSEN übereinstimmen</text>
+        </svg>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">KERNKONZEPTE</div>
+        <ul style="margin:0;padding-left:22px;font-size:20px;line-height:1.8;color:#cbd5e1;">
+          <li>Native-VLAN-Verkehr läuft <strong style="color:#fbbf24;">untagged</strong> über den Trunk</li>
+          <li>Alle anderen VLANs werden via <strong style="color:#f8fafc;">802.1Q</strong> getaggt</li>
+          <li>Beide Trunk-Enden brauchen das <strong style="color:#f8fafc;">gleiche</strong> Native VLAN</li>
+          <li>Default ist <strong style="color:#a5b4fc;">VLAN 1</strong> — aus Sicherheitsgründen ändern</li>
+          <li>Mismatch → <span style="color:#fb7185;">VLAN-Hopping-Angriff</span> möglich</li>
+        </ul>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">KONFIGURATION · BEIDE SWITCHES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <div style="color:#a5b4fc;font-size:14px;font-weight:700;margin-bottom:7px;padding:3px 10px;background:rgba(99,102,241,0.15);border-radius:4px;display:inline-block;">SWITCH 1</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;line-height:1.85;color:#94a3b8;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 12px;">
+              <div style="color:#34d399;">interface g0/1</div>
+              <div style="color:#34d399;">switchport mode trunk</div>
+              <div style="color:#7dd3fc;">switchport trunk</div>
+              <div style="color:#7dd3fc;"> native vlan 99</div>
+              <div style="color:#34d399;">switchport nonegotiate</div>
+            </div>
+          </div>
+          <div>
+            <div style="color:#a5b4fc;font-size:14px;font-weight:700;margin-bottom:7px;padding:3px 10px;background:rgba(99,102,241,0.15);border-radius:4px;display:inline-block;">SWITCH 2</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;line-height:1.85;color:#94a3b8;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 12px;">
+              <div style="color:#34d399;">interface g0/1</div>
+              <div style="color:#34d399;">switchport mode trunk</div>
+              <div style="color:#7dd3fc;">switchport trunk</div>
+              <div style="color:#7dd3fc;"> native vlan 99</div>
+              <div style="color:#34d399;">switchport nonegotiate</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:11px 14px;background:rgba(245,158,11,0.1);border:1px solid #4a3a18;border-radius:8px;font-size:17px;color:#fde68a;">
+          <strong style="color:#f59e0b;">BEST PRACTICE:</strong> Ein <strong>unbenutztes</strong> VLAN als Native nutzen (z.B. 99 statt VLAN 1) → schützt vor VLAN-Hopping.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: 0 };
+  renderVals() {
+    const s = this.state.step;
+    const titles = ['BPDU-Austausch', 'Root-Bridge-Wahl', 'Root-Ports (RP)', 'Designated-Ports (DP)', 'Blocking & Forwarding'];
+    const descs = [
+      'Alle Switches senden Hello-BPDUs (alle 2s) mit ihrer Bridge-ID. Zunächst hält sich jeder Switch selbst für die Root-Bridge.',
+      'Der Switch mit der niedrigsten Bridge-ID (Priority 4096) gewinnt: SW1 wird Root-Bridge. Alle Ports der Root-Bridge sind Designated-Ports.',
+      'Jeder Nicht-Root-Switch wählt genau einen Root-Port (RP) — den Port mit den geringsten Pfadkosten zur Root-Bridge.',
+      'Pro Segment wird ein Designated-Port (DP) bestimmt. Alle Ports der Root-Bridge sowie die switchseitig kostengünstigsten Ports werden DP.',
+      'Der verbleibende redundante Port (SW3↔SW4) geht in Blocking (BLK). Die schleifenfreie Topologie steht — Daten fließen entlang des Spanning Tree.'
+    ];
+    const accent = '#6366f1', off = '#2b3647';
+    return {
+      stpStep: s + 1,
+      stpTitle: titles[s],
+      stpDesc: descs[s],
+      stpNext: () => this.setState(p => ({ step: Math.min(4, p.step + 1) })),
+      stpPrev: () => this.setState(p => ({ step: Math.max(0, p.step - 1) })),
+      dot1: s >= 1 ? accent : off,
+      dot2: s >= 2 ? accent : off,
+      dot3: s >= 3 ? accent : off,
+      dot4: s >= 4 ? accent : off,
+      bpduOp: s === 0 ? 1 : 0,
+      sw1NormalOp: s === 0 ? 1 : 0,
+      sw1RootOp: s >= 1 ? 1 : 0,
+      rpOp: s >= 2 ? 1 : 0,
+      dpOp: s >= 3 ? 1 : 0,
+      blkOp: s >= 4 ? 1 : 0,
+      flowOp: s >= 4 ? 1 : 0,
+      l12GrayOp: s >= 4 ? 0 : 1,
+      l13GrayOp: s >= 4 ? 0 : 1,
+      l24GrayOp: s >= 4 ? 0 : 1,
+      l34GrayOp: s >= 4 ? 0 : 1,
+      l12GreenOp: s >= 4 ? 1 : 0,
+      l13GreenOp: s >= 4 ? 1 : 0,
+      l24GreenOp: s >= 4 ? 1 : 0,
+      l34BlkOp: s >= 4 ? 1 : 0
+    };
+  }
+}
+</script>
+</body>
+</html>

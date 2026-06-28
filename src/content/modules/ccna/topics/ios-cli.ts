@@ -27,6 +27,8 @@ Global Config Mode      Switch(config)#   # Globale Einstellungen
 Submode                 Switch(config-if)#
 \`\`\`
 
+:::slide:switch-commands:::
+
 ### Modus-Wechsel-Befehle
 | Aus → Nach | Befehl |
 |-----------|--------|
@@ -83,6 +85,8 @@ export const CONCEPT_IOS_DEVICE_ACCESS: Concept = {
 - RJ-45-Konsolenport oder USB-Mini-B
 - Terminalprogramm (PuTTY, Tera Term): **9600 8N1, kein Flow Control**
 - Funktioniert auch ohne IP-Konfiguration → Erstinbetriebnahme
+
+:::slide:console-access:::
 
 ### Konsolen-Passwort konfigurieren
 \`\`\`

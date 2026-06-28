@@ -33,6 +33,8 @@ VLANs = **Trennwände im Büro**: Verschiedene Abteilungen in verschiedenen Räu
 
 ---
 
+:::slide:vlan-segmentation:::
+
 ## Was ist eine Broadcast-Domäne?
 
 Eine **Broadcast-Domäne** ist der Bereich, in dem ein Layer-2-Broadcast (Ziel-MAC: FF:FF:FF:FF:FF:FF) empfangen wird. In einem flachen Layer-2-Netz ohne VLANs ist das **das gesamte Netzwerk**.
@@ -162,6 +164,8 @@ Mit Tag:  Max. Frame-Größe = 1522 Byte (+4 Byte)
 ## Native VLAN — ungetaggter Traffic auf Trunk-Ports
 
 Das **Native VLAN** ist das einzige VLAN auf einem Trunk-Port, dessen Frames **keinen 802.1Q-Tag** tragen.
+
+:::slide:native-vlan:::
 
 **Warum existiert das Native VLAN?**
 - Kompatibilität mit älteren Geräten, die kein 802.1Q sprechen
