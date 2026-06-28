@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#080b12;overflow:hidden;}
+  *{box-sizing:border-box;}
+  #wrap{position:relative;width:100%;overflow:hidden;}
+  #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
+  #stage > section{width:1920px;height:1080px;}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+<section data-label="EIGRP" data-speaker-notes="DUAL-Algorithmus, Feasible Distance (FD), Reported Distance (RD), Successor und Feasible Successor, drei Tabellen, Konfiguration." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #0ea5e9;flex-shrink:0;">
+    <div style="background:#0ea5e9;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">ADV. DISTANCE VECTOR</div>
+    <h1 style="margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;">EIGRP <span style="color:#38bdf8;">— Enhanced Interior Gateway Routing Protocol</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1.2fr 1.8fr 1.25fr;gap:20px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">DUAL-ALGORITHMUS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:16px;color:#cbd5e1;">
+          <div><strong style="color:#38bdf8;">FD</strong> — Feasible Distance: Gesamtmetrik zu einem Ziel</div>
+          <div><strong style="color:#38bdf8;">RD / AD</strong> — Reported/Advertised Distance: Metrik des Nachbarn</div>
+          <div><strong style="color:#34d399;">Successor</strong> — bester Pfad, in Routing-Tabelle installiert</div>
+          <div><strong style="color:#fbbf24;">Feasible Successor</strong> — Backup-Pfad (RD &lt; FD des Successors)</div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">DREI TABELLEN</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;">
+          <div style="background:#080b12;border-left:3px solid #34d399;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#34d399;">Neighbor Table</strong><br/><span style="color:#94a3b8;">Direkt verbundene EIGRP-Router mit Hello-Intervall</span></div>
+          <div style="background:#080b12;border-left:3px solid #fbbf24;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#fbbf24;">Topology Table</strong><br/><span style="color:#94a3b8;">Alle bekannten Routen mit FD / RD-Werten</span></div>
+          <div style="background:#080b12;border-left:3px solid #38bdf8;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#38bdf8;">Routing Table</strong><br/><span style="color:#94a3b8;">Nur Successor-Routen — installiert für Forwarding</span></div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#8b5cf6;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">COMPOSITE METRIC</div>
+        <div style="background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:17px;color:#c4b5fd;margin-bottom:8px;">256 × (K1×BW + K3×Delay)</div>
+        <div style="font-size:15px;color:#94a3b8;line-height:1.6;">
+          <strong style="color:#f8fafc;">BW</strong> = 10⁷ / min. Bandbreite (kbps)<br/>
+          <strong style="color:#f8fafc;">Delay</strong> = Summe Delays / 10 (µs)<br/>
+          Default: K1=1, K3=1, K2=K4=K5=0
+        </div>
+      </div>
+    </div>
+    <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;">
+      <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;align-self:flex-start;">DUAL · SUCCESSOR vs. FEASIBLE SUCCESSOR</div>
+      <svg viewBox="0 0 520 360" style="width:100%;flex:1;" xmlns="http://www.w3.org/2000/svg">
+        <rect width="520" height="360" fill="#080b12" rx="8"/>
+        <!-- Successor path (top) - green -->
+        <line x1="150" y1="170" x2="280" y2="90" stroke="#10b981" stroke-width="3.5"/>
+        <line x1="280" y1="90" x2="410" y2="170" stroke="#10b981" stroke-width="3.5"/>
+        <!-- Feasible Successor path (bottom) - amber dashed -->
+        <line x1="150" y1="190" x2="280" y2="270" stroke="#f59e0b" stroke-width="3" stroke-dasharray="7,4"/>
+        <line x1="280" y1="270" x2="410" y2="190" stroke="#f59e0b" stroke-width="3" stroke-dasharray="7,4"/>
+        <!-- BW labels -->
+        <text x="204" y="117" text-anchor="middle" fill="#34d399" font-size="12" font-family="IBM Plex Sans,sans-serif" transform="rotate(-28,204,117)">1 Gbps</text>
+        <text x="350" y="117" text-anchor="middle" fill="#34d399" font-size="12" font-family="IBM Plex Sans,sans-serif" transform="rotate(28,350,117)">1 Gbps</text>
+        <text x="204" y="245" text-anchor="middle" fill="#fbbf24" font-size="12" font-family="IBM Plex Sans,sans-serif" transform="rotate(28,204,245)">100 Mbps</text>
+        <text x="350" y="245" text-anchor="middle" fill="#fbbf24" font-size="12" font-family="IBM Plex Sans,sans-serif" transform="rotate(-28,350,245)">100 Mbps</text>
+        <!-- Animated packets on Successor path -->
+        <circle r="5.5" fill="#34d399"><animate attributeName="cx" values="150;280;410" keyTimes="0;0.5;1" dur="2s" repeatCount="indefinite"/><animate attributeName="cy" values="170;90;170" keyTimes="0;0.5;1" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite"/></circle>
+        <!-- R1 source -->
+        <rect x="70" y="144" width="80" height="52" rx="7" fill="#1a2230" stroke="#0ea5e9" stroke-width="2.5"/>
+        <text x="110" y="166" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700" font-family="IBM Plex Sans,sans-serif">R1</text>
+        <text x="110" y="186" text-anchor="middle" fill="#38bdf8" font-size="11" font-family="IBM Plex Mono,monospace">Quelle</text>
+        <!-- R2 Successor next-hop -->
+        <rect x="240" y="64" width="80" height="52" rx="7" fill="#1a2230" stroke="#10b981" stroke-width="2.5"/>
+        <rect x="240" y="60" width="80" height="11" rx="3" fill="#10b981"/>
+        <text x="280" y="70" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="IBM Plex Sans,sans-serif">SUCCESSOR</text>
+        <text x="280" y="87" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700" font-family="IBM Plex Sans,sans-serif">R2</text>
+        <text x="280" y="103" text-anchor="middle" fill="#34d399" font-size="11" font-family="IBM Plex Mono,monospace">FD: 2816</text>
+        <!-- R3 Feasible Successor next-hop -->
+        <rect x="240" y="244" width="80" height="52" rx="7" fill="#1a2230" stroke="#f59e0b" stroke-width="2.5"/>
+        <rect x="240" y="240" width="80" height="11" rx="3" fill="#f59e0b"/>
+        <text x="280" y="250" text-anchor="middle" fill="#1c1917" font-size="8" font-weight="700" font-family="IBM Plex Sans,sans-serif">FEASIBLE SUCC.</text>
+        <text x="280" y="268" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700" font-family="IBM Plex Sans,sans-serif">R3</text>
+        <text x="280" y="285" text-anchor="middle" fill="#fbbf24" font-size="11" font-family="IBM Plex Mono,monospace">FD: 28160</text>
+        <!-- R4 destination -->
+        <rect x="370" y="144" width="80" height="52" rx="7" fill="#1a2230" stroke="#3d4a5e" stroke-width="1.5"/>
+        <text x="410" y="166" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700" font-family="IBM Plex Sans,sans-serif">R4</text>
+        <text x="410" y="186" text-anchor="middle" fill="#5b6a80" font-size="11" font-family="IBM Plex Mono,monospace">Ziel</text>
+        <!-- DUAL Feasibility Condition note -->
+        <rect x="20" y="318" width="480" height="34" rx="5" fill="#1a2230" stroke="#2b3647"/>
+        <text x="260" y="332" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif">Feasibility Condition (FC): RD des Nachbarn</text>
+        <text x="260" y="346" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="IBM Plex Sans,sans-serif">muss kleiner sein als FD des aktuellen Successors → Loop-freier Backup</text>
+        <!-- Legend -->
+        <line x1="30" y1="305" x2="60" y2="305" stroke="#10b981" stroke-width="3"/><text x="66" y="309" fill="#34d399" font-size="11" font-family="IBM Plex Sans,sans-serif">Successor (beste Route)</text>
+        <line x1="230" y1="305" x2="260" y2="305" stroke="#f59e0b" stroke-width="3" stroke-dasharray="5,3"/><text x="266" y="309" fill="#fbbf24" font-size="11" font-family="IBM Plex Sans,sans-serif">Feasible Successor (Backup, sofort verfügbar)</text>
+      </svg>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#10b981;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">KONFIGURATION</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14.5px;line-height:1.8;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+          <div style="color:#fbbf24;">! Classic Mode</div>
+          <div style="color:#34d399;">router eigrp <span style="color:#7dd3fc;">100</span></div>
+          <div style="color:#34d399;"> network 10.0.0.0 0.0.0.255</div>
+          <div style="color:#34d399;"> no auto-summary</div>
+          <div style="color:#34d399;"> passive-interface g0/1</div>
+          <div style="color:#fbbf24;margin-top:6px;">! Bandbreite anpassen</div>
+          <div style="color:#34d399;">interface g0/0</div>
+          <div style="color:#34d399;"> bandwidth 1000000</div>
+          <div style="color:#fbbf24;margin-top:6px;">! Router-ID setzen</div>
+          <div style="color:#34d399;"> eigrp router-id 1.1.1.1</div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;line-height:1.8;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 14px;">
+          <div style="color:#5b6a80;">! Verifizierung</div>
+          <div style="color:#34d399;">show ip eigrp neighbors</div>
+          <div style="color:#34d399;">show ip eigrp topology</div>
+          <div style="color:#34d399;">show ip route eigrp</div>
+          <div style="color:#34d399;">show ip eigrp interfaces</div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:16px 20px;">
+        <div style="background:#0ea5e9;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;">VORTEILE</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:16px;color:#cbd5e1;">
+          <div><span style="color:#34d399;">✓</span> Schnelle Konvergenz per DUAL</div>
+          <div><span style="color:#34d399;">✓</span> Nur bei Topologieänderung Updates</div>
+          <div><span style="color:#34d399;">✓</span> Ungleiche Lastverteilung (variance)</div>
+          <div><span style="color:#34d399;">✓</span> Cisco-proprietär (aber IETF RFC 7868)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div></div>
+<script>
+(function(){var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
+ function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
+ if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
+ fit();})();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#080b12;overflow:hidden;}
+  *{box-sizing:border-box;}
+  #wrap{position:relative;width:100%;overflow:hidden;}
+  #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
+  #stage > section{width:1920px;height:1080px;}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+<section data-label="OSPF Areas" data-speaker-notes="Hierarchische Multi-Area-Architektur: Area 0 Backbone, ABR, ASBR, Area-Typen (Standard, Stub, NSSA, Totally Stubby), LSA-Typen 1–7." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:2px solid #6366f1;flex-shrink:0;">
+    <div style="background:#6366f1;color:#fff;padding:6px 16px;border-radius:5px;font-size:15px;font-weight:700;letter-spacing:1.5px;">OSPF AREAS</div>
+    <h1 style="margin:0;font-size:50px;font-weight:700;line-height:1.05;color:#f8fafc;">OSPF <span style="color:#818cf8;">— Hierarchische Multi-Area-Architektur</span></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:1.25fr 2.2fr;gap:20px;flex:1;min-height:0;">
+    <div style="display:flex;flex-direction:column;gap:13px;">
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">AREA-TYPEN</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:16px;">
+          <div style="background:#080b12;border-left:3px solid #6366f1;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#818cf8;">Backbone (Area 0)</strong><br/><span style="color:#5b6a80;">Alle anderen Areas müssen daran hängen</span></div>
+          <div style="background:#080b12;border-left:3px solid #10b981;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#34d399;">Standard Area</strong><br/><span style="color:#5b6a80;">Alle LSA-Typen erlaubt</span></div>
+          <div style="background:#080b12;border-left:3px solid #0ea5e9;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#38bdf8;">Stub Area</strong><br/><span style="color:#5b6a80;">Kein Type 5 — Default-Route vom ABR</span></div>
+          <div style="background:#080b12;border-left:3px solid #f59e0b;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#fbbf24;">Totally Stubby</strong><br/><span style="color:#5b6a80;">Kein Type 3/4/5 — nur Default-Route</span></div>
+          <div style="background:#080b12;border-left:3px solid #a78bfa;padding:7px 12px;border-radius:0 7px 7px 0;"><strong style="color:#c4b5fd;">NSSA</strong><br/><span style="color:#5b6a80;">Eigener ASBR möglich → Type 7 LSA</span></div>
+        </div>
+      </div>
+      <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;flex:1;">
+        <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:12px;">LSA-TYPEN</div>
+        <table style="width:100%;border-collapse:collapse;font-size:15px;">
+          <thead><tr><th style="padding:4px 6px;text-align:left;font-size:11px;color:#5b6a80;border-bottom:1px solid #2b3647;">Typ</th><th style="padding:4px 6px;text-align:left;font-size:11px;color:#5b6a80;border-bottom:1px solid #2b3647;">Name</th><th style="padding:4px 6px;text-align:left;font-size:11px;color:#5b6a80;border-bottom:1px solid #2b3647;">Scope</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #16202e;"><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#818cf8;font-weight:700;">1</td><td style="padding:5px 6px;color:#c4b5fd;">Router LSA</td><td style="padding:5px 6px;color:#5b6a80;">Area</td></tr>
+            <tr style="border-bottom:1px solid #16202e;"><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#818cf8;font-weight:700;">2</td><td style="padding:5px 6px;color:#c4b5fd;">Network LSA</td><td style="padding:5px 6px;color:#5b6a80;">Area</td></tr>
+            <tr style="border-bottom:1px solid #16202e;"><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#38bdf8;font-weight:700;">3</td><td style="padding:5px 6px;color:#7dd3fc;">Summary LSA</td><td style="padding:5px 6px;color:#5b6a80;">ABR → andere Areas</td></tr>
+            <tr style="border-bottom:1px solid #16202e;"><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#38bdf8;font-weight:700;">4</td><td style="padding:5px 6px;color:#7dd3fc;">ASBR Summary</td><td style="padding:5px 6px;color:#5b6a80;">ABR → andere Areas</td></tr>
+            <tr style="border-bottom:1px solid #16202e;"><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#fb7185;font-weight:700;">5</td><td style="padding:5px 6px;color:#fda4af;">External LSA</td><td style="padding:5px 6px;color:#5b6a80;">AS-weit (ASBR)</td></tr>
+            <tr><td style="padding:5px 6px;font-family:'IBM Plex Mono';color:#fbbf24;font-weight:700;">7</td><td style="padding:5px 6px;color:#fcd34d;">NSSA External</td><td style="padding:5px 6px;color:#5b6a80;">NSSA → Type 5 konvertiert</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;background:#080b12;border:1px solid #2b3647;border-radius:8px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:14px;line-height:1.7;">
+          <div style="color:#fbbf24;">! OSPF Multi-Area Config</div>
+          <div style="color:#34d399;">router ospf 1</div>
+          <div style="color:#34d399;"> router-id 1.1.1.1</div>
+          <div style="color:#7dd3fc;"> network 10.0.0.0 0.0.0.255 area 0</div>
+          <div style="color:#7dd3fc;"> network 10.1.0.0 0.0.0.255 area 1</div>
+          <div style="color:#34d399;"> area 2 stub</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;">
+      <div style="background:#6366f1;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;letter-spacing:1.2px;display:inline-block;margin-bottom:10px;align-self:flex-start;">MULTI-AREA-TOPOLOGIE · LSA-FLOODING &amp; GRENZEN</div>
+      <svg viewBox="0 0 680 480" style="width:100%;flex:1;" xmlns="http://www.w3.org/2000/svg">
+        <rect width="680" height="480" fill="#080b12" rx="8"/>
+        <!-- External network -->
+        <ellipse cx="340" cy="30" rx="72" ry="22" fill="#080b12" stroke="#f43f5e" stroke-width="1.5"/>
+        <text x="340" y="35" text-anchor="middle" fill="#fb7185" font-size="13" font-family="IBM Plex Sans,sans-serif">☁ External AS</text>
+        <!-- ASBR -->
+        <line x1="340" y1="52" x2="340" y2="78" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,3"/>
+        <rect x="290" y="78" width="100" height="40" rx="6" fill="#1a2230" stroke="#f43f5e" stroke-width="2"/>
+        <text x="340" y="94" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="700" font-family="IBM Plex Sans,sans-serif">ASBR</text>
+        <text x="340" y="110" text-anchor="middle" fill="#fb7185" font-size="10" font-family="IBM Plex Sans,sans-serif">Type 5 LSA</text>
+        <!-- ASBR to Area 0 -->
+        <line x1="340" y1="118" x2="340" y2="146" stroke="#4d4a5e" stroke-width="2"/>
+        <!-- Area 0 Backbone -->
+        <rect x="100" y="146" width="480" height="110" rx="9" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="2"/>
+        <text x="118" y="166" fill="#818cf8" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif" letter-spacing="1">AREA 0 — BACKBONE</text>
+        <!-- Routers in Area 0 -->
+        <rect x="166" y="178" width="80" height="46" rx="6" fill="#1a2230" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="206" y="198" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R1</text>
+        <text x="206" y="215" text-anchor="middle" fill="#818cf8" font-size="10" font-family="IBM Plex Mono,monospace">1.1.1.1</text>
+        <rect x="434" y="178" width="80" height="46" rx="6" fill="#1a2230" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="474" y="198" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R2</text>
+        <text x="474" y="215" text-anchor="middle" fill="#818cf8" font-size="10" font-family="IBM Plex Mono,monospace">2.2.2.2</text>
+        <line x1="246" y1="201" x2="434" y2="201" stroke="#6366f1" stroke-width="2"/>
+        <line x1="340" y1="146" x2="206" y2="178" stroke="#4d4a5e" stroke-width="1.5"/>
+        <!-- ABR left (connects Area 0 to Area 1) -->
+        <rect x="136" y="272" width="88" height="38" rx="6" fill="#1a2230" stroke="#f59e0b" stroke-width="2"/>
+        <text x="180" y="289" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif">ABR</text>
+        <text x="180" y="303" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="IBM Plex Sans,sans-serif">Type 3/4</text>
+        <line x1="206" y1="224" x2="180" y2="272" stroke="#4d4a5e" stroke-width="1.5"/>
+        <!-- ABR right (connects Area 0 to Area 2) -->
+        <rect x="456" y="272" width="88" height="38" rx="6" fill="#1a2230" stroke="#f59e0b" stroke-width="2"/>
+        <text x="500" y="289" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif">ABR</text>
+        <text x="500" y="303" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="IBM Plex Sans,sans-serif">Type 3/4</text>
+        <line x1="474" y1="224" x2="500" y2="272" stroke="#4d4a5e" stroke-width="1.5"/>
+        <!-- Area 1 (Standard) -->
+        <rect x="30" y="328" width="290" height="132" rx="9" fill="rgba(16,185,129,0.07)" stroke="#10b981" stroke-width="2"/>
+        <text x="48" y="347" fill="#34d399" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif" letter-spacing="1">AREA 1 — STANDARD</text>
+        <rect x="66" y="358" width="76" height="42" rx="6" fill="#1a2230" stroke="#10b981" stroke-width="1.5"/>
+        <text x="104" y="375" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R3</text>
+        <text x="104" y="391" text-anchor="middle" fill="#34d399" font-size="10" font-family="IBM Plex Mono,monospace">3.3.3.3</text>
+        <rect x="192" y="358" width="76" height="42" rx="6" fill="#1a2230" stroke="#10b981" stroke-width="1.5"/>
+        <text x="230" y="375" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R4</text>
+        <text x="230" y="391" text-anchor="middle" fill="#34d399" font-size="10" font-family="IBM Plex Mono,monospace">4.4.4.4</text>
+        <line x1="142" y1="379" x2="192" y2="379" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="180" y1="310" x2="104" y2="358" stroke="#4d4a5e" stroke-width="1.5"/>
+        <line x1="180" y1="310" x2="230" y2="358" stroke="#4d4a5e" stroke-width="1.5"/>
+        <text x="175" y="440" text-anchor="middle" fill="#5b6a80" font-size="11" font-family="IBM Plex Sans,sans-serif">Alle LSA-Typen erlaubt</text>
+        <!-- Area 2 (Stub) -->
+        <rect x="360" y="328" width="290" height="132" rx="9" fill="rgba(14,165,233,0.07)" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="7,4"/>
+        <text x="378" y="347" fill="#38bdf8" font-size="12" font-weight="700" font-family="IBM Plex Sans,sans-serif" letter-spacing="1">AREA 2 — STUB</text>
+        <rect x="396" y="358" width="76" height="42" rx="6" fill="#1a2230" stroke="#0ea5e9" stroke-width="1.5"/>
+        <text x="434" y="375" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R5</text>
+        <text x="434" y="391" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="IBM Plex Mono,monospace">5.5.5.5</text>
+        <rect x="522" y="358" width="76" height="42" rx="6" fill="#1a2230" stroke="#0ea5e9" stroke-width="1.5"/>
+        <text x="560" y="375" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700" font-family="IBM Plex Sans,sans-serif">R6</text>
+        <text x="560" y="391" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="IBM Plex Mono,monospace">6.6.6.6</text>
+        <line x1="472" y1="379" x2="522" y2="379" stroke="#0ea5e9" stroke-width="1.5"/>
+        <line x1="500" y1="310" x2="434" y2="358" stroke="#4d4a5e" stroke-width="1.5"/>
+        <line x1="500" y1="310" x2="560" y2="358" stroke="#4d4a5e" stroke-width="1.5"/>
+        <text x="505" y="428" text-anchor="middle" fill="#0ea5e9" font-size="11" font-family="IBM Plex Sans,sans-serif">Kein Type 4/5 · Default-Route ←</text>
+        <!-- Animated LSA flooding -->
+        <circle r="5" fill="#f43f5e"><animate attributeName="cx" from="340" to="206" dur="1.4s" repeatCount="indefinite"/><animate attributeName="cy" from="118" to="178" dur="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.4s" repeatCount="indefinite"/></circle>
+        <circle r="4.5" fill="#818cf8"><animate attributeName="cx" from="246" to="434" dur="1.3s" repeatCount="indefinite" begin="0.4s"/><animate attributeName="cy" from="201" to="201" dur="1.3s" repeatCount="indefinite" begin="0.4s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite" begin="0.4s"/></circle>
+        <circle r="4.5" fill="#34d399"><animate attributeName="cx" from="180" to="104" dur="1.3s" repeatCount="indefinite" begin="0.7s"/><animate attributeName="cy" from="310" to="358" dur="1.3s" repeatCount="indefinite" begin="0.7s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite" begin="0.7s"/></circle>
+        <circle r="4.5" fill="#38bdf8"><animate attributeName="cx" from="500" to="434" dur="1.3s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="cy" from="310" to="358" dur="1.3s" repeatCount="indefinite" begin="0.9s"/><animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite" begin="0.9s"/></circle>
+        <!-- Legend -->
+        <g transform="translate(30, 460)" font-family="IBM Plex Sans,sans-serif" font-size="11">
+          <rect x="0" y="-8" width="10" height="10" fill="#6366f1" rx="2"/><text x="14" y="2" fill="#5b6a80">Area 0 Backbone</text>
+          <rect x="125" y="-8" width="10" height="10" fill="#10b981" rx="2"/><text x="139" y="2" fill="#5b6a80">Standard Area</text>
+          <rect x="240" y="-8" width="10" height="10" fill="#0ea5e9" rx="2"/><text x="254" y="2" fill="#5b6a80">Stub Area</text>
+          <rect x="336" y="-8" width="10" height="10" fill="#f59e0b" rx="2"/><text x="350" y="2" fill="#5b6a80">ABR</text>
+          <rect x="392" y="-8" width="10" height="10" fill="#f43f5e" rx="2"/><text x="406" y="2" fill="#5b6a80">ASBR</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+</div></div>
+<script>
+(function(){var stage=document.getElementById('stage'),wrap=document.getElementById('wrap');
+ function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
+ if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap);}else{addEventListener('resize',fit);}
+ fit();})();
+</script>
+</body>
+</html>

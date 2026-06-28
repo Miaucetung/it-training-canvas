@@ -15,6 +15,11 @@ const LABELS: Record<string, string> = {
   subnetting: "Subnetting berechnen",
   "native-vlan": "Native VLAN",
   "console-access": "Konsolen-Zugang",
+  "routing-grundlagen": "Routing-Grundlagen",
+  rip: "RIP",
+  eigrp: "EIGRP",
+  "ospf-basics": "OSPF-Grundlagen",
+  "ospf-areas": "OSPF-Areas",
 };
 
 export function SlideEmbed({ slug, dark }: Props) {

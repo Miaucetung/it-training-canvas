@@ -17,6 +17,8 @@ export const CONCEPT_ROUTING_FUNDAMENTALS: Concept = {
 2. Longest Prefix Match: spezifischste Route gewinnt
 3. Kein Match → Paket verworfen (oder Default Route)
 
+:::slide:routing-grundlagen:::
+
 ### Routing-Tabelle
 \`\`\`
 R1# show ip route
@@ -241,6 +243,8 @@ Router **lernen Routen automatisch** voneinander und **passen sich an Ausfälle 
 > **Bild:** Distance-Vector ist wie nach dem Weg fragen ("3 Straßen geradeaus");
 > Link-State ist wie eine **Landkarte** haben und selbst den kürzesten Weg suchen.
 
+:::slide:eigrp:::
+
 ## Die CCNA-Protokolle im Vergleich
 | Protokoll | Typ | Metrik | AD | Algorithmus | Multicast |
 |-----------|-----|--------|----|-------------|-----------|
@@ -333,6 +337,8 @@ R1(config-router)# network 192.168.1.0      ! CLASSFUL — kein /Präfix, keine 
 R1(config-router)# network 10.0.0.0         ! aktiviert ALLE Interfaces im 10er-Netz
 \`\`\`
 
+:::slide:rip:::
+
 ## Der eine, alles entscheidende Haken: **classful**
 RIPv1-Updates enthalten **keine Subnetzmaske**. Der Empfänger "rät" die Maske:
 - gleiche Major-Net-Zugehörigkeit → eigene Interface-Maske annehmen,
@@ -397,6 +403,8 @@ OSPF ist ein **Link-State-Routing-Protokoll** (IGP) mit Dijkstra SPF-Algorithmus
 - **LSA (Link State Advertisement)**: Routerinformationen
 - **LSDB (Link State Database)**: Alle LSAs eines Bereichs
 - **SPF-Algorithmus**: Berechnet Shortest Path Tree
+
+:::slide:ospf-basics:::
 
 ### OSPF-Metrik: Cost
 Cost = Referenzbandbreite ÷ Interface-Bandbreite (Ergebnis auf ganze Zahl abgerundet, Minimum 1)
@@ -659,6 +667,8 @@ Alle Router in einer Area haben **identische** LSDBs — das ist die Grundlage f
 | **Type 3** | Summary LSA | ABR | Inter-Area-Routen | Andere Areas |
 | **Type 5** | AS External LSA | ASBR | Redistributed externe Routen | Gesamte OSPF-Domain |
 | **Type 7** | NSSA External LSA | ASBR in NSSA | Externe Routen in Not-So-Stubby Area | Nur NSSA (ABR konvertiert zu Type 5) |
+
+:::slide:ospf-areas:::
 
 ### Type 1 — Router LSA
 - Jeder Router generiert genau eine Router-LSA für jede Area, der er angehört
