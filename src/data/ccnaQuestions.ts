@@ -9463,7 +9463,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Add either the ip nat {inside|outside} command under both interfaces"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1", x: 120, y: 80 }, { id: "pc2", type: "pc", label: "PC2", x: 120, y: 250 }, { id: "nat", type: "router", label: "NAT Router", x: 380, y: 165 }, { id: "net", type: "cloud", label: "Internet", x: 610, y: 165 }], links: [{ from: "pc1", to: "nat", labelFrom: "172.16.0.1", labelTo: "g0/0" }, { from: "pc2", to: "nat", labelFrom: "172.16.0.2" }, { from: "nat", to: "net", labelFrom: "g0/1" }] }, { type: "cli", content: `interface GigabitEthernet0/0\n ip address 172.16.0.5 255.255.255.0\n duplex auto\n speed auto\n!\ninterface GigabitEthernet0/1\n ip address 209.165.202.130 255.255.255.224\n duplex auto\n speed auto\n!\nip nat inside source list 1 interface GigabitEthernet0/1 overload\n!\naccess-list 1 permit 172.16.0.1\naccess-list 1 permit 172.16.0.2` }],
   },
   {
     id: "q0581",
@@ -9487,7 +9487,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "interface FastEthernet0/1 ip helper-address 10.0.1.1 ! access-list 100 permit udp host 10.0.1.1 eq bootps host 10.148.2.1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `service timestamps debug datetime msec\nservice timestamps log datetime msec\nservice password-encryption\n!\nhostname R4\n!\nip cef\n!\ninterface FastEthernet0/0\n description WAN_INTERFACE\n ip address 10.0.1.2 255.255.255.252\n ip access-group 100 in\n!\ninterface FastEthernet0/1\n description LAN_INTERFACE\n ip address 10.148.2.1 255.255.255.0\n duplex auto\n speed auto\n!\nip forward-protocol nd\n!\naccess-list 100 permit eigrp any any\naccess-list 100 permit icmp any any\naccess-list 100 permit tcp 10.149.3.0 0.0.0.255 host 10.0.1.2 eq 22\naccess-list 100 permit tcp any any eq 80\naccess-list 100 permit tcp any any eq 443\naccess-list 100 deny ip any any log` },
   },
   {
     id: "q0584",
@@ -9535,7 +9535,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "R1, R2, and R3"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "net", type: "cloud", label: "Internet", x: 90, y: 70 }, { id: "r1", type: "router", label: "R1", x: 240, y: 190 }, { id: "r2", type: "router", label: "R2", x: 470, y: 60 }, { id: "r4", type: "router", label: "R4", x: 690, y: 190 }, { id: "r3", type: "router", label: "R3", x: 470, y: 320 }], links: [{ from: "net", to: "r1" }, { from: "r1", to: "r2", subnet: "10.10.10.0/30", labelFrom: ".1", labelTo: ".2" }, { from: "r2", to: "r4", subnet: "10.10.10.4/30", labelFrom: ".5", labelTo: ".6" }, { from: "r1", to: "r3", subnet: "10.10.10.8/30", labelFrom: ".9", labelTo: ".10" }, { from: "r3", to: "r4", subnet: "10.10.10.12/30", labelFrom: ".13", labelTo: ".14" }], labels: [{ text: "Loopback0 172.16.0.1", attachTo: "r1", position: "left" }] }, { type: "cli", content: `R1#show run | include ntp\nntp master 7\nntp server 209.165.200.225\n\nR2#show run | include ntp\nntp server 172.16.0.1\n\nR3#show run | include ntp\nntp master 6\nntp server 172.16.0.1\n\nR4#show run | include ntp\nntp master 7` }],
   },
   {
     id: "q0590",
@@ -9547,7 +9547,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Configure the NAT outside interface."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `CPE1# show protocols e0/1\nEthernet0/1 is up, line protocol is up\n  Internet address is 10.0.12.2/24\n\nCPE1# show ip access-list LAN\nStandard IP access list LAN\n    10 permit 10.0.12.0, wildcard bits 0.0.0.255\n\nCPE1# show ip nat statistics\nTotal active translations: 0 (0 static, 0 dynamic; 0 extended)\nOutside interfaces:\nInside interfaces:\n    Ethernet0/1\nDynamic mappings:\n-- Inside Source\n[Id: 1] access-list LAN pool NATPOOL refcount 0\n   pool NATPOOL: netmask 255.255.255.0\n      start 198.51.100.11 end 198.51.100.20\n      type generic, total addresses 10, allocated 0 (0%), misses 0`, highlight: ["Outside interfaces:"] },
   },
   {
     id: "q0591",
@@ -9571,7 +9571,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "DHCP Servers"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "net", type: "cloud", label: "Internet", x: 100, y: 130 }, { id: "r1", type: "router", label: "Router", x: 300, y: 130 }, { id: "sw", type: "switch", label: "Switch", x: 480, y: 130 }, { id: "pc", type: "pc", label: "PC", x: 660, y: 130 }], links: [{ from: "net", to: "r1" }, { from: "r1", to: "sw", labelFrom: "10.2.2.1/29" }, { from: "sw", to: "pc", labelTo: "10.2.2.2" }] }, { type: "cli", content: `C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.248\n   Default Gateway . . . . . . . . . : 10.2.2.1\n   DHCP Server . . . . . . . . . . . : 0.0.0.0\n   DNS Servers . . . . . . . . . . . : 0.0.0.0\n   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   DNS Servers . . . . . . . . . . . : 0.0.0.0"] }],
   },
   {
     id: "q0594",
@@ -9631,7 +9631,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "As traffic enters from the access layer on SW1 and SW2, trust all traffic markings."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 300, y: 60 }, { id: "mpls", type: "cloud", label: "MPLS", x: 540, y: 60 }, { id: "mls1", type: "multilayer-switch", label: "MLS1", x: 300, y: 190 }, { id: "sw1", type: "switch", label: "SW1", x: 180, y: 320 }, { id: "sw2", type: "switch", label: "SW2", x: 430, y: 320 }, { id: "phone", type: "pc", label: "IP Phone", x: 180, y: 450 }, { id: "pc", type: "pc", label: "PC", x: 430, y: 450 }], links: [{ from: "r1", to: "mpls" }, { from: "r1", to: "mls1" }, { from: "mls1", to: "sw1" }, { from: "mls1", to: "sw2" }, { from: "sw1", to: "phone" }, { from: "sw2", to: "pc" }] },
   },
   {
     id: "q0599",
@@ -9667,7 +9667,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Update the NAT_INSIDE_RANGES ACL."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "vlan100", type: "cloud", label: "Vlan 100", x: 130, y: 80 }, { id: "vlan200", type: "cloud", label: "Vlan 200", x: 130, y: 250 }, { id: "r1", type: "router", label: "Router1", x: 360, y: 165 }, { id: "net", type: "cloud", label: "Internet", x: 600, y: 165 }], links: [{ from: "r1", to: "vlan100" }, { from: "r1", to: "vlan200" }, { from: "r1", to: "net" }] }, { type: "cli", content: `Router1(config)#interface GigabitEthernet0/0\nRouter1(config-if)#ip address 209.165.200.225 255.255.255.224\nRouter1(config-if)#ip nat outside\nRouter1(config)#interface GigabitEthernet0/1\nRouter1(config-if)#ip nat inside\nRouter1(config)#interface GigabitEthernet0/1.100\nRouter1(config-if)#encapsulation dot1Q 100\nRouter1(config-if)#ip address 10.10.10.1 255.255.255.0\nRouter1(config)#interface GigabitEthernet0/1.200\nRouter1(config-if)#encapsulation dot1Q 200\nRouter1(config-if)#ip address 10.10.20.1 255.255.255.0\nRouter1(config)#ip access-list standard NAT_INSIDE_RANGES\nRouter1(config-std-nac)#permit 10.10.10.0 0.0.0.255\nRouter1(config)#ip nat inside source list NAT_INSIDE_RANGES interface GigabitEthernet0/0 overload`, highlight: ["Router1(config-std-nac)#permit 10.10.10.0 0.0.0.255"] }],
   },
   {
     id: "q0602",
@@ -9715,7 +9715,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "R1(config)#username admin R1(config-if)#line vty4 R1(config-line)#password p@ss1234"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Switch(config)#hostname R1\nR1(config)#interface FastEthernet0/1\nR1(config-if)#no switchport\nR1(config-if)#ip address 10.100.20.42 255.255.255.0\nR1(config-if)#line vty 0 4\nR1(config-line)#login` },
   },
   {
     id: "q0606",
@@ -9740,7 +9740,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "The interface drops traffic from unknown MAC address"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: { type: "cli", content: `Port Security : Enabled\nPort Status : Secure-up\nViolation Mode : Protect\nAging Time : 0 mins\nAging Type : Absolute\nSecureStatic Address Aging : Disabled\nMaximum MAC Addresses : 4\nTotal MAC Addresses : 3\nConfigured MAC Addresses: 1\nSticky MAC Addresses : 2\nLast Source Address:Vlan : 0001:0fAA.33BB:1\nSecurity Vioaltion Count : 0`, highlight: ["Violation Mode : Protect"] },
   },
   {
     id: "q0608",
@@ -9765,7 +9765,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "the security violation counter increments if packets arrive from a new unknown source address"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: { type: "cli", content: `Port Security : Enabled\nPort Status : Secure-up\nViolation Mode : Protect\nAging Time : 5 mins\nAging Type : Inactivity\nSecureStatic Addres Aging : Disabled\nMaximum MAC Addresses : 3\nTotal MAC Addresses : 3\nConfigured MAC Addresses : 1\nSticky MAC Addresses : 2\nLast Source Address : Vlan : 0001.0fAA.33BB:1\nSecurity Violation Count : 0`, highlight: ["Aging Time : 5 mins", "Sticky MAC Addresses : 2"] },
   },
   {
     id: "q0610",
