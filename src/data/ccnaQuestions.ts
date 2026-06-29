@@ -10373,7 +10373,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Set the Fast Transition option to Enable and enable FT 802.1X under Authentication Key Management."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Einstellung", "Wert"], rows: [["Tab", "Security → Layer 2"], ["Layer 2 Security", "WPA+WPA2"], ["MAC Filtering", "deaktiviert"], ["Fast Transition", "Adaptive"], ["Over the DS", "aktiviert"], ["Reassociation Timeout", "20 Seconds"], ["PMF (Protected Mgmt Frame)", "Disabled"], ["WPA Policy", "deaktiviert"], ["WPA2 Policy", "aktiviert"], ["WPA2 Encryption", "AES"], ["OSEN Policy", "deaktiviert"], ["Auth Key Mgmt: 802.1X", "Enable"], ["CCKM / PSK / FT 802.1X / FT PSK", "deaktiviert"], ["WPA gtk-randomize State", "Disable"]] },
   },
   {
     id: "q0669",
@@ -10385,7 +10385,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Enable MAC Filtering."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Einstellung", "Wert"], rows: [["Tab", "Security → Layer 2"], ["Layer 2 Security", "WPA+WPA2"], ["Security Type", "Enterprise"], ["MAC Filtering", "deaktiviert"], ["WPA Policy", "deaktiviert"], ["WPA2 Policy", "aktiviert"], ["WPA2 Encryption", "CCMP128(AES)"], ["OSEN Policy", "deaktiviert"], ["Fast Transition", "Disable"], ["PMF (Protected Mgmt Frame)", "Disabled"], ["Auth Key Mgmt: 802.1X-SHA1", "Enable"]] },
   },
   {
     id: "q0670",
@@ -10714,7 +10714,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Select WPA Policy with TKIP Encryption."
     ],
     correct: [2, 3],
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Einstellung", "Wert"], rows: [["Tab", "Security → Layer 2"], ["Layer 2 Security", "— (leer)"], ["MAC Filtering", "deaktiviert"], ["Fast Transition", "deaktiviert"], ["PMF (Protected Mgmt Frame)", "Disabled"], ["WPA Policy", "deaktiviert"], ["WPA2 Policy", "deaktiviert"], ["WPA2 Encryption", "AES / TKIP — keines aktiviert"], ["Auth Key Mgmt: 802.1X / CCKM / PSK", "keines aktiviert"]] },
   },
   {
     id: "q0702",
@@ -10739,7 +10739,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "SW1(config)# interface f0/1 SW1(confif-if)# switchport mode trunk"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1#show run\nBuilding configuration...\n!\nhostname SW1\n!\nip domain-name CCNA-test\n!\nusername CCNA privilege 1 password 0 cisco123\n!\ninterface FastEthernet0/1\n switchport access vlan 10\n!\ninterface Vlan10\n ip address 192.168.1.2 255.255.255.0\n!\nline vty 0 4\n login local\n transport input telnet\nline vty 5 15\n login local\n transport input telnet\n\nSW1#show crypto key mypubkey rsa\n% Key pair was generated at: 0:1:23 UTC Mar 1 2020\nKey name: SW1.CCNA-test` },
   },
   {
     id: "q0704",
@@ -11082,7 +11082,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Puppet"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `cisco_ospf_vrf {"R1 default":\n        ensure => 'present',\n        auto_cost => '100',\n}` },
   },
   {
     id: "q0739",
@@ -11265,7 +11265,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "array"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `1 [\n2     { "switch": "3750", "port": e2 },\n3     { "router": "2951", "port": e20 }.\n4     { "switch": "3750", "port": e23 },\n5 ]` },
   },
   {
     id: "q0755",
@@ -11410,7 +11410,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "4 Q0770 Nachfragen Which definition describes JWT in regard to REST API security? an encoded JSON token that is used for authentication"
     ],
     correct: [0, 3],
-    exhibit: true,
+    exhibit: { type: "cli", content: `{\n    "SW1" : ["Ten-GigabitEthernet0/0", "Ten-GigabitEthernet0/1"],\n    "SW2" : ["Ten-GigabitEthernet0/0", "Ten-GigabitEthernet0/1"],\n    "SW3" : ["Ten-GigabitEthernet0/0", "Ten-GigabitEthernet0/1"],\n    "SW4" : ["Ten-GigabitEthernet0/0", "Ten-GigabitEthernet0/1"]\n}` },
   },
   {
     id: "q0771",
@@ -11422,7 +11422,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "key"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `1 [\n2     { "switch": "3750", "port": e2 },\n3     { "router": "2951", "port": e20 }.\n4     { "switch": "3750", "port": e23 }\n5 ]` },
   },
   {
     id: "q0772",
@@ -11434,7 +11434,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "object"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{"Employee's name": "Arthur"}` },
   },
   {
     id: "q0774",
@@ -11471,7 +11471,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "One object, three keys, and two JSON list values"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{\n    "Test_Questions" : [\n                "Automation",\n                "Configuration",\n    ],\n    "Test_Exam_Level" : [\n                "CCNA",\n                "CCNP",\n    ],\n    "Test_Response" : [\n                "Correct",\n                "Incorrect",\n    ],\n}` },
   },
   {
     id: "q0781",
