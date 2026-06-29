@@ -272,6 +272,9 @@ O   10.0.0.0/8 [110/2] via 192.168.1.2
 - **Hold-Down-Timer** — kurz keine schlechteren Updates für ein Netz annehmen.
 - **Triggered Updates** — Änderungen sofort melden, statt aufs Intervall zu warten.
 
+> ⏱️ **RIP-Timer (Prüfungsstoff):** Update **30 s** · Invalid **180 s** (ohne Update → ungültig) ·
+> Hold-Down **180 s** · Flush **240 s** (endgültig aus der Tabelle gelöscht).
+
 ## Minimal-Konfiguration (Vergleich)
 \`\`\`
 ! RIPv2
@@ -376,6 +379,87 @@ Daraus folgen die drei Killer-Limits:
 > Schritt, der VLSM/discontiguous gezielt brechen lässt und auf v2 umstellt.
 
 [[dynamic-routing-deep]] · [[routing-fundamentals]]
+  `.trim(),
+};
+
+export const CONCEPT_EIGRP: Concept = {
+  id: "eigrp",
+  title: "EIGRP — Advanced Distance-Vector & DUAL",
+  appliesTo: ["ccna"],
+  tags: ["routing", "eigrp", "dual", "feasible-successor", "metric", "convergence"],
+  content: `
+## EIGRP in einem Satz
+**EIGRP** (Enhanced Interior Gateway Routing Protocol) ist ein **Advanced Distance-Vector**-
+Protokoll: es lernt Routen wie ein DV-Protokoll, nutzt aber einen **Hello-Mechanismus** und den
+**DUAL-Algorithmus** für Konvergenz im **Sub-Sekunden-Bereich**. AD **90** (intern) / 170 (extern),
+Multicast **224.0.0.10**. Seit 2013 offen (RFC 7868). Vergleich: [[dynamic-routing-deep]].
+
+## Drei Tabellen (wie OSPF, aber DV)
+\`\`\`
+1. Neighbor Discovery  → Neighbor-Table   (Hello/Hold)
+2. Topology Exchange   → Topology-Table   (FD/RD, Successor, FS)
+3. Route Selection     → Routing-Table    (D = EIGRP)
+\`\`\`
+- **Partial Updates:** eine Route wird nur **einmal** (beim Lernen) und danach **nur bei Änderung**
+  angekündigt — kein 30-s-Full-Update wie RIP.
+- **Hello/Hold:** schnelle Links 5 s / 15 s, langsame (≤ T1) 60 s / 180 s. Hold = 3× Hello.
+  Timer müssen **nicht** beidseitig gleich sein (anders als OSPF).
+
+## Nachbarschafts-Voraussetzungen
+Gleiche **AS-Nummer** · gleiche **K-Werte** · gemeinsames Subnetz · (ggf.) gleiche Authentifizierung.
+
+## Composite-Metrik (Bandbreite + Delay)
+Default-K-Werte **K1=1, K2=0, K3=1, K4=0, K5=0** → es zählen nur **langsamste Bandbreite** und **Summe der Delays**:
+\`\`\`
+Metric = ( 10^7 / min_BW_kbps  +  Σ delay_µs / 10 ) × 256
+\`\`\`
+> ⚠️ Alle Router müssen dieselben K-Werte haben, sonst kommt **keine** Nachbarschaft zustande.
+
+## DUAL: FD, RD, Successor & Feasible Successor
+| Begriff | Bedeutung |
+|---|---|
+| **RD** (Reported Distance) | Metrik, die der **Nachbar** für das Ziel meldet |
+| **FD** (Feasible Distance) | **eigene** beste Metrik zum Ziel (= RD + Kosten zum Nachbarn) |
+| **Successor** | Route mit der **kleinsten FD** → kommt in die Routing-Tabelle |
+| **Feasible Successor (FS)** | Loop-freie **Backup**-Route in der Topology-Table |
+
+**Feasibility Condition:** eine Route ist FS, wenn **RD < FD des Successors**.
+Sinn: Wer näher am Ziel ist als mein aktueller bester Weg, kann keine Schleife verursachen.
+
+> 🎯 **Konvergenz:** Fällt der Successor aus und es gibt einen **FS**, schaltet EIGRP **sofort** um
+> (kein Query). Ohne FS startet **DUAL** einen **Query/Reply** an die Nachbarn (Route wird *Active*).
+
+\`\`\`
+R1# show ip eigrp topology
+P 10.1.3.0/24, 1 successors, FD is 3328000
+        via 10.1.12.2 (3328000/2816000), GigabitEthernet0/0   ← Successor (FD/RD)
+        via 10.1.13.3 (5632000/2816000), Serial0/0/1          ← FS, falls RD 2816000 < FD 3328000
+\`\`\`
+P = Passive (stabil) · A = Active (DUAL/Query läuft) · (FD/RD).
+
+## Konfiguration
+\`\`\`
+R1(config)# router eigrp 100              ! AS-Nummer — auf ALLEN Routern gleich
+R1(config-router)# eigrp router-id 1.1.1.1
+R1(config-router)# network 10.1.3.0 0.0.0.255   ! Wildcard (präzise) — pro Subnetz eine Zeile
+R1(config-router)# no auto-summary
+R1(config-router)# passive-interface GigabitEthernet0/0
+R1(config-router)# maximum-paths 6        ! bis 6 gleich-teure Pfade (ECMP)
+R1(config-router)# variance 2             ! Unequal-Cost LB: FD ≤ 2× Successor-FD
+\`\`\`
+
+## Verifikation
+\`\`\`
+show ip eigrp neighbors          ! Nachbarn, Hold-Time, Uptime
+show ip eigrp topology           ! FD/RD, Successor, Feasible Successor
+show ip eigrp topology all-links ! auch Routen, die die FC NICHT erfüllen
+show ip route eigrp              ! D-Routen [90/Metrik]
+show ip protocols                ! ASN, K-Werte, networks
+\`\`\`
+
+> 🧪 **Lab:** „EIGRP Grundlagen" (Labs) baut Neighbor-/Topology-Table und DUAL-Failover nach.
+
+[[dynamic-routing-deep]] · [[ospf]] · [[routing-fundamentals]]
   `.trim(),
 };
 
@@ -913,6 +997,7 @@ export const TOPIC_ROUTING_OSPF: Topic = {
     "static-routing-deep",
     "dynamic-routing-deep",
     "ripv1",
+    "eigrp",
     "routing-simulator",
     "ospf",
     "ospf-neighbor-states",
@@ -935,6 +1020,7 @@ export const ROUTING_CONCEPTS: Record<string, Concept> = {
   "static-routing-deep": CONCEPT_STATIC_ROUTING_DEEP,
   "dynamic-routing-deep": CONCEPT_DYNAMIC_ROUTING_DEEP,
   ripv1: CONCEPT_RIPV1,
+  eigrp: CONCEPT_EIGRP,
   "routing-simulator": CONCEPT_ROUTING_SIMULATOR,
   ospf: CONCEPT_OSPF,
   "ospf-neighbor-states": CONCEPT_OSPF_NEIGHBOR_STATES,
