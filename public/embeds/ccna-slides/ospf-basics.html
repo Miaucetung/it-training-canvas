@@ -34,7 +34,7 @@ function compute(os){
   var oa='#8b5cf6', off='#2b3647';
   return {
     ospfStep:os+1, ospfTitle:t[os], ospfDesc:d[os], ospfLinkColor:colors[os],
-    ospfHelloOneOp:os===1?1:0, ospfHelloBidiOp:(os>=2&&os<=6)?1:0,
+    ospfHelloOneOp:os===1?1:0, ospfHelloBidiOp:os===2?1:0,
     ospfDbdOp:(os===3||os===4)?1:0, ospfLsrOp:os===5?1:0, ospfDataOp:os===6?1:0,
     ospfD1:os>=1?oa:off, ospfD2:os>=2?oa:off, ospfD3:os>=3?oa:off,
     ospfD4:os>=4?oa:off, ospfD5:os>=5?oa:off, ospfD6:os>=6?oa:off
