@@ -9777,7 +9777,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Five secure MAC addresses are dynamically learned on the interface."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Port Security              : Enabled\nPort Status                : Secure-up\nViolation Mode             : Shutdown\nAging Time                 : 0 mins\nAging Type                 : Absolute\nSecureStatic Address Aging : Disabled\nMaximum MAC Addresses      : 5\nTotal MAC Addresses        : 1\nConfigured MAC Addresses   : 1\nSticky MAC Addresses       : 0\nLast Source Address : Vlan : 0001.0fAA.33BB:1\nSecurity Violation Count   : 0`, highlight: ["Configured MAC Addresses   : 1"] },
   },
   {
     id: "q0611",
@@ -9789,7 +9789,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "The switch port remains down until it is configured to trust or untrust incoming packets."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `ip arp inspection vlan 2\ninterface fastethernet 0/1\n        switchport mode access\n        switchport access vlan 2` },
   },
   {
     id: "q0612",
@@ -9888,7 +9888,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "The ACL must be configured the Gi0/2 interface inbound on R1."
     ],
     correct: [0, 3],
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "net", type: "cloud", label: "Internet", x: 110, y: 120 }, { id: "r1", type: "router", label: "R1", x: 330, y: 120 }, { id: "r2", type: "router", label: "R2", x: 540, y: 120 }, { id: "sw1", type: "switch", label: "SW1", x: 330, y: 250 }, { id: "sw2", type: "switch", label: "SW2", x: 540, y: 250 }, { id: "pc1", type: "pc", label: "10.0.20.0/26", x: 330, y: 380 }, { id: "pc2", type: "pc", label: "10.0.10.0/26", x: 540, y: 380 }], links: [{ from: "net", to: "r1", labelTo: "Gi0/1" }, { from: "r1", to: "r2", labelFrom: "Gi0/2", labelTo: "Gi0/1" }, { from: "r1", to: "sw1", labelFrom: "Gi0/3" }, { from: "r2", to: "sw2", labelFrom: "Gi0/2" }, { from: "sw1", to: "pc1" }, { from: "sw2", to: "pc2" }] }, { type: "cli", content: `R2# config t\nR2(config)#access-list 101 deny tcp 10.0.20.0 0.0.0.63 10.0.10.0 0.0.0.63 eq smtp\nR2(config)#access-list 101 deny tcp 10.0.20.0 0.0.0.63 10.0.10.0 0.0.0.63 eq www\nR2(config)#int gi0/2\nR2(config-if)# ip access-group 101 in` }],
   },
   {
     id: "q0622",
@@ -9949,7 +9949,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "PC"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `ip arp inspection vlan 2-10\ninterface fastethernet 0/1\n        ip arp inspection trust` },
   },
   {
     id: "q0629",
@@ -9961,7 +9961,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "SW4"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1(config-line) #line vty 0 15\nSW1(config-line) #no login local\nSW1(config-line) #password cisco\n\nSW2(config) #username admin1 password abcd1234\nSW2(config) #username admin2 password abcd1234\nSW2(config-line) #line vty 0 15\nSW2(config-line) #login local\n\nSW3(config) #username admin1 secret abcd1234\nSW3(config) #username admin2 secret abcd1234\nSW3(config-line) #line vty 0 15\nSW3(config-line) #login local\n\nSW4(config) #username admin1 secret abcd1234\nSW4(config) #username admin2 secret abcd1234\nSW4(config-line) #line console 0\nSW4(config-line) #login local`, highlight: ["SW3(config) #username admin1 secret abcd1234", "SW3(config-line) #line vty 0 15"] },
   },
   {
     id: "q0630",
@@ -9973,7 +9973,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "All ingress and egress traffic is dropped because the interface is untrusted."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `ip arp inspection vlan 5-10\ninterface fastethernet 0/1\n    switchport mode access\n    switchport access vlan 5` },
   },
   {
     id: "q0631",
@@ -10095,7 +10095,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "no access-list 2699 deny ip any 10.20.1.0 0.0.0.255"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `interface GigabitEthernet0/1\nip address 192.168.1.2 255.255.255.0\nip access-group 2699 in\n!\naccess-list 2699 deny icmp any 10.10.1.0 0.0.0.255 echo\naccess-list 2699 deny ip any 10.20.1.0 0.0.0.255\naccess-list 2699 permit ip any 10.10.1.0 0.0.0.255\naccess-list 2699 permit tcp any 10.20.1.0 0.0.0.127 eq 22`, highlight: ["access-list 2699 deny ip any 10.20.1.0 0.0.0.255"] },
   },
   {
     id: "q0642",
@@ -10167,7 +10167,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "access-list 101 permit tcp 10.1.1.0 0.0.0.255 172.16.1.0 0.0.0.255 eq ssh"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `access-list 101 permit ospf any any\n access-list 101 permit tcp any any eq 179\n access-list 101 permit tcp any eq 179 any\n access-list 101 permit gre any any\n access-list 101 permit esp any any\n\naccess-list 101 deny ospf any any\n access-list 101 permit tcp 10.1.1.0 0.0.0.255 172.16.1.0 0.0.0.255 eq telnet\n access-list 101 permit udp 10.1.1.0 0.0.0.255 172.16.1.0 0.0.0.255 eq 500\n access-list 101 permit udp 10.1.1.0 0.0.0.255 172.16.1.0 0.0.0.255 eq 4500\n access-list 101 deny ip any any log\n\ninterface Ethernet0/0\n  ip address 10.1.1.25 255.255.255.0\n  ip access-group 101 in` },
   },
   {
     id: "q0648",
@@ -10289,7 +10289,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "login console"
     ],
     correct: [0, 1, 2],
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "hq", type: "router", label: "HQ", x: 380, y: 80 }, { id: "fw1", type: "firewall", label: "10.100.100.0/24", x: 250, y: 260 }, { id: "fw2", type: "firewall", label: "192.168.0.0/16", x: 540, y: 260 }], links: [{ from: "hq", to: "fw1", labelFrom: "Gi0/0" }, { from: "hq", to: "fw2", labelFrom: "Gi0/1" }] },
   },
   {
     id: "q0660",
@@ -10349,7 +10349,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Remove the password command from line vty 0 4. Q0664 (2) How does MAC learning function? adds unknown source MAC addresses to the CAM table"
     ],
     correct: [0, 3],
-    exhibit: true,
+    exhibit: { type: "cli", content: `RTR-1(config)#access-list 10 deny host 10.1.1.10\nRTR-1(config)#line vty 0 4\nRTR-1(config-line)#access-class 10 in\nRTR-1(config-line)#password cisco\nRTR-1(config-line)#login`, highlight: ["RTR-1(config-line)#access-class 10 in"] },
   },
   {
     id: "q0666",
