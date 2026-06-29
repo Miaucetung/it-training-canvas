@@ -8654,7 +8654,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "PAT"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R1(config)#ip nat pool cisco 10.1.1.0 10.1.1.50 255.255.255.0` },
   },
   {
     id: "q0511",
@@ -8690,7 +8690,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Configure the default gateway"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `ip dhcp pool test\n    network 192.168.10.0 /27\n    domain-name cisco.com\n    dns-server 172.16.1.1 172.16.2.1\n    netbios-name-server 172.16.1.10 172.16.2.10` },
   },
   {
     id: "q0514",
@@ -8703,7 +8703,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "The IP will be shown, even after the conflict is resolved."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Router#  show ip dhcp conflict\nIP address       Detection method     Detection time\n172.16.1.32      Ping                 Feb 16 1998 12:28 PM\n172.16.1.64      Gratuitous ARP       Feb 23 1198 08:12 AM` },
   },
   {
     id: "q0515",
@@ -8891,7 +8891,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "R1(config)# interface fa0/0 R1(config-if)# ip helper-address 192.0.2.2"
     ],
     correct: [1, 2],
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 120, y: 130 }, { id: "sw", type: "switch", label: "SW", x: 320, y: 130 }, { id: "r2", type: "router", label: "R2", x: 500, y: 130 }, { id: "dhcp", type: "pc", label: "DHCP server", x: 690, y: 130 }], links: [{ from: "r1", to: "sw", labelFrom: "fa0/0" }, { from: "sw", to: "r2", labelTo: "gi0/0 192.0.2.2" }, { from: "r2", to: "dhcp", labelFrom: "gi0/1 198.51.100.1", labelTo: ".100" }], labels: [{ text: "DHCP server 198.51.100.100", attachTo: "dhcp", position: "below" }] },
   },
   {
     id: "q0531",
@@ -8916,7 +8916,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "172.23.104.4"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R2#show ip nat translations\nPro  Inside global        Inside local       Outside local       Outside global\ntcp  172.23.104.3:43268   10.4.4.4:43268     172.23.103.10:23    172.23.103.10:23\ntcp  172.23.104.4:45507   10.4.4.5:45507     172.23.103.10:80    172.23.103.10:80`, highlight: ["tcp  172.23.104.4:45507   10.4.4.5:45507     172.23.103.10:80    172.23.103.10:80"] },
   },
   {
     id: "q0533",
@@ -9185,7 +9185,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Router2(config)#ntp master 4"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "Router 1", x: 170, y: 170 }, { id: "r2", type: "router", label: "Router 2", x: 520, y: 170 }], links: [{ from: "r1", to: "r2", labelFrom: "192.168.0.2", labelTo: "192.168.0.3" }], labels: [{ text: "Loopback0: 172.17.0.1", attachTo: "r2", position: "above" }] },
   },
   {
     id: "q0558",
@@ -9282,7 +9282,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Router1(config)#access- list 99 permit 209.165.201.2 0.0.0.0 Router1(config)#ip nat inside source list 99 interface gi1/0/0 overload Router1(config)#interface gi2/0/1.200 Router1(config)#ip nat inside Router1(config)#interface gi1/0/0 Router1(config)#ip nat outside"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "Router1", x: 220, y: 60 }, { id: "net", type: "cloud", label: "Internet", x: 530, y: 60 }, { id: "sw", type: "switch", label: "SW", x: 220, y: 210 }, { id: "vlan100", type: "pc", label: "VLAN 100", x: 120, y: 350 }, { id: "vlan200", type: "pc", label: "VLAN 200", x: 370, y: 350 }], links: [{ from: "r1", to: "net", labelFrom: "g1/0/0", subnet: "209.165.201.2/27" }, { from: "r1", to: "sw", labelFrom: "g2/0/1" }, { from: "sw", to: "vlan100", labelTo: "192.168.100.1/27" }, { from: "sw", to: "vlan200", labelTo: "192.168.100.33/27" }], labels: [{ text: "g2/0/1.100 (VLAN 100)", attachTo: "vlan100", position: "below" }, { text: "g2/0/1.200 (VLAN 200)", attachTo: "vlan200", position: "below" }] },
   },
   {
     id: "q0566",
@@ -9295,7 +9295,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "ip ssh version 2"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: { type: "cli", content: `R1#show run\nBuilding configuration...\n!\nhostname R1\n!\nusername CNAC password 0 cona123\n!\nip domain-name CNAC.com\n!\ninterface GigabitEthernet0/0/0\n ip address 192.168.1.10 255.255.255.0\n duplex auto\n speed auto\n!\nline vty 0 15\n login local\n\nR1#show crypto key mypubkey rsa\n\nR1#show ssh\n%No SSHv2 server connections running.\n%No SSHv1 server connections running.` },
   },
   {
     id: "q0567",
@@ -9379,7 +9379,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Configure the ip dhcp information option command on the interface that is connected to the DHCP client."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Switch#show ip dhcp snooping\nSwitch DHCP snooping is enabled\nSwitch DHCP gleaning is disabled\nDHCP snooping is configured on following VLANs:\n1\nDHCP snooping is operational on following VLANs:\n1\nInsertion of option 82 is disabled\nVerification of hwaddr field is enabled\nVerification of giaddr field is enabled\nDHCP snooping trust/rate is configured on the following Interfaces:\nInterface    Trusted    Allow option    Rate limit (pps)\n\nSwitch#show ip dhcp snooping statistics detail\nPackets Processed by DHCP Snooping = 34\nPackets Dropped Because\n  Received on untrusted ports = 32\n  No binding entry = 0\n  Insertion of opt82 fail = 0`, highlight: ["  Received on untrusted ports = 32"] },
   },
   {
     id: "q0574",
@@ -9403,7 +9403,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "193"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R1#show ip route\nCodes: C - connected, S - static, R - RIP, M - mobile, B - BGP\n       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area\n       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2\n       E1 - OSPF external type 1, E2 - OSPF external type 2\n       * - candidate default, U - per-user static route, o - ODR\nGateway of last resort is 192.168.30.10 to network 0.0.0.0\n      192.168.30.0/29 is subnetted, 2 subnets\nC        192.168.30.0 is directly connected, FastEthernet0/0\nC        192.168.30.8 is directly connected, Serial0/0.1\n      192.168.10.0/24 is variably subnetted, 2 subnets, 2 masks\nO IA     192.168.10.32/28 [110/193] via 192.168.30.10, 00:18:49, Serial0/0.1\nO IA     192.168.10.0/27 [110/192] via 192.168.30.10, 00:18:49, Serial0/0.1\n      192.168.20.0/30 is subnetted, 1 subnets\nO IA     192.168.20.0 [110/128] via 192.168.30.10, 00:18:49, Serial0/0.1\n      192.168.50.0/32 is subnetted, 1 subnets\nC        192.168.50.1 is directly connected, Loopback0\nO*IA 0.0.0.0/0 [110/84] via 192.168.30.10, 00:10:36, Serial0/0.1`, highlight: ["O IA     192.168.10.32/28 [110/193] via 192.168.30.10, 00:18:49, Serial0/0.1"] },
   },
   {
     id: "q0576",
