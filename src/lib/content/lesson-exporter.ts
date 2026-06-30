@@ -66,6 +66,7 @@ const SLIDE_LABELS: Record<string, string> = {
   eigrp: "EIGRP",
   "ospf-basics": "OSPF-Grundlagen",
   "ospf-areas": "OSPF-Areas",
+  "acl-block-alignment": "ACL Block-Ausrichtung",
 };
 
 function slideUrl(slug: string): string {

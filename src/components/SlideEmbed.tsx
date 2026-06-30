@@ -20,6 +20,7 @@ const LABELS: Record<string, string> = {
   eigrp: "EIGRP",
   "ospf-basics": "OSPF-Grundlagen",
   "ospf-areas": "OSPF-Areas",
+  "acl-block-alignment": "ACL Block-Ausrichtung",
 };
 
 export function SlideEmbed({ slug, dark }: Props) {

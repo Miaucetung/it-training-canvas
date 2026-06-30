@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#080b12;overflow:hidden;}
+  *{box-sizing:border-box;}
+  #wrap{position:relative;width:100%;overflow:hidden;}
+  #stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
+  #stage > section{width:1920px;height:1080px;}
+  .card{background:#1a2230;border:1px solid #2b3647;border-radius:14px;padding:18px 22px;}
+  .chip{background:#f59e0b;color:#1c1917;padding:4px 12px;border-radius:5px;font-size:14px;font-weight:700;letter-spacing:1.2px;display:inline-block;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .egal{background:rgba(245,158,11,0.2);border:1px solid #4a3a18;color:#fbbf24;}
+  .fix{background:rgba(16,185,129,0.15);border:1px solid #16463a;color:#6ee7b7;}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+<section data-label="ACL Block-Ausrichtung" data-speaker-notes="Wildcard-egal-Bits werden vom Router auf 0 gerundet. Blockgröße = Wildcard+1, Start muss durch Blockgröße teilbar sein. Beispiel .46 0.0.0.31 rundet auf .32." style="background:#080b12;color:#f1f5f9;font-family:'IBM Plex Sans',-apple-system,sans-serif;padding:40px 56px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
+
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:16px;border-bottom:2px solid #f59e0b;flex-shrink:0;">
+    <div class="chip" style="font-size:15px;letter-spacing:1.5px;padding:6px 16px;">ACL · WILDCARD</div>
+    <h1 style="margin:0;font-size:46px;font-weight:700;line-height:1.05;color:#f8fafc;">Block-<span style="color:#fbbf24;">Ausrichtung</span></h1>
+    <div class="mono" style="margin-left:auto;font-size:22px;color:#94a3b8;">Ziel: <span style="color:#fbbf24;">192.168.20.46 – .95</span></div>
+  </div>
+
+  <!-- Zahlenstrahl: Soll vs. Ist -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span class="chip" style="background:#0b1220;color:#fbbf24;border:1px solid #4a3a18;">ZAHLENSTRAHL — Soll vs. was der Router wirklich trifft</span>
+      <span class="mono" style="font-size:20px;color:#94a3b8;">permit 192.168.20.<span style="color:#f87171;">46</span> 0.0.0.31</span>
+    </div>
+    <svg viewBox="0 0 920 250" width="100%" height="250" font-family="'IBM Plex Mono',monospace">
+      <!-- Achse -->
+      <line x1="80" y1="120" x2="840" y2="120" stroke="#3d4a5e" stroke-width="2"/>
+      <!-- Blockgrenzen (gültige 32er-Starts) -->
+      <g stroke="#475569" stroke-dasharray="5 6" stroke-width="1.5">
+        <line x1="80"  y1="40" x2="80"  y2="210"/>
+        <line x1="460" y1="40" x2="460" y2="210"/>
+        <line x1="840" y1="40" x2="840" y2="210"/>
+      </g>
+      <g fill="#64748b" font-size="18" text-anchor="middle">
+        <text x="80"  y="232">.32</text>
+        <text x="460" y="232">.64</text>
+        <text x="840" y="232">.96</text>
+      </g>
+      <g fill="#fbbf24" font-size="15" text-anchor="middle">
+        <text x="80"  y="34">0×32</text>
+        <text x="460" y="34">2×32</text>
+        <text x="840" y="34">3×32</text>
+      </g>
+
+      <!-- Soll-Range .46–.95 (amber) -->
+      <rect x="246.25" y="62" width="581.85" height="22" rx="5" fill="rgba(245,158,11,0.25)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="537" y="56" fill="#fbbf24" font-size="17" text-anchor="middle" font-family="'IBM Plex Sans'">gewünscht  .46 – .95</text>
+      <circle cx="246.25" cy="120" r="6" fill="#f87171"/>
+      <text x="246.25" y="150" fill="#f87171" font-size="17" text-anchor="middle">.46 getippt</text>
+
+      <!-- Ist-Block .32–.63 (rose, was der Router trifft) -->
+      <rect x="80" y="160" width="368.1" height="22" rx="5" fill="rgba(248,113,113,0.18)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="264" y="200" fill="#f87171" font-size="17" text-anchor="middle" font-family="'IBM Plex Sans'">Router trifft real  .32 – .63</text>
+
+      <!-- Rundungspfeil .46 -> .32 -->
+      <path d="M 246 128 q -80 22 -158 26" fill="none" stroke="#f87171" stroke-width="2" marker-end="url(#ar)"/>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#f87171"/></marker></defs>
+      <text x="150" y="135" fill="#94a3b8" font-size="14" text-anchor="middle" font-family="'IBM Plex Sans'">abgerundet</text>
+    </svg>
+    <div style="display:flex;gap:30px;font-size:17px;color:#94a3b8;margin-top:2px;font-family:'IBM Plex Sans';">
+      <span><span style="color:#f59e0b;">▮</span> gewünscht</span>
+      <span><span style="color:#f87171;">▮</span> tatsächlich (zu viel .32–.45, es fehlt .80–.95 aus dieser Zeile)</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:20px;flex:1;min-height:0;">
+    <!-- Binär: egal-Bits -->
+    <div class="card">
+      <span class="chip" style="background:#0b1220;color:#6ee7b7;border:1px solid #16463a;">WARUM — die „egal“-Bits</span>
+      <div class="mono" style="margin-top:16px;font-size:24px;line-height:2.2;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="color:#94a3b8;width:160px;font-size:18px;">Adresse 46</span>
+          <span class="fix" style="padding:5px 8px;border-radius:5px;">001</span>
+          <span class="egal" style="padding:5px 8px;border-radius:5px;">0&#8201;1110</span>
+          <span style="color:#5b6a80;font-size:18px;">← 5 egal-Bits (Wildcard 31)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span style="color:#94a3b8;width:160px;font-size:18px;">Router nullt sie</span>
+          <span class="fix" style="padding:5px 8px;border-radius:5px;">001</span>
+          <span style="background:#080b12;border:1px solid #2b3647;color:#5b6a80;padding:5px 8px;border-radius:5px;">0&#8201;0000</span>
+          <span style="color:#6ee7b7;font-size:20px;">= 32</span>
+        </div>
+      </div>
+      <div style="margin-top:14px;font-size:18px;color:#cbd5e1;font-family:'IBM Plex Sans';line-height:1.5;">
+        Die gesetzten Wildcard-Bits darf der Router <strong style="color:#fbbf24;">ignorieren</strong> — er behandelt sie als 0. Deine <span class="mono" style="color:#f87171;">.46</span> wird dadurch zu <span class="mono" style="color:#6ee7b7;">.32</span>: dem nächsten Vielfachen von 32 darunter.
+      </div>
+    </div>
+
+    <!-- Regel: Teilbarkeitsprobe -->
+    <div class="card" style="display:flex;flex-direction:column;gap:14px;">
+      <span class="chip">DIE PROBE</span>
+      <div style="background:#080b12;border:1px solid #4a3a18;border-radius:10px;padding:14px;text-align:center;">
+        <div class="mono" style="font-size:24px;color:#f8fafc;">Blockgröße = Wildcard + 1</div>
+        <div class="mono" style="font-size:18px;color:#94a3b8;margin-top:4px;">0.0.0.31 → 31 + 1 = <span style="color:#fbbf24;">32</span></div>
+      </div>
+      <div style="background:#080b12;border:1px solid #2b3647;border-radius:10px;padding:14px;">
+        <div class="mono" style="font-size:22px;color:#f8fafc;">Start mod Blockgröße = 0&nbsp;?</div>
+        <div class="mono" style="font-size:21px;margin-top:10px;color:#f87171;">46 mod 32 = 14&nbsp;&nbsp;✗ nicht ausgerichtet</div>
+        <div class="mono" style="font-size:21px;margin-top:4px;color:#6ee7b7;">64 mod 32 = 0&nbsp;&nbsp;&nbsp;✓ ausgerichtet</div>
+      </div>
+      <div style="font-size:17px;color:#94a3b8;font-family:'IBM Plex Sans';">
+        Gültige 32er-Starts: <span class="mono" style="color:#cbd5e1;">0, 32, 64, 96, 128, …</span>
+      </div>
+    </div>
+  </div>
+
+</section>
+</div></div>
+<script>
+  (function(){
+    var stage=document.getElementById('stage'), wrap=document.getElementById('wrap');
+    function fit(){var s=wrap.clientWidth/1920;stage.style.transform='scale('+s+')';wrap.style.height=(1080*s)+'px';}
+    fit();window.addEventListener('resize',fit);
+  })();
+</script>
+</body>
+</html>
