@@ -2218,6 +2218,73 @@ export const QUIZ_ACL: Quiz = {
         { id: "d", text: "note", isCorrect: false },
       ],
     },
+    // ── Block-Ausrichtung (Wildcard) ──────────────────────────
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Wie viele Adressen umfasst der Block einer Wildcard-Maske 0.0.0.31?",
+      explanation: "Blockgröße = Wildcard + 1. Im letzten Oktett: 31 + 1 = 32 Adressen.",
+      answers: [
+        { id: "a", text: "16", isCorrect: false },
+        { id: "b", text: "31", isCorrect: false },
+        { id: "c", text: "32", isCorrect: true },
+        { id: "d", text: "64", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Ist die Zeile 'permit 192.168.20.46 0.0.0.31' korrekt ausgerichtet – und warum (nicht)?",
+      explanation: "Eine Zeile ist nur ausgerichtet, wenn Start mod Blockgröße = 0. Blockgröße = 31+1 = 32, und 46 mod 32 = 14 ≠ 0. Der Router setzt die 5 'egal'-Bits auf 0 und rundet auf .32 ab – die Zeile deckt real .32–.63.",
+      answers: [
+        { id: "a", text: "Nein – 46 ist nicht durch 32 teilbar (Rest 14); der Block beginnt real bei .32", isCorrect: true },
+        { id: "b", text: "Ja – Blockgröße 32 passt zur Range, der Start ist beliebig wählbar", isCorrect: false },
+        { id: "c", text: "Nein – die Wildcard müsste 0.0.0.32 statt 0.0.0.31 lauten", isCorrect: false },
+        { id: "d", text: "Ja – jede gerade Adresse darf Blockanfang sein", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche dieser Permit-Zeilen ist korrekt ausgerichtet?",
+      explanation: "Der Start muss ein Vielfaches der Blockgröße sein. 64 mod 32 = 0 ✓. Dagegen: 80 mod 32 = 16, 20 mod 16 = 4, 100 mod 64 = 36 – alle nicht ausgerichtet.",
+      answers: [
+        { id: "a", text: "permit 10.0.0.80 0.0.0.31", isCorrect: false },
+        { id: "b", text: "permit 10.0.0.64 0.0.0.31", isCorrect: true },
+        { id: "c", text: "permit 10.0.0.20 0.0.0.15", isCorrect: false },
+        { id: "d", text: "permit 10.0.0.100 0.0.0.63", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welchen Adressbereich trifft 'permit 172.16.5.70 0.0.0.15' in Wirklichkeit?",
+      explanation: "Blockgröße = 15+1 = 16. 70 mod 16 = 6 ≠ 0 → nicht ausgerichtet. Der Router rundet auf das nächste Vielfache von 16 darunter (.64) ab und deckt real .64–.79.",
+      answers: [
+        { id: "a", text: "172.16.5.70 – .85", isCorrect: false },
+        { id: "b", text: "172.16.5.64 – .79", isCorrect: true },
+        { id: "c", text: "172.16.5.70 – .79", isCorrect: false },
+        { id: "d", text: "172.16.5.64 – .95", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Zeilenfolge erlaubt GENAU 192.168.20.46 – .95 mit minimalen, korrekt ausgerichteten Blöcken? (Greedy-Zerlegung von unten)",
+      explanation: "Greedy ab .46: .46–.47 (Größe 2, 46 mod 2 = 0), dann .48–.63 (Größe 16, 48 mod 16 = 0), dann .64–.95 (Größe 32, 64 mod 32 = 0). Option B hat zwar die richtigen Größen, aber die Starts .46/.78 sind nicht ausgerichtet.",
+      answers: [
+        { id: "a", text: "permit .46 0.0.0.1 · permit .48 0.0.0.15 · permit .64 0.0.0.31", isCorrect: true },
+        { id: "b", text: "permit .46 0.0.0.31 · permit .78 0.0.0.15 · permit .94 0.0.0.1", isCorrect: false },
+        { id: "c", text: "permit .32 0.0.0.63 (ein Block)", isCorrect: false },
+        { id: "d", text: "permit .46 0.0.0.49 (ein Block)", isCorrect: false },
+      ],
+    },
+    {
+      id: uid(), type: "single-choice", points: 10,
+      text: "Welche Zeilenfolge deckt GENAU 192.168.30.96 – .159 mit minimalen, ausgerichteten Blöcken?",
+      explanation: "Greedy ab .96: .96–.127 (Größe 32, 96 mod 32 = 0) und .128–.159 (Größe 32, 128 mod 32 = 0). Option B (.96/0.0.0.63) ist nicht ausgerichtet (96 mod 64 = 32 → rundet auf .64). Option D deckt mit .128/0.0.0.63 zu viel (.128–.191).",
+      answers: [
+        { id: "a", text: "permit .96 0.0.0.31 · permit .128 0.0.0.31", isCorrect: true },
+        { id: "b", text: "permit .96 0.0.0.63", isCorrect: false },
+        { id: "c", text: "permit .96 0.0.0.31 · permit .160 0.0.0.31", isCorrect: false },
+        { id: "d", text: "permit .96 0.0.0.31 · permit .128 0.0.0.63", isCorrect: false },
+      ],
+    },
   ],
 };
 
