@@ -13,6 +13,10 @@ export const CONCEPT_IOS_CLI_BASICS: Concept = {
   content: `
 ## Cisco IOS CLI
 
+:::kernidee
+Die CLI ist **modal**: Was du tun darfst, hängt davon ab, in welchem **Modus** du gerade stehst. \`>\` darf nur schauen, \`#\` darf alles anzeigen/debuggen, \`(config)#\` ändert das Gerät. Fast jede „Befehl wird nicht akzeptiert"-Frustration ist in Wahrheit ein **falscher Modus** — Navigation ist deshalb die allererste IOS-Fähigkeit.
+:::
+
 Cisco IOS (und IOS XE) ist das Betriebssystem auf Cisco-Switches/Routern.
 Der Zugriff erfolgt über Konsole, Telnet, SSH oder die WebUI.
 
@@ -60,6 +64,10 @@ Switch# erase startup-config                 ! Werks-Reset (nach reload)
 Switch# reload
 \`\`\`
 
+:::falle
+**running-config lebt im RAM (flüchtig).** Ohne \`copy running-config startup-config\` (= \`wr\`) sind nach einem Stromausfall/\`reload\` **alle** Änderungen weg — das Gerät bootet die startup-config aus dem NVRAM. Klassische Prüfungsfrage: „Konfiguration nach Reload verschwunden" → nie gespeichert.
+:::
+
 ### Hilfreiche Befehle für Diagnose
 \`\`\`
 Switch# show version          ! IOS-Version, Uptime, Hardware
@@ -80,6 +88,10 @@ export const CONCEPT_IOS_DEVICE_ACCESS: Concept = {
   tags: ["cisco", "ios", "ssh", "telnet", "console", "security"],
   content: `
 ## Zugang zur CLI
+
+:::kernidee
+Zwei Wege ins Gerät: **Out-of-Band** (Konsole — eigenes Kabel, funktioniert **immer**, auch ohne IP/Netz) und **In-Band** (SSH/Telnet — läuft über das produktive Netz, braucht eine erreichbare IP). Konsole ist der **Rettungsanker** für Erstinbetriebnahme und Notfälle; SSH der Alltag, sobald das Gerät eine Management-IP hat.
+:::
 
 ### Konsolenzugang (Out-of-Band)
 - RJ-45-Konsolenport oder USB-Mini-B
@@ -216,10 +228,12 @@ Die "Stadtbibliothek Mannheim" hat einen neuen Cisco Catalyst 9200 erhalten. Wer
 3. Warum genügt \`copy run start\` nicht, um eine fehlerhafte Konfiguration rückgängig zu machen — was ist ein besserer Weg?
 *(Antworten im Quiz verfügbar)*
 
-## Häufige Fehler & Fallstricke
-- ⚠️ **\`password\` statt \`secret\` verwendet:** \`enable password\` speichert Klartext (oder schwaches Type-7-Encoding). \`enable secret\` (oder \`username … secret\`) erzeugt einen Type-9- oder Type-8-Hash. Heute ist \`secret\` Pflicht.
-- ⚠️ **SSH-Schlüssel zu klein gewählt:** \`crypto key generate rsa modulus 512\` reicht für SSH v1, aber nicht für SSH v2. Mindestens 768 Bit (SSH v2) — produktiv 2048.
-- ⚠️ **\`copy run start\` vergessen:** Nach jeder Änderung an running-config ist die startup-config noch alt. Beim nächsten Reload sind alle Änderungen weg. Faustregel: nach jeder erfolgreich getesteten Änderung **\`wr\`** (write memory).
+:::falle
+Die drei häufigsten IOS-Anfängerfehler:
+- **\`password\` statt \`secret\`:** \`enable password\` ist Klartext/Type-7; \`enable secret\` (bzw. \`username … secret\`) erzeugt einen echten Hash (Type 8/9). Heute ist \`secret\` Pflicht.
+- **SSH-Key zu klein:** \`crypto key generate rsa modulus 512\` reicht nur für SSH v1. SSH v2 braucht ≥ 768 Bit — produktiv **2048**.
+- **\`copy run start\` (\`wr\`) vergessen:** Nach jeder getesteten Änderung speichern, sonst ist beim nächsten Reload alles weg.
+:::
   `.trim(),
 };
 

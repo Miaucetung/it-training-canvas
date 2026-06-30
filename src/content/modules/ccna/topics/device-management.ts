@@ -14,6 +14,10 @@ export const CONCEPT_CDP_LLDP: Concept = {
   content: `
 ## CDP — Cisco Discovery Protocol
 
+:::kernidee
+Discovery-Protokolle beantworten **„Was hängt eigentlich an diesem Port?"** — auf **Layer 2**, also noch **bevor** IP konfiguriert ist. Genau deshalb sind sie Gold beim Troubleshooting (falsch verkabelt? falscher Nachbar?), aber auch ein **Informationsleck**: Wer mithört, sieht Modell, IOS-Version und Topologie frei Haus.
+:::
+
 CDP ist ein **Cisco-proprietäres** Layer-2-Protokoll, das benachbarte Cisco-Geräte
 automatisch erkennt — ohne IP-Adressen zu kennen.
 
@@ -66,6 +70,10 @@ export const CONCEPT_NTP: Concept = {
   tags: ["ntp", "time", "device-management", "udp"],
   content: `
 ## NTP (RFC 5905, UDP 123)
+
+:::kernidee
+Zeit ist die **gemeinsame Wahrheit** im Netz: Logs aus 20 Geräten lassen sich nur korrelieren, wenn alle dieselbe Uhrzeit haben. Zertifikate (Gültigkeit), Kerberos (5-Minuten-Fenster) und jede Forensik brechen ohne synchrone Uhren. Das **Stratum** misst dabei nur die *Distanz zur Referenzuhr* — nicht die Genauigkeit an sich.
+:::
 
 Synchronisiert die Uhrzeit auf Netzwerkgeräten — Voraussetzung für korrekte
 Zertifikate, Logs, Forensik und Kerberos-Authentifizierung.
@@ -130,7 +138,9 @@ Zentralisiertes Logging — alle Cisco-Geräte schicken Meldungen an einen Syslo
 | 6 | Informational | Informationen |
 | 7 | Debugging | \`debug\`-Output |
 
-Eselsbrücke: **E**very **A**wesome **C**isco **E**ngineer **W**ill **N**eed **I**ce-cream **D**aily.
+:::merke
+**Severity 0 = am wichtigsten**, 7 = am unwichtigsten (Debug) — die Zahl ist *umgekehrt* zur Dringlichkeit. \`logging trap warnings\` (4) sendet daher **0–4**. Eselsbrücke: **E**very **A**wesome **C**isco **E**ngineer **W**ill **N**eed **I**ce-cream **D**aily (Emergency→Debugging).
+:::
 
 ### Format einer Syslog-Meldung
 \`\`\`
@@ -187,6 +197,10 @@ Inform = Trap mit Bestätigung (zuverlässiger).
 | v2c | Community-String (Klartext) | Nein | ⚠️ nur read-only intern |
 | **v3** | User + Hash (HMAC-MD5/SHA) | Ja (DES/AES) | ✅ produktiv nutzen |
 
+:::falle
+**SNMPv1/v2c senden den Community-String im Klartext** — wer mitliest, kann das Gerät auslesen (read) oder bei \`RW\` sogar konfigurieren. Nur **SNMPv3 mit authPriv** bietet echte Authentifizierung **und** Verschlüsselung. „v2c ist sicher genug" ist falsch.
+:::
+
 ### SNMPv3 Sicherheits-Level
 - **noAuthNoPriv** — keine Auth, keine Verschlüsselung
 - **authNoPriv** — Auth (MD5/SHA), keine Verschlüsselung
@@ -227,10 +241,12 @@ Das "Klinikum am Park" (3 Standorte, 22 Cisco-Switches, 8 Router) standardisiert
 3. Was ist der Unterschied zwischen einer SNMP-Trap und einem Inform — wann nutzt man welches?
 *(Antworten im Quiz verfügbar)*
 
-## Häufige Fehler & Fallstricke
-- ⚠️ **CDP/LLDP an Edge-Ports aktiv lassen:** Ein Angreifer kann mit einem Sniffer Topologie, IOS-Version und Plattform auslesen — ideal für Exploits. \`no cdp enable\` und \`no lldp transmit/receive\` an User-Ports.
-- ⚠️ **Syslog ohne Timestamps:** Ohne \`service timestamps log datetime msec\` haben alle Meldungen relative Uptime — bei Forensik unbrauchbar. Immer aktivieren und NTP nutzen.
-- ⚠️ **SNMPv2c mit "public"/"private":** Default-Communities sind weltweit bekannt. Niemals nutzen — entweder eigene Strings ODER (besser) sofort SNMPv3.
+:::falle
+Management-Protokoll-Fallen:
+- **CDP/LLDP an Edge-Ports aktiv:** Ein Sniffer liest Topologie, IOS-Version und Plattform aus → \`no cdp enable\` / \`no lldp transmit\`/\`receive\` an User-Ports.
+- **Syslog ohne Timestamps:** Ohne \`service timestamps log datetime msec\` + NTP haben Meldungen nur relative Uptime — für Forensik wertlos.
+- **SNMPv2c mit "public"/"private":** Default-Communities sind weltweit bekannt — nie nutzen, direkt SNMPv3.
+:::
   `.trim(),
 };
 
