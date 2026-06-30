@@ -223,6 +223,130 @@ Extended IP access list DMZ-POLICY
   `.trim(),
 };
 
+export const CONCEPT_ACL_WILDCARD_ALIGNMENT: Concept = {
+  id: "acl-wildcard-alignment",
+  title: "Wildcard Block-Ausrichtung",
+  appliesTo: ["ccna"],
+  tags: ["security", "acl", "wildcard", "block-alignment", "subnetting"],
+  relatedConceptIds: ["subnetting-drill"],
+  content: `
+## Wildcard Block-Ausrichtung
+
+:::kernidee
+Eine Wildcard-Maske teilt jedes Bit in „muss passen" (0) und „**egal**" (1). Der Router prüft nur die 0-Bits — die egal-Bits in deiner angegebenen Adresse **ignoriert** er und behandelt sie intern als 0. Eine Zeile beschreibt damit nie „ab dieser Adresse", sondern immer einen **festen, ausgerichteten Block**, der am nächsten Vielfachen der Blockgröße **unterhalb** deiner Zahl beginnt. Wer die Größe richtig, aber die Startadresse falsch wählt, trifft deshalb einen **ganz anderen Bereich** — ohne Fehlermeldung.
+:::
+
+### Vom „egal-Bit" zum Block
+
+Die gesetzten Wildcard-Bits sind Platzhalter: Innerhalb eines Blocks dürfen sie jeden Wert annehmen. Daraus folgt direkt die **Blockgröße**:
+
+\`\`\`
+Blockgröße = Wildcard-Wert (im interessanten Oktett) + 1
+\`\`\`
+
+\`0.0.0.31\` → 31 + 1 = **32 Adressen**, \`0.0.0.15\` → **16**, \`0.0.0.0\` → **1** (ein Host).
+
+Entscheidend ist aber nicht nur die Größe, sondern **wo der Block beginnen darf**. Ein 32er-Block kann nur bei 0, 32, 64, 96 … starten — niemals bei 46. Gibst du \`192.168.20.46 0.0.0.31\` an, **rundet der Router auf .32 ab** (er nullt die fünf egal-Bits) und deine Zeile deckt heimlich \`.32–.63\` statt der gewünschten \`.46–.77\`.
+
+:::merke
+**Teilbarkeitsprobe (der Haupttrick, ohne Binär):** Eine Zeile ist genau dann ausgerichtet, wenn
+\`Startadresse mod Blockgröße = 0\`.
+Beispiel: \`46 mod 32 = 14\` → **nicht** ausgerichtet. \`64 mod 32 = 0\` → ausgerichtet.
+:::
+
+### Trailing-Zeros-Trick (maximale Blockgröße ab einer Zahl)
+
+Schreibe die Startzahl binär und zähle die **Nullen von rechts**: So viele Verdopplungen ist der größte ausgerichtete Block, der dort beginnen darf.
+
+\`\`\`
+48 = 0011 0000  → 4 Nullen rechts → max. Block 2⁴ = 16  (Start 48 ✓)
+46 = 0010 1110  → 1 Null  rechts → max. Block 2¹ = 2   (Start 46 ✓ nur für Größe 2)
+64 = 0100 0000  → 6 Nullen rechts → max. Block 2⁶ = 64
+\`\`\`
+
+### Greedy-Zerlegung einer Range in minimale Blöcke
+
+Von der **untersten** Adresse aus jeweils den **größtmöglichen ausgerichteten Block** wählen, der nicht über das Ziel hinausragt — dann weiterspringen. Das ergibt automatisch die wenigsten, lückenlosen Zeilen:
+
+1. Größte Blockgröße = kleinerer Wert aus *Trailing-Zeros der Startzahl* und *was noch in die Range passt*.
+2. Block notieren, Start um die Blockgröße erhöhen, wiederholen, bis das Ende erreicht ist.
+
+:::tipp
+**Weg B als Alternative:** Statt die Range selbst zu zerlegen (Weg A), das **ganze Subnetz erlauben und nur die Ränder per \`deny\` ausschneiden** (\`deny\` der Blöcke davor/danach, dann \`permit <subnetz>\`). Lohnt sich, wenn der gewünschte Bereich **fast das ganze** Subnetz umfasst — dann sind die Rand-Blöcke kürzer als die vielen Permit-Blöcke aus Weg A.
+:::
+
+:::slide:acl-block-alignment:::
+
+## Beispiel 1 — der klassische Fehler (.46 – .95)
+
+Ziel: nur \`192.168.20.46\` bis \`192.168.20.95\` erlauben. Häufiger (falscher) Versuch:
+
+\`\`\`
+permit 192.168.20.46 0.0.0.31    ! Größe 32
+permit 192.168.20.78 0.0.0.15    ! Größe 16
+permit 192.168.20.94 0.0.0.1     ! Größe 2
+\`\`\`
+
+Teilbarkeitsprobe Zeile für Zeile:
+
+| Zeile | Start | Blockgröße | Start mod Größe | ausgerichtet? | Router deckt real |
+|-------|-------|-----------|-----------------|---------------|-------------------|
+| 1 | 46 | 32 | 46 mod 32 = **14** | ❌ rundet auf 32 | \`.32–.63\` |
+| 2 | 78 | 16 | 78 mod 16 = **14** | ❌ rundet auf 64 | \`.64–.79\` |
+| 3 | 94 | 2 | 94 mod 2 = **0** | ✅ | \`.94–.95\` |
+
+→ Tatsächlich erlaubt: \`.32–.79\` **und** \`.94–.95\`. Gegenüber dem Ziel \`.46–.95\` ist das **zu viel** (\`.32–.45\`) **und es fehlt** (\`.80–.93\`). Die Größen stimmten — nur die Ausrichtung nicht.
+
+**Korrekte Zerlegung** (Greedy von .46 aufwärts):
+
+\`\`\`
+permit 192.168.20.46 0.0.0.1     ! .46–.47   (46 mod 2  = 0 ✓)
+permit 192.168.20.48 0.0.0.15    ! .48–.63   (48 mod 16 = 0 ✓)
+permit 192.168.20.64 0.0.0.31    ! .64–.95   (64 mod 32 = 0 ✓)
+\`\`\`
+
+## Beispiel 2 — von Grund auf zerlegen (172.16.5.32 – .111)
+
+Ziel: \`172.16.5.32\` bis \`172.16.5.111\` (80 Adressen). Greedy von .32:
+
+| Schritt | Start | Trailing-Zeros → max. Block | passt in Ziel? | gewählter Block | Zeile |
+|---------|-------|-----------------------------|----------------|-----------------|-------|
+| 1 | 32 | 32 | .32–.63 ✓ | **32** | \`permit 172.16.5.32 0.0.0.31\` |
+| 2 | 64 | 64 (zu groß) → 32 | .64–.95 ✓ | **32** | \`permit 172.16.5.64 0.0.0.31\` |
+| 3 | 96 | 32 (zu groß) → 16 | .96–.111 ✓ | **16** | \`permit 172.16.5.96 0.0.0.15\` |
+
+Ergebnis — drei saubere, ausgerichtete Zeilen:
+
+\`\`\`
+permit 172.16.5.32 0.0.0.31      ! .32–.63
+permit 172.16.5.64 0.0.0.31      ! .64–.95
+permit 172.16.5.96 0.0.0.15      ! .96–.111
+\`\`\`
+
+In Schritt 2 darf der 64er-Block nicht genommen werden (\`.64–.127\` ragt über .111 hinaus); in Schritt 3 kein 32er (\`.96–.127\` zu groß) — daher 16.
+
+## Block-Grenzen-Referenztabelle
+
+| Wildcard (letztes Oktett) | Blockgröße | Gültige Startwerte (Vielfache) |
+|---------------------------|-----------|--------------------------------|
+| \`0.0.0.0\` | 1 | 0–255 (jede Adresse) |
+| \`0.0.0.1\` | 2 | 0, 2, 4, … 254 (gerade) |
+| \`0.0.0.3\` | 4 | 0, 4, 8, … 252 |
+| \`0.0.0.7\` | 8 | 0, 8, 16, … 248 |
+| \`0.0.0.15\` | 16 | 0, 16, 32, … 240 |
+| \`0.0.0.31\` | 32 | 0, 32, 64, 96, 128, 160, 192, 224 |
+| \`0.0.0.63\` | 64 | 0, 64, 128, 192 |
+| \`0.0.0.127\` | 128 | 0, 128 |
+| \`0.0.0.255\` | 256 | 0 (ganzes Oktett) |
+
+:::check Ist \`permit 10.0.0.80 0.0.0.31\` ausgerichtet — und welchen Bereich trifft die Zeile wirklich?
+Blockgröße = 31 + 1 = 32. Probe: \`80 mod 32 = 16\` ≠ 0 → **nicht ausgerichtet**. Der Router rundet auf das nächste Vielfache von 32 unterhalb 80 = **64** und deckt real \`.64–.95\` (nicht \`.80–.111\`). Korrekt ausgerichtet wäre Start \`.64\` oder \`.96\`.
+:::
+
+> Das Blockgrößen-Prinzip kennst du aus dem Subnetting (dort als Subnetz-Schrittweite) — hier in der gespiegelten Wildcard-Logik. Vertiefung: [[subnetting-drill]].
+  `.trim(),
+};
+
 export const CONCEPT_PORT_SECURITY: Concept = {
   id: "port-security",
   title: "Port Security & Layer-2-Sicherheit",
@@ -480,6 +604,7 @@ export const TOPIC_SECURITY: Topic = {
     "acl-extended",
     "acl-named",
     "acl-troubleshooting",
+    "acl-wildcard-alignment",
     "port-security",
     "802.1x-authentication",
     "security-program",
@@ -503,6 +628,7 @@ export const SECURITY_CONCEPTS: Record<string, Concept> = {
   "acl-extended": CONCEPT_ACL_EXTENDED,
   "acl-named": CONCEPT_ACL_NAMED,
   "acl-troubleshooting": CONCEPT_ACL_TROUBLESHOOTING,
+  "acl-wildcard-alignment": CONCEPT_ACL_WILDCARD_ALIGNMENT,
   "port-security": CONCEPT_PORT_SECURITY,
   "802.1x-authentication": CONCEPT_802_1X,
   "security-program": CONCEPT_SECURITY_PROGRAM,
