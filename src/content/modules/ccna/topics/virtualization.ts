@@ -27,12 +27,17 @@ dedizierter Hardware. Für die CCNA sind zwei Bereiche relevant:
 | **Typ 1** (Bare-Metal) | Läuft direkt auf Hardware, kein Host-OS | VMware ESXi, Microsoft Hyper-V, KVM |
 | **Typ 2** (Hosted) | Läuft als Anwendung auf Host-OS | VirtualBox, VMware Workstation |
 
-> **Prüfungstipp:** Typ-1-Hypervisoren werden in Rechenzentren eingesetzt (höhere Leistung,
-> kein OS-Overhead). Typ-2 ist für Desktops/Labs geeignet.
+:::merke
+**Typ 1 = Bare-Metal** (direkt auf der Hardware, kein Host-OS) → Rechenzentrum, max. Leistung. **Typ 2 = Hosted** (als App auf Windows/macOS) → Desktop/Lab. Merkhilfe: Typ **1** sitzt auf der **1.** Schicht (Hardware).
+:::
 
 ---
 
 ## VMs vs. Container
+
+:::kernidee
+Der Unterschied ist die **Grenze der Isolation**: Eine **VM** virtualisiert die *Hardware* und bringt ein **komplettes eigenes Betriebssystem** mit (schwer, sicher isoliert). Ein **Container** virtualisiert nur das *OS* und **teilt sich den Kernel** des Hosts (leicht, schnell, weniger isoliert). Faustregel: VM = „eigenes Haus", Container = „eigenes Zimmer in einer WG".
+:::
 
 | Merkmal | Virtual Machine (VM) | Container |
 |---------|---------------------|-----------|

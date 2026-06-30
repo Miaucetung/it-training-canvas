@@ -16,10 +16,13 @@ export const CONCEPT_SEGMENT_WHY: Concept = {
   content: `
 ## Warum Netzwerk-Segmentierung?
 
-### 🏢 Alltagsanalogie: Das Bürogebäude
-Stell dir ein Bürogebäude vor, in dem **alle Etagen offene Türen** haben — jeder hört jedes Gespräch, jeder kann zu jedem Drucker gehen, und wenn jemand einen Brand legt, breitet er sich sofort aus.
+:::kernidee
+Segmentierung löst **zwei Probleme gleichzeitig** mit demselben Schnitt: Sie verkleinert **Broadcast-Domänen** (Performance) **und** zieht **Sicherheitsgrenzen** (ein kompromittierter Host kommt nicht überallhin). Jedes Segment = ein **Subnetz** = ein **VLAN** = eine **Broadcast-Domäne**. Verkehr dazwischen muss über ein L3-Gerät — und genau dort kann eine **ACL/Firewall** kontrollieren, wer mit wem darf.
+:::
 
-Netzwerk-Segmentierung ist wie **Brandschutztüren**: Sie unterteilen das Gebäude in kontrollierte Zonen, jede mit eigener Zutrittskontrolle.
+:::analogie
+Wie **Brandschutztüren** in einem Bürogebäude: Ohne sie hört jeder jedes Gespräch, jeder kommt überallhin, und ein Brand (Broadcast-Sturm / Malware) breitet sich ungebremst aus. Segmente unterteilen das Gebäude in kontrollierte Zonen, jede mit eigener Zutrittskontrolle.
+:::
 
 ---
 

@@ -14,6 +14,10 @@ export const CONCEPT_TS_METHODOLOGY: Concept = {
   content: `
 ## Strukturierte Fehlersuche
 
+:::kernidee
+Effektives Troubleshooting heißt: **systematisch eine Variable nach der anderen** ausschließen — nicht raten. Das OSI-Modell liefert die Landkarte: Ein Problem auf einer Schicht macht alles darüber kaputt, aber nie etwas darunter. Kein Link (L1)? Dann ist jede IP-Diagnose (L3) sinnlos. Die Methodenwahl (Bottom-Up / Top-Down / Divide-and-Conquer) richtet sich nur danach, **wo du am schnellsten halbieren** kannst.
+:::
+
 ### Bottom-Up (Layer 1 → 7)
 Empfohlen für Hardware-/Verkabelungs-Fehler.
 1. **L1**: Kabel, LED, Auto-MDIX, Speed/Duplex
@@ -29,6 +33,10 @@ Beginnt bei der Anwendung und arbeitet sich nach unten.
 ### Divide-and-Conquer
 Beginnt in der Mitte (oft L3): "Pingt Hostname?" Wenn ja → L1/L2 ok.
 Schnellste Methode bei erfahrenen Admins.
+
+:::merke
+Ein erfolgreicher **Ping per IP**, aber **nicht per Name** → unteres Stockwerk (L1–L3) steht, der Fehler liegt bei **DNS** (L7). Ein einziger gezielter Test halbiert so den Suchraum — genau das ist Divide-and-Conquer.
+:::
 
 ### Strukturiertes Vorgehen (CCNA-Stil)
 1. **Problem isolieren** — Wer ist betroffen? Wo? Seit wann?

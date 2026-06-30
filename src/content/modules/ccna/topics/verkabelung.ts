@@ -36,6 +36,10 @@ Jedes Kupferkabel ist eine Antenne. Es sendet elektromagnetische Felder aus **un
 
 **Mit Verdrillung**: Die Adern tauschen ihre Position regelmäßig. Das Störsignal wird abwechselnd auf "Ader A" und "Ader B" eingekoppelt — mit entgegengesetztem Vorzeichen. Der Empfänger subtrahiert beide Adern voneinander → Nutzanteil verdoppelt sich, Störanteil löscht sich aus.
 
+:::kernidee
+Twisted-Pair überträgt **differenziell**: Die Information steckt in der **Differenz** zwischen den zwei Adern eines Paares, nicht im Absolutpegel. Eine Störung (EMI) trifft beide verdrillten Adern **gleich** — und fällt beim Subtrahieren heraus. Mehr Verdrillungen pro Meter = bessere Auslöschung = höhere Kategorie. Das ist der ganze Trick hinter Cat5e→Cat6→Cat6a.
+:::
+
 > Dieser Mechanismus heißt **Gleichtaktunterdrückung (Common Mode Rejection)**.
 
 ---
@@ -148,7 +152,9 @@ Industrieumgebung mit starker EMI (Motoren, Frequenzumrichter)?
 
 ## Wichtige Prüfungspunkte
 
-> ⚠️ **Achtung-Falle**: Cat 6 liefert 10 Gbit/s nur auf **55 m**. Bei 100 m sind es maximal 1 Gbit/s. Cat 6a wurde speziell entwickelt, um die vollen 10 Gbit/s auf 100 m zu gewährleisten.
+:::falle
+**Cat 6 liefert 10 Gbit/s nur bis 55 m** — auf den vollen 100 m sind es maximal 1 Gbit/s. Für 10 Gbit/s über 100 m braucht es **Cat 6a**. Genau dieser Längen-/Geschwindigkeits-Zusammenhang wird gern abgefragt.
+:::
 
 > ⚠️ **Achtung-Falle**: Cat 7 verwendet **GG45** oder **TERA**-Stecker, **nicht** Standard-RJ45 — dadurch ist es nicht rückwärtskompatibel ohne Adapter.
 
@@ -215,7 +221,9 @@ export const CONCEPT_KUPFER_STECKER_PINBELEGUNG: Concept = {
 | 7 | Weiß-Braun | Weiß-Braun | BI_DD+ |
 | 8 | Braun | Braun | BI_DD- |
 
-> **Merksatz 568B**: "**O**range vor **G**rün" — bei 568B kommen die orangenen Adern auf Pins 1-2, bei 568A die grünen.
+:::merke
+**568B: „Orange vor Grün"** — bei 568B liegen die orangenen Adern auf Pins 1–2, bei 568A die grünen. Gleiche Norm an beiden Enden = **Straight-Through**; A an einem, B am anderen Ende = **Crossover**.
+:::
 
 ---
 
@@ -239,9 +247,13 @@ export const CONCEPT_KUPFER_STECKER_PINBELEGUNG: Concept = {
 
 ---
 
-> ⚠️ **Achtung-Falle**: **Auto-MDI-X** macht Crossover-Kabel heute fast überflüssig. Alle modernen Cisco Catalyst-Switches erkennen automatisch, ob Straight-Through oder Crossover nötig ist. Trotzdem CCNA-Prüfungsthema — das Konzept muss verstanden werden!
+:::falle
+**Auto-MDI-X** macht Crossover-Kabel in der Praxis fast überflüssig — moderne Catalyst-Switches erkennen selbst, ob Straight-Through oder Crossover nötig ist. **Trotzdem** Prüfungsthema: Du musst wissen, welcher Kabeltyp *eigentlich* zwischen welchen Geräten gehört (gleiche Geräte → Crossover, ungleiche → Straight-Through).
+:::
 
-> ⚠️ **Achtung-Falle**: Das Rollover-Kabel ist **kein Ethernet-Kabel**. Es wird **nicht** für Datennetzwerke genutzt — ausschließlich für die serielle Gerätekonsole.
+:::falle
+Das **Rollover-Kabel** (hellblau, Cisco) ist **kein Ethernet-Kabel** — es überträgt keine Daten, sondern verbindet ausschließlich den **Konsolenport** (seriell) zur Erstkonfiguration. Nicht mit Crossover verwechseln.
+:::
 
 ---
 
