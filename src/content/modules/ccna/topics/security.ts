@@ -271,6 +271,36 @@ Von der **untersten** Adresse aus jeweils den **größtmöglichen ausgerichteten
 1. Größte Blockgröße = kleinerer Wert aus *Trailing-Zeros der Startzahl* und *was noch in die Range passt*.
 2. Block notieren, Start um die Blockgröße erhöhen, wiederholen, bis das Ende erreicht ist.
 
+### Rechenweg Schritt für Schritt (zum Mitrechnen)
+
+Vom Ziel zu den fertigen Permit-Zeilen ist es **immer dieselbe Schleife**. Beispiel: \`192.168.40.8\` bis \`192.168.40.39\`.
+
+**Pro Block, von der untersten Adresse aus:**
+1. **Größte Blockgröße \`g\` finden** (Kandidaten 1, 2, 4, 8, 16, 32 …), für die **beide** Proben stimmen:
+   - Ausrichtung: \`Start mod g = 0\`
+   - Passt noch: \`Start + g − 1 ≤ Ende\`
+2. **Wildcard = g − 1**
+3. Zeile schreiben: \`permit <Start> 0.0.0.<g−1>\`
+4. **Neuer Start = Start + g** → zurück zu Schritt 1, bis der Start über dem Ende liegt.
+
+| Start | Proben (von groß nach klein durchprobieren) | g | Wildcard | Zeile |
+|-------|---------------------------------------------|---|----------|-------|
+| 8 | g=16? \`8 mod 16 = 8\` ✗ — g=8? \`8 mod 8 = 0\` ✓ und \`8+7 = 15 ≤ 39\` ✓ | **8** | 7 | \`permit 192.168.40.8 0.0.0.7\` |
+| 16 | g=16? \`16 mod 16 = 0\` ✓ und \`16+15 = 31 ≤ 39\` ✓ | **16** | 15 | \`permit 192.168.40.16 0.0.0.15\` |
+| 32 | g=32? \`32+31 = 63 > 39\` ✗ — g=16? \`32+15 = 47 > 39\` ✗ — g=8? \`32 mod 8 = 0\` ✓ und \`32+7 = 39 ≤ 39\` ✓ | **8** | 7 | \`permit 192.168.40.32 0.0.0.7\` |
+
+Neuer Start nach Schritt 3 wäre \`40\` > \`39\` → **fertig**. Ergebnis:
+
+\`\`\`
+permit 192.168.40.8  0.0.0.7     ! .8–.15
+permit 192.168.40.16 0.0.0.15    ! .16–.31
+permit 192.168.40.32 0.0.0.7     ! .32–.39
+\`\`\`
+
+:::merke
+Zwei Proben pro Schritt, mehr nicht: **(1) \`Start mod g = 0\`** (sitzt der Block sauber?) und **(2) \`Start + g − 1 ≤ Ende\`** (ragt er nicht über das Ziel hinaus?). Die größte Blockgröße \`g\`, die **beide** besteht, gewinnt — dann \`Wildcard = g − 1\` und \`Start += g\`.
+:::
+
 :::tipp
 **Weg B als Alternative:** Statt die Range selbst zu zerlegen (Weg A), das **ganze Subnetz erlauben und nur die Ränder per \`deny\` ausschneiden** (\`deny\` der Blöcke davor/danach, dann \`permit <subnetz>\`). Lohnt sich, wenn der gewünschte Bereich **fast das ganze** Subnetz umfasst — dann sind die Rand-Blöcke kürzer als die vielen Permit-Blöcke aus Weg A.
 :::

@@ -20,6 +20,7 @@ import {
   Tag,
   Timer,
   ArrowsHorizontal,
+  Function as FunctionIcon,
   X,
   XCircle,
 } from "@phosphor-icons/react";
@@ -329,6 +330,23 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
                 <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Aufgabe</div>
                 <p className={`text-sm ${text}`}>{prompt}</p>
               </div>
+
+              {(mode === "wildcard" || mode === "range") && (
+                <div className={`rounded-lg border px-3 py-2 ${dark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
+                  <div className={`mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-indigo-300" : "text-indigo-700"}`}>
+                    <FunctionIcon size={12} weight="bold" /> Formel
+                  </div>
+                  <ul className={`space-y-0.5 font-mono text-[12px] ${dark ? "text-slate-300" : "text-slate-600"}`}>
+                    <li>Blockgröße = Wildcard + 1&nbsp;&nbsp;<span className={muted}>(0.0.0.31 → 32)</span></li>
+                    <li>Wildcard = Blockgröße − 1&nbsp;&nbsp;<span className={muted}>(16 → 0.0.0.15)</span></li>
+                    <li>ausgerichtet&nbsp;⟺&nbsp;Start mod Blockgröße = 0</li>
+                    {mode === "range" && (
+                      <li className="leading-snug">Greedy: größte Blockgröße g mit <span className="whitespace-nowrap">Start mod g = 0</span> <span className={muted}>und</span> <span className="whitespace-nowrap">Start + g − 1 ≤ Ende</span> → dann Start += g</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
               <div>
                 <label className={`mb-1 block text-xs ${muted}`}>
                   {mode === "wildcard" ? "Adress-/Wildcard-Angabe:"
