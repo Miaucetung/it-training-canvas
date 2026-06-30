@@ -55,6 +55,10 @@ export const CONCEPT_WLAN_SECURITY: Concept = {
   content: `
 ## WLAN-Sicherheit
 
+:::kernidee
+Funk ist ein **geteiltes Medium ohne Kabel** — jeder in Reichweite hört mit. WLAN-Sicherheit löst zwei getrennte Fragen: **Wer darf rein?** (Authentifizierung: PSK-Passwort oder 802.1X/RADIUS-Konto) und **Wer kann mitlesen?** (Verschlüsselung: WEP→WPA→WPA2→WPA3). Die Standards sind eine **Evolution** — jede Stufe ersetzt einen geknackten Algorithmus durch einen stärkeren.
+:::
+
 ### Sicherheitsstandards (Evolution)
 | Standard | Verschlüsselung | Schwäche |
 |----------|----------------|---------|
@@ -97,6 +101,10 @@ export const CONCEPT_WIRELESS_ARCHITECTURE: Concept = {
   content: `
 ## Cisco Wireless LAN Controller (WLC)
 
+:::kernidee
+Bei vielen APs willst du nicht jeden **einzeln** konfigurieren. Der **WLC** zentralisiert die „Denkarbeit": **Lightweight APs** sind quasi nur noch Funk-Antennen, die per **CAPWAP-Tunnel** ihren Verkehr und ihre Konfiguration vom Controller beziehen. Eine SSID-Änderung machst du **einmal** am WLC — sie gilt sofort für alle APs. Der AP allein ist „dumm", der WLC ist das Gehirn.
+:::
+
 ### Autonome vs. Controller-basierte APs
 | Typ | Konfiguration | Verwaltung |
 |-----|--------------|-----------|
@@ -136,7 +144,9 @@ Protokolle verwenden:
 | **WLC Device-Admin** (GUI/SSH-Zugriff von Netzwerktechnikern) | **TACACS+** | Command-Authorization: TACACS+ trennt Auth/Author/Accounting vollständig. Jeder CLI-Befehl kann per Policy erlaubt/verboten werden. TCP 49, gesamter Payload verschlüsselt. |
 | **WLAN-Client-Auth** (Endgeräte via 802.1X) | **RADIUS** | Network-Access-Protokoll: UDP 1812/1813, weit verbreitet, EAP-Unterstützung. Kein Command-Authorization nötig. |
 
-> **Merksatz (identisch security.ts)**: **TACACS+ → Terminal/Device-Admin**, **RADIUS → Remote-Access/WLAN-Clients**
+:::merke
+**TACACS+ → Terminal/Device-Admin** (TCP 49, ganze Payload verschlüsselt, Command-Authorization), **RADIUS → Remote-Access/WLAN-Clients** (UDP 1812/1813, EAP). Eselsbrücke: **T**ACACS+ = **T**erminal-Admin.
+:::
 
 ### WLC-Admin-Konfiguration (Cisco WLC GUI)
 \`\`\`

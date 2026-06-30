@@ -14,6 +14,14 @@ export const CONCEPT_SDN_OVERVIEW: Concept = {
   content: `
 ## Klassisch vs. SDN
 
+:::kernidee
+SDN trennt das **„Denken"** (Control Plane: welcher Weg?) vom **„Tun"** (Data Plane: Paket weiterleiten) und zieht das Denken auf einen **zentralen Controller**. Klassisch hat jedes Gerät beides und handelt Routen verteilt aus (OSPF/BGP). Bei SDN entscheidet der Controller zentral und programmiert die Geräte über die **Southbound-API** — du konfigurierst die **Absicht** einmal oben, statt 200 Geräte einzeln.
+:::
+
+:::merke
+**Northbound = nach oben zu den Apps** (REST, „was will ich"), **Southbound = nach unten zu den Geräten** (OpenFlow/NETCONF, „so wird's umgesetzt"). Der Controller sitzt in der Mitte und übersetzt zwischen beiden.
+:::
+
 ### Klassisches Netzwerk (verteilt)
 Jeder Switch/Router hat eigene Control- und Data-Plane. Routing wird durch
 Protokolle (OSPF, BGP, STP) zwischen Geräten **verteilt** ausgehandelt.

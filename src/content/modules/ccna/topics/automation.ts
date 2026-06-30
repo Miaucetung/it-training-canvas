@@ -14,6 +14,10 @@ export const CONCEPT_REST_JSON: Concept = {
   content: `
 ## REST — Representational State Transfer
 
+:::kernidee
+Eine REST-API macht das Netzwerk **programmierbar wie eine Webseite**: Statt jeden Switch per CLI anzufassen, schickst du HTTP-Requests an einen Controller (DNA Center, Meraki) — **GET** liest den Zustand, **POST/PUT/DELETE** ändern ihn. „Stateless" heißt: jeder Request trägt alles Nötige selbst (inkl. Token), der Server merkt sich nichts zwischen Aufrufen. Das ist die Grundlage jeder Netzwerk-Automatisierung.
+:::
+
 REST ist ein **Architekturstil** für HTTP-basierte APIs. Cisco DNA Center, Cisco ACI,
 Meraki Dashboard, Webex Control Hub — alle bieten REST-APIs.
 
@@ -113,6 +117,10 @@ export const CONCEPT_AUTOMATION_TOOLS: Concept = {
 | Beispiele | Ansible, Puppet, Chef | Terraform, CloudFormation |
 | Fokus | Bestehende Hosts/Geräte konfigurieren | Cloud-Ressourcen erstellen |
 | State | tendenziell zustandslos pro Run | mit State-Datei |
+
+:::kernidee
+Der mentale Sprung der Automatisierung: weg vom **imperativen** „mach Schritt A, dann B" hin zum **deklarativen** „so soll es aussehen" — das Werkzeug ermittelt selbst die nötigen Änderungen. Daraus folgt **Idempotenz**: derselbe Lauf 100× ausgeführt ergibt denselben Zustand, nicht 100 VLANs. Genau das macht Automatisierung sicher wiederholbar.
+:::
 
 ### Ansible
 - **Agentlos** — verbindet sich per SSH (Linux) oder NETCONF/REST (Cisco)
