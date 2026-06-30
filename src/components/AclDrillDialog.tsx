@@ -339,9 +339,9 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
                   <ul className={`space-y-0.5 font-mono text-[12px] ${dark ? "text-slate-300" : "text-slate-600"}`}>
                     <li>Blockgröße = Wildcard + 1&nbsp;&nbsp;<span className={muted}>(0.0.0.31 → 32)</span></li>
                     <li>Wildcard = Blockgröße − 1&nbsp;&nbsp;<span className={muted}>(16 → 0.0.0.15)</span></li>
-                    <li>ausgerichtet&nbsp;⟺&nbsp;Start mod Blockgröße = 0</li>
+                    <li>ausgerichtet, wenn Start ÷ Blockgröße <span className="whitespace-nowrap">Rest 0</span> ergibt <span className={muted}>(= Vielfaches)</span></li>
                     {mode === "range" && (
-                      <li className="leading-snug">Greedy: größte Blockgröße g mit <span className="whitespace-nowrap">Start mod g = 0</span> <span className={muted}>und</span> <span className="whitespace-nowrap">Start + g − 1 ≤ Ende</span> → dann Start += g</li>
+                      <li className="leading-snug">Greedy: größte Blockgröße g mit <span className="whitespace-nowrap">Start ÷ g = Rest 0</span> <span className={muted}>und</span> <span className="whitespace-nowrap">Start + g − 1 ≤ Ende</span> → dann Start += g</li>
                     )}
                   </ul>
                 </div>

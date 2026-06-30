@@ -248,10 +248,20 @@ Blockgröße = Wildcard-Wert (im interessanten Oktett) + 1
 
 Entscheidend ist aber nicht nur die Größe, sondern **wo der Block beginnen darf**. Ein 32er-Block kann nur bei 0, 32, 64, 96 … starten — niemals bei 46. Gibst du \`192.168.20.46 0.0.0.31\` an, **rundet der Router auf .32 ab** (er nullt die fünf egal-Bits) und deine Zeile deckt heimlich \`.32–.63\` statt der gewünschten \`.46–.77\`.
 
+### Die Teilbarkeitsprobe — was „mod" eigentlich heißt
+
+\`mod\` ist nur der **Rest, der beim Teilen übrig bleibt** — sonst nichts:
+
+- \`46 ÷ 32\` → 32 passt **1×** in 46, es bleiben **14** übrig → \`46 mod 32 = 14\`.
+- \`64 ÷ 32\` → 32 passt **2×** in 64, es bleibt **0** übrig → \`64 mod 32 = 0\`.
+
+Dahinter steckt eine einzige Frage: **Ist die Startadresse ein glattes Vielfaches der Blockgröße?** Ein 32er-Block darf nur bei **0, 32, 64, 96, 128 …** beginnen — genau den Vielfachen von 32. Nur dort geht die Teilung glatt auf (Rest 0).
+
+- **64** = 32 × 2 → Rest 0 → liegt auf einer Blockgrenze → **ausgerichtet** ✅
+- **46** ist *kein* Vielfaches von 32 — es liegt **mitten** zwischen 32 und 64. Rest 14 heißt „14 Schritte hinter der letzten Grenze (32)" → **nicht ausgerichtet**, der Router rutscht auf 32 zurück ❌
+
 :::merke
-**Teilbarkeitsprobe (der Haupttrick, ohne Binär):** Eine Zeile ist genau dann ausgerichtet, wenn
-\`Startadresse mod Blockgröße = 0\`.
-Beispiel: \`46 mod 32 = 14\` → **nicht** ausgerichtet. \`64 mod 32 = 0\` → ausgerichtet.
+**Ganz ohne Rechnen:** Zähl in Blockgröße-Schritten hoch — bei Größe 32 also **0, 32, 64, 96 …** Taucht deine Startadresse in dieser Liste auf, ist sie **ausgerichtet**. Liegt sie dazwischen (z. B. 46 zwischen 32 und 64), rundet der Router auf den Wert **darunter** (32) ab.
 :::
 
 ### Trailing-Zeros-Trick (maximale Blockgröße ab einer Zahl)
