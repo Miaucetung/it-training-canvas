@@ -40,8 +40,9 @@ beforeEach(() => {
 });
 
 describe("dhcp-nat Topic: 7 neue Flagship-Concepts", () => {
-  it("Topic hat genau 10 conceptIds", () => {
-    expect(TOPIC_DHCP_NAT.conceptIds).toHaveLength(10);
+  it("Topic hat genau 11 conceptIds (inkl. DNS)", () => {
+    expect(TOPIC_DHCP_NAT.conceptIds).toHaveLength(11);
+    expect(TOPIC_DHCP_NAT.conceptIds).toContain("dns");
   });
 
   it("alle 7 neuen DHCP-Concepts sind im Topic referenziert", () => {

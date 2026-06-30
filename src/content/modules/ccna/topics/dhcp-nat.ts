@@ -567,9 +567,9 @@ Die "Bäckerei Hofmann KG" eröffnet eine Filiale in Nürnberg (50 Mitarbeiter, 
 
 export const TOPIC_DHCP_NAT: Topic = {
   id: "dhcp-nat",
-  title: "DHCP & NAT",
+  title: "DHCP, DNS & NAT",
   description:
-    "DHCP für automatische IP-Vergabe, DHCP Relay und DHCP Snooping. NAT/PAT für Internetzugang aus privaten Netzen.",
+    "Netzwerkdienste: DHCP für automatische IP-Vergabe (Relay, Snooping), DNS für Namensauflösung (Records, Rekursion, TTL) und NAT/PAT für Internetzugang aus privaten Netzen.",
   conceptIds: [
     "dhcp",
     "dhcp-dora",
@@ -579,18 +579,91 @@ export const TOPIC_DHCP_NAT: Topic = {
     "dhcp-apipa",
     "dhcp-troubleshoot",
     "dhcp-snooping",
+    "dns",
     "nat",
     "dhcp-nat-guide",
   ],
   quizIds: ["ccna-quiz-dhcp", "ccna-quiz-nat"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
-  estimatedMinutes: 150,
-  tags: ["dhcp", "nat", "pat", "ip-management"],
+  estimatedMinutes: 165,
+  tags: ["dhcp", "dns", "nat", "pat", "ip-management"],
+};
+
+export const CONCEPT_DNS: Concept = {
+  id: "dns",
+  title: "DNS — Namensauflösung (Records, Rekursion, TTL)",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["dns", "name-resolution", "udp-53", "resource-records", "network-services"],
+  content: `
+## Wozu DNS?
+**DNS** (Domain Name System) übersetzt **Namen ↔ IP-Adressen**, damit niemand sich IPs merken muss
+und Namen stabil bleiben, auch wenn die IP wechselt.
+- **Forward Lookup:** Name → IP (\`web.corp.local\` → \`10.0.2.50\`)
+- **Reverse Lookup:** IP → Name — über die Spezialzone \`in-addr.arpa\` (IPv6: \`ip6.arpa\`)
+- **Port:** **UDP 53** für normale Abfragen, **TCP 53** nur für Zonentransfer & große Antworten (> 512 Byte).
+
+## Hierarchie & Auflösung
+\`\`\`
+Client → lokaler Resolver → Root (.) → TLD (.com) → Authoritative (example.com)
+\`\`\`
+- **Rekursiv:** der Resolver erledigt die **ganze** Arbeit und liefert dem Client die fertige Antwort.
+- **Iterativ:** jeder Server verweist nur auf den **nächsten** zuständigen Server.
+- **Forwarder:** unbekannte Anfragen werden an einen festen DNS weitergeleitet (z. B. \`8.8.8.8\`, \`1.1.1.1\`) —
+  der interne Server muss dann nicht selbst rekursiv ins Internet auflösen.
+- **Root Hints:** Liste der 13 Root-Server (a–m.root-servers.net) als Startpunkt ohne Forwarder.
+- **Conditional Forwarder:** nur Anfragen für **eine bestimmte Domäne** gezielt an einen Server (Split-DNS).
+
+## Resource Records (Prüfungsstoff)
+| Record | Funktion | Beispiel |
+|--------|----------|----------|
+| **A** | Name → IPv4 | \`web.corp.local\` → 10.0.2.50 |
+| **AAAA** | Name → IPv6 | \`web.corp.local\` → 2001:db8::1 |
+| **CNAME** | Alias → anderer **Name** | \`files\` → \`fs01.corp.local\` |
+| **MX** | Mailserver (mit Priorität, → **Hostname**) | corp.local MX 10 mail.corp.local |
+| **NS** | autoritative Server der Zone | corp.local NS dc1.corp.local |
+| **PTR** | IP → Name (Reverse) | 50.2.0.10.in-addr.arpa → web.corp.local |
+| **SRV** | Dienst/Port/Protokoll | \`_ldap._tcp.…\` |
+| **TXT** | Freitext (SPF, DKIM, Verifizierung) | "v=spf1 …" |
+
+> ⚠️ **Prüfungsfallen:** CNAME **nicht** an der Zone-Apex (dort nur A/AAAA) · CNAME zeigt nie direkt auf eine IP ·
+> MX zeigt auf einen **Hostnamen**, nie auf eine IP · PTR braucht eine **eigene Reverse-Lookup-Zone**.
+> **Merke:** A = **A**dresse (IP drin), CNAME = **C**odename (Zeiger auf anderen Namen).
+
+## TTL & Caching
+- **TTL** (Sekunden) im Record bestimmt, wie lange ein Resolver/Client die Antwort cachen darf.
+  Typisch: 3600 (1 h), 86400 (1 Tag), 300 (5 min für oft wechselnde Einträge).
+- **Cache-Hit** (TTL gültig) → sofortige Antwort; **Cache-Miss** → neue Auflösung, Antwort wird gecacht.
+- **Negative Caching:** auch NXDOMAIN ("nicht gefunden") wird kurz gecacht (Negative TTL im SOA).
+- **Trade-off:** hoher TTL = wenig Traffic, **langsame** Propagation; niedriger TTL = mehr Traffic, **schnelle**
+  Propagation. → Vor geplanter IP-Änderung den TTL **vorab senken**.
+
+## Diagnose
+\`\`\`
+nslookup web.corp.local              ! Forward-Auflösung über den konfigurierten DNS
+nslookup web.corp.local 8.8.8.8      ! anderen DNS gezielt abfragen
+nslookup -type=MX corp.local         ! Record-Typ festlegen (MX/SRV/PTR/AAAA …)
+ipconfig /displaydns                 ! lokalen DNS-Cache anzeigen (Windows)
+ipconfig /flushdns                   ! DNS-Cache leeren
+dig web.corp.local A   (+short)      ! Linux/macOS-Pendant zu nslookup
+\`\`\`
+> 🩺 **Klassisches Symptom:** Ziel per **IP erreichbar**, per **Name nicht** → DNS-Problem
+> (falscher/ausgefallener DNS-Server am Client, fehlender Record, alter Cache).
+
+## DNS im Zusammenspiel
+- **DHCP** liefert dem Client neben IP/Maske/Gateway auch die **DNS-Server-Adresse** (Option 6).
+- Ohne erreichbaren DNS funktioniert Surfen per Name nicht — Ping auf 8.8.8.8 geht, \`ping cisco.com\` scheitert.
+
+> 🎯 **CCNA-Kern (Domain 1):** DNS = UDP 53, Forward/Reverse, rekursiv vs. iterativ, Record-Typen
+> A/AAAA/CNAME/MX/NS/PTR/TXT, TTL/Caching. (AD-spezifische Aging/Scavenging-Details sind MS-/MD-Stoff.)
+
+[[dhcp]] · [[ntp]] · [[ipv4-addressing]]
+  `.trim(),
 };
 
 export const DHCP_NAT_CONCEPTS: Record<string, Concept> = {
   dhcp: CONCEPT_DHCP,
+  dns: CONCEPT_DNS,
   "dhcp-dora": CONCEPT_DHCP_DORA,
   "dhcp-lease": CONCEPT_DHCP_LEASE,
   "dhcp-options": CONCEPT_DHCP_OPTIONS,
