@@ -52,6 +52,10 @@ export const CONCEPT_VPN_IPSEC: Concept = {
   content: `
 ## VPN-Übersicht
 
+:::kernidee
+Ein VPN baut einen **verschlüsselten Tunnel durch ein unsicheres Netz** (meist das Internet) — als hätte man eine private Standleitung, ohne sie zu bezahlen. Zwei Bausteine, die man oft verwechselt: **GRE** kapselt (kann *was* transportieren, auch Multicast/Routing) — aber **ohne Verschlüsselung**; **IPsec** verschlüsselt (kann *sicher*) — aber kein Multicast. Deshalb in der Praxis oft **GRE over IPsec**: GRE liefert die Vielseitigkeit, IPsec die Sicherheit.
+:::
+
 **Site-to-Site VPN**: zwei Standorte (Router ↔ Router) — Mitarbeitende merken nichts.
 **Remote-Access VPN**: einzelner Client (Cisco AnyConnect/Secure Client) ↔ Headend.
 
@@ -182,10 +186,12 @@ Die "RetailChain SE" (32 Filialen, 1 RZ) löst ihr altes MPLS-only-WAN durch ein
 3. Was ist der Vorteil eines DMVPN gegenüber einem klassischen Hub-and-Spoke-IPsec — gerade beim Voice-Verkehr?
 *(Antworten im Quiz verfügbar)*
 
-## Häufige Fehler & Fallstricke
-- ⚠️ **GRE verwechselt mit IPsec:** GRE kapselt — verschlüsselt aber nichts. Wer "VPN" sagt, meint meist verschlüsselte Tunnel — also IPsec oder GRE-over-IPsec.
-- ⚠️ **MPLS ist kein VPN-Verschlüsselungsdienst:** MPLS L3VPN trennt Kundenrouting im Provider, aber der Verkehr wird **nicht** verschlüsselt. Wer Compliance braucht, fährt zusätzlich IPsec auf MPLS.
-- ⚠️ **SD-WAN ohne Backup-Transport:** Ein einzelner Internet-Anschluss bietet kein SD-WAN-Vorteil. Sinn entsteht erst durch zwei oder mehr unabhängige Transports.
+:::falle
+WAN/VPN-Fallen:
+- **GRE ≠ IPsec:** GRE kapselt, verschlüsselt aber **nichts**. Wer „VPN" im Sinne von sicher meint, braucht IPsec oder GRE-over-IPsec.
+- **MPLS ist kein Verschlüsselungsdienst:** MPLS L3VPN trennt Kundenrouting, verschlüsselt aber **nicht** — bei Compliance zusätzlich IPsec.
+- **SD-WAN ohne zweiten Transport:** Der Mehrwert entsteht erst durch ≥ 2 unabhängige Leitungen — ein einzelner Internet-Anschluss bringt nichts.
+:::
   `.trim(),
 };
 

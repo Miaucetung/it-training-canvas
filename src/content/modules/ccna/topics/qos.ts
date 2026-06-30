@@ -13,6 +13,14 @@ export const CONCEPT_QOS_FUNDAMENTALS: Concept = {
   content: `
 ## Warum QoS?
 
+:::kernidee
+QoS schafft **keine** Bandbreite — es entscheidet nur, **wer bei Stau zuerst darf**. Solange die Leitung frei ist, tut QoS nichts. Erst wenn die Queue voll läuft, zahlt sich aus, dass VoIP (verträgt keine Verzögerung) **vor** einem Backup (wartet gern) bedient wird. Kernfrage immer: *Welcher Verkehr leidet unter Verzögerung — und welcher nicht?*
+:::
+
+:::analogie
+Wie die **Rettungsgasse** auf der Autobahn: Mehr Spuren (Bandbreite) gibt es im Stau nicht, aber der Krankenwagen (VoIP) kommt trotzdem durch, weil alle anderen Platz machen. Der Lieferwagen (Backup) wartet — ihm schadet die Minute nicht.
+:::
+
 Bei voller Auslastung müssen Router/Switches entscheiden, **welcher Traffic
 bevorzugt** wird. Echtzeit-Verkehr (VoIP, Video) verträgt keine Verzögerung —
 Filetransfers schon.
@@ -77,6 +85,10 @@ Beide begrenzen Traffic — anderer Mechanismus:
 | Latenz | erhöht | nein |
 | Einsatz | egress (eigene Seite) | ingress (Provider-Eingang) |
 | Burst | glätten | tolerieren oder zuschlagen |
+
+:::merke
+**Shaping puffert (verzögert), Policing verwirft (oder re-markt).** Merkhilfe: Sha**p**ing = **p**arken, **Pol**icing = **Pol**izei (straft sofort ab). Shaping passt auf der **eigenen Egress**-Seite (du willst nichts verlieren), Policing am **Ingress** des Providers (er straft Überschuss).
+:::
 
 ### 4. Trust Boundary
 Je weiter "innen" (z. B. am Access-Switch des IP-Phones), desto
@@ -153,10 +165,12 @@ Die "FleetTrack GmbH" (Logistik-Software) betreibt 80 IP-Telefone, ein internes 
 3. Warum sollte das Trust Boundary so weit "innen" wie möglich liegen — und was riskiert man, wenn man am User-PC trustet?
 *(Antworten im Quiz verfügbar)*
 
-## Häufige Fehler & Fallstricke
-- ⚠️ **CoS vs. DSCP verwechseln:** CoS lebt nur in 802.1Q-getaggten Frames (Trunk!). Sobald der Frame in ein untagged Access-VLAN wechselt, ist CoS weg — nur DSCP überlebt im IP-Header über das gesamte Netz.
-- ⚠️ **LLQ ohne Limit:** Wer einer Priority-Queue keine Bandbreitenbegrenzung gibt, kann das gesamte Interface verstopfen. Andere Klassen verhungern. Daher \`priority percent 30\` (oder kbps).
-- ⚠️ **Marking am falschen Hop:** Wenn der Provider den DSCP-Wert nicht mitzieht ("transparent" vs. "remark to 0"), verliert man am WAN das gesamte Marking. Vor SLAs immer prüfen, ob der ISP DSCP transportiert.
+:::falle
+QoS-Fallen:
+- **CoS vs. DSCP:** CoS (Layer 2) lebt nur im 802.1Q-Tag — beim Wechsel in ein untagged Access-VLAN ist es **weg**. Nur **DSCP** (im IP-Header) überlebt Ende-zu-Ende.
+- **LLQ ohne Limit:** Eine Priority-Queue ohne \`priority percent\`/\`kbps\` kann das ganze Interface verstopfen — andere Klassen verhungern.
+- **Marking am falschen Hop:** Zieht der Provider DSCP nicht mit (remark to 0), ist das Marking über das WAN futsch — vorher im SLA prüfen.
+:::
   `.trim(),
 };
 
