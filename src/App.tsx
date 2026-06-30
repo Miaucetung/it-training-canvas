@@ -119,6 +119,9 @@ const RoutingDrillDialog = lazy(() =>
 const OspfWildcardDrillDialog = lazy(() =>
   import("@/components/OspfWildcardDrillDialog").then((m) => ({ default: m.OspfWildcardDrillDialog })),
 );
+const AclDrillDialog = lazy(() =>
+  import("@/components/AclDrillDialog").then((m) => ({ default: m.AclDrillDialog })),
+);
 const IPv4SubnetTableDialog = lazy(() =>
   import("@/components/IPv4SubnetTableDialog").then((m) => ({ default: m.IPv4SubnetTableDialog })),
 );
@@ -157,6 +160,7 @@ type ToolId =
   | "subnetting-drill"
   | "routing-drill"
   | "ospf-wildcard-drill"
+  | "acl-drill"
   | "subnetting-quiz"
   | "subnetting-cheatsheet"
   | "ipv4-subnet-table"
@@ -189,6 +193,7 @@ const TOOL_GROUPS: Array<{
       { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
       { id: "routing-drill", name: "Routing-Endlos-Lab", hint: "ip route schreiben & Longest-Match gegen die Uhr" },
       { id: "ospf-wildcard-drill", name: "OSPF- & Wildcard-Drill", hint: "Wildcard, network-Befehl & DR/BDR-Wahl gegen die Uhr" },
+      { id: "acl-drill", name: "ACL-Drill", hint: "Wildcard, ACL lesen, ACE schreiben & Platzierung gegen die Uhr" },
       { id: "subnetting-quiz", name: "Subnetting-Quiz", hint: "Usable Range & Subnetz im Multiple-Choice" },
       { id: "subnetting-cheatsheet", name: "Subnetting-Cheatsheet", hint: "Blockgrößen, Grenzen, VLSM + Rechner" },
       { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
@@ -2301,6 +2306,9 @@ function App() {
           )}
           {activeTool === "ospf-wildcard-drill" && (
             <OspfWildcardDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+          )}
+          {activeTool === "acl-drill" && (
+            <AclDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
           )}
           {activeTool === "ccna-question-pool" && (
             <QuizDialog
