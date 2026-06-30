@@ -372,9 +372,17 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
 
               {checked && mode === "range" && rangeCheck &&
                 verdictBox(
-                  rangeCheck.ok
-                    ? `Perfekt — deine ${rangeCheck.lineCount} Zeile(n) erlauben exakt ${rangeTask.base}.${rangeTask.lo}–${rangeTask.hi}.`
-                    : rangeCheck.reason,
+                  <>
+                    {rangeCheck.ok
+                      ? `Perfekt — deine ${rangeCheck.lineCount} Zeile(n) erlauben exakt ${rangeTask.base}.${rangeTask.lo}–${rangeTask.hi}.`
+                      : rangeCheck.reason}
+                    {rangeCheck.alignmentHint && (
+                      <div className={`mt-2 flex gap-1.5 rounded-md border px-2 py-1.5 text-[12px] ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-amber-300 bg-amber-50 text-amber-700"}`}>
+                        <span aria-hidden>📐</span>
+                        <span><span className="font-semibold">Block-Ausrichtung:</span> {rangeCheck.alignmentHint}</span>
+                      </div>
+                    )}
+                  </>,
                   rangeSolutions,
                 )}
 

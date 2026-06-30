@@ -608,6 +608,25 @@ export interface AclRangeCheck {
   extra: number[]; // erlaubt, sollte aber nicht
   missing: number[]; // sollte erlaubt sein, ist es aber nicht
   lineCount: number;
+  /** Nur gesetzt, wenn eine Zeile einen falsch ausgerichteten Block hat (Start nicht durch Blockgröße teilbar). */
+  alignmentHint?: string;
+}
+
+/** Findet die erste Zeile mit falsch ausgerichtetem (zusammenhängendem) Wildcard-Block. */
+function alignmentHintFor(lines: RangeLine[]): string | undefined {
+  for (const ln of lines) {
+    const m = ln.wild.match(/^0\.0\.0\.(\d+)$/);
+    if (!m) continue;
+    const size = Number(m[1]) + 1;
+    if (size < 2 || (size & (size - 1)) !== 0) continue; // nur zusammenhängende 2er-Potenz-Blöcke
+    const start = Number(ln.ip.split(".")[3]);
+    const rest = start % size;
+    if (rest !== 0) {
+      const aligned = Math.floor(start / size) * size;
+      return `${start} ÷ ${size} = Rest ${rest} → nicht ausgerichtet. Der Router rundet „${ln.ip} ${ln.wild}“ auf .${aligned} ab (deckt .${aligned}–.${aligned + size - 1}). Setze den Start auf ein Vielfaches von ${size} (z. B. .${aligned}).`;
+    }
+  }
+  return undefined;
 }
 
 function fmtOctets(base: string, hs: number[]): string {
@@ -649,7 +668,14 @@ export function checkAclRange(input: string, task: AclRangeTask): AclRangeCheck 
   const parts: string[] = [];
   if (extra.length) parts.push(`zu viel erlaubt: ${fmtOctets(task.base, extra)}`);
   if (missing.length) parts.push(`nicht erlaubt (fehlt): ${fmtOctets(task.base, missing)}`);
-  return { ok: false, reason: parts.join(" · "), extra, missing, lineCount: rawLines.length };
+  return {
+    ok: false,
+    reason: parts.join(" · "),
+    extra,
+    missing,
+    lineCount: rawLines.length,
+    alignmentHint: alignmentHintFor(parsed),
+  };
 }
 
 // ============================================================
