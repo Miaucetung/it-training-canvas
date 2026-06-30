@@ -236,6 +236,28 @@ export const CONCEPT_ACL_WILDCARD_ALIGNMENT: Concept = {
 Eine Wildcard-Maske teilt jedes Bit in „muss passen" (0) und „**egal**" (1). Der Router prüft nur die 0-Bits — die egal-Bits in deiner angegebenen Adresse **ignoriert** er und behandelt sie intern als 0. Eine Zeile beschreibt damit nie „ab dieser Adresse", sondern immer einen **festen, ausgerichteten Block**, der am nächsten Vielfachen der Blockgröße **unterhalb** deiner Zahl beginnt. Wer die Größe richtig, aber die Startadresse falsch wählt, trifft deshalb einen **ganz anderen Bereich** — ohne Fehlermeldung.
 :::
 
+### Stell es dir wie feste Schubladen vor
+
+Eine Wildcard sagt **nur, wie groß** dein Block ist — **nicht, wo er anfängt**. Die Anfänge sind **fest vorgegeben**, wie Schubladen in einem Schrank. Bei Blockgröße **32** gibt es nur diese:
+
+\`\`\`
+  0          32         64         96
+  ┌────────┐ ┌────────┐ ┌────────┐ ┌─────────┐
+  │  0–31  │ │ 32–63  │ │ 64–95  │ │ 96–127  │  …
+  └────────┘ └────────┘ └────────┘ └─────────┘
+
+  Du willst bei .46 anfangen:
+     .46 liegt MITTEN in der Schublade 32–63
+        │
+        ▼  der Router kann keine eigene Schublade ab .46 aufziehen —
+           er nimmt die GANZE Schublade, in der .46 liegt:
+                                   →  .32 – .63   (Anfang .32, nicht .46)
+\`\`\`
+
+Du kannst **keine eigene Schublade** ab .46 öffnen. Zeigst du auf .46 und verlangst 32 Adressen, bekommst du die Schublade, **in der .46 liegt** — und die beginnt bei **.32**.
+
+→ **„Ausgerichtet" heißt schlicht: Deine Startzahl ist der *Anfang* einer Schublade** (0, 32, 64, 96 …). Liegt sie mittendrin, rutscht der Router auf den Schubladen-Anfang darunter zurück.
+
 ### Vom „egal-Bit" zum Block
 
 Die gesetzten Wildcard-Bits sind Platzhalter: Innerhalb eines Blocks dürfen sie jeden Wert annehmen. Daraus folgt direkt die **Blockgröße**:

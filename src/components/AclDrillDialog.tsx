@@ -131,6 +131,8 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
   const text = dark ? "text-white" : "text-slate-900";
   const muted = dark ? "text-slate-400" : "text-slate-500";
   const cardBg = dark ? "bg-slate-800/60" : "bg-slate-50";
+  const ink = dark ? "#cbd5e1" : "#475569";
+  const sub = dark ? "#94a3b8" : "#64748b";
   const fieldCls = `w-full rounded-lg border px-3 py-2.5 font-mono text-sm ${
     dark
       ? "bg-slate-950 border-slate-700 text-emerald-300 placeholder-slate-600"
@@ -344,6 +346,46 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
                       <li className="leading-snug">Greedy: größte Blockgröße g mit <span className="whitespace-nowrap">Start ÷ g = Rest 0</span> <span className={muted}>und</span> <span className="whitespace-nowrap">Start + g − 1 ≤ Ende</span> → dann Start += g</li>
                     )}
                   </ul>
+                </div>
+              )}
+
+              {(mode === "wildcard" || mode === "range") && (
+                <div className={`rounded-lg border p-3 ${dark ? "border-slate-700 bg-slate-950/40" : "border-slate-200 bg-white"}`}>
+                  <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wide ${muted}`}>
+                    So „rastet" ein Block ein — Blockgröße 32
+                  </div>
+                  <svg viewBox="0 0 880 150" width="100%" height="120" fontFamily="'IBM Plex Mono',monospace">
+                    {[0, 1, 2, 3].map((i) => {
+                      const x0 = 40 + i * 32 * 6.25;
+                      const w = 32 * 6.25;
+                      const hot = i === 1; // Fach 32–63 enthält .46
+                      return (
+                        <rect key={i} x={x0} y={50} width={w} height={40} rx={4}
+                          fill={hot ? "rgba(245,158,11,0.18)" : i % 2 ? "rgba(100,116,139,0.18)" : "rgba(100,116,139,0.09)"}
+                          stroke={hot ? "#f59e0b" : "#64748b"} strokeWidth={hot ? 2 : 1} />
+                      );
+                    })}
+                    {["0–31", "32–63", "64–95", "96–127"].map((t, i) => (
+                      <text key={t} x={40 + i * 32 * 6.25 + 100} y={75} fontSize="15" textAnchor="middle" fill={i === 1 ? "#f59e0b" : ink}>{t}</text>
+                    ))}
+                    {[0, 32, 64, 96, 128].map((v) => (
+                      <text key={v} x={40 + v * 6.25} y={108} fontSize="13" textAnchor="middle" fill={sub}>{v}</text>
+                    ))}
+                    {/* Zeiger .46 */}
+                    <text x={327.5} y={24} fontSize="14" textAnchor="middle" fill="#f43f5e">du tippst .46</text>
+                    <path d="M327.5 30 L327.5 48" stroke="#f43f5e" strokeWidth="2" markerEnd="url(#dn)" />
+                    <circle cx={327.5} cy={70} r={5} fill="#f43f5e" />
+                    {/* Einrasten auf .32 */}
+                    <path d="M322 80 Q 280 106 247 96" fill="none" stroke="#10b981" strokeWidth="2" markerEnd="url(#sn)" />
+                    <text x={150} y={140} fontSize="14" textAnchor="middle" fill="#10b981">Router nimmt das ganze Fach ab .32</text>
+                    <defs>
+                      <marker id="dn" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto"><path d="M0,0 L8,0 L4,7 z" fill="#f43f5e" /></marker>
+                      <marker id="sn" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#10b981" /></marker>
+                    </defs>
+                  </svg>
+                  <p className={`mt-1 text-[12px] leading-snug ${dark ? "text-slate-300" : "text-slate-600"}`}>
+                    Die Blöcke sind <strong>fest eingebaut</strong> (Anfang bei 0, 32, 64, 96 …). <span className="text-rose-500">.46</span> liegt <strong>mitten</strong> im Fach 32–63 → der Router nimmt das <strong>ganze Fach ab .32</strong>. Nur Zahlen, an denen ein Fach <strong>beginnt</strong>, sind „ausgerichtet".
+                  </p>
                 </div>
               )}
 
