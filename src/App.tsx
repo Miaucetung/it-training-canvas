@@ -1584,8 +1584,12 @@ function App() {
             {showToolsMenu && toolsMenuPos && createPortal(
               <div
                 ref={toolsMenuContentRef}
-                style={{ top: toolsMenuPos.top, right: toolsMenuPos.right }}
-                className={`fixed z-[200] min-w-[250px] rounded-xl border shadow-2xl py-1.5 ${
+                style={{
+                  top: toolsMenuPos.top,
+                  right: toolsMenuPos.right,
+                  maxHeight: `calc(100vh - ${toolsMenuPos.top}px - 12px)`,
+                }}
+                className={`fixed z-[200] min-w-[250px] overflow-y-auto overscroll-contain rounded-xl border shadow-2xl py-1.5 ${
                   theme === "dark"
                     ? "bg-slate-900 border-slate-700"
                     : "bg-white border-slate-200"
