@@ -32,6 +32,15 @@ export const CONCEPT_BRIDGES: ConceptBridge[] = [
     bridgeNote:
       "Ohne korrekten 802.1Q-Trunk zwischen Switch und Router erreichen die getaggten VLAN-Frames die Relay-Subinterfaces nicht. Trunking ist damit die Layer-2-Voraussetzung, bevor DHCP-Relay über VLAN-Grenzen funktioniert.",
   },
+  // ── Intra-CCNA: Wildcard-Block-Ausrichtung ⇄ Subnetting (Blockgrößen-Prinzip) ──
+  {
+    sourceConceptId: "acl-wildcard-alignment",
+    sourceModuleId: "ccna",
+    targetConceptId: "subnetting-drill",
+    targetModuleId: "ccna",
+    bridgeNote:
+      "Dieselbe Blockgrößen-Logik wie beim Subnetting, nur gespiegelt: Im Subnetting bestimmt die Maske die Schrittweite der Subnetze, bei ACL-Wildcards die Größe und den erlaubten Startwert eines „egal“-Blocks. „Start mod Blockgröße = 0“ ist exakt die Subnetz-Grenz-Regel — wer Magic-Number-Subnetting beherrscht, rechnet Wildcard-Ausrichtung mit demselben Trick.",
+  },
   {
     sourceConceptId: "vlans",
     sourceModuleId: "ccna",
