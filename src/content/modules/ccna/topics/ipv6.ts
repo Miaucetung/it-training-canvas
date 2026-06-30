@@ -13,6 +13,10 @@ export const CONCEPT_IPV6_BASICS: Concept = {
   content: `
 ## IPv6 Grundlagen
 
+:::kernidee
+IPv6 ist nicht „IPv4 mit mehr Ziffern", sondern ein **anderes Adressmodell**: Adressen sind so reichlich, dass jedes Gerät **mehrere** öffentliche Adressen gleichzeitig trägt und sich per **SLAAC selbst** konfiguriert — **NAT entfällt**. Die scheinbar kryptische Schreibweise ist nur **Kompression** (führende Nullen weg, eine Null-Folge als \`::\`); darunter sind es immer **128 Bit = 8 Gruppen à 16 Bit**.
+:::
+
 ### Warum IPv6?
 - IPv4 hat ~4,3 Milliarden Adressen → erschöpft
 - IPv6: 128-Bit-Adressen → 340 Sextillionen Adressen
@@ -45,9 +49,9 @@ Schritt 2 — längste Null-Sequenz durch :: ersetzen (nur einmal!):
          └───────────────────────────────────────────────────┘
 \`\`\`
 
-> ⚠️ **Merke:** \`::\` darf in einer Adresse **nur einmal** vorkommen.
-> \`2001::DB8::1\` ist **ungültig** — kein Mensch kann rekonstruieren,
-> wie viele Null-Gruppen wo fehlen.
+:::falle
+\`::\` darf in einer Adresse **nur einmal** vorkommen. \`2001::DB8::1\` ist **ungültig** — bei zwei \`::\` lässt sich nicht mehr rekonstruieren, wie viele Null-Gruppen wo fehlen. Bei Gleichstand zweier gleich langer Null-Folgen die **erste** komprimieren.
+:::
 
 ### IPv6-Adresstypen
 | Typ | Präfix | Beschreibung |
@@ -319,6 +323,10 @@ export const CONCEPT_IPV6_NDP_SLAAC: Concept = {
   tags: ["ipv6", "ndp", "slaac", "dhcpv6", "neighbor-discovery"],
   content: `
 ## NDP — Neighbor Discovery Protocol (RFC 4861)
+
+:::kernidee
+IPv6 kennt **keinen Broadcast** mehr — NDP ersetzt ARP durch **ICMPv6 + Multicast** und kann mehr: **NS/NA** finden Nachbar-MACs (wie ARP), **RS/RA** lassen Hosts den Router und das Präfix entdecken. Genau dieses **RA** ist der Motor von **SLAAC**: Der Router ruft „hier ist Präfix X", der Host hängt seine eigene Interface-ID an und hat **ohne DHCP** eine Adresse.
+:::
 
 NDP ist das IPv6-Äquivalent zu ARP und mehr. Es verwendet ICMPv6-Nachrichten
 und arbeitet über Multicast statt Broadcast.

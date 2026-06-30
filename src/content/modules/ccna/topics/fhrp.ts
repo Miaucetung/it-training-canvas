@@ -14,6 +14,14 @@ export const CONCEPT_FHRP_OVERVIEW: Concept = {
   content: `
 ## Warum FHRP?
 
+:::kernidee
+Ein PC kennt nur **eine** Default-Gateway-IP — er kann nicht „den anderen Router probieren". FHRP löst das, indem **zwei Router sich eine virtuelle IP + virtuelle MAC teilen**. Der Host redet immer mit der vIP; im Hintergrund entscheiden die Router unter sich, wer gerade antwortet. Fällt der aktive aus, übernimmt der zweite **dieselbe** vIP/vMAC — der Host merkt nichts, sein ARP-Eintrag bleibt gültig.
+:::
+
+:::analogie
+Wie eine **Support-Hotline**: Du wählst immer dieselbe Nummer (vIP). Wer gerade abhebt (welcher Mitarbeiter/Router), ist dir egal — fällt einer aus, übernimmt der nächste denselben Anschluss, ohne dass du eine neue Nummer brauchst.
+:::
+
 PCs werden mit **einem** Default-Gateway konfiguriert. Fällt dieser Router aus,
 verlieren alle Hosts den Internetzugang — selbst wenn ein Backup-Router vorhanden ist.
 
@@ -61,6 +69,10 @@ Cisco-proprietäres FHRP, in Version 1 und 2.
 - Höchste **Priority** (Default 100, Range 0–255)
 - Bei Gleichstand: höchste IP-Adresse
 - **Preemption** muss explizit aktiviert sein, sonst behält der erste seine Rolle
+
+:::falle
+**Ohne \`standby … preempt\` kommt der Vorzugs-Router nach einem Reboot NICHT automatisch zurück.** Bootet R1 (Priority 110) neu, ist in der Zwischenzeit R2 (100) aktiv geworden — und bleibt es, weil ohne Preempt die höhere Priority nicht erzwungen wird. (Bei **VRRP** ist Preempt per Default **an**, bei HSRP **aus** — beliebte Prüfungsfrage.)
+:::
 
 ### Beispielkonfiguration
 \`\`\`
@@ -203,10 +215,12 @@ Die "VersicherungsMakler GmbH" (250 Mitarbeiter) betreibt zwei Cisco ISR 4451-Ro
 3. Wie viele AVFs (Active Virtual Forwarder) kann eine GLBP-Gruppe gleichzeitig haben — und wie unterscheidet sich das von HSRP?
 *(Antworten im Quiz verfügbar)*
 
-## Häufige Fehler & Fallstricke
-- ⚠️ **Preempt vergessen:** Ohne \`standby 10 preempt\` gibt der ehemalige Aktiv-Router seine Rolle nicht zurück, selbst wenn er die höhere Priority hat. Nach einem Reload bleibt der Standby aktiv.
-- ⚠️ **HSRP-Version v1 mit IDs > 255:** v1 unterstützt nur Gruppen 0–255. Wer Gruppe 1000 nutzen will, muss \`standby version 2\` setzen — sonst Fehlermeldung.
-- ⚠️ **Object Tracking ohne Decrement-Wert:** \`standby 10 track 1\` (ohne \`decrement\`) verschiebt die Priority nur um den Default-Wert (10). Wer 20 senken will, um unter den Standby zu fallen, muss explizit \`decrement 20\` angeben.
+:::falle
+FHRP-Fallen:
+- **Preempt vergessen:** ohne \`standby 10 preempt\` holt sich der Vorzugs-Router seine Rolle nach Reload nicht zurück.
+- **HSRP v1 mit IDs > 255:** v1 kennt nur Gruppen 0–255 — für höhere IDs \`standby version 2\`.
+- **Object Tracking ohne Decrement:** \`standby 10 track 1\` senkt nur um den Default (10). Um unter den Standby zu fallen, explizit \`decrement 20\` angeben.
+:::
   `.trim(),
 };
 
