@@ -8,6 +8,13 @@ import {
   checkAclBuild,
   generateAclMatchTask,
   generateAclPlacementTask,
+  rangeToBlocks,
+  generateAclRangeTask,
+  checkAclRange,
+  generateAclNamedTask,
+  checkAclNamed,
+  generateAclAdvancedTask,
+  checkAclAdvanced,
 } from "@/lib/acl-drill";
 
 describe("wildcardMatches", () => {
@@ -97,6 +104,107 @@ describe("Build-Modus: generieren & prüfen", () => {
     const t = generateAclBuildTask();
     const wrong = t.canonical.replace(/access-list \d+/, "access-list 7");
     expect(checkAclBuild(wrong, t).ok).toBe(false);
+  });
+});
+
+describe("rangeToBlocks (minimale ausgerichtete Blöcke)", () => {
+  it("ausgerichteter Block bleibt eine Einheit", () => {
+    expect(rangeToBlocks(64, 127)).toEqual([{ start: 64, size: 64 }]);
+    expect(rangeToBlocks(0, 255)).toEqual([{ start: 0, size: 256 }]);
+  });
+  it("krummer Bereich .2–.5 zerfällt in ausgerichtete Blöcke", () => {
+    // .2-.3 (size2) + .4-.5 (size2)
+    expect(rangeToBlocks(2, 5)).toEqual([
+      { start: 2, size: 2 },
+      { start: 4, size: 2 },
+    ]);
+  });
+  it("die Blöcke decken den Bereich exakt ab", () => {
+    for (let t = 0; t < 50; t++) {
+      const lo = Math.floor(Math.random() * 200);
+      const hi = lo + Math.floor(Math.random() * 55);
+      const covered = new Set<number>();
+      for (const b of rangeToBlocks(lo, hi)) for (let i = 0; i < b.size; i++) covered.add(b.start + i);
+      const target = new Set<number>();
+      for (let i = lo; i <= hi; i++) target.add(i);
+      expect([...covered].sort((a, b) => a - b)).toEqual([...target].sort((a, b) => a - b));
+    }
+  });
+});
+
+describe("Range-Modus: jeder korrekte Lösungsweg zählt", () => {
+  it("Weg A (Permit-Blöcke) wird akzeptiert", () => {
+    for (let i = 0; i < 40; i++) {
+      const t = generateAclRangeTask(i);
+      const sol = t.permitBlocks.map((b) => `permit ${b.net} ${b.wild}`).join("\n");
+      const r = checkAclRange(sol, t);
+      expect(r.ok, `${t.base}.${t.lo}-${t.hi}\n${sol}\n${r.reason}`).toBe(true);
+    }
+  });
+  it("Weg B (Subnetz permit + Rand-deny) wird akzeptiert", () => {
+    for (let i = 0; i < 40; i++) {
+      const t = generateAclRangeTask(i);
+      const lines = [
+        ...t.denyEdges.map((b) => `deny ${b.net} ${b.wild}`),
+        `permit ${t.base}.0 0.0.0.255`,
+      ].join("\n");
+      const r = checkAclRange(lines, t);
+      expect(r.ok, `${t.base}.${t.lo}-${t.hi}\n${lines}\n${r.reason}`).toBe(true);
+    }
+  });
+  it("zu breite Lösung (permit any) wird erkannt", () => {
+    const t = generateAclRangeTask();
+    const r = checkAclRange("permit any", t);
+    // any erlaubt auch .0/.255 etc. → entweder extra (falls Bereich nicht ganzes /24) ok=false
+    if (!(t.lo === 0 && t.hi === 255)) {
+      expect(r.ok).toBe(false);
+      expect(r.extra.length).toBeGreaterThan(0);
+    }
+  });
+  it("zu enge Lösung meldet fehlende Hosts", () => {
+    const t = generateAclRangeTask();
+    const r = checkAclRange(`permit host ${t.base}.${t.lo}`, t);
+    if (t.lo !== t.hi) {
+      expect(r.ok).toBe(false);
+      expect(r.missing.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("Named-Modus: Definition + ACE", () => {
+  it("kanonische 2-Zeilen-Lösung wird akzeptiert", () => {
+    for (let i = 0; i < 40; i++) {
+      const t = generateAclNamedTask(i);
+      expect(checkAclNamed(t.canonicalLines.join("\n"), t).ok).toBe(true);
+    }
+  });
+  it("optionale Sequenznummer vor der ACE ist erlaubt", () => {
+    let t = generateAclNamedTask();
+    let guard = 0;
+    while (t.variant !== "extended" && guard++ < 50) t = generateAclNamedTask();
+    const withSeq = [t.canonicalLines[0], `10 ${t.canonicalLines[1]}`].join("\n");
+    expect(checkAclNamed(withSeq, t).ok).toBe(true);
+  });
+  it("falsche Zeilenzahl wird abgelehnt", () => {
+    const t = generateAclNamedTask();
+    expect(checkAclNamed(t.canonicalLines[0], t).ok).toBe(false);
+  });
+});
+
+describe("Advanced-Modus: established / Operatoren / log / time-range", () => {
+  it("kanonische Lösung akzeptiert; Trailer order-stabil geprüft", () => {
+    for (let i = 0; i < 60; i++) {
+      const t = generateAclAdvancedTask(i);
+      expect(checkAclAdvanced(t.canonical, t).ok, t.canonical).toBe(true);
+    }
+  });
+  it("akzeptiert Port-Namen in time-range-Aufgabe (eq http ≙ eq 80)", () => {
+    let t = generateAclAdvancedTask();
+    let guard = 0;
+    while (!t.canonical.includes("eq 80") && guard++ < 200) t = generateAclAdvancedTask();
+    if (t.canonical.includes("eq 80")) {
+      expect(checkAclAdvanced(t.canonical.replace("eq 80", "eq http"), t).ok).toBe(true);
+    }
   });
 });
 

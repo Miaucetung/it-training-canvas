@@ -304,6 +304,66 @@ export interface AclBuildTask {
   hint: string;
 }
 
+/**
+ * Normalform eines ACE-Rumpfs (ohne `access-list <n>`-Präfix), beginnend bei
+ * der Aktion. Unterstützt Standard (nur Quelle) und Extended inkl. Trailer:
+ * Port-Operator (eq/gt/lt/neq <port> | range <p1> <p2>), `established`, `log`,
+ * `time-range <name>`. Verlässt sich darauf, dass der Aufrufer c.i === toks.length prüft.
+ */
+function aceBody(c: Cursor, variant: "standard" | "extended"): string | null {
+  const action = c.toks[c.i];
+  if (action !== "permit" && action !== "deny") return null;
+  c.i++;
+
+  if (variant === "standard") {
+    const src = takeAddr(c, true);
+    if (src === null) return null;
+    return `${action} ${src}`;
+  }
+
+  const proto = c.toks[c.i];
+  if (!["ip", "tcp", "udp", "icmp"].includes(proto)) return null;
+  c.i++;
+  const src = takeAddr(c, false);
+  if (src === null) return null;
+  const dst = takeAddr(c, false);
+  if (dst === null) return null;
+
+  let portPart = "";
+  let established = false;
+  let log = false;
+  let timeRange = "";
+  while (c.i < c.toks.length) {
+    const t = c.toks[c.i];
+    if (["eq", "gt", "lt", "neq"].includes(t)) {
+      const p = c.toks[c.i + 1];
+      if (!p) return null;
+      portPart = ` ${t} ${normPort(p)}`;
+      c.i += 2;
+    } else if (t === "range") {
+      const p1 = c.toks[c.i + 1];
+      const p2 = c.toks[c.i + 2];
+      if (!p1 || !p2) return null;
+      portPart = ` range ${normPort(p1)} ${normPort(p2)}`;
+      c.i += 3;
+    } else if (t === "established") {
+      established = true;
+      c.i++;
+    } else if (t === "log" || t === "log-input") {
+      log = true;
+      c.i++;
+    } else if (t === "time-range") {
+      const nm = c.toks[c.i + 1];
+      if (!nm) return null;
+      timeRange = nm;
+      c.i += 2;
+    } else {
+      break; // unbekanntes Token → Aufrufer schlägt über c.i !== len fehl
+    }
+  }
+  return `${action} ${proto} ${src} ${dst}${portPart}${established ? " established" : ""}${log ? " log" : ""}${timeRange ? ` time-range ${timeRange}` : ""}`;
+}
+
 function canonicalizeAce(input: string, variant: "standard" | "extended", n: number): string | null {
   let s = input.trim().toLowerCase().replace(/\s+/g, " ");
   s = s.replace(/^\S+[#>]\s*/, ""); // evtl. Prompt entfernen
@@ -313,34 +373,9 @@ function canonicalizeAce(input: string, variant: "standard" | "extended", n: num
   c.i++;
   if (toks[c.i] !== String(n)) return null;
   c.i++;
-  const action = toks[c.i];
-  if (action !== "permit" && action !== "deny") return null;
-  c.i++;
-
-  if (variant === "standard") {
-    const src = takeAddr(c, true);
-    if (src === null || c.i !== toks.length) return null;
-    return `access-list ${n} ${action} ${src}`;
-  }
-
-  // extended
-  const proto = toks[c.i];
-  if (!["ip", "tcp", "udp", "icmp"].includes(proto)) return null;
-  c.i++;
-  const src = takeAddr(c, false);
-  if (src === null) return null;
-  const dst = takeAddr(c, false);
-  if (dst === null) return null;
-  let portPart = "";
-  if (c.i < toks.length) {
-    if (toks[c.i] !== "eq") return null;
-    const port = toks[c.i + 1];
-    if (!port) return null;
-    portPart = ` eq ${normPort(port)}`;
-    c.i += 2;
-  }
-  if (c.i !== toks.length) return null;
-  return `access-list ${n} ${action} ${proto} ${src} ${dst}${portPart}`;
+  const body = aceBody(c, variant);
+  if (body === null || c.i !== toks.length) return null;
+  return `access-list ${n} ${body}`;
 }
 
 export function generateAclBuildTask(_id = 0): AclBuildTask {
@@ -463,4 +498,310 @@ export function generateAclPlacementTask(_id = 0): AclPlacementTask {
     explanation:
       "Extended-ACLs matchen Quelle, Ziel, Protokoll und Port — also kann man unerwünschten Verkehr **so früh wie möglich** verwerfen: **nahe an der Quelle**, meist **in**. Das spart Bandbreite auf dem Pfad.",
   };
+}
+
+// ============================================================
+// Modus 5: IP-Bereich abdecken — mehrere Lösungswege, semantisch geprüft
+// ============================================================
+
+/** Zerlegt einen Host-Oktett-Bereich [lo,hi] in minimale, ausgerichtete Blöcke (Power-of-2). */
+export function rangeToBlocks(lo: number, hi: number): { start: number; size: number }[] {
+  const blocks: { start: number; size: number }[] = [];
+  if (lo > hi) return blocks;
+  let cur = lo;
+  while (cur <= hi) {
+    let size = 1;
+    while (cur % (size * 2) === 0 && cur + size * 2 - 1 <= hi) size *= 2;
+    blocks.push({ start: cur, size });
+    cur += size;
+  }
+  return blocks;
+}
+
+export interface AclRangeTask {
+  kind: "range";
+  base: string; // erste drei Oktette, z. B. "192.168.1"
+  lo: number;
+  hi: number;
+  prompt: string;
+  permitBlocks: { net: string; wild: string }[]; // minimaler Permit-Weg
+  denyEdges: { net: string; wild: string }[]; // Rand-Blöcke für deny-Weg
+  minLines: number;
+  hint: string;
+}
+
+interface RangeLine {
+  action: "permit" | "deny";
+  ip: string;
+  wild: string;
+}
+
+function blocksToSpecs(base: string, blocks: { start: number; size: number }[]) {
+  return blocks.map((b) => ({ net: `${base}.${b.start}`, wild: `0.0.0.${b.size - 1}` }));
+}
+
+export function generateAclRangeTask(_id = 0): AclRangeTask {
+  const base = `192.168.${pick([1, 10, 20, 30])}`;
+  // Bereich: gelegentlich ausgerichtet (1 Block), oft krumm (mehrere Blöcke)
+  let lo: number;
+  let hi: number;
+  if (Math.random() < 0.3) {
+    // ausgerichteter Block (z. B. .0/.64/.128 mit Größe 32/64)
+    const size = pick([16, 32, 64]);
+    const start = pick([0, size, size * 2, size * 3]).valueOf() % 256;
+    lo = start;
+    hi = Math.min(255, start + size - 1);
+  } else {
+    lo = randInt(1, 120);
+    hi = randInt(lo + 9, 254);
+  }
+  const permitBlocks = blocksToSpecs(base, rangeToBlocks(lo, hi));
+  const edges = [...rangeToBlocks(0, lo - 1), ...rangeToBlocks(hi + 1, 255)];
+  return {
+    kind: "range",
+    base,
+    lo,
+    hi,
+    prompt: `Schreibe eine ACL (mehrere Zeilen erlaubt), die GENAU die Hosts ${base}.${lo} bis ${base}.${hi} erlaubt — alle anderen werden verworfen. Jeder korrekte Weg zählt (Permit-Blöcke ODER Subnetz-permit + Rand-deny).`,
+    permitBlocks,
+    denyEdges: blocksToSpecs(base, edges),
+    minLines: permitBlocks.length,
+    hint: `Tipp: Ein Bereich lässt sich in 2er-Potenz-Blöcke zerlegen, die an ihrer Größe „ausgerichtet“ sind (z. B. .${lo} … in Blöcken 1,2,4,8,16,32 …).`,
+  };
+}
+
+function parseRangeLine(line: string): RangeLine | null {
+  let s = line.trim().toLowerCase().replace(/\s+/g, " ");
+  s = s.replace(/^\S+[#>]\s*/, ""); // Prompt
+  s = s.replace(/^access-list\s+\d+\s+/, ""); // nummeriertes Präfix optional
+  const toks = s.split(" ").filter(Boolean);
+  const c: Cursor = { toks, i: 0 };
+  if (/^\d+$/.test(toks[c.i] ?? "")) c.i++; // optionale Sequenznummer
+  const action = toks[c.i];
+  if (action !== "permit" && action !== "deny") return null;
+  c.i++;
+  const addr = takeAddr(c, true);
+  if (addr === null || c.i !== toks.length) return null;
+  if (addr === "any") return { action, ip: "0.0.0.0", wild: "255.255.255.255" };
+  if (addr.startsWith("host ")) return { action, ip: addr.slice(5), wild: "0.0.0.0" };
+  const [ip, wild] = addr.split(" ");
+  return { action, ip, wild };
+}
+
+function evalRangePermitted(lines: RangeLine[], base: string): Set<number> {
+  const set = new Set<number>();
+  for (let h = 0; h <= 255; h++) {
+    const ip = `${base}.${h}`;
+    for (const ln of lines) {
+      if (wildcardMatches(ln.ip, ln.wild, ip)) {
+        if (ln.action === "permit") set.add(h);
+        break; // First-Match
+      }
+    }
+  }
+  return set;
+}
+
+export interface AclRangeCheck {
+  ok: boolean;
+  reason?: string;
+  extra: number[]; // erlaubt, sollte aber nicht
+  missing: number[]; // sollte erlaubt sein, ist es aber nicht
+  lineCount: number;
+}
+
+function fmtOctets(base: string, hs: number[]): string {
+  const last = base.split(".").slice(0, 3).join(".");
+  const shown = hs.slice(0, 6).map((h) => `${last}.${h}`).join(", ");
+  return hs.length > 6 ? `${shown}, … (${hs.length})` : shown;
+}
+
+export function checkAclRange(input: string, task: AclRangeTask): AclRangeCheck {
+  const rawLines = input
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !/^ip access-list/i.test(l));
+  if (rawLines.length === 0) {
+    return { ok: false, reason: "Mindestens eine permit/deny-Zeile nötig.", extra: [], missing: [], lineCount: 0 };
+  }
+  const parsed: RangeLine[] = [];
+  for (const l of rawLines) {
+    const p = parseRangeLine(l);
+    if (!p) {
+      return {
+        ok: false,
+        reason: `Zeile nicht verständlich: „${l}“. Erwartet: permit|deny <host X | any | netz wildcard>.`,
+        extra: [],
+        missing: [],
+        lineCount: rawLines.length,
+      };
+    }
+    parsed.push(p);
+  }
+  const got = evalRangePermitted(parsed, task.base);
+  const target = new Set<number>();
+  for (let h = task.lo; h <= task.hi; h++) target.add(h);
+  const extra = [...got].filter((h) => !target.has(h)).sort((a, b) => a - b);
+  const missing = [...target].filter((h) => !got.has(h)).sort((a, b) => a - b);
+  if (extra.length === 0 && missing.length === 0) {
+    return { ok: true, extra: [], missing: [], lineCount: rawLines.length };
+  }
+  const parts: string[] = [];
+  if (extra.length) parts.push(`zu viel erlaubt: ${fmtOctets(task.base, extra)}`);
+  if (missing.length) parts.push(`nicht erlaubt (fehlt): ${fmtOctets(task.base, missing)}`);
+  return { ok: false, reason: parts.join(" · "), extra, missing, lineCount: rawLines.length };
+}
+
+// ============================================================
+// Modus 6: Benannte ACL (Definition + ACE, optionale Sequenznummer)
+// ============================================================
+export interface AclNamedTask {
+  kind: "named";
+  variant: "standard" | "extended";
+  prompt: string;
+  canonicalLines: string[];
+  displayLines: string[];
+  hint: string;
+}
+
+const ACL_NAMES_STD = ["MGMT", "NET_ADMINS", "VPN_USERS"];
+const ACL_NAMES_EXT = ["BLOCK_TELNET", "DMZ_POLICY", "GUEST_FILTER"];
+
+export function generateAclNamedTask(_id = 0): AclNamedTask {
+  const variant = pick<"standard" | "extended">(["standard", "extended"]);
+  if (variant === "standard") {
+    const name = pick(ACL_NAMES_STD);
+    const cidr = pick([24, 25, 26]);
+    const net = networkAddress(randHost(), cidr);
+    const wild = cidrToWildcard(cidr);
+    return {
+      kind: "named",
+      variant,
+      prompt: `Lege eine **benannte Standard-ACL** „${name}“ an (2 Zeilen): Definition + eine Zeile, die das Subnetz ${net}/${cidr} erlaubt.`,
+      canonicalLines: [`ip access-list standard ${name.toLowerCase()}`, `permit ${net} ${wild}`],
+      displayLines: [`ip access-list standard ${name}`, `  permit ${net} ${wild}`],
+      hint: "Benannte ACL: erst `ip access-list standard <NAME>`, dann im Submodus die ACE (ohne `access-list <n>`; Sequenznummer optional).",
+    };
+  }
+  const name = pick(ACL_NAMES_EXT);
+  const server = randHost();
+  const svc = pick(["23", "80", "443", "22"]);
+  return {
+    kind: "named",
+    variant,
+    prompt: `Lege eine **benannte Extended-ACL** „${name}“ an (2 Zeilen): Definition + eine Zeile, die ${PORT_LABEL[svc]} von any zum Server ${server} sperrt.`,
+    canonicalLines: [`ip access-list extended ${name.toLowerCase()}`, `deny tcp any host ${server} eq ${svc}`],
+    displayLines: [`ip access-list extended ${name}`, `  deny tcp any host ${server} eq ${svc}`],
+    hint: `Benannte Extended-ACL: \`ip access-list extended <NAME>\`, dann \`deny tcp any host ${server} eq ${PORT_LABEL[svc].toLowerCase()}\` (Port-Name oder -Nummer).`,
+  };
+}
+
+function canonicalizeNamedLine(line: string, variant: "standard" | "extended"): string | null {
+  let s = line.trim().toLowerCase().replace(/\s+/g, " ");
+  s = s.replace(/^\S+[#>]\s*/, "");
+  if (s.startsWith("ip access-list")) {
+    const m = s.match(/^ip access-list (standard|extended) (\S+)$/);
+    return m ? `ip access-list ${m[1]} ${m[2]}` : null;
+  }
+  const toks = s.split(" ").filter(Boolean);
+  const c: Cursor = { toks, i: 0 };
+  if (/^\d+$/.test(toks[c.i] ?? "")) c.i++; // optionale Sequenznummer
+  const body = aceBody(c, variant);
+  if (body === null || c.i !== toks.length) return null;
+  return body;
+}
+
+export function checkAclNamed(input: string, task: AclNamedTask): AclCheck {
+  const lines = input.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length !== task.canonicalLines.length) {
+    return {
+      ok: false,
+      normalized: input.trim(),
+      reason: `Erwartet werden ${task.canonicalLines.length} Zeilen (Definition + ACE).`,
+    };
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const norm = canonicalizeNamedLine(lines[i], task.variant);
+    if (norm === null || norm !== task.canonicalLines[i]) {
+      return { ok: false, normalized: lines[i], reason: `Zeile ${i + 1} stimmt nicht (erwartet: ${task.displayLines[i].trim()}).` };
+    }
+  }
+  return { ok: true, normalized: input.trim() };
+}
+
+// ============================================================
+// Modus 7: Advanced — established, Operatoren, log, time-range
+// ============================================================
+export interface AclAdvancedTask {
+  kind: "advanced";
+  aclNumber: number;
+  prompt: string;
+  canonical: string;
+  display: string;
+  hint: string;
+}
+
+export function generateAclAdvancedTask(_id = 0): AclAdvancedTask {
+  const n = pick([100, 110, 120, 150]);
+  const kind = pick(["established", "gtlt", "log", "time"]);
+  const cidr = pick([24, 25, 26]);
+  const sub = networkAddress(randHost(), cidr);
+  const wild = cidrToWildcard(cidr);
+  const server = randHost();
+
+  if (kind === "established") {
+    return {
+      kind: "advanced",
+      aclNumber: n,
+      prompt: `Extended-ACL ${n}: Erlaube nur **Rückverkehr bereits aufgebauter** TCP-Sessions von any zum Subnetz ${sub}/${cidr}.`,
+      canonical: `access-list ${n} permit tcp any ${sub} ${wild} established`,
+      display: `access-list ${n} permit tcp any ${sub} ${wild} established`,
+      hint: "`established` matcht TCP-Segmente mit ACK/RST — also nur Antworten auf intern initiierte Sessions, kein neuer Verbindungsaufbau von außen.",
+    };
+  }
+  if (kind === "gtlt") {
+    const op = pick<"gt" | "lt">(["gt", "lt"]);
+    const port = op === "gt" ? 1023 : 1024;
+    return {
+      kind: "advanced",
+      aclNumber: n,
+      prompt: `Extended-ACL ${n}: Erlaube von any zum Server ${server} alle TCP-Ports **${op === "gt" ? "größer als" : "kleiner als"} ${port}**.`,
+      canonical: `access-list ${n} permit tcp any host ${server} ${op} ${port}`,
+      display: `access-list ${n} permit tcp any host ${server} ${op} ${port}`,
+      hint: "Operatoren: `eq` (gleich), `gt` (größer), `lt` (kleiner), `neq` (ungleich), `range <a> <b>` (Bereich).",
+    };
+  }
+  if (kind === "log") {
+    return {
+      kind: "advanced",
+      aclNumber: n,
+      prompt: `Extended-ACL ${n}: Sperre jeglichen IP-Verkehr vom Subnetz ${sub}/${cidr} zu any und **protokolliere** die Treffer.`,
+      canonical: `access-list ${n} deny ip ${sub} ${wild} any log`,
+      display: `access-list ${n} deny ip ${sub} ${wild} any log`,
+      hint: "`log` am Zeilenende schreibt jeden Treffer ins Log — nützlich, um Fehlblockaden zu erkennen (Performance beachten).",
+    };
+  }
+  return {
+    kind: "advanced",
+    aclNumber: n,
+    prompt: `Extended-ACL ${n}: Erlaube HTTP von ${sub}/${cidr} zum Server ${server} **nur während der time-range BUERO**.`,
+    canonical: `access-list ${n} permit tcp ${sub} ${wild} host ${server} eq 80 time-range buero`,
+    display: `access-list ${n} permit tcp ${sub} ${wild} host ${server} eq 80 time-range BUERO`,
+    hint: "Zeitabhängige ACL: zuerst `time-range BUERO` mit `periodic …` definieren, dann in der ACE `… time-range BUERO` anhängen.",
+  };
+}
+
+export function checkAclAdvanced(input: string, task: AclAdvancedTask): AclCheck {
+  const canon = canonicalizeAce(input, "extended", task.aclNumber);
+  if (canon === null) {
+    return {
+      ok: false,
+      normalized: input.trim(),
+      reason: `Format: access-list ${task.aclNumber} permit|deny <proto> <quelle> <ziel> [op port] [established] [log] [time-range NAME].`,
+    };
+  }
+  if (canon !== task.canonical) {
+    return { ok: false, normalized: canon, reason: `Erwartet: ${task.display}.` };
+  }
+  return { ok: true, normalized: canon };
 }
