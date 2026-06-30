@@ -27,7 +27,9 @@ export const CONCEPT_NETWORK_TYPES_BY_SCOPE: Concept = {
 | WAN     | Wide Area Network             | Land / Kontinent            | MPLS-Backbone, Standortvernetzung |
 | GAN     | Global Area Network           | weltweit                    | Internet, Satelliten-Netze |
 
-> **Merksatz:** *PAN < LAN < CAN < MAN < WAN < GAN* — Reichweite wächst, Bandbreite pro Strecke sinkt tendenziell, Latenz steigt.
+:::merke
+*PAN < LAN < CAN < MAN < WAN < GAN* — Reichweite wächst, Bandbreite pro Strecke sinkt tendenziell, Latenz steigt.
+:::
 
 ## 2) Funktionale Klassifikation (Anwendungszweck)
 
@@ -51,6 +53,10 @@ export const CONCEPT_NETWORK_COMPONENTS: Concept = {
   tags: ["networking", "hardware", "cables", "media", "infrastructure"],
   content: `
 ## Netzwerkkomponenten
+
+:::kernidee
+Die **OSI-Schicht eines Geräts = worüber es seine Weiterleitungs-Entscheidung trifft.** Ein Hub (L1) kennt nur Signale → kopiert blind auf alle Ports. Ein Switch (L2) liest **MAC-Adressen** → leitet gezielt im LAN. Ein Router (L3) liest **IP-Adressen** → entscheidet zwischen Netzen. Je höher die Schicht, desto „klüger" (und teurer) die Entscheidung.
+:::
 
 ### Endgeräte (End Devices)
 - Workstations, Server, Drucker, IP-Telefone, Smartphones
@@ -84,6 +90,10 @@ export const CONCEPT_NETWORK_COMPONENTS: Concept = {
 - **Half-Duplex**: Senden oder Empfangen (nicht gleichzeitig), Kollisionen möglich
 - **Full-Duplex**: Gleichzeitiges Senden und Empfangen, keine Kollisionen
 - **Auto-Negotiation**: Switch und Endgerät handeln Geschwindigkeit/Duplex aus
+
+:::check Ein Switch und ein Hub haben beide 24 Ports. Worin unterscheidet sich, was an Port 1 ankommt, wenn Port 5 sendet?
+Am **Hub** sehen *alle* 23 anderen Ports das Signal (eine gemeinsame Kollisionsdomäne). Am **Switch** sieht nur der Zielport den Frame (jeder Port = eigene Kollisionsdomäne), weil der Switch die Ziel-MAC in seiner Tabelle nachschlägt und gezielt weiterleitet.
+:::
   `.trim(),
 };
 
@@ -94,6 +104,10 @@ export const CONCEPT_TCP_IP_SUITE: Concept = {
   tags: ["networking", "tcp-ip", "protocols", "layer-3", "layer-4"],
   content: `
 ## TCP/IP Protokoll-Suite
+
+:::kernidee
+**IP + Port = die Adresse eines Dienstes.** Die **IP-Adresse** bringt das Paket zum richtigen *Host*, die **Port-Nummer** zur richtigen *Anwendung* auf diesem Host (Web 80/443, DNS 53, SSH 22). TCP/IP ist kein Programm, sondern ein **Schichten-Vertrag**: jede Schicht nutzt nur die Dienste der Schicht direkt darunter und muss deren Innenleben nicht kennen.
+:::
 
 ### Die wichtigsten Protokolle nach Schicht
 
@@ -123,6 +137,14 @@ export const CONCEPT_TCP_IP_SUITE: Concept = {
 | Overhead | Höher | Geringer |
 | Anwendungsfall | HTTP, FTP, SMTP | DNS, DHCP, VoIP, Streaming |
 
+:::analogie
+**TCP = Telefonat**: erst Verbindung aufbauen („Hörst du mich?"), dann reden, jedes Wort wird quittiert. **UDP = Postkarte**: einfach rauswerfen, ohne Empfangsbestätigung — schnell, aber ohne Garantie. Darum TCP für Datei/Web, UDP für VoIP/Streaming, wo eine *verspätet* wiederholte Sprachsilbe ohnehin nutzlos wäre.
+:::
+
+:::falle
+**Verbindungslos ≠ grundsätzlich unzuverlässig.** UDP hat keine *eingebaute* Zuverlässigkeit — aber Anwendungen können sie selbst nachrüsten (QUIC/HTTP-3, TFTP). Prüfungssauber formuliert: „UDP überlässt Zuverlässigkeit der Anwendung", nicht „UDP ist unsicher".
+:::
+
 ### TCP 3-Way Handshake
 \`\`\`
 Client → Server: SYN (seq=x)
@@ -134,6 +156,10 @@ Client → Server: ACK (ack=y+1)
 - 0-1023: Well-Known Ports
 - 1024-49151: Registered Ports
 - 49152-65535: Dynamic/Private Ports
+
+:::check Warum nutzt DNS standardmäßig UDP, obwohl UDP keine Zustellgarantie bietet?
+Eine DNS-Abfrage ist klein (passt in ein Paket) und wird bei ausbleibender Antwort einfach erneut gesendet — ein TCP-Handshake (3 Pakete vorab) wäre teurer als die seltene Wiederholung. Erst bei großen Antworten (Zonentransfer, DNSSEC) wechselt DNS auf TCP.
+:::
   `.trim(),
 };
 
@@ -243,7 +269,9 @@ Priorisierung von Echtzeit-Verkehr über Best-Effort-Verkehr:
 | **Integrity** | Integrität | „Stimmen die Daten — wurden sie unterwegs manipuliert?" | Hashing (SHA-256), Digital Signatures |
 | **Availability** | Verfügbarkeit | „Sind die Dienste da, wenn man sie braucht?" | Redundanz, DDoS-Schutz, UPS |
 
-> **⚠️ Achtung-Falle:** Authenticity ≠ Authentication. *Authenticity* beschreibt die Eigenschaft (Echtheit), *Authentication* ist der Prozess, der Authentizität nachweist.
+:::falle
+**Authenticity ≠ Authentication.** *Authenticity* beschreibt die Eigenschaft (Echtheit), *Authentication* ist der Prozess, der diese Echtheit nachweist.
+:::
   `.trim(),
 };
 
@@ -330,7 +358,9 @@ Häufig in einem kombinierten Gerät (Router + Switch + WLAN + Modem = SOHO-Rout
 | 3-Tier | 3 | Enterprise, Campus-Netze | hoch |
 | Spine-Leaf | 2 | Rechenzentren, Cloud | sehr hoch |
 
-> **⚠️ Achtung-Falle:** Ein Switch, der Distribution und Core übernimmt (Collapsed Core), heißt trotzdem „2-Tier" — nicht „1-Tier". Die physische Zusammenlegung ändert nicht die logische Funktion.
+:::falle
+Ein Switch, der Distribution und Core übernimmt (Collapsed Core), heißt trotzdem **„2-Tier"** — nicht „1-Tier". Die physische Zusammenlegung ändert nicht die logische Funktion.
+:::
   `.trim(),
 };
 

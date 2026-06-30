@@ -16,6 +16,14 @@ export const CONCEPT_ARP: Concept = {
   content: `
 ## ARP — Address Resolution Protocol
 
+:::kernidee
+Routing arbeitet mit **IP-Adressen**, das Ethernet-Kabel aber nur mit **MAC-Adressen**. ARP ist die **Übersetzungsschicht** dazwischen: „Ich kenne die IP meines nächsten Ziels im selben LAN — welche MAC gehört dazu?" Ohne diese Auflösung weiß der Host nicht, an welche Hardware-Adresse er den Frame im lokalen Netz schicken soll.
+:::
+
+:::analogie
+Wie „Ich suche **Frau Müller** (Name = IP), aber der Briefträger braucht die **Türnummer** (MAC)." ARP-Request ist der Ruf in den Flur „Wer ist Frau Müller?", die ARP-Reply die Antwort „Hier, Tür 7" — danach merkt man sich das (ARP-Cache).
+:::
+
 ARP löst eine IPv4-Adresse in eine MAC-Adresse auf (OSI Layer 2/3 Boundary).
 
 ### Ablauf
@@ -40,6 +48,10 @@ PC-A (10.0.0.1) möchte PC-B (10.0.0.2) erreichen:
 ### ARP-Spoofing (Sicherheit)
 - Angreifer sendet gefälschte ARP-Antworten
 - Mitigation: Dynamic ARP Inspection (DAI), Static ARP Entries
+
+:::check PC-A (10.0.0.1/24) will PC-B in einem *anderen* Subnetz (10.0.1.5) erreichen. Nach wessen MAC fragt ARP?
+Nach der MAC des **Default Gateways**, nicht nach der von PC-B. Liegt das Ziel in einem anderen Subnetz, schickt der Host den Frame an das Gateway — also löst ARP die **Gateway-IP** auf. Erst der Router fragt im Zielsegment nach PC-B.
+:::
   `.trim(),
 };
 
@@ -50,6 +62,10 @@ export const CONCEPT_ICMP: Concept = {
   tags: ["networking", "icmp", "icmpv6", "ping", "traceroute", "ndp", "troubleshooting", "firewall"],
   content: `
 ## ICMP — Internet Control Message Protocol
+
+:::kernidee
+ICMP ist der **Rückkanal von IP für Diagnose und Fehler** — nicht für Nutzdaten. IP selbst ist „best effort" und sagt nie, *ob* ein Paket ankam. ICMP liefert die Rückmeldungen nach: „Ziel nicht erreichbar", „TTL abgelaufen", „zu groß". Genau diese Meldungen machen **ping** und **traceroute** überhaupt erst möglich.
+:::
 
 ICMP ist ein Hilfsprotokoll für Fehlermeldungen und Diagnose auf Layer 3.
 Es läuft **direkt auf IP** — keine Port-Nummern, kein TCP/UDP.
@@ -103,7 +119,9 @@ ICMPv6 übernimmt zusätzlich die Aufgaben von ARP und IGMP.
 | 136 | Neighbor Advertisement (NA) — ARP-Äquivalent Antwort |
 | 137 | Redirect |
 
-> **Merksatz:** Types 1–4 = Fehler · 128/129 = Ping · 133–137 = NDP (Neighbor Discovery)
+:::merke
+ICMPv6: Types **1–4 = Fehler** · **128/129 = Ping** · **133–137 = NDP** (Neighbor Discovery).
+:::
 
 ### ICMP in Diagnose-Tools
 
@@ -121,7 +139,9 @@ ICMPv6 übernimmt zusätzlich die Aufgaben von ARP und IGMP.
 
 ### Firewall & RFC 4890
 
-> ⚠️ **ICMPv6 darf in einer Firewall NICHT pauschal blockiert werden.**
+:::falle
+**ICMPv6 darf in einer Firewall NICHT pauschal blockiert werden** (anders als ICMPv4, das man oft hart filtert). Wer es tut, zerstört NDP und Path MTU Discovery → IPv6 bricht *still* zusammen.
+:::
 
 Zwei kritische Gründe:
 1. **Neighbor Discovery** (NS/NA Type 135/136) funktioniert sonst nicht — keine Adressauflösung im LAN → IPv6-Kommunikation vollständig unterbrochen
@@ -180,6 +200,10 @@ export const CONCEPT_SUBNETTING_DRILL: Concept = {
   tags: ["subnetting", "drill", "practice", "vlsm", "cidr"],
   content: `
 ## Subnetting-Methode (Magic Number)
+
+:::kernidee
+Subnetting heißt: die **Grenze zwischen Netz- und Host-Bits nach rechts verschieben**. Jedes geborgte Bit **verdoppelt die Anzahl der Subnetze** und **halbiert deren Größe**. Die „Magic Number" ist nur eine Abkürzung, um diese Blockgröße im Kopf auszurechnen — du musst nicht binär rechnen, aber *verstehen*, dass alles aus dieser einen Bitgrenze folgt.
+:::
 
 Die schnellste Methode für CCNA-Prüfungen — kein Taschenrechner nötig.
 
@@ -293,10 +317,12 @@ Broadcast   10 | 111111  = 191  → 172.16.191.255
 ### VLSM-Regel
 **Immer von größtem zu kleinstem Bedarf** vergeben — sonst entstehen Lücken.
 
-### ⚠️ Typische Fehlerquellen
-- Magic Number aus dem **falschen Oktett** — immer das Oktett, in dem die Maske wechselt
-- Bei /31 kein \`−2\` rechnen — RFC 3021 erlaubt 2 Hosts (Point-to-Point)
-- /30 vs. /29 verwechseln (2 Hosts vs. 6 Hosts)
+:::falle
+Typische Fehlerquellen beim Subnetting:
+- Magic Number aus dem **falschen Oktett** — immer das Oktett nehmen, in dem die Maske wechselt.
+- Bei **/31** kein \`−2\` rechnen — RFC 3021 erlaubt beide Adressen als Hosts (Point-to-Point).
+- **/30 vs. /29** verwechseln (2 Hosts vs. 6 Hosts).
+:::
 
 > 🎯 **Übungsaufgaben** → im Quiz **"CCNA: IPv4 Adressierung & Subnetting"**
   `.trim(),
@@ -319,8 +345,9 @@ Die **Subnetzmaske** legt fest, welche Bits zum Netz- und welche zum Host-Anteil
 - Masken-Bit = **1** → korrespondierendes Bit gehört zum **Netzanteil**
 - Masken-Bit = **0** → korrespondierendes Bit gehört zum **Hostanteil**
 
-> Eine gültige Maske besteht immer aus **lückenlosen 1 en, gefolgt von lückenlosen 0 en** —
-> \`11110111…\` ist **ungültig**.
+:::merke
+Eine gültige Maske besteht **immer aus lückenlosen 1en, gefolgt von lückenlosen 0en** — \`11110111…\` ist **ungültig**. Die 1/0-Grenze ist genau die Netz/Host-Trennung.
+:::
 
 ### Die „Subnetz-Torte" — drei Arten von Adressen
 
