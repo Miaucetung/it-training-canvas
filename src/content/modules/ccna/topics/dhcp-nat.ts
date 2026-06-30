@@ -12,6 +12,10 @@ export const CONCEPT_DHCP: Concept = {
   content: `
 ## DHCP (RFC 2131)
 
+:::kernidee
+DHCP löst ein Henne-Ei-Problem: Ein frischer Client hat **noch keine IP** und kennt den Server **nicht** — also fragt er per **Broadcast** ins Blaue („Ist hier ein DHCP-Server?"). Der ganze DORA-Tanz dreht sich darum, von „ich habe gar nichts" sicher zu „ich habe genau **diese** geliehene IP" zu kommen — inklusive einer **Lease** (Mietdauer), denn die Adresse gehört dem Client nur auf Zeit.
+:::
+
 DHCP vergibt automatisch IP-Adressen, Subnetzmaske, Default-Gateway und DNS.
 
 ### DORA-Prozess
@@ -490,6 +494,14 @@ export const CONCEPT_NAT: Concept = {
   content: `
 ## NAT / PAT (RFC 3022)
 
+:::kernidee
+NAT existiert, weil **IPv4-Adressen knapp** sind: Ein ganzes Heimnetz teilt sich **eine** öffentliche IP. Der NAT-Router merkt sich in einer **Übersetzungstabelle**, welche interne Adresse welche Verbindung aufgebaut hat, und tauscht die Quell-IP beim Rausgehen aus. **PAT** macht das massentauglich, indem es zusätzlich die **Port-Nummer** als Unterscheidungsmerkmal nutzt — so passen tausende interne Hosts hinter eine einzige öffentliche IP.
+:::
+
+:::analogie
+Wie die **Telefonzentrale** einer Firma mit *einer* Außennummer: Alle Mitarbeiter (interne IPs) telefonieren nach draußen über dieselbe Hauptnummer. Die Zentrale merkt sich per **Durchwahl** (Port), welcher Rückruf zu welchem Mitarbeiter gehört.
+:::
+
 NAT übersetzt private IP-Adressen in öffentliche (und zurück).
 
 ### NAT-Typen
@@ -506,6 +518,10 @@ NAT übersetzt private IP-Adressen in öffentliche (und zurück).
 | Inside Global | Öffentliche IP nach Übersetzung (z.B. 203.0.113.5) |
 | Outside Local | IP des externen Ziels, wie intern gesehen |
 | Outside Global | Echte IP des externen Ziels |
+
+:::merke
+**Inside/Outside = wo das Gerät steht; Local/Global = welche Sicht.** „Inside" ist dein Netz, „Outside" das Internet. „Local" ist die private Sicht, „Global" die öffentliche. **Inside Local** = deine private IP, **Inside Global** = wie das Internet dich sieht. Das wird in der Prüfung gern vertauscht.
+:::
 
 ### PAT Konfiguration (Cisco)
 \`\`\`
@@ -597,6 +613,11 @@ export const CONCEPT_DNS: Concept = {
   tags: ["dns", "name-resolution", "udp-53", "resource-records", "network-services"],
   content: `
 ## Wozu DNS?
+
+:::kernidee
+DNS ist das **Telefonbuch des Internets**: Menschen merken sich Namen, Pakete brauchen IPs. Statt einer einzigen riesigen Liste ist DNS **hierarchisch verteilt** (Root → TLD → autoritativer Server) — niemand kennt alles, jeder kennt nur den nächsten Schritt nach unten. Caching mit **TTL** sorgt dafür, dass nicht jede Abfrage bis zur Wurzel läuft.
+:::
+
 **DNS** (Domain Name System) übersetzt **Namen ↔ IP-Adressen**, damit niemand sich IPs merken muss
 und Namen stabil bleiben, auch wenn die IP wechselt.
 - **Forward Lookup:** Name → IP (\`web.corp.local\` → \`10.0.2.50\`)

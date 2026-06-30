@@ -66,6 +66,14 @@ export const CONCEPT_ACL_STANDARD: Concept = {
   content: `
 ## Standard ACLs (1–99, 1300–1999)
 
+:::kernidee
+Eine ACL ist eine **von oben nach unten abgearbeitete Regelliste mit First-Match**: Der erste passende Eintrag entscheidet, alle folgenden werden ignoriert. Am Ende steht ein **unsichtbares \`deny any\`** — was keine \`permit\`-Regel trifft, fällt durch. Deshalb sind **Reihenfolge** (spezifisch vor allgemein) und **mindestens eine permit-Regel** alles.
+:::
+
+:::merke
+**Standard ACL = nahe ans Ziel, Extended ACL = nahe an die Quelle.** Standard filtert nur die Quell-IP — zu früh platziert würde sie *alle* Verbindungen dieser Quelle kappen. Extended kann genau matchen, also darf (und soll) sie unerwünschten Verkehr früh verwerfen.
+:::
+
 ### Wesentlich
 - Filtern **nur** anhand der **Quell-IP**.
 - Kein Schutz vor spezifischen Diensten (kein Port-Match möglich).
@@ -91,6 +99,10 @@ R1(config-if)# ip access-group 10 out
 R1# show access-lists 10
 R1# show ip interface GigabitEthernet0/1 | include access list
 \`\`\`
+
+:::check Eine ACL enthält nur \`access-list 10 deny host 192.168.1.50\`. Was passiert mit allen anderen Hosts?
+**Alle werden blockiert.** Nach dem expliziten \`deny\` greift das unsichtbare \`deny any\` am Listenende — es gibt keine einzige \`permit\`-Regel. Korrekt wäre, nach dem deny ein \`permit any\` (bzw. \`permit 192.168.1.0 0.0.0.255\`) zu ergänzen.
+:::
   `.trim(),
 };
 
@@ -226,6 +238,10 @@ export const CONCEPT_PORT_SECURITY: Concept = {
   content: `
 ## Port Security
 
+:::kernidee
+Port Security bindet einen Access-Port an **bekannte MAC-Adressen** — so kann niemand einfach das PC-Kabel abziehen und sein eigenes Gerät (oder einen Mini-Switch) anstecken. Die **Violation-Aktion** entscheidet, was bei einem Fremdgerät passiert. \`sticky\` lernt die erlaubte MAC automatisch und schreibt sie in die running-config (also \`wr\` nicht vergessen).
+:::
+
 Begrenzt MAC-Adressen auf einem Access-Port.
 
 ### Konfiguration
@@ -245,6 +261,10 @@ SW# show port-security interface GigabitEthernet0/1
 | shutdown | Port geht in err-disabled (Standard) |
 | restrict | Verwirft Frames, erhöht Counter, keine Abschaltung |
 | protect | Verwirft Frames, kein Counter, keine Abschaltung |
+
+:::falle
+Im Default-Modus **shutdown** geht der Port bei Verletzung in **err-disabled** — und bleibt dort, bis er manuell (\`shutdown\`/\`no shutdown\`) oder per \`errdisable recovery\` zurückgeholt wird. „Port ist tot nach Gerätetausch" ist meist genau das. \`protect\` vs. \`restrict\`: beide blockieren, aber nur **restrict** zählt/loggt.
+:::
 
 ### DHCP Snooping (Wiederholung)
 Verhindert Rogue-DHCP-Server → Details im DHCP-Topic
