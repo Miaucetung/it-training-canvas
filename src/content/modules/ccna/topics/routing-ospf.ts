@@ -476,70 +476,93 @@ export const CONCEPT_OSPF: Concept = {
     "area",
   ],
   content: `
-## OSPF (OSPFv2, RFC 2328)
+## OSPF — Open Shortest Path First (OSPFv2, RFC 2328)
 
-OSPF ist ein **Link-State-Routing-Protokoll** (IGP) mit Dijkstra SPF-Algorithmus.
+:::kernidee
+OSPF ist ein **Link-State**-Protokoll: Jeder Router lernt die **komplette Karte** seiner Area — wer mit wem über welche Leitung verbunden ist — und speichert sie **identisch** in seiner **LSDB**. Aus dieser gemeinsamen Karte berechnet **jeder Router selbst** mit dem **SPF-/Dijkstra-Algorithmus** den kürzesten Weg. Kein Router glaubt einem Nachbarn blind (anders als RIP) — alle rechnen auf denselben Fakten.
+:::
 
-### OSPF-Konzepte
-- **Router-ID**: Eindeutige 32-Bit-ID (höchste IP oder manuell)
-- **Neighbor**: OSPF-Router die direkt benachbart sind (Hello-Pakete)
-- **Adjacency**: Vollständig synchronisierter Nachbar (Full State)
-- **LSA (Link State Advertisement)**: Routerinformationen
-- **LSDB (Link State Database)**: Alle LSAs eines Bereichs
-- **SPF-Algorithmus**: Berechnet Shortest Path Tree
+:::analogie
+Wie ein **Stau-Navi**: Alle Autos laden dieselbe Straßenkarte samt aktueller Sperrungen, jedes Navi rechnet daraus **selbst** die schnellste Route. Fällt eine Straße aus, bekommen alle das Update und rechnen neu. RIP wäre dagegen „dem Auto vor dir hinterherfahren" — du kennst nur die Distanz, nicht die Karte.
+:::
+
+### So arbeitet OSPF — in 4 Schritten
+1. **Hello** (Multicast 224.0.0.5): Nachbarn finden sich und prüfen, ob sie zusammenpassen (Area, Timer, Subnetz, Authentifizierung).
+2. **Adjacency**: Passende Nachbarn synchronisieren ihre Datenbank → Zustand **Full**.
+3. **LSDB aufbauen**: Jeder flutet **LSAs** (seine Links) in die Area — am Ende hat **jeder dieselbe Karte**.
+4. **SPF rechnen**: Aus der LSDB berechnet jeder den **Shortest Path Tree** und füllt die Routing-Tabelle.
+
+### Zentrale Begriffe
+- **Router-ID (RID)** — eindeutige 32-Bit-ID des Routers (Wahl/Tiebreaker → [[ospf-dr-bdr]])
+- **Neighbor** — direkt erreichbarer OSPF-Router (per Hello entdeckt)
+- **Adjacency** — vollständig synchronisierter Nachbar (Zustand Full)
+- **LSA** — ein „Karten-Eintrag" (ein Router/Link); **LSDB** = alle LSAs der Area
+- **Area** — abgegrenzter Kartenbereich; begrenzt SPF-Läufe und LSA-Flutung
 
 :::slide:ospf-basics:::
 
-### OSPF-Metrik: Cost
-Cost = Referenzbandbreite ÷ Interface-Bandbreite (Ergebnis auf ganze Zahl abgerundet, Minimum 1)
+### Metrik: Cost
+\`Cost = Referenzbandbreite ÷ Interface-Bandbreite\` (abgerundet, Minimum 1). Der Pfad mit dem **niedrigsten Gesamt-Cost** gewinnt.
 
-**⚠️ Standard-Fallstrick: Default-Referenzbandbreite = 100 Mbit/s**
-Alle Links ab 100 Mbit/s aufwärts bekommen dieselbe Cost **1**:
+:::falle
+**Default-Referenzbandbreite = 100 Mbit/s.** Damit bekommt **alles ab 100 Mbit/s denselben Cost 1** — FastEthernet, GigabitEthernet und 10-GigE sind für OSPF **ununterscheidbar**, es wählt womöglich die langsamere Leitung.
+:::
 
-| Interface | Bandbreite | Cost (Default ref-bw 100M) | Cost (ref-bw 100000 = 100G) |
-|-----------|-----------|---------------------------|----------------------------|
-| Serial | 1.544 Mbit/s | 64 | 64.772 → 64 |
+| Interface | Bandbreite | Cost (Default 100M) | Cost (ref-bw 100000 = 100G) |
+|-----------|-----------|---------------------|-----------------------------|
+| Serial | 1.544 Mbit/s | 64 | 64766 |
 | FastEthernet | 100 Mbit/s | **1** | 1000 |
 | GigabitEthernet | 1 Gbit/s | **1** | 100 |
-| 10GigabitEthernet | 10 Gbit/s | **1** | 10 |
+| 10-GigE | 10 Gbit/s | **1** | 10 |
 
-→ OSPF kann standardmäßig nicht zwischen FastEthernet, GigE und 10GigE unterscheiden!
+:::merke
+\`auto-cost reference-bandwidth 100000\` **auf allen Routern der Area gleich** setzen — sonst entstehen durch unterschiedliche Cost-Werte asymmetrische Pfade.
+:::
 
-**Lösung**: \`auto-cost reference-bandwidth 100000\` **konsistent auf allen Routern der Area**:
 \`\`\`
 R1(config-router)# auto-cost reference-bandwidth 100000
 \`\`\`
-Inkonsistente Werte über Routergrenzen hinweg führen zu asymmetrischem Routing.
 
-### OSPF-Nachbar-Zustände (Übersicht)
-Down → Init → 2-Way → ExStart → Exchange → Loading → **Full**
+:::check Warum berechnet bei OSPF jeder Router seine Routen selbst, statt die fertige Distanz vom Nachbarn zu übernehmen?
+Weil jeder Router die **identische LSDB** (die ganze Karte der Area) besitzt und daraus **lokal** mit SPF rechnet. Distanzvektor-Protokolle wie RIP übernehmen dagegen die fertige Distanz des Nachbarn („routing by rumor") — ohne die Topologie selbst zu kennen.
+:::
 
-Details siehe Konzept \`ospf-neighbor-states\`.
+### Nachbar-Zustände (Kurzform)
+\`Down → Init → 2-Way → ExStart → Exchange → Loading → Full\`
+
+Auf Broadcast-Segmenten ist **2-Way zwischen zwei DROther völlig normal** — nur DR/BDR werden Full. Vollständige State-Machine & Troubleshooting: [[ospf-neighbor-states]].
 
 ### Designated Router (DR) & Backup DR (BDR)
-Details und Wahlkriterien → Konzept \`ospf-dr-bdr\`.
-- Höchste Priorität (default 1) → DR, Zweithöchste → BDR
-- \`ip ospf priority 0\` = niemals DR/BDR
-- **Non-Preemptive**: Neuer Router mit höherer Priorität verdrängt bestehenden DR **nicht** automatisch
+Auf Broadcast-Segmenten wählen die Router einen **DR** (+ **BDR**), damit nicht jeder mit jedem synchronisiert. Wahl: höchste **Priority** (Default 1), bei Gleichstand höchste **RID**. \`ip ospf priority 0\` = nie DR/BDR.
+
+:::falle
+Die DR/BDR-Wahl ist **non-preemptive**: Ein **neu** hinzugefügter Router mit höherer Priority (selbst 255) verdrängt einen bestehenden DR **nicht**. Erst dessen Ausfall oder \`clear ip ospf process\` erzwingt die Neuwahl. Komplette Mechanik + Beispiel: [[ospf-dr-bdr]].
+:::
 
 ### Single-Area OSPF (Area 0)
 \`\`\`
 R1(config)# router ospf 1
 R1(config-router)# router-id 1.1.1.1
 R1(config-router)# network 192.168.1.0 0.0.0.255 area 0
-R1(config-router)# passive-interface GigabitEthernet0/0  ! Kein OSPF Hello
-R1(config-router)# default-information originate         ! Default Route verteilen
+R1(config-router)# passive-interface GigabitEthernet0/0  ! kein Hello Richtung Hosts
+R1(config-router)# default-information originate         ! Default-Route verteilen
 
 R1# show ip ospf neighbor
 R1# show ip ospf database
 R1# show ip route ospf
 \`\`\`
 
-### Multi-Area OSPF
-- **Area 0 (Backbone)**: Alle anderen Areas müssen mit Area 0 verbunden sein
-- **ABR (Area Border Router)**: Verbindet zwei Areas
-- **ASBR (Autonomous System Boundary Router)**: Redistributiert externe Routen
-- Reduziert LSDB-Größe, lokalisiert SPF-Berechnungen
+### Multi-Area OSPF — warum überhaupt Areas?
+:::kernidee
+Eine riesige Area = eine riesige Karte → **jede** Topologie-Änderung lässt **alle** Router neu rechnen. **Areas** zerlegen die Karte: Ein Link-Flackern in Area 2 zwingt Area 1 **nicht** zur SPF-Neuberechnung. Die **Area 0 (Backbone)** ist das Rückgrat — **jede** andere Area muss an Area 0 angebunden sein.
+:::
+- **ABR (Area Border Router)** — sitzt zwischen Area 0 und einer anderen Area, fasst Routen zusammen (Type-3-LSA).
+- **ASBR (AS Boundary Router)** — bringt externe Routen (z. B. redistribuiert) in die OSPF-Domain.
+- Effekt: kleinere LSDB pro Area, lokal begrenzte SPF-Läufe. Welche Karte welcher Router flutet → [[ospf-lsa-types]].
+
+:::check Du hängst an ein Ethernet-Segment einen Router mit Priority 255 — er wird aber nicht DR. Warum, und wie erzwingst du die DR-Rolle?
+Die Wahl ist **non-preemptive**: Der bestehende DR bleibt, solange er lebt. \`clear ip ospf process\` auf dem Segment startet die Wahl neu — dann gewinnt die höchste Priority (255).
+:::
   `.trim(),
 };
 
@@ -566,10 +589,13 @@ Down → Init → 2-Way → ExStart → Exchange → Loading → Full
 | **Loading** | LSR / LSU für fehlende LSAs werden ausgetauscht | Nach vollständiger LSDB-Synchronisation |
 | **Full** | LSDB vollständig synchronisiert — SPF-Berechnung möglich | Stabil (Zielzustand) |
 
-### Wichtiger Sonderfall: 2-Way ist kein Fehler!
-- **DR/BDR** zu allen anderen Routern im Segment: Zustand **Full**
-- **DROther** zu anderen DROther-Routern: Zustand **2-Way** — das ist korrekt und gewollt
-- Prüfungsfrage: "Nachbar bleibt in 2-Way" → beide Router sind DROther (Priority 1, gleiche Priorität, kleinere Router-ID verliert)
+:::falle
+**2-Way ist kein Fehler.** DR/BDR sind zu allen anderen Routern **Full**; zwei **DROther** untereinander bleiben absichtlich bei **2-Way** (sie synchronisieren nur über DR/BDR). Die Prüfungsfrage „Nachbar bleibt in 2-Way" bedeutet daher fast immer: **beide sind DROther** — kein Handlungsbedarf.
+:::
+
+:::check Zwei Router auf demselben Ethernet hängen dauerhaft im Zustand 2-Way. Ist das ein Fehler?
+Nein — wenn beide **DROther** sind (also weder DR noch BDR), ist 2-Way der gewollte Endzustand. Nur DR↔alle und BDR↔alle müssen Full sein. Erst wenn ein **DR/BDR**-Paar nicht über 2-Way hinauskommt, liegt ein echtes Problem vor.
+:::
 
 ### Häufige Ursachen für blockierte Adjacency
 
@@ -609,6 +635,10 @@ export const CONCEPT_OSPF_DR_BDR: Concept = {
   content: `
 ## OSPF Designated Router (DR) und Backup DR (BDR)
 
+:::kernidee
+Auf einem geteilten Medium (Ethernet) würde **jeder mit jedem** synchronisieren — das skaliert quadratisch. OSPF wählt deshalb pro Segment einen **Sprecher (DR)** und einen Stellvertreter (**BDR**). Alle anderen melden ihre Updates nur an DR/BDR; der DR verteilt die Gesamtsicht. So bleibt der Overhead linear statt quadratisch.
+:::
+
 ### Warum DR/BDR?
 In einem Broadcast-Segment mit N Routern entstehen ohne DR/BDR: N×(N-1)/2 Adjacencies.
 Mit DR/BDR bildet jeder Router Adjacency nur mit DR und BDR → drastisch weniger Overhead.
@@ -628,13 +658,9 @@ R1(config-if)# ip ospf priority 100    ! Begünstigt DR-Wahl
 R1(config-if)# ip ospf priority 0      ! Schließt Router von DR/BDR aus
 \`\`\`
 
-### ⚠️ Non-Preemptive Wahl — der häufigste Prüfungs-Fallstrick!
-Wenn ein neuer Router mit höherer Priority ins Segment kommt:
-- Er wird **nicht** sofort DR — die Wahl ist **non-preemptive**
-- Bestehender DR bleibt bis zum nächsten Ausfall oder OSPF-Neustart
-- Nur wenn der aktuelle DR ausfällt, übernimmt der BDR die DR-Rolle und ein neuer BDR wird gewählt
-
-→ Ein neu hinzugefügter Router mit Priority 255 verdrängt den bestehenden DR nicht!
+:::falle
+**Non-Preemptive — der häufigste Prüfungs-Fallstrick.** Kommt ein neuer Router mit höherer Priority ins Segment, wird er **nicht** sofort DR. Der bestehende DR bleibt bis zu seinem Ausfall (oder \`clear ip ospf process\`); fällt er aus, rückt der BDR nach und ein neuer BDR wird gewählt. **Priority 255 verdrängt einen laufenden DR also nicht.**
+:::
 
 ### OSPF-Netzwerktypen
 | Typ | Beispiel | DR/BDR? | Hello-Interval |
@@ -739,6 +765,10 @@ export const CONCEPT_OSPF_LSA_TYPES: Concept = {
   tags: ["ospf", "lsa", "lsdb", "routing", "area"],
   content: `
 ## OSPF Link State Advertisements (LSAs)
+
+:::kernidee
+Ein **LSA** ist ein einzelner Karten-Eintrag: „Ich bin Router X und habe diese Links mit diesen Kosten." Die Summe aller LSAs einer Area = die **LSDB** = die vollständige Karte. Weil OSPF die LSAs flutet, haben am Ende **alle Router in der Area dieselbe LSDB** — die Voraussetzung dafür, dass jeder dieselben (schleifenfreien) SPF-Ergebnisse berechnet. Die LSA-**Typen** sagen nur, *wer* welchen Kartenteil beisteuert.
+:::
 
 Alle Router in einer Area haben **identische** LSDBs — das ist die Grundlage für konsistentes SPF-Routing.
 
