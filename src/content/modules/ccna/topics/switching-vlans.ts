@@ -12,6 +12,10 @@ export const CONCEPT_SWITCHING_BASICS: Concept = {
   content: `
 ## Switching-Grundlagen
 
+:::kernidee
+Ein Switch wird **nicht konfiguriert, um MACs zu kennen — er lernt sie selbst**: Aus jedem ankommenden Frame merkt er sich die **Quell-MAC + Eingangsport**. Ist die Ziel-MAC noch unbekannt, **flutet** er den Frame auf alle Ports (einmalig), die Antwort verrät dann den richtigen Port. So baut sich die MAC-Tabelle von allein auf — Switching ist „Lernen durch Zuhören".
+:::
+
 ### Wie lernt ein Switch?
 1. **Learning**: Bei Eingang eines Frames lernt der Switch die Quell-MAC + Port
 2. **Flooding**: Ziel-MAC unbekannt → Frame wird an alle Ports gesendet (außer Eingang)
@@ -51,6 +55,14 @@ export const CONCEPT_VLANS: Concept = {
   relatedConceptIds: ["vnet-subnet"],
   content: `
 ## VLANs
+
+:::kernidee
+Ein VLAN ist eine **Broadcast-Domäne in Software**. Statt für jede Abteilung einen eigenen Switch zu kaufen, zerlegst du **einen** Switch logisch: Ports in VLAN 10 hören nichts von Ports in VLAN 20 — als wären es getrennte physische Switches. Verkehr **zwischen** VLANs muss zwingend über ein Layer-3-Gerät (Router/L3-Switch), denn ein anderes VLAN = ein anderes Subnetz.
+:::
+
+:::analogie
+Wie ein Großraumbüro mit **schalldichten Trennwänden**: Ein Zuruf (Broadcast) in Abteilung A bleibt in A. Will jemand aus A mit B sprechen, muss er durch die **Tür** (Router) — die Trennwände selbst (Switch) lassen keinen direkten Durchgang zu.
+:::
 
 ### Was sind VLANs?
 - Logische Segmentierung auf Layer 2, unabhängig von physischer Verkabelung
@@ -97,6 +109,10 @@ SW(config-if)# switchport trunk allowed vlan 10,20,30
 SW# show vlan brief
 SW# show interfaces trunk
 \`\`\`
+
+:::check Ein PC in VLAN 10 (Switch A) erreicht einen PC in VLAN 10 (Switch B) nicht, obwohl beide im selben VLAN sind. Was fehlt am wahrscheinlichsten?
+Der **Trunk** zwischen den Switches trägt VLAN 10 nicht — entweder ist der Port kein Trunk, oder VLAN 10 fehlt in \`switchport trunk allowed vlan\`, oder VLAN 10 existiert auf einem der Switches gar nicht. Innerhalb desselben VLAN braucht es keinen Router, aber der Tag muss über den Trunk transportiert werden.
+:::
   `.trim(),
 };
 
@@ -114,7 +130,9 @@ export const CONCEPT_STP: Concept = {
 - Den Unterschied zwischen **STP (802.1D)** und **RSTP (802.1w)** in einem Satz erklären.
 - **PortFast** und **BPDU Guard** sinnvoll einsetzen.
 
-> 💡 **Tipp:** Öffne nach der Theorie den **interaktiven STP-Simulator** unten – dort wählst du selbst die Root Bridge, beobachtest die BPDU-Wahl und siehst, wie RSTP in <1 s konvergiert.
+:::tipp
+Öffne nach der Theorie den **interaktiven STP-Simulator** unten – dort wählst du selbst die Root Bridge, beobachtest die BPDU-Wahl und siehst, wie RSTP in <1 s konvergiert.
+:::
 
 ---
 
@@ -130,7 +148,9 @@ Stell dir vor, du verbindest drei Switches zu einem **Dreieck** (für Redundanz 
 | 🔀 **MAC-Flapping** | Switches sehen dieselbe Quell-MAC abwechselnd auf zwei Ports → MAC-Tabelle instabil. |
 | 👯 **Frame-Duplikate** | Empfänger erhalten jedes Paket 2× / 3× / N× – TCP bricht ein. |
 
-> ⚠️ **Wichtig:** Ethernet-Frames haben **keine TTL** wie IP. Ein Loop ist deshalb ewig. Genau diese Lücke schließt STP.
+:::falle
+Ethernet-Frames haben **keine TTL** wie IP-Pakete. Ein Layer-2-Loop läuft deshalb **ewig** — nichts zählt ihn herunter. Genau diese Lücke schließt STP. (Das ist auch die Antwort auf „warum explodiert ein L2-Loop, ein L3-Loop aber nicht?".)
+:::
 
 **Lösung in einem Satz:** STP schaltet so viele Ports auf „Blocking", dass aus dem physischen Maschen­netz ein logischer **Baum** ohne Kreise wird – fällt ein Link aus, wird ein blockierter Port automatisch aktiviert.
 
@@ -178,7 +198,9 @@ Sobald die Root Bridge feststeht, bekommt **jeder Port** genau eine Rolle:
 | 10 Gbit/s | 2 |
 | 100 Gbit/s | 1 |
 
-> 📝 **Merke:** Cost wird über jeden Hop **addiert**, nicht multipliziert.
+:::merke
+STP-Pfadkosten werden über jeden Hop **addiert**, nicht multipliziert. Der Root Port ist der Port mit der **niedrigsten kumulierten Cost zur Root** — nicht der physisch kürzeste.
+:::
 
 ### Tie-Breaker — was, wenn zwei Pfade gleich teuer sind?
 
@@ -251,7 +273,9 @@ SW(config-if)# switchport mode access
 SW(config-if)# spanning-tree portfast
 \`\`\`
 
-> ⚠️ **Gefahr:** Steckt jemand statt eines PCs einen *Switch* in den PortFast-Port → sofortiger Loop!
+:::falle
+Steckt jemand statt eines PCs einen **Switch** in einen PortFast-Port → sofortiger Loop, weil PortFast die Listening/Learning-Phase überspringt. Genau deshalb gehört **BPDU Guard immer zu PortFast**.
+:::
 
 **Lösung — BPDU Guard:** Empfängt der Port jemals eine BPDU (also: hängt da ein Switch), wird er sofort *err-disabled*:
 
@@ -370,6 +394,10 @@ Bündelt mehrere physische Links zu einem logischen Link.
 | active | active | ✅ EtherChannel |
 | active | passive | ✅ EtherChannel |
 | passive | passive | ❌ Kein EtherChannel |
+
+:::falle
+**passive/passive bildet KEINEN EtherChannel** — beide warten nur, keiner startet die Aushandlung. Mindestens eine Seite muss **active** sein. Analog bei PAgP: **auto/auto** ergibt ebenfalls nichts; mindestens eine Seite **desirable**.
+:::
 
 ### Cisco Konfiguration
 \`\`\`

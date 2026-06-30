@@ -25,13 +25,9 @@ export const CONCEPT_VLAN_BROADCAST_PROBLEM: Concept = {
 
 ---
 
-## 📢 Anker — Großraumbüro-Analogie
-
-Stell dir ein Büro mit 100 Mitarbeitern vor, alle in einem einzigen Raum ohne Trennwände. Wenn jemand laut ruft "Wer hat meinen Locher?", muss jeder innehalten und zuhören — selbst die, die den Locher nicht haben. Das ist eine **Broadcast-Domäne**: Ein Gerät sendet, alle anderen müssen verarbeiten.
-
-VLANs = **Trennwände im Büro**: Verschiedene Abteilungen in verschiedenen Räumen. Der Buchhalter hört nicht mehr, was der Entwickler fragt.
-
----
+:::analogie
+Ein Büro mit 100 Mitarbeitern in **einem** Raum ohne Trennwände: Ruft jemand „Wer hat meinen Locher?", müssen alle innehalten und zuhören — auch die, die ihn nicht haben. Das ist eine **Broadcast-Domäne**: einer sendet, alle verarbeiten. **VLANs = Trennwände**: Abteilungen in getrennten Räumen — der Buchhalter hört nicht mehr, was der Entwickler ruft.
+:::
 
 :::slide:vlan-segmentation:::
 
@@ -118,11 +114,9 @@ export const CONCEPT_DOT1Q_TAGGING: Concept = {
 
 ---
 
-## 🔬 Anker — Gepäckaufkleber-Analogie
-
-Stell dir einen Flughafen vor: Alle Koffer landen auf demselben Gepäckband (= Trunk-Link). Damit die richtigen Koffer zur richtigen Schalterhalle kommen, bekommt jeder Koffer einen Aufkleber mit der Ziel-ID. Genau das macht 802.1Q: Es klebt einen Aufkleber (Tag) an jeden Ethernet-Frame.
-
----
+:::analogie
+Alle Koffer landen auf demselben **Gepäckband** (= Trunk-Link). Damit die richtigen Koffer zur richtigen Schalterhalle kommen, trägt jeder einen **Aufkleber mit Ziel-ID**. Genau das macht 802.1Q: Es klebt einen Tag (VLAN-ID) an jeden Frame, der über den Trunk geht.
+:::
 
 ## Ethernet-Frame-Aufbau mit 802.1Q-Tag
 
@@ -183,10 +177,12 @@ Gi0/24      on               802.1q         trunking      999
 
 ---
 
-> ⚠️ **Achtung-Falle**: **Native VLAN ≠ Default VLAN!**
-> - **Default VLAN** = VLAN 1, dem alle Ports nach dem Reset zugewiesen sind
-> - **Native VLAN** = das VLAN, das auf Trunk-Ports *ohne* Tag übertragen wird (konfigurierbar)
-> - Beide sind standardmäßig VLAN 1 — das führt zur Verwechslung!
+:::falle
+**Native VLAN ≠ Default VLAN!**
+- **Default VLAN** = VLAN 1, dem alle Ports nach dem Reset zugewiesen sind.
+- **Native VLAN** = das VLAN, das auf Trunk-Ports *ohne* Tag übertragen wird (konfigurierbar).
+- Beide sind standardmäßig VLAN 1 — daher die Verwechslung.
+:::
 
 > ⚠️ **Achtung-Falle**: **Native VLAN Mismatch** — wenn SW1 Native VLAN 1 und SW2 Native VLAN 999 konfiguriert hat, erscheinen CDP-Fehlermeldungen und Traffic wird im falschen VLAN empfangen. Cisco gibt eine explizite Warnung aus:
 \`\`\`
@@ -259,7 +255,9 @@ Port        Vlans allowed and active in management domain
 Gi0/24      10,20,30
 \`\`\`
 
-> ⚠️ **Achtung-Falle**: Standardmäßig erlaubt ein Trunk-Port **alle VLANs (1–4094)**. Aus Sicherheitsgründen sollte immer explizit mit \`switchport trunk allowed vlan\` eingeschränkt werden — nur die tatsächlich benötigten VLANs erlauben!
+:::falle
+Standardmäßig erlaubt ein Trunk-Port **alle VLANs (1–4094)**. Immer explizit mit \`switchport trunk allowed vlan\` einschränken — nur die wirklich benötigten VLANs, sonst unnötige Angriffsfläche und Broadcast-Last.
+:::
 
 ---
 
@@ -336,7 +334,9 @@ VLAN Name         Status    Ports
 1    default      active    [alle nicht zugewiesenen Ports]
 \`\`\`
 
-> ⚠️ **Achtung-Falle**: VLAN 1 sollte **nicht** für User-Daten genutzt werden — es ist zu stark exponiert (Management-Protokolle, Native-VLAN-Standard). Best Practice: VLAN 1 leer lassen, alle Ports in dedizierte VLANs verschieben.
+:::falle
+VLAN 1 **nicht** für User-Daten nutzen — es ist zu stark exponiert (Management-Protokolle CDP/VTP/DTP, Native-VLAN-Standard). Best Practice: VLAN 1 leer lassen, alle Ports in dedizierte VLANs verschieben.
+:::
 
 ---
 
@@ -473,7 +473,9 @@ Das **802.1Q-Tag** existiert nur auf dem Trunk: Access-Ports senden/empfangen im
                        └── auf dem Trunk eingefügt ──┘
 \`\`\`
 
-> **Merksatz:** Auf dem Weg durch R1 **wechselt das VLAN-Tag 10 ⇄ 20**. Der Router ist der einzige Punkt, der die VLAN-Grenze (= Subnetz-Grenze) überschreitet — der Switch tagged bzw. untagged nur.
+:::merke
+Auf dem Weg durch R1 **wechselt das VLAN-Tag 10 ⇄ 20**. Der Router ist der **einzige** Punkt, der die VLAN-Grenze (= Subnetz-Grenze) überschreitet — der Switch tagged/untagged nur. Kein L3-Gerät im Pfad = kein Inter-VLAN-Verkehr.
+:::
 
 **Nachteil ROAS**: Der Trunk-Link ist ein Engpass ("Stau auf der Einbahnstraße"). Aller Inter-VLAN-Traffic teilt sich diesen einen physischen Link — bei einem 48-Port-Switch mit 20 VLANs läuft alles über eine einzige Leitung.
 
@@ -575,11 +577,12 @@ Troubleshooting-Reihenfolge: (1) Parent-Interface \`up/up\`? (2) Subinterface-\`
 
 ---
 
-## ⚠️ Häufige Fehler & Prüfungsfallen
-
-- ⚠️ **\`encapsulation dot1q\` vergessen oder falsche VLAN-ID:** Ohne den Befehl weiß das Subinterface nicht, welches VLAN-Tag es bearbeitet — es bleibt funktionslos. In Prüfungsfragen wird gern eine \`ip address\` auf dem Subinterface gezeigt, aber die \`encapsulation\`-Zeile fehlt → kein Inter-VLAN-Routing.
-- ⚠️ **IP-Adresse auf dem physischen Parent statt auf dem Subinterface:** Das Parent (\`Gi0/0\`) muss \`no ip address\` haben. Eine IP dort gehört zu keinem VLAN-Tag und das Routing schlägt fehl.
-- ⚠️ **Parent-Interface im \`shutdown\`:** Vergisst man \`no shutdown\` auf dem physischen Interface, sind **alle** Subinterfaces down — egal wie korrekt sie konfiguriert sind. Ebenso klassisch: Native-VLAN-Mismatch zwischen Router-Subinterface (\`encapsulation dot1q 999 native\`) und Switch-Trunk (\`switchport trunk native vlan 999\`).
+:::falle
+Häufige ROAS-Fehler & Prüfungsfallen:
+- **\`encapsulation dot1q\` vergessen / falsche VLAN-ID:** Ohne diesen Befehl weiß das Subinterface nicht, welches Tag es bearbeitet. In Prüfungen wird gern die \`ip address\` gezeigt, aber die \`encapsulation\`-Zeile fehlt → kein Routing.
+- **IP auf dem physischen Parent statt auf dem Subinterface:** Das Parent (\`Gi0/0\`) braucht \`no ip address\`; eine IP dort gehört zu keinem VLAN-Tag.
+- **Parent im \`shutdown\`:** ohne \`no shutdown\` am physischen Interface sind **alle** Subinterfaces down — egal wie korrekt sie sind. Ebenso klassisch: Native-VLAN-Mismatch Router-Subinterface ⇄ Switch-Trunk.
+:::
   `.trim(),
 };
 
@@ -632,7 +635,9 @@ Device ID                       : 0023.34ca.c200
 Configuration last modified by 0.0.0.0 at 3-1-93 00:00:00
 \`\`\`
 
-> ⚠️ **KRITISCHE Achtung-Falle**: VTP kann ein ganzes Netzwerk zerstören! Wenn ein neuer Switch mit einer **höheren VTP-Revision** (auch wenn er leer ist) an einen VTP-Server angeschlossen wird, überschreibt er alle VLAN-Datenbanken. **Alle VLANs können in Sekunden gelöscht werden.** Best Practice: VTP Transparent Mode oder VTP v3 mit Passwort.
+:::falle
+**VTP kann ein ganzes Netzwerk zerstören.** Ein neuer Switch mit **höherer VTP-Revision** (selbst wenn er leer ist) überschreibt beim Anstecken an einen VTP-Server **alle** VLAN-Datenbanken — alle VLANs sind in Sekunden weg. Schutz: VTP Transparent Mode oder VTP v3 mit Passwort; **neue Switches immer auf Revision 0 zurücksetzen** (Domain umbenennen oder Transparent→Server).
+:::
 
 ---
 
@@ -650,7 +655,9 @@ DTP ist ein weiteres **Cisco-proprietäres Protokoll**, das Ports automatisch al
 | \`access\` | Immer Access | Access ✅ | Access ✅ |
 | \`nonegotiate\` | Kein DTP | – | – |
 
-> ⚠️ **Achtung-Falle**: Der Standard-Modus auf vielen Cisco-Switches ist **\`dynamic auto\`** — der Port wird zum Trunk, sobald die Gegenseite Trunk möchte. Das ist ein **Sicherheitsrisiko (VLAN Hopping)**!
+:::falle
+Der Standard-Modus vieler Cisco-Switches ist **\`dynamic auto\`** — der Port wird automatisch zum Trunk, sobald die Gegenseite das will. Ein angesteckter Laptop, der DTP spricht, kann so einen Trunk erzwingen → **VLAN Hopping**. Deshalb Access-Ports immer hart auf \`switchport mode access\` + \`switchport nonegotiate\` setzen.
+:::
 
 **Empfehlung**: DTP grundsätzlich deaktivieren:
 \`\`\`
@@ -858,13 +865,13 @@ interface GigabitEthernet 1/0/24
 
 ## Achtung-Fallen Zusammenfassung
 
-> ⚠️ **Native VLAN ≠ Default VLAN** — VLAN 1 ist beides (Standard), aber sie haben verschiedene Bedeutungen und sollten getrennt konfiguriert werden.
-
-> ⚠️ **\`ip routing\` vergessen** — Ohne diesen Befehl auf dem L3-Switch findet kein Inter-VLAN-Routing statt, SVIs sind trotzdem konfigurierbar.
-
-> ⚠️ **Trunk erlaubt alle VLANs** — Standard-Trunk trägt VLANs 1–4094. Immer mit \`switchport trunk allowed vlan\` einschränken.
-
-> ⚠️ **VTP ohne Passwort + höhere Revision = Datenverlust** — Neuer Switch im VTP-Server-Modus mit Revision > aktueller überschreibt alle VLAN-Datenbanken.
+:::falle
+Die vier teuersten VLAN-Prüfungs- und Praxisfallen:
+- **Native VLAN ≠ Default VLAN** — beide sind standardmäßig VLAN 1, bedeuten aber Verschiedenes; getrennt konfigurieren.
+- **\`ip routing\` vergessen** — ohne diesen Befehl auf dem L3-Switch kein Inter-VLAN-Routing, obwohl die SVIs konfiguriert *aussehen*.
+- **Trunk erlaubt alle VLANs** — Standard-Trunk trägt 1–4094; immer mit \`switchport trunk allowed vlan\` einschränken.
+- **VTP ohne Passwort + höhere Revision = Datenverlust** — neuer Server-Switch mit höherer Revision überschreibt alle VLAN-Datenbanken.
+:::
 
 ---
 
