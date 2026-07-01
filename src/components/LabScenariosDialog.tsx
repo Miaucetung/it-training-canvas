@@ -4112,6 +4112,252 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // Statisches NAT — 1:1-Adresszuordnung (Packet-Tracer-Topologie)
+  // Topologie: PC0/PC0(1)/PC0(2) → SW → NAT → ISP → INTERNET → Webserver
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "static-nat",
+    icon: <Globe size={20} />,
+    title: "Statisches NAT",
+    subtitle: "3 PCs · SW · NAT-Router · ISP · INTERNET · Webserver",
+    difficulty: "Mittel",
+    duration: "25 min",
+    context: {
+      problem:
+        "Ein Server im LAN (z. B. ein Webserver oder RDP-Host) muss permanent unter einer festen öffentlichen IP erreichbar sein — PAT und Dynamic NAT vergeben Adressen zufällig oder nur für ausgehende Verbindungen.",
+      purpose:
+        "Statisches NAT legt eine unveränderliche 1:1-Zuordnung zwischen einer privaten (Inside Local) und einer öffentlichen (Inside Global) Adresse fest. Der Eintrag existiert dauerhaft in der NAT-Tabelle — auch ohne aktive Verbindung. Damit sind eingehende Verbindungen von außen möglich, was bei PAT nicht geht.",
+    },
+    topology: {
+      description:
+        "Drei PCs hängen an einem Switch im Netz 192.168.1.0/24. Der NAT-Router trennt das private LAN vom öffentlichen 200.0.0.0/24-Netz. Dahinter simuliert ein ISP-Router + INTERNET-Router das Kernnetz; ein Webserver (47.11.8.15) stellt das Internet dar.",
+      devices: [
+        { type: "pc",     label: "PC0  (192.168.1.10/24)",  count: 1 },
+        { type: "pc",     label: "PC0(1) (192.168.1.11/24)", count: 1 },
+        { type: "pc",     label: "PC0(2) (192.168.1.12/24)", count: 1 },
+        { type: "switch", label: "SW (Layer-2, kein Config)", count: 1 },
+        { type: "router", label: "NAT-Router",               count: 1 },
+        { type: "router", label: "ISP",                      count: 1 },
+        { type: "router", label: "INTERNET",                 count: 1 },
+        { type: "server", label: "Webserver (47.11.8.15/24)", count: 1 },
+      ],
+      connections: [
+        "PC0 / PC0(1) / PC0(2) → SW  (192.168.1.0/24)",
+        "SW Gig0/1 → NAT Gig0/0  (inside, 192.168.1.1/24)",
+        "NAT Gig0/1 → ISP Gig0/1  (200.0.0.253 ↔ 200.0.0.254, /24)",
+        "ISP Gig0/2 → INTERNET Gig0/2  (1.1.1.1 ↔ 1.1.1.2, /30)",
+        "INTERNET Gig0/0 → Webserver Fa0  (47.11.8.1 ↔ 47.11.8.15, /24)",
+      ],
+      hint: "NAT Gig0/0 = ip nat inside (LAN), NAT Gig0/1 = ip nat outside (WAN). Die öffentlichen IPs 200.0.0.10–.12 müssen im ISP-Kernnetz routbar sein — der INTERNET-Router braucht eine Rückroute.",
+    },
+    steps: [
+      {
+        title: "1) IP-Adressen auf allen Geräten vergeben",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0 – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      192.168.1.10\nMaske:   255.255.255.0\nGateway: 192.168.1.1",
+                explanation:
+                  "Statische IP-Konfiguration auf PC0. Gateway zeigt auf den NAT-Router (inside-Interface). Gleiche Vorgehensweise für PC0(1) mit .11 und PC0(2) mit .12.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "interface",
+            modeLabel: "NAT(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/0\n ip address 192.168.1.1 255.255.255.0\n ip nat inside\n no shutdown",
+                explanation:
+                  "LAN-seitiges Interface — 'ip nat inside' markiert es als die vertrauenswürdige Seite. Pakete, die hier ankommen, werden gegen die statische NAT-Tabelle geprüft.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.253 255.255.255.0\n ip nat outside\n no shutdown",
+                explanation:
+                  "'ip nat outside' markiert das WAN-Interface. Übersetzte Pakete verlassen das Netz hier mit der öffentlichen Inside-Global-Adresse.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "interface",
+            modeLabel: "ISP(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.254 255.255.255.0\n no shutdown\ninterface GigabitEthernet0/2\n ip address 1.1.1.1 255.255.255.252\n no shutdown",
+                explanation:
+                  "ISP verbindet NAT-Router (Gi0/1, 200.0.0.x) und INTERNET-Router (Gi0/2, 1.1.1.0/30). /30 auf dem Transit-Link = 2 nutzbare Adressen, ideale P2P-Strecke.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "interface",
+            modeLabel: "INTERNET(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 1.1.1.2 255.255.255.252\n no shutdown\ninterface GigabitEthernet0/0\n ip address 47.11.8.1 255.255.255.0\n no shutdown",
+                explanation:
+                  "INTERNET-Router: Transit-Seite zum ISP (.2 im /30) und LAN-Seite zum Webserver (47.11.8.x/24).",
+              },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Webserver – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      47.11.8.15\nMaske:   255.255.255.0\nGateway: 47.11.8.1",
+                explanation:
+                  "Der Webserver braucht eine statische öffentliche IP. Gateway zeigt auf den INTERNET-Router.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) Statische NAT-Einträge anlegen",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip nat inside source static 192.168.1.10 200.0.0.10\nip nat inside source static 192.168.1.11 200.0.0.11\nip nat inside source static 192.168.1.12 200.0.0.12",
+                explanation:
+                  "Jeder Befehl legt eine permanente 1:1-Zuordnung an:\n  Inside Local  →  Inside Global\n  192.168.1.10  →  200.0.0.10\n  192.168.1.11  →  200.0.0.11\n  192.168.1.12  →  200.0.0.12\nDieser Eintrag existiert immer in der NAT-Tabelle — unabhängig davon, ob der Host gerade kommuniziert. Eingehende Verbindungen an 200.0.0.10 landen direkt auf PC0.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Default-Route + Rückrouten konfigurieren",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.254",
+                explanation:
+                  "Default-Route: Alles, was der NAT-Router nicht kennt, schickt er zum ISP (.254). Nach der Übersetzung verlässt das Paket das Netz über Gi0/1 mit der Inside-Global-Adresse.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "global",
+            modeLabel: "ISP(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.2",
+                explanation:
+                  "ISP-Default-Route zum INTERNET-Router. Antwortpakete vom Webserver (Ziel: 200.0.0.x) kommen über diesen Weg zurück.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "global",
+            modeLabel: "INTERNET(config)#",
+            commands: [
+              {
+                cmd: "ip route 200.0.0.0 255.255.255.0 1.1.1.1",
+                explanation:
+                  "Kritische Rückroute! Der INTERNET-Router muss wissen, dass 200.0.0.0/24 über den ISP (.1) erreichbar ist — sonst wirft er Antwortpakete weg (Inside-Global-Adressen sind nicht direkt verbunden).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Konnektivität testen",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC0> ",
+            commands: [
+              {
+                cmd: "ping 47.11.8.15",
+                explanation:
+                  "PC0 (192.168.1.10) sendet ICMP. Der NAT-Router übersetzt die Quelle auf 200.0.0.10 (Inside Global) und leitet weiter. Webserver antwortet an 200.0.0.10, NAT übersetzt zurück auf 192.168.1.10.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "privileged",
+            modeLabel: "NAT#",
+            commands: [
+              {
+                cmd: "show ip nat translations",
+                explanation:
+                  "Zeigt drei dauerhafte Einträge (auch ohne Ping):\n  Pro --- 192.168.1.10  200.0.0.10  ---  ---\nNach einem Ping kommen ICMP-Einträge mit Timestamps hinzu:\n  icmp 192.168.1.10:x  200.0.0.10:x  47.11.8.15:x  47.11.8.15:x\nGenau dieser Unterschied zu Dynamic NAT / PAT ist Prüfungsinhalt!",
+              },
+              {
+                cmd: "show ip nat statistics",
+                explanation:
+                  "Zeigt: Translations total, inside/outside Interfaces, Hits und Misses. Bei statischem NAT: 'static mappings' immer > 0. Misses deuten auf fehlende ip nat inside/outside-Markierung hin.",
+              },
+              {
+                cmd: "debug ip nat",
+                explanation:
+                  "Zeigt jede Übersetzung in Echtzeit:\n  NAT: s=192.168.1.10->200.0.0.10, d=47.11.8.15\nZum Beenden: 'undebug all'. Nur in Lab-Umgebungen verwenden — produktiv zu laut.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Eingehende Verbindung testen (Besonderheit Static NAT)",
+        blocks: [
+          {
+            device: "Webserver",
+            mode: "cli",
+            modeLabel: "Webserver> ",
+            commands: [
+              {
+                cmd: "ping 200.0.0.10",
+                explanation:
+                  "Der Webserver initiiert eine Verbindung an die öffentliche IP 200.0.0.10. Der NAT-Router übersetzt das Ziel 200.0.0.10 → 192.168.1.10 und leitet ins LAN. Das funktioniert NUR mit Static NAT — PAT kann eingehende Verbindungen nicht zuordnen, da kein Port-Mapping vorhanden ist.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show ip nat translations", expected: "3 statische Einträge (Pro-Zeilen) dauerhaft sichtbar, auch ohne aktiven Traffic" },
+      { cmd: "show ip nat statistics", expected: "Total active translations: 3 static; Hits steigen bei Ping" },
+      { cmd: "ping 47.11.8.15 (von PC0)", expected: "Quelle 192.168.1.10 → 200.0.0.10 in der NAT-Tabelle sichtbar" },
+      { cmd: "ping 200.0.0.10 (vom Webserver)", expected: "Eingehende Verbindung landet auf PC0 — nur möglich mit Static NAT" },
+      { cmd: "debug ip nat", expected: "s=192.168.1.10->200.0.0.10 für jedes Paket von PC0" },
+    ],
+    glossary: [
+      { term: "Statisches NAT",       def: "Permanente 1:1-Zuordnung: eine private Inside-Local-Adresse ↔ eine feste öffentliche Inside-Global-Adresse." },
+      { term: "Inside Local",         def: "Die private IP des Hosts im LAN (vor der Übersetzung, z. B. 192.168.1.10)." },
+      { term: "Inside Global",        def: "Die öffentliche IP nach der Übersetzung (z. B. 200.0.0.10) — sichtbar im Internet." },
+      { term: "Outside Global",       def: "Die IP des externen Hosts (Webserver 47.11.8.15) — bleibt unverändert." },
+      { term: "ip nat inside source static",  def: "Konfiguriert einen statischen NAT-Eintrag: ip nat inside source static <priv> <pub>." },
+      { term: "ip nat inside",        def: "Markiert das LAN-Interface als vertrauenswürdige Seite." },
+      { term: "ip nat outside",       def: "Markiert das WAN-Interface als öffentliche Seite." },
+      { term: "Eingehende Verbindung", def: "Static NAT ermöglicht Verbindungen von außen nach innen (z. B. Webserver→PC). PAT kann das nicht." },
+      { term: "Rückroute (INTERNET)", def: "Der INTERNET-Router muss 200.0.0.0/24 über den ISP kennen — sonst werden Antwortpakete verworfen." },
+      { term: "debug ip nat",         def: "Zeigt jede Übersetzung in Echtzeit. Zum Beenden: 'undebug all'." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 22. NTP + Syslog + SNMPv3
   // ─────────────────────────────────────────────────────────────
   {
@@ -6905,6 +7151,7 @@ const LAB_ORDER: string[] = [
   "dhcp-relay",           // ip helper-address — braucht VLAN + Routing-Verständnis
   "nat-pat",              // PAT/Overload — braucht Routing-Grundverständnis
   "dynamic-nat",          // NAT-Pool — Variante zu PAT
+  "static-nat",           // 1:1 Static NAT — feste Zuordnung, eingehende Verbindungen möglich
   "ntp-syslog-snmp",      // Management-Protokolle
   "hsrp",                 // FHRP — braucht Routing + Redundanz-Konzept
   "gre-tunnel",           // Site-to-Site VPN über Internet
