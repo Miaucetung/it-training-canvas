@@ -15,7 +15,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { TopicListPanel } from "@/components/TopicListPanel";
-import { SUBJECT_TO_MODULE_ID } from "@/App";
+import { SUBJECT_TO_MODULE_ID } from "@/constants";
 
 // ── Module mocks ─────────────────────────────────────────────
 // We mock content-loader so tests don't need the real registry dance.

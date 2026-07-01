@@ -33,6 +33,7 @@ import {
 } from "@/lib/canvas-utils";
 import { createTemplate } from "@/lib/collaboration-engine";
 import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
+import { SUBJECT_TO_MODULE_ID } from "@/constants";
 import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
   Annotation,
@@ -283,11 +284,7 @@ const CATALOG_SLUG_TO_SUBJECT: Record<string, string> = {
 };
 
 // Reverse map: Subject-ID → module ID (for TopicListPanel, Phase 6c-2)
-export const SUBJECT_TO_MODULE_ID: Record<string, string> = {
-  CCNA: "ccna",
-  "AZ-900": "az-900",
-  NetworkPlus: "comptia-network-plus",
-};
+// Defined in @/constants to avoid Fast Refresh issues.
 
 // New subjects from the catalog that aren't already in DEFAULT_SUBJECTS.
 // These are injected alongside legacy subjects so catalog modules appear in the Sidebar.
@@ -490,6 +487,7 @@ function App() {
       );
       if (hasContent) setShowWelcome(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1102,7 +1100,7 @@ function App() {
         prev && prev.id === id ? { ...prev, ...updates } : prev,
       );
     },
-    [currentSubject],
+    [currentSubject, setAppData],
   );
 
   const handleDeleteConnection = useCallback(
@@ -1130,7 +1128,7 @@ function App() {
       setSelectedConnection(null);
       toast.success("Verbindung gelöscht", { duration: 1500 });
     },
-    [currentSubject],
+    [currentSubject, setAppData],
   );
 
   // Phase 2: Handle shape configuration
@@ -1403,6 +1401,9 @@ function App() {
     currentSubject,
     appData,
     updateCanvasState,
+    getCurrentCanvasState,
+    handleToolChange,
+    showMiniMap,
   ]);
 
   // Helper function to get object bounds
@@ -1589,7 +1590,7 @@ function App() {
                   right: toolsMenuPos.right,
                   maxHeight: `calc(100vh - ${toolsMenuPos.top}px - 12px)`,
                 }}
-                className={`fixed z-[200] min-w-[250px] overflow-y-auto overscroll-contain rounded-xl border shadow-2xl py-1.5 ${
+                className={`fixed z-200 min-w-[250px] overflow-y-auto overscroll-contain rounded-xl border shadow-2xl py-1.5 ${
                   theme === "dark"
                     ? "bg-slate-900 border-slate-700"
                     : "bg-white border-slate-200"
@@ -1701,7 +1702,7 @@ function App() {
                 <div
                   ref={moreMenuContentRef}
                   style={{ top: moreMenuPos.top, right: moreMenuPos.right }}
-                  className={`fixed z-[200] min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
+                  className={`fixed z-200 min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
                     theme === "dark"
                       ? "bg-slate-900 border-slate-700/80"
                       : "bg-white border-slate-200"

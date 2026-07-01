@@ -73,12 +73,18 @@ const CCNA_LEARNING_PATHS: Record<string, LearningPath> = {
     tags: ["ccna", "cisco", "networking", "certification"],
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    // ── Didaktische Begründung der Reihenfolge ──────────────────
+    // Prinzip: Vorwissen → Werkzeug → Konzept → Protokoll → Dienst → Sicherheit → Fortgeschritten → Abschluss
+    // Kognitive Lerntheorie (Sweller): einfach → komplex, konkret → abstrakt.
+    // Bloomsche Taxonomie: Erinnern → Verstehen → Anwenden → Analysieren.
+    // Cisco-Blueprint-Gewichtung: IP Connectivity (25%) > Network Fundamentals + Network Access (20% each).
     steps: [
+      // ── Block 1: Fundament (OSI, TCP/IP, Modelle) ──────────────
       {
         id: "step-1-netzwerkgrundlagen",
         title: "Netzwerkgrundlagen & OSI-Modell",
         description:
-          "Lerne die Grundlagen: OSI-Modell, TCP/IP-Protokolle und Netzwerkkomponenten.",
+          "OSI-Modell, TCP/IP-Stack, Protokolle und Netzwerkkomponenten — das konzeptuelle Fundament für alle weiteren Themen.",
         type: "info",
         order: 1,
         completed: false,
@@ -87,333 +93,401 @@ const CCNA_LEARNING_PATHS: Record<string, LearningPath> = {
       {
         id: "step-2-quiz-netzwerkgrundlagen",
         title: "Quiz: Netzwerkgrundlagen",
-        description: "Teste dein Wissen über Netzwerkgrundlagen.",
+        description: "Teste dein Wissen über OSI-Modell und Netzwerkkonzepte.",
         type: "quiz",
         order: 2,
         completed: false,
         quizId: "ccna-quiz-netzwerkgrundlagen",
         hints: [],
       },
+
+      // ── Block 2: CLI-Werkzeug (muss VOR IP-Konfiguration sitzen) ─
+      // Begründung: Die CLI ist das Werkzeug für ALLES Folgende.
+      // Wer nicht weiß, wie man enable/configure terminal/show tippt,
+      // kann kein einziges Routing- oder Security-Lab durchführen.
       {
-        id: "step-3-ipv4",
-        title: "IPv4-Adressierung & Subnetting",
-        description: "Verstehe CIDR, Subnetting, ARP und ICMP.",
+        id: "step-3-ios-cli",
+        title: "Cisco IOS CLI",
+        description:
+          "CLI-Modi (User/Privileged/Config), Grundbefehle, Interface-Management, SSH und show-Diagnose — das Handwerkzeug für alle weiteren Labs.",
         type: "info",
         order: 3,
         completed: false,
         hints: [],
       },
       {
-        id: "step-4-quiz-ipv4",
-        title: "Quiz: IPv4",
-        description: "Subnetting-Aufgaben und IPv4-Konzepte.",
+        id: "step-4-quiz-ios-cli",
+        title: "Quiz: Cisco IOS CLI",
+        description: "CLI-Modi, Grundkonfig, SSH und Diagnose-Befehle testen.",
         type: "quiz",
         order: 4,
         completed: false,
-        quizId: "ccna-quiz-ipv4",
+        quizId: "ccna-quiz-ios-cli",
         hints: [],
       },
+
+      // ── Block 3: IPv4 — Kern-Adressierung (25% Prüfungsgewicht) ─
       {
-        id: "step-4b-segmentierung",
-        title: "Netzwerk-Segmentierung",
-        description: "Sicherheitszonen, VLSM-Planung, Cisco IOS Konfiguration und Enterprise-Szenarien.",
-        type: "info",
-        order: 4,
-        completed: false,
-        hints: [],
-      },
-      {
-        id: "step-4c-quiz-segmentierung",
-        title: "Quiz: Netzwerk-Segmentierung",
-        description: "Sicherheitszonen, VLSM-Design, DMZ und ACL-Policy testen.",
-        type: "quiz",
-        order: 4,
-        completed: false,
-        quizId: "ccna-quiz-segmentierung",
-        hints: [],
-      },
-      {
-        id: "step-5-ipv6",
-        title: "IPv6",
-        description: "IPv6-Adressierung, NDP, SLAAC und DHCPv6.",
+        id: "step-5-ipv4",
+        title: "IPv4-Adressierung & Subnetting",
+        description:
+          "CIDR, VLSM, Subnetting-Kalkulation, ARP und ICMP — Pflichtfundament für Routing und Security.",
         type: "info",
         order: 5,
         completed: false,
         hints: [],
       },
       {
-        id: "step-6-quiz-ipv6",
-        title: "Quiz: IPv6",
-        description: "IPv6-Konzepte testen.",
+        id: "step-6-quiz-ipv4",
+        title: "Quiz: IPv4",
+        description: "Subnetting-Aufgaben, VLSM-Kalkulation und IPv4-Konzepte.",
         type: "quiz",
         order: 6,
         completed: false,
-        quizId: "ccna-quiz-ipv6",
+        quizId: "ccna-quiz-ipv4",
         hints: [],
       },
+
+      // ── Block 4: IPv6 (nach IPv4 — parallele Adressierungsstruktur) ─
       {
-        id: "step-7-switching",
-        title: "Switching & VLANs",
-        description: "MAC-Tabellen, VLANs, Trunking, STP und EtherChannel.",
+        id: "step-7-ipv6",
+        title: "IPv6",
+        description:
+          "IPv6-Adressierung, EUI-64, NDP, SLAAC, DHCPv6 und Dual-Stack — direkt nach IPv4 eingeführt, da die Konzepte identisch sind.",
         type: "info",
         order: 7,
         completed: false,
         hints: [],
       },
       {
-        id: "step-8-routing-ospf",
-        title: "Routing & OSPF",
-        description: "Statisches Routing, OSPF und Inter-VLAN Routing.",
-        type: "info",
+        id: "step-8-quiz-ipv6",
+        title: "Quiz: IPv6",
+        description: "IPv6-Adressen, NDP, SLAAC und Konfiguration testen.",
+        type: "quiz",
         order: 8,
+        completed: false,
+        quizId: "ccna-quiz-ipv6",
+        hints: [],
+      },
+
+      // ── Block 5: Layer 2 — Switching & VLANs (Network Access 20%) ─
+      // Begründung: L2 (MAC, VLAN, STP) muss vor L3-Routing (OSPF, Inter-VLAN)
+      // sitzen, weil OSPF-Nachbarschaften auf L2-Erreichbarkeit aufbauen.
+      {
+        id: "step-9-switching",
+        title: "Switching & VLANs",
+        description:
+          "MAC-Tabellen, Ethernet-Frames, VLANs, 802.1Q-Trunking, STP/RSTP, PortFast, BPDU-Guard und EtherChannel.",
+        type: "info",
+        order: 9,
         completed: false,
         hints: [],
       },
       {
-        id: "step-9-quiz-ospf",
-        title: "Quiz: OSPF",
-        description: "OSPF-Konfiguration und Konzepte.",
+        id: "step-10-quiz-switching",
+        title: "Quiz: Switching & VLANs",
+        description: "MAC-Tabellen, VLANs, Trunking, STP und EtherChannel testen.",
         type: "quiz",
-        order: 9,
+        order: 10,
+        completed: false,
+        quizId: "ccna-quiz-switching",
+        hints: [],
+      },
+
+      // ── Block 6: Routing (IP Connectivity 25% — größter Blueprint-Block) ─
+      // Begründung: Statisches Routing VOR OSPF — konkret vor abstrakt.
+      // Inter-VLAN (RoaS/SVI) nach VLAN + Routing, da es beides verbindet.
+      {
+        id: "step-11-routing-ospf",
+        title: "Routing — Statisch, OSPF & Inter-VLAN",
+        description:
+          "Statische Routen, Default-Route, Administrative Distanz, OSPF Single-/Multi-Area, Router-on-a-Stick und L3-Switch-SVI.",
+        type: "info",
+        order: 11,
+        completed: false,
+        hints: [],
+      },
+      {
+        id: "step-12-quiz-ospf",
+        title: "Quiz: Routing & OSPF",
+        description: "Statisches Routing, OSPF, Cost, DR/BDR und Inter-VLAN testen.",
+        type: "quiz",
+        order: 12,
         completed: false,
         quizId: "ccna-quiz-ospf",
         hints: [],
       },
+
+      // ── Block 7: IP-Dienste — DHCP & NAT (IP Services 10%) ──────
+      // Begründung: DHCP und NAT sind isoliert verständlich und
+      // logisch nach dem Routing-Grundverständnis platziert.
       {
-        id: "step-10-dhcp-nat",
+        id: "step-13-dhcp-nat",
         title: "DHCP & NAT",
-        description: "DHCP-Prozess, Relay, Snooping und NAT/PAT.",
-        type: "info",
-        order: 10,
-        completed: false,
-        hints: [],
-      },
-      {
-        id: "step-11-quiz-dhcp",
-        title: "Quiz: DHCP",
-        description: "DHCP-Konzepte und Konfiguration testen.",
-        type: "quiz",
-        order: 11,
-        completed: false,
-        quizId: "ccna-quiz-dhcp",
-        hints: [],
-      },
-      {
-        id: "step-12-quiz-nat",
-        title: "Quiz: NAT",
-        description: "NAT/PAT-Konzepte testen.",
-        type: "quiz",
-        order: 12,
-        completed: false,
-        quizId: "ccna-quiz-nat",
-        hints: [],
-      },
-      {
-        id: "step-13-security",
-        title: "Netzwerksicherheit",
-        description: "ACLs, Port-Security, DAI und 802.1X.",
+        description:
+          "DORA-Prozess, DHCP-Pool und Relay (ip helper-address), NAT-Typen, PAT/Overload und ip nat inside/outside.",
         type: "info",
         order: 13,
         completed: false,
         hints: [],
       },
       {
-        id: "step-14-quiz-security",
-        title: "Quiz: Security",
-        description: "Sicherheitskonzepte und ACLs testen.",
+        id: "step-14-quiz-dhcp",
+        title: "Quiz: DHCP",
+        description: "DHCP-Prozess, Pool-Konfiguration, Relay-Agent testen.",
         type: "quiz",
         order: 14,
         completed: false,
-        quizId: "ccna-quiz-security",
+        quizId: "ccna-quiz-dhcp",
         hints: [],
       },
       {
-        id: "step-15-wlan",
-        title: "WLAN",
-        description: "802.11-Standards, WPA2/3 und Cisco WLC.",
-        type: "info",
+        id: "step-15-quiz-nat",
+        title: "Quiz: NAT",
+        description: "Static/Dynamic NAT, PAT, Inside Local/Global testen.",
+        type: "quiz",
         order: 15,
         completed: false,
+        quizId: "ccna-quiz-nat",
         hints: [],
       },
+
+      // ── Block 8: Netzwerk-Segmentierung (braucht Routing + VLANs) ─
+      // Begründung: VLSM-Planung und DMZ-Konzepte setzen voraus,
+      // dass man Routing UND VLANs bereits versteht — daher NACH Block 6.
       {
-        id: "step-16-quiz-wlan",
-        title: "Quiz: WLAN",
-        description: "WLAN-Konzepte und Sicherheit testen.",
-        type: "quiz",
+        id: "step-16-segmentierung",
+        title: "Netzwerk-Segmentierung & VLSM-Design",
+        description:
+          "Sicherheitszonen (LAN/DMZ/WAN), VLSM-Planung, Enterprise-Subnetz-Design und Cisco IOS Konfiguration.",
+        type: "info",
         order: 16,
         completed: false,
-        quizId: "ccna-quiz-wlan",
         hints: [],
       },
       {
-        id: "step-17-exam-sim",
-        title: "Prüfungssimulation CCNA",
-        description:
-          "Wiederhole alle 20 Themen-Quizze im Prüfungsmodus, bevor Du zur Cisco-Zertifizierung antrittst.",
-        type: "info",
+        id: "step-17-quiz-segmentierung",
+        title: "Quiz: Netzwerk-Segmentierung",
+        description: "VLSM-Design, Sicherheitszonen, DMZ und Subnetz-Kalkulation.",
+        type: "quiz",
         order: 17,
         completed: false,
+        quizId: "ccna-quiz-segmentierung",
         hints: [],
       },
+
+      // ── Block 9: Security Fundamentals (15%) ─────────────────────
       {
-        id: "step-18-ios-cli",
-        title: "Cisco IOS CLI",
+        id: "step-18-security",
+        title: "Netzwerksicherheit",
         description:
-          "CLI-Modi, SSH-Konfiguration, Interface-Management und Diagnose.",
+          "ACLs (Standard + Extended), Port-Security, DHCP-Snooping, DAI, 802.1X, AAA und Geräte-Härtung.",
         type: "info",
         order: 18,
         completed: false,
         hints: [],
       },
       {
-        id: "step-19-device-management",
-        title: "Device Management Protocols",
-        description:
-          "CDP/LLDP, NTP, Syslog und SNMPv3 für den Netzwerkbetrieb.",
-        type: "info",
+        id: "step-19-quiz-security",
+        title: "Quiz: Security",
+        description: "ACLs, Port-Security, DAI, 802.1X und Device Hardening testen.",
+        type: "quiz",
         order: 19,
         completed: false,
+        quizId: "ccna-quiz-security",
         hints: [],
       },
+
+      // ── Block 10: WLAN (Network Access 20%) ──────────────────────
       {
-        id: "step-20-fhrp",
-        title: "First Hop Redundancy (HSRP/VRRP/GLBP)",
+        id: "step-20-wlan",
+        title: "WLAN",
         description:
-          "Default-Gateway-Redundanz mit virtueller IP/MAC und Object Tracking.",
+          "802.11-Standards, Frequenzbänder, WPA2/WPA3, CAPWAP, Cisco WLC und AP-Onboarding.",
         type: "info",
         order: 20,
         completed: false,
         hints: [],
       },
       {
-        id: "step-21-qos",
-        title: "Quality of Service",
-        description:
-          "Classification, Marking (DSCP/CoS), LLQ und Trust Boundary.",
-        type: "info",
+        id: "step-21-quiz-wlan",
+        title: "Quiz: WLAN",
+        description: "802.11-Standards, WPA2/3, CAPWAP und WLC-Konzepte testen.",
+        type: "quiz",
         order: 21,
         completed: false,
+        quizId: "ccna-quiz-wlan",
         hints: [],
       },
+
+      // ── Block 11: Device Management (IP Services 10%) ────────────
       {
-        id: "step-22-quiz-qos",
-        title: "Quiz: QoS",
-        description: "QoS-Mechanismen testen.",
-        type: "quiz",
+        id: "step-22-device-management",
+        title: "Device Management Protocols",
+        description:
+          "CDP/LLDP, NTP (Stratum, Auth), Syslog (Severity-Level), SNMPv3 (Auth+Priv) und TFTP-Backup.",
+        type: "info",
         order: 22,
         completed: false,
-        quizId: "ccna-quiz-qos",
         hints: [],
       },
       {
-        id: "step-23-wan-vpn",
-        title: "WAN & VPN",
-        description:
-          "Mietleitung, MPLS, IPsec, GRE/DMVPN und Cisco SD-WAN.",
-        type: "info",
+        id: "step-23-quiz-device-mgmt",
+        title: "Quiz: Device Management",
+        description: "CDP/LLDP, NTP, Syslog, SNMPv3 und TFTP testen.",
+        type: "quiz",
         order: 23,
         completed: false,
+        quizId: "ccna-quiz-device-management",
         hints: [],
       },
+
+      // ── Block 12: FHRP (IP Services 10%) ─────────────────────────
       {
-        id: "step-24-sdn",
-        title: "Controller-Based Networking & Cloud",
+        id: "step-24-fhrp",
+        title: "First Hop Redundancy (HSRP/VRRP/GLBP)",
         description:
-          "SDN-Planes, Cisco DNA Center, SD-Access und Cloud-Service-Modelle.",
+          "Virtuelle IP/MAC, Active/Standby, Priority, Preempt und Object Tracking — setzt Routing-Verständnis voraus.",
         type: "info",
         order: 24,
         completed: false,
         hints: [],
       },
       {
-        id: "step-25-automation",
-        title: "Programmability & Automation",
-        description:
-          "REST APIs, JSON/YAML, Ansible, Terraform und GitOps.",
-        type: "info",
+        id: "step-25-quiz-fhrp",
+        title: "Quiz: FHRP",
+        description: "HSRP/VRRP/GLBP, Priority, Preemption und Object Tracking testen.",
+        type: "quiz",
         order: 25,
         completed: false,
+        quizId: "ccna-quiz-fhrp",
         hints: [],
       },
+
+      // ── Block 13: QoS (IP Services 10%) ──────────────────────────
       {
-        id: "step-26-troubleshooting",
-        title: "Troubleshooting & Diagnose",
+        id: "step-26-qos",
+        title: "Quality of Service",
         description:
-          "Methodik, Extended Ping, Traceroute, Interface-Counter und err-disabled Recovery.",
+          "Classification, Marking (DSCP/CoS), Queuing (LLQ/CBWFQ), Shaping/Policing und Trust Boundary.",
         type: "info",
         order: 26,
         completed: false,
         hints: [],
       },
       {
-        id: "step-27-quiz-ios-cli",
-        title: "Quiz: Cisco IOS CLI",
-        description: "CLI-Modi, SSH-Konfiguration, Diagnose-Befehle.",
+        id: "step-27-quiz-qos",
+        title: "Quiz: QoS",
+        description: "DSCP-Werte, Queuing-Mechanismen und Trust Boundary testen.",
         type: "quiz",
         order: 27,
         completed: false,
-        quizId: "ccna-quiz-ios-cli",
+        quizId: "ccna-quiz-qos",
         hints: [],
       },
+
+      // ── Block 14: WAN & VPN ───────────────────────────────────────
       {
-        id: "step-28-quiz-device-mgmt",
-        title: "Quiz: Device Management",
-        description: "CDP/LLDP, NTP, Syslog, SNMPv3.",
-        type: "quiz",
+        id: "step-28-wan-vpn",
+        title: "WAN & VPN",
+        description:
+          "Mietleitung, MPLS, Metro-Ethernet, IPsec-VPN, GRE/DMVPN und Cisco SD-WAN.",
+        type: "info",
         order: 28,
         completed: false,
-        quizId: "ccna-quiz-device-management",
         hints: [],
       },
       {
-        id: "step-29-quiz-fhrp",
-        title: "Quiz: FHRP",
-        description: "HSRP/VRRP/GLBP, Priority, Preemption, Object Tracking.",
+        id: "step-29-quiz-wan-vpn",
+        title: "Quiz: WAN & VPN",
+        description: "MPLS, IPsec, GRE/DMVPN und Cisco SD-WAN testen.",
         type: "quiz",
         order: 29,
         completed: false,
-        quizId: "ccna-quiz-fhrp",
+        quizId: "ccna-quiz-wan-vpn",
         hints: [],
       },
+
+      // ── Block 15: Controller-Based Networking & Cloud (Automation 10%) ─
       {
-        id: "step-30-quiz-wan-vpn",
-        title: "Quiz: WAN & VPN",
-        description: "MPLS, IPsec, GRE/DMVPN, Cisco SD-WAN.",
-        type: "quiz",
+        id: "step-30-sdn",
+        title: "Controller-Based Networking & Cloud",
+        description:
+          "SDN-Planes (Data/Control/Management), Cisco DNA Center, SD-Access, Cloud-Modelle (IaaS/PaaS/SaaS) und Virtualisierung.",
+        type: "info",
         order: 30,
         completed: false,
-        quizId: "ccna-quiz-wan-vpn",
         hints: [],
       },
       {
         id: "step-31-quiz-sdn",
         title: "Quiz: SDN & Cloud",
-        description: "Control/Data Plane, DNA Center, SD-Access, Cloud-Modelle.",
+        description: "Control/Data Plane, DNA Center, SD-Access und Cloud-Modelle testen.",
         type: "quiz",
         order: 31,
         completed: false,
         quizId: "ccna-quiz-sdn",
         hints: [],
       },
+
+      // ── Block 16: Programmability & Automation (Automation 10%) ──
       {
-        id: "step-32-quiz-automation",
-        title: "Quiz: Automation",
-        description: "REST APIs, JSON/YAML, Ansible, Terraform.",
-        type: "quiz",
+        id: "step-32-automation",
+        title: "Programmability & Automation",
+        description:
+          "REST APIs, JSON/YAML, NETCONF/RESTCONF, Ansible, Terraform und GitOps — setzt SDN-Konzeptverständnis voraus.",
+        type: "info",
         order: 32,
+        completed: false,
+        hints: [],
+      },
+      {
+        id: "step-33-quiz-automation",
+        title: "Quiz: Automation",
+        description: "REST APIs, NETCONF/RESTCONF, Ansible und Terraform testen.",
+        type: "quiz",
+        order: 33,
         completed: false,
         quizId: "ccna-quiz-automation",
         hints: [],
       },
+
+      // ── Block 17: Troubleshooting (Querschnittsthema am Ende) ─────
+      // Begründung: Troubleshooting setzt ALLE vorherigen Konzepte voraus
+      // und konsolidiert sie. Es ist die «synthetische» Phase (Bloom: Analyze).
       {
-        id: "step-33-quiz-troubleshooting",
+        id: "step-34-troubleshooting",
+        title: "Troubleshooting & Diagnose",
+        description:
+          "Methodisches Vorgehen (Top-Down/Bottom-Up), Extended Ping, Traceroute, Interface-Counter, err-disabled Recovery und Logging-Analyse.",
+        type: "info",
+        order: 34,
+        completed: false,
+        hints: [],
+      },
+      {
+        id: "step-35-quiz-troubleshooting",
         title: "Quiz: Troubleshooting",
-        description: "Methodik, Interface-Counter, err-disabled, ping/traceroute.",
+        description: "Diagnose-Methodik, Interface-Counter, err-disabled und ping/traceroute testen.",
         type: "quiz",
-        order: 33,
+        order: 35,
         completed: false,
         quizId: "ccna-quiz-troubleshooting",
+        hints: [],
+      },
+
+      // ── Block 18: Prüfungssimulation (LETZTER Schritt!) ──────────
+      // Begründung: Die Simulation ist die Evaluations-Phase (Bloom: Evaluate).
+      // Sie macht nur Sinn, wenn ALLE Themenblöcke abgeschlossen sind.
+      // Vorher wäre sie lückenhaft und demotivierend.
+      {
+        id: "step-36-exam-sim",
+        title: "Prüfungssimulation CCNA",
+        description:
+          "120-Minuten-Simulation mit 100 zufälligen Fragen aus allen CCNA-Themenbereichen — erst sinnvoll, wenn alle 17 Themenblöcke abgeschlossen sind.",
+        type: "info",
+        order: 36,
+        completed: false,
         hints: [],
       },
     ],

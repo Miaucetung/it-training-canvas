@@ -1169,12 +1169,12 @@ TenGigabitEthernet1/0/0 is up, line protocol is up
     id: "q0089",
     question: "Which network action occurs within the data plane?",
     options: [
-    "reply to an incoming ICMP echo request 10.10.13.0/25 [1/0] via 10.10.10.2",
-    "make a configuration change from an incoming NETCONF RPC 10.10.13.0/25 [108/0] via 10.10.10.10",
-    "run routing protocols (OSPF, EIGRP, RIP, BGP) 10.10.13.0/25 [110/2] via 10.10.10.6",
-    "compare the destination IP address to the IP routing table Q0090 LAB12-CIS3 Refer to the exhibit. R1 has just received a packet from host A that is destined to host B. Which route in the routing table is used by R1 to reach host B? 10.10.13.0/25 [110/2] via 10.10.10.2"
+    "Reply to an incoming ICMP echo request.",
+    "Make a configuration change from an incoming NETCONF RPC.",
+    "Run routing protocols (OSPF, EIGRP, RIP, BGP).",
+    "Compare the destination IP address to the IP routing table."
     ],
-    correct: [3, 1],
+    correct: 3,
     exhibit: { type: "none" },
   },
   {
@@ -3472,12 +3472,12 @@ switch(config-if)#spanning-tree bpduguard enable`,
     id: "q0265",
     question: "Which access layer threat-mitigation technique provides security based on identity?",
     options: [
-    "Dynamic ARP Inspection The trunk does not form, and the ports go into an err-disabled status.",
-    "DHCP snooping The trunk forms, but the mismatched native VLANs are merged into a single broadcast",
-    "802.1x The trunk forms, but VLAN 99 and VLAN 999 are in a shutdown state.",
-    "using a non-default native VLAN Q0266 Nachfragen Refer to the exhibit. Which action do the switches take on the trunk link? domain. The trunk does not form, but VLAN 99 and VLAN 999 are allowed to traverse the link."
+    "Dynamic ARP Inspection",
+    "DHCP snooping",
+    "802.1x",
+    "Using a non-default native VLAN"
     ],
-    correct: [2, 1],
+    correct: 2,
     exhibit: { type: "none" },
   },
   {
@@ -4663,12 +4663,12 @@ Vlan   Mac Address      Type      Ports
     id: "q0325",
     question: "Which channel-group mode must be configured when multiple distribution interfaces connected to a WLC are bundled?",
     options: [
-    "Channel-group mode passive. SW1",
-    "Channel-group mode on. SW2",
-    "Channel-group mode desirable. SW3",
-    "Channel-group mode active. Q 0326 Topic Refer to the exhibit. Which switch become the root of a spanning tree for VLAN 20 if all links are of equal speed? SW4"
+    "Channel-group mode passive.",
+    "Channel-group mode on.",
+    "Channel-group mode desirable.",
+    "Channel-group mode active."
     ],
-    correct: [1, 0],
+    correct: 3,
     exhibit: { type: "none" },
   },
   {
@@ -5375,12 +5375,12 @@ Neighbor Count is 3, Adjacent neighbor count is 3
     id: "q0365",
     question: "Router A learns the same route from two different neighbors; one of the neighbor routers is an OSPF neighbor, and the other is an EIGRP neighbor. What is the administrative distance of the route that will be installed in the routing table?",
     options: [
-    "20 Traffic to 10.10.13.0/25 is load balanced out of multiple interfaces.",
-    "90 Traffic to 10.10.13.0/25 is asymmetrical.",
-    "110 Route 10.10.13.0/25 is updated in the routing table as being learned from interface Gi0/1.",
-    "115 Q0366 Nachfragen CCNA? Refer to the exhibit. An engineer is bringing up a new circuit to the MPLS provider on the Gi0/1 interface of Router 1. The new circuit uses eBGP and learns the route to VLAN25 from the BGP path. What is the expected behavior for the traffic flow for route 10.10.13.0/25? Jonny Route 10.10.13.0/25 learned via the Gi0/0 interface remains in the routing table."
+    "20",
+    "90",
+    "110",
+    "115"
     ],
-    correct: [1, 2, 3],
+    correct: 1,
     exhibit: { type: "none" },
   },
   {

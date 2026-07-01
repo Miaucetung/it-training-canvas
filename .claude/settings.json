@@ -18,7 +18,12 @@
       "Bash(cd c:/it-training-canvas-new && grep -o \"import.*from ['\\\\\"][^'\\\\\"]*['\\\\\"]\" src/App.tsx | sed \"s/^import.*from ['\\\\\"]//;s/['\\\\\"]$//\" | sort | uniq > /tmp/app_imports.txt && cat package.json | grep -o \"\\\\\"[^\\\\\"]*\\\\\":\" | grep -v \"\\\\\"scripts\\\\\"\\\\|\\\\\"dependencies\\\\\"\\\\|\\\\\"devDependencies\\\\\"\\\\|\\\\\"version\\\\\"\\\\|\\\\\"type\\\\\"\\\\|\\\\\"name\\\\\"\" | sed 's/^\"//;s/\".*$//' | sort | uniq > /tmp/packages.txt && echo \"Imported in App.tsx:\" && cat /tmp/app_imports.txt | head -20)",
       "Read(//tmp/**)",
       "Bash(curl -s http://localhost:5199)",
-      "Bash(curl -s http://localhost:5000)"
+      "Bash(curl -s http://localhost:5000)",
+      "Bash(python -)",
+      "Bash(python .tmp_batch1.py)",
+      "Bash(rm -f .tmp_batch1.py .tmp-p*.png .tmp-q00*.png)",
+      "Read(//c/Users/mmuja/materials/**)",
+      "Bash(python -c \"import fitz; d=fitz.open\\(r'C:/Users/mmuja/materials/CCNA practice LAB.pdf'\\); print\\('pages', d.page_count\\)\")"
     ]
   }
 }
