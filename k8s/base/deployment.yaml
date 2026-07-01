@@ -17,7 +17,7 @@ spec:
         app: it-training-canvas
     spec:
       imagePullSecrets:
-        - name: ghcr-secret
+        - name: ghcr-pull-secret
       containers:
         - name: it-training-canvas
           image: ghcr.io/miaucetung/it-training-canvas:main
