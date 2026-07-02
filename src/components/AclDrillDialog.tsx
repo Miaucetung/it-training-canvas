@@ -276,7 +276,7 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
     const start = parseInt(net.split(".")[3]);
     const wildOctet = parseInt(wild.split(".")[3]);
     const end = start + wildOctet;
-    const side = end < lo ? "vor dem Zielbereich" : "nach dem Zielbereich";
+    const side = end < lo ? `vor .${lo} (Zielanfang)` : `nach .${hi} (Zielende)`;
     return `deckt .${start}–.${end}  — ${side} → sperren`;
   }
 
