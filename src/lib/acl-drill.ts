@@ -557,6 +557,12 @@ export function generateAclRangeTask(_id = 0): AclRangeTask {
   }
   const permitBlocks = blocksToSpecs(base, rangeToBlocks(lo, hi));
   const edges = [...rangeToBlocks(0, lo - 1), ...rangeToBlocks(hi + 1, 255)];
+  const firstWild = parseInt(permitBlocks[0].wild.split(".")[3]);
+  const firstSize = firstWild + 1;
+  const firstEnd = lo + firstSize - 1;
+  const hintText = permitBlocks.length === 1
+    ? `Schritt 1 (= einziger): .${lo} steht in der Tabelle für Blockgröße ${firstSize} ✓  und .${lo}–.${firstEnd} liegt komplett im Bereich ✓  → permit ${base}.${lo} 0.0.0.${firstWild}. Fertig!`
+    : `Schritt 1: .${lo} → Wildcard 0.0.0.${firstWild} (Blockgröße ${firstSize}, deckt .${lo}–.${firstEnd}) → permit ${base}.${lo} 0.0.0.${firstWild}. Dann weiter ab .${lo + firstSize} …`;
   return {
     kind: "range",
     base,
@@ -566,7 +572,7 @@ export function generateAclRangeTask(_id = 0): AclRangeTask {
     permitBlocks,
     denyEdges: blocksToSpecs(base, edges),
     minLines: permitBlocks.length,
-    hint: `Tipp: Ein Bereich lässt sich in 2er-Potenz-Blöcke zerlegen, die an ihrer Größe „ausgerichtet“ sind (z. B. .${lo} … in Blöcken 1,2,4,8,16,32 …).`,
+    hint: hintText,
   };
 }
 
@@ -623,7 +629,8 @@ function alignmentHintFor(lines: RangeLine[]): string | undefined {
     const rest = start % size;
     if (rest !== 0) {
       const aligned = Math.floor(start / size) * size;
-      return `${start} ÷ ${size} = Rest ${rest} → nicht ausgerichtet. Der Router rundet „${ln.ip} ${ln.wild}“ auf .${aligned} ab (deckt .${aligned}–.${aligned + size - 1}). Setze den Start auf ein Vielfaches von ${size} (z. B. .${aligned}).`;
+      const examples = [0, 1, 2, 3].map((k) => k * size).filter((v) => v < 256).join(", ");
+      return `Start .${start} steht nicht in der Startliste für Blockgröße ${size} (${examples}…). Der Router deckt automatisch ab .${aligned} (bis .${aligned + size - 1}). Fix: Ändere den Start auf .${aligned} — oder zerlege in kleinere Blöcke (Spickzettel nutzen).`;
     }
   }
   return undefined;

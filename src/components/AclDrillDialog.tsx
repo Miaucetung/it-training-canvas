@@ -334,18 +334,48 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
               </div>
 
               {(mode === "wildcard" || mode === "range") && (
-                <div className={`rounded-lg border px-3 py-2 ${dark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
-                  <div className={`mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-indigo-300" : "text-indigo-700"}`}>
-                    <FunctionIcon size={12} weight="bold" /> Formel
+                <div className={`rounded-lg border px-3 py-2.5 ${dark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
+                  <div className={`mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-indigo-300" : "text-indigo-700"}`}>
+                    <FunctionIcon size={12} weight="bold" /> Spickzettel
                   </div>
-                  <ul className={`space-y-0.5 font-mono text-[12px] ${dark ? "text-slate-300" : "text-slate-600"}`}>
-                    <li>Blockgröße = Wildcard + 1&nbsp;&nbsp;<span className={muted}>(0.0.0.31 → 32)</span></li>
-                    <li>Wildcard = Blockgröße − 1&nbsp;&nbsp;<span className={muted}>(16 → 0.0.0.15)</span></li>
-                    <li>ausgerichtet, wenn Start ÷ Blockgröße <span className="whitespace-nowrap">Rest 0</span> ergibt <span className={muted}>(= Vielfaches)</span></li>
-                    {mode === "range" && (
-                      <li className="leading-snug">Greedy: größte Blockgröße g mit <span className="whitespace-nowrap">Start ÷ g = Rest 0</span> <span className={muted}>und</span> <span className="whitespace-nowrap">Start + g − 1 ≤ Ende</span> → dann Start += g</li>
-                    )}
-                  </ul>
+                  {/* Nachschlagetabelle: kein Rechnen nötig, einfach nachschlagen */}
+                  <table className={`w-full font-mono text-[11px] ${dark ? "text-slate-300" : "text-slate-700"}`}>
+                    <thead>
+                      <tr className={`text-[10px] ${muted}`}>
+                        <th className="text-left font-semibold pb-1">Wildcard</th>
+                        <th className="text-right font-semibold pb-1 pr-2">Anzahl</th>
+                        <th className="text-left font-semibold pb-1 pl-3">Gültige Starts (letztes Oktett)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {([
+                        ["0.0.0.1",   "2",   "0, 2, 4, 6, 8 … (gerade)"],
+                        ["0.0.0.3",   "4",   "0, 4, 8, 12, 16 …"],
+                        ["0.0.0.7",   "8",   "0, 8, 16, 24, 32 …"],
+                        ["0.0.0.15",  "16",  "0, 16, 32, 48, 64 …"],
+                        ["0.0.0.31",  "32",  "0, 32, 64, 96, 128, 160, 192, 224"],
+                        ["0.0.0.63",  "64",  "0, 64, 128, 192"],
+                        ["0.0.0.127", "128", "0, 128"],
+                        ["0.0.0.255", "256", "0  (ganzes /24 = any)"],
+                      ] as [string, string, string][]).map(([wc, n, starts]) => (
+                        <tr key={wc} className="leading-5">
+                          <td className={dark ? "text-indigo-300" : "text-indigo-700"}>{wc}</td>
+                          <td className={`text-right pr-2 ${muted}`}>{n}</td>
+                          <td className={`pl-3 ${muted}`}>{starts}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {mode === "range" && (
+                    <div className={`mt-3 border-t pt-2 ${dark ? "border-slate-700" : "border-indigo-200"}`}>
+                      <div className={`mb-1.5 text-[10px] font-semibold uppercase tracking-wide ${muted}`}>Bereich abdecken — drei Schritte:</div>
+                      <ol className={`space-y-0.5 text-[11px] leading-snug ${dark ? "text-slate-300" : "text-slate-700"}`}>
+                        <li>① Starte am <strong>linken Ende</strong> des Bereichs</li>
+                        <li>② Suche die <strong>größte Wildcard</strong> aus der Tabelle, deren Start dort steht <em>und</em> die nicht über das rechte Ende hinausreicht</li>
+                        <li>③ Schreibe die Zeile, springe um die Blockgröße vor → zurück zu ②</li>
+                      </ol>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -384,7 +414,7 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
                     </defs>
                   </svg>
                   <p className={`mt-1 text-[12px] leading-snug ${dark ? "text-slate-300" : "text-slate-600"}`}>
-                    Die Blöcke sind <strong>fest eingebaut</strong> (Anfang bei 0, 32, 64, 96 …). <span className="text-rose-500">.46</span> liegt <strong>mitten</strong> im Fach 32–63 → der Router nimmt das <strong>ganze Fach ab .32</strong>. Nur Zahlen, an denen ein Fach <strong>beginnt</strong>, sind „ausgerichtet".
+                    Stell dir .0–.255 als Schrank mit festen Schubladen vor — Schublade 1: .0–.31, Schublade 2: .32–.63 usw. Du kannst <strong>nur ganze Schubladen</strong> auf- oder zusperren, nie einen Teil davon. Start <span className="text-rose-500">.46</span> liegt mitten in Schublade 2 → der Router öffnet automatisch <strong>die ganze Schublade ab .32</strong>. Richtige Starts: <strong>genau da, wo eine Schublade beginnt</strong> (0, 32, 64, 96 …).
                   </p>
                 </div>
               )}
