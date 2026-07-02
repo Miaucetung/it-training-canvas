@@ -3895,75 +3895,249 @@ export const LABS: LabScenario[] = [
 
   // ─────────────────────────────────────────────────────────────
   // 7. NAT / PAT (Overload)
+  // Topologie: PC0/PC0(1)/PC0(2) → SW1 → NAT → ISP → INTERNET → Webserver
   // ─────────────────────────────────────────────────────────────
   {
     id: "nat-pat",
     icon: <Desktop size={20} />,
     title: "NAT / PAT (Overload)",
-    subtitle: "Router · Switch · 2 PCs · Cloud",
+    subtitle: "3 PCs · SW1 · NAT-Router · ISP · INTERNET · Webserver",
     difficulty: "Mittel",
-    duration: "20 min",
+    duration: "25 min",
     context: {
       problem:
-        "Private Adressen (RFC 1918) sind im Internet nicht routbar. Viele interne Hosts müssen sich aber eine knappe Menge öffentlicher IPs teilen.",
+        "Drei PCs mit privaten Adressen (192.168.1.0/24) sollen das Internet erreichen — aber es steht nur EINE öffentliche IP zur Verfügung (200.0.0.1 auf Gig0/1 des NAT-Routers).",
       purpose:
-        "PAT (NAT Overload) übersetzt alle internen Adressen auf EINE öffentliche IP, unterschieden per Portnummer. Das Lab zeigt inside/outside-Markierung, ACL und overload.",
+        "PAT (Port Address Translation, auch 'NAT Overload') löst das Problem: Alle internen Hosts teilen sich eine einzige öffentliche IP, unterschieden per Portnummer. Das ist das Verfahren, das in 99 % aller Heimrouter und kleinen Büros läuft.",
     },
     topology: {
       description:
-        "PCs mit privaten IPs teilen sich eine öffentliche IP durch PAT (Port-Übersetung).",
+        "Drei PCs hängen via SW1 am NAT-Router (Gig0/0 = inside). Die WAN-Strecke zum ISP ist ein /30-Subnetz (200.0.0.0/30): NAT=.1, ISP=.2. Dahinter verbindet ein INTERNET-Router (Transit 1.1.1.0/30) den ISP mit dem Webserver-Segment (47.11.8.0/24).",
       devices: [
-        { type: "router", label: "R1 (NAT-Router)", count: 1 },
-        { type: "switch", label: "SW1", count: 1 },
-        { type: "pc", label: "PC0 / PC1 (privat)", count: 2 },
-        { type: "server", label: "Web-Server (öffentlich)", count: 1 },
+        { type: "pc",     label: "PC0 (192.168.1.10/24)",   count: 1 },
+        { type: "pc",     label: "PC0(1) (192.168.1.11/24)", count: 1 },
+        { type: "pc",     label: "PC0(2) (192.168.1.12/24)", count: 1 },
+        { type: "switch", label: "SW1 (Fa0/1–3, Gig0/1)",   count: 1 },
+        { type: "router", label: "NAT-Router (Gig0/0 inside, Gig0/1 outside)", count: 1 },
+        { type: "router", label: "ISP (Gig0/2 ↔ NAT, Gig0/1 ↔ INTERNET)",    count: 1 },
+        { type: "router", label: "INTERNET (Gig0/2 ↔ ISP, Gi0/0 ↔ Webserver)", count: 1 },
+        { type: "server", label: "Webserver (47.11.8.15/24)", count: 1 },
       ],
       connections: [
-        "PC0 / PC1 → SW1 → R1 Gi0/0  (innen: 192.168.1.0/24)",
-        "R1 Gi0/1 → Web-Server  (aussen: 200.0.0.0/30)",
+        "PC0/PC0(1)/PC0(2) → SW1 Fa0/1–3 → SW1 Gig0/1 → NAT Gig0/0  (192.168.1.0/24)",
+        "NAT Gig0/1 (200.0.0.1) ↔ ISP Gig0/2 (200.0.0.2)  — 200.0.0.0/30",
+        "ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30",
+        "INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24",
       ],
-      hint: "R1 trennt innen von außen. Gi0/0 = inside, Gi0/1 = outside.",
+      hint: "PAT nutzt die Outside-Interface-IP (200.0.0.1) für alle Hosts — kein Pool nötig. Der INTERNET-Router braucht eine Rückroute für 200.0.0.0/30, damit Antwortpakete zurückfinden.",
     },
     steps: [
       {
-        title: "Interfaces & NAT-Richtungen setzen",
+        title: "1) IP-Adressen auf allen Geräten vergeben",
         blocks: [
           {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config)#",
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0 – IP-Konfiguration",
             commands: [
               {
-                cmd: "interface GigabitEthernet0/0\nip address 192.168.1.1 255.255.255.0\nip nat inside\nno shutdown",
+                cmd: "IP:      192.168.1.10\nMaske:   255.255.255.0\nGateway: 192.168.1.1",
                 explanation:
-                  "'ip nat inside' markiert dieses Interface als LAN-Seite. Pakete, die hier reinkommen, werden übersetzt.",
+                  "Gleiche Vorgehensweise für PC0(1) mit .11 und PC0(2) mit .12. Gateway = NAT-Router Gig0/0.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "interface",
+            modeLabel: "NAT(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/0\n ip address 192.168.1.1 255.255.255.0\n no shutdown",
+                explanation:
+                  "LAN-Interface. Die inside-Markierung wird im nächsten Schritt gesetzt.",
               },
               {
-                cmd: "interface GigabitEthernet0/1\nip address 200.0.0.1 255.255.255.252\nip nat outside\nno shutdown",
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.1 255.255.255.252\n no shutdown",
                 explanation:
-                  "'ip nat outside' markiert die WAN-Seite. Übersetzte Pakete verlassen das Netz hier mit der öffentlichen IP.",
+                  "WAN-Interface. /30 (255.255.255.252) = 4 Adressen, 2 nutzbar: .1 (NAT) und .2 (ISP). Typische P2P-Maske für WAN-Strecken.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "interface",
+            modeLabel: "ISP(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 200.0.0.2 255.255.255.252\n no shutdown",
+                explanation:
+                  "ISP-seitiger Anschluss des NAT-Routers. Gig0/2 = Kundenseite (200.0.0.2).",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 1.1.1.1 255.255.255.252\n no shutdown",
+                explanation:
+                  "Transit-Interface zum INTERNET-Router. 1.1.1.0/30: ISP=.1, INTERNET=.2.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "interface",
+            modeLabel: "INTERNET(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 1.1.1.2 255.255.255.252\n no shutdown",
+                explanation:
+                  "Transit-Interface Richtung ISP (.2 im /30-Subnetz).",
+              },
+              {
+                cmd: "interface GigabitEthernet0/0\n ip address 47.11.8.1 255.255.255.0\n no shutdown",
+                explanation:
+                  "Interface zum Webserver-Segment. Webserver hat .15, Gateway = .1.",
+              },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Webserver – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      47.11.8.15\nMaske:   255.255.255.0\nGateway: 47.11.8.1",
+                explanation:
+                  "Statische öffentliche IP. Gateway = INTERNET-Router Gi0/0.",
               },
             ],
           },
         ],
       },
       {
-        title: "Access-List + PAT konfigurieren",
+        title: "2) NAT inside / outside auf Interfaces setzen",
         blocks: [
           {
-            device: "R1",
+            device: "NAT-Router",
+            mode: "interface",
+            modeLabel: "NAT(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/0\n ip nat inside",
+                explanation:
+                  "Markiert Gig0/0 als 'innen'. Pakete, die hier ankommen, werden gegen die NAT-Regeln geprüft. Ohne diese Markierung passiert KEINE Übersetzung.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip nat outside",
+                explanation:
+                  "Markiert Gig0/1 als 'außen'. Übersetzte Pakete verlassen hier das Netz mit der öffentlichen IP 200.0.0.1 als Source.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) ACL — welche Hosts übersetzt werden",
+        blocks: [
+          {
+            device: "NAT-Router",
             mode: "global",
-            modeLabel: "R1(config)#",
+            modeLabel: "NAT(config)#",
             commands: [
               {
                 cmd: "access-list 1 permit 192.168.1.0 0.0.0.255",
                 explanation:
-                  "Standard-ACL 1: Erlaubt alle Adressen aus 192.168.1.0/24. Nur diese werden übersetzt.",
+                  "Standard-ACL 1: Erlaubt das gesamte LAN-Subnetz 192.168.1.0/24 (Wildcard 0.0.0.255). Nur diese Hosts werden von PAT übersetzt. Alles außerhalb dieser ACL bleibt unverändert.",
               },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) PAT aktivieren (der Schlüsselbefehl)",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
               {
                 cmd: "ip nat inside source list 1 interface GigabitEthernet0/1 overload",
                 explanation:
-                  "'overload' = PAT. Viele private IPs teilen sich EINE öffentliche IP (200.0.0.1) durch unterschiedliche Portnummern. Ohne 'overload' wäre es 1:1-NAT.",
+                  "Zerlegt in Teile:\n  'list 1'              → Quelle muss ACL 1 treffen (192.168.1.0/24)\n  'interface Gi0/1'     → benutze die IP von Gig0/1 (200.0.0.1) als öffentliche Adresse\n  'overload'            → PAT aktivieren — viele Hosts teilen diese eine IP per Port-Nummer\nOHNE 'overload' würde der Router versuchen, 1:1-NAT zu machen — mit nur einer IP würde ab dem 2. Host nichts mehr funktionieren.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Default-Route + Rückrouten konfigurieren",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.2",
+                explanation:
+                  "Default-Route: Alles unbekannte Traffic geht zum ISP (200.0.0.2). Nach PAT-Übersetzung verlässt das Paket Gig0/1 mit Quelle 200.0.0.1.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "global",
+            modeLabel: "ISP(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.2",
+                explanation:
+                  "ISP leitet alles zum INTERNET-Router. Antwortpakete des Webservers (Ziel: 200.0.0.1) kommen über diesen Weg zurück zum ISP.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "global",
+            modeLabel: "INTERNET(config)#",
+            commands: [
+              {
+                cmd: "ip route 200.0.0.0 255.255.255.252 1.1.1.1",
+                explanation:
+                  "Rückroute für 200.0.0.0/30! Der INTERNET-Router muss wissen, dass 200.0.0.1 (die PAT-Adresse) über den ISP (1.1.1.1) erreichbar ist. Ohne diese Route schmeißt er alle Antwortpakete weg — die Verbindung scheitert still.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Konnektivität testen & PAT-Verhalten beobachten",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC0> ",
+            commands: [
+              {
+                cmd: "ping 47.11.8.15",
+                explanation:
+                  "PC0 (192.168.1.10) sendet ICMP. NAT übersetzt: Quelle 192.168.1.10 → 200.0.0.1:xxxx (Port wird zugewiesen). Wenn PC0(1) gleichzeitig pingt, benutzt es ebenfalls 200.0.0.1 — aber mit einem anderen Port. Beide Antworten landen korrekt beim richtigen PC.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "privileged",
+            modeLabel: "NAT#",
+            commands: [
+              {
+                cmd: "show ip nat translations",
+                explanation:
+                  "Pro Verbindung eine Zeile mit Port-Nummern:\n  icmp 192.168.1.10:1  200.0.0.1:1  47.11.8.15:1  47.11.8.15:1\n  icmp 192.168.1.11:1  200.0.0.1:2  47.11.8.15:1  47.11.8.15:1\nAlle PCs teilen 200.0.0.1, unterschieden nur durch den Port (Spalte 3). Genau das ist PAT.",
+              },
+              {
+                cmd: "show ip nat statistics",
+                explanation:
+                  "Zeigt: Total active translations, inside/outside interfaces und die gebundene ACL. 'Hits' steigen bei aktivem Traffic, 'misses' bei Konfigurationsfehlern (falsche ACL oder inside/outside vergessen).",
               },
             ],
           },
@@ -3971,19 +4145,22 @@ export const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      { cmd: "show ip nat translations", expected: "Pro PC eine Zeile mit privat:port → öffentlich:port" },
-      { cmd: "show ip nat statistics", expected: "Hits steigen bei ping" },
-      { cmd: "ping 200.0.0.2 (von PC0)", expected: "Pakete werden übersetzt" },
+      { cmd: "ping 47.11.8.15 (von PC0)", expected: "Erfolgreich — Quelle 192.168.1.10 → 200.0.0.1:Port in NAT-Tabelle" },
+      { cmd: "show ip nat translations", expected: "Alle 3 PCs erscheinen mit 200.0.0.1 als Inside Global, unterschiedliche Ports" },
+      { cmd: "show ip nat statistics", expected: "Hits steigen, interface GigabitEthernet0/1, ACL 1 gebunden" },
+      { cmd: "ping 200.0.0.1 (vom Webserver)", expected: "Fehlschlag — PAT hat keinen permanenten Eintrag für eingehende Verbindungen" },
     ],
     glossary: [
-      { term: "NAT", def: "Network Address Translation — übersetzt private in öffentliche IPs (und zurück)." },
-      { term: "PAT (Overload)", def: "Port Address Translation — viele private IPs teilen sich eine öffentliche, getrennt per Port." },
-      { term: "Inside Local / Global", def: "Inside Local = private Host-IP; Inside Global = die öffentliche IP nach Übersetzung." },
-      { term: "ip nat inside", def: "Markiert das LAN-seitige Interface (innen)." },
-      { term: "ip nat outside", def: "Markiert das WAN-/Internet-seitige Interface (außen)." },
-      { term: "access-list (NAT)", def: "Legt fest, welche Quelladressen übersetzt werden." },
-      { term: "ip nat inside source list ... overload", def: "Aktiviert PAT für die ACL über das Ausgangsinterface." },
-      { term: "RFC 1918", def: "Definiert die privaten Adressbereiche (10/8, 172.16/12, 192.168/16)." },
+      { term: "PAT (Overload)",   def: "Port Address Translation — viele private Hosts teilen eine öffentliche IP per eindeutiger Portnummer." },
+      { term: "NAT",              def: "Network Address Translation — übersetzt private in öffentliche IPs." },
+      { term: "Inside Local",     def: "Private Host-IP vor der Übersetzung (z. B. 192.168.1.10)." },
+      { term: "Inside Global",    def: "Öffentliche IP nach Übersetzung — bei PAT immer 200.0.0.1 (die Outside-Interface-IP)." },
+      { term: "overload",         def: "Aktiviert PAT: mehrere Hosts teilen eine IP, unterschieden per Port. Ohne 'overload' = 1:1-NAT." },
+      { term: "ip nat inside",    def: "Markiert das LAN-Interface — Pakete hier werden übersetzt." },
+      { term: "ip nat outside",   def: "Markiert das WAN-Interface — übersetzte Pakete verlassen hier das Netz." },
+      { term: "/30 (255.255.255.252)", def: "WAN-Subnetz mit 4 Adressen (2 nutzbar). Typisch für P2P-Strecken zwischen Router und ISP." },
+      { term: "Rückroute",        def: "INTERNET-Router braucht Route für 200.0.0.0/30 → sonst keine Antwortpakete." },
+      { term: "RFC 1918",         def: "Definiert private Adressbereiche: 10/8, 172.16/12, 192.168/16." },
     ],
   },
 
