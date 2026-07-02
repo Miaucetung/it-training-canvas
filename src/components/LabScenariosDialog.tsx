@@ -4469,6 +4469,284 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // Dynamic NAT Pool + Overload
+  // Topologie: PC0/PC0(1)/PC0(2) → SW → NAT → ISP → INTERNET → Webserver
+  // WAN: 200.0.0.0/29 (NAT=.5, ISP=.6), Pool: 200.0.0.1–200.0.0.4
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "nat-pool-overload",
+    icon: <Globe size={20} />,
+    title: "Dynamic NAT — Pool + Overload",
+    subtitle: "3 PCs · SW · NAT-Router · ISP · INTERNET · Webserver · /29-Pool",
+    difficulty: "Mittel",
+    duration: "25 min",
+    context: {
+      problem:
+        "Weder reines PAT (eine einzige öffentliche IP) noch reines Dynamic NAT (Pool der sich erschöpft) passen: Es sollen mehrere öffentliche IPs zur Verfügung stehen UND beliebig viele interne Hosts bedient werden können.",
+      purpose:
+        "Pool + Overload kombiniert beides: Ein Pool verteilt die Last auf mehrere öffentliche IPs, und 'overload' aktiviert zusätzlich PAT je Pool-Adresse — so können beliebig viele Hosts gleichzeitig ins Internet. Das ist die skalierbarste NAT-Variante.",
+    },
+    topology: {
+      description:
+        "Drei PCs im LAN 192.168.1.0/24, SW1, NAT-Router. WAN-Strecke zum ISP: 200.0.0.0/29 (/29 = 255.255.255.248 = 6 nutzbare Adressen). NAT-Router hat .5, ISP hat .6. Pool: 200.0.0.1–200.0.0.4 (4 IPs aus demselben /29). Hinter dem ISP: INTERNET-Router (1.1.1.0/30) → Webserver (47.11.8.0/24).",
+      devices: [
+        { type: "pc",     label: "PC0 (192.168.1.10/24)",    count: 1 },
+        { type: "pc",     label: "PC0(1) (192.168.1.11/24)", count: 1 },
+        { type: "pc",     label: "PC0(2) (192.168.1.12/24)", count: 1 },
+        { type: "switch", label: "SW1 (Fa0/1–3, Gig0/1)",    count: 1 },
+        { type: "router", label: "NAT-Router (Gig0/0 inside, Gig0/1=200.0.0.5 outside)", count: 1 },
+        { type: "router", label: "ISP (Gig0/2=200.0.0.6, Gig0/1=1.1.1.1)",  count: 1 },
+        { type: "router", label: "INTERNET (Gig0/2=1.1.1.2, Gi0/0=47.11.8.1)", count: 1 },
+        { type: "server", label: "Webserver (47.11.8.15/24)", count: 1 },
+      ],
+      connections: [
+        "PC0/PC0(1)/PC0(2) → SW1 → NAT Gig0/0  (192.168.1.0/24)",
+        "NAT Gig0/1 (200.0.0.5) ↔ ISP Gig0/2 (200.0.0.6)  — 200.0.0.0/29",
+        "ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30",
+        "INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24",
+        "NAT-Pool DYNAMIC-POOL: 200.0.0.1 – 200.0.0.4 /29 (4 IPs aus dem WAN-Subnetz)",
+      ],
+      hint: "/29 hat 6 nutzbare Adressen: .1–.6. .5 = NAT-Router, .6 = ISP. .1–.4 stehen als Pool zur Verfügung. Die INTERNET-Rückroute muss das gesamte /29 (200.0.0.0/29) abdecken — nicht nur die Interface-IPs.",
+    },
+    steps: [
+      {
+        title: "1) IP-Adressen auf allen Geräten vergeben",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0 – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      192.168.1.10\nMaske:   255.255.255.0\nGateway: 192.168.1.1",
+                explanation:
+                  "Gleiche Vorgehensweise für PC0(1) mit .11 und PC0(2) mit .12.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "interface",
+            modeLabel: "NAT(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/0\n ip address 192.168.1.1 255.255.255.0\n no shutdown",
+                explanation: "LAN-Interface. Gateway für alle drei PCs.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.5 255.255.255.248\n no shutdown",
+                explanation:
+                  "WAN-Interface im /29-Subnetz (255.255.255.248). .5 = NAT-Router, .6 = ISP — die Pool-IPs .1–.4 liegen im selben Subnetz und sind trotzdem routbar, weil der NAT-Router via Proxy-ARP für sie antwortet.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "interface",
+            modeLabel: "ISP(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 200.0.0.6 255.255.255.248\n no shutdown",
+                explanation: "ISP-Anschluss des NAT-Routers (.6 im /29).",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 1.1.1.1 255.255.255.252\n no shutdown",
+                explanation: "Transit zum INTERNET-Router (1.1.1.0/30).",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "interface",
+            modeLabel: "INTERNET(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 1.1.1.2 255.255.255.252\n no shutdown",
+                explanation: "Transit-Interface Richtung ISP (.2 im /30).",
+              },
+              {
+                cmd: "interface GigabitEthernet0/0\n ip address 47.11.8.1 255.255.255.0\n no shutdown",
+                explanation: "Interface zum Webserver-Segment.",
+              },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Webserver – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      47.11.8.15\nMaske:   255.255.255.0\nGateway: 47.11.8.1",
+                explanation: "Gateway = INTERNET-Router Gi0/0.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) NAT inside / outside auf Interfaces setzen",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "interface",
+            modeLabel: "NAT(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/0\n ip nat inside",
+                explanation: "LAN-Seite = inside. Pakete von hier werden gegen die NAT-Regeln übersetzt.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip nat outside",
+                explanation: "WAN-Seite = outside. Übersetzte Pakete verlassen hier das Netz.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) ACL — welche Hosts übersetzt werden",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "access-list 1 permit 192.168.1.0 0.0.0.255",
+                explanation:
+                  "Alle Hosts im 192.168.1.0/24 sollen NAT bekommen. Wildcard 0.0.0.255 = alle 256 Adressen im Subnetz.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) NAT-Pool anlegen",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip nat pool DYNAMIC-POOL 200.0.0.1 200.0.0.4 netmask 255.255.255.248",
+                explanation:
+                  "Pool mit 4 öffentlichen IPs (.1, .2, .3, .4) aus dem /29-Subnetz.\nMaske: 255.255.255.248 muss mit der Subnetzmaske des Pools übereinstimmen.\n.5 (NAT Outside-IP) und .6 (ISP) bleiben ausgespart — sie sind bereits belegt.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Pool + Overload aktivieren (der Schlüsselbefehl)",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip nat inside source list 1 pool DYNAMIC-POOL overload",
+                explanation:
+                  "Drei Teile:\n  'list 1'              → Quelle muss ACL 1 treffen\n  'pool DYNAMIC-POOL'   → öffentliche Adresse aus dem Pool (.1–.4)\n  'overload'            → PAT pro Pool-IP aktivieren\n\nVergleich der drei NAT-Varianten:\n  PAT (interface overload):  1 IP  × viele Ports → unbegrenzt Hosts, eine IP\n  Dynamic NAT (pool):        4 IPs × 1:1         → max. 4 gleichzeitige Hosts\n  Pool + Overload (dieses Lab): 4 IPs × viele Ports → unbegrenzt Hosts, Last über 4 IPs verteilt",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Default-Route + Rückrouten konfigurieren",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.6",
+                explanation: "Default-Route zum ISP (.6 = ISP Gig0/2).",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "global",
+            modeLabel: "ISP(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.2",
+                explanation: "Default-Route zum INTERNET-Router.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "global",
+            modeLabel: "INTERNET(config)#",
+            commands: [
+              {
+                cmd: "ip route 200.0.0.0 255.255.255.248 1.1.1.1",
+                explanation:
+                  "Rückroute für das gesamte /29 (200.0.0.0–200.0.0.7) → ISP (.1). Deckt sowohl die Pool-IPs (.1–.4) als auch die NAT-Outside-IP (.5) ab. Ohne diese Route kommen Antwortpakete nicht zurück.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7) Konnektivität testen & Pool-Verteilung beobachten",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC0> ",
+            commands: [
+              {
+                cmd: "ping 47.11.8.15",
+                explanation:
+                  "PC0 bekommt eine IP aus dem Pool zugewiesen (z. B. 200.0.0.1) plus eine Port-Nummer. PC0(1) und PC0(2) können ebenfalls pingen — sie erhalten entweder dieselbe Pool-IP mit anderem Port oder die nächste Pool-IP.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "privileged",
+            modeLabel: "NAT#",
+            commands: [
+              {
+                cmd: "show ip nat translations",
+                explanation:
+                  "Zeigt Einträge mit Pool-IPs als Inside Global:\n  icmp 192.168.1.10:1  200.0.0.1:1  47.11.8.15:1  47.11.8.15:1\n  icmp 192.168.1.11:1  200.0.0.1:2  47.11.8.15:1  47.11.8.15:1\nAlle Hosts teilen sich eine Pool-IP (wegen overload). Erst wenn die erste Pool-IP zu viele Verbindungen hat, nimmt der Router die nächste (.2, .3, .4).",
+              },
+              {
+                cmd: "show ip nat statistics",
+                explanation:
+                  "Zeigt Pool-Auslastung:\n  Pool DYNAMIC-POOL: 4 addresses, X allocated\n'allocated' zeigt, wie viele Pool-IPs gerade aktiv genutzt werden.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ping 47.11.8.15 (von PC0/PC0(1)/PC0(2))", expected: "Alle drei erfolgreich — Inside Global aus 200.0.0.1–200.0.0.4" },
+      { cmd: "show ip nat translations", expected: "Pool-IPs (.1–.4) als Inside Global mit unterschiedlichen Ports" },
+      { cmd: "show ip nat statistics", expected: "Pool DYNAMIC-POOL: 4 addresses, mind. 1 allocated" },
+      { cmd: "show ip nat statistics", expected: "Hits steigen pro Paket; misses = 0 bei korrekter Konfiguration" },
+    ],
+    glossary: [
+      { term: "Pool + Overload",    def: "Kombination: mehrere öffentliche IPs (Pool) + PAT pro IP (Overload) — unbegrenzt skalierbar." },
+      { term: "NAT-Pool",           def: "Vorrat öffentlicher IPs: ip nat pool NAME start end netmask M." },
+      { term: "overload",           def: "Aktiviert PAT je Pool-IP: viele Hosts teilen eine IP per Port." },
+      { term: "/29 (255.255.255.248)", def: "8 Adressen, 6 nutzbar. Ideal für WAN-Strecken mit kleinem Pool." },
+      { term: "Inside Local",       def: "Private Host-IP (192.168.1.x) vor der Übersetzung." },
+      { term: "Inside Global",      def: "Pool-IP (200.0.0.1–.4) nach der Übersetzung — sichtbar im Internet." },
+      { term: "Proxy ARP",          def: "Der NAT-Router antwortet auf ARP-Anfragen für Pool-IPs mit seiner eigenen MAC — so werden die Pool-IPs über sein Interface routbar, obwohl sie nicht direkt konfiguriert sind." },
+      { term: "Rückroute /29",      def: "INTERNET-Router braucht Route 200.0.0.0/255.255.255.248 → ISP — deckt Pool + Outside-Interface ab." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // Statisches NAT — 1:1-Adresszuordnung (Packet-Tracer-Topologie)
   // Topologie: PC0/PC0(1)/PC0(2) → SW → NAT → ISP → INTERNET → Webserver
   // ─────────────────────────────────────────────────────────────
@@ -8034,6 +8312,7 @@ const LAB_ORDER: string[] = [
   "dhcp-relay",           // ip helper-address — braucht VLAN + Routing-Verständnis
   "nat-pat",              // PAT/Overload — braucht Routing-Grundverständnis
   "dynamic-nat",          // NAT-Pool — Variante zu PAT
+  "nat-pool-overload",    // NAT-Pool + Overload — Pool mit PAT kombiniert (200.0.0.0/29)
   "static-nat",           // 1:1 Static NAT — feste Zuordnung, eingehende Verbindungen möglich
   "ntp-syslog-snmp",      // Management-Protokolle
   "hsrp",                 // FHRP — braucht Routing + Redundanz-Konzept
