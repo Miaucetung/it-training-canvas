@@ -4993,6 +4993,324 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // Campus-Integration: VLAN + VTP + DTP + RoaS + DHCP + PAT
+  // SW1 (VTP-Server) → SW2 (VTP-Client) → Router0 (DHCP+NAT)
+  // VLAN10=Blau(192.168.10.0/24), VLAN20=Grün(192.168.20.0/24), VLAN30=Gelb(192.168.30.0/24)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "vlan-dhcp-nat-roas",
+    icon: <Globe size={20} />,
+    title: "VLAN + DHCP + NAT — Campus mit Internetzugang",
+    subtitle: "SW1/SW2 · VTP · DTP · RoaS · 3×DHCP-Pool · PAT · ISP · INTERNET",
+    difficulty: "Fortgeschritten",
+    duration: "40 min",
+    context: {
+      problem:
+        "Ein Campus hat drei Abteilungen (Blau, Grün, Gelb) in separaten VLANs. Alle Hosts bekommen ihre IPs per DHCP und sollen trotzdem gemeinsam über eine einzige öffentliche IP ins Internet.",
+      purpose:
+        "Dieses Lab verbindet alle Kernthemen: VLAN-Segmentierung via VTP, automatischer Trunking via DTP, Inter-VLAN-Routing via Router-on-a-Stick, DHCP-Versorgung je VLAN und PAT für den Internetzugang. Jede Komponente hängt von der vorherigen ab.",
+    },
+    topology: {
+      description:
+        "SW1 (VTP Server, VLAN-Quelle) ist per Trunk mit SW2 (VTP Client) verbunden. SW2 verbindet sich per Trunk mit Router0 (RoaS). Router0 verwaltet drei Sub-Interfaces für die VLANs, dient als DHCP-Server für alle drei Netze und übersetzt per PAT auf seine öffentliche IP (200.0.0.1/30). Dahinter: ISP → INTERNET → Webserver (47.11.8.15).",
+      devices: [
+        { type: "switch", label: "SW1 — VTP Server, VLAN 10/20/30 anlegen",    count: 1 },
+        { type: "switch", label: "SW2 — VTP Client, Trunk zu SW1 + Router0",   count: 1 },
+        { type: "router", label: "Router0 — RoaS + DHCP-Server + NAT/PAT",     count: 1 },
+        { type: "pc",     label: "PC3 (Blau, VLAN 10) — SW1 Fa0/1",            count: 1 },
+        { type: "pc",     label: "PC4 (Grün, VLAN 20) — SW1 Fa0/11",           count: 1 },
+        { type: "pc",     label: "C5 (Gelb, VLAN 30) — SW1 Fa0/15",            count: 1 },
+        { type: "pc",     label: "PC0 (Blau, VLAN 10) — SW2 Fa0/1",            count: 1 },
+        { type: "pc",     label: "PC2 (Grün, VLAN 20) — SW2 Fa0/11",           count: 1 },
+        { type: "pc",     label: "PC1 (Gelb, VLAN 30) — SW2 Fa0/15",           count: 1 },
+        { type: "router", label: "ISP (Gig0/2=200.0.0.2, Gig0/1=1.1.1.1)",    count: 1 },
+        { type: "router", label: "INTERNET (Gig0/2=1.1.1.2, Gi0/0=47.11.8.1)", count: 1 },
+        { type: "server", label: "Webserver (47.11.8.15/24)",                  count: 1 },
+      ],
+      connections: [
+        "SW1 Gig0/1 ↔ SW2 Gig0/2  — Trunk (DTP: SW1 mode on, SW2 mode desirable)",
+        "SW2 Gig0/1 ↔ Router0 Gig0/0  — Trunk (Router-on-a-Stick)",
+        "Router0 Gig0/1 (200.0.0.1) ↔ ISP Gig0/2 (200.0.0.2)  — 200.0.0.0/30",
+        "ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30",
+        "INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24",
+      ],
+      hint: "Reihenfolge ist entscheidend: 1) VLANs auf VTP-Server anlegen → propagieren zu Client. 2) Trunks aktiv. 3) Sub-Interfaces + DHCP auf Router. 4) NAT-ACL muss alle drei Subnetze erfassen. 5) Routing.",
+    },
+    steps: [
+      {
+        title: "1) VLANs anlegen — SW1 als VTP Server",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "config",
+            modeLabel: "SW1(config)#",
+            commands: [
+              { cmd: "vtp mode server", explanation: "SW1 ist die VLAN-Quelle im VTP-Verbund. Nur auf dem Server können VLANs angelegt werden." },
+              { cmd: "vtp domain VTPDOM", explanation: "VTP-Domäne: VTPDOM. Alle Switches im Verbund müssen dieselbe Domäne haben — sonst ignorieren sie VTP-Nachrichten." },
+              { cmd: "vtp password geheim!", explanation: "VTP-Passwort als MD5-Hash. SW2 muss dasselbe Passwort haben, sonst werden keine VTP-Updates akzeptiert." },
+              { cmd: "vlan 10", explanation: "VLAN 10 anlegen." },
+              { cmd: " name Blau", explanation: "VLAN 10 heißt 'Blau' — PCs in blauen Ovalen in der Topologie." },
+              { cmd: "vlan 20", explanation: "VLAN 20 anlegen." },
+              { cmd: " name Gruen", explanation: "VLAN 20 = 'Gruen' — grüne PCs." },
+              { cmd: "vlan 30", explanation: "VLAN 30 anlegen." },
+              { cmd: " name Gelb", explanation: "VLAN 30 = 'Gelb' — gelbe PCs. Alle drei VLANs werden über VTP an SW2 propagiert, sobald der Trunk aktiv ist." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) VTP auf SW2 konfigurieren",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "config",
+            modeLabel: "SW2(config)#",
+            commands: [
+              { cmd: "vtp mode client", explanation: "SW2 ist VTP Client — darf keine VLANs anlegen, empfängt sie vom Server." },
+              { cmd: "vtp domain VTPDOM", explanation: "Muss identisch mit SW1 sein." },
+              { cmd: "vtp password geheim!", explanation: "Muss identisch mit SW1 sein. Danach warten bis der Trunk aktiv ist — VLANs erscheinen automatisch." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Trunk SW1 ↔ SW2 konfigurieren (DTP)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "config-if",
+            modeLabel: "SW1(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/1", explanation: "Trunk-Port zu SW2." },
+              { cmd: "switchport mode trunk", explanation: "DTP Mode 'on' — sendet aktiv DTP-Frames und erzwingt Trunk. Wartet nicht auf Gegenseite." },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "config-if",
+            modeLabel: "SW2(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/2", explanation: "Trunk-Port zu SW1." },
+              { cmd: "switchport mode dynamic desirable", explanation: "DTP Mode 'desirable' — SW2 sendet DTP-Frames und möchte einen Trunk. Da SW1 auf 'on' steht, wird der Trunk erfolgreich ausgehandelt." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Access-Ports konfigurieren (SW1 + SW2)",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "config-if",
+            modeLabel: "SW1(config-if)#",
+            commands: [
+              { cmd: "interface FastEthernet0/1", explanation: "Port zu PC3 (Blau)." },
+              { cmd: "switchport mode access", explanation: "Access-Port — kein Trunk-Tag." },
+              { cmd: "switchport access vlan 10", explanation: "PC3 kommt in VLAN 10 (Blau)." },
+              { cmd: "interface FastEthernet0/11", explanation: "Port zu PC4 (Grün)." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 20", explanation: "PC4 → VLAN 20 (Grün)." },
+              { cmd: "interface FastEthernet0/15", explanation: "Port zu C5 (Gelb)." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 30", explanation: "C5 → VLAN 30 (Gelb)." },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "config-if",
+            modeLabel: "SW2(config-if)#",
+            commands: [
+              { cmd: "interface FastEthernet0/1", explanation: "Port zu PC0 (Blau)." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 10", explanation: "PC0 → VLAN 10." },
+              { cmd: "interface FastEthernet0/11", explanation: "Port zu PC2 (Grün)." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 20", explanation: "PC2 → VLAN 20." },
+              { cmd: "interface FastEthernet0/15", explanation: "Port zu PC1 (Gelb)." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 30", explanation: "PC1 → VLAN 30." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Trunk SW2 ↔ Router0 konfigurieren",
+        blocks: [
+          {
+            device: "SW2",
+            mode: "config-if",
+            modeLabel: "SW2(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/1", explanation: "Uplink zum Router0." },
+              { cmd: "switchport mode trunk", explanation: "Trunk zum Router erzwingen. Kein DTP-Aushandeln nötig — Router unterstützt kein DTP." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Router0: Sub-Interfaces (RoaS) + ip nat inside",
+        blocks: [
+          {
+            device: "Router0",
+            mode: "config-if",
+            modeLabel: "Router0(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/0", explanation: "Physical Interface — kein IP, nur aktivieren. Sub-Interfaces übernehmen die Adressierung." },
+              { cmd: "no ip address", explanation: "Keine IP auf dem Physical Interface." },
+              { cmd: "no shutdown", explanation: "Physical Interface muss aktiv sein damit Sub-Interfaces funktionieren." },
+              { cmd: "interface GigabitEthernet0/0.10", explanation: "Sub-Interface für VLAN 10." },
+              { cmd: "encapsulation dot1q 10", explanation: "802.1Q-Tag für VLAN 10." },
+              { cmd: "ip address 192.168.10.1 255.255.255.0", explanation: "Gateway für VLAN 10 (Blau). Alle DHCP-Clients in VLAN 10 erhalten diese IP als Default-Gateway." },
+              { cmd: "ip nat inside", explanation: "Sub-Interface .10 als NAT-inside markieren. Wichtig: Jedes LAN-Sub-Interface bekommt 'ip nat inside'." },
+              { cmd: "interface GigabitEthernet0/0.20", explanation: "Sub-Interface für VLAN 20." },
+              { cmd: "encapsulation dot1q 20", explanation: "802.1Q-Tag für VLAN 20." },
+              { cmd: "ip address 192.168.20.1 255.255.255.0", explanation: "Gateway für VLAN 20 (Grün)." },
+              { cmd: "ip nat inside", explanation: "VLAN-20-Traffic wird ebenfalls NAT-übersetzt." },
+              { cmd: "interface GigabitEthernet0/0.30", explanation: "Sub-Interface für VLAN 30." },
+              { cmd: "encapsulation dot1q 30", explanation: "802.1Q-Tag für VLAN 30." },
+              { cmd: "ip address 192.168.30.1 255.255.255.0", explanation: "Gateway für VLAN 30 (Gelb)." },
+              { cmd: "ip nat inside", explanation: "VLAN-30-Traffic NAT-fähig." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "WAN-Interface Richtung ISP." },
+              { cmd: "ip address 200.0.0.1 255.255.255.252", explanation: "Öffentliche IP auf dem /30-Subnetz. .1 = Router0, .2 = ISP." },
+              { cmd: "ip nat outside", explanation: "WAN-Interface = outside. Übersetzte Pakete aller drei VLANs verlassen hier das Netz mit Source 200.0.0.1." },
+              { cmd: "no shutdown", explanation: "WAN-Interface aktivieren." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7) DHCP-Server einrichten — 3 Pools (je ein VLAN)",
+        blocks: [
+          {
+            device: "Router0",
+            mode: "config",
+            modeLabel: "Router0(config)#",
+            commands: [
+              { cmd: "ip dhcp excluded-address 192.168.10.1", explanation: "Gateway-IP aus dem DHCP-Pool ausschließen — Router0 vergibt sie nicht an Clients." },
+              { cmd: "ip dhcp excluded-address 192.168.20.1", explanation: "Gateway VLAN 20 ausschließen." },
+              { cmd: "ip dhcp excluded-address 192.168.30.1", explanation: "Gateway VLAN 30 ausschließen." },
+              { cmd: "ip dhcp pool VLAN10", explanation: "DHCP-Pool für VLAN 10 (Blau)." },
+              { cmd: " network 192.168.10.0 255.255.255.0", explanation: "Der Pool bedient das gesamte 192.168.10.0/24." },
+              { cmd: " default-router 192.168.10.1", explanation: "Gateway, das den Clients mitgeteilt wird (= das Sub-Interface .10)." },
+              { cmd: " dns-server 8.8.8.8", explanation: "DNS-Server. In Packet Tracer kann auch eine beliebige erreichbare IP verwendet werden." },
+              { cmd: "ip dhcp pool VLAN20", explanation: "DHCP-Pool für VLAN 20 (Grün)." },
+              { cmd: " network 192.168.20.0 255.255.255.0", explanation: "Pool für 192.168.20.0/24." },
+              { cmd: " default-router 192.168.20.1", explanation: "Gateway VLAN 20." },
+              { cmd: " dns-server 8.8.8.8", explanation: "DNS-Server." },
+              { cmd: "ip dhcp pool VLAN30", explanation: "DHCP-Pool für VLAN 30 (Gelb)." },
+              { cmd: " network 192.168.30.0 255.255.255.0", explanation: "Pool für 192.168.30.0/24." },
+              { cmd: " default-router 192.168.30.1", explanation: "Gateway VLAN 30." },
+              { cmd: " dns-server 8.8.8.8", explanation: "DNS-Server." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "8) NAT/PAT konfigurieren — alle VLANs über eine IP",
+        blocks: [
+          {
+            device: "Router0",
+            mode: "config",
+            modeLabel: "Router0(config)#",
+            commands: [
+              { cmd: "access-list 1 permit 192.168.10.0 0.0.0.255", explanation: "ACL 1 erlaubt VLAN-10-Hosts als NAT-Quellen." },
+              { cmd: "access-list 1 permit 192.168.20.0 0.0.0.255", explanation: "ACL 1 erlaubt VLAN-20-Hosts. Mehrere 'permit'-Zeilen in einer ACL sind möglich." },
+              { cmd: "access-list 1 permit 192.168.30.0 0.0.0.255", explanation: "ACL 1 erlaubt VLAN-30-Hosts. Alle drei Subnetze werden auf 200.0.0.1 übersetzt." },
+              { cmd: "ip nat inside source list 1 interface GigabitEthernet0/1 overload", explanation: "'list 1' → Quelle muss ACL 1 treffen. 'interface Gi0/1' → benutze 200.0.0.1 als öffentliche IP. 'overload' → PAT. Egal ob Host aus VLAN 10, 20 oder 30 — alle erscheinen im Internet als 200.0.0.1 mit unterschiedlichen Ports." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "9) Routing — Default-Route + Rückrouten",
+        blocks: [
+          {
+            device: "Router0",
+            mode: "config",
+            modeLabel: "Router0(config)#",
+            commands: [
+              { cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.2", explanation: "Default-Route zum ISP (.2)." },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "config",
+            modeLabel: "ISP(config)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/2\n ip address 200.0.0.2 255.255.255.252\n no shutdown", explanation: "ISP-Interface Richtung Router0." },
+              { cmd: "interface GigabitEthernet0/1\n ip address 1.1.1.1 255.255.255.252\n no shutdown", explanation: "ISP-Interface Richtung INTERNET." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.2", explanation: "Default-Route zum INTERNET-Router." },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "config",
+            modeLabel: "INTERNET(config)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/2\n ip address 1.1.1.2 255.255.255.252\n no shutdown", explanation: "Transit-Interface Richtung ISP." },
+              { cmd: "interface GigabitEthernet0/0\n ip address 47.11.8.1 255.255.255.0\n no shutdown", explanation: "Interface zum Webserver-Segment." },
+              { cmd: "ip route 200.0.0.0 255.255.255.252 1.1.1.1", explanation: "Rückroute für 200.0.0.0/30 → ISP. Ohne diese Route finden Antwortpakete den Weg zu 200.0.0.1 nicht." },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Webserver – IP-Konfiguration",
+            commands: [
+              { cmd: "IP:      47.11.8.15\nMaske:   255.255.255.0\nGateway: 47.11.8.1", explanation: "Statische öffentliche IP. Gateway = INTERNET-Router." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "10) Konnektivität testen",
+        blocks: [
+          {
+            device: "PC0 / PC3",
+            mode: "cli",
+            modeLabel: "PC> (DHCP abwarten)",
+            commands: [
+              { cmd: "ipconfig /renew", explanation: "DHCP-Adresse anfordern (falls nötig). PC0 und PC3 sollten eine 192.168.10.x bekommen, Gateway 192.168.10.1." },
+              { cmd: "ping 192.168.20.x", explanation: "Inter-VLAN-Ping zu einem Grün-PC — bestätigt, dass RoaS funktioniert. Router0 leitet zwischen den Sub-Interfaces weiter." },
+              { cmd: "ping 47.11.8.15", explanation: "Internet-Ping — bestätigt NAT + Routing. Quelle 192.168.10.x wird zu 200.0.0.1:Port in der NAT-Tabelle." },
+            ],
+          },
+          {
+            device: "Router0",
+            mode: "privileged",
+            modeLabel: "Router0#",
+            commands: [
+              { cmd: "show ip dhcp binding", explanation: "Zeigt alle DHCP-Leases: welche IP an welche MAC vergeben wurde. Müssen Einträge aus allen drei VLANs sehen." },
+              { cmd: "show ip nat translations", explanation: "Aktive PAT-Einträge: alle Hosts aus VLANs 10/20/30 erscheinen mit 200.0.0.1 als Inside Global." },
+              { cmd: "show vlan brief", explanation: "Auf SW1/SW2: VLANs 10/20/30 müssen mit den richtigen Ports und Status 'active' sichtbar sein." },
+              { cmd: "show interfaces trunk", explanation: "Auf SW1/SW2: Trunk-Ports zeigt VLANs allowed und in STP forwarding — alle drei VLANs müssen im Trunk-Status sein." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show vlan brief (SW1)", expected: "VLAN 10 Blau, VLAN 20 Gruen, VLAN 30 Gelb — alle active mit korrekten Ports" },
+      { cmd: "show vtp status (SW2)", expected: "Mode Client, Domain VTPDOM, VLANs 10/20/30 vorhanden" },
+      { cmd: "show interfaces trunk (SW1/SW2)", expected: "Gi0/1 als Trunk, VLANs 10/20/30 allowed and active" },
+      { cmd: "show ip dhcp binding (Router0)", expected: "Leases aus 192.168.10.x, .20.x, .30.x — alle drei VLANs bedient" },
+      { cmd: "ping 47.11.8.15 (von PC0/PC3/PC1/PC2)", expected: "Alle Hosts aller VLANs erreichen den Webserver" },
+      { cmd: "show ip nat translations (Router0)", expected: "Inside Global 200.0.0.1 für Hosts aus allen drei VLANs" },
+    ],
+    glossary: [
+      { term: "VTP Server/Client",    def: "Server legt VLANs an und propagiert sie per VTP-Update über Trunks an Clients." },
+      { term: "VTP Domain + Passwort", def: "Beide müssen auf allen Switches übereinstimmen — sonst werden VTP-Updates ignoriert." },
+      { term: "DTP mode on",          def: "Erzwingt Trunk — sendet DTP-Frames, wartet nicht auf Antwort." },
+      { term: "DTP mode desirable",   def: "Möchte Trunk — verhandelt aktiv, wird mit 'on' oder 'desirable' erfolgreich." },
+      { term: "Router-on-a-Stick",    def: "Ein Router-Interface trägt per 802.1Q-Trunk mehrere VLANs über Sub-Interfaces — Inter-VLAN-Routing ohne L3-Switch." },
+      { term: "ip dhcp pool",         def: "Definiert einen DHCP-Adressbereich. Pro VLAN ein eigener Pool." },
+      { term: "ip dhcp excluded-address", def: "Schließt IPs (z. B. Gateways) aus dem DHCP-Pool aus." },
+      { term: "ACL + NAT (mehrere Subnetze)", def: "Mehrere 'permit'-Zeilen in einer Standard-ACL reichen — alle werden mit 'overload' auf eine IP übersetzt." },
+      { term: "ip nat inside (Sub-Interface)", def: "Jedes LAN-Sub-Interface muss einzeln mit 'ip nat inside' markiert werden." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 22. NTP + Syslog + SNMPv3
   // ─────────────────────────────────────────────────────────────
   {
@@ -8314,6 +8632,7 @@ const LAB_ORDER: string[] = [
   "dynamic-nat",          // NAT-Pool — Variante zu PAT
   "nat-pool-overload",    // NAT-Pool + Overload — Pool mit PAT kombiniert (200.0.0.0/29)
   "static-nat",           // 1:1 Static NAT — feste Zuordnung, eingehende Verbindungen möglich
+  "vlan-dhcp-nat-roas",   // Campus-Integration: VLAN + VTP + DTP + RoaS + DHCP + PAT
   "ntp-syslog-snmp",      // Management-Protokolle
   "hsrp",                 // FHRP — braucht Routing + Redundanz-Konzept
   "gre-tunnel",           // Site-to-Site VPN über Internet
