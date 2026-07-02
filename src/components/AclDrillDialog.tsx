@@ -349,6 +349,7 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
                     </thead>
                     <tbody>
                       {([
+                        ["host <ip>",  "1",   "jede Adresse  (→ Kurzform für 0.0.0.0)"],
                         ["0.0.0.1",   "2",   "0, 2, 4, 6, 8 … (gerade)"],
                         ["0.0.0.3",   "4",   "0, 4, 8, 12, 16 …"],
                         ["0.0.0.7",   "8",   "0, 8, 16, 24, 32 …"],
