@@ -169,12 +169,12 @@ describe("Range-Modus: jeder korrekte Lösungsweg zählt", () => {
       expect(r.missing.length).toBeGreaterThan(0);
     }
   });
-  it("falsch ausgerichteter Block (.46 0.0.0.31) erzeugt Alignment-Hinweis mit Teilbarkeitsprobe", () => {
+  it("falsch ausgerichteter Block (.46 0.0.0.31) erzeugt Alignment-Hinweis mit Startliste", () => {
     const t = generateAclRangeTask();
     const r = checkAclRange(`permit ${t.base}.46 0.0.0.31`, t);
     if (!r.ok) {
       expect(r.alignmentHint).toBeDefined();
-      expect(r.alignmentHint).toContain("46 ÷ 32 = Rest 14");
+      expect(r.alignmentHint).toContain("46");
       expect(r.alignmentHint).toContain(".32");
     }
   });
