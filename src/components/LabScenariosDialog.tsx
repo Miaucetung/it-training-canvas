@@ -4410,6 +4410,30 @@ export const LABS: LabScenario[] = [
         title: "7) Eingehende Verbindung testen (Unterschied zu Static NAT)",
         blocks: [
           {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC0> ",
+            commands: [
+              {
+                cmd: "ping 47.11.8.15",
+                explanation:
+                  "Schritt 1 — erst einen NAT-Eintrag erzeugen: PC0 pingt den Webserver. Dadurch weist der Router die Pool-IP 200.0.0.10 zu und schreibt den Eintrag in die NAT-Tabelle. Dieser Eintrag lebt standardmäßig für ~60 s (ICMP-Timeout).",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
+            mode: "privileged",
+            modeLabel: "NAT#",
+            commands: [
+              {
+                cmd: "show ip nat translations",
+                explanation:
+                  "Bestätigt den aktiven Eintrag:\n  icmp 192.168.1.10:x  200.0.0.10:x  47.11.8.15:x  ...\nSolange dieser Eintrag existiert, kennt der Router die Zuordnung 200.0.0.10 → 192.168.1.10.",
+              },
+            ],
+          },
+          {
             device: "Webserver",
             mode: "cli",
             modeLabel: "Webserver> ",
@@ -4417,7 +4441,7 @@ export const LABS: LabScenario[] = [
               {
                 cmd: "ping 200.0.0.10",
                 explanation:
-                  "Diese Verbindung SCHEITERT — und das ist beabsichtigt!\nBei Dynamic NAT existiert kein permanenter Eintrag für 200.0.0.10. Erst wenn PC0 selbst eine Verbindung aufgebaut hat, gibt es einen temporären Eintrag.\nBei Static NAT funktioniert dies, weil der Eintrag dauerhaft vorhanden ist.\nMerkregel: Dynamic NAT = nur ausgehende Verbindungen; Static NAT = auch eingehende Verbindungen möglich.",
+                  "Schritt 2 — SOFORT nach dem PC0-Ping vom Webserver aus versuchen (Eintrag noch aktiv):\n  ✓ Funktioniert: Der NAT-Router findet den Eintrag 200.0.0.10 → 192.168.1.10 und leitet weiter.\n  ✗ Scheitert, wenn der Eintrag abgelaufen ist oder PC0 nie gepingt hat.\n\nUnterschied zu Static NAT:\n  Static NAT: Eintrag ist permanent — Webserver kann jederzeit 200.0.0.10 erreichen.\n  Dynamic NAT: Eintrag existiert nur während aktiver Verbindung — eingehende Verbindungen nur im Zeitfenster nach einem ausgehenden Paket von PC0.",
               },
             ],
           },
@@ -4428,7 +4452,7 @@ export const LABS: LabScenario[] = [
       { cmd: "show ip nat translations", expected: "Einträge erscheinen NUR nach aktivem Traffic — kein permanenter 'Pro ---'-Eintrag wie bei Static NAT" },
       { cmd: "show ip nat statistics", expected: "Pool PUBLIC-POOL: 3 addresses, mind. 1 allocated nach Ping" },
       { cmd: "ping 47.11.8.15 (von PC0)", expected: "Erfolgreich — 192.168.1.10 → 200.0.0.10 (erste freie Pool-IP)" },
-      { cmd: "ping 200.0.0.10 (vom Webserver)", expected: "Fehlschlag (kein dauerhafter NAT-Eintrag) — Unterschied zu Static NAT" },
+      { cmd: "ping 200.0.0.10 (vom Webserver, sofort nach PC0-Ping)", expected: "Erfolgreich NUR wenn NAT-Eintrag noch aktiv; ohne aktiven Eintrag: Fehlschlag" },
       { cmd: "show ip nat statistics (bei leerem Pool)", expected: "misses erhöhen sich wenn 4. Host versucht zu verbinden" },
     ],
     glossary: [
@@ -4439,7 +4463,7 @@ export const LABS: LabScenario[] = [
       { term: "Pool-Erschöpfung", def: "Wenn alle Pool-IPs belegt sind, werden neue Verbindungen verworfen bis ein Eintrag abläuft." },
       { term: "overload",        def: "Schlüsselwort für PAT: mehrere Hosts teilen eine IP via Ports. OHNE overload = reines 1:1 Dynamic NAT." },
       { term: "clear ip nat translation *", def: "Löscht alle dynamischen NAT-Einträge sofort — statische Einträge bleiben." },
-      { term: "Static vs. Dynamic", def: "Static: dauerhafter Eintrag, eingehende Verbindungen möglich. Dynamic: Eintrag nur bei Traffic, nur ausgehende Verbindungen." },
+      { term: "Static vs. Dynamic", def: "Static: dauerhafter Eintrag, eingehende Verbindungen immer möglich. Dynamic: Eintrag nur während aktiver Session, eingehende Verbindungen nur im Zeitfenster." },
       { term: "Rückroute (INTERNET)", def: "Der INTERNET-Router muss 200.0.0.0/24 über ISP kennen — sonst werden Antwortpakete verworfen." },
     ],
   },
