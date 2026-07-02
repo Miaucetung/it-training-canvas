@@ -53,6 +53,8 @@ interface LabScenario {
     devices: Array<{ type: string; label: string; count: number }>;
     connections: string[];
     hint: string;
+    /** Optionales visuelles Netzwerkdiagramm (SVG/JSX), wird unter dem Hint angezeigt. */
+    topologyDiagram?: React.ReactNode;
   };
   steps: LabStep[];
   verifyCommands: Array<{ cmd: string; expected: string; explanation?: string }>;
@@ -3986,110 +3988,259 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // Dynamic NAT (Pool) — aus Cisco Practice Lab 5, Task 3
+  // Dynamic NAT (Pool) — gleiche Topologie wie Statisches NAT
+  // Topologie: PC0/PC0(1)/PC0(2) → SW → NAT → ISP → INTERNET → Webserver
   // ─────────────────────────────────────────────────────────────
   {
     id: "dynamic-nat",
     icon: <Globe size={20} />,
-    title: "Dynamic NAT (Pool)",
-    subtitle: "Inside-Hosts ↔ Pool öffentlicher IPs",
+    title: "Dynamisches NAT (Pool)",
+    subtitle: "3 PCs · SW · NAT-Router · ISP · INTERNET · Webserver",
     difficulty: "Mittel",
-    duration: "20 min",
+    duration: "25 min",
     context: {
       problem:
-        "Statisches NAT bräuchte pro Host eine feste öffentliche IP, PAT teilt sich nur eine. Dazwischen liegt Dynamic NAT: ein POOL mehrerer öffentlicher Adressen wird bei Bedarf den internen Hosts zugewiesen.",
+        "Drei PCs sollen ins Internet, aber die öffentlichen IPs sollen nicht fest zugeordnet sein — wer zuerst Verbindung aufbaut, bekommt die nächste freie Pool-Adresse. Ist der Pool leer, wird die Verbindung verworfen.",
       purpose:
-        "Verstehen, wie eine ACL die zu übersetzenden Quellen auswählt und ein NAT-Pool die öffentlichen Adressen bereitstellt — der Unterschied zu PAT (overload) und statischem NAT ist Top-Prüfungsstoff.",
+        "Dynamic NAT verwaltet einen Pool öffentlicher Adressen und weist jede davon bei Bedarf dynamisch einem internen Host zu (1:1, keine Port-Multiplexierung). Tabelleneinträge entstehen erst bei aktivem Traffic und verfallen danach — im Gegensatz zu Static NAT, wo Einträge permanent existieren.",
     },
     topology: {
       description:
-        "R1 (Inside-Gateway, mehrere LANs) ist über Se0/0/0 mit dem ISP verbunden. Interne Hosts in 192.168.11.0/24 sollen über einen Pool von 4 öffentlichen Adressen (1.1.1.3–1.1.1.6) ins Internet.",
+        "Drei PCs hängen an einem Switch im Netz 192.168.1.0/24. Der NAT-Router trennt das private LAN vom öffentlichen 200.0.0.0/24-Netz. Dahinter simuliert ein ISP-Router + INTERNET-Router das Kernnetz; ein Webserver (47.11.8.15) stellt das Internet dar. Gleiche Topologie wie Statisches NAT — nur der Übersetzungsmechanismus ist anders.",
       devices: [
-        { type: "router", label: "R1 (NAT-Border)", count: 1 },
-        { type: "router", label: "ISP / Internet", count: 1 },
-        { type: "pc", label: "PC1-1 (192.168.11.25)", count: 1 },
+        { type: "pc",     label: "PC0  (192.168.1.10/24)",  count: 1 },
+        { type: "pc",     label: "PC0(1) (192.168.1.11/24)", count: 1 },
+        { type: "pc",     label: "PC0(2) (192.168.1.12/24)", count: 1 },
+        { type: "switch", label: "SW (Layer-2, kein Config)", count: 1 },
+        { type: "router", label: "NAT-Router",               count: 1 },
+        { type: "router", label: "ISP",                      count: 1 },
+        { type: "router", label: "INTERNET",                 count: 1 },
+        { type: "server", label: "Webserver (47.11.8.15/24)", count: 1 },
       ],
       connections: [
-        "R1 Gi0/1 → Inside-LAN 192.168.11.0/24",
-        "R1 Se0/0/0 → ISP (outside), öffentliche IP 1.1.1.2",
-        "NAT-Pool SITE_1: 1.1.1.3 – 1.1.1.6 /29",
+        "PC0 / PC0(1) / PC0(2) → SW  (192.168.1.0/24)",
+        "SW Gig0/1 → NAT Gig0/0  (inside, 192.168.1.1/24)",
+        "NAT Gig0/1 → ISP Gig0/1  (200.0.0.253 ↔ 200.0.0.254, /24)",
+        "ISP Gig0/2 → INTERNET Gig0/2  (1.1.1.1 ↔ 1.1.1.2, /30)",
+        "INTERNET Gig0/0 → Webserver Fa0  (47.11.8.1 ↔ 47.11.8.15, /24)",
+        "NAT-Pool: 200.0.0.10 – 200.0.0.12 (3 öffentliche IPs, 1 pro PC)",
       ],
-      hint: "Reihenfolge: 1) ACL = WER wird übersetzt, 2) ip nat inside/outside auf die Interfaces, 3) ip nat pool, 4) ip nat inside source list <ACL> pool <NAME>.",
+      hint: "Reihenfolge: 1) ACL = WER wird übersetzt, 2) ip nat inside/outside auf die Interfaces, 3) ip nat pool anlegen, 4) ip nat inside source list → pool verknüpfen. Danach Rückroute auf INTERNET-Router nicht vergessen.",
     },
     steps: [
       {
-        title: "1) ACL — welche Quellen übersetzt werden",
+        title: "1) IP-Adressen auf allen Geräten vergeben",
         blocks: [
           {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "PC0 – IP-Konfiguration",
             commands: [
               {
-                cmd: "access-list 1 permit 192.168.11.0 0.0.0.255\naccess-list 1 deny any",
+                cmd: "IP:      192.168.1.10\nMaske:   255.255.255.0\nGateway: 192.168.1.1",
                 explanation:
-                  "Standard-ACL listet die INSIDE-LOCAL-Quellen auf, die NAT bekommen sollen (hier das ganze /24, Wildcard 0.0.0.255). Alles andere wird nicht übersetzt.",
+                  "Statische IP auf PC0. Gleiche Vorgehensweise für PC0(1) mit .11 und PC0(2) mit .12. Das Gateway zeigt auf den NAT-Router (inside-Interface).",
               },
             ],
           },
-        ],
-      },
-      {
-        title: "2) Inside-/Outside-Interfaces klassifizieren",
-        blocks: [
           {
-            device: "R1",
+            device: "NAT-Router",
             mode: "interface",
-            modeLabel: "R1(config-if)#",
+            modeLabel: "NAT(config-if)#",
             commands: [
               {
-                cmd: "interface gi0/1\nip nat inside\ninterface se0/0/0\nip nat outside",
+                cmd: "interface GigabitEthernet0/0\n ip address 192.168.1.1 255.255.255.0\n ip nat inside\n no shutdown",
                 explanation:
-                  "NAT übersetzt nur an der Grenze: das interne Interface = inside, das ISP-Interface = outside. Ohne diese Markierung passiert KEINE Übersetzung — häufigster Fehler.",
+                  "'ip nat inside' markiert das LAN-Interface. Der Router übersetzt Source-IPs eingehender Pakete von hier gegen die NAT-Pool-Adressen.",
+              },
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.253 255.255.255.0\n ip nat outside\n no shutdown",
+                explanation:
+                  "'ip nat outside' markiert das WAN-Interface. Übersetzte Pakete verlassen das Netz hier mit einer Adresse aus dem Pool.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "interface",
+            modeLabel: "ISP(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/1\n ip address 200.0.0.254 255.255.255.0\n no shutdown\ninterface GigabitEthernet0/2\n ip address 1.1.1.1 255.255.255.252\n no shutdown",
+                explanation:
+                  "ISP verbindet NAT-Router (200.0.0.x) und INTERNET-Router (1.1.1.0/30). Identisch zum Static-NAT-Lab.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "interface",
+            modeLabel: "INTERNET(config-if)#",
+            commands: [
+              {
+                cmd: "interface GigabitEthernet0/2\n ip address 1.1.1.2 255.255.255.252\n no shutdown\ninterface GigabitEthernet0/0\n ip address 47.11.8.1 255.255.255.0\n no shutdown",
+                explanation:
+                  "INTERNET-Router: Transit (.2) und LAN-Seite zum Webserver (47.11.8.x/24).",
+              },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Webserver – IP-Konfiguration",
+            commands: [
+              {
+                cmd: "IP:      47.11.8.15\nMaske:   255.255.255.0\nGateway: 47.11.8.1",
+                explanation:
+                  "Webserver mit statischer öffentlicher IP. Gateway zeigt auf den INTERNET-Router.",
               },
             ],
           },
         ],
       },
       {
-        title: "3) Pool anlegen + NAT scharfschalten",
+        title: "2) ACL definieren — welche Hosts übersetzt werden",
         blocks: [
           {
-            device: "R1",
+            device: "NAT-Router",
             mode: "global",
-            modeLabel: "R1(config)#",
+            modeLabel: "NAT(config)#",
             commands: [
               {
-                cmd: "ip nat pool SITE_1 1.1.1.3 1.1.1.6 netmask 255.255.255.248",
+                cmd: "access-list 1 permit 192.168.1.0 0.0.0.255",
                 explanation:
-                  "Definiert den Vorrat öffentlicher Adressen (4 IPs, /29). Die erste freie Pool-Adresse wird einem Inside-Host bei der ersten Verbindung dynamisch zugewiesen.",
-              },
-              {
-                cmd: "ip nat inside source list 1 pool SITE_1 overload",
-                explanation:
-                  "Verknüpft ACL 1 (WER) mit Pool SITE_1 (WOHIN). 'overload' erlaubt zusätzlich PAT je Pool-Adresse (mehr Hosts als IPs). Ohne 'overload' = reines Dynamic NAT (1:1, Pool kann erschöpfen).",
+                  "Standard-ACL 1 erlaubt das gesamte LAN-Subnetz (Wildcard 0.0.0.255 = alle 256 Adressen in .0/24). Nur Hosts, die dieser ACL entsprechen, werden von Dynamic NAT übersetzt. Alles andere bleibt unverändert.",
               },
             ],
           },
         ],
       },
       {
-        title: "4) Übersetzung testen & prüfen",
+        title: "3) NAT-Pool anlegen",
         blocks: [
           {
-            device: "R1",
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip nat pool PUBLIC-POOL 200.0.0.10 200.0.0.12 netmask 255.255.255.0",
+                explanation:
+                  "Definiert den Vorrat öffentlicher Adressen:\n  Name:     PUBLIC-POOL\n  Start-IP: 200.0.0.10\n  End-IP:   200.0.0.12\n  Maske:    255.255.255.0 (gleiche Maske wie das outside-Interface)\n3 IPs für 3 PCs — genau so viele wie im LAN. Verbindet sich ein 4. Host bevor ein Eintrag ausläuft, wird seine Verbindung verworfen (Pool leer).",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) ACL mit Pool verknüpfen (NAT aktivieren)",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip nat inside source list 1 pool PUBLIC-POOL",
+                explanation:
+                  "Der Schlüsselbefehl: 'list 1' = Quelle muss ACL 1 treffen, 'pool PUBLIC-POOL' = Zieladresse aus dem Pool.\nOHNE 'overload': reines Dynamic NAT — jeder Host bekommt eine eigene Pool-IP (1:1).\nMIT 'overload': Dynamic NAT + PAT — mehrere Hosts teilen eine Pool-IP per Port-Multiplexierung.\nFür dieses Lab: kein overload — Pool hat genau 3 IPs für 3 PCs.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Default-Route + Rückrouten konfigurieren",
+        blocks: [
+          {
+            device: "NAT-Router",
+            mode: "global",
+            modeLabel: "NAT(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.254",
+                explanation:
+                  "Default-Route zum ISP. Nach der NAT-Übersetzung verlässt das Paket Gig0/1 mit einer Adresse aus 200.0.0.10–.12.",
+              },
+            ],
+          },
+          {
+            device: "ISP",
+            mode: "global",
+            modeLabel: "ISP(config)#",
+            commands: [
+              {
+                cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.2",
+                explanation:
+                  "ISP-Default-Route Richtung INTERNET. Antwortpakete des Webservers (Ziel: 200.0.0.x) werden so korrekt weitergeleitet.",
+              },
+            ],
+          },
+          {
+            device: "INTERNET",
+            mode: "global",
+            modeLabel: "INTERNET(config)#",
+            commands: [
+              {
+                cmd: "ip route 200.0.0.0 255.255.255.0 1.1.1.1",
+                explanation:
+                  "Kritische Rückroute! Der INTERNET-Router muss wissen, dass 200.0.0.0/24 (inklusive Pool-IPs .10–.12) über den ISP erreichbar ist. Ohne diese Route werden Antwortpakete verworfen.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Konnektivität testen & Pool-Verhalten beobachten",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC0> ",
+            commands: [
+              {
+                cmd: "ping 47.11.8.15",
+                explanation:
+                  "PC0 (192.168.1.10) bekommt bei der ersten Verbindung eine freie Pool-IP (z. B. 200.0.0.10) dynamisch zugewiesen. Wenn PC0(1) und PC0(2) gleichzeitig pingen, belegen sie .11 und .12 — der Pool ist erschöpft. Nachfolgende Hosts erhalten: 'Translation failed' bis ein Eintrag abläuft.",
+              },
+            ],
+          },
+          {
+            device: "NAT-Router",
             mode: "privileged",
-            modeLabel: "R1#",
+            modeLabel: "NAT#",
             commands: [
               {
                 cmd: "show ip nat translations",
                 explanation:
-                  "Nach einem Ping von PC1-1 (192.168.11.25) zu 1.1.1.1 erscheint: inside local 192.168.11.25 ↔ inside global 1.1.1.3 (eine Pool-Adresse). Genau das beweist Dynamic NAT.",
+                  "Zeigt AKTIVE Einträge (nur solange Verbindungen offen):\n  icmp 192.168.1.10:x  200.0.0.10:x  47.11.8.15:x  47.11.8.15:x\nUnterschied zu Static NAT: Nach Ablauf des Timeouts verschwinden die Einträge — kein dauerhafter Eintrag wie 'Pro --- 192.168.1.10  200.0.0.10  ---  ---'.",
               },
               {
                 cmd: "show ip nat statistics",
                 explanation:
-                  "Zeigt Pool-Auslastung (allocated/misses), die NAT-Interfaces und die gebundene ACL. Bei 'misses' ohne Translation: ACL oder inside/outside falsch.",
+                  "Zeigt Pool-Auslastung:\n  Pool PUBLIC-POOL: 3 addresses, X allocated, Y misses\n'misses' steigt, wenn ein Host übersetzt werden soll aber der Pool leer ist. Das ist die klare Abgrenzung zu PAT: bei PAT gibt es keine Pool-Erschöpfung.",
+              },
+              {
+                cmd: "clear ip nat translation *",
+                explanation:
+                  "Löscht alle dynamischen NAT-Einträge manuell. Nützlich zum Testen der Pool-Erschöpfung: nach 'clear' stehen wieder alle 3 Pool-IPs zur Verfügung.",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7) Eingehende Verbindung testen (Unterschied zu Static NAT)",
+        blocks: [
+          {
+            device: "Webserver",
+            mode: "cli",
+            modeLabel: "Webserver> ",
+            commands: [
+              {
+                cmd: "ping 200.0.0.10",
+                explanation:
+                  "Diese Verbindung SCHEITERT — und das ist beabsichtigt!\nBei Dynamic NAT existiert kein permanenter Eintrag für 200.0.0.10. Erst wenn PC0 selbst eine Verbindung aufgebaut hat, gibt es einen temporären Eintrag.\nBei Static NAT funktioniert dies, weil der Eintrag dauerhaft vorhanden ist.\nMerkregel: Dynamic NAT = nur ausgehende Verbindungen; Static NAT = auch eingehende Verbindungen möglich.",
               },
             ],
           },
@@ -4097,17 +4248,22 @@ export const LABS: LabScenario[] = [
       },
     ],
     verifyCommands: [
-      { cmd: "show ip nat translations", expected: "192.168.11.25 → 1.1.1.3 (Inside Global aus dem Pool)" },
-      { cmd: "show ip nat statistics", expected: "Pool SITE_1: 4 addresses, mind. 1 allocated" },
-      { cmd: "ping 1.1.1.1 (von PC1-1)", expected: "Erfolgreich — Quelle wird auf eine Pool-IP übersetzt" },
+      { cmd: "show ip nat translations", expected: "Einträge erscheinen NUR nach aktivem Traffic — kein permanenter 'Pro ---'-Eintrag wie bei Static NAT" },
+      { cmd: "show ip nat statistics", expected: "Pool PUBLIC-POOL: 3 addresses, mind. 1 allocated nach Ping" },
+      { cmd: "ping 47.11.8.15 (von PC0)", expected: "Erfolgreich — 192.168.1.10 → 200.0.0.10 (erste freie Pool-IP)" },
+      { cmd: "ping 200.0.0.10 (vom Webserver)", expected: "Fehlschlag (kein dauerhafter NAT-Eintrag) — Unterschied zu Static NAT" },
+      { cmd: "show ip nat statistics (bei leerem Pool)", expected: "misses erhöhen sich wenn 4. Host versucht zu verbinden" },
     ],
     glossary: [
-      { term: "Dynamic NAT", def: "Inside-Hosts bekommen bei Bedarf eine IP aus einem POOL öffentlicher Adressen (1:1, bis Pool leer)." },
-      { term: "NAT-Pool", def: "Vorrat routbarer Adressen: ip nat pool NAME start end netmask M." },
-      { term: "Inside Local", def: "Die private Quelladresse des Hosts (vor der Übersetzung)." },
-      { term: "Inside Global", def: "Die öffentliche Adresse aus dem Pool nach der Übersetzung." },
-      { term: "overload", def: "Aktiviert zusätzlich PAT je Pool-Adresse (Port-Multiplexing) — sonst kann der Pool erschöpfen." },
-      { term: "ip nat inside/outside", def: "Markiert Interfaces; nur an dieser Grenze wird übersetzt." },
+      { term: "Dynamic NAT",     def: "Hosts bekommen bei Bedarf eine IP aus einem Pool — 1:1, erste Verbindung gewinnt. Kein dauerhafter Eintrag." },
+      { term: "NAT-Pool",        def: "Vorrat routbarer öffentlicher Adressen: ip nat pool NAME start end netmask M." },
+      { term: "Inside Local",    def: "Die private Quelladresse vor der Übersetzung (z. B. 192.168.1.10)." },
+      { term: "Inside Global",   def: "Die dynamisch zugewiesene Pool-Adresse nach der Übersetzung (z. B. 200.0.0.10)." },
+      { term: "Pool-Erschöpfung", def: "Wenn alle Pool-IPs belegt sind, werden neue Verbindungen verworfen bis ein Eintrag abläuft." },
+      { term: "overload",        def: "Schlüsselwort für PAT: mehrere Hosts teilen eine IP via Ports. OHNE overload = reines 1:1 Dynamic NAT." },
+      { term: "clear ip nat translation *", def: "Löscht alle dynamischen NAT-Einträge sofort — statische Einträge bleiben." },
+      { term: "Static vs. Dynamic", def: "Static: dauerhafter Eintrag, eingehende Verbindungen möglich. Dynamic: Eintrag nur bei Traffic, nur ausgehende Verbindungen." },
+      { term: "Rückroute (INTERNET)", def: "Der INTERNET-Router muss 200.0.0.0/24 über ISP kennen — sonst werden Antwortpakete verworfen." },
     ],
   },
 
@@ -5737,6 +5893,532 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
+  // 28. ACL + Static NAT — Dual-Site mit ISP
+  // Zwei Standorte (CO-1 EIGRP, CO-2 OSPF), gemeinsamer ISP-MUMBAI,
+  // statisches NAT auf beiden Routern + Extended ACL pro Interface.
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "co-acl-nat-isp",
+    icon: <Shield size={20} />,
+    title: "ACL + Static NAT — Dual-Site mit ISP",
+    subtitle: "CO-1 · CO-2 · EIGRP · OSPF · ISP-MUMBAI · 8 Hosts · 2×ACL + 2×NAT",
+    difficulty: "Fortgeschritten",
+    duration: "50 min",
+    context: {
+      problem:
+        "Zwei Unternehmensstandorte (CO-1 und CO-2) sollen über einen gemeinsamen ISP ins Internet. Die internen Adressen müssen per Static NAT veröffentlicht werden, und Extended ACLs auf beiden Routern legen exakt fest, welcher Datenverkehr in welche Richtung erlaubt ist.",
+      purpose:
+        "Das Lab zeigt das Zusammenspiel von Static NAT und Extended ACL in einer realen Dual-Site-Topologie. Zentrales Lernziel: wann sieht die ACL die private IP und wann die öffentliche — und warum muss man EIGRP/OSPF in der Rückwärts-ACL explizit erlauben.",
+    },
+    topology: {
+      description:
+        "CO-1 (EIGRP AS 199, LAN 192.168.10.0/24) und CO-2 (OSPF 100 Area 1, LAN 172.16.10.0/24) verbinden sich jeweils über eine Access-VLAN-Verbindung am ISP-SW mit dem ISP-MUMBAI-Router. ISP-MUMBAI läuft Sub-Interfaces (ETH0/0.99 für CO-1, ETH0/0.199 für CO-2) und verbindet das Internet-Segment (200.10.20.0/24) via ETH0/1. Alle End-Hosts nutzen Default-Routing.",
+      devices: [
+        { type: "router", label: "CO-1  (ETH0/0=192.168.10.254, ETH0/1=20.30.10.10)", count: 1 },
+        { type: "router", label: "CO-2  (ETH0/0=172.16.10.254, ETH0/1=45.35.55.65)", count: 1 },
+        { type: "router", label: "ISP-MUMBAI  (ETH0/0 trunk, ETH0/1=200.10.20.1)", count: 1 },
+        { type: "switch", label: "ISP-SW  (VLAN 99 → CO-1, VLAN 199 → CO-2, trunk → ISP)", count: 1 },
+        { type: "pc",     label: "VPC-9 .1 / VPC-10 .2 / VPC-11 .3 / R-PC .100 (CO-1 LAN)", count: 4 },
+        { type: "pc",     label: "VPC-12 .1 / VPC-13 .2 / VPC-14 .3 / INT_SRV .100 (CO-2 LAN)", count: 4 },
+        { type: "pc",     label: "DNS .10 / WEB-1 .20 / WEB-2 .30 / SERVER-1 .40 / USER_PC .50 (Internet)", count: 5 },
+      ],
+      connections: [
+        "CO-1 ETH0/1 ──── ISP-SW (Fa0/1, VLAN 99) ──── trunk ──── ISP-MUMBAI ETH0/0.99",
+        "CO-2 ETH0/1 ──── ISP-SW (Fa0/2, VLAN 199) ─── trunk ──── ISP-MUMBAI ETH0/0.199",
+        "ISP-MUMBAI ETH0/1 ──────────────────────────────────────── Internet-Segment 200.10.20.0/24",
+        "CO-1 ETH0/0 ──── SW1 ──── VPC-9/10/11/R-PC (192.168.10.x/24)",
+        "CO-2 ETH0/0 ──── SW2 ──── VPC-12/13/14/INT_SRV (172.16.10.x/24)",
+      ],
+      hint: "Static NAT auf CO-1/CO-2 konfigurieren BEVOR die ACLs greifen — sonst sieht die ACL-Outbound-Prüfung noch die privaten IPs.",
+      topologyDiagram: (
+        <svg viewBox="0 0 730 360" className="w-full bg-slate-950" style={{ fontFamily: "ui-monospace, monospace" }}>
+          {/* ── CO-1 LAN ── */}
+          <rect x="2" y="10" width="100" height="115" rx="4" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5"/>
+          <text x="52" y="24" textAnchor="middle" fill="#93c5fd" fontSize="9" fontWeight="bold">CO-1 LAN</text>
+          <text x="7" y="38" fill="#475569" fontSize="8">192.168.10.0/24</text>
+          <line x1="7" y1="41" x2="99" y2="41" stroke="#1e3a5f" strokeWidth="0.5"/>
+          <text x="7" y="54" fill="#cbd5e1" fontSize="8">VPC-9  · .1</text>
+          <text x="7" y="66" fill="#cbd5e1" fontSize="8">VPC-10 · .2</text>
+          <text x="7" y="78" fill="#cbd5e1" fontSize="8">VPC-11 · .3</text>
+          <text x="7" y="90" fill="#fbbf24" fontSize="8">R-PC   · .100</text>
+          <text x="7" y="104" fill="#475569" fontSize="7">GW: .254</text>
+
+          {/* ── CO-1 Router ── */}
+          <rect x="112" y="10" width="130" height="115" rx="4" fill="#1e3a5f" stroke="#60a5fa" strokeWidth="1.5"/>
+          <text x="177" y="24" textAnchor="middle" fill="#93c5fd" fontSize="10" fontWeight="bold">CO-1</text>
+          <text x="116" y="38" fill="#94a3b8" fontSize="7.5">ETH0/0: .254 inside</text>
+          <text x="116" y="49" fill="#94a3b8" fontSize="7.5">ETH0/1: 20.30.10.10 out</text>
+          <line x1="116" y1="53" x2="238" y2="53" stroke="#1e3a5f" strokeWidth="0.5"/>
+          <text x="116" y="64" fill="#fbbf24" fontSize="7">NAT .1→20.30.10.1</text>
+          <text x="116" y="74" fill="#fbbf24" fontSize="7">    .2→.2  .3→.3</text>
+          <text x="116" y="84" fill="#fbbf24" fontSize="7">    .100→20.30.10.100</text>
+          <rect x="116" y="90" width="120" height="14" rx="2" fill="#1e1b4b" stroke="#6366f1" strokeWidth="1"/>
+          <text x="176" y="100" textAnchor="middle" fill="#a5b4fc" fontSize="7">ACL: in-out | out-in</text>
+          <line x1="102" y1="67" x2="112" y2="67" stroke="#3b82f6" strokeWidth="1.5"/>
+
+          {/* ── CO-2 LAN ── */}
+          <rect x="2" y="235" width="100" height="115" rx="4" fill="#0f172a" stroke="#22c55e" strokeWidth="1.5"/>
+          <text x="52" y="249" textAnchor="middle" fill="#86efac" fontSize="9" fontWeight="bold">CO-2 LAN</text>
+          <text x="7" y="263" fill="#475569" fontSize="8">172.16.10.0/24</text>
+          <line x1="7" y1="266" x2="99" y2="266" stroke="#14532d" strokeWidth="0.5"/>
+          <text x="7" y="279" fill="#cbd5e1" fontSize="8">VPC-12 · .1</text>
+          <text x="7" y="291" fill="#cbd5e1" fontSize="8">VPC-13 · .2</text>
+          <text x="7" y="303" fill="#cbd5e1" fontSize="8">VPC-14 · .3</text>
+          <text x="7" y="315" fill="#fbbf24" fontSize="8">INT_SRV· .100</text>
+          <text x="7" y="329" fill="#475569" fontSize="7">GW: .254</text>
+
+          {/* ── CO-2 Router ── */}
+          <rect x="112" y="235" width="130" height="115" rx="4" fill="#14532d" stroke="#4ade80" strokeWidth="1.5"/>
+          <text x="177" y="249" textAnchor="middle" fill="#86efac" fontSize="10" fontWeight="bold">CO-2</text>
+          <text x="116" y="263" fill="#94a3b8" fontSize="7.5">ETH0/0: .254 inside</text>
+          <text x="116" y="274" fill="#94a3b8" fontSize="7.5">ETH0/1: 45.35.55.65 out</text>
+          <line x1="116" y1="278" x2="238" y2="278" stroke="#14532d" strokeWidth="0.5"/>
+          <text x="116" y="289" fill="#fbbf24" fontSize="7">NAT .1→45.35.55.10</text>
+          <text x="116" y="299" fill="#fbbf24" fontSize="7">    .2→.20  .3→.30</text>
+          <text x="116" y="309" fill="#fbbf24" fontSize="7">    .100→45.35.55.100</text>
+          <rect x="116" y="315" width="120" height="14" rx="2" fill="#1e1b4b" stroke="#6366f1" strokeWidth="1"/>
+          <text x="176" y="325" textAnchor="middle" fill="#a5b4fc" fontSize="7">ACL: wan-lan | lan-wan</text>
+          <line x1="102" y1="292" x2="112" y2="292" stroke="#22c55e" strokeWidth="1.5"/>
+
+          {/* ── Diagonals to ISP-SW ── */}
+          <line x1="242" y1="67" x2="295" y2="183" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="4,2"/>
+          <text x="249" y="107" fill="#fbbf24" fontSize="7.5">EIGRP 199</text>
+          <text x="249" y="117" fill="#475569" fontSize="7">VLAN 99</text>
+          <line x1="242" y1="292" x2="295" y2="207" stroke="#a78bfa" strokeWidth="1.5" strokeDasharray="4,2"/>
+          <text x="246" y="265" fill="#a78bfa" fontSize="7.5">OSPF 100</text>
+          <text x="246" y="275" fill="#475569" fontSize="7">VLAN 199</text>
+
+          {/* ── ISP-SW ── */}
+          <rect x="295" y="165" width="72" height="60" rx="4" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1.5"/>
+          <text x="331" y="182" textAnchor="middle" fill="#c7d2fe" fontSize="9" fontWeight="bold">ISP-SW</text>
+          <text x="331" y="196" textAnchor="middle" fill="#94a3b8" fontSize="7.5">VLAN 99/199</text>
+          <text x="331" y="208" textAnchor="middle" fill="#94a3b8" fontSize="7">trunk</text>
+          <line x1="367" y1="192" x2="393" y2="165" stroke="#818cf8" strokeWidth="1.5"/>
+          <text x="366" y="173" fill="#818cf8" fontSize="7">trunk</text>
+
+          {/* ── ISP-MUMBAI ── */}
+          <rect x="393" y="100" width="140" height="125" rx="4" fill="#2d1f3d" stroke="#c084fc" strokeWidth="1.5"/>
+          <text x="463" y="116" textAnchor="middle" fill="#e9d5ff" fontSize="9.5" fontWeight="bold">ISP-MUMBAI</text>
+          <line x1="397" y1="120" x2="529" y2="120" stroke="#3b1f5e" strokeWidth="0.5"/>
+          <text x="397" y="132" fill="#94a3b8" fontSize="7.5">ETH0/0.99:  20.30.10.20/24</text>
+          <text x="397" y="143" fill="#94a3b8" fontSize="7.5">ETH0/0.199: 45.35.55.75/24</text>
+          <text x="397" y="154" fill="#94a3b8" fontSize="7.5">ETH0/1:     200.10.20.1/24</text>
+          <line x1="397" y1="158" x2="529" y2="158" stroke="#3b1f5e" strokeWidth="0.5"/>
+          <text x="397" y="168" fill="#c084fc" fontSize="7">EIGRP 199 ↔ CO-1</text>
+          <text x="397" y="178" fill="#c084fc" fontSize="7">OSPF 100  ↔ CO-2</text>
+          <text x="397" y="188" fill="#c084fc" fontSize="7">redistribute EIGRP+OSPF</text>
+          <text x="397" y="198" fill="#c084fc" fontSize="7">ip route 0.0.0.0/0 null0</text>
+          <line x1="533" y1="157" x2="557" y2="157" stroke="#f87171" strokeWidth="1.5"/>
+
+          {/* ── Internet Zone ── */}
+          <rect x="557" y="20" width="168" height="320" rx="4" fill="#1a0a0a" stroke="#f87171" strokeWidth="1.5"/>
+          <text x="641" y="37" textAnchor="middle" fill="#fca5a5" fontSize="9" fontWeight="bold">Internet</text>
+          <text x="641" y="50" textAnchor="middle" fill="#475569" fontSize="7.5">200.10.20.0/24</text>
+          <line x1="561" y1="54" x2="721" y2="54" stroke="#7f1d1d" strokeWidth="0.5"/>
+          <text x="561" y="67" fill="#94a3b8" fontSize="8">DNS_SERVER · .10</text>
+          <text x="561" y="79" fill="#f87171" fontSize="8">WEB-1      · .20</text>
+          <text x="561" y="91" fill="#f87171" fontSize="8">WEB-2      · .30</text>
+          <text x="561" y="103" fill="#fbbf24" fontSize="8">SERVER-1   · .40</text>
+          <text x="561" y="115" fill="#86efac" fontSize="8">USER_PC    · .50</text>
+          <line x1="561" y1="121" x2="721" y2="121" stroke="#7f1d1d" strokeWidth="0.5"/>
+          <text x="641" y="136" textAnchor="middle" fill="#60a5fa" fontSize="7.5" fontWeight="bold">CO-1 erlaubt →</text>
+          <text x="563" y="148" fill="#6ee7b7" fontSize="7">ICMP: LAN→WEB-1/WEB-2</text>
+          <text x="563" y="158" fill="#6ee7b7" fontSize="7">SSH/Telnet: R-PC→WEB-1/WEB-2</text>
+          <text x="563" y="168" fill="#6ee7b7" fontSize="7">HTTP/HTTPS: R-PC→SERVER-1</text>
+          <line x1="561" y1="174" x2="721" y2="174" stroke="#7f1d1d" strokeWidth="0.5"/>
+          <text x="641" y="189" textAnchor="middle" fill="#4ade80" fontSize="7.5" fontWeight="bold">CO-2 erlaubt →</text>
+          <text x="563" y="201" fill="#6ee7b7" fontSize="7">ICMP: USER_PC→CO-2 LAN</text>
+          <text x="563" y="211" fill="#6ee7b7" fontSize="7">SSH/Telnet/HTTP/HTTPS:</text>
+          <text x="563" y="221" fill="#6ee7b7" fontSize="7">  USER_PC→INT_SRV</text>
+        </svg>
+      ),
+    },
+    steps: [
+      // ─── Schritt 1: IP-Adressen ───────────────────────────────
+      {
+        title: "IP-Adressen vergeben — alle Router und Hosts",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface — hier hängen VPC-9/10/11 und R-PC." },
+              { cmd: "ip address 192.168.10.254 255.255.255.0", explanation: "Gateway-IP für das CO-1-LAN. Alle Hosts zeigen hierhin als Default-Gateway." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface in Richtung ISP-SW (VLAN 99 → ISP-MUMBAI ETH0/0.99)." },
+              { cmd: "ip address 20.30.10.10 255.255.255.0", explanation: "Öffentliche IP von CO-1 auf der WAN-Seite. ISP-MUMBAI's Sub-Interface .99 liegt auf 20.30.10.20 — gleiche /24." },
+              { cmd: "no shutdown", explanation: "WAN-Interface aktivieren." },
+            ],
+          },
+          {
+            device: "CO-2",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface — hier hängen VPC-12/13/14 und INT_SRV." },
+              { cmd: "ip address 172.16.10.254 255.255.255.0", explanation: "Gateway-IP für das CO-2-LAN." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface in Richtung ISP-SW (VLAN 199 → ISP-MUMBAI ETH0/0.199)." },
+              { cmd: "ip address 45.35.55.65 255.255.255.0", explanation: "Öffentliche IP von CO-2. ISP-MUMBAI's Sub-Interface .199 liegt auf 45.35.55.75 — gleiche /24." },
+              { cmd: "no shutdown", explanation: "WAN-Interface aktivieren." },
+            ],
+          },
+          {
+            device: "ISP-SW",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "vlan 99", explanation: "VLAN 99 anlegen — gehört zu CO-1." },
+              { cmd: "vlan 199", explanation: "VLAN 199 anlegen — gehört zu CO-2." },
+              { cmd: "interface ethernet 0/0", explanation: "Port in Richtung CO-1." },
+              { cmd: "switchport mode access", explanation: "Access-Port — kein Trunk-Tag nötig." },
+              { cmd: "switchport access vlan 99", explanation: "CO-1-Verkehr wird in VLAN 99 eingeordnet." },
+              { cmd: "interface ethernet 0/1", explanation: "Port in Richtung CO-2." },
+              { cmd: "switchport mode access", explanation: "Access-Port." },
+              { cmd: "switchport access vlan 199", explanation: "CO-2-Verkehr wird in VLAN 199 eingeordnet." },
+              { cmd: "interface ethernet 0/2", explanation: "Trunk-Port in Richtung ISP-MUMBAI — muss beide VLANs tragen." },
+              { cmd: "switchport mode trunk", explanation: "802.1Q-Trunk aktivieren." },
+            ],
+          },
+          {
+            device: "ISP-MUMBAI",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "Physical interface — kein IP, nur 'no shutdown'. Sub-Interfaces übernehmen die Adressierung." },
+              { cmd: "no ip address", explanation: "Kein IP auf dem Physical Interface." },
+              { cmd: "no shutdown", explanation: "Physical Interface muss aktiv sein, damit Sub-Interfaces funktionieren." },
+              { cmd: "interface ethernet 0/0.99", explanation: "Sub-Interface für CO-1 (VLAN 99)." },
+              { cmd: "encapsulation dot1q 99", explanation: "802.1Q-Tag für VLAN 99 — ISP-MUMBAI akzeptiert Frames mit diesem Tag." },
+              { cmd: "ip address 20.30.10.20 255.255.255.0", explanation: "IP auf der CO-1-Seite. CO-1 hat .10 — beide im selben /24, direkt erreichbar." },
+              { cmd: "interface ethernet 0/0.199", explanation: "Sub-Interface für CO-2 (VLAN 199)." },
+              { cmd: "encapsulation dot1q 199", explanation: "802.1Q-Tag für VLAN 199." },
+              { cmd: "ip address 45.35.55.75 255.255.255.0", explanation: "IP auf der CO-2-Seite. CO-2 hat .65 — gleiche /24." },
+              { cmd: "interface ethernet 0/1", explanation: "Internet-facing Interface." },
+              { cmd: "ip address 200.10.20.1 255.255.255.0", explanation: "Gateway für das Internet-Segment (WEB-1, WEB-2, SERVER-1, USER_PC)." },
+              { cmd: "no shutdown", explanation: "Internet-Interface aktivieren." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 2: Routing ───────────────────────────────────
+      {
+        title: "Routing konfigurieren — EIGRP, OSPF und Redistribution",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config-router",
+            modeLabel: "Router-Modus",
+            commands: [
+              { cmd: "router eigrp 199", explanation: "EIGRP Autonomous System 199 — muss auf CO-1 und ISP-MUMBAI identisch sein." },
+              { cmd: "network 192.168.10.0 0.0.0.255", explanation: "CO-1-LAN in EIGRP einbinden — wird zu ISP-MUMBAI propagiert." },
+              { cmd: "network 20.30.10.0 0.0.0.255", explanation: "WAN-Link in EIGRP einbinden — Nachbarschaft mit ISP-MUMBAI ETH0/0.99." },
+              { cmd: "no auto-summary", explanation: "Classless-Routing aktivieren — wichtig für korrekte Subnetz-Propagierung." },
+            ],
+          },
+          {
+            device: "CO-2",
+            mode: "config-router",
+            modeLabel: "Router-Modus",
+            commands: [
+              { cmd: "router ospf 100", explanation: "OSPF Process ID 100." },
+              { cmd: "network 172.16.10.0 0.0.0.255 area 1", explanation: "CO-2-LAN in OSPF Area 1 einbinden." },
+              { cmd: "network 45.35.55.0 0.0.0.255 area 1", explanation: "WAN-Link in OSPF Area 1 — Nachbarschaft mit ISP-MUMBAI ETH0/0.199." },
+            ],
+          },
+          {
+            device: "ISP-MUMBAI",
+            mode: "config-router",
+            modeLabel: "Router-Modus",
+            commands: [
+              { cmd: "router eigrp 199", explanation: "EIGRP AS 199 auf ISP-MUMBAI — Nachbarschaft mit CO-1." },
+              { cmd: "network 20.30.10.0 0.0.0.255", explanation: "Sub-Interface .99 einbinden." },
+              { cmd: "redistribute ospf 100 metric 10000 1 255 1 1500", explanation: "OSPF-Routen (CO-2-Netz) in EIGRP einstreuen: Bandwidth=10000, Delay=1, Reliability=255, Load=1, MTU=1500." },
+              { cmd: "no auto-summary", explanation: "Classless." },
+              { cmd: "router ospf 100", explanation: "OSPF Process 100 auf ISP-MUMBAI — Nachbarschaft mit CO-2." },
+              { cmd: "network 45.35.55.0 0.0.0.255 area 1", explanation: "Sub-Interface .199 einbinden." },
+              { cmd: "network 200.10.20.0 0.0.0.255 area 1", explanation: "Internet-Segment in OSPF propagieren, damit CO-2 die Routen lernt." },
+              { cmd: "redistribute eigrp 199 subnets", explanation: "EIGRP-Routen (CO-1-Netz) in OSPF einstreuen — CO-2 lernt CO-1-Netz." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 null0", explanation: "Default-Route auf ISP-MUMBAI erzwingen — wird über Redistribution zu CO-1 und CO-2 gesendet." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 3: CO-1 Static NAT ──────────────────────────
+      {
+        title: "CO-1: Static NAT — 4 feste 1:1-Zuordnungen",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip nat inside source static 192.168.10.1 20.30.10.1", explanation: "VPC-9 (.1) bekommt die feste öffentliche IP 20.30.10.1. Diese Zuordnung gilt dauerhaft — auch ohne aktive Verbindung." },
+              { cmd: "ip nat inside source static 192.168.10.2 20.30.10.2", explanation: "VPC-10 (.2) → 20.30.10.2." },
+              { cmd: "ip nat inside source static 192.168.10.3 20.30.10.3", explanation: "VPC-11 (.3) → 20.30.10.3." },
+              { cmd: "ip nat inside source static 192.168.10.100 20.30.10.100", explanation: "R-PC (.100) → 20.30.10.100. R-PC ist die Management-Station — bekommt die .100 als public IP." },
+            ],
+          },
+          {
+            device: "CO-1",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface." },
+              { cmd: "ip nat inside", explanation: "Markiert ETH0/0 als 'inside' — Quell-IPs ausgehender Pakete werden übersetzt." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface." },
+              { cmd: "ip nat outside", explanation: "Markiert ETH0/1 als 'outside' — Ziel-IPs eingehender Pakete werden zurückübersetzt." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 4: CO-1 ACL in-out ──────────────────────────
+      {
+        title: "CO-1: ACL \"in-out\" — was darf das LAN nach außen senden?",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip access-list extended in-out", explanation: "Named Extended ACL 'in-out' — wird auf ETH0/0 inbound angewendet (Pakete vom LAN Richtung Internet). Die ACL sieht hier noch die PRIVATEN Source-IPs (192.168.10.x), weil NAT erst nach der Inbound-ACL-Prüfung auf ETH0/0 erfolgt." },
+              { cmd: " permit icmp 192.168.10.0 0.0.0.255 host 200.10.20.20 echo", explanation: "Gesamtes CO-1-LAN darf WEB-1 (200.10.20.20) anpingen. 'echo' = nur ICMP-Requests erlaubt (nicht echo-reply — die werden in out-in behandelt)." },
+              { cmd: " permit icmp 192.168.10.0 0.0.0.255 host 200.10.20.30 echo", explanation: "Gesamtes CO-1-LAN darf WEB-2 (200.10.20.30) anpingen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.20 eq 23", explanation: "R-PC darf WEB-1 per Telnet (Port 23) erreichen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.20 eq 22", explanation: "R-PC darf WEB-1 per SSH (Port 22) erreichen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.30 eq 23", explanation: "R-PC darf WEB-2 per Telnet erreichen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.30 eq 22", explanation: "R-PC darf WEB-2 per SSH erreichen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.40 eq 80", explanation: "R-PC darf SERVER-1 per HTTP erreichen." },
+              { cmd: " permit tcp host 192.168.10.100 host 200.10.20.40 eq 443", explanation: "R-PC darf SERVER-1 per HTTPS erreichen. Alles andere wird implizit verworfen (deny any any)." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 5: CO-1 ACL out-in ──────────────────────────
+      {
+        title: "CO-1: ACL \"out-in\" — was darf von außen ins LAN kommen?",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip access-list extended out-in", explanation: "ACL 'out-in' wird auf ETH0/1 inbound angewendet (Pakete vom Internet Richtung LAN). WICHTIG: Diese ACL sieht die ÖFFENTLICHEN Ziel-IPs (20.30.10.x), weil NAT erst NACH der Inbound-ACL-Prüfung auf ETH0/1 das Ziel auf 192.168.10.x zurückübersetzt." },
+              { cmd: " permit icmp host 200.10.20.20 host 20.30.10.1 echo-reply", explanation: "WEB-1 darf VPC-9's Public-IP (.1) mit ICMP echo-reply antworten — Antwort auf den ping von VPC-9." },
+              { cmd: " permit icmp host 200.10.20.20 host 20.30.10.2 echo-reply", explanation: "WEB-1 antwortet VPC-10." },
+              { cmd: " permit icmp host 200.10.20.20 host 20.30.10.3 echo-reply", explanation: "WEB-1 antwortet VPC-11." },
+              { cmd: " permit icmp host 200.10.20.30 host 20.30.10.1 echo-reply", explanation: "WEB-2 antwortet VPC-9." },
+              { cmd: " permit icmp host 200.10.20.30 host 20.30.10.2 echo-reply", explanation: "WEB-2 antwortet VPC-10." },
+              { cmd: " permit icmp host 200.10.20.30 host 20.30.10.3 echo-reply", explanation: "WEB-2 antwortet VPC-11." },
+              { cmd: " permit tcp host 200.10.20.20 host 20.30.10.100 ack", explanation: "WEB-1 darf TCP-Antworten (ACK-Flag gesetzt) an R-PC's Public-IP (.100) senden. 'ack' erlaubt nur bestehende Verbindungen — neue Verbindungsversuche (SYN ohne ACK) werden verworfen." },
+              { cmd: " permit tcp host 200.10.20.30 host 20.30.10.100 ack", explanation: "WEB-2 darf TCP-Antworten an R-PC senden." },
+              { cmd: " permit tcp host 200.10.20.40 host 20.30.10.100 ack", explanation: "SERVER-1 darf TCP-Antworten an R-PC senden." },
+              { cmd: " permit eigrp any any", explanation: "EIGRP-Protokoll (IP Protokoll 88) erlauben — sonst reißt die EIGRP-Nachbarschaft mit ISP-MUMBAI ab, da EIGRP Hello-Pakete auf ETH0/1 ankommen und von der ACL geblockt würden." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 6: CO-1 ACLs anwenden ───────────────────────
+      {
+        title: "CO-1: ACLs auf Interfaces anwenden",
+        blocks: [
+          {
+            device: "CO-1",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface." },
+              { cmd: "ip access-group in-out in", explanation: "ACL 'in-out' greift auf eingehende Pakete von ETH0/0 (= vom LAN zum Router). Richtung 'in' = Pakete die in das Interface hineinkommen." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface." },
+              { cmd: "ip access-group out-in in", explanation: "ACL 'out-in' greift auf eingehende Pakete von ETH0/1 (= vom Internet zum Router). Beide ACLs sind jeweils 'in' — d.h. der Router prüft alle ankommenden Pakete bevor er sie weiterleitet." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 7: CO-2 Static NAT ──────────────────────────
+      {
+        title: "CO-2: Static NAT — 4 feste 1:1-Zuordnungen",
+        blocks: [
+          {
+            device: "CO-2",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip nat inside source static 172.16.10.1 45.35.55.10", explanation: "VPC-12 (.1) → öffentliche IP 45.35.55.10. Beachte: CO-2 nutzt einen anderen öffentlichen IP-Bereich als CO-1 (45.35.55.x statt 20.30.10.x)." },
+              { cmd: "ip nat inside source static 172.16.10.2 45.35.55.20", explanation: "VPC-13 (.2) → 45.35.55.20." },
+              { cmd: "ip nat inside source static 172.16.10.3 45.35.55.30", explanation: "VPC-14 (.3) → 45.35.55.30." },
+              { cmd: "ip nat inside source static 172.16.10.100 45.35.55.100", explanation: "INT_SRV (.100) → 45.35.55.100. Der interne Server ist unter dieser Public-IP erreichbar." },
+            ],
+          },
+          {
+            device: "CO-2",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface." },
+              { cmd: "ip nat inside", explanation: "ETH0/0 = inside. Source-IPs werden übersetzt." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface." },
+              { cmd: "ip nat outside", explanation: "ETH0/1 = outside. Destination-IPs werden zurückübersetzt." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 8: CO-2 ACL wan-lan ─────────────────────────
+      {
+        title: "CO-2: ACL \"wan-lan\" — was darf aus dem Internet ins LAN?",
+        blocks: [
+          {
+            device: "CO-2",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip access-list extended wan-lan", explanation: "ACL 'wan-lan' wird auf ETH0/1 inbound angewendet (Pakete vom Internet). Wie bei CO-1: Die ACL sieht die ÖFFENTLICHEN Ziel-IPs (45.35.55.x) — NAT übersetzt erst danach." },
+              { cmd: " permit icmp host 200.10.20.50 45.35.55.0 0.0.0.255 echo", explanation: "USER_PC (200.10.20.50) darf das gesamte CO-2-Public-Subnetz (45.35.55.0/24) anpingen. Wildcard 0.0.0.255 = alle 4 CO-2-Public-IPs erlaubt." },
+              { cmd: " permit tcp host 200.10.20.50 host 45.35.55.100 eq 22", explanation: "USER_PC darf INT_SRV per SSH erreichen (Public-IP 45.35.55.100)." },
+              { cmd: " permit tcp host 200.10.20.50 host 45.35.55.100 eq 23", explanation: "USER_PC darf INT_SRV per Telnet erreichen." },
+              { cmd: " permit tcp host 200.10.20.50 host 45.35.55.100 eq 80", explanation: "USER_PC darf INT_SRV per HTTP erreichen." },
+              { cmd: " permit tcp host 200.10.20.50 host 45.35.55.100 eq 443", explanation: "USER_PC darf INT_SRV per HTTPS erreichen." },
+              { cmd: " permit ospf any any", explanation: "OSPF-Protokoll (IP Protokoll 89) erlauben — sonst verliert CO-2 die OSPF-Nachbarschaft mit ISP-MUMBAI." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 9: CO-2 ACL lan-wan ─────────────────────────
+      {
+        title: "CO-2: ACL \"lan-wan\" — was darf das LAN nach außen antworten?",
+        blocks: [
+          {
+            device: "CO-2",
+            mode: "config",
+            modeLabel: "Global Config",
+            commands: [
+              { cmd: "ip access-list extended lan-wan", explanation: "ACL 'lan-wan' wird auf ETH0/0 inbound angewendet (Pakete vom LAN). Hier sieht die ACL die PRIVATEN Source-IPs (172.16.10.x), weil auf ETH0/0 Inbound NAT noch nicht erfolgt ist." },
+              { cmd: " permit icmp 172.16.10.0 0.0.0.255 host 200.10.20.50 echo-reply", explanation: "CO-2-LAN darf USER_PC mit ICMP echo-reply antworten. Die Hosts antworten mit ihrer privaten IP — NAT übersetzt erst auf dem Weg nach außen (ETH0/1 outbound)." },
+              { cmd: " permit tcp host 172.16.10.100 host 200.10.20.50 ack", explanation: "INT_SRV darf TCP-Antworten (ACK) an USER_PC senden. 'ack' = nur Antworten auf bereits bestehende Verbindungen — kein TCP-SYN von innen nach außen zu USER_PC." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 10: CO-2 ACLs anwenden ──────────────────────
+      {
+        title: "CO-2: ACLs auf Interfaces anwenden",
+        blocks: [
+          {
+            device: "CO-2",
+            mode: "config-if",
+            modeLabel: "Interface-Modus",
+            commands: [
+              { cmd: "interface ethernet 0/0", explanation: "LAN-Interface." },
+              { cmd: "ip access-group lan-wan in", explanation: "ACL 'lan-wan' prüft Pakete vom LAN (private IPs sichtbar)." },
+              { cmd: "interface ethernet 0/1", explanation: "WAN-Interface." },
+              { cmd: "ip access-group wan-lan in", explanation: "ACL 'wan-lan' prüft Pakete vom Internet (öffentliche Ziel-IPs sichtbar, da NAT noch nicht zurückübersetzt hat)." },
+            ],
+          },
+        ],
+      },
+
+      // ─── Schritt 11: Abschlusserklärung ──────────────────────
+      {
+        title: "Abschlusserklärung: Wie ACL und NAT zusammenspielen",
+        blocks: [
+          {
+            device: "CO-1 / CO-2",
+            mode: "exec",
+            modeLabel: "Verification",
+            commands: [
+              { cmd: "show ip nat translations", explanation: "Zeigt alle aktiven NAT-Einträge. Bei Static NAT erscheinen alle 4 Zeilen dauerhaft — auch ohne Verbindung. Bei PAT/Dynamic NAT nur wenn Verbindungen aktiv sind." },
+              { cmd: "show ip access-lists", explanation: "Zeigt alle ACL-Regeln inklusive Match-Counter. Jede Zeile zeigt, wie oft sie bereits getroffen hat. Erhöhende Counter = ACL greift korrekt." },
+              { cmd: "show ip nat statistics", explanation: "Überblick: Wie viele Pakete wurden übersetzt? Wie viele Inside/Outside-Interfaces? Hilft beim Debuggen ob NAT überhaupt aktiv ist." },
+              { cmd: "debug ip nat", explanation: "Echtzeit-Übersetzungsprotokoll — zeigt jedes NAT-Ereignis. Nur für Debugging — mit 'undebug all' deaktivieren!" },
+            ],
+          },
+          {
+            device: "── Kernkonzept: Reihenfolge NAT ↔ ACL ──",
+            mode: "exec",
+            modeLabel: "Theorie",
+            commands: [
+              {
+                cmd: "Ausgehend (LAN → Internet) auf CO-1:",
+                explanation:
+                  "① Paket kommt auf ETH0/0 an (Inbound). " +
+                  "② ACL 'in-out' wird geprüft — sieht PRIVATE Source-IP 192.168.10.x. " +
+                  "③ Router leitet weiter → NAT übersetzt Source-IP: 192.168.10.x → 20.30.10.x. " +
+                  "④ Paket verlässt ETH0/1 mit öffentlicher Source-IP. " +
+                  "Merkregel: Auf dem Inside-Interface prüft die ACL IMMER die private IP.",
+              },
+              {
+                cmd: "Eingehend (Internet → LAN) auf CO-1:",
+                explanation:
+                  "① Paket kommt auf ETH0/1 an (Inbound) — Ziel ist 20.30.10.x (die öffentliche IP). " +
+                  "② ACL 'out-in' wird geprüft — sieht noch die ÖFFENTLICHE Ziel-IP 20.30.10.x. " +
+                  "③ Router leitet weiter → NAT übersetzt Ziel-IP zurück: 20.30.10.x → 192.168.10.x. " +
+                  "④ Paket verlässt ETH0/0 mit privater Ziel-IP. " +
+                  "Merkregel: Auf dem Outside-Interface prüft die ACL die ÖFFENTLICHE IP.",
+              },
+              {
+                cmd: "Warum 'ack' statt 'established'?",
+                explanation:
+                  "Cisco IOS kennt in Named Extended ACLs das Keyword 'established' (= ACK oder RST gesetzt). " +
+                  "'ack' ist eine alternative Schreibweise und prüft explizit das ACK-Flag. " +
+                  "Beide erlauben nur TCP-Pakete einer laufenden Verbindung — der erste SYN (ohne ACK) wird geblockt. " +
+                  "Das verhindert, dass Hosts aus dem Internet neue Verbindungen initiieren können.",
+              },
+              {
+                cmd: "Warum 'permit eigrp any any' in out-in?",
+                explanation:
+                  "EIGRP-Hello-Pakete kommen von ISP-MUMBAI auf ETH0/1 an. " +
+                  "Ohne explizite Erlaubnis würde die ACL sie verwerfen und die EIGRP-Nachbarschaft abreißen. " +
+                  "CO-2 braucht stattdessen 'permit ospf any any' in wan-lan — gleiches Prinzip für OSPF. " +
+                  "Protokoll-Nummern: EIGRP = 88, OSPF = 89 (beide IP-Layer, kein TCP/UDP).",
+              },
+              {
+                cmd: "NAT-Reihenfolge — die komplette Tabelle:",
+                explanation:
+                  "Inside Interface Inbound:   ACL → Routing → NAT-Translate-Source (Outbound-Seite). " +
+                  "Outside Interface Inbound:  ACL → NAT-Translate-Dest (Zurückübersetzung) → Routing. " +
+                  "Konsequenz: Inside-ACL sieht private IPs, Outside-ACL sieht öffentliche IPs. " +
+                  "Dieses Verhalten ist bei Cisco IOS festgelegt und nicht konfigurierbar.",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "ping 200.10.20.20 source 192.168.10.1", expected: "!!!!! — VPC-9 kann WEB-1 anpingen (NAT + ACL greifen)", explanation: "Von CO-1 aus mit Source-IP 192.168.10.1 — NAT übersetzt auf 20.30.10.1." },
+      { cmd: "ping 200.10.20.20 source 192.168.10.100", expected: "!!!!! — R-PC kann WEB-1 anpingen", explanation: "R-PC hat auch ICMP-Berechtigung über in-out ACL." },
+      { cmd: "telnet 200.10.20.20 /source-interface e0/0.100", expected: "Verbindungsaufbau — R-PC kann Telnet zu WEB-1", explanation: "Port 23 ist in in-out für host 192.168.10.100 erlaubt." },
+      { cmd: "show ip nat translations", expected: "Static NAT-Einträge für .1/.2/.3/.100 auf beiden Routern", explanation: "Alle 8 Static-NAT-Einträge müssen sichtbar sein (je 4 pro Router)." },
+      { cmd: "show ip access-lists in-out", expected: "Match-Counter > 0 nach ping-Tests", explanation: "Jede getroffene Regel erhöht ihren Zähler." },
+      { cmd: "ping 45.35.55.10 source 200.10.20.50", expected: "!!!!! — USER_PC kann CO-2-LAN anpingen", explanation: "wan-lan ACL erlaubt ICMP von USER_PC zum gesamten 45.35.55.0/24." },
+    ],
+    glossary: [
+      { term: "Inside Local", def: "Die private IP eines Hosts im LAN (z.B. 192.168.10.1) — wie der Router das Gerät intern kennt." },
+      { term: "Inside Global", def: "Die öffentliche IP nach der NAT-Übersetzung (z.B. 20.30.10.1) — wie das Internet das Gerät sieht." },
+      { term: "Outside Local", def: "Die IP eines externen Hosts aus Sicht des LANs — bei Static NAT meist identisch mit Outside Global." },
+      { term: "Outside Global", def: "Die echte IP des externen Hosts (z.B. 200.10.20.20 für WEB-1)." },
+      { term: "ip nat inside", def: "Markiert ein Interface als 'innen' — Source-IPs ausgehender Pakete werden übersetzt." },
+      { term: "ip nat outside", def: "Markiert ein Interface als 'außen' — Ziel-IPs eingehender Pakete werden zurückübersetzt." },
+      { term: "echo / echo-reply", def: "ICMP-Typen: echo = Ping-Request, echo-reply = Ping-Antwort. In ACLs explizit unterscheidbar." },
+      { term: "ack", def: "TCP-Flag: zeigt an, dass das Paket eine bestehende Verbindung bestätigt. Kein ack = neuer Verbindungsversuch (SYN)." },
+      { term: "permit eigrp any any", def: "Erlaubt EIGRP-Protokollpakete (IP Proto 88) — nötig damit EIGRP-Nachbarschaften nicht durch die ACL unterbrochen werden." },
+      { term: "Sub-Interface", def: "Logisches Interface auf einem physischen Interface mit 802.1Q-Tag — ermöglicht mehrere Netze auf einem Kabel (Router-on-a-Stick-Prinzip)." },
+      { term: "Redistribution", def: "Einstreuen von Routen aus einem Routing-Protokoll in ein anderes. ISP-MUMBAI streut EIGRP-Routen in OSPF ein und umgekehrt." },
+      { term: "encapsulation dot1q", def: "Aktiviert 802.1Q-Tagging auf einem Sub-Interface — der Router akzeptiert nur Frames mit dem angegebenen VLAN-Tag." },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
   // 26. Wireless: WLC + AP-Onboarding
   // ─────────────────────────────────────────────────────────────
   {
@@ -7166,6 +7848,7 @@ const LAB_ORDER: string[] = [
   "vlan-hopping",         // VLAN-Hopping + Mitigation (setzt VLAN/STP voraus)
   "aaa-radius-tacacs",    // Zentrales AAA (fortgeschrittene Security)
   "zbfw",                 // Zone-Based Firewall (komplexeste Security)
+  "co-acl-nat-isp",       // ACL + Static NAT Dual-Site (CO-1 EIGRP, CO-2 OSPF, ISP-MUMBAI)
 
   // ── Wireless ──────────────────────────────────────────────
   "wlc-onboarding",       // WLC + AP + CAPWAP + WPA3
@@ -7723,6 +8406,13 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
                   <Info size={14} className="shrink-0 mt-0.5" />
                   <span>{lab.topology.hint}</span>
                 </div>
+
+                {/* Optionales visuelles Topologie-Diagramm */}
+                {lab.topology.topologyDiagram && (
+                  <div className="mt-3 rounded-lg overflow-hidden border border-slate-700/50">
+                    {lab.topology.topologyDiagram}
+                  </div>
+                )}
               </div>
 
               {/* ── CLI-Schritte ── */}
