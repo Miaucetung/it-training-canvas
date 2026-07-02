@@ -252,20 +252,72 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
   );
 
   // Lösungswege für den Range-Modus (Permit-Blöcke + Subnetz/Rand-deny)
+  // ── Inline-Annotation für jeden Permit-Block ────────────────
+  // Erklärt: welchen Bereich deckt die Zeile ab, und warum nicht einen größeren Block?
+  function permitAnnotation(net: string, wild: string, hi: number): string {
+    const start = parseInt(net.split(".")[3]);
+    const wildOctet = parseInt(wild.split(".")[3]);
+    const size = wildOctet + 1;
+    const end = start + size - 1;
+    if (size === 1) return `deckt nur .${start}  — kein größerer Block startet hier`;
+    const nextSize = size * 2;
+    let reason = "";
+    if (nextSize <= 256) {
+      if (start + nextSize - 1 > hi) {
+        reason = `${nextSize}er würde bis .${start + nextSize - 1} → überschreitet .${hi}`;
+      } else if (start % nextSize !== 0) {
+        reason = `.${start} steht nicht in Startliste für ${nextSize}er`;
+      }
+    }
+    return `deckt .${start}–.${end}${reason ? `  ← größter Block: ${reason}` : ""}`;
+  }
+
+  function denyAnnotation(net: string, wild: string, lo: number, hi: number): string {
+    const start = parseInt(net.split(".")[3]);
+    const wildOctet = parseInt(wild.split(".")[3]);
+    const end = start + wildOctet;
+    const side = end < lo ? "vor dem Zielbereich" : "nach dem Zielbereich";
+    return `deckt .${start}–.${end}  — ${side} → sperren`;
+  }
+
   const rangeSolutions = (
     <div className={`mt-2 space-y-2 rounded-lg border p-3 ${dark ? "border-slate-700 bg-slate-950/40" : "border-slate-200 bg-white"}`}>
       <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted}`}>
         Weg A — Permit-Blöcke (minimal {rangeTask.minLines} Zeilen)
       </div>
-      <pre className={`overflow-x-auto font-mono text-[11px] ${dark ? "text-emerald-300" : "text-emerald-700"}`}>
-        {rangeTask.permitBlocks.map((b) => `permit ${b.net} ${b.wild}`).join("\n")}
-      </pre>
+      <div className="space-y-0.5">
+        {rangeTask.permitBlocks.map((b) => (
+          <div key={b.net} className="flex flex-wrap items-baseline gap-x-3 font-mono text-[11px]">
+            <span className={dark ? "text-emerald-300" : "text-emerald-700"}>
+              permit {b.net} {b.wild}
+            </span>
+            <span className={`text-[10px] ${muted}`}>
+              {permitAnnotation(b.net, b.wild, rangeTask.hi)}
+            </span>
+          </div>
+        ))}
+      </div>
       <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted}`}>
         Weg B — Subnetz erlauben, Ränder sperren ({rangeTask.denyEdges.length + 1} Zeilen)
       </div>
-      <pre className={`overflow-x-auto font-mono text-[11px] ${dark ? "text-emerald-300" : "text-emerald-700"}`}>
-        {[...rangeTask.denyEdges.map((b) => `deny ${b.net} ${b.wild}`), `permit ${rangeTask.base}.0 0.0.0.255`].join("\n")}
-      </pre>
+      <div className="space-y-0.5">
+        {rangeTask.denyEdges.map((b) => (
+          <div key={b.net} className="flex flex-wrap items-baseline gap-x-3 font-mono text-[11px]">
+            <span className={dark ? "text-rose-300" : "text-rose-700"}>
+              deny {b.net} {b.wild}
+            </span>
+            <span className={`text-[10px] ${muted}`}>
+              {denyAnnotation(b.net, b.wild, rangeTask.lo, rangeTask.hi)}
+            </span>
+          </div>
+        ))}
+        <div className="flex flex-wrap items-baseline gap-x-3 font-mono text-[11px]">
+          <span className={dark ? "text-emerald-300" : "text-emerald-700"}>
+            permit {rangeTask.base}.0 0.0.0.255
+          </span>
+          <span className={`text-[10px] ${muted}`}>erlaubt alles, was die deny-Zeilen nicht gesperrt haben</span>
+        </div>
+      </div>
       <p className={`text-[11px] ${muted}`}>💡 {rangeTask.hint}</p>
     </div>
   );
