@@ -567,70 +567,69 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const progress = sessionQ.length > 0 ? (qIndex / sessionQ.length) * 100 : 0;
   const answeredCount = results.length;
 
+  const isQuizScreen = (mode === "learn" || mode === "exam" || mode === "drill") && !!currentQ;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4 py-10">
-      <div
-        className={`relative w-full max-w-3xl rounded-2xl shadow-2xl ${bg}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className={`flex items-center justify-between rounded-t-2xl border-b px-5 py-4 ${headerBg}`}>
-          <div className="flex items-center gap-3">
-            <Target size={24} className="text-sky-500" />
-            <div>
-              <h2 className="text-lg font-bold">CCNA 200-301 Prüfungsvorbereitung</h2>
-              {mode !== "menu" && mode !== "results" && (
-                <p className={`text-xs ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
-                  {mode === "learn" && "Lernmodus"}
-                  {mode === "exam" && "Prüfungsmodus"}
-                  {mode === "drill" && "Schwächen-Drill"}
-                  {" · "}
-                  {sessionQ.length} Fragen
-                  {filteredPool.length !== questions.length && selectedCategory !== "all"
-                    ? ` (${selectedCategory})`
-                    : ""}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {mode === "exam" && !examFinished && (
-              <div
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold ${
-                  timeLeft < 600
-                    ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
-                    : dark
-                    ? "bg-zinc-700 text-zinc-200"
-                    : "bg-zinc-200 text-zinc-700"
-                }`}
-              >
-                <Clock size={16} />
-                {formatTime(timeLeft)}
-              </div>
+    <div className={`fixed inset-0 z-50 flex flex-col ${bg}`}>
+      {/* Header — shrink-0, immer sichtbar, kein Scrollen nötig um Titel/Timer/Schließen zu erreichen */}
+      <div className={`shrink-0 flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4 ${headerBg}`}>
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <Target size={22} className="text-sky-500 shrink-0" />
+          <div className="min-w-0">
+            <h2 className="truncate text-base font-bold sm:text-lg">CCNA 200-301 Prüfungsvorbereitung</h2>
+            {mode !== "menu" && mode !== "results" && (
+              <p className={`truncate text-xs ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
+                {mode === "learn" && "Lernmodus"}
+                {mode === "exam" && "Prüfungsmodus"}
+                {mode === "drill" && "Schwächen-Drill"}
+                {" · "}
+                {sessionQ.length} Fragen
+                {filteredPool.length !== questions.length && selectedCategory !== "all"
+                  ? ` (${selectedCategory})`
+                  : ""}
+              </p>
             )}
-            <button
-              onClick={onClose}
-              className={`rounded-lg p-1.5 transition-colors ${
-                dark ? "hover:bg-zinc-700" : "hover:bg-zinc-200"
-              }`}
-            >
-              <X size={20} />
-            </button>
           </div>
         </div>
-
-        {/* Progress bar (non-menu modes) */}
-        {mode !== "menu" && mode !== "results" && (
-          <div className={`h-1 ${dark ? "bg-zinc-700" : "bg-zinc-200"}`}>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {mode === "exam" && !examFinished && (
             <div
-              className="h-full bg-sky-500 transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        )}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-mono font-semibold sm:px-3 sm:text-sm ${
+                timeLeft < 600
+                  ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
+                  : dark
+                  ? "bg-zinc-700 text-zinc-200"
+                  : "bg-zinc-200 text-zinc-700"
+              }`}
+            >
+              <Clock size={16} />
+              {formatTime(timeLeft)}
+            </div>
+          )}
+          <button
+            onClick={onClose}
+            className={`rounded-lg p-1.5 transition-colors ${
+              dark ? "hover:bg-zinc-700" : "hover:bg-zinc-200"
+            }`}
+          >
+            <X size={20} />
+          </button>
+        </div>
+      </div>
 
-        {/* Body */}
-        <div className="p-5">
+      {/* Progress bar (non-menu modes) — shrink-0 */}
+      {mode !== "menu" && mode !== "results" && (
+        <div className={`h-1 shrink-0 ${dark ? "bg-zinc-700" : "bg-zinc-200"}`}>
+          <div
+            className="h-full bg-sky-500 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
+      {/* Scrollable content — nutzt die volle Bildschirmhöhe/-breite, Controls bleiben separat erreichbar */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
           {/* ── MENU ──────────────────────────────────────────── */}
           {mode === "menu" && (
             <div className="flex flex-col gap-6">
@@ -744,81 +743,16 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           )}
 
           {/* ── QUIZ (learn / exam / drill) ───────────────────── */}
-          {(mode === "learn" || mode === "exam" || mode === "drill") && currentQ && (
-            <div className="flex flex-col gap-4">
-              <QuestionCard
-                question={currentQ}
-                userAnswer={currentAnswer}
-                onToggle={toggleAnswer}
-                revealed={isRevealed || examFinished}
-                dark={dark}
-                index={qIndex}
-                total={sessionQ.length}
-              />
-
-              {/* Controls */}
-              <div className="flex items-center justify-between gap-2">
-                <button
-                  onClick={prevQuestion}
-                  disabled={qIndex === 0}
-                  className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40 ${
-                    dark
-                      ? "border-zinc-600 text-zinc-300 hover:bg-zinc-700"
-                      : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                  }`}
-                >
-                  <ArrowLeft size={16} /> Zurück
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {mode !== "exam" && !isRevealed && (
-                    <button
-                      onClick={revealAnswer}
-                      disabled={!canReveal}
-                      className="flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <CheckCircle size={16} />
-                      Prüfen
-                    </button>
-                  )}
-                  {mode === "exam" && (
-                    <span className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
-                      {answeredCount} / {sessionQ.length} beantwortet
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {qIndex < sessionQ.length - 1 ? (
-                    <button
-                      onClick={nextQuestion}
-                      className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm ${
-                        dark
-                          ? "border-zinc-600 text-zinc-300 hover:bg-zinc-700"
-                          : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                      }`}
-                    >
-                      Weiter <ArrowRight size={16} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={finishExam}
-                      className="flex items-center gap-1.5 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600"
-                    >
-                      <Target size={16} /> Auswertung
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Back to menu */}
-              <button
-                onClick={() => setMode("menu")}
-                className={`text-xs ${dark ? "text-zinc-600 hover:text-zinc-400" : "text-zinc-400 hover:text-zinc-600"}`}
-              >
-                ← Zum Menü
-              </button>
-            </div>
+          {isQuizScreen && currentQ && (
+            <QuestionCard
+              question={currentQ}
+              userAnswer={currentAnswer}
+              onToggle={toggleAnswer}
+              revealed={isRevealed || examFinished}
+              dark={dark}
+              index={qIndex}
+              total={sessionQ.length}
+            />
           )}
 
           {/* ── RESULTS ──────────────────────────────────────── */}
@@ -835,6 +769,75 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           )}
         </div>
       </div>
+
+      {/* Footer controls — shrink-0, immer ohne Scrollen erreichbar (wichtig auf Smartphone/Tablet) */}
+      {isQuizScreen && (
+        <div className={`shrink-0 border-t px-4 py-3 sm:px-6 ${headerBg}`}>
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={prevQuestion}
+                disabled={qIndex === 0}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40 ${
+                  dark
+                    ? "border-zinc-600 text-zinc-300 hover:bg-zinc-700"
+                    : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                }`}
+              >
+                <ArrowLeft size={16} /> Zurück
+              </button>
+
+              <div className="flex items-center gap-2">
+                {mode !== "exam" && !isRevealed && (
+                  <button
+                    onClick={revealAnswer}
+                    disabled={!canReveal}
+                    className="flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <CheckCircle size={16} />
+                    Prüfen
+                  </button>
+                )}
+                {mode === "exam" && (
+                  <span className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
+                    {answeredCount} / {sessionQ.length} beantwortet
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {qIndex < sessionQ.length - 1 ? (
+                  <button
+                    onClick={nextQuestion}
+                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm ${
+                      dark
+                        ? "border-zinc-600 text-zinc-300 hover:bg-zinc-700"
+                        : "border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    Weiter <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={finishExam}
+                    className="flex items-center gap-1.5 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600"
+                  >
+                    <Target size={16} /> Auswertung
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Back to menu */}
+            <button
+              onClick={() => setMode("menu")}
+              className={`self-center text-xs ${dark ? "text-zinc-600 hover:text-zinc-400" : "text-zinc-400 hover:text-zinc-600"}`}
+            >
+              ← Zum Menü
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
