@@ -16149,7 +16149,28 @@ S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is dire
     "router D"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pca", type: "pc", label: "PC A (10.223.2.2)", x: 80, y: 60 }, { id: "ry", type: "router", label: "Router Y", x: 400, y: 60 }, { id: "ra", type: "router", label: "Router A (10.224.4.2)", x: 800, y: 60 }, { id: "rb", type: "router", label: "Router B (10.224.4.3)", x: 800, y: 200 }, { id: "rc", type: "router", label: "Router C (10.224.4.4)", x: 800, y: 340 }, { id: "rd", type: "router", label: "Router D (10.224.4.5)", x: 800, y: 480 }], links: [{ from: "pca", to: "ry", labelTo: "G0/1 10.223.4.1" }, { from: "ry", to: "ra", labelFrom: "G0/0 10.224.4.1" }, { from: "ry", to: "rb" }, { from: "ry", to: "rc" }, { from: "ry", to: "rd" }] }, { type: "cli", content: `Router-Y#show ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+
+Gateway of last resort is not set
+
+     10.0.0.0/8 is variably subnetted
+S       10.0.0.0/8 [1/0] via 10.224.4.2
+B       10.127.151.192/27 [20/0] via 10.224.4.3, 1w6d
+S       10.128.0.0/9 [1/0] via 10.224.4.3
+B       10.224.0.0/11 [20/0] via 10.224.4.5, 5d18h
+B       10.224.0.0/15 [20/0] via 10.224.4.4, 5d18h
+C       10.223.4.0/24 is directly connected, GigabitEthernet0/1
+C       10.224.4.0/24 is directly connected, GigabitEthernet0/0
+B       10.226.34.0/24 [20/0] via 10.224.4.5, 5d18h`, highlight: ["B       10.224.0.0/11 [20/0] via 10.224.4.5, 5d18h"] }],
   },
   {
     id: "q1222",
@@ -16161,7 +16182,17 @@ S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is dire
     "vlan 73 name VoIP e0/0 switchport voice vlan 73"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "sw1", type: "switch", label: "Sw1", x: 150, y: 150 }, { id: "phone", type: "pc", label: "IP Phone", x: 450, y: 150 }, { id: "pc", type: "pc", label: "PC", x: 750, y: 150 }], links: [{ from: "sw1", to: "phone", labelFrom: "e0/0" }, { from: "phone", to: "pc" }] }, { type: "cli", content: `SW_1#show vlan
+
+VLAN  Name                             Status    Ports
+1     default                          active    Et0/2, Et1/0, Et1/0, Et1/3
+5     MGMT Vlan                        active    Et1/1
+6     Server Vlan                      active
+72    Data vlan                        active    Et0/0
+1002  fddi-default                     act/unsup
+1003  token-ring-default               act/unsup
+1004  fddinet-default                  act/unsup
+1005  trnet-default                    act/unsup`, highlight: ["72    Data vlan                        active    Et0/0"] }],
   },
   {
     id: "q1223",
@@ -16173,7 +16204,16 @@ S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is dire
     "ip route 10.10.10.1 255.255.255.255 g0/0 Q1224 Nachfragen Which cable type must be used when connecting a router and switch together using these criteria? • Pins 1 and 2 are receivers and pins 3 and 6 are transmitters. • Auto detection MDI-X is unavailable. straight-through"
     ],
     correct: [1, 0],
-    exhibit: true,
+    exhibit: { type: "cli", content: `Gateway of last resort is 0.0.0.0 to network 0.0.0.0
+
+ 10.0.0.0/8 is variably subnetted, 6 subnets, 5 masks
+S       10.0.0.0/8 is directly connected, GigabitEthernet0/0
+C       10.1.1.0/24 is directly connected, GigabitEthernet0/0
+L       10.1.1.1/32 is directly connected, GigabitEthernet0/0
+S       10.10.0.0/22 is directly connected, GigabitEthernet0/0
+S       10.10.10.0/28 is directly connected, GigabitEthernet0/0
+S       10.10.10.1/32 is directly connected, GigabitEthernet0/0
+S*   0.0.0.0/0 is directly connected, GigabitEthernet0/0`, highlight: ["S       10.10.10.0/28 is directly connected, GigabitEthernet0/0"] },
   },
   {
     id: "q1226",
@@ -16197,7 +16237,17 @@ S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is dire
     "DHCP Servers •"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "isp", type: "cloud", label: "Internet", x: 100, y: 150 }, { id: "r1", type: "router", label: "Router (10.2.2.1/27)", x: 400, y: 150 }, { id: "sw", type: "switch", label: "SW", x: 700, y: 150 }, { id: "pc", type: "pc", label: "PC (10.2.2.2)", x: 1000, y: 150 }], links: [{ from: "isp", to: "r1" }, { from: "r1", to: "sw" }, { from: "sw", to: "pc" }] }, { type: "cli", content: `C:\\>ipconfig /all
+Ethernet adapter Ethernet:
+   Connection-specific DNS Suffix  . :
+   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F
+   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)
+   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.192
+   Default Gateway . . . . . . . . . : 10.2.2.1
+   DHCP Server . . . . . . . . . . . : 192.168.1.15
+   DNS Servers . . . . . . . . . . . : 8.8.8.8
+   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   Subnet Mask . . . . . . . . . . . : 255.255.255.192"] }],
   },
   {
     id: "q1229",
@@ -16233,7 +16283,7 @@ S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is dire
     "Enable Web Authentication under the AAA Server configuration on the WLAN."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "office", type: "cloud", label: "Office", x: 60, y: 260 }, { id: "ap21", type: "switch", label: "AP 21", x: 350, y: 260 }, { id: "sw1", type: "switch", label: "SW1", x: 650, y: 260 }, { id: "wlc1", type: "switch", label: "WLAN Controller 1", x: 650, y: 60 }, { id: "user1", type: "pc", label: "User1", x: 150, y: 480 }, { id: "user2", type: "pc", label: "User2", x: 350, y: 480 }], links: [{ from: "ap21", to: "sw1" }, { from: "sw1", to: "wlc1" }, { from: "office", to: "user1" }, { from: "office", to: "user2" }, { from: "office", to: "ap21" }] },
   },
   {
     id: "q1232",
