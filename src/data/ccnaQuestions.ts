@@ -11508,7 +11508,10 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "array"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{
+  "Routers": ["R1", "R2", "R3"],
+  "Switches": ["SW1", "SW2", "SW3"]
+}` },
   },
   {
     id: "q0785",
@@ -11532,7 +11535,31 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Accept: application/json Q0787 Nachfragen Refer to the exhibit. How many objects are present in the given JSON-encoded data? Nine"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{
+    "aaaUser": {
+        "attributes": {
+            "pwd": "password1",
+            "firstName": "Abraham",
+            "lastName": "Lincoln",
+            "phone": "5555551212",
+            "email": "test@cisco.com"
+        },
+        "children": [{
+            "aaaUserDomain": {
+                "attributes": {
+                    "name": "ExampleCisco"
+                },
+                "children": [{
+                    "aaaUserRole": {
+                        "attributes": {
+                            "name": "admin"
+                        }
+                    }
+                }]
+            }
+        }]
+    }
+}` },
   },
   {
     id: "q0788",
@@ -11568,7 +11595,11 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Device(config)# netconf max-sessions 100"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Device# configure terminal
+Device(config)# netconf ssh acl 1
+Device(config)# netconf lock-time 100
+Device(config)# netconf max-sessions 1
+Device(config)# netconf ma-message 10`, highlight: ["Device(config)# netconf ma-message 10"] },
   },
   {
     id: "q0791",
@@ -11604,7 +11635,16 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "10.8.138.0/24"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `MacOs$ ifconfig
+
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+    options=400<CHANNEL_IO>
+    ether f0:18:98:64:60:32
+    inet6 fe80::492:c09f:57cf:8c36%en0 prefixlen 64 secured scopeid 0x6
+    inet 10.8.138.14 netmask 0xffffe000 broadcast 10.8.159.255
+    nd6 options=201<PERFORMNUD,DAD>
+    media: autoselect
+    status: active`, highlight: ["    inet 10.8.138.14 netmask 0xffffe000 broadcast 10.8.159.255"] },
   },
   {
     id: "q0795",
@@ -11981,7 +12021,31 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "The link is over utilized."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Router1#show interface ethernet 1
+Ethernet1 is up, line protocol is up
+  Hardware is Lance, address is 0010.7b36.1be8 (bia 0010.7b36.1be8)
+  Internet address is 10.100.48.240/24
+  MTU 1500 bytes, BW 10000 Kbit, DLY 1000 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output 00:00:06, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 1/75/1/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: random early detection(RED)
+  Output queue :0/40 (size/max)
+  5 minute input rate 1000 bits/sec, 2 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     7558065 packets input, 783768942 bytes, 1 no buffer
+     Received 8280963 broadcasts, 0 runts, 0 giants, 1 throttles
+     15 input errors, 14278 CRC, 0 frame, 0 overrun, 3 ignored
+     0 input packets with dribble condition detected
+     798092 packets output, 50280266 bytes, 0 underruns
+     0 output errors, 15000 collisions, 0 interface resets
+     0 babbles, 0 late collision, 179 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out`, highlight: ["     15 input errors, 14278 CRC, 0 frame, 0 overrun, 3 ignored", "     0 output errors, 15000 collisions, 0 interface resets"] },
   },
   {
     id: "q0833",
@@ -12005,7 +12069,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "SW1# interface Gi0/1 switchport switchport mode trunk channel-group 1 mode auto ! interface Gi0/2 switchport switchport mode trunk channel-group 1 mode auto SW2# interface Gi0/1 switchport switchport mode trunk channel-group 1 mode desirable ! interface Gi0/2 switchport switchport mode trunk channel-group 1 mode desirable"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 400, y: 60 }, { id: "sw1", type: "switch", label: "SW1", x: 340, y: 210 }, { id: "sw2", type: "switch", label: "SW2", x: 640, y: 210 }, { id: "pc4", type: "pc", label: "PC4 (VLAN 108)", x: 150, y: 130 }, { id: "phone", type: "pc", label: "IP Phone (VLAN 109)", x: 110, y: 290 }, { id: "pc1", type: "pc", label: "PC1 (VLAN 77)", x: 340, y: 360 }, { id: "pc3", type: "pc", label: "PC3 (VLAN 6)", x: 640, y: 360 }, { id: "pc7", type: "pc", label: "PC7 (VLAN 14)", x: 850, y: 210 }], links: [{ from: "r1", to: "sw1", labelTo: "Gi0/4" }, { from: "sw1", to: "sw2", labelFrom: "Gi0/1-2", labelTo: "Gi0/1-2" }, { from: "sw1", to: "pc4" }, { from: "sw1", to: "phone" }, { from: "sw1", to: "pc1", labelFrom: "Gi0/3" }, { from: "sw2", to: "pc7", labelFrom: "Gi0/0" }, { from: "sw2", to: "pc3", labelFrom: "Gi0/3" }], labels: [{ text: "Po1 – Lobby Conference Room Access port", attachTo: "sw1", position: "below" }] },
   },
   {
     id: "q0835",
@@ -12029,7 +12093,17 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "It drops the frame from the MAC table of the switch."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "sw1", type: "switch", label: "Sw1", x: 400, y: 60 }, { id: "a", type: "pc", label: "A (VLAN 2)", x: 150, y: 250 }, { id: "b", type: "pc", label: "B", x: 320, y: 320 }, { id: "c", type: "pc", label: "C", x: 540, y: 320 }, { id: "d", type: "pc", label: "D", x: 720, y: 250 }], links: [{ from: "sw1", to: "a", labelFrom: "e0/0", labelTo: "e0/0" }, { from: "sw1", to: "b", labelFrom: "e0/1", labelTo: "e0/0" }, { from: "sw1", to: "c", labelFrom: "e0/2", labelTo: "e0/0" }, { from: "sw1", to: "d", labelFrom: "e0/3", labelTo: "e0/0" }] }, { type: "cli", content: `Sw1#show mac-address table
+          Mac Address Table
+-------------------------------------------
+Vlan    Mac Address       Type        Ports
+-----   -----------       --------    -----
+2       000c.859c.bb7b    DYNAMIC     e0/1
+3       000c.859c.bb7b    DYNAMIC     e0/1
+2       0010.11dc.3e91    DYNAMIC     e0/2
+3       0010.11dc.3e91    DYNAMIC     e0/2
+2       0043.29d9.c045    DYNAMIC     e0/3
+Sw1#` }],
   },
   {
     id: "q0837",
@@ -12042,7 +12116,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Enable the Broadcast SSID option."
     ],
     correct: [0, 1],
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Einstellung (General)", "Wert"], rows: [["Profile Name", "lantest"], ["Type", "WLAN"], ["SSID", "lantest"], ["Status", "Enabled (deaktiviert)"], ["Security Policies", "[WPA2][Auth(802.1X)]"], ["Radio Policy", "All"], ["Interface/Interface Group(G)", "guest"], ["Multicast Vlan Feature", "deaktiviert"], ["Broadcast SSID", "deaktiviert"], ["NAS-ID", "none"]] },
   },
   {
     id: "q0838",
@@ -12079,7 +12153,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Set the Layer 2 Security to None. Q0841 Nachfragen A network administrator plans an update to the WI-FI networks in multiple branch offices. Each location is configured with an SSID called “Office”. The administrator wants every user who connects to the SSID at any location to have the same access level. What must be set the same on each network to meet the requirement? security policies"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Security (Layer 2)", "Wert"], rows: [["Layer 2 Security", "WPA+WPA2"], ["MAC Filtering", "deaktiviert"], ["Fast Transition", "Adaptive"], ["Over the DS", "aktiviert"], ["Reassociation Timeout", "20 Sekunden"], ["PMF", "Disabled"], ["WPA Policy", "deaktiviert"], ["WPA2 Policy", "aktiviert"], ["WPA2 Encryption", "AES"], ["OSEN Policy", "deaktiviert"], ["Auth Key Mgmt: 802.1X", "Enable"], ["Auth Key Mgmt: CCKM", "-"]] },
   },
   {
     id: "q0842",
@@ -12091,7 +12165,7 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Check the DHCP Addr. Assignment check box."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Advanced-Einstellung", "Wert"], rows: [["Allow AAA Override", "deaktiviert"], ["Coverage Hole Detection", "aktiviert"], ["Enable Session Timeout", "1800 s"], ["Aironet IE", "deaktiviert"], ["Diagnostic Channel", "deaktiviert"], ["Override Interface ACL (IPv4/IPv6)", "None / None"], ["Layer2 Acl", "None"], ["URL ACL", "None"], ["P2P Blocking Action", "Disabled"], ["Client Exclusion", "aktiviert, 180 s"], ["Maximum Allowed Clients", "0"], ["Static IP Tunneling", "deaktiviert"], ["Wi-Fi Direct Clients Policy", "Disabled"], ["Maximum Allowed Clients Per AP Radio", "200"], ["DHCP Server Override", "aktiviert (0.0.0.0)"], ["DHCP Addr. Assignment", "nicht erforderlich"], ["MFP Client Protection", "Optional"], ["DTIM Period 802.11a/n | b/g/n", "1 | 1"], ["NAC State", "None"], ["Client Load Balancing", "deaktiviert"], ["Client Band Select", "deaktiviert"]] },
   },
   {
     id: "q0843",
