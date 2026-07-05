@@ -16379,7 +16379,7 @@ Ethernet adapter Ethernet:
     "ip route 10.10.10.0 255.255.255.248 192.168.2.2 ip route 10.10.2.8 255.255.255.252 g0/1"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1", x: 60, y: 260 }, { id: "r1", type: "router", label: "R1", x: 320, y: 260 }, { id: "sw", type: "switch", label: "SW", x: 570, y: 260 }, { id: "r2", type: "router", label: "R2", x: 750, y: 100 }, { id: "r3", type: "router", label: "R3", x: 750, y: 420 }, { id: "pc2", type: "pc", label: "PC2", x: 1000, y: 60 }, { id: "pc3", type: "pc", label: "PC3", x: 1150, y: 20 }, { id: "pc4", type: "pc", label: "PC4", x: 1150, y: 140 }, { id: "pc5", type: "pc", label: "PC5", x: 1000, y: 420 }], links: [{ from: "pc1", to: "r1", labelTo: "g0/0 .2", subnet: "172.16.5.0/24" }, { from: "r1", to: "sw", labelFrom: "g0/1 .1", subnet: "192.168.2.0/24" }, { from: "sw", to: "r2", labelTo: "g0/1 .3" }, { from: "sw", to: "r3", labelTo: "g0/1 .2" }, { from: "r2", to: "sw", labelFrom: "g0/0 .1" }, { from: "sw", to: "pc2" }, { from: "sw", to: "pc3" }, { from: "sw", to: "pc4" }, { from: "r3", to: "pc5", labelFrom: "g0/0 .5" }], labels: [{ text: "10.10.10.0/24", attachTo: "sw", position: "below" }] },
   },
   {
     id: "q1241",
@@ -16391,7 +16391,14 @@ Ethernet adapter Ethernet:
     "GigabitEthernet0/0"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `router#show ip route
+....
+D    172.18.32.0/26 [90/25789217] via 10.1.1.1
+R    172.18.32.0/24 [120/4] via 10.1.1.2
+O    172.18.32.0/19 [110/229840] via 10.1.1.3
+C    172.18.32.32/32 is directly connected, Loopback0
+C    172.18.32.36/30 is directly connected, GigabitEthernet0/0
+L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C    172.18.32.36/30 is directly connected, GigabitEthernet0/0"] },
   },
   {
     id: "q1242",
@@ -16404,7 +16411,7 @@ Ethernet adapter Ethernet:
     "Enable the Aironet IE option"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Einstellung (Advanced)", "Wert"], rows: [["Allow AAA Override", "Enabled"], ["Coverage Hole Detection", "Enabled"], ["Aironet IE", "Enabled"], ["Client Band Select", "Enabled"], ["MFP Client Protection", "Optional"], ["Maximum Allowed Clients", "0"], ["Maximum Allowed Clients Per AP Radio", "200"]] },
   },
   {
     id: "q1244",
@@ -16428,7 +16435,22 @@ Ethernet adapter Ethernet:
     "The interface output queue cannot process the Ethernet frames."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `cat9k-acc-1# show interfaces gigabitethernet 1/0/1
+  gigabitethernet 1/0/1 is up, line protocol is up
+  Hardware is gigabitethernet, address is aa00.0400.0134 (via 0000.0c00.4369)
+  MTU 1500 bytes, BW 1000 Kbit, DLY 1000 usec, rely 255/255, load 1/255
+  Encapsulation ARPA, loopback not set, keepalive set (10 sec)
+  ARP type: ARPA, PROBE, ARP Timeout 4:00:00
+  Last input 0:00:00, output 0:00:00, output hang never
+  Output queue 1/1, 1 drops; input queue 0/0, 0 drops
+  Five minute input rate 61000 bits/sec, 200 packets/sec
+  Five minute output rate 1000 bits/sec, 200 packets/sec
+     2295197 packets input, 305539992 bytes, 0 no buffer
+     Received 1925500 broadcasts, 0 runts, 0 giants
+     0 input errors, 1790 CRC, 1790 frame, 0 overrun, 0 ignored, 0 abort
+     0 input packets with dribble condition detected
+     3594664 packets output, 436549843 bytes, 1 underruns
+     0 output errors, 1 collisions, 1 interface resets, 0 restarts`, highlight: ["  Output queue 1/1, 1 drops; input queue 0/0, 0 drops", "     Received 1925500 broadcasts, 0 runts, 0 giants"] },
   },
   {
     id: "q1246",
