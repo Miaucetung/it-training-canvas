@@ -1,5 +1,5 @@
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
-import { hasExhibit, getExhibitList } from "@/lib/ccna-question-pool";
+import { hasExhibit, getExhibitList, categorizeQuestion } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
 import { gamificationBus } from "@/lib/gamification/events/event-bus";
 import {
@@ -30,24 +30,6 @@ interface QuizState {
 
 // Cisco-Bestehensgrenze: 825/1000 (≈82,5 %) — Referenz wie in der Prüfung.
 const CISCO_PASS = 825;
-
-// Leitet aus dem Fragetext eine CCNA-Domäne ab (für die Domain-Analyse).
-const DOMAIN_RULES: Array<[string, RegExp]> = [
-  ["Wireless", /\b(wlan|wireless|access point|\bap\b|ssid|wlc|802\.11|wpa|roaming|antenna|channel|rf\b|lightweight|capwap)\b/i],
-  ["IPv6", /\b(ipv6|eui-64|slaac|fe80|2001:|2000::|fc00|ff02|dual-stack|::)/i],
-  ["Switching & VLANs", /\b(vlan|trunk|switchport|spanning[- ]tree|\bstp\b|rstp|etherchannel|lacp|pagp|mac[- ]address|\bcdp\b|\blldp\b|port[- ]security|portfast|bpdu|native vlan|dtp|vtp)\b/i],
-  ["Routing", /\b(route|routing|ospf|eigrp|\bbgp\b|\brip\b|static|next[- ]hop|administrative distance|gateway of last resort|longest prefix|metric|prefix|router[- ]id)\b/i],
-  ["IPv4 & Subnetting", /\b(subnet|subnetting|wildcard|netmask|broadcast address|\/2[0-9]|\/3[0-2]|255\.255|dhcp|cidr|private ip|rfc 1918)\b/i],
-  ["Security & Services", /\b(\bacl\b|\bnat\b|\bpat\b|\baaa\b|802\.1x|firewall|\bvpn\b|snmp|syslog|\bntp\b|password|\bssh\b|tacacs|radius|dai|snooping)\b/i],
-  ["Architektur & Automation", /\b(spine|leaf|cloud|controller|\bsdn\b|automation|json|rest api|ansible|puppet|chef|hypervisor|virtual machine|three[- ]tier|collapsed|data plane|control plane|northbound|southbound)\b/i],
-  ["Geräte & Medien", /\b(ethernet|fiber|optical|copper|cat ?[56]|sfp|transceiver|duplex|collision|crc|cable|connector|poe|mtu)\b/i],
-];
-
-function categorizeQuestion(textRaw: string): string {
-  const t = textRaw || "";
-  for (const [name, re] of DOMAIN_RULES) if (re.test(t)) return name;
-  return "Grundlagen & Sonstige";
-}
 
 export function QuizDialog({
   quiz,

@@ -44,7 +44,7 @@ const QUIZ_CATEGORY_MAP: Record<string, string> = {
 };
 
 // Returns a diagram key from EXAM_DIAGRAMS if the question text matches a known concept.
-function inferDiagramId(text: string): string | undefined {
+export function inferDiagramId(text: string): string | undefined {
   const t = text.toLowerCase();
   if (/\bosi\b/.test(t) && /schicht|layer|tcp\/ip|modell/.test(t)) return "osi-model";
   if (/administrative\s+distance|admin[\s-]distance|ad[\s-]wert|a\.d\.\s|tabelle.*ad|ad.*tabelle/.test(t)) return "admin-distance";
