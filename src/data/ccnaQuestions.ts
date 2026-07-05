@@ -13052,7 +13052,18 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "router D"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pca", type: "pc", label: "PC A (10.223.2.2)", x: 90, y: 300 }, { id: "ry", type: "router", label: "Router Y", x: 380, y: 300 }, { id: "ra", type: "router", label: "Router A (10.224.1.2)", x: 900, y: 100 }, { id: "rb", type: "router", label: "Router B (10.224.1.3)", x: 900, y: 260 }, { id: "rc", type: "router", label: "Router C (10.224.1.4)", x: 900, y: 420 }, { id: "rd", type: "router", label: "Router D (10.224.1.5)", x: 900, y: 580 }], links: [{ from: "pca", to: "ry", labelTo: "G0/1 10.223.2.1" }, { from: "ry", to: "ra", labelFrom: "G0/0 10.224.1.1" }, { from: "ry", to: "rb" }, { from: "ry", to: "rc" }, { from: "ry", to: "rd" }] }, { type: "cli", content: `Router-Y#show ip route
+Gateway of last resort is not set
+
+10.0.0.0/8 is variably subnetted
+S    10.0.0.0/8 [1/0] via 10.224.1.2
+B    10.27.150.224/27 [20/0] via 10.224.1.3, 1w6d
+S    10.128.0.0/9 [1/0] via 10.224.1.3
+B    10.224.0.0/11 [20/0] via 10.224.1.5, 5d18h
+B    10.224.0.0/15 [20/0] via 10.224.1.4, 5d18h
+C    10.223.0.0/24 is directly connected, GigabitEthernet0/1
+C    10.224.0.0/24 is directly connected, GigabitEthernet0/0
+B    10.226.34.0/24 [20/0] via 10.224.1.5, 5d18h`, highlight: ["B    10.224.0.0/11 [20/0] via 10.224.1.5, 5d18h", "B    10.226.34.0/24 [20/0] via 10.224.1.5, 5d18h"] }],
   },
   {
     id: "q0915",
@@ -13064,7 +13075,17 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "32"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Gateway of last resort is 172.16.2.2 to network 0.0.0.0
+
+     10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks
+        10.10.100.0/26 is directly connected, GigabitEthernet0/0/6
+C       10.10.10.0/24 is directly connected, GigabitEthernet0/0/0
+L       10.10.10.3/32 is directly connected, GigabitEthernet0/0/0
+     172.16.0.0/16 is variably subnetted, 3 subnets, 2 masks
+S       172.16.1.33/32 is directly connected, GigabitEthernet0/0/1
+C       172.16.2.0/23 is directly connected, GigabitEthernet0/0/1
+L       172.16.2.1/32 is directly connected, GigabitEthernet0/0/1
+S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["S*   0.0.0.0/0 [1/0] via 172.16.2.2"] },
   },
   {
     id: "q0916",
@@ -13076,7 +13097,14 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "2001:db8::5200:00ff:fe04:0000/64"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `GigabitEthernet1 is up, line protocol is up
+  Hardware is CSR vNIC, address is 5000.0004.0000 (bia 5000.0004.0000)
+  Internet address is 192.168.1.1/24
+  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  Full Duplex, 1000Mbps, link type is auto, media type is RJ45` },
   },
   {
     id: "q0917",
@@ -13112,7 +13140,7 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "The next hop is 10.0.0.1 because it has a better administrative distance."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "ra", type: "router", label: "Router A", x: 100, y: 400 }, { id: "rb", type: "router", label: "Router B", x: 420, y: 400 }, { id: "rc", type: "router", label: "Router C", x: 700, y: 150 }, { id: "rd", type: "router", label: "Router D", x: 700, y: 650 }, { id: "pcs", type: "pc", label: "Subnet 192.168.1.0/24", x: 100, y: 600 }], links: [{ from: "ra", to: "pcs" }, { from: "ra", to: "rb", subnet: "EIGRP100 Metric 128256" }, { from: "rb", to: "rc", subnet: "OSPF AREA 1 Metric 10000 (10.0.1.0/30)" }, { from: "rb", to: "rd", subnet: "EIGRP100 Metric 128256 (10.0.0.0/30)" }, { from: "rc", to: "rd", subnet: "OSPF AREA 1 Metric 10000 (10.0.2.0/30)" }], labels: [{ text: "Redistribution between EIGRP and OSPF", attachTo: "rb", position: "below" }] },
   },
   {
     id: "q0920",
@@ -13136,7 +13164,16 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "255.255.255.255"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Gateway of last resort is 172.16.2.2 to network 0.0.0.0
+
+     10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C       10.10.10.0/24 is directly connected, GigabitEthernet0/0/0
+L       10.10.10.3/32 is directly connected, GigabitEthernet0/0/0
+     172.16.0.0/16 is variably subnetted, 3 subnets, 2 masks
+S       172.16.1.33/32 is directly connected, GigabitEthernet0/0/1
+C       172.16.2.0/23 is directly connected, GigabitEthernet0/0/1
+L       172.16.2.1/32 is directly connected, GigabitEthernet0/0/1
+S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["L       172.16.2.1/32 is directly connected, GigabitEthernet0/0/1"] },
   },
   {
     id: "q0923",
@@ -13148,7 +13185,7 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "ipv6 address 2001:DB8:D8D2:1009:12A0:AB34:FFCC:1 eui-64"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1 (MAC 12-a0-ab-dd-00-02)", x: 190, y: 100 }, { id: "r2", type: "router", label: "R2 (MAC 12-a0-ab-cc-00-01)", x: 620, y: 100 }, { id: "sw1", type: "switch", label: "SW1", x: 190, y: 280 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 280 }, { id: "file", type: "pc", label: "File Server .3", x: 100, y: 450 }, { id: "nms", type: "pc", label: "Network Management Server .4", x: 300, y: 450 }, { id: "ws", type: "pc", label: "Workstations", x: 620, y: 450 }], links: [{ from: "r1", to: "r2", labelFrom: "Int G0/0 2001:DB8:44:90::1/64", labelTo: "Int G0/0 2001:DB8:44:90::2/64" }, { from: "r1", to: "sw1" }, { from: "r2", to: "sw2" }, { from: "sw1", to: "file" }, { from: "sw1", to: "nms" }, { from: "sw2", to: "ws" }], labels: [{ text: "2001:DB8:D8D2:1008::/64", attachTo: "sw1", position: "below" }, { text: "2001:DB8:D8D2:1009::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q0924",
@@ -13160,7 +13197,26 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "R7 has a gateway of last resort available. R7 is receiving routes that were redistributed in EIGRP. R7 will drop traffic destined to 10.90.8.0/24."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R7#
+172.22.0.0/24 is subnetted, 1 subnets
+D    172.22.49.0 [90/284160] via 10.81.22.2, 04:55:53, FastEthernet0/0
+10.0.0.0/8 is variably subnetted, 26 subnets, 5 masks
+D EX 10.10.10.10/32 [170/35840] via 10.3.5.1, 04:55:55, FastEthernet0/1
+D    10.9.1.0/30 [90/33280] via 10.3.5.1, 04:55:56, FastEthernet0/1
+B    10.111.99.0/24 [20/0] via 10.6.25.2, 03:58:52
+D    10.14.3.0/30 [90/30720] via 10.3.5.1, 04:55:58, FastEthernet0/1
+C    10.9.4.0/30 is directly connected, FastEthernet1/0
+B    10.100.100.0/24 [20/0] via 10.6.25.2, 03:58:53
+D    10.0.1.0/30 [90/30720] via 10.3.5.1, 04:55:58, FastEthernet0/1
+D EX 10.10.10.70/32 [170/161280] via 10.3.5.1, 04:55:57, FastEthernet0/1
+B    10.90.0.0/16 [200/0] via 0.0.0.0, 03:57:59, Null0
+D EX 10.90.1.0/24 [170/158720] via 10.3.5.1, 04:55:57, FastEthernet0/1
+D EX 10.90.2.0/24 [170/158720] via 10.3.5.1, 04:55:57, FastEthernet0/1
+D    10.90.3.0/29 [90/161280] via 10.3.5.1, 02:46:03, FastEthernet0/1
+D EX 10.90.3.0/24 [170/158720] via 10.3.5.1, 02:46:04, FastEthernet0/1
+D EX 10.90.4.0/24 [170/158720] via 10.3.5.1, 04:55:59, FastEthernet0/1
+D EX 10.90.5.0/24 [170/158720] via 10.3.5.1, 04:55:59, FastEthernet0/1
+B*   0.0.0.0/0 [20/0] via 10.6.25.2, 02:22:38`, highlight: ["B*   0.0.0.0/0 [20/0] via 10.6.25.2, 02:22:38", "D EX 10.10.10.10/32 [170/35840] via 10.3.5.1, 04:55:55, FastEthernet0/1"] },
   },
   {
     id: "q0925",
@@ -13210,7 +13266,7 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "ip route 192.168.23.0 255.255.255.0 192.168.13.3"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 460, y: 80 }, { id: "r2", type: "router", label: "R2", x: 190, y: 350 }, { id: "r3", type: "router", label: "R3", x: 730, y: 350 }], links: [{ from: "r1", to: "r2", labelFrom: "Gi0/1 .1", labelTo: "Gi0/1 .2", subnet: "192.168.12.0/24 (RIP)" }, { from: "r1", to: "r3", labelFrom: "Gi0/2 .1", labelTo: "Gi0/1 .3", subnet: "192.168.13.0/24" }, { from: "r2", to: "r3", labelFrom: "Gi0/2 .2", labelTo: "Gi0/2 .3", subnet: "192.168.23.0/24" }] },
   },
   {
     id: "q0930",
@@ -13259,7 +13315,7 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "4"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Entry #", "Netzwerk", "Maske"], rows: [["1", "192.168.10.0", "255.255.254.0"], ["2", "192.168.10.0", "255.255.255.192"], ["3", "192.168.10.0", "255.255.0.0"], ["4", "192.168.10.0", "255.255.224.0"]] },
   },
   {
     id: "q0935",
@@ -13284,7 +13340,15 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "It discards the packets."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Router1#show ip route
+Gateway of last resort is not set
+     209.165.200.0/27 is subnetted, 1 subnets
+B       209.165.200.224 [20/0] via 10.10.12.2, 00:09:57
+     10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks
+C       10.10.10.0/28 is directly connected, GigabitEthernet0/0
+C       10.10.11.0/30 is directly connected, FastEthernet2/0
+O       10.10.13.0/24 [110/2] via 10.10.10.1, 00:08:34, GigabitEthernet0/0
+C       10.10.12.0/30 is directly connected, GigabitEthernet0/1` },
   },
   {
     id: "q0939",
@@ -13308,7 +13372,31 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "when the default route learned over external BGP changes its next hop"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `CPE# show run | include ip route
+ip route 0.0.0.0 0.0.0.0 203.0.113.1 21
+
+CPE# show ip route 203.0.113.1
+Routing entry for 203.0.113.0/30
+  Known via "connected", distance 0, metric 0 (connected, via interface)
+  Routing Descriptor Blocks:
+  * directly connected, via Ethernet0/1
+      Route metric is 0, traffic share count is 1
+
+CPE# ping 203.0.113.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 203.0.113.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+
+CPE# show ip route
+Gateway of last resort is 198.51.100.1 to network 0.0.0.0
+B*   0.0.0.0/0 [20/0] via 198.51.100.1, 00:02:07
+     198.51.100.0/24 is variably subnetted, 2 subnets, 2 masks
+C       198.51.100.0/30 is directly connected, Ethernet0/0
+L       198.51.100.2/32 is directly connected, Ethernet0/0
+     203.0.113.0/24 is variably subnetted, 2 subnets, 2 masks
+C       203.0.113.0/30 is directly connected, Ethernet0/1
+L       203.0.113.2/32 is directly connected, Ethernet0/1`, highlight: ["ip route 0.0.0.0 0.0.0.0 203.0.113.1 21", "B*   0.0.0.0/0 [20/0] via 198.51.100.1, 00:02:07"] },
   },
   {
     id: "q0941",
@@ -13320,7 +13408,15 @@ D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlig
     "10.10.10.14"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R_1# show ip route
+     ....
+D    192.168.20.0/26 [90/24513456] via 10.10.10.1
+R    192.168.20.0/24 [120/5] via 10.10.10.2
+O    192.168.0.0/19 [110/219414] via 10.10.10.13
+B    192.168.0.0/16 is variably subnetted, 4 subnets, 4 masks
+D    192.168.20.0/27 [90/4123710] via 10.10.10.12
+D    192.168.20.0/25 [90/14464211] via 10.10.10.11
+S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/14464211] via 10.10.10.11"] },
   },
   {
     id: "q0942",
