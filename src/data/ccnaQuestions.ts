@@ -15484,7 +15484,15 @@ Ethernet adapter Ethernet:
     "interface GigabitEthernet1/1 switchport mode access switchport access vlan 11 ! interface GigabitEthernet1/24 switchport mode trunk"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1 (10.0.1.11/24)", x: 100, y: 260 }, { id: "accsw1", type: "switch", label: "AccSw1", x: 350, y: 260 }, { id: "accsw2", type: "switch", label: "AccSw2", x: 650, y: 260 }, { id: "server1", type: "pc", label: "Server1 (10.0.2.22/24)", x: 900, y: 260 }, { id: "ros", type: "router", label: "Router-on-a-Stick", x: 500, y: 60 }], links: [{ from: "pc1", to: "accsw1", labelTo: "Gi1/1" }, { from: "accsw1", to: "accsw2", labelFrom: "Gi1/24", labelTo: "Gi1/24" }, { from: "accsw2", to: "server1", labelFrom: "Gi1/3" }, { from: "accsw1", to: "ros" }, { from: "accsw2", to: "ros" }] }, { type: "cli", content: `AccSw1#show vlan brief
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active
+2    IT-Support                       active
+10   Servers                          active    Gig1/3, Gig1/4
+11   Staff                            active    Gig1/1
+12   Guests                           active    Gig1/2`, highlight: ["10   Servers                          active    Gig1/3, Gig1/4"] }],
   },
   {
     id: "q1150",
@@ -15508,7 +15516,20 @@ Ethernet adapter Ethernet:
     "192.168.25.254 Refer to the exhibit. Which switch becomes the root bridge? Bridge Priority - 8192 - mac-address 05:0f:e8:ed:b2:98 Bridge Priority - 8192 - mac-address 00:ac:f0:9b:dc:72 Bridge Priority - 16384 - mac-address 0e:6c:e4:b1:8a:57 SW4 - Bridge Priority - 16384 - mac-address 0a:45:22:26:29:77"
     ],
     correct: [2, 1],
-    exhibit: true,
+    exhibit: { type: "cli", content: `C:\\>ipconfig /all
+
+Wireless LAN adapter Wi-Fi:
+   Connection-specific DNS Suffix  . :
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   IPv4 Address. . . . . . . . . . . : 192.168.25.103(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Lease Obtained. . . . . . . . . . : Monday, June 1, 2026 08:00:00 AM
+   Lease Expires . . . . . . . . . . : Tuesday, June 2, 2026 08:00:00 AM
+   Default Gateway . . . . . . . . . : 192.168.25.1
+   DHCP Server . . . . . . . . . . . : 192.168.25.100
+   DNS Servers . . . . . . . . . . . : 192.168.25.254
+                                        192.168.25.254`, highlight: ["   DHCP Server . . . . . . . . . . . : 192.168.25.100"] },
   },
   {
     id: "q1154",
@@ -15616,7 +15637,13 @@ Ethernet adapter Ethernet:
     "255.255.255.252"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `router#show ip route
+....
+D    172.16.32.0/26 [90/25789217] via 10.0.0.1
+R    172.16.32.0/24 [120/4] via 10.0.0.2
+O    172.16.32.0/19 [110/229840] via 10.0.0.3
+C    172.16.32.32/32 is directly connected, Loopback0
+C    172.16.32.4/30 is directly connected, GigabitEthernet0/0`, highlight: ["D    172.16.32.0/26 [90/25789217] via 10.0.0.1"] },
   },
   {
     id: "q1176",
@@ -15628,7 +15655,7 @@ Ethernet adapter Ethernet:
     "2001:db8:1006:1968:12D8:BAFE:FF01:1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (Atlanta)", x: 200, y: 220 }, { id: "r2", type: "router", label: "R2 (San Francisco)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "eu1", type: "pc", label: "End User 1", x: 120, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 280, y: 600 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 720, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 880, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:1006:1698::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1 13-19-be-67-00-01" }, { from: "r2", to: "sw2", labelFrom: "E0/1 13-19-bf-69-00-01" }, { from: "sw1", to: "eu1" }, { from: "sw1", to: "eu2" }, { from: "sw2", to: "dns1" }, { from: "sw2", to: "dns2" }], labels: [{ text: "2001:db8:1006:1968::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:1006:1969::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1177",
@@ -15640,7 +15667,34 @@ Ethernet adapter Ethernet:
     "overutilization"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Router#show interface FastEthernet0/0
+FastEthernet0/0 is up, line protocol is up
+  Hardware is Gt96k FE, address is 0017.59b2.7fb2 (bia 0017.59b2.7fb2)
+  Internet address is 10.0.0.2/30
+  MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  Half-duplex, 100Mb/s, 100BaseTX/FX
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:04, output 00:00:04, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 1
+  Queueing strategy: fifo
+  Output queue: 0/40 (size/max)
+  5 minute input rate 516000 bits/sec, 45 packets/sec
+  5 minute output rate 516000 bits/sec, 46 packets/sec
+     13282 packets input, 20075670 bytes
+     Received 25 broadcasts, 0 runts, 0 giants, 0 throttles
+     383 input errors, 383 CRC, 0 frame, 0 overrun, 0 ignored
+     0 watchdog
+     0 input packets with dribble condition detected
+     13438 packets output, 20084258 bytes, 0 underruns
+     0 output errors, 831 collisions, 5 interface resets
+     11 unknown protocol drops
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out`, highlight: ["  Half-duplex, 100Mb/s, 100BaseTX/FX", "     383 input errors, 383 CRC, 0 frame, 0 overrun, 0 ignored", "     0 output errors, 831 collisions, 5 interface resets"] },
   },
   {
     id: "q1179",
