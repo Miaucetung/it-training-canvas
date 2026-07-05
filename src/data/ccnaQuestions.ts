@@ -15815,7 +15815,25 @@ FastEthernet0/0 is up, line protocol is up
     "duplex mismatch <- JK"
     ],
     correct: [1, 3],
-    exhibit: true,
+    exhibit: { type: "cli", content: `Output from R1
+
+GigabitEthernet0/0/1 is up, line protocol is down
+  Hardware is SPA-10X1GE-V2, address is 0023.33ee.7c00 (bia 0023.33ee.7c00)
+  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
+  reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive not supported
+  Half Duplex, 1000Mbps, link type is auto, media type is LX
+  output flow-control is off, input flow-control is off
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:01, output 00:02:31, output hang never
+
+  10 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+  0 watchdog, 314 multicast, 0 pause input
+  1 packets output, 77 bytes, 0 underruns
+  0 output errors, 50 collisions, 6 interface resets
+  17 unknown protocol drops
+  0 babbles, 0 late collision, 0 deferred`, highlight: ["GigabitEthernet0/0/1 is up, line protocol is down", "  Half Duplex, 1000Mbps, link type is auto, media type is LX", "  0 output errors, 50 collisions, 6 interface resets"] },
   },
   {
     id: "q1198",
@@ -15827,7 +15845,7 @@ FastEthernet0/0 is up, line protocol is up
     "10.1.40.0/23"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "a", type: "router", label: "A", x: 100, y: 60 }, { id: "b", type: "router", label: "B", x: 100, y: 220 }, { id: "c", type: "router", label: "C", x: 100, y: 380 }, { id: "d", type: "router", label: "D", x: 100, y: 540 }, { id: "r1", type: "router", label: "R1", x: 450, y: 300 }, { id: "isp", type: "cloud", label: "ISP Cloud", x: 750, y: 300 }, { id: "r2", type: "router", label: "R2", x: 1050, y: 300 }], links: [{ from: "a", to: "r1", labelFrom: "10.1.40.0/25" }, { from: "b", to: "r1", labelFrom: "10.1.40.128/29" }, { from: "c", to: "r1", labelFrom: "10.1.40.176/28" }, { from: "d", to: "r1", labelFrom: "10.1.41.224/29" }, { from: "r1", to: "isp" }, { from: "isp", to: "r2" }], labels: [{ text: "OSPF area 1", attachTo: "r1", position: "below" }] },
   },
   {
     id: "q1200",
@@ -15863,7 +15881,7 @@ FastEthernet0/0 is up, line protocol is up
     "In the Advanced configuration, set the DTIM value to 125."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "ap", type: "switch", label: "AP (SSID USERWL, 172.16.10.0/24)", x: 200, y: 150 }, { id: "cloud", type: "cloud", label: "Network Cloud", x: 500, y: 150 }, { id: "wlc", type: "switch", label: "WLC", x: 800, y: 150 }], links: [{ from: "ap", to: "cloud" }, { from: "cloud", to: "wlc", labelTo: "Vlan 20 172.16.10.0/24" }] },
   },
   {
     id: "q1203",
@@ -15875,7 +15893,18 @@ FastEthernet0/0 is up, line protocol is up
     "channel-group 1 mode auto"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1
+configure terminal
+interface range GigabitEthernet 0/1-2
+    switchport mode trunk
+    channel-group 1 mode active
+
+SW2
+configure terminal
+interface range GigabitEthernet 0/1-2
+    switchport mode trunk
+interface Port-channel1
+    switchport mode trunk`, highlight: ["    channel-group 1 mode active"] },
   },
   {
     id: "q1204",
@@ -15887,7 +15916,22 @@ FastEthernet0/0 is up, line protocol is up
     "switchport mode dynamic auto switchport trunk encapsulation negotiate"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "printer", type: "pc", label: "Printer", x: 100, y: 150 }, { id: "sw1", type: "switch", label: "SW_1", x: 400, y: 150 }, { id: "sw2", type: "switch", label: "SW_2", x: 700, y: 150 }, { id: "lan", type: "cloud", label: "LAN", x: 1000, y: 150 }], links: [{ from: "printer", to: "sw1", labelTo: "Ethernet1/1" }, { from: "sw1", to: "sw2", labelFrom: "Ethernet0/2", labelTo: "Ethernet0/2" }, { from: "sw2", to: "lan" }] }, { type: "cli", content: `Name: Et0/2
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: trunk
+Administrative Trunking Encapsulation: negotiate
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Administrative Native VLAN tagging: enabled
+Voice VLAN: none
+...
+Operational private-vlan: none
+Trunking VLANs Enabled: 5
+Pruning VLANs Enabled: 2-1001
+Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunking VLANs Enabled: 5"] }],
   },
   {
     id: "q1205",
@@ -15899,7 +15943,7 @@ FastEthernet0/0 is up, line protocol is up
     "policing"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "in1", type: "pc", label: "AF31", x: 100, y: 60 }, { id: "in2", type: "pc", label: "AF21", x: 100, y: 220 }, { id: "in3", type: "pc", label: "AF11", x: 100, y: 380 }, { id: "r1", type: "router", label: "R1", x: 450, y: 220 }, { id: "out1", type: "pc", label: "AF31", x: 800, y: 60 }, { id: "out2", type: "pc", label: "AF21", x: 800, y: 220 }, { id: "out3", type: "pc", label: "AF11", x: 800, y: 380 }], links: [{ from: "in1", to: "r1", labelTo: "Gi0/0" }, { from: "in2", to: "r1" }, { from: "in3", to: "r1" }, { from: "r1", to: "out1", labelFrom: "Gi0/1" }, { from: "r1", to: "out2" }, { from: "r1", to: "out3" }] },
   },
   {
     id: "q1206",
