@@ -16838,7 +16838,7 @@ Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highli
     "SW 4 - Bridge Priority - 57344 - mac-address 00:10:a1:57:61:80"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 200, y: 100 }, { id: "sw2", type: "switch", label: "SW2", x: 600, y: 100 }, { id: "sw4", type: "switch", label: "SW4", x: 200, y: 340 }, { id: "sw3", type: "switch", label: "SW3", x: 600, y: 340 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Gi1/0/1", labelTo: "Gi1/0/1" }, { from: "sw1", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/3" }, { from: "sw1", to: "sw4", labelFrom: "Gi1/0/3", labelTo: "Gi1/0/1" }, { from: "sw4", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/2" }, { from: "sw2", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/1" }], labels: [{ text: "Bridge Priority 20480, mac-address 00:10:a1:71:e3:35", attachTo: "sw1", position: "below" }, { text: "Bridge Priority 20480, mac-address 00:10:a1:54:4e:50", attachTo: "sw2", position: "below" }, { text: "Bridge Priority 57344, mac-address 00:10:a1:93:09:2d", attachTo: "sw3", position: "below" }, { text: "Bridge Priority 57344, mac-address 00:10:a1:57:61:80", attachTo: "sw4", position: "below" }] },
   },
   {
     id: "q1296",
@@ -16874,7 +16874,7 @@ Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highli
     "2001:db8:1a44:41a4:C800:BAFE:FF00:1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (Boston)", x: 200, y: 220 }, { id: "r2", type: "router", label: "R2 (Chicago)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "eu1", type: "pc", label: "End User 1", x: 120, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 280, y: 600 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 720, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 880, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:14a4:41a4::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1 ca-01-be-4a-00-01" }, { from: "r2", to: "sw2", labelFrom: "E0/1 ca-01-bf-a4-00-01" }, { from: "sw1", to: "eu1" }, { from: "sw1", to: "eu2" }, { from: "sw2", to: "dns1" }, { from: "sw2", to: "dns2" }], labels: [{ text: "2001:db8:1a44:41a4::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:1aa4:41a4::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1321",
@@ -16934,7 +16934,7 @@ Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highli
     "2001:db8:9bb6:6bb9:C801:B6FF:FEB8:1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (Atlanta)", x: 200, y: 220 }, { id: "r2", type: "router", label: "R2 (Boston)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 120, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 280, y: 600 }, { id: "eu1", type: "pc", label: "End User 1", x: 720, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 880, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:9bb6:961b::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1 ca-01-6b-4b-00-01" }, { from: "r2", to: "sw2", labelFrom: "E0/1 ca-01-b6-b4-00-01" }, { from: "sw1", to: "dns1" }, { from: "sw1", to: "dns2" }, { from: "sw2", to: "eu1" }, { from: "sw2", to: "eu2" }], labels: [{ text: "2001:db8:9bb6:916b::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:9bb6:6bb9::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1339",
@@ -16946,7 +16946,7 @@ Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highli
     "SW2# configure terminal - SW2(config)# lacp system-priority 32000"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1", x: 80, y: 220 }, { id: "sw1", type: "switch", label: "SW1", x: 350, y: 220 }, { id: "sw2", type: "switch", label: "SW2", x: 900, y: 220 }, { id: "sw3", type: "switch", label: "SW3", x: 620, y: 480 }, { id: "server", type: "pc", label: "Server", x: 1150, y: 220 }], links: [{ from: "pc1", to: "sw1" }, { from: "sw1", to: "sw2", labelFrom: "Ge0/0 Ge0/1 Ge0/2", labelTo: "Ge0/0 Ge0/1 Ge0/2" }, { from: "sw1", to: "sw3" }, { from: "sw3", to: "sw2" }, { from: "sw2", to: "server" }], labels: [{ text: "LACP Port Channel 1", attachTo: "sw1", position: "below" }] },
   },
   {
     id: "q1340",
