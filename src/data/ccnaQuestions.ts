@@ -15219,7 +15219,9 @@ Group  Port-channel  Protocol    Ports
     "switchport trunk allowed remove 10"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1 (VLAN 5)", x: 130, y: 60 }, { id: "pc2", type: "pc", label: "PC2 (VLAN 5)", x: 500, y: 60 }, { id: "sw1", type: "switch", label: "SW1", x: 200, y: 260 }, { id: "sw2", type: "switch", label: "SW2", x: 460, y: 260 }, { id: "pc3", type: "pc", label: "PC3 (VLAN 10)", x: 130, y: 460 }, { id: "pc4", type: "pc", label: "PC4 (VLAN 10)", x: 500, y: 460 }], links: [{ from: "pc1", to: "sw1", labelTo: "fa0/2" }, { from: "pc2", to: "sw2", labelTo: "fa0/2" }, { from: "sw1", to: "sw2", labelFrom: "fa0/1", labelTo: "fa0/1" }, { from: "pc3", to: "sw1", labelTo: "fa0/3" }, { from: "pc4", to: "sw2", labelTo: "fa0/3" }] }, { type: "cli", content: `Switch2(config)#interface fa0/1
+Switch2(config-if)#switchport mode dynamic auto
+Switch2(config-if)#switchport trunk allowed vlan 5,10`, highlight: ["Switch2(config-if)#switchport mode dynamic auto"] }],
   },
   {
     id: "q1113",
@@ -15279,7 +15281,7 @@ Group  Port-channel  Protocol    Ports
     "SW4 - Bridge Priority - 28672 - mac-address 0b:09:23:33:b8:91"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 200, y: 100 }, { id: "sw2", type: "switch", label: "SW2", x: 600, y: 100 }, { id: "sw4", type: "switch", label: "SW4", x: 200, y: 340 }, { id: "sw3", type: "switch", label: "SW3", x: 600, y: 340 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Gi1/0/1", labelTo: "Gi1/0/1" }, { from: "sw1", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/3" }, { from: "sw1", to: "sw4", labelFrom: "Gi1/0/3", labelTo: "Gi1/0/1" }, { from: "sw4", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/2" }, { from: "sw2", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/1" }], labels: [{ text: "Bridge Priority 57344, mac-address 0b:bb:e0:96:a3:86", attachTo: "sw3", position: "below" }, { text: "Bridge Priority 57344, mac-address 00:b6:c5:17:8e:89", attachTo: "sw2", position: "below" }, { text: "Bridge Priority 28672, mac-address 0c:d4:e9:1d:3c:24", attachTo: "sw1", position: "below" }, { text: "Bridge Priority 28672, mac-address 0b:09:23:33:b8:91", attachTo: "sw4", position: "below" }] },
   },
   {
     id: "q1121",
@@ -15315,7 +15317,7 @@ Group  Port-channel  Protocol    Ports
     "SW 4 - Bridge Priority - 40960 - mac-address 04:44:97:51:63:17"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 200, y: 100 }, { id: "sw2", type: "switch", label: "SW2", x: 600, y: 100 }, { id: "sw4", type: "switch", label: "SW4", x: 200, y: 340 }, { id: "sw3", type: "switch", label: "SW3", x: 600, y: 340 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Gi1/0/1", labelTo: "Gi1/0/1" }, { from: "sw1", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/3" }, { from: "sw1", to: "sw4", labelFrom: "Gi1/0/3", labelTo: "Gi1/0/1" }, { from: "sw4", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/2" }, { from: "sw2", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/1" }], labels: [{ text: "Bridge Priority 32768, mac-address 0f:d7:9e:13:ab:82", attachTo: "sw1", position: "below" }, { text: "Bridge Priority 40960, mac-address 05:d8:33:09:8f:89", attachTo: "sw2", position: "below" }, { text: "Bridge Priority 32768, mac-address 01:1c:6c:66:b7:70", attachTo: "sw3", position: "below" }, { text: "Bridge Priority 40960, mac-address 04:44:97:51:63:17", attachTo: "sw4", position: "below" }] },
   },
   {
     id: "q1124",
@@ -15327,7 +15329,17 @@ Group  Port-channel  Protocol    Ports
     "DHCP Servers"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "isp", type: "cloud", label: "Internet", x: 100, y: 100 }, { id: "r1", type: "router", label: "Router", x: 400, y: 100 }, { id: "sw1", type: "switch", label: "SW", x: 650, y: 100 }, { id: "pc", type: "pc", label: "PC (10.2.2.2)", x: 900, y: 100 }], links: [{ from: "isp", to: "r1" }, { from: "r1", to: "sw1" }, { from: "sw1", to: "pc" }], labels: [{ text: "10.2.2.0/29", attachTo: "r1", position: "below" }] }, { type: "cli", content: `C:\\>ipconfig /all
+Ethernet adapter Ethernet:
+   Connection-specific DNS Suffix  . :
+   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F
+   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)
+   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.248
+   Default Gateway . . . . . . . . . : 10.2.2.10
+   DHCP Server . . . . . . . . . . . : 0.0.0.0
+   DNS Servers . . . . . . . . . . . : 8.8.8.8
+   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   Default Gateway . . . . . . . . . : 10.2.2.10"] }],
   },
   {
     id: "q1126",
@@ -15387,7 +15399,7 @@ Group  Port-channel  Protocol    Ports
     "Configure the ip dhcp smart-relay command globally on the router."
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc", type: "pc", label: "DHCP Client", x: 100, y: 150 }, { id: "r1", type: "router", label: "Router", x: 450, y: 150 }, { id: "server", type: "pc", label: "DHCP Server 172.16.2.2", x: 800, y: 150 }], links: [{ from: "pc", to: "r1", labelTo: "g0/0", subnet: "10.10.10.0/24" }, { from: "r1", to: "server", labelFrom: "g0/1", subnet: "172.16.2.0/24" }] },
   },
   {
     id: "q1140",
