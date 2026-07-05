@@ -14756,7 +14756,12 @@ Group  Port-channel  Protocol    Ports
     "An excessive number of frames greater than 1518 bytes are received"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `%AMDP2_FE-5-COLL: AMDP2/FE 0/0/[DEC], Excessive collisions, TDR=[DEC], TRC=[DEC]
+%DEC21140-5-COLL: [chars] excessive collisions
+%ILACC-5-COLL: Unit [DEC], excessive collisions. TDR=[DEC]
+%LANCE-5-COLL: Unit [DEC], excessive collisions. TDR=[DEC]
+%PQUICC-5-COLL: Unit [DEC], excessive collisions. Retry limit [DEC] exceeded
+%PQUICC_ETHER-5-COLL: Unit [DEC], excessive collisions. Retry limit [DEC] exceeded` },
   },
   {
     id: "q1056",
@@ -14768,7 +14773,7 @@ Group  Port-channel  Protocol    Ports
     "switchport dynamic auto switchport nonegotiate"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW_1 (Floor 5, VLAN 5,6)", x: 200, y: 150 }, { id: "sw12", type: "switch", label: "SW_12 (Floor 4, VLAN 5,6)", x: 620, y: 150 }], links: [{ from: "sw1", to: "sw12", labelFrom: "Ethernet0/0", labelTo: "Ethernet0/0" }] },
   },
   {
     id: "q1057",
@@ -14913,7 +14918,7 @@ Group  Port-channel  Protocol    Ports
     "R4"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r2", type: "router", label: "R2 (192.168.2.1, Prio 1)", x: 420, y: 60 }, { id: "sw", type: "switch", label: "SW", x: 420, y: 260 }, { id: "r1", type: "router", label: "R1 DR (192.168.2.8, Prio 108, RID 1.1.1.1)", x: 100, y: 260 }, { id: "r4", type: "router", label: "R4 (192.168.2.4, Prio 204, RID 4.4.4.4)", x: 740, y: 260 }, { id: "r3", type: "router", label: "R3 (192.168.2.6, Prio 106)", x: 420, y: 460 }], links: [{ from: "r2", to: "sw", labelFrom: "g0/0" }, { from: "r1", to: "sw", labelFrom: "g0/1" }, { from: "r4", to: "sw", labelFrom: "g0/1" }, { from: "r3", to: "sw", labelFrom: "g0/0" }], labels: [{ text: "OSPF 1", attachTo: "r2", position: "above" }] },
   },
   {
     id: "q1075",
@@ -14986,7 +14991,7 @@ Group  Port-channel  Protocol    Ports
     "MDF-DC-3: 0d:0E:18:2A:3C:9D"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "dc1", type: "switch", label: "MDF-DC-1", x: 200, y: 100 }, { id: "dc2", type: "switch", label: "MDF-DC-2", x: 600, y: 100 }, { id: "dc3", type: "switch", label: "MDF-DC-3", x: 200, y: 340 }, { id: "dc4", type: "switch", label: "MDF-DC-4", x: 600, y: 340 }], links: [{ from: "dc1", to: "dc2" }, { from: "dc1", to: "dc3" }, { from: "dc3", to: "dc4" }, { from: "dc2", to: "dc4" }], labels: [{ text: "0d:E0:43:96:02:30", attachTo: "dc1", position: "below" }, { text: "0d:0E:18:1B:05:97", attachTo: "dc2", position: "below" }, { text: "0d:0E:18:2A:3C:9D", attachTo: "dc3", position: "below" }, { text: "0d:E0:19:A1:B3:19", attachTo: "dc4", position: "below" }] },
   },
   {
     id: "q1082",
