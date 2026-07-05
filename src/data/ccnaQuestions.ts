@@ -12581,7 +12581,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "SW1# interface Gi0/1 switchport mode trunk switchport trunk allowed vian 5,7,9,108 interface Gi0/2 switchport mode trunk switchport trunk allowed vlan 7,9,108 SW2# interface Gi0/1 switchport mode trunk switchport trunk allowed vlan 7 interface Gi0/7 switchport mode trunk switchport trunk allowed vlan 5,7,9,108"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc4", type: "pc", label: "PC4 (VLAN 108)", x: 150, y: 90 }, { id: "sw1", type: "switch", label: "SW1", x: 440, y: 90 }, { id: "r1", type: "router", label: "R1", x: 730, y: 90 }, { id: "sw2", type: "switch", label: "SW2", x: 440, y: 290 }, { id: "pc1", type: "pc", label: "PC1 (VLAN 9)", x: 150, y: 250 }, { id: "pc2", type: "pc", label: "PC2 (VLAN 7)", x: 150, y: 350 }], links: [{ from: "pc4", to: "sw1", labelTo: "Gi0/0" }, { from: "sw1", to: "r1", labelFrom: "Gi0/2" }, { from: "sw1", to: "sw2", labelFrom: "Gi0/1", labelTo: "Gi0/7" }, { from: "pc1", to: "sw2", labelTo: "Gi0/0" }, { from: "pc2", to: "sw2", labelTo: "Gi0/1" }] },
   },
   {
     id: "q0876",
@@ -12593,7 +12593,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "#config t Router A (config)#cdp run - Router A (config)#interface gi0/0/0 Router A (config-if)#cdp enable"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "ra", type: "router", label: "Router A", x: 200, y: 100 }, { id: "rb", type: "router", label: "Router B", x: 600, y: 100 }, { id: "rc", type: "router", label: "Router C", x: 200, y: 340 }], links: [{ from: "ra", to: "rb", labelFrom: "G0/0/0", labelTo: "G0/0/0" }, { from: "ra", to: "rc", labelFrom: "G0/0/1", labelTo: "G0/0/0" }] },
   },
   {
     id: "q0877",
@@ -12605,7 +12605,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "interface gi0/1 clear cdp table"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "router", label: "ISP", x: 400, y: 70 }, { id: "wan", type: "cloud", label: "WAN", x: 400, y: 220 }, { id: "r1", type: "router", label: "R1", x: 400, y: 370 }], links: [{ from: "isp", to: "wan", labelFrom: "Gi0/1 10.0.0.254/30" }, { from: "wan", to: "r1", labelTo: "Gi0/0 10.0.0.253/30" }] },
   },
   {
     id: "q0878",
@@ -12641,7 +12641,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "Set the P2P Block Action to Drop."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Advanced-Einstellung", "Wert"], rows: [["Allow AAA Override", "deaktiviert"], ["Coverage Hole Detection", "deaktiviert"], ["Enable Session Timeout", "deaktiviert"], ["Aironet IE", "aktiviert"], ["Diagnostic Channel", "deaktiviert"], ["Override Interface ACL (IPv4/IPv6)", "None / None"], ["Layer2 Acl", "None"], ["URL ACL", "None"], ["P2P Blocking Action", "Disabled"], ["Client Exclusion", "aktiviert, 180 s"], ["Maximum Allowed Clients", "0"], ["Static IP Tunneling", "deaktiviert"], ["Wi-Fi Direct Clients Policy", "Disabled"], ["Maximum Allowed Clients Per AP Radio", "200"], ["DHCP Server Override", "deaktiviert"], ["DHCP Addr. Assignment", "nicht erforderlich"], ["MFP Client Protection", "Optional"], ["DTIM Period 802.11a/n | b/g/n", "1 | 1"], ["NAC State", "None"], ["Client Load Balancing", "deaktiviert"], ["Client Band Select", "deaktiviert"]] },
   },
   {
     id: "q0881",
@@ -12689,7 +12689,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "MDF-DC-3: 08:0E:18:1A:3C:9D"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "dc1", type: "switch", label: "MDF-DC-1", x: 200, y: 100 }, { id: "dc2", type: "switch", label: "MDF-DC-2", x: 600, y: 100 }, { id: "dc3", type: "switch", label: "MDF-DC-3", x: 200, y: 340 }, { id: "dc4", type: "switch", label: "MDF-DC-4", x: 600, y: 340 }], links: [{ from: "dc1", to: "dc2" }, { from: "dc1", to: "dc3" }, { from: "dc3", to: "dc4" }, { from: "dc2", to: "dc4" }], labels: [{ text: "08:E0:43:42:70:13", attachTo: "dc1", position: "below" }, { text: "08:0E:18:22:05:97", attachTo: "dc2", position: "below" }, { text: "08:0E:18:1A:3C:9D", attachTo: "dc3", position: "below" }, { text: "08:E0:19:A1:B3:19", attachTo: "dc4", position: "below" }] },
   },
   {
     id: "q0885",
@@ -12750,7 +12750,14 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "It forwards only the VTP advertisements that it receives on its trunk ports."
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW2
+vtp domain cisco
+vtp mode transparent
+vtp password ciscotest
+interface fastethernet0/1
+ description connection to sw1
+ switchport mode trunk
+ switchport trunk encapsulation dot1q`, highlight: ["vtp mode transparent"] },
   },
   {
     id: "q0890",
@@ -12774,7 +12781,17 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "router ospf 1 network 192.168.12.0 0.0.0.127 area 0"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R1
+interface GigabitEthernet0/1
+ ip address 192.168.12.1 255.255.255.128
+ no shutdown
+router ospf 1
+ network 192.168.12.1 0.0.0.0 area 1
+
+R2
+interface GigabitEthernet0/1
+ ip address 192.168.12.2 255.255.255.128
+ no shutdown`, highlight: [" network 192.168.12.1 0.0.0.0 area 1"] },
   },
   {
     id: "q0893",
@@ -12786,7 +12803,7 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "ip route 10.73.65.66 255.0.0.0 10.80.65.10"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r14", type: "router", label: "R14 (Lo0 10.10.1.14/32)", x: 200, y: 130 }, { id: "r86", type: "router", label: "R86 (Lo0 10.10.1.86/32)", x: 640, y: 130 }, { id: "pc10", type: "pc", label: "PC 10 (.10)", x: 640, y: 350 }], links: [{ from: "r14", to: "r86", labelFrom: "Fa0/0 .65", labelTo: "Fa0/0 .66", subnet: "10.73.65.64/30" }, { from: "r86", to: "pc10", labelFrom: "Fa0/1", subnet: "10.80.65.0/28" }] },
   },
   {
     id: "q0894",
@@ -12798,7 +12815,13 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "10.10.10.2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "cloud", type: "cloud", label: "10.10.10.0/24", x: 430, y: 220 }, { id: "r1", type: "router", label: "R1 10.10.10.1", x: 210, y: 90 }, { id: "r2", type: "router", label: "R2 10.10.10.2", x: 650, y: 90 }, { id: "r3", type: "router", label: "R3 10.10.10.3", x: 210, y: 350 }, { id: "r4", type: "router", label: "R4 10.10.10.4", x: 650, y: 350 }], links: [{ from: "r1", to: "cloud" }, { from: "r2", to: "cloud" }, { from: "r3", to: "cloud" }, { from: "r4", to: "cloud" }] }, { type: "cli", content: `R1# show ip route
+C    1.0.0.0/8 is directly connected, Loopback0
+     10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+O       10.10.10.3/32 [110/100] via 10.10.10.3, 00:39:08, Gigabitethernet0/3
+C       10.10.10.0/24 is directly connected, Gigabitethernet0/0
+O       10.10.10.2/32 [110/5] via 10.10.10.2, 00:39:08, Gigabitethernet0/2
+R       10.10.10.4/32 [120/10] via 10.10.10.4, 00:39:08, Gigabitethernet0/4`, highlight: ["O       10.10.10.3/32 [110/100] via 10.10.10.3, 00:39:08, Gigabitethernet0/3"] }],
   },
   {
     id: "q0895",
@@ -12811,7 +12834,22 @@ Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
     "ipv6 route 2000::1/128 2023::3 2"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "atlanta", type: "router", label: "Atlanta (Lo1)", x: 180, y: 120 }, { id: "washington", type: "router", label: "Washington (Lo3)", x: 660, y: 120 }, { id: "newyork", type: "router", label: "New-York (Lo2)", x: 420, y: 350 }], links: [{ from: "atlanta", to: "washington", labelFrom: "Se0/0/1", labelTo: "Se0/0/1", subnet: "2013::/126" }, { from: "atlanta", to: "newyork", labelFrom: "Se0/0/0", labelTo: "Se0/0/0", subnet: "2012::/126" }, { from: "washington", to: "newyork", labelFrom: "Se0/0/0", labelTo: "Se0/0/1", subnet: "2023::/126" }] }, { type: "cli", content: `Configured routers IPv6 addresses:
+- Atlanta:
+  Serial 0/0/0 : 2012::1/126
+  Serial 0/0/1 : 2013::1/126
+  Loopback1: 2000::1/128
+- New-York:
+  Serial 0/0/0 : 2012::2/126
+  Serial 0/0/1 : 2023::2/126
+  Loopback2: 2000::2/128
+- Washington:
+  Serial 0/0/0 : 2023::3/126
+  Serial 0/0/1 : 2013::3/126
+  Loopback3: 2000::3/128
+
+Atlanta: Default Route ::/0 via Se0/0/1
+Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
   },
   {
     id: "q0896",
