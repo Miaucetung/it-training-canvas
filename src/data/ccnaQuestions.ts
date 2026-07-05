@@ -15991,7 +15991,16 @@ Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunki
     "255.255.255.255"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Gateway of last resort is 172.16.2.2 to network 0.0.0.0
+
+     10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C       10.10.10.0/24 is directly connected, GigabitEthernet0/0/0
+L       10.10.10.3/32 is directly connected, GigabitEthernet0/0/0
+     172.16.0.0/16 is variably subnetted, 3 subnets, 2 masks
+S       172.16.1.33/32 is directly connected, GigabitEthernet0/0/1
+C       172.16.2.0/23 is directly connected, GigabitEthernet0/0/1
+L       172.16.2.1/32 is directly connected, GigabitEthernet0/0/1
+S*   0.0.0.0/0 [1/0] via 172.16.2.2`, highlight: ["C       172.16.2.0/23 is directly connected, GigabitEthernet0/0/1"] },
   },
   {
     id: "q1210",
@@ -16004,7 +16013,7 @@ Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunki
     "interface Gi0/1 ipv6 address 2001:db8:0F1B:FCCB:ACCE:FCED:ABCD:FA00:/127"
     ],
     correct: [1, 4],
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 300, y: 60 }, { id: "r1", type: "router", label: "R1", x: 300, y: 280 }, { id: "sw", type: "switch", label: "SW", x: 150, y: 460 }, { id: "pc", type: "pc", label: "PC", x: 350, y: 460 }], links: [{ from: "isp", to: "r1", labelTo: "Gi0/1" }, { from: "r1", to: "sw", labelFrom: "Gi0/0" }, { from: "sw", to: "pc" }], labels: [{ text: "IPv6 WAN 2001:db8:0F1B:FCCB:ACCE:FCED:ACBD:FA0:/127", attachTo: "isp", position: "below" }, { text: "IPv6 LAN 2001:db8:0000:AFFF:0000:0000:0000:0000:/64", attachTo: "r1", position: "below" }] },
   },
   {
     id: "q1211",
@@ -16016,7 +16025,22 @@ Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunki
     "It continues to use a statically assigned IPv4 address."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Connection-specific DNS Suffix  . :
+   Description . . . . . . . . . . . : Intel(R) Ethernet Connection (2) I218-V
+   Physical Address. . . . . . . . . : D0-50-99-47-A9-7F
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   Link-local IPv6 Address . . . . . : fe80::8809:9772:c583:6b18%15(Preferred)
+   IPv4 Address. . . . . . . . . . . : 192.168.69.132(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Lease Obtained. . . . . . . . . . : Thursday, January 21, 2021 11:10:46 PM
+   Lease Expires . . . . . . . . . . : Wednesday, February 3, 2021 11:27:29 AM
+   Default Gateway . . . . . . . . . : 192.168.69.1
+   DHCP Server . . . . . . . . . . . : 192.168.69.1
+   DHCPv6 IAID . . . . . . . . . . . : 231755929
+   DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-26-D7-BB-3F-D0-50-99-47-A9-7F
+   DNS Servers . . . . . . . . . . . : 192.168.69.1
+   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   IPv4 Address. . . . . . . . . . . : 192.168.69.132(Preferred)"] },
   },
   {
     id: "q1212",
@@ -16028,7 +16052,7 @@ Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunki
     "IP address assignment is incorrect."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "dns", type: "pc", label: "Domain Name Server 196.1.38.132", x: 250, y: 60 }, { id: "ra", type: "router", label: "Router A", x: 150, y: 260 }, { id: "isp", type: "cloud", label: "Internet", x: 500, y: 260 }, { id: "rb", type: "router", label: "Router B", x: 800, y: 100 }, { id: "hosta", type: "pc", label: "Host A 192.168.1.1", x: 60, y: 460 }, { id: "hostb", type: "pc", label: "Host B 192.168.1.2", x: 200, y: 460 }, { id: "hostc", type: "pc", label: "Host C 192.168.1.3", x: 340, y: 460 }], links: [{ from: "dns", to: "isp" }, { from: "ra", to: "isp", labelFrom: "S0/0/0 200.100.100.1/32" }, { from: "isp", to: "rb" }, { from: "ra", to: "hosta", labelFrom: "G0/0/0 192.168.1.254/24" }, { from: "ra", to: "hostb" }, { from: "ra", to: "hostc" }] }, { type: "table", headers: ["Feld", "Wert"], rows: [["IP address", "192.168.1.1"], ["Subnet mask", "255.255.255.0"], ["Default gateway", "192.168.1.254"], ["Preferred DNS server", "192.168.1.254"], ["Alternate DNS server", "196.1.38.254"]] }],
   },
   {
     id: "q1213",
@@ -16065,7 +16089,7 @@ Capture Mode Disabled`, highlight: ["Administrative Mode: dynamic auto", "Trunki
     "2001:db8:d955:1008:10D8:BAFF:FEC2:1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (San Jose)", x: 200, y: 220 }, { id: "r2", type: "router", label: "R2 (Charlotte)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 120, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 280, y: 600 }, { id: "eu1", type: "pc", label: "End User 1", x: 720, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 880, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:1055:1008::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1 12-d2-df-cc-00-01" }, { from: "r2", to: "sw2", labelFrom: "E0/1 12-d8-ba-c2-00-01" }, { from: "sw1", to: "dns1" }, { from: "sw1", to: "dns2" }, { from: "sw2", to: "eu1" }, { from: "sw2", to: "eu2" }], labels: [{ text: "DMZ 2001:db8:db95:1008::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:d955:1008::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1217",
