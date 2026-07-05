@@ -13440,7 +13440,7 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "The default gateway for site B is configured incorrectly."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sitea", type: "cloud", label: "Site A", x: 100, y: 100 }, { id: "r1", type: "router", label: "Router1", x: 380, y: 100 }, { id: "r2", type: "router", label: "Router2", x: 620, y: 100 }, { id: "siteb", type: "cloud", label: "Site B", x: 900, y: 100 }], links: [{ from: "sitea", to: "r1" }, { from: "r1", to: "r2" }, { from: "r2", to: "siteb" }] },
   },
   {
     id: "q0944",
@@ -13453,7 +13453,7 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "lowest administrative distance"
     ],
     correct: [2, 4],
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 380, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 130, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 630, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 380, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "left" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] },
   },
   {
     id: "q0945",
@@ -13501,7 +13501,7 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "ip nat pool CCNA 209.165.202.129 209.165.202.129 netmask 255.255.255.255 access-list 10 permit 192.168.1.0 0.0.0.255 ip nat inside source list 10 pool CCNA overload"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "ROUTER-1", x: 400, y: 80 }, { id: "isp", type: "cloud", label: "Internet", x: 750, y: 80 }, { id: "sw1", type: "switch", label: "SWITCH-1", x: 200, y: 260 }, { id: "sw2", type: "switch", label: "SWITCH-2", x: 500, y: 260 }, { id: "u1", type: "pc", label: "Users (192.168.1.0/24)", x: 200, y: 440 }, { id: "u2", type: "pc", label: "Users (192.168.1.0/24)", x: 500, y: 440 }], links: [{ from: "r1", to: "isp" }, { from: "r1", to: "sw1", labelFrom: ".2" }, { from: "r1", to: "sw2", labelFrom: ".1" }, { from: "sw1", to: "u1" }, { from: "sw2", to: "u2" }] },
   },
   {
     id: "q0949",
@@ -13587,7 +13587,36 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "interface FastEthernet0/1 ip helper-address 10.0.1.1 ! access-list 100 permit udp host 10.0.1.1 eq bootps host 10.148.2.1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname R3
+!
+boot-start-marker
+boot-end-marker
+!
+ip cef
+!
+interface FastEthernet0/0
+ description WAN_INTERFACE
+ ip address 10.0.1.2 255.255.255.252
+ ip access-group 100 in
+!
+interface FastEthernet0/1
+ description LAN_INTERFACE
+ ip address 10.148.2.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+ip forward-protocol nd
+!
+access-list 100 permit eigrp any any
+access-list 100 permit icmp any any
+access-list 100 permit tcp 10.149.3.0 0.0.0.255 host 10.0.1.2 eq 22
+access-list 100 permit tcp any any eq 80
+access-list 100 permit tcp any any eq 443
+access-list 100 deny ip any any log` },
   },
   {
     id: "q0959",
@@ -13624,7 +13653,37 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "SW1(config-if)#ip helper-address 192.168.10.2"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "r1", type: "router", label: "R1 (DHCP Server) 192.168.20.2", x: 100, y: 260 }, { id: "sw1", type: "switch", label: "SW1", x: 400, y: 260 }, { id: "pc", type: "pc", label: "PC (DHCP Client)", x: 700, y: 260 }], links: [{ from: "r1", to: "sw1", labelFrom: "Fa0/2" }, { from: "sw1", to: "pc", labelFrom: "Fa0/1" }], labels: [{ text: "VLAN 20", attachTo: "r1", position: "above" }, { text: "VLAN 10: 192.168.10.0/24", attachTo: "pc", position: "above" }] }, { type: "cli", content: `DHCPServer(dhcp-config)#ip dhcp pool Net10
+DHCPServer(dhcp-config)#default-router 192.168.10.2
+DHCPServer(dhcp-config)#domain-name cisco.local
+DHCPServer(dhcp-config)#dns-server 192.168.10.5
+DHCPServer(dhcp-config)#exit
+DHCPServer(config)#ip dhcp pool Net20
+DHCPServer(dhcp-config)#default-router 192.168.20.2
+DHCPServer(dhcp-config)#domain-name cisco.local
+DHCPServer(dhcp-config)#dns-server 192.168.20.5
+DHCPServer(dhcp-config)#exit
+DHCPServer(config)#ip dhcp excluded-address 192.168.10.1 192.168.10.10
+DHCPServer(config)#ip dhcp excluded-address 192.168.20.1 192.168.20.10
+DHCPServer(config)#int g0/0
+DHCPServer(config-if)#no shutd
+DHCPServer(config-if)#ip addre 192.168.20.2 255.255.255.0
+DHCPServer(config-if)#exit
+
+SW1(config)#vlan 10
+SW1(config-vlan)#name vlan10
+SW1(config)#vlan 20
+SW1(config-vlan)#name vlan20
+SW1(config)#interface vlan 10
+SW1(config-if)#ip address 192.168.10.1 255.255.255.0
+SW1(config)#interface vlan 20
+SW1(config-if)#ip address 192.168.20.1 255.255.255.0
+SW1(config)#interface fa0/1
+SW1(config-if)#switchport mode access
+SW1(config-if)#switchport access vlan 10
+SW1(config)#interface fa0/2
+SW1(config-if)#switchport mode access
+SW1(config-if)#switchport access vlan 20`, highlight: ["DHCPServer(dhcp-config)#default-router 192.168.10.2", "DHCPServer(config-if)#ip addre 192.168.20.2 255.255.255.0"] }],
   },
   {
     id: "q0964",
@@ -13649,7 +13708,19 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "no hostname CPE"
     ],
     correct: [0, 2],
-    exhibit: true,
+    exhibit: { type: "cli", content: `hostname CPE
+service password-encryption
+
+ip domain name ccna.cisco.com
+ip name-server 198.51.100.210
+
+crypto key generate rsa modulus 1024
+
+username admin privilege 15 secret s0m3s3cr3t
+
+line vty 0 4
+transport input ssh
+login local` },
   },
   {
     id: "q0966",
@@ -13723,7 +13794,12 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "R1(config)#username admin - R1(config-if)#line vty 0 4 - R1(config-line)#password p@ss1234"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Switch(config)#hostname R1
+R1(config)#interface FastEthernet0/1
+R1(config-if)#no switchport
+R1(config-if)#ip address 10.100.20.42 255.255.255.0
+R1(config-if)#line vty 0 4
+R1(config-line)#login` },
   },
   {
     id: "q0973",
@@ -13747,7 +13823,11 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "The sourced traffic from IP range 10.0.0.0 - 10.0.0.255 is allowed on Serial0."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `access-list 10 permit 10.0.0.0 0.0.0.255
+
+interface Serial0
+
+ip access-list 10 in` },
   },
   {
     id: "q0976",
@@ -13807,7 +13887,14 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "username CCUser password NA!2$cc enable password level 5 NA!2$cc"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R1
+R1(config)#ip domain-name CC-Net.com
+R1(config)#enable secret Passfornewuser
+R1(config)#line vty 0 15
+R1(config-line)#transport input ssh
+R1(config-line)#login local` },
   },
   {
     id: "q0981",
@@ -13820,7 +13907,11 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "SW(config-if)#switchport port-security mac-address sticky"
     ],
     correct: [0, 4],
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW# conf t
+SW(config)#interface gigabitEthernet0/1
+SW(config-if)#switchport mode access
+SW(config-if)#switchport port-security
+SW(config-if)#` },
   },
   {
     id: "q0982",
@@ -13857,7 +13948,7 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "! config t ! username test1 password testpass1 enable secret level 1 0 Test123 ! line vty 0 15 login authentication password Test123 transport input telnet"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r6", type: "router", label: "R6", x: 500, y: 60 }, { id: "wan", type: "cloud", label: "WAN", x: 500, y: 260 }, { id: "r4", type: "router", label: "R4", x: 150, y: 400 }, { id: "r5", type: "router", label: "R5", x: 850, y: 400 }], links: [{ from: "r6", to: "wan", subnet: "10.10.198.0/30" }, { from: "wan", to: "r4", subnet: "10.111.87.0/30" }, { from: "wan", to: "r5", subnet: "10.128.1.0/30" }] },
   },
   {
     id: "q0985",
