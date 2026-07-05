@@ -14082,7 +14082,12 @@ SW(config-if)#` },
     "no ip access-list extended Services ip access-list extended Services permit udp 10.0.0.0 0.255.255.255 any eq 53 permit tcp 10.0.0.0 0.255.255.255 host 198.51.100.11 eq domain deny ip any any log"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `CPE# show ip access-list Services
+Extended IP access list Services
+    10 permit tcp 10.0.0.0 0.255.255.255 any eq www
+    20 permit tcp 10.0.0.0 0.255.255.255 any eq 443
+    30 permit udp 10.0.0.0 0.255.255.255 host 198.51.100.11 eq domain
+    40 deny ip any any log` },
   },
   {
     id: "q0998",
@@ -14166,7 +14171,25 @@ SW(config-if)#` },
     "string"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{
+    "myCar": {
+        "name": "thunder",
+        "wheels": ["good", "good", "pressureLow", "warning"],
+        "gasLight": false
+    },
+    "oldCar": {
+        "name": "sleepy",
+        "wheels": ["pressureLow", "pressureLow", "pressureLow", "pressureLow"],
+        "color": "rust",
+        "gasLight": true
+    },
+    "newCar": {
+        "name": "lightning",
+        "wheels": ["pressureLow", "good", "pressureLow", "good"],
+        "color": "blue",
+        "gasLight": true
+    }
+}`, highlight: ["        \"wheels\": [\"good\", \"good\", \"pressureLow\", \"warning\"],"] },
   },
   {
     id: "q1007",
@@ -14252,7 +14275,14 @@ SW(config-if)#` },
     "offloads the creation of virtual machines to the data plane • Q1015 Refer to the exhibit. What is missing from this output for it to be executed? curly braket ( } ) at the end"
     ],
     correct: [2, 3],
-    exhibit: true,
+    exhibit: { type: "cli", content: `{
+"Cisco Devices": [
+{
+"name": "ASA - Security Device",
+"name": "Cisco 1100 ASR Router",
+"name": "Cisco 6800 Switch"
+}
+]` },
   },
   {
     id: "q1016",
@@ -14300,7 +14330,7 @@ SW(config-if)#` },
     "string"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{"apple": ["red", 1], "ripe": true}` },
   },
   {
     id: "q1022",
@@ -14361,7 +14391,20 @@ SW(config-if)#` },
     "nine"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `{
+    "Test_Questions" : [
+                "Automation",
+                "Configuration",
+    ],
+    "Test_Exam_Level" : [
+                "CCNA",
+                "CCNP",
+    ],
+    "Test_Response" : [
+                "Correct",
+                "Incorrect",
+    ]
+}` },
   },
   {
     id: "q1029",
@@ -14385,7 +14428,7 @@ SW(config-if)#` },
     "2001:db8:9aa6:6aa9:4642:823F:FE47:1"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (Chicago)", x: 190, y: 220 }, { id: "r2", type: "router", label: "R2 (Boston)", x: 810, y: 220 }, { id: "sw1", type: "switch", label: "SW1 (MAC ca-01-6a-4a-00-01)", x: 190, y: 420 }, { id: "sw2", type: "switch", label: "SW2 (MAC ca-01-a6-a4-00-01)", x: 810, y: 420 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 90, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 290, y: 600 }, { id: "eu1", type: "pc", label: "End User 1", x: 710, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 910, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:9aa6:961a::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1" }, { from: "r2", to: "sw2", labelFrom: "E0/1" }, { from: "sw1", to: "dns1" }, { from: "sw1", to: "dns2" }, { from: "sw2", to: "eu1" }, { from: "sw2", to: "eu2" }], labels: [{ text: "2001:db8:9aa6:916a::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:9aa6:6aa9::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1031",
@@ -14421,7 +14464,13 @@ SW(config-if)#` },
     "Switch1(config) # interface port-channel 1 Switch1(config-if) # lacp max-bundle 1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `Switch1# show etherchannel summary
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+------------------
+1      Po1(SU)       LACP        Fa0/0(P)  Fa0/1(P)` },
   },
   {
     id: "q1034",
@@ -14470,7 +14519,36 @@ SW(config-if)#` },
     "heavy traffic congestion"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `TenGigabitEthernet0/0/0 is up, line protocol is up
+  Hardware is BUILT-IN-2T+6X1GE, address is 74a0.2f7a.0123 (bia 74a0.2f7a.0123)
+  Description: Uplink
+  Internet address is 10.1.1.1/24
+  MTU 1500 bytes, BW 10000000 Kbit/sec, DLY 10 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive not supported
+  Full Duplex, 10000Mbps, link type is force-up, media type is unknown media type
+  output flow-control is on, input flow-control is on
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:00, output 00:05:40, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/375/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/40 (size/max)
+  5 minute input rate 6160000 bits/sec, 1113 packets/sec
+  5 minute output rate 11213000 bits/sec, 1553 packets/sec
+     12662416065 packets input, 12607032232894 bytes, 0 no buffer
+     Received 14117163 broadcasts (0 IP multicasts)
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 watchdog, 26271385 multicast, 0 pause input
+     7907779058 packets output, 5073750426832 bytes, 0 underruns
+     0 output errors, 8662416065 collisions, 1 interface resets
+     0 unknown protocol drops
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier, 0 pause output
+     0 output buffer failures, 0 output buffers swapped out
+     1 carrier transitions`, highlight: ["  Full Duplex, 10000Mbps, link type is force-up, media type is unknown media type", "     0 output errors, 8662416065 collisions, 1 interface resets"] },
   },
   {
     id: "q1038",
@@ -14495,7 +14573,7 @@ SW(config-if)#` },
     "ipv6 address 2001:DB8:D8D2:1009:12A0:AB34:FFCC:1 eui-64"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1 (MAC 12-a0-ab-dd-00-02)", x: 190, y: 100 }, { id: "r2", type: "router", label: "R2 (MAC 12-a0-ab-cc-00-01)", x: 620, y: 100 }, { id: "sw1", type: "switch", label: "SW1", x: 190, y: 280 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 280 }, { id: "file", type: "pc", label: "File Server .3", x: 100, y: 450 }, { id: "nms", type: "pc", label: "Network Management Server .4", x: 300, y: 450 }, { id: "ws", type: "pc", label: "Workstations", x: 620, y: 450 }], links: [{ from: "r1", to: "r2", labelFrom: "Int G0/0 2001:DB8:44:90::1/64", labelTo: "Int G0/0 2001:DB8:44:90::2/64" }, { from: "r1", to: "sw1" }, { from: "r2", to: "sw2" }, { from: "sw1", to: "file" }, { from: "sw1", to: "nms" }, { from: "sw2", to: "ws" }], labels: [{ text: "2001:DB8:D8D2:1008::/64", attachTo: "sw1", position: "below" }, { text: "2001:DB8:D8D2:1009::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1040",
@@ -14545,7 +14623,7 @@ SW(config-if)#` },
     "ip route 0.0.0.0 0.0.0.0 198.51.100.1 ip route 0.0.0.0 0.0.0.0 203.0.113.1 2"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp1", type: "cloud", label: "ISP 1 (198.51.100.1)", x: 190, y: 80 }, { id: "isp2", type: "cloud", label: "ISP 2 (203.0.113.1)", x: 620, y: 80 }, { id: "cpe", type: "router", label: "CPE", x: 400, y: 260 }, { id: "hq", type: "pc", label: "Headquarters", x: 400, y: 440 }], links: [{ from: "isp1", to: "cpe" }, { from: "isp2", to: "cpe" }, { from: "cpe", to: "hq" }] },
   },
   {
     id: "q1046",
@@ -14557,7 +14635,16 @@ SW(config-if)#` },
     "interface port-channel 2 channel-group 2 mode auto"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1#show etherchannel
+        Channel-group listing:
+        -----------------------
+
+Group: 2
+-----------
+Group state = L2
+Ports: 1  Maxports = 8
+Port-channels: 1 Max Portchannels = 1
+Protocol:  PAGP` },
   },
   {
     id: "q1047",
@@ -14606,7 +14693,7 @@ SW(config-if)#` },
     "Switch(config-if)#switchport mode access Switch(config-if)#switchport trunk encapsulation dot1q Switch(config-if)#switchport access vlan 100,105 Switch(config-if)#switchport trunk native vlan 3"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc1", type: "pc", label: "PC1 (VLAN 100)", x: 130, y: 60 }, { id: "pc2", type: "pc", label: "PC2 (VLAN 100)", x: 500, y: 60 }, { id: "sw1", type: "switch", label: "SW1", x: 200, y: 260 }, { id: "sw2", type: "switch", label: "SW2", x: 460, y: 260 }, { id: "pc3", type: "pc", label: "PC3 (VLAN 105)", x: 130, y: 460 }, { id: "pc4", type: "pc", label: "PC4 (VLAN 105)", x: 500, y: 460 }], links: [{ from: "pc1", to: "sw1", labelTo: "fa0/2" }, { from: "pc2", to: "sw2", labelTo: "fa0/2" }, { from: "sw1", to: "sw2", labelFrom: "fa0/1", labelTo: "fa0/1" }, { from: "pc3", to: "sw1", labelTo: "fa0/3" }, { from: "pc4", to: "sw2", labelTo: "fa0/3" }] },
   },
   {
     id: "q1051",
@@ -14618,7 +14705,17 @@ SW(config-if)#` },
     "no switchport trunk encapsulation isl switchport trunk encapsulation dot1q switchport trunk allowed vlan add 20"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "cli", content: `OldSwitch(config)#interface fastEthernet 0/1
+OldSwitch(config-if)#switchport mode trunk
+OldSwitch(config-if)#switchport trunk allowed vlan 5,10
+OldSwitch(config-if)#switchport trunk native vlan 15
+**output suppressed**
+
+NewSwitch(config)#interface fastEthernet 0/1
+NewSwitch(config-if)#switchport mode trunk
+NewSwitch(config-if)#switchport trunk encapsulation isl
+NewSwitch(config-if)#switchport trunk allowed vlan 5,10
+NewSwitch(config-if)#switchport trunk native vlan 15`, highlight: ["OldSwitch(config-if)#switchport trunk allowed vlan 5,10", "NewSwitch(config-if)#switchport trunk encapsulation isl"] },
   },
   {
     id: "q1053",
@@ -14630,7 +14727,24 @@ SW(config-if)#` },
     "switchport switchport mode trunk"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1# show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        M - not in use, minimum links not met
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+        A - formed by Auto LAG
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+------------------------
+1      Po1(RU)       LACP        Et0/0(P)  Et0/1(P)` },
   },
   {
     id: "q1055",
