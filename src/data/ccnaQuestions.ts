@@ -16631,7 +16631,7 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "2001:db8:bd69:1469:11BE:BFFF:FEB9:1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r1", type: "router", label: "R1 (Charlotte)", x: 200, y: 220 }, { id: "r2", type: "router", label: "R2 (San Jose)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "eu1", type: "pc", label: "End User 1", x: 120, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 280, y: 600 }, { id: "dns1", type: "pc", label: "DNS Server 1", x: 720, y: 600 }, { id: "dns2", type: "pc", label: "DNS Server 2", x: 880, y: 600 }], links: [{ from: "r1", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:1696:1008::/64" }, { from: "isp", to: "r2", labelTo: "S0/1 .2" }, { from: "r1", to: "sw1", labelFrom: "E0/1 13-ba-be-e7-00-01" }, { from: "r2", to: "sw2", labelFrom: "E0/1 13-be-bf-b9-00-01" }, { from: "sw1", to: "eu1" }, { from: "sw1", to: "eu2" }, { from: "sw2", to: "dns1" }, { from: "sw2", to: "dns2" }], labels: [{ text: "2001:db8:db69:1469::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:bd69:1469::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1270",
@@ -16655,7 +16655,7 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "SW 4 - Bridge Priority 53248 - mac-address 00:10:a1:22:11:63"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 200, y: 100 }, { id: "sw2", type: "switch", label: "SW2", x: 600, y: 100 }, { id: "sw4", type: "switch", label: "SW4", x: 200, y: 340 }, { id: "sw3", type: "switch", label: "SW3", x: 600, y: 340 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Gi1/0/1", labelTo: "Gi1/0/1" }, { from: "sw1", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/3" }, { from: "sw1", to: "sw4", labelFrom: "Gi1/0/3", labelTo: "Gi1/0/1" }, { from: "sw4", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/2" }, { from: "sw2", to: "sw3", labelFrom: "Gi1/0/2", labelTo: "Gi1/0/1" }], labels: [{ text: "Bridge Priority 61440, mac-address 00:10:a1:69:c9:28", attachTo: "sw1", position: "below" }, { text: "Bridge Priority 61440, mac-address 00:10:a1:27:81:6c", attachTo: "sw2", position: "below" }, { text: "Bridge Priority 53248, mac-address 00:10:a1:35:d9:86", attachTo: "sw3", position: "below" }, { text: "Bridge Priority 53248, mac-address 00:10:a1:22:11:63", attachTo: "sw4", position: "below" }] },
   },
   {
     id: "q1274",
@@ -16667,7 +16667,28 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "router D"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "pca", type: "pc", label: "PC A (10.223.2.2)", x: 80, y: 60 }, { id: "ry", type: "router", label: "Router Y", x: 400, y: 60 }, { id: "ra", type: "router", label: "Router A (10.224.1.2)", x: 800, y: 60 }, { id: "rb", type: "router", label: "Router B (10.224.1.3)", x: 800, y: 200 }, { id: "rc", type: "router", label: "Router C (10.224.1.4)", x: 800, y: 340 }, { id: "rd", type: "router", label: "Router D (10.224.1.5)", x: 800, y: 480 }], links: [{ from: "pca", to: "ry", labelTo: "G0/1 10.223.2.1" }, { from: "ry", to: "ra", labelFrom: "G0/0 10.224.1.1" }, { from: "ry", to: "rb" }, { from: "ry", to: "rc" }, { from: "ry", to: "rd" }] }, { type: "cli", content: `Router-Y#show ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+
+Gateway of last resort is not set
+
+     10.0.0.0/8 is variably subnetted
+S       10.0.0.0/8 [1/0] via 10.224.1.2
+B       10.27.150.224/27 [20/0] via 10.224.1.3, 1w6d
+S       10.128.0.0/9 [1/0] via 10.224.1.3
+B       10.224.0.0/11 [20/0] via 10.224.1.5, 5d18h
+B       10.224.0.0/15 [20/0] via 10.224.1.4, 5d18h
+C       10.223.0.0/24 is directly connected, GigabitEthernet0/1
+C       10.224.0.0/24 is directly connected, GigabitEthernet0/0
+B       10.226.34.0/24 [20/0] via 10.224.1.5, 5d18h`, highlight: ["B       10.224.0.0/15 [20/0] via 10.224.1.4, 5d18h"] }],
   },
   {
     id: "q1276",
@@ -16703,7 +16724,13 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "port security"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "cli", content: `SW1#show ip interface brief
+Interface                  IP-Address      OK? Method Status     Protocol
+FastEthernet0/1            unassigned      YES manual down       down
+
+SW1#show interface fa0/1 status
+Port      Name       Status       Vlan       Duplex  Speed Type
+Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highlight: ["FastEthernet0/1            unassigned      YES manual down       down"] },
   },
   {
     id: "q1280",
@@ -16727,7 +16754,7 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "2001:db8:3bb8:3bb1:C801:B3FF:FEB8:1"
     ],
     correct: 3,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "isp", type: "cloud", label: "ISP", x: 500, y: 60 }, { id: "r2", type: "router", label: "R2 (Atlanta)", x: 200, y: 220 }, { id: "r1", type: "router", label: "R1 (Boston)", x: 800, y: 220 }, { id: "sw1", type: "switch", label: "SW", x: 200, y: 420 }, { id: "sw2", type: "switch", label: "SW", x: 800, y: 420 }, { id: "fs1", type: "pc", label: "File Server 1", x: 120, y: 600 }, { id: "fs2", type: "pc", label: "File Server 2", x: 280, y: 600 }, { id: "eu1", type: "pc", label: "End User 1", x: 720, y: 600 }, { id: "eu2", type: "pc", label: "End User 2", x: 880, y: 600 }], links: [{ from: "r2", to: "isp", labelFrom: "S0/1 .1", subnet: "2001:db8:3bb8:931b::/64" }, { from: "isp", to: "r1", labelTo: "S0/1 .2" }, { from: "r2", to: "sw1", labelFrom: "E0/1 ca-01-3b-8b-00-01" }, { from: "r1", to: "sw2", labelFrom: "E0/1 ca-01-b3-b8-00-01" }, { from: "sw1", to: "fs1" }, { from: "sw1", to: "fs2" }, { from: "sw2", to: "eu1" }, { from: "sw2", to: "eu2" }], labels: [{ text: "2001:db8:3bb8:3181::/64", attachTo: "sw1", position: "below" }, { text: "2001:db8:3bb8:3bb1::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q1283",
