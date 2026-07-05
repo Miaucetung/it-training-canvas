@@ -12861,7 +12861,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "R1 - ip route 172.16.2.0 255.255.255.240 172.16.0.5 89 R2 - ip route 172.16.1.0 255.255.255.0 172.16.0.6 89"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 200, y: 90 }, { id: "r2", type: "router", label: "R2", x: 700, y: 90 }, { id: "sw1", type: "switch", label: "SW1", x: 200, y: 300 }, { id: "sw2", type: "switch", label: "SW2", x: 700, y: 300 }, { id: "ws1", type: "pc", label: "Workstations 172.16.1.0/24", x: 200, y: 460 }, { id: "ws2", type: "pc", label: "Workstations 172.16.2.0/27", x: 700, y: 460 }], links: [{ from: "r1", to: "r2", labelFrom: "G0/0 .1", labelTo: "G0/0 .2", subnet: "172.16.0.0/30" }, { from: "r1", to: "r2", labelFrom: "G0/1 .5", labelTo: "G0/1 .6", subnet: "172.16.0.4/30" }, { from: "r1", to: "sw1" }, { from: "r2", to: "sw2" }, { from: "sw1", to: "ws1" }, { from: "sw2", to: "ws2" }], labels: [{ text: "Router OSPF 200: Network 172.16.0.0 0.0.0.3, Network 172.16.1.0 0.0.0.3", attachTo: "r1", position: "below" }, { text: "Router OSPF 200: Network 172.16.0.0 0.0.0.3, Network 172.16.2.0 0.0.0.31", attachTo: "r2", position: "below" }] },
   },
   {
     id: "q0898",
@@ -12874,7 +12874,12 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "longest prefix match"
     ],
     correct: [2, 4],
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 460, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 190, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 730, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 460, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "left" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] }, { type: "cli", content: `R1#show ip route
+     1.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+O IA    1.1.1.0/24 [110/3] via 12.1.1.2, 00:00:25, FastEthernet0/0
+C       24.1.1.0/30 is directly connected, FastEthernet2/0
+C       34.1.1.0/30 is directly connected, FastEthernet3/0
+S       1.1.1.3/32 [1/0] via 14.1.1.2`, highlight: ["O IA    1.1.1.0/24 [110/3] via 12.1.1.2, 00:00:25, FastEthernet0/0", "S       1.1.1.3/32 [1/0] via 14.1.1.2"] }],
   },
   {
     id: "q0899",
@@ -12886,7 +12891,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ipv6 address fe80::260:3EFF:FE11:6770 link-local"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 190, y: 100 }, { id: "r2", type: "router", label: "R2", x: 620, y: 100 }, { id: "isp", type: "cloud", label: "ISP Internet", x: 900, y: 100 }, { id: "sw1", type: "switch", label: "SW1", x: 190, y: 280 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 280 }, { id: "file", type: "pc", label: "File Server", x: 100, y: 450 }, { id: "nms", type: "pc", label: "Network Management Server", x: 300, y: 450 }, { id: "ws", type: "pc", label: "Workstations", x: 620, y: 450 }], links: [{ from: "r1", to: "r2", labelFrom: "G0/0", labelTo: "G0/0" }, { from: "r2", to: "isp", labelFrom: "G0/1" }, { from: "r1", to: "sw1" }, { from: "r2", to: "sw2" }, { from: "sw1", to: "file" }, { from: "sw1", to: "nms" }, { from: "sw2", to: "ws" }], labels: [{ text: "2001:DB8:D8D2:1008::/64", attachTo: "sw1", position: "below" }, { text: "2001:DB8:D8D2:1009::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q0901",
@@ -12898,7 +12903,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "R1(config)#ip route 192.168.0.2 255.255.255.255 10.10.10.10"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "Router 1", x: 130, y: 130 }, { id: "r2", type: "router", label: "Router 2", x: 420, y: 130 }, { id: "sw1", type: "switch", label: "Switch 1 (10.10.10.2/24)", x: 680, y: 130 }, { id: "server", type: "pc", label: "Server (10.10.10.10/24)", x: 900, y: 130 }], links: [{ from: "r1", to: "r2", labelFrom: "S0/0 192.168.0.1/30", labelTo: "S0/0 192.168.0.2/30" }, { from: "r2", to: "sw1", labelFrom: "Gi0/0 10.10.10.1/24" }, { from: "sw1", to: "server" }] },
   },
   {
     id: "q0902",
@@ -12910,7 +12915,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ipv6 address autoconfig 2001:DB8:FFFF:FCF2::/64"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 220, y: 90 }, { id: "r2", type: "router", label: "R2", x: 620, y: 90 }, { id: "sw1", type: "switch", label: "SW1", x: 220, y: 260 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 260 }, { id: "pc1", type: "pc", label: "PC", x: 90, y: 420 }, { id: "pc2", type: "pc", label: "PC", x: 220, y: 420 }, { id: "pc3", type: "pc", label: "PC", x: 350, y: 420 }, { id: "pc4", type: "pc", label: "PC", x: 490, y: 420 }, { id: "pc5", type: "pc", label: "PC", x: 620, y: 420 }, { id: "pc6", type: "pc", label: "PC", x: 750, y: 420 }], links: [{ from: "r1", to: "r2", labelFrom: "Gig0/1", labelTo: "Gig0/1" }, { from: "r1", to: "sw1", labelFrom: "Gig0/0" }, { from: "r2", to: "sw2", labelFrom: "Gig0/0" }, { from: "sw1", to: "pc1" }, { from: "sw1", to: "pc2" }, { from: "sw1", to: "pc3" }, { from: "sw2", to: "pc4" }, { from: "sw2", to: "pc5" }, { from: "sw2", to: "pc6" }], labels: [{ text: "IPv6 Block 2001:0db8:ffff:fcf3:0000:0000:0000:0000::/64", attachTo: "r1", position: "above" }] },
   },
   {
     id: "q0903",
@@ -12922,7 +12927,18 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "3184439"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "cli", content: `R1# show ip route | begin gateway
+Gateway of last resort is 209.165.200.246 to network 0.0.0.0
+S* 0.0.0.0/0 [1/0] via 209.165.200.246, Serial0/1/0
+     172.16.0.0/16 is variably subnetted, 3 subnets, 3 masks
+S    172.16.0.0/24 [1/0] via 207.165.200.250, Serial0/0/0
+O    172.16.0.128/25 [110/32445] via 207.165.200.254, 00:00:23, Serial0/0/1
+D    172.16.0.192/29 [90/3184439] via 207.165.200.254, 00:00:25, Serial0/0/1
+     207.165.200.0/24 is variably subnetted, 4 subnets, 2 masks
+C    207.165.200.248/30 is directly connected, Serial0/0/0
+L    207.165.200.249/32 is directly connected, Serial0/0/0
+C    207.165.200.252/30 is directly connected, Serial0/0/1
+L    207.165.200.253/32 is directly connected, Serial0/0/1`, highlight: ["O    172.16.0.128/25 [110/32445] via 207.165.200.254, 00:00:23, Serial0/0/1"] },
   },
   {
     id: "q0904",
@@ -12934,7 +12950,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "R1(config-if)#ip address 10.10.10.1 255.255.255.0 R2(config-if)#ip address 10.10.10.5 255.255.255.0"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 220, y: 150 }, { id: "r2", type: "router", label: "R2", x: 700, y: 150 }], links: [{ from: "r1", to: "r2", labelFrom: "GigabitEthernet0/0/0", labelTo: "GigabitEthernet0/0/0" }] },
   },
   {
     id: "q0906",
@@ -12946,7 +12962,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ip route 172.16.34.0 255.255.224.0 10.73.65.66"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r14", type: "router", label: "R14 (Lo0 10.10.1.14/32)", x: 200, y: 130 }, { id: "r86", type: "router", label: "R86 (Lo0 10.10.1.86/32)", x: 640, y: 130 }], links: [{ from: "r14", to: "r86", labelFrom: "Fa0/0 .65", labelTo: "Fa0/0 .66", subnet: "10.73.65.64/30" }] },
   },
   {
     id: "q0907",
@@ -12958,7 +12974,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ip route 10.73.65.66 0.0.0.224 10.80.65.0 255"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r14", type: "router", label: "R14 (Lo0 10.10.1.14/32)", x: 190, y: 100 }, { id: "r86", type: "router", label: "R86 (Lo0 10.10.1.86/32)", x: 640, y: 100 }, { id: "lan", type: "pc", label: "10.80.65.0/29", x: 640, y: 320 }], links: [{ from: "r14", to: "r86", labelFrom: "Fa0/0 .65", labelTo: "Fa0/0 .66", subnet: "10.73.65.64/30" }, { from: "r86", to: "lan", labelFrom: "Fa0/1" }] },
   },
   {
     id: "q0908",
@@ -12970,7 +12986,13 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "192.168.20.1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 130, y: 90 }, { id: "r2", type: "router", label: "R2", x: 470, y: 90 }, { id: "r3", type: "router", label: "R3", x: 800, y: 90 }, { id: "sw1", type: "switch", label: "SW1", x: 130, y: 260 }, { id: "sw2", type: "switch", label: "SW2", x: 470, y: 260 }, { id: "sw3", type: "switch", label: "SW3", x: 800, y: 260 }, { id: "pc1", type: "pc", label: "PC1 (192.168.10.10)", x: 130, y: 420 }, { id: "pc2", type: "pc", label: "PC2 (192.168.20.20)", x: 470, y: 420 }, { id: "server", type: "pc", label: "Server (192.168.30.30)", x: 800, y: 420 }], links: [{ from: "r1", to: "r2", labelFrom: ".1", labelTo: ".2", subnet: "10.10.10.0/30" }, { from: "r2", to: "r3", labelFrom: ".5", labelTo: ".6", subnet: "10.10.10.4/30" }, { from: "r1", to: "sw1", labelFrom: ".1" }, { from: "r2", to: "sw2", labelFrom: ".1" }, { from: "r3", to: "sw3", labelFrom: ".1" }, { from: "sw1", to: "pc1" }, { from: "sw2", to: "pc2" }, { from: "sw3", to: "server" }] }, { type: "cli", content: `R2# show ip route
+10.0.0.0/30 is subnetted, 2 subnets
+C 10.10.10.0 is directly connected, Serial0/0/0
+C 10.10.10.4 is directly connected, FastEthernet0/1
+D 192.168.10.0/24 [90/2172416] via 10.10.10.1, 01:05:11, Serial0/0/0
+C 192.168.20.0/24 is directly connected, FastEthernet0/0
+D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1`, highlight: ["D 192.168.30.0/24 [90/30720] via 10.10.10.6, 01:12:53, FastEthernet0/1"] }],
   },
   {
     id: "q0910",
@@ -12982,7 +13004,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ipv6 address 2001:db8:d8d2:1008:4332:45:0570::/64"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 190, y: 100 }, { id: "r2", type: "router", label: "R2", x: 620, y: 100 }, { id: "sw1", type: "switch", label: "SW1", x: 190, y: 280 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 280 }, { id: "file", type: "pc", label: "File Server", x: 100, y: 450 }, { id: "dhcp", type: "pc", label: "DHCPv6 Server", x: 300, y: 450 }, { id: "ws", type: "pc", label: "Workstations", x: 620, y: 450 }], links: [{ from: "r1", to: "r2", labelFrom: "Int G0/0", labelTo: "Int G0/0" }, { from: "r1", to: "sw1" }, { from: "r2", to: "sw2" }, { from: "sw1", to: "file" }, { from: "sw1", to: "dhcp" }, { from: "sw2", to: "ws" }], labels: [{ text: "2001:DB8:D8D2:1008::/64", attachTo: "sw1", position: "below" }, { text: "2001:DB8:D8D2:1009::/64", attachTo: "sw2", position: "below" }] },
   },
   {
     id: "q0911",
@@ -12994,7 +13016,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "ip route 172.25.25.1 255.255.255.255 g0/1"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "pc1", type: "pc", label: "Client (.1)", x: 100, y: 200 }, { id: "r1", type: "router", label: "R1", x: 380, y: 200 }, { id: "r2", type: "router", label: "R2", x: 700, y: 200 }, { id: "pc2", type: "pc", label: "Client (.1) — New Office", x: 950, y: 200 }], links: [{ from: "pc1", to: "r1" }, { from: "r1", to: "r2", labelFrom: "Gig0/1 .1", labelTo: "Gig0/2 .2", subnet: "192.168.2.0/30" }, { from: "r2", to: "pc2" }], labels: [{ text: "192.168.25.0/24", attachTo: "pc1", position: "above" }, { text: "New Office 172.25.25.0/24", attachTo: "pc2", position: "above" }] },
   },
   {
     id: "q0912",
