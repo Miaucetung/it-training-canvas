@@ -12177,7 +12177,26 @@ Sw1#` }],
     "SW1(config)#no cdp enable - SW1(config)#interface gigabitethernet1/0/1 SW1(config-if)#cdp run"
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1 (Cisco)", x: 250, y: 60 }, { id: "phone", type: "pc", label: "Non-Cisco IP Phone", x: 250, y: 210 }, { id: "pc", type: "pc", label: "PC", x: 250, y: 360 }], links: [{ from: "sw1", to: "phone", labelFrom: "Gi1/0/1" }, { from: "phone", to: "pc" }] }, { type: "cli", content: `SW1#
+!
+vlan 10
+ name Voice
+!
+vlan 11
+ name Data
+!
+cdp run
+!
+interface GigabitEthernet1/0/1
+ switchport access vlan 11
+ switchport mode access
+ switchport voice vlan 10
+ spanning-tree portfast
+ no shut
+!
+end
+!
+copy run start`, highlight: ["cdp run"] }],
   },
   {
     id: "q0844",
@@ -12189,7 +12208,7 @@ Sw1#` }],
     "Configure the no lldp run command globally."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "r1", type: "router", label: "R1", x: 130, y: 120 }, { id: "r2", type: "router", label: "R2", x: 400, y: 120 }, { id: "r3", type: "router", label: "R3", x: 680, y: 120 }], links: [{ from: "r1", to: "r2", labelTo: "g0/1" }, { from: "r2", to: "r3", labelFrom: "g0/2" }] },
   },
   {
     id: "q0845",
@@ -12202,7 +12221,19 @@ Sw1#` }],
     "Enable traffic shaping for the LAN interface of the WLC. Q0846 Nachfragen Refer to the exhibit. A network administrator configures an interface on a new switch so that it connects to interface Gi1/0/1 on switch Cat9300-1. Which configuration must be applied to the new interface? switchport trunk native vlan 321 switchport trunk allowed vlan 100,200,300 switchport trunk native vlan 321 switchport trunk allowed vian 100,200,300 switchport trunk native vlan 321 switchport trunk allowed vlan 100-300 switchport access vlan 321 switchport trunk allowed vlan except 2-1001"
     ],
     correct: [2, 3, 0],
-    exhibit: true,
+    exhibit: { type: "cli", content: `Cat9300-1# show interface g1/0/1 switchport
+Name: Gi1/0/1
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 321 (VLAN0321)
+Administrative Native VLAN tagging: enabled
+Trunking VLANs Enabled: 100,200,300
+Pruning VLANs Enabled: 2-1001`, highlight: ["Trunking Native Mode VLAN: 321 (VLAN0321)", "Trunking VLANs Enabled: 100,200,300"] },
   },
   {
     id: "q0847",
@@ -12238,7 +12269,7 @@ Sw1#` }],
     "SW3, because its priority is the highest"
     ],
     correct: 0,
-    exhibit: true,
+    exhibit: { type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 180, y: 80 }, { id: "sw2", type: "switch", label: "SW2", x: 720, y: 80 }, { id: "sw4", type: "switch", label: "SW4", x: 180, y: 360 }, { id: "sw3", type: "switch", label: "SW3", x: 720, y: 360 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Gig1/0/1", labelTo: "Gig1/0/1" }, { from: "sw1", to: "sw3", labelFrom: "Gig1/0/2", labelTo: "Gig1/0/3" }, { from: "sw1", to: "sw4", labelFrom: "Gig1/0/3", labelTo: "Gig1/0/1" }, { from: "sw4", to: "sw3", labelFrom: "Gig1/0/2", labelTo: "Gig1/0/2" }, { from: "sw2", to: "sw3", labelFrom: "Gig1/0/2", labelTo: "Gig1/0/1" }], labels: [{ text: "Bridge Priority 8192, MAC 00:24:98:6f:3b:40", attachTo: "sw4", position: "below" }, { text: "Bridge Priority 32768, MAC 00:24:98:6f:3b:42", attachTo: "sw3", position: "below" }] },
   },
   {
     id: "q0851",
@@ -12335,7 +12366,29 @@ Sw1#` }],
     "Configure the switchport trunk allowed vlan 300 command on interface Fa0/2 on SW1."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 220, y: 150 }, { id: "sw2", type: "switch", label: "SW2", x: 620, y: 150 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Fa0/1 + Fa0/2", labelTo: "Fa0/1 + Fa0/2" }] }, { type: "cli", content: `SW1#show run interface fastEthernet 0/1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk allowed vlan 100,200,300
+channel-group 1 mode active
+
+SW1#show run interface fastEthernet 0/2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk allowed vlan 100,200
+channel-group 1 mode active
+
+SW2#show run interface fastEthernet 0/1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk allowed vlan 100,200,300
+channel-group 1 mode active
+
+SW2#show run interface fastEthernet 0/2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk allowed vlan 100,200,300
+channel-group 1 mode active`, highlight: ["switchport trunk allowed vlan 100,200"] }],
   },
   {
     id: "q0860",
@@ -12347,7 +12400,31 @@ Sw1#` }],
     "switchport trunk allowed vian 22-23"
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: [{ type: "topology", devices: [{ id: "sw1", type: "switch", label: "SW1", x: 320, y: 200 }, { id: "sw2", type: "switch", label: "SW2", x: 640, y: 200 }, { id: "pc11", type: "pc", label: "PC 11 (VLAN 22)", x: 320, y: 60 }, { id: "pc1", type: "pc", label: "PC 1 (VLAN 23)", x: 320, y: 350 }, { id: "pc2", type: "pc", label: "PC 2 (VLAN 23)", x: 640, y: 60 }, { id: "pc12", type: "pc", label: "PC 12 (VLAN 22)", x: 640, y: 350 }], links: [{ from: "sw1", to: "sw2", labelFrom: "Et0/0", labelTo: "Et0/0" }, { from: "pc11", to: "sw1" }, { from: "pc1", to: "sw1" }, { from: "pc2", to: "sw2" }, { from: "pc12", to: "sw2" }], labels: [{ text: "VLAN 23 – New Users / VLAN 22 – Current Users", attachTo: "sw1", position: "below" }] }, { type: "cli", content: `SW1#
+Name: Et0/0
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Administrative Native VLAN tagging: enabled
+Voice VLAN: none
+Administrative private-vlan host-association: none
+Administrative private-vlan mapping: none
+Administrative private-vlan trunk native VLAN: none
+Administrative private-vlan trunk Native VLAN tagging: enabled
+Administrative private-vlan trunk encapsulation: dot1q
+Administrative private-vlan trunk normal VLANs: none
+Administrative private-vlan trunk associations: none
+Administrative private-vlan trunk mappings: none
+Operational private-vlan: none
+Trunking VLANs Enabled: 1,22
+Pruning VLANs Enabled: 2-1001
+Capture Mode Disabled
+Capture VLANs Allowed: ALL`, highlight: ["Trunking VLANs Enabled: 1,22"] }],
   },
   {
     id: "q0861",
@@ -12371,7 +12448,7 @@ Sw1#` }],
     "Enable Disassociation Imminent."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Advanced-Einstellung", "Wert"], rows: [["Scan Defer Priority", "4, 5, 6"], ["Scan Defer Time (msecs)", "100"], ["FlexConnect Local Switching", "deaktiviert"], ["FlexConnect Local Auth", "deaktiviert"], ["Learn Client IP Address", "deaktiviert"], ["Vlan based Central Switching", "deaktiviert"], ["Central DHCP Processing", "deaktiviert"], ["Override DNS", "deaktiviert"], ["NAT-PAT", "deaktiviert"], ["Central Assoc", "deaktiviert"], ["Lync Server", "Disabled"], ["HTTP Profiling", "deaktiviert"], ["Local Client Profiling (DHCP/HTTP)", "deaktiviert"], ["PMIP Mobility Type", "deaktiviert"], ["PMIP NAI Type", "Hexadecimal"], ["PMIP Profile", "None"], ["Universal AP admin", "deaktiviert"], ["BSS Transition", "deaktiviert"], ["Disassociation Imminent", "aktiviert"], ["Disassociation Timer", "200"], ["Optimized Roaming Disassociation Timer", "40"]] },
   },
   {
     id: "q0863",
@@ -12431,7 +12508,7 @@ Sw1#` }],
     "Clear the Lifetime (seconds) value."
     ],
     correct: 1,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["Local Net User", "Wert"], rows: [["User Name", "NA-User"], ["Password", "••••••••"], ["Confirm Password", "••••••••"], ["Guest User", "aktiviert"], ["Lifetime (seconds)", "86400"], ["Guest User Role", "deaktiviert"], ["WLAN Profile", "Any WLAN"], ["Description", "For NA WLAN Auth"]] },
   },
   {
     id: "q0869",
@@ -12467,7 +12544,7 @@ Sw1#` }],
     "Check the Broadcast SSID check box and set the Radio Policy to 802.11a only."
     ],
     correct: 2,
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Einstellung (General)", "Wert"], rows: [["Profile Name", "TEST_PROFILE"], ["Type", "WLAN"], ["SSID", "CISCO_TEST"], ["Status", "Enabled (deaktiviert)"], ["Security Policies", "[WPA2][Auth(802.1X)]"], ["Radio Policy", "All"], ["Interface/Interface Group(G)", "management"], ["Multicast Vlan Feature", "deaktiviert"], ["Broadcast SSID", "aktiviert"], ["NAS-ID", "Cisco_42:0e:44"]] },
   },
   {
     id: "q0873",
@@ -12492,7 +12569,7 @@ Sw1#` }],
     "Set the Maximum Allowed Clients Per AP Radio value to 10."
     ],
     correct: [1, 3],
-    exhibit: true,
+    exhibit: { type: "table", headers: ["WLAN-Advanced-Einstellung", "Wert"], rows: [["Allow AAA Override", "deaktiviert"], ["Coverage Hole Detection", "deaktiviert"], ["Enable Session Timeout", "deaktiviert"], ["Aironet IE", "deaktiviert"], ["Diagnostic Channel", "deaktiviert"], ["Override Interface ACL (IPv4/IPv6)", "None / None"], ["Layer2 Acl", "None"], ["P2P Blocking Action", "Disabled"], ["Client Exclusion", "deaktiviert"], ["Maximum Allowed Clients", "0"], ["Static IP Tunneling", "deaktiviert"], ["Wi-Fi Direct Clients Policy", "Disabled"], ["Maximum Allowed Clients Per AP Radio", "200"], ["Clear HotSpot Configuration", "deaktiviert"], ["DHCP Server Override", "deaktiviert"], ["DHCP Addr. Assignment", "nicht erforderlich"], ["OEAP Split Tunnel", "deaktiviert"], ["MFP Client Protection", "Optional"], ["DTIM Period 802.11a/n | b/g/n", "1 | 1"], ["NAC State", "None"], ["Client Load Balancing", "deaktiviert"]] },
   },
   {
     id: "q0875",
