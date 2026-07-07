@@ -380,6 +380,8 @@ function App() {
 
   // Lernpfade-Dropdown
   const [showLearningPathMenu, setShowLearningPathMenu] = useState(false);
+  const [learningPathMenuPos, setLearningPathMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const learningPathButtonRef = useRef<HTMLButtonElement>(null);
 
   // Tools-Menü (Simulatoren & Trainer)
   const [showToolsMenu, setShowToolsMenu] = useState(false);
@@ -1469,20 +1471,19 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="relative">
-              {showLearningPathMenu && (
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowLearningPathMenu(false)}
-                />
-              )}
+            <div>
               <button
+                ref={learningPathButtonRef}
                 onClick={() => {
                   const paths = Object.values(learningPaths);
                   if (paths.length === 0) {
                     setEditingPath(null);
                     setShowLearningPathEditor(true);
                   } else {
+                    if (!showLearningPathMenu && learningPathButtonRef.current) {
+                      const rect = learningPathButtonRef.current.getBoundingClientRect();
+                      setLearningPathMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+                    }
                     setShowLearningPathMenu((v) => !v);
                   }
                 }}
@@ -1512,7 +1513,7 @@ function App() {
                   </span>
                 )}
               </button>
-              {showLearningPathMenu && (() => {
+              {showLearningPathMenu && learningPathMenuPos && createPortal((() => {
                 const allPaths = Object.values(learningPaths);
                 const subjectPaths = allPaths.filter(
                   (p) => p.subject === currentSubject || p.tags?.includes(currentSubject)
@@ -1521,13 +1522,19 @@ function App() {
                   (p) => p.subject !== currentSubject && !p.tags?.includes(currentSubject)
                 );
                 return (
-                  <div
-                    className={`absolute top-full right-0 mt-1 z-50 w-64 rounded-xl shadow-xl border overflow-hidden ${
-                      theme === "dark"
-                        ? "bg-slate-800 border-slate-700"
-                        : "bg-white border-slate-200"
-                    }`}
-                  >
+                  <>
+                    <div
+                      className="fixed inset-0 z-[199]"
+                      onClick={() => setShowLearningPathMenu(false)}
+                    />
+                    <div
+                      style={{ top: learningPathMenuPos.top, right: learningPathMenuPos.right }}
+                      className={`fixed z-[200] w-64 rounded-xl shadow-xl border overflow-hidden ${
+                        theme === "dark"
+                          ? "bg-slate-800 border-slate-700"
+                          : "bg-white border-slate-200"
+                      }`}
+                    >
                     {[{ label: currentSubject, items: subjectPaths }, { label: "Andere", items: otherPaths }]
                       .filter((g) => g.items.length > 0)
                       .map((group) => (
@@ -1593,9 +1600,10 @@ function App() {
                         + Neuen Lernpfad erstellen
                       </button>
                     </div>
-                  </div>
+                    </div>
+                  </>
                 );
-              })()}
+              })(), document.body)}
             </div>
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
