@@ -125,6 +125,8 @@ export const CONCEPT_STP: Concept = {
 ### Problem: Layer-2-Schleifen
 Ohne STP → Broadcast-Sturm, MAC-Tabelleninstabilität, Frame-Duplikate
 
+:::slide:stp:::
+
 ### BPDUs (Bridge Protocol Data Units)
 - STP-Switches tauschen alle **2 Sekunden (Hello-Timer)** BPDUs aus
 - Ziel-MAC der BPDU: **Multicast 0180.C200.0000**
@@ -152,7 +154,7 @@ Bridge-ID (8 Byte) = Priority (2 Byte) + MAC-Adresse (6 Byte)
 | 1 Gbit/s | 4 |
 | 10 Gbit/s | 2 |
 
-:::fallstrick
+:::falle
 Root Path Cost ist die **Summe der Port-Kosten entlang des Pfades zur Root Bridge**, nicht nur die Kosten des eigenen Ports. Bei gleichem Path Cost entscheidet zuerst die niedrigste Sender-BID, dann der niedrigste Sender-Port.
 :::
 
@@ -266,7 +268,7 @@ Der Switch wählt anhand eines Hash-Algorithmus, über welchen physischen Link e
 SW(config)# port-channel load-balance src-dst-ip
 \`\`\`
 
-:::fallstrick
+:::falle
 Ein einzelner Datenstrom (z. B. eine einzelne TCP-Session) läuft **immer über denselben physischen Link** — Load Balancing verteilt nur *zwischen* verschiedenen Flows, nicht innerhalb eines Flows.
 :::
 

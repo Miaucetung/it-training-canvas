@@ -441,7 +441,6 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
     "network-requirements",
     "enterprise-network-design",
     "networking-fundamentals-guide",
-    "topology-explorer",
   ],
   quizIds: ["ccna-quiz-netzwerkgrundlagen", "ccna-quiz-tag1-grundlagen"],
   exerciseIds: [],
