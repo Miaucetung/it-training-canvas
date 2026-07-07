@@ -378,6 +378,9 @@ function App() {
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreMenuContentRef = useRef<HTMLDivElement>(null);
 
+  // Lernpfade-Dropdown
+  const [showLearningPathMenu, setShowLearningPathMenu] = useState(false);
+
   // Tools-Menü (Simulatoren & Trainer)
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [toolsMenuPos, setToolsMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -1466,42 +1469,134 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => {
-                const paths = Object.values(learningPaths);
-                if (paths.length > 0) {
-                  handleStartLearningPath(paths[0]);
-                } else {
+            <div className="relative">
+              {showLearningPathMenu && (
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowLearningPathMenu(false)}
+                />
+              )}
+              <button
+                onClick={() => {
+                  const paths = Object.values(learningPaths);
+                  if (paths.length === 0) {
+                    setEditingPath(null);
+                    setShowLearningPathEditor(true);
+                  } else {
+                    setShowLearningPathMenu((v) => !v);
+                  }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
                   setEditingPath(null);
                   setShowLearningPathEditor(true);
-                }
-              }}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                setEditingPath(null);
-                setShowLearningPathEditor(true);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                activeLearningPath
-                  ? "bg-indigo-500/20 text-indigo-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                    : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
-              }`}
-              title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
-            >
-              <GraduationCap size={16} />
-              <span className="hidden lg:inline">Lernpfade</span>
-              {Object.keys(learningPaths).length > 0 && (
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                    theme === "dark" ? "bg-slate-700" : "bg-slate-200"
-                  }`}
-                >
-                  {Object.keys(learningPaths).length}
-                </span>
-              )}
-            </button>
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  activeLearningPath
+                    ? "bg-indigo-500/20 text-indigo-300"
+                    : theme === "dark"
+                      ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
+                      : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                }`}
+                title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
+              >
+                <GraduationCap size={16} />
+                <span className="hidden lg:inline">Lernpfade</span>
+                {Object.keys(learningPaths).length > 0 && (
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                      theme === "dark" ? "bg-slate-700" : "bg-slate-200"
+                    }`}
+                  >
+                    {Object.keys(learningPaths).length}
+                  </span>
+                )}
+              </button>
+              {showLearningPathMenu && (() => {
+                const allPaths = Object.values(learningPaths);
+                const subjectPaths = allPaths.filter(
+                  (p) => p.subject === currentSubject || p.tags?.includes(currentSubject)
+                );
+                const otherPaths = allPaths.filter(
+                  (p) => p.subject !== currentSubject && !p.tags?.includes(currentSubject)
+                );
+                return (
+                  <div
+                    className={`absolute top-full right-0 mt-1 z-50 w-64 rounded-xl shadow-xl border overflow-hidden ${
+                      theme === "dark"
+                        ? "bg-slate-800 border-slate-700"
+                        : "bg-white border-slate-200"
+                    }`}
+                  >
+                    {[{ label: currentSubject, items: subjectPaths }, { label: "Andere", items: otherPaths }]
+                      .filter((g) => g.items.length > 0)
+                      .map((group) => (
+                        <div key={group.label}>
+                          <div
+                            className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide ${
+                              theme === "dark" ? "text-slate-500" : "text-slate-400"
+                            }`}
+                          >
+                            {group.label}
+                          </div>
+                          {group.items.map((p) => {
+                            const pathProg = userProgress[p.id];
+                            const done = pathProg
+                              ? p.steps.filter((s) =>
+                                  pathProg.completedSteps.includes(s.id)
+                                ).length
+                              : 0;
+                            const pct = p.steps.length
+                              ? Math.round((done / p.steps.length) * 100)
+                              : 0;
+                            return (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  setShowLearningPathMenu(false);
+                                  handleStartLearningPath(p);
+                                }}
+                                className={`w-full text-left px-3 py-2 text-xs hover:bg-indigo-500/10 transition-colors ${
+                                  theme === "dark" ? "text-slate-200" : "text-slate-700"
+                                }`}
+                              >
+                                <div className="font-medium truncate">{p.title}</div>
+                                <div
+                                  className={`text-[10px] mt-0.5 ${
+                                    theme === "dark" ? "text-slate-400" : "text-slate-500"
+                                  }`}
+                                >
+                                  {p.estimatedMinutes} min · {p.steps.length} Schritte · {pct}%
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    <div
+                      className={`border-t ${
+                        theme === "dark" ? "border-slate-700" : "border-slate-100"
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          setShowLearningPathMenu(false);
+                          setEditingPath(null);
+                          setShowLearningPathEditor(true);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                          theme === "dark"
+                            ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
+                            : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        }`}
+                      >
+                        + Neuen Lernpfad erstellen
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
