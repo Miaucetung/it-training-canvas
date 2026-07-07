@@ -583,9 +583,9 @@ Die "Bäckerei Hofmann KG" eröffnet eine Filiale in Nürnberg (50 Mitarbeiter, 
 
 export const TOPIC_DHCP_NAT: Topic = {
   id: "dhcp-nat",
-  title: "DHCP, DNS & NAT",
+  title: "DHCP",
   description:
-    "Netzwerkdienste: DHCP für automatische IP-Vergabe (Relay, Snooping), DNS für Namensauflösung (Records, Rekursion, TTL) und NAT/PAT für Internetzugang aus privaten Netzen.",
+    "Automatische IP-Vergabe: DORA-Prozess, Lease-Verwaltung, Optionen, Relay, APIPA, Snooping und Troubleshooting. DNS und NAT haben eigene Themen.",
   conceptIds: [
     "dhcp",
     "dhcp-dora",
@@ -595,15 +595,39 @@ export const TOPIC_DHCP_NAT: Topic = {
     "dhcp-apipa",
     "dhcp-troubleshoot",
     "dhcp-snooping",
-    "dns",
-    "nat",
     "dhcp-nat-guide",
   ],
-  quizIds: ["ccna-quiz-dhcp", "ccna-quiz-nat"],
+  quizIds: ["ccna-quiz-dhcp"],
   exerciseIds: [],
   prerequisiteTopicIds: ["ipv4-addressing"],
-  estimatedMinutes: 165,
-  tags: ["dhcp", "dns", "nat", "pat", "ip-management"],
+  estimatedMinutes: 110,
+  tags: ["dhcp", "ip-management"],
+};
+
+export const TOPIC_NAT: Topic = {
+  id: "nat",
+  title: "NAT & PAT",
+  description:
+    "Network/Port Address Translation — private Netze mit öffentlichen IP-Adressen ins Internet bringen.",
+  conceptIds: ["nat"],
+  quizIds: ["ccna-quiz-nat"],
+  exerciseIds: [],
+  prerequisiteTopicIds: ["dhcp-nat"],
+  estimatedMinutes: 30,
+  tags: ["nat", "pat", "ip-management"],
+};
+
+export const TOPIC_DNS: Topic = {
+  id: "dns",
+  title: "DNS — Namensauflösung",
+  description:
+    "Records, Rekursion, TTL — wie Domainnamen in IP-Adressen aufgelöst werden.",
+  conceptIds: ["dns"],
+  quizIds: [],
+  exerciseIds: [],
+  prerequisiteTopicIds: ["dhcp-nat"],
+  estimatedMinutes: 25,
+  tags: ["dns", "ip-management"],
 };
 
 export const CONCEPT_DNS: Concept = {

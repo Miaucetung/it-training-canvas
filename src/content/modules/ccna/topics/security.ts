@@ -659,14 +659,9 @@ export const TOPIC_SECURITY: Topic = {
   id: "security",
   title: "Netzwerksicherheit",
   description:
-    "CIA-Triad, Angriffstypen, ACLs, Port-Security, DHCP Snooping, DAI, 802.1X und Security-Programme — Netzwerke absichern.",
+    "CIA-Triad, Angriffstypen, Port-Security, DHCP Snooping, DAI, 802.1X und Security-Programme — Netzwerke absichern. ACLs haben ein eigenes Thema.",
   conceptIds: [
     "security-fundamentals",
-    "acl-standard",
-    "acl-extended",
-    "acl-named",
-    "acl-troubleshooting",
-    "acl-wildcard-alignment",
     "port-security",
     "802.1x-authentication",
     "security-program",
@@ -676,12 +671,30 @@ export const TOPIC_SECURITY: Topic = {
     "ccna-quiz-security",
     "ccna-quiz-harden-access",
     "ccna-quiz-dhcp-snooping-dai",
-    "ccna-quiz-acl",
   ],
-  exerciseIds: ["exercise-acl-dmz"],
+  exerciseIds: [],
   prerequisiteTopicIds: ["routing-ospf", "switching-vlans"],
-  estimatedMinutes: 150,
-  tags: ["security", "acl", "port-security"],
+  estimatedMinutes: 100,
+  tags: ["security", "port-security"],
+};
+
+export const TOPIC_ACL: Topic = {
+  id: "acl",
+  title: "Access Control Lists (ACL)",
+  description:
+    "Standard-, Extended- und Named ACLs, Wildcard-Masken und ACL-Troubleshooting — Traffic filtern und kontrollieren.",
+  conceptIds: [
+    "acl-standard",
+    "acl-extended",
+    "acl-named",
+    "acl-troubleshooting",
+    "acl-wildcard-alignment",
+  ],
+  quizIds: ["ccna-quiz-acl"],
+  exerciseIds: ["exercise-acl-dmz"],
+  prerequisiteTopicIds: ["security"],
+  estimatedMinutes: 90,
+  tags: ["security", "acl"],
 };
 
 export const SECURITY_CONCEPTS: Record<string, Concept> = {

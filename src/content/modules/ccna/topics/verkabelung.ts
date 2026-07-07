@@ -799,34 +799,46 @@ Erstelle eine Topologie mit:
 
 export const TOPIC_VERKABELUNG: Topic = {
   id: "verkabelung",
-  title: "Verkabelung (Cabling)",
+  title: "Verkabelung (Kupfer)",
   description:
-    "Twisted-Pair-Kategorien, Glasfaser, Steckertypen, FTTx, LSZH, Reinigung, Pinbelegung, strukturierte Verkabelung und Messtechnik — Layer-1 physische Infrastruktur für das CCNA.",
+    "Twisted-Pair-Kategorien, RJ45-Pinbelegung, strukturierte Verkabelung und Messtechnik — Layer-1 Kupferinfrastruktur. Glasfaser hat ein eigenes Thema.",
   conceptIds: [
     "kupfer-twisted-pair",
     "kupfer-kategorien",
     "kupfer-stecker-pinbelegung",
-    "glasfaser-grundlagen",
-    "glasfaser-stecker-transceiver",
-    "glasfaser-sicherheit-fttx",
-    "glasfaser-reinigung-lszh",
     "verkabelung-praxis",
     "verkabelung-guide",
     "verkabelung-trainer",
   ],
-  quizIds: ["ccna-quiz-glasfaser"],
+  quizIds: [],
   exerciseIds: [],
   prerequisiteTopicIds: ["networking-fundamentals"],
-  estimatedMinutes: 120,
+  estimatedMinutes: 70,
   tags: [
     "cabling",
     "layer-1",
     "copper",
-    "fiber",
     "rj45",
-    "sfp",
     "structured-cabling",
   ],
+};
+
+export const TOPIC_GLASFASER: Topic = {
+  id: "glasfaser",
+  title: "Glasfaser (Fiber Optic)",
+  description:
+    "Singlemode vs. Multimode, Stecker, Transceiver, DAC/AOC, FTTx-Architekturen, Dämpfung, Farbtabelle und Reinigung.",
+  conceptIds: [
+    "glasfaser-grundlagen",
+    "glasfaser-stecker-transceiver",
+    "glasfaser-sicherheit-fttx",
+    "glasfaser-reinigung-lszh",
+  ],
+  quizIds: ["ccna-quiz-glasfaser"],
+  exerciseIds: [],
+  prerequisiteTopicIds: ["verkabelung"],
+  estimatedMinutes: 90,
+  tags: ["cabling", "layer-1", "fiber", "sfp"],
 };
 
 // ── Exports ───────────────────────────────────────────────────

@@ -17,7 +17,12 @@ import {
 } from "@/lib/content/cross-references";
 
 import ccnaModule from "@/content/modules/ccna";
-import { TOPIC_DHCP_NAT, DHCP_NAT_CONCEPTS } from "@/content/modules/ccna/topics/dhcp-nat";
+import {
+  TOPIC_DHCP_NAT,
+  TOPIC_NAT,
+  TOPIC_DNS,
+  DHCP_NAT_CONCEPTS,
+} from "@/content/modules/ccna/topics/dhcp-nat";
 import { TOPIC_VLAN_ADVANCED } from "@/content/modules/ccna/topics/vlan-advanced";
 import { CONCEPT_INTER_VLAN_ROUTING_ROAS } from "@/content/modules/ccna/topics/vlan-advanced";
 import { CONCEPT_INTER_VLAN_ROUTING_OVERVIEW } from "@/content/modules/ccna/topics/routing-ospf";
@@ -40,9 +45,21 @@ beforeEach(() => {
 });
 
 describe("dhcp-nat Topic: 7 neue Flagship-Concepts", () => {
-  it("Topic hat genau 11 conceptIds (inkl. DNS)", () => {
-    expect(TOPIC_DHCP_NAT.conceptIds).toHaveLength(11);
-    expect(TOPIC_DHCP_NAT.conceptIds).toContain("dns");
+  // Seit der Themen-Granularisierung (bessere Auffindbarkeit im Themen-Katalog)
+  // haben DNS und NAT eigene Topics ("dns", "nat") statt im dhcp-nat-Topic zu
+  // stecken. Die Concepts selbst bleiben unverändert und lösen weiterhin über
+  // die gemeinsame DHCP_NAT_CONCEPTS-Registry auf.
+  it("Topic hat genau 9 conceptIds (DNS/NAT haben eigene Topics)", () => {
+    expect(TOPIC_DHCP_NAT.conceptIds).toHaveLength(9);
+    expect(TOPIC_DHCP_NAT.conceptIds).not.toContain("dns");
+    expect(TOPIC_DHCP_NAT.conceptIds).not.toContain("nat");
+  });
+
+  it("dns und nat resolven weiterhin im Modul, über eigene Topics verlinkt", () => {
+    expect(ccnaModule.concepts["dns"]).toBeDefined();
+    expect(ccnaModule.concepts["nat"]).toBeDefined();
+    expect(TOPIC_DNS.conceptIds).toContain("dns");
+    expect(TOPIC_NAT.conceptIds).toContain("nat");
   });
 
   it("alle 7 neuen DHCP-Concepts sind im Topic referenziert", () => {

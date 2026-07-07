@@ -15,7 +15,12 @@ import {
   DEVICE_MANAGEMENT_CONCEPTS,
   TOPIC_DEVICE_MANAGEMENT,
 } from "./topics/device-management";
-import { DHCP_NAT_CONCEPTS, TOPIC_DHCP_NAT } from "./topics/dhcp-nat";
+import {
+  DHCP_NAT_CONCEPTS,
+  TOPIC_DHCP_NAT,
+  TOPIC_NAT,
+  TOPIC_DNS,
+} from "./topics/dhcp-nat";
 import { FHRP_CONCEPTS, TOPIC_FHRP } from "./topics/fhrp";
 import { IOS_CLI_CONCEPTS, TOPIC_IOS_CLI } from "./topics/ios-cli";
 import { IPV4_CONCEPTS, TOPIC_IPV4_ADDRESSING } from "./topics/ipv4-addressing";
@@ -27,10 +32,12 @@ import {
 import { QOS_CONCEPTS, TOPIC_QOS } from "./topics/qos";
 import { ROUTING_CONCEPTS, TOPIC_ROUTING_OSPF } from "./topics/routing-ospf";
 import { SDN_CONCEPTS, TOPIC_SDN } from "./topics/sdn-controller";
-import { SECURITY_CONCEPTS, TOPIC_SECURITY } from "./topics/security";
+import { SECURITY_CONCEPTS, TOPIC_SECURITY, TOPIC_ACL } from "./topics/security";
 import {
   SWITCHING_CONCEPTS,
   TOPIC_SWITCHING_VLANS,
+  TOPIC_STP,
+  TOPIC_ETHERCHANNEL,
 } from "./topics/switching-vlans";
 import {
   TOPIC_TROUBLESHOOTING,
@@ -39,6 +46,7 @@ import {
 import { TOPIC_WAN, WAN_CONCEPTS } from "./topics/wan";
 import {
   TOPIC_VERKABELUNG,
+  TOPIC_GLASFASER,
   VERKABELUNG_CONCEPTS,
 } from "./topics/verkabelung";
 import {
@@ -578,13 +586,19 @@ const CCNA_MODULE: CertificationModule = {
     TOPIC_SUBNET_SEGMENTATION,
     TOPIC_IPV6,
     TOPIC_SWITCHING_VLANS,
+    TOPIC_STP,
+    TOPIC_ETHERCHANNEL,
     TOPIC_VLAN_ADVANCED,
     TOPIC_VERKABELUNG,
+    TOPIC_GLASFASER,
     TOPIC_ROUTING_OSPF,
     TOPIC_FHRP,
     TOPIC_DHCP_NAT,
+    TOPIC_NAT,
+    TOPIC_DNS,
     TOPIC_DEVICE_MANAGEMENT,
     TOPIC_SECURITY,
+    TOPIC_ACL,
     TOPIC_QOS,
     TOPIC_WLAN,
     TOPIC_WAN,
