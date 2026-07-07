@@ -97,6 +97,66 @@ Am **Hub** sehen *alle* 23 anderen Ports das Signal (eine gemeinsame Kollisionsd
   `.trim(),
 };
 
+export const CONCEPT_ETHERNET_FRAME_CSMA: Concept = {
+  id: "ethernet-frame-csma",
+  title: "Ethernet-Frame, CSMA/CD & PoE",
+  appliesTo: ["ccna", "comptia-network-plus"],
+  tags: ["networking", "ethernet", "csma-cd", "frame", "poe", "duplex", "layer-2"],
+  content: `
+## Ethernet-Frame-Struktur (802.3)
+| Feld | Größe | Bedeutung |
+|------|-------|-----------|
+| Preamble | 7 Byte | Bit-Synchronisation (Taktung) |
+| SFD (Start Frame Delimiter) | 1 Byte | Markiert Frame-Beginn |
+| Ziel-MAC | 6 Byte | Empfänger |
+| Quell-MAC | 6 Byte | Sender |
+| EtherType / Length | 2 Byte | Welches L3-Protokoll folgt (siehe Tabelle unten) |
+| Data (Payload) | 46–1500 Byte | Nutzdaten (IP-Paket etc.) |
+| FCS (Frame Check Sequence) | 4 Byte | CRC-Prüfsumme |
+
+:::merke
+Die **FCS erkennt** Übertragungsfehler (CRC), **korrigiert sie aber nicht** — ein fehlerhafter Frame
+wird einfach verworfen. Die Wiederholung übernimmt eine höhere Schicht (z. B. TCP-Retransmission).
+:::
+
+### EtherType-Werte (Prüfungsstoff)
+| Hex-Wert | Protokoll |
+|----------|-----------|
+| \`0x0800\` | IPv4 |
+| \`0x0806\` | ARP |
+| \`0x86DD\` | IPv6 |
+| \`0x8100\` | 802.1Q VLAN-Tag |
+
+### CSMA/CD (Carrier Sense Multiple Access / Collision Detection)
+Nur relevant im **Half-Duplex**-Betrieb (klassische Hubs — moderne Switch-Links sind Full-Duplex und kollisionsfrei):
+1. **Carrier Sense**: Vor dem Senden prüfen, ob die Leitung frei ist
+2. **Senden**, falls frei
+3. **Collision Detection**: Kollidieren zwei Sender gleichzeitig, wird das erkannt
+4. **Jam-Signal**: Alle Stationen werden über die Kollision informiert
+5. **Exponential Backoff**: Jede Station wartet eine zufällige, exponentiell wachsende Zeit, bevor sie erneut sendet
+
+### Duplex-Mismatch — klassischer Fallstrick
+:::falle
+Ist eine Seite **Full-Duplex** und die andere (fehlerhaft ausgehandelt) **Half-Duplex**, entstehen
+**Late Collisions** und massive Performance-Einbrüche — die Verbindung "geht", ist aber extrem langsam.
+**GigabitEthernet ohne Auto-Negotiation bleibt Full-Duplex; FastEthernet fällt ohne Aushandlung auf Half-Duplex zurück.**
+Beide Seiten sollten daher entweder beide auf Auto-Negotiation stehen oder beide manuell identisch konfiguriert sein.
+:::
+
+### PoE (Power over Ethernet) — Standards
+| Standard | IEEE | Leistung am Endgerät | Typischer Einsatz |
+|----------|------|----------------------|--------------------|
+| PoE | 802.3af | 15,4 W | IP-Telefone, einfache APs |
+| PoE+ | 802.3at | 30 W | Wireless APs mit mehreren Radios |
+| PoE++ / UPoE | 802.3bt | 60 W / 100 W | PTZ-Kameras, Thin Clients, Displays |
+
+\`\`\`
+SW# show power inline
+SW(config-if)# power inline never   ! PoE an diesem Port deaktivieren
+\`\`\`
+  `.trim(),
+};
+
 export const CONCEPT_TCP_IP_SUITE: Concept = {
   id: "tcp-ip-suite",
   title: "TCP/IP Protokoll-Suite",
@@ -376,6 +436,7 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
     "network-topologies",
     "network-types-by-scope",
     "network-components",
+    "ethernet-frame-csma",
     "tcp-ip-suite",
     "network-requirements",
     "enterprise-network-design",
@@ -415,6 +476,7 @@ export const NETWORKING_FUNDAMENTALS_CONCEPTS: Record<string, Concept> = {
   "network-topologies": CONCEPT_NETWORK_TOPOLOGIES,
   "network-types-by-scope": CONCEPT_NETWORK_TYPES_BY_SCOPE,
   "network-components": CONCEPT_NETWORK_COMPONENTS,
+  "ethernet-frame-csma": CONCEPT_ETHERNET_FRAME_CSMA,
   "tcp-ip-suite": CONCEPT_TCP_IP_SUITE,
   "network-requirements": CONCEPT_NETWORK_REQUIREMENTS,
   "enterprise-network-design": CONCEPT_ENTERPRISE_NETWORK_DESIGN,

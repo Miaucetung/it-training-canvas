@@ -511,6 +511,13 @@ NAT übersetzt private IP-Adressen in öffentliche (und zurück).
 | Dynamic NAT | Pool öffentlicher IPs | Mehrere User, Pool |
 | PAT (NAT Overload) | Viele private IPs → eine öffentliche (per Port) | Home/Office Router |
 
+:::merke
+**Static NAT ist bidirektional**: Die Übersetzung funktioniert **in beide Richtungen** — auch
+ein Verbindungsaufbau **von außen** zum internen Server (z. B. Port-Forwarding) funktioniert,
+weil die Zuordnung fest (1:1) und nicht nur "on demand" ist. Dynamic NAT/PAT werden dagegen
+**nur** aufgebaut, wenn der interne Host die Verbindung **zuerst** initiiert.
+:::
+
 ### NAT-Terminologie
 | Term | Beschreibung |
 |------|-------------|
@@ -537,6 +544,31 @@ R1(config-if)# ip nat outside  ! WAN-Seite (Internet)
 
 R1# show ip nat translations
 R1# show ip nat statistics
+\`\`\`
+
+### Dynamic NAT & Static NAT Konfiguration
+\`\`\`
+! Static NAT — feste 1:1-Zuordnung (z.B. für einen Server)
+R1(config)# ip nat inside source static 192.168.1.10 203.0.113.10
+
+! Dynamic NAT — Pool aus öffentlichen Adressen
+R1(config)# ip nat pool PUBLIC-POOL 203.0.113.1 203.0.113.20 netmask 255.255.255.0
+R1(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+R1(config)# ip nat inside source list 1 pool PUBLIC-POOL
+\`\`\`
+
+:::merke
+Die ACL bei Dynamic NAT/PAT entscheidet **nur**, welche Adressen NAT durchlaufen — \`permit\`
+heißt „diese Adressen übersetzen", \`deny\` heißt „diese Adressen **nicht** übersetzen" (nicht
+„verwerfen"!). Es ist keine Sicherheits-ACL, sondern eine reine Auswahlliste.
+:::
+
+### Troubleshooting
+\`\`\`
+R1# show ip nat translations       ! aktuelle Übersetzungstabelle
+R1# show ip nat statistics         ! Treffer, aktive Übersetzungen, Pool-Auslastung
+R1# clear ip nat translation *     ! Tabelle leeren (z.B. nach Config-Änderung)
+R1# debug ip nat                   ! Echtzeit-Anzeige jeder Übersetzung
 \`\`\`
 
 ### Probleme mit NAT

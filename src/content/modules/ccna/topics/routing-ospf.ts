@@ -58,6 +58,17 @@ Höhere AD als dynamisches Protokoll → nur als Backup aktiv
 \`\`\`
 R1(config)# ip route 192.168.2.0 255.255.255.0 192.168.1.2 200  ! AD=200
 \`\`\`
+
+### CEF (Cisco Express Forwarding)
+Auf allen modernen Cisco-Plattformen (auch Multilayer-Switches) trifft die **Hardware**
+die Weiterleitungsentscheidung, nicht die CPU:
+- **FIB (Forwarding Information Base)** — Hardware-Kopie der Routing-Tabelle (im TCAM)
+- **Adjacency-Table** — vorab aufgelöste Layer-2-Header (MAC-Adressen) je Next-Hop
+
+:::merke
+CEF ist der Grund, warum ein Layer-3-Switch Pakete **in Hardware (ASIC/TCAM)** und nicht per
+Software-Lookup weiterleitet — deutlich schneller als klassisches „process switching".
+:::
   `.trim(),
 };
 
@@ -538,6 +549,15 @@ Auf Broadcast-Segmenten wählen die Router einen **DR** (+ **BDR**), damit nicht
 :::falle
 Die DR/BDR-Wahl ist **non-preemptive**: Ein **neu** hinzugefügter Router mit höherer Priority (selbst 255) verdrängt einen bestehenden DR **nicht**. Erst dessen Ausfall oder \`clear ip ospf process\` erzwingt die Neuwahl. Komplette Mechanik + Beispiel: [[ospf-dr-bdr]].
 :::
+
+### OSPFv3 — IPv6-Routing
+Für IPv6 gibt es **OSPFv3** (RFC 5340): gleiche Grundmechanik (Areas, DR/BDR, SPF), aber
+die Router-ID bleibt weiterhin ein 32-Bit-Wert im IPv4-Format (auch ohne IPv4 auf dem Router),
+und die Konfiguration erfolgt direkt am Interface statt über \`network\`-Statements:
+\`\`\`
+R1(config)# ipv6 router ospf 1
+R1(config-if)# ipv6 ospf 1 area 0
+\`\`\`
 
 ### Single-Area OSPF (Area 0)
 \`\`\`

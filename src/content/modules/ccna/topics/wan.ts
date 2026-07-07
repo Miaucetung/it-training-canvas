@@ -41,6 +41,26 @@ export const CONCEPT_WAN_TECHNOLOGIES: Concept = {
 | PPP | RFC 1661 | PAP/CHAP | offen, multivendor |
 | Frame Relay | – | – | obsolet |
 | ATM | – | – | obsolet |
+
+:::merke
+**WAN-Layer-2-Protokolle haben keine MAC-Adressen** — im Gegensatz zu Ethernet gibt es auf einer
+seriellen Punkt-zu-Punkt-Leitung nur zwei Endpunkte, eine Adressierung ist überflüssig.
+:::
+
+**cHDLC (Cisco HDLC) — Frame-Struktur:**
+\`\`\`
+| Flag | Address | Control | Proprietary Type | Data | FCS |
+\`\`\`
+Cisco HDLC ist **proprietär** (nicht der originale ISO-HDLC-Standard) und funktioniert daher
+nur **Cisco ↔ Cisco**. Es ist der **Default** auf seriellen Cisco-Interfaces, wenn keine
+Encapsulation konfiguriert wurde.
+
+**PPP** ist der offene Gegenpart (RFC 1661) und wird gewählt, wenn Multivendor-Interop,
+Authentifizierung (PAP/CHAP) oder Multilink nötig sind:
+\`\`\`
+R1(config-if)# encapsulation ppp
+R1(config-if)# ppp authentication chap
+\`\`\`
   `.trim(),
 };
 

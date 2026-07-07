@@ -359,6 +359,32 @@ $ scp ios-image.bin cisco@192.168.1.1:flash:/ios-image.bin
 R1(config)# boot system flash c2900-universalk9-mz.SPA.155-3.M8.bin
 R1(config)# boot system tftp c2900-universalk9-mz.SPA.155-3.M8.bin 192.168.1.100
 \`\`\`
+
+### Configuration Register
+Ein 16-Bit-Wert (\`show version\` → letzte Zeile), der steuert, **woher** und **wie** gebootet wird:
+
+| Wert | Bedeutung |
+|------|-----------|
+| \`0x2102\` | **Normal** (Default) — lädt Startup-Config aus NVRAM |
+| \`0x2142\` | **Startup-Config beim Boot ignorieren** — für Password Recovery |
+| \`0x2100\` | Bootet direkt in den **ROMMON**-Modus (kein IOS-Load) |
+
+\`\`\`
+R1(config)# config-register 0x2142
+R1# show version                      ! zeigt aktuelles Register am Zeilenende
+\`\`\`
+
+### Password Recovery (Kurzablauf)
+1. Router **neu starten**, während des Boots **Break-Signal** senden → ROMMON-Modus
+2. Register auf \`0x2142\` setzen (Startup-Config wird beim nächsten Boot **übersprungen**)
+3. Router neu starten (\`reset\` im ROMMON) → bootet **ohne** Passwort
+4. \`copy startup-config running-config\` (Config manuell laden, ohne sie zu aktivieren)
+5. Neues Passwort setzen, Register zurück auf \`0x2102\`, \`copy running-config startup-config\`
+
+:::merke
+**0x2142 = „Passwort vergessen"-Modus** — die Konfiguration bleibt im NVRAM erhalten, sie wird
+beim Boot nur **nicht automatisch geladen**, sodass man sie manuell einspielen und ändern kann.
+:::
 `,
 };
 

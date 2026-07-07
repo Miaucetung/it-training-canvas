@@ -72,9 +72,23 @@ export const CONCEPT_VLANS: Concept = {
 | Trunk Port | Trägt mehrere VLANs (Switch ↔ Switch, Switch ↔ Router) | 802.1Q Tagged |
 
 ### 802.1Q VLAN-Tagging
-- 4-Byte-Tag wird in Ethernet-Frame eingefügt
+- 4-Byte-Tag wird in Ethernet-Frame eingefügt (zwischen Quell-MAC und EtherType)
 - Enthält VLAN-ID (12 Bit → max. 4094 VLANs)
 - Native VLAN wird nicht getaggt
+
+**802.1Q-Tag-Struktur (4 Byte):**
+| Feld | Größe | Bedeutung |
+|------|-------|-----------|
+| TPID (Tag Protocol ID) | 2 Byte | Fester Wert 0x8100 — signalisiert "das ist ein 802.1Q-Tag" |
+| PCP (Priority Code Point) | 3 Bit | CoS-Priorität (0–7), entspricht Layer-2-QoS |
+| DEI (Drop Eligible Indicator) | 1 Bit | Markiert Frame als bevorzugt verwerfbar bei Überlast |
+| VID (VLAN ID) | 12 Bit | Die eigentliche VLAN-Nummer (1–4094) |
+
+### ISL (Inter-Switch Link) — Legacy
+- **Cisco-proprietär**, Vorgänger von 802.1Q, heute praktisch nicht mehr im Einsatz
+- Kapselt den gesamten Frame (statt nur einen Tag einzufügen) → **30 Byte Overhead**
+- Unterstützt nur bis zu **1024 VLANs**
+- Prüfungsrelevant nur als Abgrenzung: 802.1Q ist der offene IEEE-Standard und heute Default
 
 ### Cisco Konfiguration
 \`\`\`
@@ -111,11 +125,36 @@ export const CONCEPT_STP: Concept = {
 ### Problem: Layer-2-Schleifen
 Ohne STP → Broadcast-Sturm, MAC-Tabelleninstabilität, Frame-Duplikate
 
+### BPDUs (Bridge Protocol Data Units)
+- STP-Switches tauschen alle **2 Sekunden (Hello-Timer)** BPDUs aus
+- Ziel-MAC der BPDU: **Multicast 0180.C200.0000**
+- Enthält u. a. Root-BID, Sender-BID, Root Path Cost, Timer-Werte
+
+### Bridge-ID (BID) — Struktur
+\`\`\`
+Bridge-ID (8 Byte) = Priority (2 Byte) + MAC-Adresse (6 Byte)
+\`\`\`
+- **Priority**: Default 32768, in Schritten von 4096 änderbar (0–61440)
+- Bei **PVST+** wird die Priority um die **Extended System ID** (VLAN-ID, 12 Bit) ergänzt → pro VLAN eine eigene Bridge-ID/eigener Baum
+- Niedrigste BID gewinnt die Root-Bridge-Wahl (bei Priority-Gleichstand entscheidet die niedrigste MAC)
+
 ### STP-Ablauf
 1. **Root Bridge wählen**: Niedrigste Bridge-ID (Priorität + MAC)
 2. **Root Ports wählen**: Pro Nicht-Root-Switch, Port mit kleinstem Root Path Cost
 3. **Designated Ports wählen**: Pro Segment, bester Port (kleinste Root Path Cost)
 4. **Alle anderen Ports**: Blocking-State
+
+### Port-Kosten (Root Path Cost) — IEEE-Standardwerte
+| Bandbreite | Kosten (IEEE 802.1D) |
+|-----------|----------------------|
+| 10 Mbit/s | 100 |
+| 100 Mbit/s | 19 |
+| 1 Gbit/s | 4 |
+| 10 Gbit/s | 2 |
+
+:::fallstrick
+Root Path Cost ist die **Summe der Port-Kosten entlang des Pfades zur Root Bridge**, nicht nur die Kosten des eigenen Ports. Bei gleichem Path Cost entscheidet zuerst die niedrigste Sender-BID, dann der niedrigste Sender-Port.
+:::
 
 ### STP-Port-Zustände (802.1D)
 | Zustand | Forwarding | Learning | Dauer |
@@ -126,18 +165,63 @@ Ohne STP → Broadcast-Sturm, MAC-Tabelleninstabilität, Frame-Duplikate
 | Forwarding | Ja | Ja | – |
 | Disabled | Nein | Nein | – |
 
-**Konvergenzzeit**: bis zu 50 Sekunden (Problem!)
+### STP-Timer und Konvergenzzeit
+| Timer | Wert | Bedeutung |
+|-------|------|-----------|
+| Hello Timer | 2 s | Intervall zwischen BPDUs |
+| Forward Delay | 15 s | Dauer je Listening- und Learning-Phase |
+| Max Age | 20 s | Wie lange eine BPDU als gültig gilt, bevor der Baum neu berechnet wird |
 
-### RSTP (802.1W)
-- Rapid Spanning Tree → Konvergenz in < 1 Sekunde
-- Port-Rollen: Root, Designated, Alternate, Backup
-- Cisco: PVST+, Rapid-PVST+ (per VLAN)
+**Konvergenzzeit-Formel**: Max Age + 2 × Forward Delay ≈ 20 s + 2×15 s = **bis zu 50 Sekunden** (Hauptkritikpunkt an klassischem STP)
+
+### Root-Bridge-Manipulation (Konfiguration)
+\`\`\`
+SW(config)# spanning-tree vlan 10 priority 4096
+! oder relativ zur aktuellen Root-Bridge:
+SW(config)# spanning-tree vlan 10 root primary     ! setzt Priority automatisch niedrig genug
+SW(config)# spanning-tree vlan 10 root secondary    ! Backup-Root
+
+SW# show spanning-tree vlan 10
+\`\`\`
+
+### RSTP (802.1W) — Rapid Spanning Tree
+- Cisco-Name: **Rapid PVST+** (pro VLAN ein eigener RSTP-Baum, Default auf modernen Switches)
+- Konvergenz typischerweise **< 1–10 Sekunden** statt bis zu 50 s
+
+**Port-States (nur 3 statt 5):**
+| STP (802.1D) | RSTP (802.1W) |
+|--------------|---------------|
+| Blocking, Listening | Discarding |
+| Learning | Learning |
+| Forwarding | Forwarding |
+
+**Port-Rollen (RSTP):**
+| Rolle | Bedeutung |
+|-------|-----------|
+| Root Port | Bester Weg zur Root Bridge (wie bei STP) |
+| Designated Port | Bester Port je Segment (wie bei STP) |
+| **Alternate Port** | Backup für den Root Port — übernimmt sofort bei dessen Ausfall |
+| **Backup Port** | Backup für einen Designated Port am selben Segment (z. B. Hub) |
+
+**Link-Typen (beeinflussen Konvergenzgeschwindigkeit):**
+| Link-Typ | Beschreibung |
+|----------|-------------|
+| Point-to-Point | Full-Duplex zwischen zwei Switches → schneller Proposal/Agreement-Handshake |
+| Shared | Half-Duplex (Hub) → verhält sich wie klassisches STP |
+| Edge | Entspricht PortFast — Endgerät, sofort Forwarding |
+
+- **Proposal/Agreement-Handshake**: RSTP synchronisiert Nachbarn direkt (statt auf Timer zu warten) — dadurch die schnelle Konvergenz auf Point-to-Point-Links
+- RSTP ist abwärtskompatibel: erkennt Legacy-STP-Switches an deren BPDU-Version und fällt dort automatisch auf klassisches STP-Verhalten zurück
 
 ### PortFast & BPDU Guard
 \`\`\`
 SW(config-if)# spanning-tree portfast          ! Access-Ports: sofort Forwarding
 SW(config-if)# spanning-tree bpduguard enable  ! Deaktiviert Port bei BPDU-Empfang
 \`\`\`
+
+:::merke
+**PortFast** nur auf Ports zu Endgeräten (PCs, Drucker) — niemals zu anderen Switches, sonst droht eine Layer-2-Schleife! **BPDU Guard** schützt genau davor: Empfängt ein PortFast-Port dennoch eine BPDU, wird er sofort in den err-disabled-Zustand versetzt.
+:::
   `.trim(),
 };
 
@@ -171,6 +255,24 @@ Bündelt mehrere physische Links zu einem logischen Link.
 | active | active | ✅ EtherChannel |
 | active | passive | ✅ EtherChannel |
 | passive | passive | ❌ Kein EtherChannel |
+
+### Load-Balancing-Kriterien
+Der Switch wählt anhand eines Hash-Algorithmus, über welchen physischen Link ein Frame läuft (nicht rundenbasiert):
+- Quell-/Ziel-MAC (src-mac, dst-mac, src-dst-mac)
+- Quell-/Ziel-IP (src-ip, dst-ip, src-dst-ip)
+- Quell-/Ziel-Port (src-port, dst-port), je nach Plattform
+
+\`\`\`
+SW(config)# port-channel load-balance src-dst-ip
+\`\`\`
+
+:::fallstrick
+Ein einzelner Datenstrom (z. B. eine einzelne TCP-Session) läuft **immer über denselben physischen Link** — Load Balancing verteilt nur *zwischen* verschiedenen Flows, nicht innerhalb eines Flows.
+:::
+
+### Grenzen
+- Max. **8 aktive Links** pro EtherChannel (LACP kann bis zu 8 weitere als Standby vorhalten = 16 Member insgesamt)
+- Max. Anzahl EtherChannels pro Switch ist plattformabhängig (typisch bis zu 16)
 
 ### Cisco Konfiguration
 \`\`\`
