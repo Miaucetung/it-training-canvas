@@ -344,53 +344,53 @@ export const TOPIC_IPV6: Topic = {
   tags: ["ipv6", "networking", "addressing"],
   lessonSummary: {
     mustKnow: [
-      "IPv6 address types: Global Unicast (2000::/3), Unique Local (FC00::/7), Link-Local (FE80::/10), and Multicast (FF00::/8)",
-      "NDP replaces ARP: Neighbor Solicitation (NS, Type 135) and Neighbor Advertisement (NA, Type 136) resolve IPv6 to MAC",
-      "SLAAC — host auto-configures from Router Advertisement (RA); uses prefix from RA and EUI-64 or random interface ID; confirmed via DAD",
-      "Stateful DHCPv6 (M-flag=1) assigns addresses; Stateless DHCPv6 (O-flag=1) only provides DNS while SLAAC handles the address",
-      "'ipv6 unicast-routing' must be enabled on Cisco routers before any IPv6 packets are forwarded",
+      "IPv6-Adresstypen: Global Unicast (2000::/3), Unique Local (FC00::/7), Link-Local (FE80::/10) und Multicast (FF00::/8)",
+      "NDP ersetzt ARP: Neighbor Solicitation (NS, Typ 135) und Neighbor Advertisement (NA, Typ 136) lösen IPv6 in MAC auf",
+      "SLAAC — Host konfiguriert sich selbst aus Router Advertisement (RA); nutzt Präfix aus RA und EUI-64 oder zufällige Interface-ID; bestätigt via DAD",
+      "Stateful DHCPv6 (M-Flag=1) weist Adressen zu; Stateless DHCPv6 (O-Flag=1) liefert nur DNS, während SLAAC die Adresse übernimmt",
+      "'ipv6 unicast-routing' muss auf Cisco-Routern aktiviert sein, bevor IPv6-Pakete weitergeleitet werden",
     ],
     bestPractice: [
       {
-        topic: "IPv6 address assignment",
+        topic: "IPv6-Adresszuweisung",
         practice:
-          "Configure a static link-local address ('ipv6 address fe80::1 link-local') on router interfaces — it improves readability in 'show ipv6 neighbors' and OSPFv3 neighbor tables.",
+          "Eine statische Link-Local-Adresse auf Router-Interfaces konfigurieren ('ipv6 address fe80::1 link-local') — verbessert die Lesbarkeit in 'show ipv6 neighbors' und OSPFv3-Nachbartabellen.",
         note: "[Cisco only]",
       },
       {
-        topic: "ICMPv6 firewall rules",
+        topic: "ICMPv6-Firewall-Regeln",
         practice:
-          "Never block ICMPv6 Types 1–4 and 133–137 in ACLs or firewalls — this silently breaks NDP and Path MTU Discovery per RFC 4890.",
+          "ICMPv6-Typen 1–4 und 133–137 niemals in ACLs oder Firewalls blockieren — das bricht NDP und Path MTU Discovery stillschweigend gemäß RFC 4890.",
       },
       {
-        topic: "SLAAC privacy",
+        topic: "SLAAC-Datenschutz",
         practice:
-          "In enterprise environments use DHCPv6 stateful for servers so IP-to-asset tracking is maintained; SLAAC with random IDs is preferred for client privacy.",
+          "In Unternehmensumgebungen DHCPv6 Stateful für Server verwenden, damit die IP-zu-Asset-Zuordnung erhalten bleibt; SLAAC mit zufälligen IDs ist für Client-Datenschutz vorzuziehen.",
       },
       {
-        topic: "Dual-stack transition",
+        topic: "Dual-Stack-Migration",
         practice:
-          "Enable IPv6 on all interfaces that already have IPv4 ('ipv6 address <gua>/64') and add a static default IPv6 route — enables a clean dual-stack migration without removing IPv4.",
+          "IPv6 auf allen Interfaces aktivieren, die bereits IPv4 haben ('ipv6 address <gua>/64'), und eine statische IPv6-Default-Route hinzufügen — ermöglicht eine saubere Dual-Stack-Migration ohne IPv4 zu entfernen.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "6to4 / Teredo tunneling",
+        topic: "6to4 / Teredo-Tunneling",
         reason:
-          "IPv4-to-IPv6 transition mechanisms (RFC 3056, RFC 4380); largely deprecated in favor of native dual-stack or MAP-E; still appear in CCNA exam objectives",
-        replacedBy: "Native dual-stack deployment",
+          "IPv4-zu-IPv6-Übergangsmechanismen (RFC 3056, RFC 4380); weitgehend veraltet zugunsten von nativem Dual-Stack oder MAP-E; tauchen noch in CCNA-Prüfungszielen auf",
+        replacedBy: "Natives Dual-Stack-Deployment",
       },
       {
-        topic: "EUI-64 interface ID",
+        topic: "EUI-64 Interface-ID",
         reason:
-          "Derives the interface ID from the MAC address, exposing hardware identity; most modern OSes default to randomized IDs (RFC 7217) for privacy",
-        replacedBy: "Randomized stable addresses (RFC 7217)",
+          "Leitet die Interface-ID aus der MAC-Adresse ab und legt Hardware-Identität offen; die meisten modernen Betriebssysteme nutzen standardmäßig randomisierte IDs (RFC 7217) für Datenschutz",
+        replacedBy: "Randomisierte stabile Adressen (RFC 7217)",
       },
     ],
     fastFacts: [
-      "Every IPv6-enabled interface automatically gets a Link-Local address (FE80::/10) — even without any manual configuration. Verify: show ipv6 interface brief",
-      "The IPv6 loopback address is ::1/128 (equivalent to 127.0.0.1). Verify: ping ::1",
-      "OSPFv3 uses multicast FF02::5 (all OSPF routers) and FF02::6 (DR/BDR). Verify: show ipv6 ospf neighbor",
+      "Jedes IPv6-fähige Interface bekommt automatisch eine Link-Local-Adresse (FE80::/10) — auch ohne manuelle Konfiguration. Verify: show ipv6 interface brief",
+      "Die IPv6-Loopback-Adresse ist ::1/128 (entspricht 127.0.0.1). Verify: ping ::1",
+      "OSPFv3 nutzt Multicast FF02::5 (alle OSPF-Router) und FF02::6 (DR/BDR). Verify: show ipv6 ospf neighbor",
     ],
   },
 };

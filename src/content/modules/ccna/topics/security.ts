@@ -678,54 +678,54 @@ export const TOPIC_SECURITY: Topic = {
   tags: ["security", "port-security"],
   lessonSummary: {
     mustKnow: [
-      "CIA Triad: Confidentiality (prevent unauthorized access), Integrity (prevent unauthorized modification), Availability (ensure services remain reachable)",
-      "Port Security: limits MACs per access port; 'sticky' learns the first MAC and saves it; default violation action is 'shutdown' (err-disabled)",
-      "TACACS+ (TCP 49, full payload encryption) is used for device/CLI administration; RADIUS (UDP 1812/1813, password-only encryption) for network access (WLAN, VPN, 802.1X)",
-      "802.1X roles: Supplicant (end device), Authenticator (switch port), Authentication Server (RADIUS); port stays blocked until EAP succeeds",
-      "Dynamic ARP Inspection (DAI) validates ARP traffic against the DHCP Snooping binding table — requires Snooping to be enabled first",
+      "CIA-Triade: Confidentiality (unberechtigten Zugriff verhindern), Integrity (unberechtigte Änderungen verhindern), Availability (Dienste erreichbar halten)",
+      "Port Security: begrenzt MACs pro Access-Port; 'sticky' lernt die erste MAC und speichert sie; Standard-Verletzungsaktion ist 'shutdown' (err-disabled)",
+      "TACACS+ (TCP 49, vollständige Payload-Verschlüsselung) für Geräte-/CLI-Administration; RADIUS (UDP 1812/1813, nur Passwort-Verschlüsselung) für Netzwerkzugang (WLAN, VPN, 802.1X)",
+      "802.1X-Rollen: Supplicant (Endgerät), Authenticator (Switch-Port), Authentication Server (RADIUS); Port bleibt gesperrt bis EAP erfolgreich ist",
+      "Dynamic ARP Inspection (DAI) prüft ARP-Traffic gegen die DHCP-Snooping-Binding-Tabelle — setzt voraus, dass Snooping zuerst aktiviert ist",
     ],
     bestPractice: [
       {
-        topic: "Port Security violation mode",
+        topic: "Port-Security-Verletzungsmodus",
         practice:
-          "Use 'violation restrict' on ports where silent drops with logging are preferred over port shutdown; use 'shutdown' (default) when an unauthorized device must be immediately isolated.",
+          "'violation restrict' auf Ports verwenden, wo stille Drops mit Logging gegenüber Port-Shutdown bevorzugt werden; 'shutdown' (Standard) wenn ein unberechtigtes Gerät sofort isoliert werden muss.",
         note: "[Cisco only]",
       },
       {
-        topic: "Layer-2 security stack order",
+        topic: "Layer-2-Sicherheits-Stack-Reihenfolge",
         practice:
-          "Deploy in this order: DHCP Snooping → DAI → IP Source Guard; each layer depends on the binding table built by the previous one.",
+          "In dieser Reihenfolge einsetzen: DHCP Snooping → DAI → IP Source Guard; jede Schicht ist auf die Binding-Tabelle der vorherigen angewiesen.",
         note: "[Cisco only]",
       },
       {
-        topic: "AAA protocol selection",
+        topic: "AAA-Protokollauswahl",
         practice:
-          "Use TACACS+ for all CLI/device-admin access (granular command authorization); use RADIUS for 802.1X and VPN network access.",
+          "TACACS+ für alle CLI-/Geräteadministrations-Zugänge verwenden (granulare Befehlsautorisierung); RADIUS für 802.1X und VPN-Netzwerkzugang.",
       },
       {
         topic: "Incident Response",
         practice:
-          "Follow the NIST SP 800-61 phases in order: Preparation → Identification → Containment → Eradication → Recovery → Lessons Learned; never skip Containment before Eradication.",
+          "NIST SP 800-61-Phasen in der Reihenfolge befolgen: Vorbereitung → Identifikation → Eindämmung → Beseitigung → Wiederherstellung → Lessons Learned; Eindämmung niemals vor Beseitigung überspringen.",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "WEP (Wired Equivalent Privacy)",
         reason:
-          "Cryptographically broken; RC4 stream cipher with weak IV reuse allows key recovery in minutes; deprecated since 2004",
-        replacedBy: "WPA2 with AES-CCMP or WPA3",
+          "Kryptografisch gebrochen; RC4-Stream-Chiffre mit schwacher IV-Wiederverwendung ermöglicht Schlüsselwiederherstellung in Minuten; seit 2004 veraltet",
+        replacedBy: "WPA2 mit AES-CCMP oder WPA3",
       },
       {
-        topic: "AAA without 802.1X (MAC-based authentication only)",
+        topic: "AAA ohne 802.1X (nur MAC-basierte Authentifizierung)",
         reason:
-          "MAC addresses are trivially spoofed; MAC Auth Bypass (MAB) alone provides no real authentication — used only as a fallback for legacy devices without 802.1X clients",
-        replacedBy: "802.1X with EAP-TLS or PEAP for all capable devices",
+          "MAC-Adressen sind trivial spoofbar; MAC Auth Bypass (MAB) allein bietet keine echte Authentifizierung — nur als Fallback für Legacy-Geräte ohne 802.1X-Client verwendet",
+        replacedBy: "802.1X mit EAP-TLS oder PEAP für alle fähigen Geräte",
       },
     ],
     fastFacts: [
-      "A port in err-disabled state shows 'err-disabled' in 'show interfaces status' — recover with 'shutdown' then 'no shutdown'. Verify: show interfaces <int> status",
-      "DAI must be enabled on the same VLANs as DHCP Snooping ('ip arp inspection vlan <id>'); uplink ports need 'ip arp inspection trust'. Verify: show ip arp inspection vlan <id>",
-      "TACACS+ encrypts the entire payload (not just the password); RADIUS encrypts only the password field. Verify: Wireshark capture on TCP/49 vs UDP/1812",
+      "Ein Port im err-disabled-Zustand zeigt 'err-disabled' in 'show interfaces status' — Wiederherstellung mit 'shutdown' dann 'no shutdown'. Verify: show interfaces <int> status",
+      "DAI muss auf denselben VLANs aktiviert sein wie DHCP Snooping ('ip arp inspection vlan <id>'); Uplink-Ports benötigen 'ip arp inspection trust'. Verify: show ip arp inspection vlan <id>",
+      "TACACS+ verschlüsselt den gesamten Payload (nicht nur das Passwort); RADIUS verschlüsselt nur das Passwortfeld. Verify: Wireshark-Mitschnitt auf TCP/49 vs. UDP/1812",
     ],
   },
 };
@@ -749,54 +749,54 @@ export const TOPIC_ACL: Topic = {
   tags: ["security", "acl"],
   lessonSummary: {
     mustKnow: [
-      "ACLs are processed top-down, first-match; an implicit 'deny any' at the end drops all unmatched traffic — always add at least one 'permit' line",
-      "Standard ACL (1–99): filters source IP only; place close to the destination to avoid blocking all traffic from the source",
-      "Extended ACL (100–199): filters source IP, destination IP, protocol, and port; place close to the source to drop traffic early",
-      "Wildcard mask: 0 = must match, 1 = ignore; wildcard for /24 is 0.0.0.255; 'host x.x.x.x' = 0.0.0.0 wildcard",
-      "Named ACLs allow inserting/deleting individual lines by sequence number without rebuilding the entire list",
+      "ACLs werden von oben nach unten verarbeitet, First-Match; ein implizites 'deny any' am Ende verwirft allen ungematchten Traffic — immer mindestens eine 'permit'-Zeile hinzufügen",
+      "Standard-ACL (1–99): filtert nur Quell-IP; nah am Ziel platzieren, um nicht den gesamten Traffic von der Quelle zu blockieren",
+      "Extended ACL (100–199): filtert Quell-IP, Ziel-IP, Protokoll und Port; nah an der Quelle platzieren, damit Traffic frühzeitig verworfen wird",
+      "Wildcard-Maske: 0 = muss übereinstimmen, 1 = ignorieren; Wildcard für /24 ist 0.0.0.255; 'host x.x.x.x' = 0.0.0.0 Wildcard",
+      "Named ACLs erlauben das Einfügen/Löschen einzelner Zeilen per Sequenznummer, ohne die gesamte Liste neu aufzubauen",
     ],
     bestPractice: [
       {
-        topic: "ACL placement",
+        topic: "ACL-Platzierung",
         practice:
-          "Always apply Extended ACLs inbound on the source-side interface ('ip access-group <name> in') to discard traffic as early as possible.",
+          "Extended ACLs immer eingehend auf dem quellseitigen Interface anwenden ('ip access-group <name> in'), um Traffic so früh wie möglich zu verwerfen.",
         note: "[Cisco only]",
       },
       {
-        topic: "Named ACLs for production",
+        topic: "Named ACLs in der Produktion",
         practice:
-          "Use named ACLs in all production environments — they allow individual line edits via sequence numbers without removing and re-applying the entire list.",
+          "Named ACLs in allen Produktionsumgebungen verwenden — sie erlauben einzelne Zeilenbearbeitungen per Sequenznummer ohne Entfernen und erneutes Anwenden der gesamten Liste.",
         note: "[Cisco only]",
       },
       {
-        topic: "ACL logging",
+        topic: "ACL-Logging",
         practice:
-          "Add 'log' to the final 'deny' entry ('deny any any log') to capture hits in syslog — makes it visible when traffic is being dropped by the implicit deny.",
+          "'log' zum finalen 'deny'-Eintrag hinzufügen ('deny any any log'), um Treffer im Syslog sichtbar zu machen — zeigt, wenn Traffic durch das implizite Deny verworfen wird.",
       },
       {
-        topic: "Wildcard block alignment",
+        topic: "Wildcard-Block-Ausrichtung",
         practice:
-          "Verify block alignment before applying: start_address mod block_size must equal 0. A misaligned wildcard silently matches a different range than intended.",
+          "Block-Ausrichtung vor der Anwendung prüfen: start_address mod block_size muss 0 ergeben. Eine fehlerhafte Wildcard matched stillschweigend einen anderen Bereich als beabsichtigt.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Numbered ACLs",
+        topic: "Nummerierte ACLs",
         reason:
-          "Cannot edit individual lines — any change requires removing and re-entering the entire ACL; error-prone in production environments",
-        replacedBy: "Named ACLs with sequence numbers",
+          "Einzelne Zeilen können nicht bearbeitet werden — jede Änderung erfordert das Entfernen und Neueingeben der gesamten ACL; fehleranfällig in Produktionsumgebungen",
+        replacedBy: "Named ACLs mit Sequenznummern",
       },
       {
         topic: "Reflexive ACLs",
         reason:
-          "Stateful return-traffic filter using 'reflect' and 'evaluate'; syntactically complex and limited — rarely deployed since Zone-Based Firewall (ZBFW) provides full stateful inspection",
-        replacedBy: "Zone-Based Firewall (ZBFW) on Cisco IOS/IOS-XE",
+          "Stateful-Return-Traffic-Filter mit 'reflect' und 'evaluate'; syntaktisch komplex und eingeschränkt — selten eingesetzt, seit Zone-Based Firewall (ZBFW) vollständige Stateful-Inspection bietet",
+        replacedBy: "Zone-Based Firewall (ZBFW) auf Cisco IOS/IOS-XE",
       },
     ],
     fastFacts: [
-      "The 'established' keyword in Extended ACLs matches TCP packets with ACK or RST bits set — used to permit return traffic for outbound TCP sessions. Verify: show access-lists",
-      "Hit counters in 'show access-lists' show how many packets matched each line — a line with 0 hits may indicate a misconfiguration or dead rule. Verify: show access-lists <name>",
-      "ACLs do not filter traffic originated by the router itself (management traffic, routing protocols) — only transit and process-switched traffic. Verify: debug ip packet",
+      "Das 'established'-Schlüsselwort in Extended ACLs matcht TCP-Pakete mit ACK- oder RST-Bits — wird verwendet, um Return-Traffic für ausgehende TCP-Sessions zu erlauben. Verify: show access-lists",
+      "Trefferanzahl in 'show access-lists' zeigt, wie viele Pakete jede Zeile gematcht haben — eine Zeile mit 0 Treffern kann eine Fehlkonfiguration oder tote Regel anzeigen. Verify: show access-lists <name>",
+      "ACLs filtern keinen vom Router selbst erzeugten Traffic (Management-Traffic, Routing-Protokolle) — nur Transit- und prozess-geschalteten Traffic. Verify: debug ip packet",
     ],
   },
 };

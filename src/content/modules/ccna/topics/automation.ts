@@ -309,52 +309,52 @@ export const TOPIC_AUTOMATION: Topic = {
   tags: ["automation", "rest", "json", "ansible", "terraform"],
   lessonSummary: {
     mustKnow: [
-      "REST HTTP methods: GET (read), POST (create), PUT (replace), PATCH (partial update), DELETE — and their HTTP status code ranges (2xx success, 4xx client error, 5xx server error)",
-      "JSON is the dominant data format for REST APIs; YAML is used for Ansible playbooks; XML is used by NETCONF/YANG",
-      "Ansible is agentless (SSH/NETCONF), push-based, YAML playbooks — the most common CCNA-level automation tool for network devices",
-      "Idempotency: running the same automation task multiple times produces the same end state — no duplicate VLANs, no duplicate routes",
-      "NETCONF uses SSH TCP 830 with XML; RESTCONF uses HTTPS with JSON/XML — both rely on YANG data models",
+      "REST HTTP-Methoden: GET (lesen), POST (erstellen), PUT (ersetzen), PATCH (teilweise aktualisieren), DELETE — und ihre HTTP-Statuscodes (2xx Erfolg, 4xx Client-Fehler, 5xx Server-Fehler)",
+      "JSON ist das dominierende Datenformat für REST-APIs; YAML wird für Ansible-Playbooks verwendet; XML wird von NETCONF/YANG verwendet",
+      "Ansible ist agentlos (SSH/NETCONF), Push-basiert, YAML-Playbooks — das am häufigsten verwendete Automatisierungstool auf CCNA-Niveau für Netzwerkgeräte",
+      "Idempotenz: die mehrfache Ausführung derselben Automatisierungsaufgabe erzeugt denselben Endzustand — keine doppelten VLANs, keine doppelten Routen",
+      "NETCONF nutzt SSH TCP 830 mit XML; RESTCONF nutzt HTTPS mit JSON/XML — beide basieren auf YANG-Datenmodellen",
     ],
     bestPractice: [
       {
-        topic: "Automation tool selection",
+        topic: "Automatisierungstool-Auswahl",
         practice:
-          "Use Ansible for network device configuration management (agentless, no client software on network devices); use Terraform for cloud/SDN infrastructure provisioning.",
+          "Ansible für die Konfigurationsverwaltung von Netzwerkgeräten verwenden (agentlos, keine Client-Software auf Netzwerkgeräten); Terraform für Cloud-/SDN-Infrastruktur-Provisionierung.",
       },
       {
-        topic: "GitOps for network automation",
+        topic: "GitOps für Netzwerkautomatisierung",
         practice:
-          "Store all playbooks, templates, and variable files in Git with pull-request reviews — provides change history, rollback capability, and peer review before production deployment.",
+          "Alle Playbooks, Templates und Variablendateien in Git mit Pull-Request-Reviews speichern — bietet Änderungshistorie, Rollback-Möglichkeit und Peer-Review vor dem Produktions-Deployment.",
       },
       {
-        topic: "NETCONF vs. SSH CLI scraping",
+        topic: "NETCONF vs. SSH-CLI-Scraping",
         practice:
-          "Prefer NETCONF/YANG over screen-scraping CLI output for automation; structured XML responses are predictable and schema-validated, unlike free-text CLI output.",
+          "NETCONF/YANG gegenüber CLI-Output-Scraping für Automatisierung bevorzugen; strukturierte XML-Antworten sind vorhersehbar und schema-validiert, anders als Freitext-CLI-Output.",
       },
       {
-        topic: "Terraform state file",
+        topic: "Terraform-State-Datei",
         practice:
-          "Never commit terraform.tfstate to Git — it may contain secrets; store it in a remote backend (S3 + DynamoDB lock, or Azure Storage) with encryption at rest.",
+          "terraform.tfstate niemals in Git einchecken — sie kann Geheimnisse enthalten; in einem Remote-Backend speichern (S3 + DynamoDB-Lock oder Azure Storage) mit Verschlüsselung im Ruhezustand.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "SNMP write (SET) for configuration",
+        topic: "SNMP Write (SET) für Konfiguration",
         reason:
-          "SNMP SET was used historically to push config changes; limited structure, poor security (community strings in cleartext in SNMPv1/v2c), and no transactional semantics",
-        replacedBy: "NETCONF/RESTCONF with YANG models",
+          "Wurde historisch zum Pushen von Konfigurationsänderungen verwendet; begrenzte Struktur, schlechte Sicherheit (Community-Strings im Klartext bei SNMPv1/v2c) und keine transaktionalen Garantien",
+        replacedBy: "NETCONF/RESTCONF mit YANG-Modellen",
       },
       {
-        topic: "CLI screen-scraping (Expect scripts, pexpect)",
+        topic: "CLI-Screen-Scraping (Expect-Skripte, pexpect)",
         reason:
-          "Fragile — any change in CLI output format breaks the script; not idempotent; no structured data — replaced by modern APIs",
-        replacedBy: "Ansible network modules or NETCONF",
+          "Fragil — jede Änderung im CLI-Output-Format bricht das Skript; nicht idempotent; keine strukturierten Daten — durch moderne APIs ersetzt",
+        replacedBy: "Ansible-Netzwerkmodule oder NETCONF",
       },
     ],
     fastFacts: [
-      "HTTP 401 = Unauthorized (missing/invalid credentials); HTTP 403 = Forbidden (authenticated but not permitted). Verify: curl -v <api-endpoint>",
-      "Ansible connects to Cisco IOS devices via 'network_cli' (SSH) or 'netconf' connection types — not via Python agents. Verify: ansible-playbook -vvv <playbook>",
-      "YANG models can be vendor-native (Cisco-IOS-XE-native) or vendor-neutral (OpenConfig, IETF) — OpenConfig enables multi-vendor automation with the same playbook. Verify: show netconf-yang datastores",
+      "HTTP 401 = Unauthorized (fehlende/ungültige Anmeldedaten); HTTP 403 = Forbidden (authentifiziert, aber nicht berechtigt). Verify: curl -v <api-endpoint>",
+      "Ansible verbindet sich mit Cisco-IOS-Geräten über den 'network_cli' (SSH)- oder 'netconf'-Verbindungstyp — nicht über Python-Agenten. Verify: ansible-playbook -vvv <playbook>",
+      "YANG-Modelle können Vendor-nativ (Cisco-IOS-XE-native) oder Vendor-neutral (OpenConfig, IETF) sein — OpenConfig ermöglicht Multi-Vendor-Automatisierung mit demselben Playbook. Verify: show netconf-yang datastores",
     ],
   },
 };

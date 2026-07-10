@@ -713,41 +713,41 @@ export const TOPIC_SUBNET_SEGMENTATION: Topic = {
   tags: ["segmentierung", "vlsm", "dmz", "sicherheitszonen", "cisco", "acl"],
   lessonSummary: {
     mustKnow: [
-      "Segmentation reduces broadcast domains and limits lateral movement — a compromised device in one VLAN cannot ARP-scan or directly reach hosts in another VLAN without passing through a router/firewall",
-      "Security zones in order of trust: Internet (untrusted) → DMZ (semi-trusted, public-facing servers) → Internal LAN (trusted) → Management VLAN (highest-trust, should be most restricted)",
-      "VLSM assigns the smallest possible subnet to each segment (always allocate largest-first to avoid overlap)",
-      "The Management VLAN should never carry user traffic and should be separate from VLAN 1; restrict access to it with ACLs",
+      "Segmentierung reduziert Broadcast-Domänen und begrenzt laterale Bewegung — ein kompromittiertes Gerät in einem VLAN kann Hosts in einem anderen VLAN nicht per ARP-Scan oder direkt erreichen, ohne einen Router/eine Firewall zu passieren",
+      "Sicherheitszonen nach Vertrauensstufe: Internet (nicht vertrauenswürdig) → DMZ (halb vertrauenswürdig, öffentliche Server) → Internes LAN (vertrauenswürdig) → Management-VLAN (höchstes Vertrauen, stärkste Einschränkung)",
+      "VLSM weist jedem Segment das kleinstmögliche Subnetz zu (immer größtes zuerst vergeben, um Überlappungen zu vermeiden)",
+      "Das Management-VLAN darf niemals User-Traffic tragen und muss von VLAN 1 getrennt sein; Zugriff mit ACLs einschränken",
     ],
     bestPractice: [
       {
-        topic: "DMZ design",
+        topic: "DMZ-Design",
         practice:
-          "Place public-facing servers (web, mail, DNS) in a dedicated DMZ VLAN behind a firewall; the firewall permits inbound on specific ports only and blocks all DMZ-to-internal traffic by default.",
+          "Öffentlich erreichbare Server (Web, Mail, DNS) in einem dedizierten DMZ-VLAN hinter einer Firewall platzieren; die Firewall erlaubt eingehend nur auf spezifischen Ports und blockiert standardmäßig den gesamten DMZ-zu-intern-Traffic.",
       },
       {
-        topic: "Management VLAN isolation",
+        topic: "Management-VLAN-Isolation",
         practice:
-          "Dedicate a separate VLAN (e.g. VLAN 99) for switch/router management; allow SSH access to it only from a designated admin subnet and block it from user VLANs with ACLs.",
+          "Ein separates VLAN (z. B. VLAN 99) für Switch-/Router-Management reservieren; SSH-Zugriff darauf nur von einem dedizierten Admin-Subnetz erlauben und von Benutzer-VLANs mit ACLs sperren.",
         note: "[Cisco only]",
       },
       {
-        topic: "VLSM planning order",
+        topic: "VLSM-Planungsreihenfolge",
         practice:
-          "Always plan subnets largest-to-smallest and document the address plan before configuring — a misaligned subnet wastes addresses and causes routing gaps.",
+          "Subnetze immer von groß nach klein planen und den Adressplan dokumentieren, bevor konfiguriert wird — ein falsch ausgerichtetes Subnetz verschwendet Adressen und verursacht Routing-Lücken.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Flat networks (single VLAN for all users)",
+        topic: "Flache Netzwerke (einzelnes VLAN für alle Benutzer)",
         reason:
-          "Single broadcast domain means a broadcast storm or ARP scan reaches every device; any compromised host can reach every other host; cannot enforce access policies between groups",
-        replacedBy: "Multi-VLAN segmentation with inter-VLAN routing through a firewall or L3 switch with ACLs",
+          "Einzelne Broadcast-Domäne bedeutet, dass ein Broadcast-Sturm oder ARP-Scan jeden Gerät erreicht; jeder kompromittierte Host kann jeden anderen Host erreichen; keine Zugriffspolitik zwischen Gruppen durchsetzbar",
+        replacedBy: "Multi-VLAN-Segmentierung mit Inter-VLAN-Routing durch eine Firewall oder L3-Switch mit ACLs",
       },
     ],
     fastFacts: [
-      "A /30 subnet (4 addresses, 2 usable) is the minimum for a point-to-point routed link between two devices. Verify: 'show ip interface brief' on both ends",
-      "The Management VLAN address is configured on an SVI ('interface vlan 99' + 'ip address'); this is the address used for SSH/SNMP/NTP. Verify: show ip interface vlan 99",
-      "A DMZ with a /27 subnet gives 30 usable host addresses — enough for most small server zones while keeping the blast radius small. Verify: plan on paper before configuring",
+      "Ein /30-Subnetz (4 Adressen, 2 nutzbar) ist das Minimum für einen Point-to-Point-gerouteten Link zwischen zwei Geräten. Verify: 'show ip interface brief' an beiden Enden",
+      "Die Management-VLAN-Adresse wird auf einem SVI konfiguriert ('interface vlan 99' + 'ip address'); diese Adresse wird für SSH/SNMP/NTP verwendet. Verify: show ip interface vlan 99",
+      "Eine DMZ mit einem /27-Subnetz gibt 30 nutzbare Host-Adressen — genug für die meisten kleinen Serverzonen bei geringer Angriffsfläche. Verify: auf Papier planen vor der Konfiguration",
     ],
   },
 };

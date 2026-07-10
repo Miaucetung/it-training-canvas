@@ -233,53 +233,53 @@ export const TOPIC_WAN: Topic = {
   tags: ["wan", "vpn", "ipsec", "mpls", "sd-wan"],
   lessonSummary: {
     mustKnow: [
-      "MPLS L3VPN provides any-to-any connectivity between sites without full-mesh tunnels; the ISP manages CE-PE routing (usually BGP or OSPF)",
-      "IPsec ESP provides both authentication and encryption of the IP payload; AH provides authentication only (no encryption) and is rarely used",
-      "GRE encapsulates any Layer-3 protocol and supports multicast (enabling OSPF/EIGRP inside the tunnel); GRE alone has NO encryption",
-      "GRE over IPsec combines GRE's multicast support with IPsec's encryption — the standard for site-to-site VPN with dynamic routing",
-      "SD-WAN components: vManage (GUI/config), vSmart (control plane), vBond (orchestrator), vEdge/cEdge (data plane at each site)",
+      "MPLS L3VPN bietet Any-to-Any-Konnektivität zwischen Standorten ohne Full-Mesh-Tunnel; der ISP verwaltet CE-PE-Routing (meist BGP oder OSPF)",
+      "IPsec ESP bietet sowohl Authentifizierung als auch Verschlüsselung des IP-Payloads; AH bietet nur Authentifizierung (keine Verschlüsselung) und wird selten verwendet",
+      "GRE kapselt jedes Layer-3-Protokoll und unterstützt Multicast (ermöglicht OSPF/EIGRP im Tunnel); GRE allein hat KEINE Verschlüsselung",
+      "GRE über IPsec kombiniert GREs Multicast-Unterstützung mit IPsec-Verschlüsselung — Standard für Site-to-Site-VPN mit dynamischem Routing",
+      "SD-WAN-Komponenten: vManage (GUI/Konfiguration), vSmart (Control Plane), vBond (Orchestrator), vEdge/cEdge (Data Plane an jedem Standort)",
     ],
     bestPractice: [
       {
-        topic: "VPN technology selection",
+        topic: "VPN-Technologieauswahl",
         practice:
-          "Use IPsec with IKEv2 (not IKEv1) for all new site-to-site VPNs; use AES-256 and SHA-256 minimum. Avoid PSK in large deployments — use PKI certificates.",
+          "IPsec mit IKEv2 (nicht IKEv1) für alle neuen Site-to-Site-VPNs verwenden; mindestens AES-256 und SHA-256. PSK in großen Deployments vermeiden — PKI-Zertifikate verwenden.",
       },
       {
-        topic: "MPLS vs. Internet VPN",
+        topic: "MPLS vs. Internet-VPN",
         practice:
-          "Use MPLS for latency-sensitive traffic (VoIP, ERP) where guaranteed bandwidth and SLA are needed; use Internet VPN for lower-cost backup paths or non-critical traffic.",
+          "MPLS für latenzsensitiven Traffic (VoIP, ERP) verwenden, wo garantierte Bandbreite und SLA benötigt werden; Internet-VPN für kostengünstigere Backup-Pfade oder unkritischen Traffic.",
       },
       {
-        topic: "SD-WAN dual-transport",
+        topic: "SD-WAN Dual-Transport",
         practice:
-          "Deploy at least two independent transports per site (e.g., fiber + LTE) to benefit from SD-WAN's application-aware failover — a single transport gives no redundancy benefit.",
+          "Mindestens zwei unabhängige Transporte pro Standort einsetzen (z. B. Glasfaser + LTE), um von SD-WANs applikationsbewusstem Failover zu profitieren — ein einziger Transport bietet keine Redundanz.",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "Frame Relay",
         reason:
-          "Legacy Layer-2 WAN technology using virtual circuits (DLCI); the ITU-T formally withdrew the standard in 2016; no modern ISP offers it",
-        replacedBy: "Metro Ethernet or MPLS L3VPN",
+          "Legacy-Layer-2-WAN-Technologie mit virtuellen Verbindungen (DLCI); die ITU-T zog den Standard 2016 offiziell zurück; kein moderner ISP bietet es mehr an",
+        replacedBy: "Metro Ethernet oder MPLS L3VPN",
       },
       {
         topic: "HDLC (Cisco cHDLC)",
         reason:
-          "Cisco-proprietary serial encapsulation; only works Cisco-to-Cisco; serial WAN links themselves are nearly extinct, replaced by Ethernet handoffs",
+          "Ciscos proprietäre serielle Kapselung; funktioniert nur Cisco-zu-Cisco; serielle WAN-Links selbst sind fast ausgestorben und durch Ethernet-Übergaben ersetzt",
         replacedBy: "Metro Ethernet (IEEE 802.3)",
       },
       {
         topic: "IKEv1 (ISAKMP Phase 1/2)",
         reason:
-          "More complex negotiation, known vulnerabilities in aggressive mode; IKEv2 is faster (2 exchanges vs. 6/9) and required for modern use cases like MOBIKE and EAP",
+          "Komplexere Aushandlung, bekannte Schwachstellen im Aggressive Mode; IKEv2 ist schneller (2 statt 6/9 Exchanges) und für moderne Use Cases wie MOBIKE und EAP erforderlich",
         replacedBy: "IKEv2 (RFC 7296)",
       },
     ],
     fastFacts: [
-      "GRE tunnels add 24 bytes of overhead (20 IP + 4 GRE); with IPsec ESP in tunnel mode, total overhead is ~74 bytes. Verify: show interface tunnel0",
-      "MPLS does NOT encrypt traffic by default — the ISP backbone carries customer data in the clear; add IPsec on top if encryption is required. Verify: traceroute between sites",
-      "SD-WAN Zero-Touch Provisioning: a new cEdge calls vBond using the serial number — no manual IP configuration needed at the site. Verify: show sdwan system status",
+      "GRE-Tunnel fügen 24 Bytes Overhead hinzu (20 IP + 4 GRE); mit IPsec ESP im Tunnel-Modus beträgt der Gesamt-Overhead ~74 Bytes. Verify: show interface tunnel0",
+      "MPLS verschlüsselt Traffic standardmäßig NICHT — der ISP-Backbone trägt Kundendaten im Klartext; für Verschlüsselung IPsec darüber hinzufügen. Verify: traceroute zwischen Standorten",
+      "SD-WAN Zero-Touch-Provisioning: ein neuer cEdge ruft vBond anhand der Seriennummer an — keine manuelle IP-Konfiguration am Standort nötig. Verify: show sdwan system status",
     ],
   },
 };

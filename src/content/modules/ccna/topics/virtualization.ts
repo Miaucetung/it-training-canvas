@@ -132,35 +132,35 @@ export const TOPIC_VIRTUALIZATION: Topic = {
   tags: ["virtualization", "cloud", "nfv", "hypervisor", "vm", "container"],
   lessonSummary: {
     mustKnow: [
-      "Type 1 hypervisor (bare-metal) runs directly on hardware — VMware ESXi, Hyper-V, KVM; Type 2 (hosted) runs on an OS — VirtualBox, VMware Workstation",
-      "VMs include a full guest OS (GBs, minutes to start); containers share the host kernel (MBs, seconds to start) — containers are lighter but less isolated",
-      "NFV replaces dedicated network hardware (firewalls, routers, load balancers) with software VMs running on standard x86 servers",
-      "Cloud service models: IaaS (you manage OS+app), PaaS (you manage app only), SaaS (you manage data/config only)",
+      "Typ-1-Hypervisor (Bare-Metal) läuft direkt auf Hardware — VMware ESXi, Hyper-V, KVM; Typ-2 (gehostet) läuft auf einem Betriebssystem — VirtualBox, VMware Workstation",
+      "VMs beinhalten ein vollständiges Gast-OS (GB groß, Minuten zum Starten); Container teilen den Host-Kernel (MB groß, Sekunden zum Starten) — Container sind leichter, aber weniger isoliert",
+      "NFV ersetzt dedizierte Netzwerkhardware (Firewalls, Router, Load Balancer) durch Software-VMs auf Standard-x86-Servern",
+      "Cloud-Service-Modelle: IaaS (du verwaltest OS+App), PaaS (du verwaltest nur die App), SaaS (du verwaltest nur Daten/Konfiguration)",
     ],
     bestPractice: [
       {
-        topic: "Hypervisor selection",
+        topic: "Hypervisor-Auswahl",
         practice:
-          "Use Type 1 hypervisors (ESXi, Hyper-V) for production workloads — they offer better performance and isolation; use Type 2 only for lab/dev environments.",
+          "Typ-1-Hypervisoren (ESXi, Hyper-V) für Produktions-Workloads verwenden — bessere Leistung und Isolation; Typ-2 nur für Lab-/Entwicklungsumgebungen.",
       },
       {
-        topic: "Container security",
+        topic: "Container-Sicherheit",
         practice:
-          "Never run containers as root in production; use namespaces and cgroups for isolation; scan container images for vulnerabilities before deployment.",
+          "Container in der Produktion niemals als Root ausführen; Namespaces und Cgroups zur Isolation verwenden; Container-Images vor dem Deployment auf Schwachstellen scannen.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Dedicated hardware appliances for network functions",
+        topic: "Dedizierte Hardware-Appliances für Netzwerkfunktionen",
         reason:
-          "High cost, slow provisioning, difficult to scale; each function requires separate hardware purchase and rack space",
-        replacedBy: "NFV (virtual firewalls, routers, load balancers) on standard x86 servers",
+          "Hohe Kosten, langsame Bereitstellung, schwer skalierbar; jede Funktion erfordert separate Hardware-Anschaffung und Rack-Platz",
+        replacedBy: "NFV (virtuelle Firewalls, Router, Load Balancer) auf Standard-x86-Servern",
       },
     ],
     fastFacts: [
-      "A vSwitch connects VMs internally within a hypervisor host — traffic between two VMs on the same host never leaves the server. Verify: show virtual-switch on ESXi or 'ip link show' on KVM",
-      "IaaS: you apply OS patches. PaaS: vendor applies OS patches. SaaS: vendor applies everything. Verify: AWS Shared Responsibility Model",
-      "Docker containers start in seconds because they skip the OS boot process; they share the host kernel. Verify: docker ps --format 'table {{.Names}}\\t{{.Status}}'",
+      "Ein vSwitch verbindet VMs intern innerhalb eines Hypervisor-Hosts — Traffic zwischen zwei VMs auf demselben Host verlässt den Server nie. Verify: show virtual-switch auf ESXi oder 'ip link show' auf KVM",
+      "IaaS: du pflegst OS-Patches. PaaS: Vendor pflegt OS-Patches. SaaS: Vendor pflegt alles. Verify: AWS Shared Responsibility Model",
+      "Docker-Container starten in Sekunden, weil sie den OS-Bootprozess überspringen; sie teilen den Host-Kernel. Verify: docker ps --format 'table {{.Names}}\\t{{.Status}}'",
     ],
   },
 };

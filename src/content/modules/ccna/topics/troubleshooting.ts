@@ -215,42 +215,42 @@ export const TOPIC_TROUBLESHOOTING: Topic = {
   tags: ["troubleshooting", "ping", "traceroute", "diagnostics"],
   lessonSummary: {
     mustKnow: [
-      "Bottom-Up (L1→L7): start with physical layer (cables, LEDs) when hardware is suspected; Top-Down (L7→L1): start with the app when a user reports a service failure",
-      "Extended ping: use 'source-interface' to send from a specific IP — tests both the forward path AND the return path from the target's perspective",
-      "Late collisions (collisions after the first 64 bytes) always indicate a duplex mismatch — one side full-duplex, the other half-duplex",
-      "Traceroute '!' = ICMP unreachable received; '!A' = admin prohibited (ACL); '*' = no response (router doesn't reply or is blocking ICMP)",
-      "err-disabled recovery: either manual ('shutdown' then 'no shutdown') or automatic via 'errdisable recovery cause <reason>' with a timer",
+      "Bottom-Up (L1→L7): bei vermuteten Hardware-Problemen auf der physischen Schicht beginnen (Kabel, LEDs); Top-Down (L7→L1): bei der App beginnen, wenn ein Benutzer einen Dienstausfall meldet",
+      "Erweiterter Ping: 'source-interface' verwenden, um von einer bestimmten IP zu senden — testet sowohl den Hinweg ALS AUCH den Rückweg aus der Perspektive des Ziels",
+      "Späte Kollisionen (Kollisionen nach den ersten 64 Bytes) weisen immer auf einen Duplex-Mismatch hin — eine Seite Vollduplex, die andere Halbduplex",
+      "Traceroute '!' = ICMP Unreachable empfangen; '!A' = administrativ verboten (ACL); '*' = keine Antwort (Router antwortet nicht oder blockiert ICMP)",
+      "err-disabled Wiederherstellung: entweder manuell ('shutdown' dann 'no shutdown') oder automatisch über 'errdisable recovery cause <reason>' mit einem Timer",
     ],
     bestPractice: [
       {
-        topic: "Structured troubleshooting",
+        topic: "Strukturierte Fehlersuche",
         practice:
-          "Change only ONE variable per test step — changing multiple things at once makes it impossible to know which change fixed the problem.",
+          "Pro Testschritt immer nur EINE Variable ändern — mehrere Dinge gleichzeitig zu ändern macht es unmöglich zu wissen, welche Änderung das Problem behoben hat.",
       },
       {
-        topic: "MTU troubleshooting",
+        topic: "MTU-Troubleshooting",
         practice:
-          "Use extended ping with 'DF bit = yes' and size 1500 to test end-to-end MTU; PMTUD black holes appear as large pings failing while small pings succeed.",
-        note: "[Cisco only] — extended ping is a Cisco IOS feature",
+          "Erweiterten Ping mit 'DF bit = yes' und Größe 1500 verwenden, um End-to-End-MTU zu testen; PMTUD-Black-Holes zeigen sich als fehlschlagende große Pings bei funktionierenden kleinen Pings.",
+        note: "[Cisco only] — erweiterter Ping ist ein Cisco-IOS-Feature",
       },
       {
-        topic: "Document changes",
+        topic: "Änderungen dokumentieren",
         practice:
-          "After resolving an issue, document the root cause, the fix applied, and which config changed — undocumented 'it just works now' changes cause repeat incidents.",
+          "Nach der Behebung eines Problems die Grundursache, die angewendete Lösung und die geänderte Konfiguration dokumentieren — undokumentierte Änderungen verursachen wiederholte Vorfälle.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Ping percentage as a health metric",
+        topic: "Ping-Prozentsatz als Gesundheitsmetrik",
         reason:
-          "A non-zero drop rate (e.g. 4/5 success) is not 'nearly OK' — it signals an active problem (duplex mismatch, buffer overrun, ARP issues); should be investigated, not accepted",
-        replacedBy: "Interface counters (show interfaces) + root cause analysis",
+          "Eine nicht-null-Ausfallrate (z. B. 4/5 Erfolg) ist nicht 'fast OK' — sie signalisiert ein aktives Problem (Duplex-Mismatch, Buffer-Overflow, ARP-Probleme); sollte untersucht, nicht akzeptiert werden",
+        replacedBy: "Interface-Zähler (show interfaces) + Grundursachenanalyse",
       },
     ],
     fastFacts: [
-      "'show ip interface brief' is the fastest overview: columns show Status (L1) and Protocol (L2) for every interface. Verify: always run this first on a new device",
-      "CRC errors on an interface indicate a signal-integrity problem (bad cable, SFP, or EMI) — not a configuration issue. Verify: show interfaces | include CRC",
-      "Ctrl+Shift+6 aborts a hanging ping or traceroute in Cisco IOS. Verify: start a ping to an unreachable host, then press Ctrl+Shift+6",
+      "'show ip interface brief' ist die schnellste Übersicht: Spalten zeigen Status (L1) und Protokoll (L2) für jedes Interface. Verify: immer als erstes auf einem neuen Gerät ausführen",
+      "CRC-Fehler auf einem Interface weisen auf ein Signalintegritätsproblem hin (schlechtes Kabel, SFP oder EMI) — kein Konfigurationsproblem. Verify: show interfaces | include CRC",
+      "Ctrl+Shift+6 bricht einen hängenden Ping oder Traceroute in Cisco IOS ab. Verify: Ping zu einem unerreichbaren Host starten, dann Ctrl+Shift+6 drücken",
     ],
   },
 };

@@ -449,43 +449,43 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
   tags: ["osi", "tcp-ip", "networking", "fundamentals", "enterprise", "design"],
   lessonSummary: {
     mustKnow: [
-      "OSI 7 layers and their PDU names: Application(data) → Presentation → Session → Transport(segment) → Network(packet) → Data Link(frame) → Physical(bit)",
-      "TCP vs. UDP: TCP provides reliable, ordered delivery with 3-way handshake (SYN/SYN-ACK/ACK); UDP is connectionless and faster — used for DNS, DHCP, streaming",
-      "Encapsulation adds headers layer by layer (L7→L1) on the sender; decapsulation strips them in reverse on the receiver",
-      "A switch forwards based on MAC addresses (L2, same LAN); a router forwards based on IP addresses (L3, between networks)",
-      "Ethernet CSMA/CD: devices listen before transmitting; collision detected → random backoff; replaced by full-duplex in modern switched networks",
+      "OSI 7 Schichten und ihre PDU-Namen: Anwendung(Daten) → Darstellung → Sitzung → Transport(Segment) → Vermittlung(Paket) → Sicherung(Frame) → Bitübertragung(Bit)",
+      "TCP vs. UDP: TCP bietet zuverlässige, geordnete Übertragung mit 3-Wege-Handshake (SYN/SYN-ACK/ACK); UDP ist verbindungslos und schneller — genutzt für DNS, DHCP, Streaming",
+      "Kapselung fügt Header Schicht für Schicht hinzu (L7→L1) beim Sender; Entkapselung entfernt sie in umgekehrter Reihenfolge beim Empfänger",
+      "Ein Switch leitet anhand von MAC-Adressen weiter (L2, gleiches LAN); ein Router anhand von IP-Adressen (L3, zwischen Netzwerken)",
+      "Ethernet CSMA/CD: Geräte lauschen vor dem Senden; Kollision erkannt → zufällige Wartezeit; durch Vollduplex in modernen geswitchten Netzwerken ersetzt",
     ],
     bestPractice: [
       {
-        topic: "Network design — three-tier hierarchy",
+        topic: "Netzwerkdesign — Drei-Schichten-Hierarchie",
         practice:
-          "Use the Access-Distribution-Core three-tier model for enterprise campus networks; avoid connecting end devices directly to core switches.",
+          "Das Access-Distribution-Core-Drei-Schichten-Modell für Enterprise-Campus-Netzwerke verwenden; Endgeräte niemals direkt an Core-Switches anschließen.",
       },
       {
-        topic: "Duplex and speed",
+        topic: "Duplex und Geschwindigkeit",
         practice:
-          "Always configure both ends of a link to the same duplex and speed if auto-negotiation is not reliable; a duplex mismatch (one side full, other half) causes poor performance but no obvious errors.",
-        note: "[Cisco only] — verify with 'show interfaces' for duplex mismatch warnings",
+          "Immer beide Enden eines Links auf denselben Duplex und dieselbe Geschwindigkeit konfigurieren, wenn Auto-Negotiation nicht zuverlässig ist; ein Duplex-Mismatch (eine Seite Voll-, andere Halbduplex) verursacht schlechte Leistung ohne offensichtliche Fehler.",
+        note: "[Cisco only] — mit 'show interfaces' auf Duplex-Mismatch-Warnungen prüfen",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "Hubs",
         reason:
-          "Single collision domain for all ports — any frame floods all ports; half-duplex only; effectively extinct in modern networks",
-        replacedBy: "Layer-2 switches with full-duplex ports",
+          "Eine einzige Kollisionsdomäne für alle Ports — jeder Frame flutet alle Ports; nur Halbduplex; in modernen Netzwerken praktisch ausgestorben",
+        replacedBy: "Layer-2-Switches mit Vollduplex-Ports",
       },
       {
-        topic: "Crossover cables",
+        topic: "Crossover-Kabel",
         reason:
-          "Required to connect like devices (switch-to-switch) before Auto-MDIX; modern Cisco switches support Auto-MDIX by default and detect cable type automatically",
-        replacedBy: "Auto-MDIX (automatic crossover detection)",
+          "Erforderlich zum Verbinden gleicher Geräte (Switch-zu-Switch) vor Auto-MDIX; moderne Cisco-Switches unterstützen Auto-MDIX standardmäßig und erkennen den Kabeltyp automatisch",
+        replacedBy: "Auto-MDIX (automatische Crossover-Erkennung)",
       },
     ],
     fastFacts: [
-      "TCP port 80 = HTTP, 443 = HTTPS, 22 = SSH, 23 = Telnet, 25 = SMTP, 53 = DNS (UDP+TCP), 67/68 = DHCP (UDP). Verify: show ip sockets",
-      "The Ethernet minimum frame size is 64 bytes (including FCS); frames below 64 bytes are 'runts' and are discarded. Verify: show interfaces | include runts",
-      "A Layer-3 switch performs inter-VLAN routing in hardware (ASIC/TCAM) — no external router hop required. Verify: show ip route on the L3 switch",
+      "TCP-Port 80 = HTTP, 443 = HTTPS, 22 = SSH, 23 = Telnet, 25 = SMTP, 53 = DNS (UDP+TCP), 67/68 = DHCP (UDP). Verify: show ip sockets",
+      "Die minimale Ethernet-Frame-Größe beträgt 64 Bytes (inkl. FCS); Frames unter 64 Bytes sind 'Runts' und werden verworfen. Verify: show interfaces | include runts",
+      "Ein Layer-3-Switch führt Inter-VLAN-Routing in Hardware durch (ASIC/TCAM) — kein externer Router-Hop erforderlich. Verify: show ip route auf dem L3-Switch",
     ],
   },
 };

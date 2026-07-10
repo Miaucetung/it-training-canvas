@@ -428,53 +428,53 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
   tags: ["ipv4", "subnetting", "cidr", "arp", "addressing"],
   lessonSummary: {
     mustKnow: [
-      "Calculate subnet ID, broadcast address, first/last host, and usable host count for any /prefix using the Magic Number method",
-      "VLSM — allocate subnets largest-first; each block must be aligned to its own block size",
-      "ARP — broadcast request resolves destination IP to MAC; always targets the default gateway MAC when crossing a subnet boundary",
-      "ICMP Type 8/0 (Echo Request/Reply) for ping; Type 11 (Time Exceeded) for traceroute",
-      "ICMPv6 Types 133–137 are Neighbor Discovery (NDP) — the IPv6 replacement for ARP",
+      "Subnetz-ID, Broadcast-Adresse, erste/letzte Host-Adresse und nutzbare Host-Anzahl für jedes /Präfix mit der Magic-Number-Methode berechnen",
+      "VLSM — Subnetze größtes-zuerst zuweisen; jeder Block muss an seiner eigenen Blockgröße ausgerichtet sein",
+      "ARP — Broadcast-Request löst Ziel-IP in MAC auf; richtet sich immer an die Default-Gateway-MAC, wenn eine Subnetzgrenze überschritten wird",
+      "ICMP Typ 8/0 (Echo Request/Reply) für Ping; Typ 11 (Time Exceeded) für Traceroute",
+      "ICMPv6 Typen 133–137 sind Neighbor Discovery (NDP) — der IPv6-Ersatz für ARP",
     ],
     bestPractice: [
       {
-        topic: "Subnetting for point-to-point WAN links",
+        topic: "Subnetze für Point-to-Point-WAN-Links",
         practice:
-          "Use /30 (2 usable hosts) for point-to-point links; /31 is also valid per RFC 3021 and saves addresses on modern IOS.",
+          "/30 (2 nutzbare Hosts) für Point-to-Point-Links verwenden; /31 ist per RFC 3021 ebenfalls gültig und spart Adressen auf modernem IOS.",
       },
       {
-        topic: "ARP security",
+        topic: "ARP-Sicherheit",
         practice:
-          "Enable Dynamic ARP Inspection (DAI) on access-layer switches to prevent ARP spoofing: 'ip arp inspection vlan <id>'.",
+          "Dynamic ARP Inspection (DAI) auf Access-Layer-Switches aktivieren, um ARP-Spoofing zu verhindern: 'ip arp inspection vlan <id>'.",
         note: "[Cisco only]",
       },
       {
-        topic: "ICMP filtering",
+        topic: "ICMP-Filterung",
         practice:
-          "Never block ICMPv6 Types 1–4 and 133–137 in firewalls — doing so breaks Neighbor Discovery and Path MTU Discovery silently.",
+          "ICMPv6-Typen 1–4 und 133–137 niemals in Firewalls blockieren — das bricht Neighbor Discovery und Path MTU Discovery stillschweigend.",
       },
       {
-        topic: "Subnetting exam speed",
+        topic: "Subnetting-Geschwindigkeit in der Prüfung",
         practice:
-          "Memorize the /25–/30 Magic Numbers (128, 64, 32, 16, 8, 4) and the block progression; do not use a calculator on the exam.",
+          "Die /25–/30 Magic Numbers (128, 64, 32, 16, 8, 4) und die Blockabfolge auswendig lernen; in der Prüfung keinen Taschenrechner verwenden.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Classful addressing (Class A/B/C)",
+        topic: "Classful Adressierung (Klasse A/B/C)",
         reason:
-          "Replaced by CIDR in 1993 (RFC 1519); classful boundaries are only relevant today for understanding RIPv1 auto-summary behavior",
-        replacedBy: "CIDR / classless addressing",
+          "1993 durch CIDR ersetzt (RFC 1519); Classful-Grenzen sind heute nur noch relevant zum Verständnis des RIPv1-Auto-Summary-Verhaltens",
+        replacedBy: "CIDR / Classless Adressierung",
       },
       {
-        topic: "ARP proxy",
+        topic: "ARP Proxy",
         reason:
-          "Router answers ARP requests on behalf of remote hosts; rarely configured intentionally in modern networks, but can appear when legacy static routes lack a default gateway",
-        replacedBy: "Proper default gateway configuration",
+          "Router beantwortet ARP-Anfragen für entfernte Hosts; in modernen Netzwerken selten absichtlich konfiguriert, kann aber bei Legacy-Static-Routen ohne Default-Gateway auftreten",
+        replacedBy: "Korrekte Default-Gateway-Konfiguration",
       },
     ],
     fastFacts: [
-      "A /27 has 32 addresses and 30 usable hosts; a /28 has 16 addresses and 14 usable hosts. Verify: use 'ip address' on an interface and check with 'show ip interface brief'",
-      "ARP cache entries expire after ~240 s by default on Cisco IOS. Verify: show arp",
-      "ICMP is IP protocol number 1; ICMPv6 is Next Header 58. Verify: show ip traffic | include ICMP",
+      "Ein /27 hat 32 Adressen und 30 nutzbare Hosts; ein /28 hat 16 Adressen und 14 nutzbare Hosts. Verify: 'ip address' auf einem Interface setzen und mit 'show ip interface brief' prüfen",
+      "ARP-Cache-Einträge verfallen nach ~240 s standardmäßig auf Cisco IOS. Verify: show arp",
+      "ICMP ist IP-Protokollnummer 1; ICMPv6 ist Next Header 58. Verify: show ip traffic | include ICMP",
     ],
   },
 };

@@ -1064,64 +1064,64 @@ export const TOPIC_ROUTING_OSPF: Topic = {
   tags: ["routing", "ospf", "layer-3"],
   lessonSummary: {
     mustKnow: [
-      "Static routing with ip route — next-hop IP or fully-specified (interface + next-hop) on multi-access segments",
-      "Administrative Distance (AD) determines which protocol's route enters the RIB; OSPF=110, EIGRP=90, RIP=120",
-      "OSPF cost = reference-bandwidth / interface-bandwidth; set auto-cost reference-bandwidth 100000 on all routers",
-      "OSPF neighbor adjacency prerequisites: same subnet, subnet mask, Hello/Dead timers, and Area ID",
-      "OSPF DR/BDR election on broadcast segments: highest priority wins, then highest router-id; election is non-preemptive",
+      "Statisches Routing mit ip route — Next-Hop-IP oder vollständig spezifiziert (Interface + Next-Hop) auf Multi-Access-Segmenten",
+      "Administrative Distance (AD) bestimmt, welches Protokoll in die RIB eingetragen wird; OSPF=110, EIGRP=90, RIP=120",
+      "OSPF-Kosten = Referenzbandbreite / Interface-Bandbreite; 'auto-cost reference-bandwidth 100000' auf allen Routern setzen",
+      "OSPF-Nachbar-Adjacency-Voraussetzungen: gleiches Subnetz, gleiche Subnetzmaske, gleiche Hello-/Dead-Timer und gleiche Area-ID",
+      "OSPF DR/BDR-Wahl auf Broadcast-Segmenten: höchste Priorität gewinnt, dann höchste Router-ID; Wahl ist nicht-präemptiv",
     ],
     bestPractice: [
       {
-        topic: "Static routes on Ethernet",
+        topic: "Statische Routen auf Ethernet",
         practice:
-          "Use fully-specified static routes ('ip route <dst> <mask> <interface> <next-hop>') on multi-access links — avoids proxy-ARP and recursive lookup issues.",
+          "Vollständig spezifizierte statische Routen verwenden ('ip route <dst> <mask> <interface> <next-hop>') auf Multi-Access-Links — vermeidet Proxy-ARP und rekursive Lookup-Probleme.",
       },
       {
-        topic: "OSPF router-id",
+        topic: "OSPF Router-ID",
         practice:
-          "Always configure an explicit router-id ('router-id A.B.C.D') or a loopback interface; never rely on physical interface IPs which can change.",
+          "Immer eine explizite Router-ID konfigurieren ('router-id A.B.C.D') oder ein Loopback-Interface; niemals auf physische Interface-IPs verlassen, die sich ändern können.",
       },
       {
-        topic: "OSPF reference bandwidth",
+        topic: "OSPF Referenzbandbreite",
         practice:
-          "Set 'auto-cost reference-bandwidth 100000' on every router in the domain so GigabitEthernet and 10-GigE have distinct costs (not both cost 1).",
-        note: "[Cisco only] — must be identical on all routers; inconsistency causes asymmetric routing",
+          "'auto-cost reference-bandwidth 100000' auf jedem Router im Domain setzen, damit GigabitEthernet und 10-GigE unterschiedliche Kosten haben (nicht beide Kosten 1).",
+        note: "[Cisco only] — muss auf allen Routern identisch sein; Inkonsistenz führt zu asymmetrischem Routing",
       },
       {
         topic: "OSPF passive-interface",
         practice:
-          "Apply 'passive-interface' to all LAN interfaces facing end-hosts so OSPF does not send Hellos toward PCs while still advertising the subnet.",
+          "'passive-interface' auf alle LAN-Interfaces zu End-Hosts anwenden, damit OSPF keine Hellos in Richtung PCs sendet, das Subnetz aber trotzdem ankündigt.",
       },
       {
-        topic: "Floating static route",
+        topic: "Floating Static Route",
         practice:
-          "Set the AD of the backup static route higher than the primary routing protocol (e.g., AD 130 when OSPF=110) so it only activates on failover.",
+          "AD der Backup-Static-Route höher setzen als das primäre Routing-Protokoll (z. B. AD 130 bei OSPF=110), damit sie nur bei Failover aktiv wird.",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "RIPv1",
         reason:
-          "Classful — no subnet mask in updates, no VLSM support, forced auto-summary at class boundaries; maximum 15 hops limits scalability",
-        replacedBy: "OSPFv2 or EIGRP",
+          "Classful — keine Subnetzmaske in Updates, keine VLSM-Unterstützung, erzwungene Auto-Summary an Klassengrenzen; maximal 15 Hops begrenzt die Skalierbarkeit",
+        replacedBy: "OSPFv2 oder EIGRP",
       },
       {
         topic: "RIPv2",
         reason:
-          "Still classless and supports VLSM, but 15-hop limit and slow convergence (up to 240 s flush timer) make it unsuitable for enterprise networks",
-        replacedBy: "OSPFv2 in enterprise; EIGRP in Cisco-only environments",
+          "Classless mit VLSM-Unterstützung, aber 15-Hop-Limit und langsame Konvergenz (bis zu 240 s Flush-Timer) machen es für Unternehmensnetzwerke ungeeignet",
+        replacedBy: "OSPFv2 in Unternehmen; EIGRP in reinen Cisco-Umgebungen",
       },
       {
-        topic: "EIGRP (Cisco-only context)",
+        topic: "EIGRP (nur Cisco-Kontext)",
         reason:
-          "Proprietary origin; despite RFC 7868 open standard status in 2013, multi-vendor interoperability is effectively absent — OSPF is the universal choice",
-        replacedBy: "OSPFv2 in multi-vendor deployments",
+          "Proprietärer Ursprung; trotz RFC 7868 Open-Standard-Status seit 2013 ist Multi-Vendor-Interoperabilität praktisch nicht vorhanden — OSPF ist die universelle Wahl",
+        replacedBy: "OSPFv2 in Multi-Vendor-Deployments",
       },
     ],
     fastFacts: [
-      "Connected routes have AD 0 — they always win over any learned route. Verify: show ip route",
-      "OSPF uses multicast 224.0.0.5 for Hellos (all OSPF routers) and 224.0.0.6 for LSU updates to DR/BDR. Verify: show ip ospf interface <int>",
-      "Two OSPF neighbors stuck in 2-Way is normal when both are DROther on a broadcast segment — not a fault. Verify: show ip ospf neighbor",
+      "Connected-Routen haben AD 0 — sie gewinnen immer gegen jede gelernte Route. Verify: show ip route",
+      "OSPF nutzt Multicast 224.0.0.5 für Hellos (alle OSPF-Router) und 224.0.0.6 für LSU-Updates an DR/BDR. Verify: show ip ospf interface <int>",
+      "Zwei OSPF-Nachbarn im Zustand 2-Way ist normal, wenn beide DROther auf einem Broadcast-Segment sind — kein Fehler. Verify: show ip ospf neighbor",
     ],
   },
 };

@@ -636,34 +636,34 @@ export const TOPIC_DHCP_NAT: Topic = {
   tags: ["dhcp", "ip-management"],
   lessonSummary: {
     mustKnow: [
-      "DORA sequence: Discover (broadcast) → Offer → Request (broadcast) → ACK; REQUEST is broadcast so all servers hear the client's selection",
-      "ip helper-address belongs on the client-facing interface — it sets giaddr so the server knows which pool to use",
-      "DHCP lease timers: T1 (50%) = unicast renewal to original server; T2 (87.5%) = broadcast rebinding to any server",
-      "DHCP Snooping: all access ports are untrusted by default; only uplink/server ports get 'ip dhcp snooping trust'",
-      "A 169.254.x.x address on a host always means DHCP failed — check server, relay, VLAN, and DHCP pool exhaustion",
+      "DORA-Ablauf: Discover (Broadcast) → Offer → Request (Broadcast) → ACK; REQUEST ist ein Broadcast, damit alle Server die Auswahl des Clients hören",
+      "ip helper-address gehört auf das Client-seitige Interface — setzt giaddr, damit der Server weiß, welchen Pool er verwenden soll",
+      "DHCP-Lease-Timer: T1 (50%) = Unicast-Verlängerung an den ursprünglichen Server; T2 (87,5%) = Broadcast-Rebinding an beliebigen Server",
+      "DHCP Snooping: alle Access-Ports sind standardmäßig nicht vertrauenswürdig; nur Uplink-/Server-Ports erhalten 'ip dhcp snooping trust'",
+      "Eine 169.254.x.x-Adresse auf einem Host bedeutet immer, dass DHCP fehlgeschlagen ist — Server, Relay, VLAN und Pool-Erschöpfung prüfen",
     ],
     bestPractice: [
       {
-        topic: "DHCP excluded addresses",
+        topic: "DHCP Excluded Addresses",
         practice:
-          "Always exclude router and server IPs before creating a pool: 'ip dhcp excluded-address <start> <end>' — prevents IP conflicts with statically configured devices.",
+          "Router- und Server-IPs immer ausschließen, bevor ein Pool erstellt wird: 'ip dhcp excluded-address <start> <end>' — verhindert IP-Konflikte mit statisch konfigurierten Geräten.",
         note: "[Cisco only]",
       },
       {
-        topic: "DHCP Snooping + DAI stack",
+        topic: "DHCP Snooping + DAI-Stack",
         practice:
-          "Enable DHCP Snooping first, then Dynamic ARP Inspection (DAI) — DAI depends on the Snooping binding table to validate ARP traffic.",
+          "DHCP Snooping zuerst aktivieren, dann Dynamic ARP Inspection (DAI) — DAI ist auf die Snooping-Binding-Tabelle angewiesen, um ARP-Traffic zu validieren.",
         note: "[Cisco only]",
       },
       {
-        topic: "DHCP lease duration",
+        topic: "DHCP-Lease-Dauer",
         practice:
-          "Set short leases (2–4 h) for guest/wireless networks to reclaim addresses quickly; use longer leases (1–7 days) for wired desktops to reduce DORA traffic.",
+          "Kurze Leases (2–4 h) für Gast-/WLAN-Netzwerke setzen, um Adressen schnell zurückzugewinnen; längere Leases (1–7 Tage) für kabelgebundene Desktops, um DORA-Traffic zu reduzieren.",
       },
       {
-        topic: "Option 82 and relay trust",
+        topic: "Option 82 und Relay-Vertrauen",
         practice:
-          "If DHCP Snooping inserts Option 82, add 'ip dhcp relay information trust-all' on the relay router — otherwise the router drops the Option-82-tagged packets.",
+          "Wenn DHCP Snooping Option 82 einfügt, 'ip dhcp relay information trust-all' auf dem Relay-Router hinzufügen — sonst verwirft der Router die Option-82-markierten Pakete.",
         note: "[Cisco only]",
       },
     ],
@@ -671,14 +671,14 @@ export const TOPIC_DHCP_NAT: Topic = {
       {
         topic: "BOOTP (Bootstrap Protocol)",
         reason:
-          "Predecessor to DHCP; does not support dynamic lease management; still referenced in DHCP packet structure (giaddr, chaddr fields carry over from BOOTP)",
+          "Vorgänger von DHCP; unterstützt keine dynamische Lease-Verwaltung; wird noch in der DHCP-Paketstruktur referenziert (giaddr, chaddr-Felder stammen von BOOTP)",
         replacedBy: "DHCP (RFC 2131)",
       },
     ],
     fastFacts: [
-      "DHCP uses UDP port 67 (server) and 68 (client). Verify: debug ip dhcp server events",
-      "A DHCP pool with 'Leased addresses = Total addresses' means the pool is exhausted — clients will get APIPA. Verify: show ip dhcp pool",
-      "DHCP Snooping binding table is the trust source for DAI and IP Source Guard. Verify: show ip dhcp snooping binding",
+      "DHCP nutzt UDP-Port 67 (Server) und 68 (Client). Verify: debug ip dhcp server events",
+      "Ein DHCP-Pool mit 'Leased addresses = Total addresses' bedeutet, der Pool ist erschöpft — Clients erhalten APIPA. Verify: show ip dhcp pool",
+      "Die DHCP-Snooping-Binding-Tabelle ist die Vertrauensquelle für DAI und IP Source Guard. Verify: show ip dhcp snooping binding",
     ],
   },
 };
@@ -696,43 +696,43 @@ export const TOPIC_NAT: Topic = {
   tags: ["nat", "pat", "ip-management"],
   lessonSummary: {
     mustKnow: [
-      "PAT (NAT Overload) maps many internal IPs to one public IP using port numbers as the differentiator — standard for home/office Internet access",
-      "Terminology: Inside Local = private source IP; Inside Global = public IP after translation; mark interfaces with 'ip nat inside' and 'ip nat outside'",
-      "Static NAT creates a permanent 1:1 mapping and is bidirectional — it allows inbound connections from outside",
-      "The ACL used with 'ip nat inside source list' selects which addresses get translated (permit = translate, not permit = pass through untranslated)",
+      "PAT (NAT Overload) ordnet viele interne IPs einer öffentlichen IP mithilfe von Port-Nummern als Unterscheidungsmerkmal zu — Standard für Heim-/Büro-Internet-Zugang",
+      "Terminologie: Inside Local = private Quell-IP; Inside Global = öffentliche IP nach Übersetzung; Interfaces mit 'ip nat inside' und 'ip nat outside' markieren",
+      "Statisches NAT erstellt eine permanente 1:1-Zuordnung und ist bidirektional — ermöglicht eingehende Verbindungen von außen",
+      "Die ACL mit 'ip nat inside source list' bestimmt, welche Adressen übersetzt werden (permit = übersetzen, nicht permit = unübersetzt durchlassen)",
     ],
     bestPractice: [
       {
-        topic: "PAT configuration",
+        topic: "PAT-Konfiguration",
         practice:
-          "Use 'ip nat inside source list <acl> interface <outside-int> overload' — binding NAT to the outside interface automatically handles dynamic public IP changes (e.g., DHCP from ISP).",
+          "'ip nat inside source list <acl> interface <outside-int> overload' verwenden — NAT an das Outside-Interface zu binden verarbeitet automatisch dynamische öffentliche IP-Änderungen (z. B. DHCP vom ISP).",
         note: "[Cisco only]",
       },
       {
-        topic: "NAT table maintenance",
+        topic: "NAT-Tabellenpflege",
         practice:
-          "After changing NAT config, clear the translation table with 'clear ip nat translation *' to avoid stale entries causing connectivity issues.",
+          "Nach einer NAT-Konfigurationsänderung die Übersetzungstabelle mit 'clear ip nat translation *' leeren, um veraltete Einträge zu vermeiden, die Verbindungsprobleme verursachen.",
         note: "[Cisco only]",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Dynamic NAT with address pool",
+        topic: "Dynamisches NAT mit Adress-Pool",
         reason:
-          "Requires a pool of public IPs — practical only when ISP assigns a block; most deployments use PAT (single IP) instead",
-        replacedBy: "PAT (NAT Overload) with a single public IP",
+          "Erfordert einen Pool öffentlicher IPs — praktisch nur wenn der ISP einen Block zuweist; die meisten Deployments nutzen stattdessen PAT (einzelne IP)",
+        replacedBy: "PAT (NAT Overload) mit einer einzelnen öffentlichen IP",
       },
       {
-        topic: "NAT as a security mechanism",
+        topic: "NAT als Sicherheitsmechanismus",
         reason:
-          "NAT obscures internal IPs but provides no real security — it is a side effect of address translation, not a firewall; RFC 2663 explicitly does not claim NAT is a security feature",
-        replacedBy: "Stateful firewall (ACL + inspection)",
+          "NAT verbirgt interne IPs, bietet aber keine echte Sicherheit — es ist ein Nebeneffekt der Adressübersetzung, keine Firewall; RFC 2663 behauptet ausdrücklich nicht, dass NAT ein Sicherheitsmerkmal ist",
+        replacedBy: "Stateful Firewall (ACL + Inspection)",
       },
     ],
     fastFacts: [
-      "PAT can support ~65,000 simultaneous connections per public IP (one per unique port). Verify: show ip nat statistics",
-      "Static NAT and Dynamic NAT do NOT use the 'overload' keyword; PAT always does. Verify: show running-config | include ip nat inside source",
-      "'ip nat inside' and 'ip nat outside' must both be set — NAT only translates traffic crossing the inside/outside boundary. Verify: show ip nat translations",
+      "PAT kann ~65.000 gleichzeitige Verbindungen pro öffentlicher IP unterstützen (eine pro eindeutigem Port). Verify: show ip nat statistics",
+      "Statisches NAT und dynamisches NAT verwenden NICHT das 'overload'-Schlüsselwort; PAT immer. Verify: show running-config | include ip nat inside source",
+      "'ip nat inside' und 'ip nat outside' müssen beide gesetzt sein — NAT übersetzt nur Traffic, der die Inside/Outside-Grenze überquert. Verify: show ip nat translations",
     ],
   },
 };
@@ -750,36 +750,36 @@ export const TOPIC_DNS: Topic = {
   tags: ["dns", "ip-management"],
   lessonSummary: {
     mustKnow: [
-      "DNS uses UDP port 53 for queries; TCP port 53 for zone transfers and responses over 512 bytes",
-      "A record maps name → IPv4; AAAA maps name → IPv6; CNAME is an alias → another name; MX specifies the mail server for a domain",
-      "Recursive query: resolver does all the work and returns the final answer; iterative: each server returns a referral to the next",
-      "TTL determines how long a resolver caches a record — lowering TTL before DNS migrations reduces propagation delay",
+      "DNS nutzt UDP-Port 53 für Abfragen; TCP-Port 53 für Zonentransfers und Antworten über 512 Bytes",
+      "A-Record: Name → IPv4; AAAA: Name → IPv6; CNAME ist ein Alias → ein anderer Name; MX gibt den Mailserver für eine Domain an",
+      "Rekursive Abfrage: Resolver erledigt die gesamte Arbeit und gibt die endgültige Antwort zurück; iterativ: jeder Server gibt einen Verweis auf den nächsten zurück",
+      "TTL bestimmt, wie lange ein Resolver einen Record cached — Senkung der TTL vor DNS-Migrationen reduziert die Propagationsverzögerung",
     ],
     bestPractice: [
       {
-        topic: "DNS forwarder",
+        topic: "DNS-Forwarder",
         practice:
-          "Configure internal DNS servers to forward unknown domains to a trusted upstream resolver (e.g., 1.1.1.1 or 8.8.8.8) rather than recursing to root servers directly.",
+          "Interne DNS-Server so konfigurieren, dass unbekannte Domains an einen vertrauenswürdigen Upstream-Resolver weitergeleitet werden (z. B. 1.1.1.1 oder 8.8.8.8) statt direkt bei Root-Servern zu rekursieren.",
       },
       {
-        topic: "DNS on Cisco routers",
+        topic: "DNS auf Cisco-Routern",
         practice:
-          "Disable DNS lookup on unused router interfaces with 'no ip domain-lookup' to prevent the router from trying to resolve mistyped CLI commands as hostnames.",
+          "DNS-Lookup auf ungenutzten Router-Interfaces mit 'no ip domain-lookup' deaktivieren, damit der Router fehlerhafte CLI-Befehle nicht als Hostnamen aufzulösen versucht.",
         note: "[Cisco only]",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "DNS over plain UDP without DNSSEC",
+        topic: "DNS über reines UDP ohne DNSSEC",
         reason:
-          "Unauthenticated DNS queries are vulnerable to cache poisoning (Kaminsky attack); DNSSEC signs records cryptographically but adoption is still incomplete",
+          "Nicht authentifizierte DNS-Abfragen sind anfällig für Cache-Poisoning (Kaminsky-Angriff); DNSSEC signiert Records kryptografisch, die Verbreitung ist aber noch unvollständig",
         replacedBy: "DNSSEC, DNS over TLS (DoT), DNS over HTTPS (DoH)",
       },
     ],
     fastFacts: [
-      "DNS query/response uses UDP 53; zone transfers use TCP 53. Verify: show ip dns view (IOS) or packet capture on port 53",
-      "A CNAME record must point to a hostname, never to an IP address — using an IP in a CNAME is invalid per RFC 1034. Verify: nslookup -type=CNAME <name>",
-      "The Cisco IOS command 'ip name-server 8.8.8.8' sets the DNS resolver for the router itself. Verify: show hosts",
+      "DNS-Abfrage/-Antwort nutzt UDP 53; Zonentransfers nutzen TCP 53. Verify: show ip dns view (IOS) oder Paketmitschnitt auf Port 53",
+      "Ein CNAME-Record muss auf einen Hostnamen zeigen, niemals auf eine IP-Adresse — eine IP in einem CNAME ist per RFC 1034 ungültig. Verify: nslookup -type=CNAME <name>",
+      "Der Cisco-IOS-Befehl 'ip name-server 8.8.8.8' setzt den DNS-Resolver für den Router selbst. Verify: show hosts",
     ],
   },
 };

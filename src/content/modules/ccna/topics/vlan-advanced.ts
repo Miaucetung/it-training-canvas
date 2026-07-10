@@ -1662,29 +1662,29 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
   tags: ["vlan", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
   lessonSummary: {
     mustKnow: [
-      "Router-on-a-Stick (ROAS): one physical link as 802.1Q trunk with subinterfaces per VLAN ('encapsulation dot1Q <id>'); each subinterface is the default gateway for its VLAN",
-      "Layer-3 switch inter-VLAN routing: SVIs (ip address on 'interface vlan <id>') + 'ip routing'; faster than ROAS because routing happens in ASIC hardware",
-      "VLAN hopping — double-tagging attack: attacker in native VLAN sends frame with two 802.1Q tags; first switch strips outer tag, second switch forwards inner-tagged frame; mitigated by changing native VLAN away from VLAN 1",
-      "VTP advertisements can wipe the VLAN database of all switches in the domain if a switch with a higher revision number is connected; disable VTP or use transparent mode in production",
-      "DTP (Dynamic Trunking Protocol) is enabled by default on Cisco switches; disable with 'switchport nonegotiate' on all access and trunk ports",
+      "Router-on-a-Stick (ROAS): ein physischer Link als 802.1Q-Trunk mit Subinterfaces pro VLAN ('encapsulation dot1Q <id>'); jedes Subinterface ist das Default-Gateway seines VLANs",
+      "Layer-3-Switch Inter-VLAN-Routing: SVIs (ip address auf 'interface vlan <id>') + 'ip routing'; schneller als ROAS, weil Routing in ASIC-Hardware stattfindet",
+      "VLAN-Hopping — Double-Tagging-Angriff: Angreifer im Native VLAN sendet Frame mit zwei 802.1Q-Tags; erster Switch entfernt äußeren Tag, zweiter Switch leitet inner-getaggten Frame weiter; durch Änderung des Native VLAN weg von VLAN 1 verhindert",
+      "VTP-Advertisements können die VLAN-Datenbank aller Switches im Domain überschreiben, wenn ein Switch mit höherer Revisionsnummer angeschlossen wird; VTP in der Produktion deaktivieren oder Transparent-Modus verwenden",
+      "DTP (Dynamic Trunking Protocol) ist auf Cisco-Switches standardmäßig aktiv; mit 'switchport nonegotiate' auf allen Access- und Trunk-Ports deaktivieren",
     ],
     bestPractice: [
       {
-        topic: "Inter-VLAN routing choice",
+        topic: "Inter-VLAN-Routing-Auswahl",
         practice:
-          "Use SVIs on a Layer-3 switch for inter-VLAN routing in any deployment larger than a single router; ROAS is only appropriate for small labs or where a dedicated router is required.",
+          "SVIs auf einem Layer-3-Switch für Inter-VLAN-Routing in jedem Deployment über einem einzelnen Router verwenden; ROAS ist nur für kleine Labs oder wenn ein dedizierter Router erforderlich ist geeignet.",
         note: "[Cisco only]",
       },
       {
-        topic: "VTP mode",
+        topic: "VTP-Modus",
         practice:
-          "Set all switches to 'vtp mode transparent' or 'vtp mode off' (IOS 12.2(52)SE+) in production networks; manually manage the VLAN database per switch to prevent accidental VLAN database overwrite.",
+          "Alle Switches auf 'vtp mode transparent' oder 'vtp mode off' (IOS 12.2(52)SE+) in Produktionsnetzwerken setzen; VLAN-Datenbank pro Switch manuell verwalten, um versehentliches Überschreiben zu verhindern.",
         note: "[Cisco only]",
       },
       {
-        topic: "VLAN hopping mitigation",
+        topic: "VLAN-Hopping-Absicherung",
         practice:
-          "Shut down unused ports, assign them to a dead VLAN (e.g. 999), set 'switchport mode access' explicitly, and change the native VLAN to an unused VLAN (not VLAN 1).",
+          "Ungenutzte Ports abschalten, einem Dead-VLAN (z. B. 999) zuweisen, 'switchport mode access' explizit setzen und das Native VLAN auf ein ungenutztes VLAN (nicht VLAN 1) ändern.",
         note: "[Cisco only]",
       },
     ],
@@ -1692,20 +1692,20 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
       {
         topic: "VTP v1/v2",
         reason:
-          "VTP advertisement storms have caused production-wide VLAN database wipes when a reconfigured switch with a higher revision counter was connected to the network",
-        replacedBy: "Manual VLAN config per switch or VTP v3 with domain password and primary server designation",
+          "VTP-Advertisement-Stürme haben produktionsweite VLAN-Datenbank-Löschungen verursacht, wenn ein neu konfigurierter Switch mit höherem Revisionsstand ans Netz kam",
+        replacedBy: "Manuelle VLAN-Konfiguration pro Switch oder VTP v3 mit Domain-Passwort und Primary-Server-Designation",
       },
       {
         topic: "ISL (Inter-Switch Link)",
         reason:
-          "Cisco-proprietary predecessor to 802.1Q; adds 30-byte overhead, limited to 1024 VLANs, not supported on modern IOS-XE platforms",
-        replacedBy: "802.1Q (dot1q) — the IEEE open standard",
+          "Ciscos proprietärer Vorgänger zu 802.1Q; fügt 30 Byte Overhead hinzu, auf 1024 VLANs begrenzt, auf modernen IOS-XE-Plattformen nicht unterstützt",
+        replacedBy: "802.1Q (dot1q) — der offene IEEE-Standard",
       },
     ],
     fastFacts: [
-      "SVIs require 'ip routing' to be enabled globally on the Layer-3 switch — without it, the switch acts as a Layer-2 bridge even with IP addresses on SVIs. Verify: show ip route",
-      "ROAS subinterface numbering does NOT need to match the VLAN ID (e.g. gi0/1.30 can carry VLAN 10), but matching them is a best practice for clarity. Verify: show interfaces gi0/1.30",
-      "'show vtp status' shows the VTP revision number — a higher revision on a newly connected switch means its VLAN database will overwrite all others in the domain. Verify: show vtp status on every switch before connecting",
+      "SVIs erfordern, dass 'ip routing' global auf dem Layer-3-Switch aktiviert ist — ohne es agiert der Switch als Layer-2-Bridge, auch wenn SVIs IP-Adressen haben. Verify: show ip route",
+      "ROAS-Subinterface-Nummerierung muss NICHT mit der VLAN-ID übereinstimmen (z. B. kann gi0/1.30 VLAN 10 tragen), aber Übereinstimmung ist aus Klarheitsgründen Best Practice. Verify: show interfaces gi0/1.30",
+      "'show vtp status' zeigt die VTP-Revisionsnummer — eine höhere Revision auf einem neu angeschlossenen Switch bedeutet, dass seine VLAN-Datenbank alle anderen im Domain überschreibt. Verify: show vtp status auf jedem Switch vor dem Verbinden",
     ],
   },
 };

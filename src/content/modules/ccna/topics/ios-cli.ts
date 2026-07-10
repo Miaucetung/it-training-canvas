@@ -257,35 +257,35 @@ export const TOPIC_IOS_CLI: Topic = {
   tags: ["ios", "cli", "cisco", "ssh", "configuration"],
   lessonSummary: {
     mustKnow: [
-      "CLI mode hierarchy: User EXEC (>) → Privileged EXEC (#) → Global Config (config)# → submodes; wrong mode is the #1 reason commands are rejected",
-      "running-config lives in RAM (volatile) — always 'copy running-config startup-config' (wr) after changes; without it, config is lost on reload",
-      "SSH v2 requires 5 steps: hostname, ip domain-name, crypto key generate rsa modulus 2048, ip ssh version 2, local user with 'secret', and 'transport input ssh' on VTY lines",
-      "Interface status combinations: up/up = working; admin down/down = shutdown applied; down/down = no signal; err-disabled = triggered by security feature",
-      "'enable secret' creates a hashed password (Type 8/9); 'enable password' stores in Type-7 (weak) — always use 'secret'",
+      "CLI-Modul-Hierarchie: User EXEC (>) → Privileged EXEC (#) → Global Config (config)# → Submodes; falscher Modus ist der häufigste Grund, warum Befehle abgelehnt werden",
+      "running-config liegt im RAM (flüchtig) — nach Änderungen immer 'copy running-config startup-config' (wr) ausführen; ohne das geht die Konfiguration beim Neustart verloren",
+      "SSH v2 erfordert 5 Schritte: hostname, ip domain-name, crypto key generate rsa modulus 2048, ip ssh version 2, lokaler User mit 'secret' und 'transport input ssh' auf VTY-Lines",
+      "Interface-Status-Kombinationen: up/up = funktioniert; admin down/down = shutdown angewendet; down/down = kein Signal; err-disabled = durch Sicherheitsfunktion ausgelöst",
+      "'enable secret' erstellt ein gehashtes Passwort (Typ 8/9); 'enable password' speichert als Typ-7 (schwach) — immer 'secret' verwenden",
     ],
     bestPractice: [
       {
-        topic: "Password storage",
+        topic: "Passwortspeicherung",
         practice:
-          "Use 'enable secret' and 'username <name> secret <pw>' in all configurations — never 'enable password'. Add 'service password-encryption' to obfuscate any remaining cleartext passwords.",
+          "'enable secret' und 'username <name> secret <pw>' in allen Konfigurationen verwenden — niemals 'enable password'. 'service password-encryption' hinzufügen, um verbleibende Klartext-Passwörter zu verschleiern.",
         note: "[Cisco only]",
       },
       {
-        topic: "SSH hardening",
+        topic: "SSH-Härtung",
         practice:
-          "Set 'ip ssh version 2', 'ip ssh time-out 60', 'ip ssh authentication-retries 3', and 'transport input ssh' (no telnet) on all VTY lines.",
+          "'ip ssh version 2', 'ip ssh time-out 60', 'ip ssh authentication-retries 3' und 'transport input ssh' (kein Telnet) auf allen VTY-Lines setzen.",
         note: "[Cisco only]",
       },
       {
-        topic: "Configuration save habit",
+        topic: "Konfiguration speichern",
         practice:
-          "After every tested change, immediately run 'copy running-config startup-config' (wr). Treat an unsaved config as temporary.",
+          "Nach jeder getesteten Änderung sofort 'copy running-config startup-config' (wr) ausführen. Eine ungespeicherte Konfiguration als temporär behandeln.",
         note: "[Cisco only]",
       },
       {
-        topic: "Console timeout",
+        topic: "Console-Timeout",
         practice:
-          "Set 'exec-timeout 10 0' on the console line — a console left logged in as privilege 15 is a physical security risk.",
+          "'exec-timeout 10 0' auf der Console-Line setzen — eine als Privilege-15 eingeloggte Console ist ein physisches Sicherheitsrisiko.",
         note: "[Cisco only]",
       },
     ],
@@ -293,20 +293,20 @@ export const TOPIC_IOS_CLI: Topic = {
       {
         topic: "Telnet (TCP 23)",
         reason:
-          "Transmits all data including passwords in cleartext — trivially intercepted with a packet sniffer on any shared segment",
-        replacedBy: "SSH v2 (TCP 22) with RSA 2048-bit keys",
+          "Überträgt alle Daten einschließlich Passwörter im Klartext — mit einem Paket-Sniffer auf jedem gemeinsamen Segment trivial abfangbar",
+        replacedBy: "SSH v2 (TCP 22) mit RSA-2048-Bit-Schlüsseln",
       },
       {
-        topic: "'enable password' command",
+        topic: "'enable password'-Befehl",
         reason:
-          "Stored as Type-7 (Vigenère cipher), reversible with freely available tools; was the original privileged-mode password mechanism",
-        replacedBy: "'enable secret' (Type 8 scrypt or Type 9 pbkdf2)",
+          "Als Typ-7 (Vigenère-Chiffre) gespeichert, mit frei verfügbaren Tools umkehrbar; war der ursprüngliche Mechanismus für das Privileged-Mode-Passwort",
+        replacedBy: "'enable secret' (Typ 8 Scrypt oder Typ 9 PBKDF2)",
       },
     ],
     fastFacts: [
-      "'show ip interface brief' shows all interface status/protocol in one line — the fastest overview of which ports are up. Verify: run it first on any new device",
-      "Ctrl+Z from any submode returns directly to Privileged EXEC (#) — faster than multiple 'exit' commands. Verify: try it in config-if mode",
-      "RSA keys below 768 bits only support SSH v1; 2048 bits is the current recommendation for production. Verify: show ip ssh",
+      "'show ip interface brief' zeigt den Status/Protokoll aller Interfaces in einer Zeile — die schnellste Übersicht, welche Ports up sind. Verify: auf jedem neuen Gerät als erstes ausführen",
+      "Ctrl+Z aus jedem Submode kehrt direkt zu Privileged EXEC (#) zurück — schneller als mehrfaches 'exit'. Verify: im config-if-Modus ausprobieren",
+      "RSA-Schlüssel unter 768 Bit unterstützen nur SSH v1; 2048 Bit ist die aktuelle Empfehlung für Produktionsumgebungen. Verify: show ip ssh",
     ],
   },
 };

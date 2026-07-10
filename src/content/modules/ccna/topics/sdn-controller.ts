@@ -218,43 +218,43 @@ export const TOPIC_SDN: Topic = {
   tags: ["sdn", "dna-center", "sd-access", "cloud", "automation"],
   lessonSummary: {
     mustKnow: [
-      "Three planes: Data Plane (forwards packets in hardware/ASIC), Control Plane (makes routing decisions — OSPF/BGP), Management Plane (CLI/SNMP configuration)",
-      "SDN moves the Control Plane to a centralized controller; Southbound APIs (OpenFlow, NETCONF) program devices; Northbound APIs (REST) expose intent to applications",
-      "Cloud service models: IaaS (you manage OS+app), PaaS (you manage app only), SaaS (you manage data/config only)",
-      "SD-Access fabric: Underlay = IP routing between switches; Overlay = VXLAN tunnels for user traffic; LISP = maps endpoint ID to location",
-      "Cisco DNA Center is an intent-based networking platform — operators define policy once, DNAC pushes config to all devices",
+      "Drei Ebenen: Data Plane (leitet Pakete in Hardware/ASIC weiter), Control Plane (trifft Routing-Entscheidungen — OSPF/BGP), Management Plane (CLI/SNMP-Konfiguration)",
+      "SDN verlagert die Control Plane auf einen zentralisierten Controller; Southbound-APIs (OpenFlow, NETCONF) programmieren Geräte; Northbound-APIs (REST) stellen Applikationen Intent zur Verfügung",
+      "Cloud-Service-Modelle: IaaS (du verwaltest OS+App), PaaS (du verwaltest nur die App), SaaS (du verwaltest nur Daten/Konfiguration)",
+      "SD-Access-Fabric: Underlay = IP-Routing zwischen Switches; Overlay = VXLAN-Tunnel für User-Traffic; LISP = bildet Endpunkt-ID auf Standort ab",
+      "Cisco DNA Center ist eine Intent-basierte Netzwerkplattform — Administratoren definieren Richtlinien einmal, DNAC verteilt die Konfiguration an alle Geräte",
     ],
     bestPractice: [
       {
-        topic: "SDN deployment approach",
+        topic: "SDN-Deployment-Ansatz",
         practice:
-          "Validate the underlay routing (IS-IS or OSPF) before enabling the SD-Access fabric overlay — a broken underlay breaks all VXLAN tunnels silently.",
+          "Das Underlay-Routing (IS-IS oder OSPF) validieren, bevor das SD-Access-Fabric-Overlay aktiviert wird — ein defektes Underlay unterbricht alle VXLAN-Tunnel stillschweigend.",
         note: "[Cisco only — SD-Access]",
       },
       {
-        topic: "Cloud connectivity",
+        topic: "Cloud-Konnektivität",
         practice:
-          "Use AWS Direct Connect or Azure ExpressRoute for production workloads that need guaranteed bandwidth and low latency; internet VPN for backup or non-critical traffic.",
+          "AWS Direct Connect oder Azure ExpressRoute für Produktions-Workloads verwenden, die garantierte Bandbreite und niedrige Latenz benötigen; Internet-VPN als Backup oder für unkritischen Traffic.",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "OpenFlow",
         reason:
-          "Early SDN Southbound API that programs flow tables directly; limited vendor adoption; replaced by more expressive APIs like NETCONF/YANG and gRPC/gNMI in production networks",
+          "Frühe SDN-Southbound-API, die Flow-Tabellen direkt programmiert; begrenzte Vendor-Akzeptanz; durch ausdrucksstärkere APIs wie NETCONF/YANG und gRPC/gNMI in Produktionsnetzwerken ersetzt",
         replacedBy: "NETCONF, RESTCONF, gRPC/gNMI",
       },
       {
-        topic: "Traditional distributed control plane",
+        topic: "Traditionelle verteilte Control Plane",
         reason:
-          "Each device independently runs OSPF/STP/etc; configuration is per-device, inconsistency-prone, and slow to change at scale — the limitation that motivated SDN",
-        replacedBy: "Controller-based networking (SDN, SD-Access, SD-WAN)",
+          "Jedes Gerät führt OSPF/STP/etc. unabhängig aus; Konfiguration ist geräteweise, inkonsistenzanfällig und langsam zu ändern — die Einschränkung, die SDN motiviert hat",
+        replacedBy: "Controller-basiertes Netzwerk (SDN, SD-Access, SD-WAN)",
       },
     ],
     fastFacts: [
-      "DNA Center does NOT carry user data — it is management/control only; all traffic flows through the fabric switches. Verify: show fabric status on a border node",
-      "VXLAN adds a 50-byte header overhead (8 VXLAN + 8 UDP + 20 IP + 14 Ethernet); the physical MTU must be at least 1550 bytes to avoid fragmentation. Verify: show interface <int> | include MTU",
-      "IaaS: you patch the OS. PaaS: vendor patches OS+middleware. SaaS: vendor manages everything except your data/config. Verify: AWS Shared Responsibility Model documentation",
+      "DNA Center trägt KEINE User-Daten — es ist reine Management-/Kontrollebene; der gesamte Traffic fließt durch die Fabric-Switches. Verify: show fabric status auf einem Border-Node",
+      "VXLAN fügt 50 Byte Header-Overhead hinzu (8 VXLAN + 8 UDP + 20 IP + 14 Ethernet); die physische MTU muss mindestens 1550 Bytes betragen, um Fragmentierung zu vermeiden. Verify: show interface <int> | include MTU",
+      "IaaS: du pflegst das OS. PaaS: Vendor pflegt OS+Middleware. SaaS: Vendor verwaltet alles außer deinen Daten/Konfiguration. Verify: AWS Shared Responsibility Model Dokumentation",
     ],
   },
 };

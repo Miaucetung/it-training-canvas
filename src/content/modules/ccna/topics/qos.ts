@@ -191,49 +191,49 @@ export const TOPIC_QOS: Topic = {
   tags: ["qos", "voice", "video", "marking", "shaping"],
   lessonSummary: {
     mustKnow: [
-      "VoIP quality requirements: delay < 150 ms one-way, jitter < 30 ms, packet loss < 1% — QoS does not create bandwidth, it prioritizes during congestion",
-      "DSCP EF (46) for voice RTP; AF41 (34) for video conferencing; DF/0 for best effort — these values must be memorized for the exam",
-      "LLQ = CBWFQ + a Priority Queue for voice; the Priority Queue is serviced first, then remaining bandwidth distributed to other classes",
-      "Shaping buffers excess traffic (adds delay, no drops); Policing drops or re-marks excess traffic immediately (no added delay)",
-      "Trust Boundary: mark traffic as close to the source as possible (at the IP phone or access switch); never trust end-user PCs to self-mark",
+      "VoIP-Qualitätsanforderungen: Verzögerung < 150 ms einfache Richtung, Jitter < 30 ms, Paketverlust < 1% — QoS erzeugt keine Bandbreite, es priorisiert bei Überlastung",
+      "DSCP EF (46) für Voice-RTP; AF41 (34) für Videokonferenzen; DF/0 für Best Effort — diese Werte müssen für die Prüfung auswendig gelernt werden",
+      "LLQ = CBWFQ + eine Priority Queue für Sprache; die Priority Queue wird zuerst bedient, dann wird die verbleibende Bandbreite auf andere Klassen verteilt",
+      "Shaping puffert überschüssigen Traffic (fügt Verzögerung hinzu, keine Drops); Policing verwirft oder re-markiert überschüssigen Traffic sofort (keine zusätzliche Verzögerung)",
+      "Trust Boundary: Traffic so nah wie möglich an der Quelle markieren (am IP-Telefon oder Access-Switch); End-User-PCs niemals vertrauen, Traffic selbst zu markieren",
     ],
     bestPractice: [
       {
-        topic: "VoIP QoS deployment",
+        topic: "VoIP-QoS-Deployment",
         practice:
-          "Configure LLQ with 'priority percent 30' for voice (EF) on WAN interfaces; always set a rate limit on the priority queue to prevent voice from starving all other traffic.",
+          "LLQ mit 'priority percent 30' für Sprache (EF) auf WAN-Interfaces konfigurieren; immer ein Ratenlimit für die Priority Queue setzen, damit Sprache nicht den gesamten anderen Traffic aushungert.",
         note: "[Cisco only]",
       },
       {
-        topic: "DSCP over CoS",
+        topic: "DSCP gegenüber CoS",
         practice:
-          "Mark with DSCP (Layer 3, IP header) rather than CoS (Layer 2, 802.1Q tag) — DSCP survives across routed hops; CoS is stripped at every Layer-3 boundary.",
+          "Mit DSCP (Layer 3, IP-Header) statt CoS (Layer 2, 802.1Q-Tag) markieren — DSCP überlebt geroutete Hops; CoS wird an jeder Layer-3-Grenze entfernt.",
       },
       {
-        topic: "Trust boundary at IP phone",
+        topic: "Trust Boundary am IP-Telefon",
         practice:
-          "Set 'mls qos trust cos' on access ports connected to IP phones — the phone marks voice as CoS 5 (EF) and PC-through traffic as CoS 0 (best effort).",
-        note: "[Cisco only] — applies to Catalyst switches with MLS QoS",
+          "'mls qos trust cos' auf Access-Ports, die an IP-Telefone angeschlossen sind, setzen — das Telefon markiert Sprache als CoS 5 (EF) und PC-Durchgangs-Traffic als CoS 0 (Best Effort).",
+        note: "[Cisco only] — gilt für Catalyst-Switches mit MLS QoS",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "IP Precedence (3-bit ToS)",
+        topic: "IP Precedence (3-Bit-ToS)",
         reason:
-          "Only 3 bits (8 values) vs DSCP 6 bits (64 values); DSCP is backward-compatible with IP Precedence through the Class Selector (CS) values",
+          "Nur 3 Bits (8 Werte) gegenüber DSCP 6 Bits (64 Werte); DSCP ist abwärtskompatibel mit IP Precedence über die Class-Selector-Werte (CS)",
         replacedBy: "DSCP (DiffServ Code Point, RFC 2474)",
       },
       {
-        topic: "Tail-drop",
+        topic: "Tail-Drop",
         reason:
-          "Drops all packets at queue tail during congestion; causes TCP global synchronization (all flows back off simultaneously, then all surge together)",
-        replacedBy: "WRED (Weighted Random Early Detection) for TCP flows",
+          "Verwirft alle Pakete am Queue-Ende bei Überlastung; verursacht TCP-Global-Synchronisation (alle Flows drosseln gleichzeitig, dann steigen alle gleichzeitig wieder an)",
+        replacedBy: "WRED (Weighted Random Early Detection) für TCP-Flows",
       },
     ],
     fastFacts: [
-      "DSCP EF = binary 101110 = decimal 46. AF class x, drop y = 8x+2y in decimal (e.g., AF41 = 8×4+2×1 = 34). Verify: show class-map",
-      "CoS bits live in the 802.1Q VLAN tag PCP field (3 bits, values 0–7); CoS 5 = voice, CoS 0 = default. Verify: show interfaces <int> trunk",
-      "'show policy-map interface <int>' shows per-class packet counters, drops, and queue depth in real time. Verify: show policy-map interface gi0/1",
+      "DSCP EF = binär 101110 = dezimal 46. AF-Klasse x, Drop-Stufe y = 8x+2y dezimal (z. B. AF41 = 8×4+2×1 = 34). Verify: show class-map",
+      "CoS-Bits befinden sich im PCP-Feld des 802.1Q-VLAN-Tags (3 Bits, Werte 0–7); CoS 5 = Sprache, CoS 0 = Standard. Verify: show interfaces <int> trunk",
+      "'show policy-map interface <int>' zeigt pro Klasse Paketzähler, Drops und Warteschlangentiefe in Echtzeit. Verify: show policy-map interface gi0/1",
     ],
   },
 };

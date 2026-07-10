@@ -408,55 +408,55 @@ export const TOPIC_DEVICE_MANAGEMENT: Topic = {
   tags: ["device-management", "cdp", "lldp", "ntp", "syslog", "snmp", "tftp", "ftp"],
   lessonSummary: {
     mustKnow: [
-      "CDP (Cisco-only, on by default) and LLDP (IEEE 802.1AB, off by default) discover neighbors at Layer 2 — before IP is configured; disable both on user-facing ports",
-      "NTP Stratum: 0 = reference clock (GPS/atomic), 1 = directly connected, 2+ = downstream; Stratum 16 = unsynchronized",
-      "Syslog severity 0 (Emergency) = most critical, 7 (Debug) = least critical; 'logging trap warnings' sends levels 0–4",
-      "SNMPv1/v2c send community strings in cleartext — use SNMPv3 with authPriv (AES encryption + SHA authentication) in production",
-      "TFTP (UDP 69, no auth) for quick IOS backup; SCP (TCP 22, SSH-encrypted) for secure transfers; FTP uses two ports: TCP 21 (control) and TCP 20 (data)",
+      "CDP (nur Cisco, standardmäßig an) und LLDP (IEEE 802.1AB, standardmäßig aus) erkennen Nachbarn auf Layer 2 — noch bevor IP konfiguriert ist; auf benutzerorientierten Ports deaktivieren",
+      "NTP Stratum: 0 = Referenzuhr (GPS/Atomuhr), 1 = direkt verbunden, 2+ = nachgelagert; Stratum 16 = nicht synchronisiert",
+      "Syslog Schweregrad 0 (Emergency) = am kritischsten, 7 (Debug) = am wenigsten kritisch; 'logging trap warnings' sendet Level 0–4",
+      "SNMPv1/v2c senden Community-Strings im Klartext — SNMPv3 mit authPriv (AES-Verschlüsselung + SHA-Authentifizierung) in der Produktion verwenden",
+      "TFTP (UDP 69, keine Auth) für schnelle IOS-Sicherung; SCP (TCP 22, SSH-verschlüsselt) für sichere Übertragungen; FTP nutzt zwei Ports: TCP 21 (Control) und TCP 20 (Data)",
     ],
     bestPractice: [
       {
-        topic: "CDP/LLDP security",
+        topic: "CDP/LLDP-Sicherheit",
         practice:
-          "Disable CDP and LLDP transmit on all edge/access ports facing end-users: 'no cdp enable' and 'no lldp transmit' / 'no lldp receive' per interface.",
-        note: "[Cisco only for CDP]",
+          "CDP und LLDP-Transmit auf allen Edge-/Access-Ports zu End-Benutzern deaktivieren: 'no cdp enable' und 'no lldp transmit' / 'no lldp receive' pro Interface.",
+        note: "[Cisco only für CDP]",
       },
       {
-        topic: "NTP authentication",
+        topic: "NTP-Authentifizierung",
         practice:
-          "Configure NTP authentication with 'ntp authenticate', 'ntp authentication-key 1 md5 <key>', and 'ntp trusted-key 1' to prevent rogue NTP servers from injecting false time.",
+          "NTP-Authentifizierung mit 'ntp authenticate', 'ntp authentication-key 1 md5 <key>' und 'ntp trusted-key 1' konfigurieren, um zu verhindern, dass gefälschte NTP-Server falsche Zeit einspeisen.",
         note: "[Cisco only]",
       },
       {
-        topic: "Syslog with timestamps",
+        topic: "Syslog mit Zeitstempeln",
         practice:
-          "Always configure 'service timestamps log datetime msec' alongside NTP sync — without real timestamps, syslog entries are useless for security forensics.",
+          "'service timestamps log datetime msec' zusammen mit NTP-Synchronisation konfigurieren — ohne echte Zeitstempel sind Syslog-Einträge für die Sicherheitsforensik nutzlos.",
         note: "[Cisco only]",
       },
       {
-        topic: "SNMP version",
+        topic: "SNMP-Version",
         practice:
-          "Use SNMPv3 with authPriv for all new deployments; never use community strings 'public' or 'private' — they are globally known default values.",
+          "SNMPv3 mit authPriv für alle neuen Deployments verwenden; Community-Strings 'public' oder 'private' niemals verwenden — sie sind weltweit bekannte Standardwerte.",
       },
     ],
     legacyOrExamOnly: [
       {
         topic: "SNMPv1 / SNMPv2c",
         reason:
-          "Community strings transmitted in cleartext (readable by any packet sniffer on the same network); no message integrity protection",
-        replacedBy: "SNMPv3 with authPriv (HMAC-SHA authentication + AES encryption)",
+          "Community-Strings werden im Klartext übertragen (von jedem Paket-Sniffer im selben Netzwerk lesbar); kein Nachrichtenintegritätsschutz",
+        replacedBy: "SNMPv3 mit authPriv (HMAC-SHA-Authentifizierung + AES-Verschlüsselung)",
       },
       {
-        topic: "TFTP for production config transfer",
+        topic: "TFTP für Produktionskonfigurationsübertragung",
         reason:
-          "No authentication and no encryption — any host on the network can intercept or overwrite IOS images or configs",
-        replacedBy: "SCP or SFTP (both over SSH, TCP 22)",
+          "Keine Authentifizierung und keine Verschlüsselung — jeder Host im Netzwerk kann IOS-Images oder Konfigurationen abfangen oder überschreiben",
+        replacedBy: "SCP oder SFTP (beide über SSH, TCP 22)",
       },
     ],
     fastFacts: [
-      "'show cdp neighbors detail' reveals neighbor hostname, platform, IOS version, and IP address — the most useful single command for topology discovery. Verify: show cdp neighbors detail",
-      "Syslog format: *timestamp: %FACILITY-SEVERITY-MNEMONIC: description. Verify: show logging (look at the last few lines for recent events)",
-      "Configuration register 0x2142 causes IOS to skip loading startup-config on boot — used for password recovery. Verify: show version (last line shows the register value)",
+      "'show cdp neighbors detail' zeigt Nachbar-Hostname, Plattform, IOS-Version und IP-Adresse — der nützlichste einzelne Befehl zur Topologieerkundung. Verify: show cdp neighbors detail",
+      "Syslog-Format: *Zeitstempel: %FACILITY-SCHWEREGRAD-MNEMONIC: Beschreibung. Verify: show logging (letzte Zeilen auf aktuelle Ereignisse prüfen)",
+      "Konfigurationsregister 0x2142 veranlasst IOS, startup-config beim Booten zu überspringen — wird für die Passwortwiederherstellung verwendet. Verify: show version (letzte Zeile zeigt den Registerwert)",
     ],
   },
 };

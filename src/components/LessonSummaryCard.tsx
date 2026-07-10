@@ -9,12 +9,12 @@ interface LessonSummaryCardProps {
 export function LessonSummaryCard({ summary }: LessonSummaryCardProps) {
   return (
     <Card className="mt-8 p-6 space-y-6">
-      <h2 className="text-lg font-semibold">Lesson Summary</h2>
+      <h2 className="text-lg font-semibold">Lernzusammenfassung</h2>
 
       {/* Section 1 — Must Know */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          ✅ Must Know
+          ✅ Das musst du wissen
         </h3>
         <ul className="list-disc list-inside space-y-1">
           {summary.mustKnow.map((item, i) => (
@@ -28,7 +28,7 @@ export function LessonSummaryCard({ summary }: LessonSummaryCardProps) {
       {/* Section 2 — Best Practice */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          ⚙️ Best Practice
+          ⚙️ Best Practice (Empfehlung)
         </h3>
         <div className="space-y-3">
           {summary.bestPractice.map((entry, i) => (
@@ -52,7 +52,7 @@ export function LessonSummaryCard({ summary }: LessonSummaryCardProps) {
       {/* Section 3 — Legacy / Exam Only */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          🚫 Legacy / Exam Only
+          🚫 Veraltet / Nur für die Prüfung
         </h3>
         <div className="space-y-3">
           {summary.legacyOrExamOnly.map((entry, i) => (
@@ -76,7 +76,7 @@ export function LessonSummaryCard({ summary }: LessonSummaryCardProps) {
       {/* Section 4 — Fast Facts */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          ⚡ Fast Facts
+          ⚡ Schnellfakten
         </h3>
         <ol className="list-decimal list-inside space-y-1">
           {summary.fastFacts.map((fact, i) => {

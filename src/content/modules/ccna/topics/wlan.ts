@@ -299,33 +299,33 @@ export const TOPIC_WLAN: Topic = {
   tags: ["wireless", "wlan", "wifi"],
   lessonSummary: {
     mustKnow: [
-      "802.11ax (Wi-Fi 6) operates on 2.4/5/6 GHz with OFDMA; 802.11ac (Wi-Fi 5) is 5 GHz only; both are current in enterprise deployments",
-      "2.4 GHz has only 3 non-overlapping channels (1, 6, 11); 5 GHz provides up to 25 non-overlapping channels — preferred for dense environments",
-      "WPA2-Personal uses a Pre-Shared Key; WPA2-Enterprise requires 802.1X with a RADIUS server — Enterprise is standard for corporate networks",
-      "WPA3-Personal replaces PSK with SAE (Simultaneous Authentication of Equals), preventing offline dictionary attacks",
-      "Lightweight APs + WLC: CAPWAP tunnels use UDP 5246 (control) and UDP 5247 (data); all configuration is centralized on the WLC",
+      "802.11ax (Wi-Fi 6) arbeitet auf 2,4/5/6 GHz mit OFDMA; 802.11ac (Wi-Fi 5) ist nur 5 GHz; beide sind in aktuellen Enterprise-Deployments verbreitet",
+      "2,4 GHz hat nur 3 nicht-überlappende Kanäle (1, 6, 11); 5 GHz bietet bis zu 25 nicht-überlappende Kanäle — bevorzugt für dichte Umgebungen",
+      "WPA2-Personal nutzt einen Pre-Shared Key; WPA2-Enterprise erfordert 802.1X mit einem RADIUS-Server — Enterprise ist Standard für Firmennetzwerke",
+      "WPA3-Personal ersetzt PSK durch SAE (Simultaneous Authentication of Equals) und verhindert Offline-Wörterbuch-Angriffe",
+      "Lightweight APs + WLC: CAPWAP-Tunnel nutzen UDP 5246 (Control) und UDP 5247 (Data); die gesamte Konfiguration ist zentral auf dem WLC",
     ],
     bestPractice: [
       {
-        topic: "Channel planning",
+        topic: "Kanalplanung",
         practice:
-          "Assign non-overlapping channels to adjacent APs: use only channels 1, 6, and 11 in 2.4 GHz; use 5 GHz with 40/80 MHz channels for throughput where density allows.",
+          "Nicht-überlappende Kanäle benachbarten APs zuweisen: nur Kanäle 1, 6 und 11 bei 2,4 GHz; 5 GHz mit 40/80-MHz-Kanälen für Durchsatz wo die Dichte es erlaubt.",
       },
       {
-        topic: "WLAN authentication",
+        topic: "WLAN-Authentifizierung",
         practice:
-          "Deploy WPA2-Enterprise (802.1X + EAP-TLS or PEAP) for all corporate SSIDs — individual user credentials allow per-user revocation and audit trails.",
+          "WPA2-Enterprise (802.1X + EAP-TLS oder PEAP) für alle Unternehmens-SSIDs einsetzen — individuelle Benutzeranmeldedaten ermöglichen Sperren pro Benutzer und Prüfpfade.",
       },
       {
-        topic: "WLC management vs. WLAN access AAA",
+        topic: "WLC-Management vs. WLAN-Zugangs-AAA",
         practice:
-          "Use TACACS+ for WLC device administration (CLI/GUI access) and RADIUS for WLAN client authentication (802.1X) — these are separate AAA policies on the WLC.",
+          "TACACS+ für die WLC-Geräteverwaltung (CLI-/GUI-Zugang) und RADIUS für die WLAN-Client-Authentifizierung (802.1X) verwenden — dies sind separate AAA-Richtlinien auf dem WLC.",
         note: "[Cisco only]",
       },
       {
-        topic: "FlexConnect for branch offices",
+        topic: "FlexConnect für Zweigstellen",
         practice:
-          "Use FlexConnect mode on branch-office APs so they continue to forward traffic locally when the WAN link to the WLC goes down.",
+          "FlexConnect-Modus auf APs in Zweigstellen verwenden, damit sie Traffic lokal weiterleiten, wenn die WAN-Verbindung zum WLC ausfällt.",
         note: "[Cisco only]",
       },
     ],
@@ -333,26 +333,26 @@ export const TOPIC_WLAN: Topic = {
       {
         topic: "WEP",
         reason:
-          "RC4-based, cryptographically broken in minutes with freely available tools; formally deprecated by IEEE in 2004",
-        replacedBy: "WPA2 (AES-CCMP) or WPA3",
+          "RC4-basiert, kryptografisch in Minuten mit frei verfügbaren Tools gebrochen; vom IEEE 2004 offiziell für veraltet erklärt",
+        replacedBy: "WPA2 (AES-CCMP) oder WPA3",
       },
       {
         topic: "TKIP (WPA)",
         reason:
-          "Transitional fix over WEP using RC4 with per-packet keying; considered weak and was removed from the Wi-Fi Alliance certification in 2012",
-        replacedBy: "AES-CCMP (WPA2) or AES-GCMP (WPA3)",
+          "Übergangs-Fix über WEP mit RC4 und Per-Paket-Schlüsselung; gilt als schwach und wurde 2012 aus der Wi-Fi-Alliance-Zertifizierung entfernt",
+        replacedBy: "AES-CCMP (WPA2) oder AES-GCMP (WPA3)",
       },
       {
-        topic: "Autonomous AP architecture",
+        topic: "Autonome AP-Architektur",
         reason:
-          "Each AP must be individually configured and managed; no centralized roaming, RF management, or policy enforcement — impractical at scale",
-        replacedBy: "Lightweight AP + WLC (CAPWAP) architecture",
+          "Jeder AP muss einzeln konfiguriert und verwaltet werden; kein zentralisiertes Roaming, RF-Management oder Policy-Enforcement — bei größeren Netzwerken unpraktikabel",
+        replacedBy: "Lightweight AP + WLC (CAPWAP)-Architektur",
       },
     ],
     fastFacts: [
-      "CAPWAP discovery: a Lightweight AP sends a broadcast/multicast discovery message; if no WLC responds, it falls back to DNS lookup ('CISCO-CAPWAP-CONTROLLER.<domain>'). Verify: show capwap client rcb",
-      "WPA2-Enterprise 4-way handshake derives the PTK (Pairwise Transient Key) from the PMK — each client gets a unique encryption key. Verify: show client detail <mac> on WLC",
-      "2.4 GHz co-channel interference is the #1 cause of poor WLAN performance in dense environments — always use channels 1, 6, 11 only. Verify: show ap auto-rf dot11 24ghz",
+      "CAPWAP-Discovery: ein Lightweight AP sendet eine Broadcast-/Multicast-Discovery-Nachricht; antwortet kein WLC, fällt er auf DNS-Lookup zurück ('CISCO-CAPWAP-CONTROLLER.<domain>'). Verify: show capwap client rcb",
+      "WPA2-Enterprise 4-Wege-Handshake leitet den PTK (Pairwise Transient Key) aus dem PMK ab — jeder Client erhält einen eigenen Verschlüsselungsschlüssel. Verify: show client detail <mac> auf dem WLC",
+      "2,4-GHz-Co-Channel-Interferenz ist die Hauptursache für schlechte WLAN-Leistung in dichten Umgebungen — immer nur Kanäle 1, 6, 11 verwenden. Verify: show ap auto-rf dot11 24ghz",
     ],
   },
 };

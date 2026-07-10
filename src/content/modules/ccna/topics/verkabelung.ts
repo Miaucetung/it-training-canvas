@@ -823,42 +823,42 @@ export const TOPIC_VERKABELUNG: Topic = {
   ],
   lessonSummary: {
     mustKnow: [
-      "CAT5e supports 1 Gbit/s up to 100 m; CAT6 supports 10 Gbit/s up to 55 m (or 1 Gbit/s up to 100 m)",
-      "UTP pairs are twisted to cancel electromagnetic interference (EMI); tighter twist = better noise rejection",
-      "T568A and T568B are two pin-out standards for RJ-45; mixing them on each end of a cable creates a crossover cable",
-      "Auto-MDIX automatically detects and corrects straight-through vs. crossover; enabled by default when speed and duplex are both 'auto'",
-      "Structured cabling limits: horizontal cable max 90 m permanent link + 10 m patch cables = 100 m total channel",
+      "CAT5e unterstützt 1 Gbit/s bis 100 m; CAT6 unterstützt 10 Gbit/s bis 55 m (oder 1 Gbit/s bis 100 m)",
+      "UTP-Paare sind verdrillt, um elektromagnetische Interferenzen (EMI) zu kompensieren; engere Verdrillung = bessere Störunterdrückung",
+      "T568A und T568B sind zwei Pinbelegungs-Standards für RJ-45; Mischung beider Enden an einem Kabel ergibt ein Crossover-Kabel",
+      "Auto-MDIX erkennt und korrigiert Straight-Through vs. Crossover automatisch; standardmäßig aktiv wenn Geschwindigkeit und Duplex beide auf 'auto' stehen",
+      "Strukturierte Verkabelungsgrenzen: horizontale Kabelmax. 90 m Permanentlink + 10 m Patchkabel = 100 m Gesamtkanal",
     ],
     bestPractice: [
       {
-        topic: "Cable standard consistency",
+        topic: "Kabelstandard-Konsistenz",
         practice:
-          "Use T568B throughout a building — it is the more common enterprise standard; never mix T568A and T568B within the same installation.",
+          "T568B durchgehend in einem Gebäude verwenden — es ist der gebräuchlichere Unternehmensstandard; T568A und T568B innerhalb derselben Installation niemals mischen.",
       },
       {
-        topic: "Cable testing",
+        topic: "Kabeltest",
         practice:
-          "After termination, always test with a cable certifier (not just a continuity tester) to verify attenuation, NEXT, and return loss meet CAT6 specs.",
+          "Nach der Konfektionierung immer mit einem Kabelzertifizierer (nicht nur einem Durchgangstester) testen, um Dämpfung, NEXT und Return Loss gemäß CAT6-Spezifikation zu verifizieren.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "Manual crossover cables",
+        topic: "Manuelle Crossover-Kabel",
         reason:
-          "Required before Auto-MDIX to connect like devices (switch-to-switch, router-to-router); modern Cisco switches support Auto-MDIX by default",
+          "Vor Auto-MDIX erforderlich, um gleiche Geräte zu verbinden (Switch-zu-Switch, Router-zu-Router); moderne Cisco-Switches unterstützen Auto-MDIX standardmäßig",
         replacedBy: "Auto-MDIX (IEEE 802.3ab)",
       },
       {
         topic: "CAT3 / CAT5 (non-e)",
         reason:
-          "CAT3 limited to 10 Mbit/s; CAT5 limited to 100 Mbit/s; neither supports Gigabit reliably",
-        replacedBy: "CAT5e (minimum) or CAT6/6A for new installations",
+          "CAT3 begrenzt auf 10 Mbit/s; CAT5 begrenzt auf 100 Mbit/s; keines unterstützt Gigabit zuverlässig",
+        replacedBy: "CAT5e (Minimum) oder CAT6/6A für Neuinstallationen",
       },
     ],
     fastFacts: [
-      "T568B pin order: Orange-white, Orange, Green-white, Blue, Blue-white, Green, Brown-white, Brown. Verify: hold the crimp end with the clip facing down",
-      "A cable with T568B on one end and T568A on the other end is a crossover cable — useful for direct PC-to-PC or hub-to-hub connections. Verify: wiring map test",
-      "The 100 m limit (90 m permanent + 10 m patch) applies to all UTP categories. Exceeding it causes attenuation failures. Verify: cable certifier attenuation measurement",
+      "T568B Pinreihenfolge: Orange-weiß, Orange, Grün-weiß, Blau, Blau-weiß, Grün, Braun-weiß, Braun. Verify: Crimpende mit nach unten zeigendem Clip halten",
+      "Ein Kabel mit T568B an einem Ende und T568A am anderen Ende ist ein Crossover-Kabel — nützlich für direkte PC-zu-PC- oder Hub-zu-Hub-Verbindungen. Verify: Belegungstest",
+      "Das 100-m-Limit (90 m Permanent + 10 m Patch) gilt für alle UTP-Kategorien. Überschreitung verursacht Dämpfungsausfälle. Verify: Dämpfungsmessung mit Kabelzertifizierer",
     ],
   },
 };
@@ -881,41 +881,41 @@ export const TOPIC_GLASFASER: Topic = {
   tags: ["cabling", "layer-1", "fiber", "sfp"],
   lessonSummary: {
     mustKnow: [
-      "Single-Mode Fiber (SMF, yellow jacket, 9 μm core) supports distances > 10 km with laser light; used for campus backbone and WAN handoffs",
-      "Multi-Mode Fiber (MMF, orange/aqua jacket, 50/62.5 μm core) is limited to ~550 m (OM3/OM4) with LED/VCSEL; used for intra-building runs",
-      "SFP transceivers are hot-swappable; SFP+ supports 10 Gbit/s; QSFP/QSFP28 support 40/100 Gbit/s",
-      "Fiber connectors: LC (small form, enterprise standard), SC (square, older), ST (bayonet), MPO (multi-fiber, data center)",
+      "Singlemode-Glasfaser (SMF, gelber Mantel, 9-μm-Kern) unterstützt Distanzen > 10 km mit Laserlicht; für Campus-Backbone und WAN-Übergaben",
+      "Multimode-Glasfaser (MMF, oranger/aquafarbener Mantel, 50/62,5-μm-Kern) ist auf ~550 m (OM3/OM4) mit LED/VCSEL begrenzt; für gebäudeinterne Strecken",
+      "SFP-Transceiver sind Hot-Swap-fähig; SFP+ unterstützt 10 Gbit/s; QSFP/QSFP28 unterstützen 40/100 Gbit/s",
+      "Glasfaser-Stecker: LC (kleines Format, Enterprise-Standard), SC (rechteckig, älter), ST (Bajonett), MPO (Multifaser, Rechenzentrum)",
     ],
     bestPractice: [
       {
-        topic: "Fiber end-face cleaning",
+        topic: "Reinigung der Glasfaser-Stirnfläche",
         practice:
-          "Always clean fiber end-faces before connecting with a cassette cleaner or IEC 61300-3-35 compliant tool; a contaminated end-face causes >3 dB insertion loss and intermittent link failures.",
+          "Glasfaser-Stirnflächen vor dem Verbinden immer mit einem Kassetten-Reiniger oder IEC-61300-3-35-konformem Werkzeug reinigen; eine verunreinigte Stirnfläche verursacht >3 dB Einfügedämpfung und intermittierende Link-Ausfälle.",
       },
       {
-        topic: "SMF vs. MMF selection",
+        topic: "SMF vs. MMF Auswahl",
         practice:
-          "Use SMF for all inter-building and campus backbone runs > 300 m; MMF only within a building where cost and distance allow.",
+          "SMF für alle gebäudeübergreifenden und Campus-Backbone-Strecken > 300 m verwenden; MMF nur innerhalb eines Gebäudes, wo Kosten und Distanz es erlauben.",
       },
     ],
     legacyOrExamOnly: [
       {
-        topic: "ST connectors",
+        topic: "ST-Stecker",
         reason:
-          "Bayonet-twist-lock connector from the 1980s; larger than LC, requires two separate fibers; still found in legacy installations but no longer specified for new work",
-        replacedBy: "LC duplex connectors",
+          "Bajonett-Drehverschluss-Stecker aus den 1980ern; größer als LC, benötigt zwei separate Fasern; noch in Legacy-Installationen zu finden, aber nicht mehr für Neuarbeiten spezifiziert",
+        replacedBy: "LC-Duplex-Stecker",
       },
       {
-        topic: "62.5 μm MMF (OM1)",
+        topic: "62,5-μm-MMF (OM1)",
         reason:
-          "Only supports 275 m at 1 Gbit/s and ~33 m at 10 Gbit/s; older campus installations; not suitable for 10G or 25G modern switches",
-        replacedBy: "50 μm MMF (OM3/OM4/OM5)",
+          "Unterstützt nur 275 m bei 1 Gbit/s und ~33 m bei 10 Gbit/s; ältere Campus-Installationen; nicht geeignet für 10G oder 25G bei modernen Switches",
+        replacedBy: "50-μm-MMF (OM3/OM4/OM5)",
       },
     ],
     fastFacts: [
-      "SMF uses yellow jackets (OS1/OS2); OM1 is orange; OM3 is aqua; OM4 is violet/magenta; OM5 is lime green. Verify: check jacket color before patching",
-      "Never look directly into a fiber end-face or connector — even 'dark' fiber may carry invisible IR laser light that can permanently damage eyesight. Verify: use a fiber checker/VFL at low power only",
-      "An SFP mismatch (SMF SFP on MMF cable) causes high insertion loss and link instability — check 'show interface <int> transceiver' for Tx/Rx power levels. Verify: show interface transceiver",
+      "SMF nutzt gelbe Mäntel (OS1/OS2); OM1 ist orange; OM3 ist aqua; OM4 ist violett/magenta; OM5 ist hellgrün. Verify: Mantelfarbe vor dem Patchen prüfen",
+      "Niemals direkt in eine Glasfaser-Stirnfläche oder einen Stecker schauen — auch 'dunkle' Glasfaser kann unsichtbares IR-Laserlicht tragen, das die Augen dauerhaft schädigt. Verify: nur Glasfaserprüfer/VFL bei niedriger Leistung verwenden",
+      "Ein SFP-Mismatch (SMF-SFP auf MMF-Kabel) verursacht hohe Einfügedämpfung und Link-Instabilität — 'show interface <int> transceiver' auf Tx-/Rx-Leistungspegel prüfen. Verify: show interface transceiver",
     ],
   },
 };
