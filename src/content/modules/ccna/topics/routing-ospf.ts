@@ -1062,6 +1062,68 @@ export const TOPIC_ROUTING_OSPF: Topic = {
   prerequisiteTopicIds: ["ipv4-addressing", "switching-vlans"],
   estimatedMinutes: 180,
   tags: ["routing", "ospf", "layer-3"],
+  lessonSummary: {
+    mustKnow: [
+      "Static routing with ip route — next-hop IP or fully-specified (interface + next-hop) on multi-access segments",
+      "Administrative Distance (AD) determines which protocol's route enters the RIB; OSPF=110, EIGRP=90, RIP=120",
+      "OSPF cost = reference-bandwidth / interface-bandwidth; set auto-cost reference-bandwidth 100000 on all routers",
+      "OSPF neighbor adjacency prerequisites: same subnet, subnet mask, Hello/Dead timers, and Area ID",
+      "OSPF DR/BDR election on broadcast segments: highest priority wins, then highest router-id; election is non-preemptive",
+    ],
+    bestPractice: [
+      {
+        topic: "Static routes on Ethernet",
+        practice:
+          "Use fully-specified static routes ('ip route <dst> <mask> <interface> <next-hop>') on multi-access links — avoids proxy-ARP and recursive lookup issues.",
+      },
+      {
+        topic: "OSPF router-id",
+        practice:
+          "Always configure an explicit router-id ('router-id A.B.C.D') or a loopback interface; never rely on physical interface IPs which can change.",
+      },
+      {
+        topic: "OSPF reference bandwidth",
+        practice:
+          "Set 'auto-cost reference-bandwidth 100000' on every router in the domain so GigabitEthernet and 10-GigE have distinct costs (not both cost 1).",
+        note: "[Cisco only] — must be identical on all routers; inconsistency causes asymmetric routing",
+      },
+      {
+        topic: "OSPF passive-interface",
+        practice:
+          "Apply 'passive-interface' to all LAN interfaces facing end-hosts so OSPF does not send Hellos toward PCs while still advertising the subnet.",
+      },
+      {
+        topic: "Floating static route",
+        practice:
+          "Set the AD of the backup static route higher than the primary routing protocol (e.g., AD 130 when OSPF=110) so it only activates on failover.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "RIPv1",
+        reason:
+          "Classful — no subnet mask in updates, no VLSM support, forced auto-summary at class boundaries; maximum 15 hops limits scalability",
+        replacedBy: "OSPFv2 or EIGRP",
+      },
+      {
+        topic: "RIPv2",
+        reason:
+          "Still classless and supports VLSM, but 15-hop limit and slow convergence (up to 240 s flush timer) make it unsuitable for enterprise networks",
+        replacedBy: "OSPFv2 in enterprise; EIGRP in Cisco-only environments",
+      },
+      {
+        topic: "EIGRP (Cisco-only context)",
+        reason:
+          "Proprietary origin; despite RFC 7868 open standard status in 2013, multi-vendor interoperability is effectively absent — OSPF is the universal choice",
+        replacedBy: "OSPFv2 in multi-vendor deployments",
+      },
+    ],
+    fastFacts: [
+      "Connected routes have AD 0 — they always win over any learned route. Verify: show ip route",
+      "OSPF uses multicast 224.0.0.5 for Hellos (all OSPF routers) and 224.0.0.6 for LSU updates to DR/BDR. Verify: show ip ospf interface <int>",
+      "Two OSPF neighbors stuck in 2-Way is normal when both are DROther on a broadcast segment — not a fault. Verify: show ip ospf neighbor",
+    ],
+  },
 };
 
 export const ROUTING_CONCEPTS: Record<string, Concept> = {

@@ -28,6 +28,7 @@ import { Callout } from "./Callout";
 import { ConceptMarkdown } from "./markdown-render";
 import { parseDidacticContent } from "@/lib/content/didactic-blocks";
 import { SubnetSegmentationTool } from "./SubnetSegmentationTool";
+import { LessonSummaryCard } from "./LessonSummaryCard";
 import {
   exportLessonAsMarkdown,
   exportLessonAsPdf,
@@ -1002,6 +1003,10 @@ export function TopicDetailPanel({
               ))}
             </div>
           </section>
+        )}
+
+        {topic.lessonSummary && (
+          <LessonSummaryCard summary={topic.lessonSummary} />
         )}
       </div>
 

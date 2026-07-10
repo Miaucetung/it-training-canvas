@@ -447,6 +447,47 @@ export const TOPIC_NETWORKING_FUNDAMENTALS: Topic = {
   prerequisiteTopicIds: [],
   estimatedMinutes: 120,
   tags: ["osi", "tcp-ip", "networking", "fundamentals", "enterprise", "design"],
+  lessonSummary: {
+    mustKnow: [
+      "OSI 7 layers and their PDU names: Application(data) → Presentation → Session → Transport(segment) → Network(packet) → Data Link(frame) → Physical(bit)",
+      "TCP vs. UDP: TCP provides reliable, ordered delivery with 3-way handshake (SYN/SYN-ACK/ACK); UDP is connectionless and faster — used for DNS, DHCP, streaming",
+      "Encapsulation adds headers layer by layer (L7→L1) on the sender; decapsulation strips them in reverse on the receiver",
+      "A switch forwards based on MAC addresses (L2, same LAN); a router forwards based on IP addresses (L3, between networks)",
+      "Ethernet CSMA/CD: devices listen before transmitting; collision detected → random backoff; replaced by full-duplex in modern switched networks",
+    ],
+    bestPractice: [
+      {
+        topic: "Network design — three-tier hierarchy",
+        practice:
+          "Use the Access-Distribution-Core three-tier model for enterprise campus networks; avoid connecting end devices directly to core switches.",
+      },
+      {
+        topic: "Duplex and speed",
+        practice:
+          "Always configure both ends of a link to the same duplex and speed if auto-negotiation is not reliable; a duplex mismatch (one side full, other half) causes poor performance but no obvious errors.",
+        note: "[Cisco only] — verify with 'show interfaces' for duplex mismatch warnings",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Hubs",
+        reason:
+          "Single collision domain for all ports — any frame floods all ports; half-duplex only; effectively extinct in modern networks",
+        replacedBy: "Layer-2 switches with full-duplex ports",
+      },
+      {
+        topic: "Crossover cables",
+        reason:
+          "Required to connect like devices (switch-to-switch) before Auto-MDIX; modern Cisco switches support Auto-MDIX by default and detect cable type automatically",
+        replacedBy: "Auto-MDIX (automatic crossover detection)",
+      },
+    ],
+    fastFacts: [
+      "TCP port 80 = HTTP, 443 = HTTPS, 22 = SSH, 23 = Telnet, 25 = SMTP, 53 = DNS (UDP+TCP), 67/68 = DHCP (UDP). Verify: show ip sockets",
+      "The Ethernet minimum frame size is 64 bytes (including FCS); frames below 64 bytes are 'runts' and are discarded. Verify: show interfaces | include runts",
+      "A Layer-3 switch performs inter-VLAN routing in hardware (ASIC/TCAM) — no external router hop required. Verify: show ip route on the L3 switch",
+    ],
+  },
 };
 
 export const CONCEPT_OSI_SIMULATOR: Concept = {

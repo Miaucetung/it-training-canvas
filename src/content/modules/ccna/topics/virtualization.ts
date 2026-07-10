@@ -130,6 +130,39 @@ export const TOPIC_VIRTUALIZATION: Topic = {
   exerciseIds: [],
   estimatedMinutes: 45,
   tags: ["virtualization", "cloud", "nfv", "hypervisor", "vm", "container"],
+  lessonSummary: {
+    mustKnow: [
+      "Type 1 hypervisor (bare-metal) runs directly on hardware — VMware ESXi, Hyper-V, KVM; Type 2 (hosted) runs on an OS — VirtualBox, VMware Workstation",
+      "VMs include a full guest OS (GBs, minutes to start); containers share the host kernel (MBs, seconds to start) — containers are lighter but less isolated",
+      "NFV replaces dedicated network hardware (firewalls, routers, load balancers) with software VMs running on standard x86 servers",
+      "Cloud service models: IaaS (you manage OS+app), PaaS (you manage app only), SaaS (you manage data/config only)",
+    ],
+    bestPractice: [
+      {
+        topic: "Hypervisor selection",
+        practice:
+          "Use Type 1 hypervisors (ESXi, Hyper-V) for production workloads — they offer better performance and isolation; use Type 2 only for lab/dev environments.",
+      },
+      {
+        topic: "Container security",
+        practice:
+          "Never run containers as root in production; use namespaces and cgroups for isolation; scan container images for vulnerabilities before deployment.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Dedicated hardware appliances for network functions",
+        reason:
+          "High cost, slow provisioning, difficult to scale; each function requires separate hardware purchase and rack space",
+        replacedBy: "NFV (virtual firewalls, routers, load balancers) on standard x86 servers",
+      },
+    ],
+    fastFacts: [
+      "A vSwitch connects VMs internally within a hypervisor host — traffic between two VMs on the same host never leaves the server. Verify: show virtual-switch on ESXi or 'ip link show' on KVM",
+      "IaaS: you apply OS patches. PaaS: vendor applies OS patches. SaaS: vendor applies everything. Verify: AWS Shared Responsibility Model",
+      "Docker containers start in seconds because they skip the OS boot process; they share the host kernel. Verify: docker ps --format 'table {{.Names}}\\t{{.Status}}'",
+    ],
+  },
 };
 
 export const VIRTUALIZATION_CONCEPTS: Record<string, Concept> = {

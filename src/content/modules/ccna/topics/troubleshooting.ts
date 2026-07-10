@@ -213,6 +213,46 @@ export const TOPIC_TROUBLESHOOTING: Topic = {
   prerequisiteTopicIds: ["ios-cli", "switching-vlans", "routing-ospf"],
   estimatedMinutes: 90,
   tags: ["troubleshooting", "ping", "traceroute", "diagnostics"],
+  lessonSummary: {
+    mustKnow: [
+      "Bottom-Up (L1→L7): start with physical layer (cables, LEDs) when hardware is suspected; Top-Down (L7→L1): start with the app when a user reports a service failure",
+      "Extended ping: use 'source-interface' to send from a specific IP — tests both the forward path AND the return path from the target's perspective",
+      "Late collisions (collisions after the first 64 bytes) always indicate a duplex mismatch — one side full-duplex, the other half-duplex",
+      "Traceroute '!' = ICMP unreachable received; '!A' = admin prohibited (ACL); '*' = no response (router doesn't reply or is blocking ICMP)",
+      "err-disabled recovery: either manual ('shutdown' then 'no shutdown') or automatic via 'errdisable recovery cause <reason>' with a timer",
+    ],
+    bestPractice: [
+      {
+        topic: "Structured troubleshooting",
+        practice:
+          "Change only ONE variable per test step — changing multiple things at once makes it impossible to know which change fixed the problem.",
+      },
+      {
+        topic: "MTU troubleshooting",
+        practice:
+          "Use extended ping with 'DF bit = yes' and size 1500 to test end-to-end MTU; PMTUD black holes appear as large pings failing while small pings succeed.",
+        note: "[Cisco only] — extended ping is a Cisco IOS feature",
+      },
+      {
+        topic: "Document changes",
+        practice:
+          "After resolving an issue, document the root cause, the fix applied, and which config changed — undocumented 'it just works now' changes cause repeat incidents.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Ping percentage as a health metric",
+        reason:
+          "A non-zero drop rate (e.g. 4/5 success) is not 'nearly OK' — it signals an active problem (duplex mismatch, buffer overrun, ARP issues); should be investigated, not accepted",
+        replacedBy: "Interface counters (show interfaces) + root cause analysis",
+      },
+    ],
+    fastFacts: [
+      "'show ip interface brief' is the fastest overview: columns show Status (L1) and Protocol (L2) for every interface. Verify: always run this first on a new device",
+      "CRC errors on an interface indicate a signal-integrity problem (bad cable, SFP, or EMI) — not a configuration issue. Verify: show interfaces | include CRC",
+      "Ctrl+Shift+6 aborts a hanging ping or traceroute in Cisco IOS. Verify: start a ping to an unreachable host, then press Ctrl+Shift+6",
+    ],
+  },
 };
 
 export const TROUBLESHOOTING_CONCEPTS: Record<string, Concept> = {

@@ -1660,6 +1660,54 @@ export const TOPIC_VLAN_ADVANCED: Topic = {
   prerequisiteTopicIds: ["switching-vlans", "networking-fundamentals"],
   estimatedMinutes: 240,
   tags: ["vlan", "802.1q", "trunk", "inter-vlan", "security", "layer-2"],
+  lessonSummary: {
+    mustKnow: [
+      "Router-on-a-Stick (ROAS): one physical link as 802.1Q trunk with subinterfaces per VLAN ('encapsulation dot1Q <id>'); each subinterface is the default gateway for its VLAN",
+      "Layer-3 switch inter-VLAN routing: SVIs (ip address on 'interface vlan <id>') + 'ip routing'; faster than ROAS because routing happens in ASIC hardware",
+      "VLAN hopping — double-tagging attack: attacker in native VLAN sends frame with two 802.1Q tags; first switch strips outer tag, second switch forwards inner-tagged frame; mitigated by changing native VLAN away from VLAN 1",
+      "VTP advertisements can wipe the VLAN database of all switches in the domain if a switch with a higher revision number is connected; disable VTP or use transparent mode in production",
+      "DTP (Dynamic Trunking Protocol) is enabled by default on Cisco switches; disable with 'switchport nonegotiate' on all access and trunk ports",
+    ],
+    bestPractice: [
+      {
+        topic: "Inter-VLAN routing choice",
+        practice:
+          "Use SVIs on a Layer-3 switch for inter-VLAN routing in any deployment larger than a single router; ROAS is only appropriate for small labs or where a dedicated router is required.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "VTP mode",
+        practice:
+          "Set all switches to 'vtp mode transparent' or 'vtp mode off' (IOS 12.2(52)SE+) in production networks; manually manage the VLAN database per switch to prevent accidental VLAN database overwrite.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "VLAN hopping mitigation",
+        practice:
+          "Shut down unused ports, assign them to a dead VLAN (e.g. 999), set 'switchport mode access' explicitly, and change the native VLAN to an unused VLAN (not VLAN 1).",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "VTP v1/v2",
+        reason:
+          "VTP advertisement storms have caused production-wide VLAN database wipes when a reconfigured switch with a higher revision counter was connected to the network",
+        replacedBy: "Manual VLAN config per switch or VTP v3 with domain password and primary server designation",
+      },
+      {
+        topic: "ISL (Inter-Switch Link)",
+        reason:
+          "Cisco-proprietary predecessor to 802.1Q; adds 30-byte overhead, limited to 1024 VLANs, not supported on modern IOS-XE platforms",
+        replacedBy: "802.1Q (dot1q) — the IEEE open standard",
+      },
+    ],
+    fastFacts: [
+      "SVIs require 'ip routing' to be enabled globally on the Layer-3 switch — without it, the switch acts as a Layer-2 bridge even with IP addresses on SVIs. Verify: show ip route",
+      "ROAS subinterface numbering does NOT need to match the VLAN ID (e.g. gi0/1.30 can carry VLAN 10), but matching them is a best practice for clarity. Verify: show interfaces gi0/1.30",
+      "'show vtp status' shows the VTP revision number — a higher revision on a newly connected switch means its VLAN database will overwrite all others in the domain. Verify: show vtp status on every switch before connecting",
+    ],
+  },
 };
 
 export const CONCEPT_ROAS_ANIMATION: Concept = {

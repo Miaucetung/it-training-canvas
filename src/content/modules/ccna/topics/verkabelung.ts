@@ -821,6 +821,46 @@ export const TOPIC_VERKABELUNG: Topic = {
     "rj45",
     "structured-cabling",
   ],
+  lessonSummary: {
+    mustKnow: [
+      "CAT5e supports 1 Gbit/s up to 100 m; CAT6 supports 10 Gbit/s up to 55 m (or 1 Gbit/s up to 100 m)",
+      "UTP pairs are twisted to cancel electromagnetic interference (EMI); tighter twist = better noise rejection",
+      "T568A and T568B are two pin-out standards for RJ-45; mixing them on each end of a cable creates a crossover cable",
+      "Auto-MDIX automatically detects and corrects straight-through vs. crossover; enabled by default when speed and duplex are both 'auto'",
+      "Structured cabling limits: horizontal cable max 90 m permanent link + 10 m patch cables = 100 m total channel",
+    ],
+    bestPractice: [
+      {
+        topic: "Cable standard consistency",
+        practice:
+          "Use T568B throughout a building — it is the more common enterprise standard; never mix T568A and T568B within the same installation.",
+      },
+      {
+        topic: "Cable testing",
+        practice:
+          "After termination, always test with a cable certifier (not just a continuity tester) to verify attenuation, NEXT, and return loss meet CAT6 specs.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Manual crossover cables",
+        reason:
+          "Required before Auto-MDIX to connect like devices (switch-to-switch, router-to-router); modern Cisco switches support Auto-MDIX by default",
+        replacedBy: "Auto-MDIX (IEEE 802.3ab)",
+      },
+      {
+        topic: "CAT3 / CAT5 (non-e)",
+        reason:
+          "CAT3 limited to 10 Mbit/s; CAT5 limited to 100 Mbit/s; neither supports Gigabit reliably",
+        replacedBy: "CAT5e (minimum) or CAT6/6A for new installations",
+      },
+    ],
+    fastFacts: [
+      "T568B pin order: Orange-white, Orange, Green-white, Blue, Blue-white, Green, Brown-white, Brown. Verify: hold the crimp end with the clip facing down",
+      "A cable with T568B on one end and T568A on the other end is a crossover cable — useful for direct PC-to-PC or hub-to-hub connections. Verify: wiring map test",
+      "The 100 m limit (90 m permanent + 10 m patch) applies to all UTP categories. Exceeding it causes attenuation failures. Verify: cable certifier attenuation measurement",
+    ],
+  },
 };
 
 export const TOPIC_GLASFASER: Topic = {
@@ -839,6 +879,45 @@ export const TOPIC_GLASFASER: Topic = {
   prerequisiteTopicIds: ["verkabelung"],
   estimatedMinutes: 90,
   tags: ["cabling", "layer-1", "fiber", "sfp"],
+  lessonSummary: {
+    mustKnow: [
+      "Single-Mode Fiber (SMF, yellow jacket, 9 μm core) supports distances > 10 km with laser light; used for campus backbone and WAN handoffs",
+      "Multi-Mode Fiber (MMF, orange/aqua jacket, 50/62.5 μm core) is limited to ~550 m (OM3/OM4) with LED/VCSEL; used for intra-building runs",
+      "SFP transceivers are hot-swappable; SFP+ supports 10 Gbit/s; QSFP/QSFP28 support 40/100 Gbit/s",
+      "Fiber connectors: LC (small form, enterprise standard), SC (square, older), ST (bayonet), MPO (multi-fiber, data center)",
+    ],
+    bestPractice: [
+      {
+        topic: "Fiber end-face cleaning",
+        practice:
+          "Always clean fiber end-faces before connecting with a cassette cleaner or IEC 61300-3-35 compliant tool; a contaminated end-face causes >3 dB insertion loss and intermittent link failures.",
+      },
+      {
+        topic: "SMF vs. MMF selection",
+        practice:
+          "Use SMF for all inter-building and campus backbone runs > 300 m; MMF only within a building where cost and distance allow.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "ST connectors",
+        reason:
+          "Bayonet-twist-lock connector from the 1980s; larger than LC, requires two separate fibers; still found in legacy installations but no longer specified for new work",
+        replacedBy: "LC duplex connectors",
+      },
+      {
+        topic: "62.5 μm MMF (OM1)",
+        reason:
+          "Only supports 275 m at 1 Gbit/s and ~33 m at 10 Gbit/s; older campus installations; not suitable for 10G or 25G modern switches",
+        replacedBy: "50 μm MMF (OM3/OM4/OM5)",
+      },
+    ],
+    fastFacts: [
+      "SMF uses yellow jackets (OS1/OS2); OM1 is orange; OM3 is aqua; OM4 is violet/magenta; OM5 is lime green. Verify: check jacket color before patching",
+      "Never look directly into a fiber end-face or connector — even 'dark' fiber may carry invisible IR laser light that can permanently damage eyesight. Verify: use a fiber checker/VFL at low power only",
+      "An SFP mismatch (SMF SFP on MMF cable) causes high insertion loss and link instability — check 'show interface <int> transceiver' for Tx/Rx power levels. Verify: show interface transceiver",
+    ],
+  },
 };
 
 // ── Exports ───────────────────────────────────────────────────

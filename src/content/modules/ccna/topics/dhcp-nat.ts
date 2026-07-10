@@ -634,6 +634,53 @@ export const TOPIC_DHCP_NAT: Topic = {
   prerequisiteTopicIds: ["ipv4-addressing"],
   estimatedMinutes: 110,
   tags: ["dhcp", "ip-management"],
+  lessonSummary: {
+    mustKnow: [
+      "DORA sequence: Discover (broadcast) → Offer → Request (broadcast) → ACK; REQUEST is broadcast so all servers hear the client's selection",
+      "ip helper-address belongs on the client-facing interface — it sets giaddr so the server knows which pool to use",
+      "DHCP lease timers: T1 (50%) = unicast renewal to original server; T2 (87.5%) = broadcast rebinding to any server",
+      "DHCP Snooping: all access ports are untrusted by default; only uplink/server ports get 'ip dhcp snooping trust'",
+      "A 169.254.x.x address on a host always means DHCP failed — check server, relay, VLAN, and DHCP pool exhaustion",
+    ],
+    bestPractice: [
+      {
+        topic: "DHCP excluded addresses",
+        practice:
+          "Always exclude router and server IPs before creating a pool: 'ip dhcp excluded-address <start> <end>' — prevents IP conflicts with statically configured devices.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "DHCP Snooping + DAI stack",
+        practice:
+          "Enable DHCP Snooping first, then Dynamic ARP Inspection (DAI) — DAI depends on the Snooping binding table to validate ARP traffic.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "DHCP lease duration",
+        practice:
+          "Set short leases (2–4 h) for guest/wireless networks to reclaim addresses quickly; use longer leases (1–7 days) for wired desktops to reduce DORA traffic.",
+      },
+      {
+        topic: "Option 82 and relay trust",
+        practice:
+          "If DHCP Snooping inserts Option 82, add 'ip dhcp relay information trust-all' on the relay router — otherwise the router drops the Option-82-tagged packets.",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "BOOTP (Bootstrap Protocol)",
+        reason:
+          "Predecessor to DHCP; does not support dynamic lease management; still referenced in DHCP packet structure (giaddr, chaddr fields carry over from BOOTP)",
+        replacedBy: "DHCP (RFC 2131)",
+      },
+    ],
+    fastFacts: [
+      "DHCP uses UDP port 67 (server) and 68 (client). Verify: debug ip dhcp server events",
+      "A DHCP pool with 'Leased addresses = Total addresses' means the pool is exhausted — clients will get APIPA. Verify: show ip dhcp pool",
+      "DHCP Snooping binding table is the trust source for DAI and IP Source Guard. Verify: show ip dhcp snooping binding",
+    ],
+  },
 };
 
 export const TOPIC_NAT: Topic = {
@@ -647,6 +694,47 @@ export const TOPIC_NAT: Topic = {
   prerequisiteTopicIds: ["dhcp-nat"],
   estimatedMinutes: 30,
   tags: ["nat", "pat", "ip-management"],
+  lessonSummary: {
+    mustKnow: [
+      "PAT (NAT Overload) maps many internal IPs to one public IP using port numbers as the differentiator — standard for home/office Internet access",
+      "Terminology: Inside Local = private source IP; Inside Global = public IP after translation; mark interfaces with 'ip nat inside' and 'ip nat outside'",
+      "Static NAT creates a permanent 1:1 mapping and is bidirectional — it allows inbound connections from outside",
+      "The ACL used with 'ip nat inside source list' selects which addresses get translated (permit = translate, not permit = pass through untranslated)",
+    ],
+    bestPractice: [
+      {
+        topic: "PAT configuration",
+        practice:
+          "Use 'ip nat inside source list <acl> interface <outside-int> overload' — binding NAT to the outside interface automatically handles dynamic public IP changes (e.g., DHCP from ISP).",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "NAT table maintenance",
+        practice:
+          "After changing NAT config, clear the translation table with 'clear ip nat translation *' to avoid stale entries causing connectivity issues.",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Dynamic NAT with address pool",
+        reason:
+          "Requires a pool of public IPs — practical only when ISP assigns a block; most deployments use PAT (single IP) instead",
+        replacedBy: "PAT (NAT Overload) with a single public IP",
+      },
+      {
+        topic: "NAT as a security mechanism",
+        reason:
+          "NAT obscures internal IPs but provides no real security — it is a side effect of address translation, not a firewall; RFC 2663 explicitly does not claim NAT is a security feature",
+        replacedBy: "Stateful firewall (ACL + inspection)",
+      },
+    ],
+    fastFacts: [
+      "PAT can support ~65,000 simultaneous connections per public IP (one per unique port). Verify: show ip nat statistics",
+      "Static NAT and Dynamic NAT do NOT use the 'overload' keyword; PAT always does. Verify: show running-config | include ip nat inside source",
+      "'ip nat inside' and 'ip nat outside' must both be set — NAT only translates traffic crossing the inside/outside boundary. Verify: show ip nat translations",
+    ],
+  },
 };
 
 export const TOPIC_DNS: Topic = {
@@ -660,6 +748,40 @@ export const TOPIC_DNS: Topic = {
   prerequisiteTopicIds: ["dhcp-nat"],
   estimatedMinutes: 25,
   tags: ["dns", "ip-management"],
+  lessonSummary: {
+    mustKnow: [
+      "DNS uses UDP port 53 for queries; TCP port 53 for zone transfers and responses over 512 bytes",
+      "A record maps name → IPv4; AAAA maps name → IPv6; CNAME is an alias → another name; MX specifies the mail server for a domain",
+      "Recursive query: resolver does all the work and returns the final answer; iterative: each server returns a referral to the next",
+      "TTL determines how long a resolver caches a record — lowering TTL before DNS migrations reduces propagation delay",
+    ],
+    bestPractice: [
+      {
+        topic: "DNS forwarder",
+        practice:
+          "Configure internal DNS servers to forward unknown domains to a trusted upstream resolver (e.g., 1.1.1.1 or 8.8.8.8) rather than recursing to root servers directly.",
+      },
+      {
+        topic: "DNS on Cisco routers",
+        practice:
+          "Disable DNS lookup on unused router interfaces with 'no ip domain-lookup' to prevent the router from trying to resolve mistyped CLI commands as hostnames.",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "DNS over plain UDP without DNSSEC",
+        reason:
+          "Unauthenticated DNS queries are vulnerable to cache poisoning (Kaminsky attack); DNSSEC signs records cryptographically but adoption is still incomplete",
+        replacedBy: "DNSSEC, DNS over TLS (DoT), DNS over HTTPS (DoH)",
+      },
+    ],
+    fastFacts: [
+      "DNS query/response uses UDP 53; zone transfers use TCP 53. Verify: show ip dns view (IOS) or packet capture on port 53",
+      "A CNAME record must point to a hostname, never to an IP address — using an IP in a CNAME is invalid per RFC 1034. Verify: nslookup -type=CNAME <name>",
+      "The Cisco IOS command 'ip name-server 8.8.8.8' sets the DNS resolver for the router itself. Verify: show hosts",
+    ],
+  },
 };
 
 export const CONCEPT_DNS: Concept = {

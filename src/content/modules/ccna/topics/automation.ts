@@ -307,6 +307,56 @@ export const TOPIC_AUTOMATION: Topic = {
   prerequisiteTopicIds: ["sdn-controller"],
   estimatedMinutes: 120,
   tags: ["automation", "rest", "json", "ansible", "terraform"],
+  lessonSummary: {
+    mustKnow: [
+      "REST HTTP methods: GET (read), POST (create), PUT (replace), PATCH (partial update), DELETE — and their HTTP status code ranges (2xx success, 4xx client error, 5xx server error)",
+      "JSON is the dominant data format for REST APIs; YAML is used for Ansible playbooks; XML is used by NETCONF/YANG",
+      "Ansible is agentless (SSH/NETCONF), push-based, YAML playbooks — the most common CCNA-level automation tool for network devices",
+      "Idempotency: running the same automation task multiple times produces the same end state — no duplicate VLANs, no duplicate routes",
+      "NETCONF uses SSH TCP 830 with XML; RESTCONF uses HTTPS with JSON/XML — both rely on YANG data models",
+    ],
+    bestPractice: [
+      {
+        topic: "Automation tool selection",
+        practice:
+          "Use Ansible for network device configuration management (agentless, no client software on network devices); use Terraform for cloud/SDN infrastructure provisioning.",
+      },
+      {
+        topic: "GitOps for network automation",
+        practice:
+          "Store all playbooks, templates, and variable files in Git with pull-request reviews — provides change history, rollback capability, and peer review before production deployment.",
+      },
+      {
+        topic: "NETCONF vs. SSH CLI scraping",
+        practice:
+          "Prefer NETCONF/YANG over screen-scraping CLI output for automation; structured XML responses are predictable and schema-validated, unlike free-text CLI output.",
+      },
+      {
+        topic: "Terraform state file",
+        practice:
+          "Never commit terraform.tfstate to Git — it may contain secrets; store it in a remote backend (S3 + DynamoDB lock, or Azure Storage) with encryption at rest.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "SNMP write (SET) for configuration",
+        reason:
+          "SNMP SET was used historically to push config changes; limited structure, poor security (community strings in cleartext in SNMPv1/v2c), and no transactional semantics",
+        replacedBy: "NETCONF/RESTCONF with YANG models",
+      },
+      {
+        topic: "CLI screen-scraping (Expect scripts, pexpect)",
+        reason:
+          "Fragile — any change in CLI output format breaks the script; not idempotent; no structured data — replaced by modern APIs",
+        replacedBy: "Ansible network modules or NETCONF",
+      },
+    ],
+    fastFacts: [
+      "HTTP 401 = Unauthorized (missing/invalid credentials); HTTP 403 = Forbidden (authenticated but not permitted). Verify: curl -v <api-endpoint>",
+      "Ansible connects to Cisco IOS devices via 'network_cli' (SSH) or 'netconf' connection types — not via Python agents. Verify: ansible-playbook -vvv <playbook>",
+      "YANG models can be vendor-native (Cisco-IOS-XE-native) or vendor-neutral (OpenConfig, IETF) — OpenConfig enables multi-vendor automation with the same playbook. Verify: show netconf-yang datastores",
+    ],
+  },
 };
 
 export const AUTOMATION_CONCEPTS: Record<string, Concept> = {

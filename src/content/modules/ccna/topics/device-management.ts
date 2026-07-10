@@ -406,6 +406,59 @@ export const TOPIC_DEVICE_MANAGEMENT: Topic = {
   prerequisiteTopicIds: ["ios-cli"],
   estimatedMinutes: 120,
   tags: ["device-management", "cdp", "lldp", "ntp", "syslog", "snmp", "tftp", "ftp"],
+  lessonSummary: {
+    mustKnow: [
+      "CDP (Cisco-only, on by default) and LLDP (IEEE 802.1AB, off by default) discover neighbors at Layer 2 — before IP is configured; disable both on user-facing ports",
+      "NTP Stratum: 0 = reference clock (GPS/atomic), 1 = directly connected, 2+ = downstream; Stratum 16 = unsynchronized",
+      "Syslog severity 0 (Emergency) = most critical, 7 (Debug) = least critical; 'logging trap warnings' sends levels 0–4",
+      "SNMPv1/v2c send community strings in cleartext — use SNMPv3 with authPriv (AES encryption + SHA authentication) in production",
+      "TFTP (UDP 69, no auth) for quick IOS backup; SCP (TCP 22, SSH-encrypted) for secure transfers; FTP uses two ports: TCP 21 (control) and TCP 20 (data)",
+    ],
+    bestPractice: [
+      {
+        topic: "CDP/LLDP security",
+        practice:
+          "Disable CDP and LLDP transmit on all edge/access ports facing end-users: 'no cdp enable' and 'no lldp transmit' / 'no lldp receive' per interface.",
+        note: "[Cisco only for CDP]",
+      },
+      {
+        topic: "NTP authentication",
+        practice:
+          "Configure NTP authentication with 'ntp authenticate', 'ntp authentication-key 1 md5 <key>', and 'ntp trusted-key 1' to prevent rogue NTP servers from injecting false time.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "Syslog with timestamps",
+        practice:
+          "Always configure 'service timestamps log datetime msec' alongside NTP sync — without real timestamps, syslog entries are useless for security forensics.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "SNMP version",
+        practice:
+          "Use SNMPv3 with authPriv for all new deployments; never use community strings 'public' or 'private' — they are globally known default values.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "SNMPv1 / SNMPv2c",
+        reason:
+          "Community strings transmitted in cleartext (readable by any packet sniffer on the same network); no message integrity protection",
+        replacedBy: "SNMPv3 with authPriv (HMAC-SHA authentication + AES encryption)",
+      },
+      {
+        topic: "TFTP for production config transfer",
+        reason:
+          "No authentication and no encryption — any host on the network can intercept or overwrite IOS images or configs",
+        replacedBy: "SCP or SFTP (both over SSH, TCP 22)",
+      },
+    ],
+    fastFacts: [
+      "'show cdp neighbors detail' reveals neighbor hostname, platform, IOS version, and IP address — the most useful single command for topology discovery. Verify: show cdp neighbors detail",
+      "Syslog format: *timestamp: %FACILITY-SEVERITY-MNEMONIC: description. Verify: show logging (look at the last few lines for recent events)",
+      "Configuration register 0x2142 causes IOS to skip loading startup-config on boot — used for password recovery. Verify: show version (last line shows the register value)",
+    ],
+  },
 };
 
 export const DEVICE_MANAGEMENT_CONCEPTS: Record<string, Concept> = {

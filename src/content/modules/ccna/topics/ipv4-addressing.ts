@@ -426,6 +426,57 @@ export const TOPIC_IPV4_ADDRESSING: Topic = {
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 120,
   tags: ["ipv4", "subnetting", "cidr", "arp", "addressing"],
+  lessonSummary: {
+    mustKnow: [
+      "Calculate subnet ID, broadcast address, first/last host, and usable host count for any /prefix using the Magic Number method",
+      "VLSM — allocate subnets largest-first; each block must be aligned to its own block size",
+      "ARP — broadcast request resolves destination IP to MAC; always targets the default gateway MAC when crossing a subnet boundary",
+      "ICMP Type 8/0 (Echo Request/Reply) for ping; Type 11 (Time Exceeded) for traceroute",
+      "ICMPv6 Types 133–137 are Neighbor Discovery (NDP) — the IPv6 replacement for ARP",
+    ],
+    bestPractice: [
+      {
+        topic: "Subnetting for point-to-point WAN links",
+        practice:
+          "Use /30 (2 usable hosts) for point-to-point links; /31 is also valid per RFC 3021 and saves addresses on modern IOS.",
+      },
+      {
+        topic: "ARP security",
+        practice:
+          "Enable Dynamic ARP Inspection (DAI) on access-layer switches to prevent ARP spoofing: 'ip arp inspection vlan <id>'.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "ICMP filtering",
+        practice:
+          "Never block ICMPv6 Types 1–4 and 133–137 in firewalls — doing so breaks Neighbor Discovery and Path MTU Discovery silently.",
+      },
+      {
+        topic: "Subnetting exam speed",
+        practice:
+          "Memorize the /25–/30 Magic Numbers (128, 64, 32, 16, 8, 4) and the block progression; do not use a calculator on the exam.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Classful addressing (Class A/B/C)",
+        reason:
+          "Replaced by CIDR in 1993 (RFC 1519); classful boundaries are only relevant today for understanding RIPv1 auto-summary behavior",
+        replacedBy: "CIDR / classless addressing",
+      },
+      {
+        topic: "ARP proxy",
+        reason:
+          "Router answers ARP requests on behalf of remote hosts; rarely configured intentionally in modern networks, but can appear when legacy static routes lack a default gateway",
+        replacedBy: "Proper default gateway configuration",
+      },
+    ],
+    fastFacts: [
+      "A /27 has 32 addresses and 30 usable hosts; a /28 has 16 addresses and 14 usable hosts. Verify: use 'ip address' on an interface and check with 'show ip interface brief'",
+      "ARP cache entries expire after ~240 s by default on Cisco IOS. Verify: show arp",
+      "ICMP is IP protocol number 1; ICMPv6 is Next Header 58. Verify: show ip traffic | include ICMP",
+    ],
+  },
 };
 
 export const IPV4_CONCEPTS: Record<string, Concept> = {

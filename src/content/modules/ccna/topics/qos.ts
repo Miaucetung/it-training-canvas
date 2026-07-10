@@ -189,6 +189,53 @@ export const TOPIC_QOS: Topic = {
   prerequisiteTopicIds: ["switching-vlans", "routing-ospf"],
   estimatedMinutes: 90,
   tags: ["qos", "voice", "video", "marking", "shaping"],
+  lessonSummary: {
+    mustKnow: [
+      "VoIP quality requirements: delay < 150 ms one-way, jitter < 30 ms, packet loss < 1% — QoS does not create bandwidth, it prioritizes during congestion",
+      "DSCP EF (46) for voice RTP; AF41 (34) for video conferencing; DF/0 for best effort — these values must be memorized for the exam",
+      "LLQ = CBWFQ + a Priority Queue for voice; the Priority Queue is serviced first, then remaining bandwidth distributed to other classes",
+      "Shaping buffers excess traffic (adds delay, no drops); Policing drops or re-marks excess traffic immediately (no added delay)",
+      "Trust Boundary: mark traffic as close to the source as possible (at the IP phone or access switch); never trust end-user PCs to self-mark",
+    ],
+    bestPractice: [
+      {
+        topic: "VoIP QoS deployment",
+        practice:
+          "Configure LLQ with 'priority percent 30' for voice (EF) on WAN interfaces; always set a rate limit on the priority queue to prevent voice from starving all other traffic.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "DSCP over CoS",
+        practice:
+          "Mark with DSCP (Layer 3, IP header) rather than CoS (Layer 2, 802.1Q tag) — DSCP survives across routed hops; CoS is stripped at every Layer-3 boundary.",
+      },
+      {
+        topic: "Trust boundary at IP phone",
+        practice:
+          "Set 'mls qos trust cos' on access ports connected to IP phones — the phone marks voice as CoS 5 (EF) and PC-through traffic as CoS 0 (best effort).",
+        note: "[Cisco only] — applies to Catalyst switches with MLS QoS",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "IP Precedence (3-bit ToS)",
+        reason:
+          "Only 3 bits (8 values) vs DSCP 6 bits (64 values); DSCP is backward-compatible with IP Precedence through the Class Selector (CS) values",
+        replacedBy: "DSCP (DiffServ Code Point, RFC 2474)",
+      },
+      {
+        topic: "Tail-drop",
+        reason:
+          "Drops all packets at queue tail during congestion; causes TCP global synchronization (all flows back off simultaneously, then all surge together)",
+        replacedBy: "WRED (Weighted Random Early Detection) for TCP flows",
+      },
+    ],
+    fastFacts: [
+      "DSCP EF = binary 101110 = decimal 46. AF class x, drop y = 8x+2y in decimal (e.g., AF41 = 8×4+2×1 = 34). Verify: show class-map",
+      "CoS bits live in the 802.1Q VLAN tag PCP field (3 bits, values 0–7); CoS 5 = voice, CoS 0 = default. Verify: show interfaces <int> trunk",
+      "'show policy-map interface <int>' shows per-class packet counters, drops, and queue depth in real time. Verify: show policy-map interface gi0/1",
+    ],
+  },
 };
 
 export const QOS_CONCEPTS: Record<string, Concept> = {

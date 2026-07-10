@@ -340,6 +340,75 @@ export const TOPIC_SWITCHING_VLANS: Topic = {
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 90,
   tags: ["switching", "vlan", "layer-2"],
+  lessonSummary: {
+    mustKnow: [
+      "Configure access ports (switchport mode access) and trunk ports (switchport mode trunk) explicitly",
+      "802.1Q tagging — 4-byte tag inserted between src-MAC and EtherType; the only trunking standard in use today",
+      "Native VLAN — untagged VLAN on a trunk port; default is VLAN 1, which is a known security risk",
+      "switchport trunk allowed vlan — always use an explicit allowlist; never leave trunks carrying all VLANs",
+      "Voice VLAN — configured on access ports alongside the data VLAN to support IP phones with QoS prioritization",
+    ],
+    bestPractice: [
+      {
+        topic: "Access / Trunk port mode",
+        practice:
+          "Always set port mode explicitly with 'switchport mode access' or 'switchport mode trunk'; never rely on DTP auto-negotiation.",
+      },
+      {
+        topic: "Native VLAN",
+        practice:
+          "Change the native VLAN from VLAN 1 to an unused VLAN (e.g. 999) on every trunk port: 'switchport trunk native vlan 999'.",
+        note: "[Cisco only] — 802.1Q itself does not define a native VLAN concept; this is Cisco's implementation detail",
+      },
+      {
+        topic: "Trunk encapsulation",
+        practice:
+          "Use dot1q encapsulation — it is the only option on modern switches and the IEEE standard.",
+        note: "[IOS-XE differs] — 'switchport trunk encapsulation dot1q' is not required on IOS-XE; dot1q is the only supported encapsulation",
+      },
+      {
+        topic: "Trunk allowed VLANs",
+        practice:
+          "Always specify an explicit VLAN list: 'switchport trunk allowed vlan 10,20,30'; never leave the trunk set to carry all VLANs.",
+      },
+      {
+        topic: "Voice VLAN",
+        practice:
+          "Configure 'switchport voice vlan <id>' on access ports connected to IP phones; this enables the phone to tag voice traffic separately from PC data.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "DTP (Dynamic Trunking Protocol)",
+        reason:
+          "Security risk: enables VLAN hopping via switch spoofing; disabled in modern network designs",
+        replacedBy: "'switchport nonegotiate' on all trunk ports",
+      },
+      {
+        topic: "VTP v1 / VTP v2",
+        reason:
+          "VTP advertisement storms have caused production-wide VLAN database wipes; most enterprises disable VTP entirely",
+        replacedBy: "Manual VLAN configuration per switch, or VTP v3 with a domain password",
+      },
+      {
+        topic: "VLAN 1 as native VLAN",
+        reason:
+          "Attack surface for double-tagging VLAN hopping attacks; Cisco security hardening guides explicitly recommend changing it",
+        replacedBy: "An unused, dedicated native VLAN (e.g. VLAN 999) with no hosts assigned",
+      },
+      {
+        topic: "ISL (Inter-Switch Link)",
+        reason:
+          "Cisco-proprietary predecessor to 802.1Q, no longer supported on modern IOS-XE platforms; adds 30-byte overhead and caps at 1024 VLANs",
+        replacedBy: "802.1Q (dot1q)",
+      },
+    ],
+    fastFacts: [
+      "VLAN 1 is the default native VLAN on all Cisco trunk ports. Verify: show interfaces trunk",
+      "DTP is enabled by default — disable it with 'switchport nonegotiate' on every trunk port. Verify: show dtp interface <int>",
+      "802.1Q adds a 4-byte tag between src-MAC and EtherType; max Ethernet frame size grows from 1518 to 1522 bytes. Verify: show interfaces <int> | include MTU",
+    ],
+  },
 };
 
 export const TOPIC_STP: Topic = {
@@ -353,6 +422,60 @@ export const TOPIC_STP: Topic = {
   prerequisiteTopicIds: ["switching-vlans"],
   estimatedMinutes: 40,
   tags: ["switching", "stp", "layer-2", "redundancy"],
+  lessonSummary: {
+    mustKnow: [
+      "Root Bridge election: lowest Bridge ID (priority + MAC) wins; control with 'spanning-tree vlan <id> priority <0-61440>'",
+      "Root Path Cost is the sum of port costs along the path to the Root Bridge — not just the local port cost",
+      "Classic STP (802.1D) convergence can take up to 50 s (Max Age 20 + 2 × Forward Delay 15); Rapid PVST+ converges in under 10 s",
+      "PortFast: skips Listening and Learning states; use only on access ports to end-hosts — never toward another switch",
+      "BPDU Guard: err-disables a PortFast port immediately if a BPDU is received — prevents rogue switch attachments",
+    ],
+    bestPractice: [
+      {
+        topic: "Root Bridge placement",
+        practice:
+          "Manually set the Root Bridge on the distribution/core switch with 'spanning-tree vlan <id> root primary' — never let it be elected by default (random MAC).",
+        note: "[Cisco only] — sets priority automatically lower than current root",
+      },
+      {
+        topic: "Rapid PVST+",
+        practice:
+          "Use Rapid PVST+ ('spanning-tree mode rapid-pvst') on all modern Cisco switches — it is the default on IOS 15+ and converges in seconds rather than up to 50 s.",
+        note: "[Cisco only] — IEEE equivalent is 802.1w (RSTP)",
+      },
+      {
+        topic: "PortFast + BPDU Guard",
+        practice:
+          "Enable both globally for all access ports: 'spanning-tree portfast default' and 'spanning-tree portfast bpduguard default'.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "Port cost for multi-gigabit",
+        practice:
+          "Set 'auto-cost reference-bandwidth' equivalent: use 'spanning-tree pathcost method long' so GigabitEthernet and 10-GigE have distinct costs (not both 1).",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Classic STP (IEEE 802.1D)",
+        reason:
+          "50-second convergence time (Max Age 20 s + 2 × Forward Delay 15 s) causes traffic disruption during topology changes; all modern switches run RSTP by default",
+        replacedBy: "Rapid PVST+ (Cisco) or 802.1w RSTP",
+      },
+      {
+        topic: "PVST+ (Classic per-VLAN STP)",
+        reason:
+          "Cisco's per-VLAN variant of 802.1D; still present as a fallback mode but offers no advantage over Rapid PVST+",
+        replacedBy: "Rapid PVST+",
+      },
+    ],
+    fastFacts: [
+      "Rapid PVST+ is the default STP mode on Cisco Catalyst switches running IOS 15+. Verify: show spanning-tree summary",
+      "A PortFast port that receives a BPDU goes err-disabled immediately with BPDU Guard enabled. Verify: show interfaces <int> status",
+      "Default STP port cost for FastEthernet is 19; GigabitEthernet is 4 (with default 100M reference bandwidth). Verify: show spanning-tree vlan <id>",
+    ],
+  },
 };
 
 export const TOPIC_ETHERCHANNEL: Topic = {
@@ -366,6 +489,48 @@ export const TOPIC_ETHERCHANNEL: Topic = {
   prerequisiteTopicIds: ["switching-vlans"],
   estimatedMinutes: 30,
   tags: ["switching", "etherchannel", "lacp", "layer-2"],
+  lessonSummary: {
+    mustKnow: [
+      "LACP (IEEE 802.3ad) is the open standard; PAgP is Cisco-proprietary; both negotiate EtherChannel dynamically — static 'mode on' requires no negotiation but must match on both sides",
+      "LACP modes: active+active or active+passive forms a bundle; passive+passive does NOT form a bundle",
+      "All member ports must have identical speed, duplex, VLAN configuration, and trunk/access mode — a mismatch prevents the EtherChannel from forming",
+      "Load balancing uses a hash of source/destination MAC or IP; a single TCP flow always stays on one physical link (not per-packet round-robin)",
+      "Maximum 8 active links per LACP EtherChannel (plus up to 8 hot-standby links = 16 member ports total)",
+    ],
+    bestPractice: [
+      {
+        topic: "Protocol selection",
+        practice:
+          "Use LACP ('channel-group <n> mode active') in all environments; PAgP only when connecting Cisco to Cisco and LACP is unavailable for legacy reasons.",
+        note: "[Cisco only for PAgP]",
+      },
+      {
+        topic: "Hash algorithm",
+        practice:
+          "Set 'port-channel load-balance src-dst-ip' for routed traffic between many hosts; 'src-dst-mac' for Layer-2 access-layer links — choose based on traffic diversity to maximize distribution across physical links.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "STP and EtherChannel",
+        practice:
+          "Spanning Tree sees the Port-Channel as a single logical link; ensure STP port cost on Port-Channel reflects its aggregate bandwidth ('spanning-tree pathcost method long').",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Static EtherChannel (mode on)",
+        reason:
+          "No negotiation protocol — if one side is 'on' and the other is 'auto/desirable/active/passive', the port goes into err-disabled; also provides no detection of misconfiguration",
+        replacedBy: "LACP with 'mode active' on both sides",
+      },
+    ],
+    fastFacts: [
+      "'show etherchannel summary' shows each group, member ports, and the bundle state (SU = Layer-2 in use; P = member port in bundle). Verify: show etherchannel summary",
+      "A single TCP stream will always use one physical link regardless of how many links are in the EtherChannel — load balancing is per-flow, not per-packet. Verify: show etherchannel load-balance",
+      "If member ports have different VLANs or different trunk/access modes, the EtherChannel will not form and ports may go err-disabled. Verify: show interfaces port-channel <n>",
+    ],
+  },
 };
 
 // Hinweis: "vlan-simulator" ist als Concept in vlan-advanced.ts definiert

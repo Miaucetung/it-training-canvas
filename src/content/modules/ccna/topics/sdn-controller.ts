@@ -216,6 +216,47 @@ export const TOPIC_SDN: Topic = {
   prerequisiteTopicIds: ["routing-ospf"],
   estimatedMinutes: 120,
   tags: ["sdn", "dna-center", "sd-access", "cloud", "automation"],
+  lessonSummary: {
+    mustKnow: [
+      "Three planes: Data Plane (forwards packets in hardware/ASIC), Control Plane (makes routing decisions — OSPF/BGP), Management Plane (CLI/SNMP configuration)",
+      "SDN moves the Control Plane to a centralized controller; Southbound APIs (OpenFlow, NETCONF) program devices; Northbound APIs (REST) expose intent to applications",
+      "Cloud service models: IaaS (you manage OS+app), PaaS (you manage app only), SaaS (you manage data/config only)",
+      "SD-Access fabric: Underlay = IP routing between switches; Overlay = VXLAN tunnels for user traffic; LISP = maps endpoint ID to location",
+      "Cisco DNA Center is an intent-based networking platform — operators define policy once, DNAC pushes config to all devices",
+    ],
+    bestPractice: [
+      {
+        topic: "SDN deployment approach",
+        practice:
+          "Validate the underlay routing (IS-IS or OSPF) before enabling the SD-Access fabric overlay — a broken underlay breaks all VXLAN tunnels silently.",
+        note: "[Cisco only — SD-Access]",
+      },
+      {
+        topic: "Cloud connectivity",
+        practice:
+          "Use AWS Direct Connect or Azure ExpressRoute for production workloads that need guaranteed bandwidth and low latency; internet VPN for backup or non-critical traffic.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "OpenFlow",
+        reason:
+          "Early SDN Southbound API that programs flow tables directly; limited vendor adoption; replaced by more expressive APIs like NETCONF/YANG and gRPC/gNMI in production networks",
+        replacedBy: "NETCONF, RESTCONF, gRPC/gNMI",
+      },
+      {
+        topic: "Traditional distributed control plane",
+        reason:
+          "Each device independently runs OSPF/STP/etc; configuration is per-device, inconsistency-prone, and slow to change at scale — the limitation that motivated SDN",
+        replacedBy: "Controller-based networking (SDN, SD-Access, SD-WAN)",
+      },
+    ],
+    fastFacts: [
+      "DNA Center does NOT carry user data — it is management/control only; all traffic flows through the fabric switches. Verify: show fabric status on a border node",
+      "VXLAN adds a 50-byte header overhead (8 VXLAN + 8 UDP + 20 IP + 14 Ethernet); the physical MTU must be at least 1550 bytes to avoid fragmentation. Verify: show interface <int> | include MTU",
+      "IaaS: you patch the OS. PaaS: vendor patches OS+middleware. SaaS: vendor manages everything except your data/config. Verify: AWS Shared Responsibility Model documentation",
+    ],
+  },
 };
 
 export const SDN_CONCEPTS: Record<string, Concept> = {

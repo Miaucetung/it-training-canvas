@@ -255,6 +255,60 @@ export const TOPIC_IOS_CLI: Topic = {
   prerequisiteTopicIds: ["networking-fundamentals"],
   estimatedMinutes: 120,
   tags: ["ios", "cli", "cisco", "ssh", "configuration"],
+  lessonSummary: {
+    mustKnow: [
+      "CLI mode hierarchy: User EXEC (>) → Privileged EXEC (#) → Global Config (config)# → submodes; wrong mode is the #1 reason commands are rejected",
+      "running-config lives in RAM (volatile) — always 'copy running-config startup-config' (wr) after changes; without it, config is lost on reload",
+      "SSH v2 requires 5 steps: hostname, ip domain-name, crypto key generate rsa modulus 2048, ip ssh version 2, local user with 'secret', and 'transport input ssh' on VTY lines",
+      "Interface status combinations: up/up = working; admin down/down = shutdown applied; down/down = no signal; err-disabled = triggered by security feature",
+      "'enable secret' creates a hashed password (Type 8/9); 'enable password' stores in Type-7 (weak) — always use 'secret'",
+    ],
+    bestPractice: [
+      {
+        topic: "Password storage",
+        practice:
+          "Use 'enable secret' and 'username <name> secret <pw>' in all configurations — never 'enable password'. Add 'service password-encryption' to obfuscate any remaining cleartext passwords.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "SSH hardening",
+        practice:
+          "Set 'ip ssh version 2', 'ip ssh time-out 60', 'ip ssh authentication-retries 3', and 'transport input ssh' (no telnet) on all VTY lines.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "Configuration save habit",
+        practice:
+          "After every tested change, immediately run 'copy running-config startup-config' (wr). Treat an unsaved config as temporary.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "Console timeout",
+        practice:
+          "Set 'exec-timeout 10 0' on the console line — a console left logged in as privilege 15 is a physical security risk.",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Telnet (TCP 23)",
+        reason:
+          "Transmits all data including passwords in cleartext — trivially intercepted with a packet sniffer on any shared segment",
+        replacedBy: "SSH v2 (TCP 22) with RSA 2048-bit keys",
+      },
+      {
+        topic: "'enable password' command",
+        reason:
+          "Stored as Type-7 (Vigenère cipher), reversible with freely available tools; was the original privileged-mode password mechanism",
+        replacedBy: "'enable secret' (Type 8 scrypt or Type 9 pbkdf2)",
+      },
+    ],
+    fastFacts: [
+      "'show ip interface brief' shows all interface status/protocol in one line — the fastest overview of which ports are up. Verify: run it first on any new device",
+      "Ctrl+Z from any submode returns directly to Privileged EXEC (#) — faster than multiple 'exit' commands. Verify: try it in config-if mode",
+      "RSA keys below 768 bits only support SSH v1; 2048 bits is the current recommendation for production. Verify: show ip ssh",
+    ],
+  },
 };
 
 const CONCEPT_IOS_TERMINAL: Concept = {

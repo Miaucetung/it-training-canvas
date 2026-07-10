@@ -231,6 +231,57 @@ export const TOPIC_WAN: Topic = {
   prerequisiteTopicIds: ["routing-ospf", "security"],
   estimatedMinutes: 120,
   tags: ["wan", "vpn", "ipsec", "mpls", "sd-wan"],
+  lessonSummary: {
+    mustKnow: [
+      "MPLS L3VPN provides any-to-any connectivity between sites without full-mesh tunnels; the ISP manages CE-PE routing (usually BGP or OSPF)",
+      "IPsec ESP provides both authentication and encryption of the IP payload; AH provides authentication only (no encryption) and is rarely used",
+      "GRE encapsulates any Layer-3 protocol and supports multicast (enabling OSPF/EIGRP inside the tunnel); GRE alone has NO encryption",
+      "GRE over IPsec combines GRE's multicast support with IPsec's encryption — the standard for site-to-site VPN with dynamic routing",
+      "SD-WAN components: vManage (GUI/config), vSmart (control plane), vBond (orchestrator), vEdge/cEdge (data plane at each site)",
+    ],
+    bestPractice: [
+      {
+        topic: "VPN technology selection",
+        practice:
+          "Use IPsec with IKEv2 (not IKEv1) for all new site-to-site VPNs; use AES-256 and SHA-256 minimum. Avoid PSK in large deployments — use PKI certificates.",
+      },
+      {
+        topic: "MPLS vs. Internet VPN",
+        practice:
+          "Use MPLS for latency-sensitive traffic (VoIP, ERP) where guaranteed bandwidth and SLA are needed; use Internet VPN for lower-cost backup paths or non-critical traffic.",
+      },
+      {
+        topic: "SD-WAN dual-transport",
+        practice:
+          "Deploy at least two independent transports per site (e.g., fiber + LTE) to benefit from SD-WAN's application-aware failover — a single transport gives no redundancy benefit.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Frame Relay",
+        reason:
+          "Legacy Layer-2 WAN technology using virtual circuits (DLCI); the ITU-T formally withdrew the standard in 2016; no modern ISP offers it",
+        replacedBy: "Metro Ethernet or MPLS L3VPN",
+      },
+      {
+        topic: "HDLC (Cisco cHDLC)",
+        reason:
+          "Cisco-proprietary serial encapsulation; only works Cisco-to-Cisco; serial WAN links themselves are nearly extinct, replaced by Ethernet handoffs",
+        replacedBy: "Metro Ethernet (IEEE 802.3)",
+      },
+      {
+        topic: "IKEv1 (ISAKMP Phase 1/2)",
+        reason:
+          "More complex negotiation, known vulnerabilities in aggressive mode; IKEv2 is faster (2 exchanges vs. 6/9) and required for modern use cases like MOBIKE and EAP",
+        replacedBy: "IKEv2 (RFC 7296)",
+      },
+    ],
+    fastFacts: [
+      "GRE tunnels add 24 bytes of overhead (20 IP + 4 GRE); with IPsec ESP in tunnel mode, total overhead is ~74 bytes. Verify: show interface tunnel0",
+      "MPLS does NOT encrypt traffic by default — the ISP backbone carries customer data in the clear; add IPsec on top if encryption is required. Verify: traceroute between sites",
+      "SD-WAN Zero-Touch Provisioning: a new cEdge calls vBond using the serial number — no manual IP configuration needed at the site. Verify: show sdwan system status",
+    ],
+  },
 };
 
 export const WAN_CONCEPTS: Record<string, Concept> = {

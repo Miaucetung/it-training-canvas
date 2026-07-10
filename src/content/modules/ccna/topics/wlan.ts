@@ -297,6 +297,64 @@ export const TOPIC_WLAN: Topic = {
   prerequisiteTopicIds: ["security"],
   estimatedMinutes: 90,
   tags: ["wireless", "wlan", "wifi"],
+  lessonSummary: {
+    mustKnow: [
+      "802.11ax (Wi-Fi 6) operates on 2.4/5/6 GHz with OFDMA; 802.11ac (Wi-Fi 5) is 5 GHz only; both are current in enterprise deployments",
+      "2.4 GHz has only 3 non-overlapping channels (1, 6, 11); 5 GHz provides up to 25 non-overlapping channels — preferred for dense environments",
+      "WPA2-Personal uses a Pre-Shared Key; WPA2-Enterprise requires 802.1X with a RADIUS server — Enterprise is standard for corporate networks",
+      "WPA3-Personal replaces PSK with SAE (Simultaneous Authentication of Equals), preventing offline dictionary attacks",
+      "Lightweight APs + WLC: CAPWAP tunnels use UDP 5246 (control) and UDP 5247 (data); all configuration is centralized on the WLC",
+    ],
+    bestPractice: [
+      {
+        topic: "Channel planning",
+        practice:
+          "Assign non-overlapping channels to adjacent APs: use only channels 1, 6, and 11 in 2.4 GHz; use 5 GHz with 40/80 MHz channels for throughput where density allows.",
+      },
+      {
+        topic: "WLAN authentication",
+        practice:
+          "Deploy WPA2-Enterprise (802.1X + EAP-TLS or PEAP) for all corporate SSIDs — individual user credentials allow per-user revocation and audit trails.",
+      },
+      {
+        topic: "WLC management vs. WLAN access AAA",
+        practice:
+          "Use TACACS+ for WLC device administration (CLI/GUI access) and RADIUS for WLAN client authentication (802.1X) — these are separate AAA policies on the WLC.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "FlexConnect for branch offices",
+        practice:
+          "Use FlexConnect mode on branch-office APs so they continue to forward traffic locally when the WAN link to the WLC goes down.",
+        note: "[Cisco only]",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "WEP",
+        reason:
+          "RC4-based, cryptographically broken in minutes with freely available tools; formally deprecated by IEEE in 2004",
+        replacedBy: "WPA2 (AES-CCMP) or WPA3",
+      },
+      {
+        topic: "TKIP (WPA)",
+        reason:
+          "Transitional fix over WEP using RC4 with per-packet keying; considered weak and was removed from the Wi-Fi Alliance certification in 2012",
+        replacedBy: "AES-CCMP (WPA2) or AES-GCMP (WPA3)",
+      },
+      {
+        topic: "Autonomous AP architecture",
+        reason:
+          "Each AP must be individually configured and managed; no centralized roaming, RF management, or policy enforcement — impractical at scale",
+        replacedBy: "Lightweight AP + WLC (CAPWAP) architecture",
+      },
+    ],
+    fastFacts: [
+      "CAPWAP discovery: a Lightweight AP sends a broadcast/multicast discovery message; if no WLC responds, it falls back to DNS lookup ('CISCO-CAPWAP-CONTROLLER.<domain>'). Verify: show capwap client rcb",
+      "WPA2-Enterprise 4-way handshake derives the PTK (Pairwise Transient Key) from the PMK — each client gets a unique encryption key. Verify: show client detail <mac> on WLC",
+      "2.4 GHz co-channel interference is the #1 cause of poor WLAN performance in dense environments — always use channels 1, 6, 11 only. Verify: show ap auto-rf dot11 24ghz",
+    ],
+  },
 };
 
 export const WLAN_CONCEPTS: Record<string, Concept> = {

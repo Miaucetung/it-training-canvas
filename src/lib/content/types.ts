@@ -53,6 +53,37 @@ export interface Exercise {
 }
 
 // ────────────────────────────────────────────────────────────
+// LessonSummary — structured study aid attached to a Topic
+// ────────────────────────────────────────────────────────────
+export interface LessonSummary {
+  /** Max 5. Each = one action statement. Only concepts on the CCNA 200-301 v1.1
+   *  blueprint AND actively used in modern enterprise networks post-2015. */
+  mustKnow: string[];
+
+  /** One entry per mustKnow item.
+   *  practice = de-facto standard config in 2024 in one sentence. */
+  bestPractice: {
+    topic: string;
+    practice: string;
+    /** e.g. "[Cisco only]" or "[IOS-XE differs]" */
+    note?: string;
+  }[];
+
+  /** Concepts in the lesson that are exam-relevant but rarely used in practice. */
+  legacyOrExamOnly: {
+    topic: string;
+    /** Why it's legacy */
+    reason: string;
+    /** Modern alternative, if one exists */
+    replacedBy?: string;
+  }[];
+
+  /** Max 3. Each = one CLI-verifiable fact.
+   *  Format: "<fact>. Verify: show <command>" */
+  fastFacts: string[];
+}
+
+// ────────────────────────────────────────────────────────────
 // Topic — a chapter-level grouping of concepts, quizzes, exercises
 // ────────────────────────────────────────────────────────────
 export interface Topic {
@@ -69,6 +100,7 @@ export interface Topic {
   prerequisiteTopicIds?: string[];
   estimatedMinutes: number;
   tags: string[];
+  lessonSummary?: LessonSummary;
 }
 
 // ────────────────────────────────────────────────────────────

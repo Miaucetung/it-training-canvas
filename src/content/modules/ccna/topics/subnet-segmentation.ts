@@ -711,6 +711,45 @@ export const TOPIC_SUBNET_SEGMENTATION: Topic = {
   prerequisiteTopicIds: ["ipv4-addressing", "switching-vlans"],
   estimatedMinutes: 90,
   tags: ["segmentierung", "vlsm", "dmz", "sicherheitszonen", "cisco", "acl"],
+  lessonSummary: {
+    mustKnow: [
+      "Segmentation reduces broadcast domains and limits lateral movement — a compromised device in one VLAN cannot ARP-scan or directly reach hosts in another VLAN without passing through a router/firewall",
+      "Security zones in order of trust: Internet (untrusted) → DMZ (semi-trusted, public-facing servers) → Internal LAN (trusted) → Management VLAN (highest-trust, should be most restricted)",
+      "VLSM assigns the smallest possible subnet to each segment (always allocate largest-first to avoid overlap)",
+      "The Management VLAN should never carry user traffic and should be separate from VLAN 1; restrict access to it with ACLs",
+    ],
+    bestPractice: [
+      {
+        topic: "DMZ design",
+        practice:
+          "Place public-facing servers (web, mail, DNS) in a dedicated DMZ VLAN behind a firewall; the firewall permits inbound on specific ports only and blocks all DMZ-to-internal traffic by default.",
+      },
+      {
+        topic: "Management VLAN isolation",
+        practice:
+          "Dedicate a separate VLAN (e.g. VLAN 99) for switch/router management; allow SSH access to it only from a designated admin subnet and block it from user VLANs with ACLs.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "VLSM planning order",
+        practice:
+          "Always plan subnets largest-to-smallest and document the address plan before configuring — a misaligned subnet wastes addresses and causes routing gaps.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "Flat networks (single VLAN for all users)",
+        reason:
+          "Single broadcast domain means a broadcast storm or ARP scan reaches every device; any compromised host can reach every other host; cannot enforce access policies between groups",
+        replacedBy: "Multi-VLAN segmentation with inter-VLAN routing through a firewall or L3 switch with ACLs",
+      },
+    ],
+    fastFacts: [
+      "A /30 subnet (4 addresses, 2 usable) is the minimum for a point-to-point routed link between two devices. Verify: 'show ip interface brief' on both ends",
+      "The Management VLAN address is configured on an SVI ('interface vlan 99' + 'ip address'); this is the address used for SSH/SNMP/NTP. Verify: show ip interface vlan 99",
+      "A DMZ with a /27 subnet gives 30 usable host addresses — enough for most small server zones while keeping the blast radius small. Verify: plan on paper before configuring",
+    ],
+  },
 };
 
 export const SUBNET_SEGMENTATION_CONCEPTS: Record<string, Concept> = {

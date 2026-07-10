@@ -240,6 +240,53 @@ export const TOPIC_FHRP: Topic = {
   prerequisiteTopicIds: ["routing-ospf"],
   estimatedMinutes: 90,
   tags: ["fhrp", "hsrp", "vrrp", "glbp", "redundancy"],
+  lessonSummary: {
+    mustKnow: [
+      "FHRP provides default-gateway redundancy by sharing a virtual IP and virtual MAC across multiple routers — hosts only need to know the vIP",
+      "HSRP active router election: highest priority wins (default 100); tie-break is highest IP; preemption is OFF by default — must be explicitly enabled",
+      "VRRP is the open standard (RFC 5798) equivalent to HSRP; preemption is ON by default in VRRP (opposite of HSRP)",
+      "Object Tracking links HSRP priority to interface or route state — decrement priority when tracked object fails so the backup router takes over",
+      "GLBP allows up to 4 Active Virtual Forwarders (AVFs) simultaneously, providing true load-balancing unlike HSRP/VRRP which keep one router idle",
+    ],
+    bestPractice: [
+      {
+        topic: "HSRP preempt",
+        practice:
+          "Always configure 'standby <group> preempt' on the intended active router — without it, the preferred router will NOT reclaim the active role after a reboot.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "HSRP version",
+        practice:
+          "Use HSRP version 2 ('standby version 2') for all new deployments — it supports IPv6, groups 0–4095, and uses multicast 224.0.0.102 instead of the legacy 224.0.0.2.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "Object Tracking for uplink failure",
+        practice:
+          "Track the WAN interface line-protocol and decrement HSRP priority by enough to fall below the standby router's priority: 'standby <g> track <obj> decrement 20'.",
+        note: "[Cisco only]",
+      },
+      {
+        topic: "FHRP protocol selection",
+        practice:
+          "Use VRRP in multi-vendor environments (Cisco + Juniper/Arista); use HSRP in Cisco-only environments; use GLBP when active load-balancing across gateways is needed.",
+      },
+    ],
+    legacyOrExamOnly: [
+      {
+        topic: "HSRP v1",
+        reason:
+          "Limited to group IDs 0–255, no IPv6 support, uses legacy multicast 224.0.0.2; HSRP v2 is the current standard",
+        replacedBy: "HSRP version 2",
+      },
+    ],
+    fastFacts: [
+      "HSRP virtual MAC format for v2: 0000.0C9F.Fxxx where xxx = HSRP group ID in hex. Verify: show standby",
+      "Without preempt, a rebooted high-priority router stays in Standby even though it has a higher priority — the current Active keeps its role. Verify: show standby brief (check P flag)",
+      "VRRP uses IP protocol 112 (not UDP) for its multicast 224.0.0.18 hello messages — important for ACL/firewall rules. Verify: show vrrp brief",
+    ],
+  },
 };
 
 export const FHRP_CONCEPTS: Record<string, Concept> = {
