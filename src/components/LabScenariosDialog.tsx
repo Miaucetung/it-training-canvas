@@ -8586,31 +8586,31 @@ export const LABS: LabScenario[] = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // IPv6 Multi-Protocol Routing — RIPng → OSPFv3 → EIGRPv6
+  // IPv6 Routing — OSPFv3 + EIGRPv6
   // ─────────────────────────────────────────────────────────────
   {
-    id: "ipv6-multiproto-ripng-ospfv3-eigrpv6",
+    id: "ipv6-ospfv3-eigrpv6",
     icon: <Globe size={20} />,
-    title: "IPv6 Multi-Protocol Routing — RIPng zu OSPFv3 und EIGRPv6",
-    subtitle: "R1/R2/R3 · IPv6 · RIPng · OSPFv3 · EIGRPv6 · /127 P2P · Redistribution",
+    title: "IPv6 Routing — OSPFv3 + EIGRPv6",
+    subtitle: "R1/R2/R3 · IPv6 · OSPFv3 · EIGRPv6 · /127 P2P · AD-Koexistenz",
     difficulty: "Fortgeschritten",
-    duration: "55 min",
+    duration: "40 min",
     context: {
       problem:
-        "Ein kleines IPv6-Backbone aus drei Routern (R1, R2, R3) im Dreieck läuft aktuell komplett über RIPng. Das Netz soll schrittweise auf modernere Routing-Protokolle migriert werden — zuerst OSPFv3 auf dem Backbone, danach zusätzlich EIGRPv6 parallel auf denselben Backbone-Links —, ohne dass die drei angeschlossenen LAN-Segmente (je ein PC pro Router) die Erreichbarkeit verlieren.",
+        "Drei IPv6-Router (R1, R2, R3) bilden ein vollvermaschtes Dreieck. An jedem Router hängt ein LAN-Segment mit einem PC. Das Netz soll mit zwei modernen Routing-Protokollen ausgestattet werden: OSPFv3 auf allen Interfaces (LAN + Backbone) und EIGRPv6 zusätzlich parallel auf den Backbone-Links. Alle PCs müssen sich durchgehend erreichen.",
       purpose:
-        "Dieses Lab verbindet die Kernthemen der IPv6-Routing-Migration: Grundkonfiguration von IPv6 auf Cisco-Routern, /127-Punkt-zu-Punkt-Adressierung, RIPng als Ausgangsprotokoll, Einführung von OSPFv3 mit korrekter Router-ID und Area-Zuweisung, paralleler Betrieb von EIGRPv6 auf denselben Links, und Route-Redistribution zwischen den LAN-Segmenten (RIPng) und dem Backbone (OSPFv3/EIGRPv6). Jede Phase baut auf der vorherigen auf und muss einzeln verifiziert werden, bevor die nächste beginnt.",
+        "Dieses Lab vermittelt die Konfiguration von OSPFv3 und EIGRPv6 auf reinen IPv6-Routern ohne IPv4-Adressierung. Schwerpunkte: /127-Punkt-zu-Punkt-Adressierung (RFC 6164), Area-Zuweisung direkt am Interface, explizite Router-ID (Pflicht ohne IPv4), passive-interface-Strategie für LAN-Ports, und die automatische Koexistenz von OSPFv3 (AD 110) und EIGRPv6 (AD 90) dank administrativer Distanz — ohne manuelle Redistribution.",
     },
     topology: {
       description:
-        "R1, R2 und R3 bilden ein vollvermaschtes Dreieck (jeder Router hat eine direkte Verbindung zu den beiden anderen). An jedem Router hängt über Gig0/0 ein eigenes LAN mit genau einem PC. Migration in drei Phasen: RIPng-Baseline → OSPFv3 auf dem Backbone (mit Redistribution) → EIGRPv6 zusätzlich parallel (mit Redistribution).",
+        "R1, R2 und R3 bilden ein vollvermaschtes Dreieck — jeder Router hat eine direkte Verbindung zu den beiden anderen über dedizierte Backbone-Links. An Gig0/0 hängt an jedem Router genau ein PC in einem eigenen /64-LAN. OSPFv3 läuft auf allen Interfaces (LAN + Backbone). EIGRPv6 wird zusätzlich nur auf den Backbone-Links aktiviert. Da EIGRP (AD 90) eine niedrigere administrative Distanz hat als OSPF (AD 110), übernimmt EIGRP automatisch die Backbone-Routen — ohne manuelle Redistribution.",
       devices: [
         { type: "router", label: "R1 (LAN FDAA::/64)", count: 1 },
         { type: "router", label: "R2 (LAN FDBB::/64)", count: 1 },
         { type: "router", label: "R3 (LAN FDCC::/64)", count: 1 },
-        { type: "pc", label: "PC2 (LAN R1, FDAA::0101)", count: 1 },
-        { type: "pc", label: "PC1 (LAN R2, FDBB::0101)", count: 1 },
-        { type: "pc", label: "PC0 (LAN R3, FDCC::0101)", count: 1 },
+        { type: "pc", label: "PC2 (R1 Gig0/0, FDAA::0101/64)", count: 1 },
+        { type: "pc", label: "PC1 (R2 Gig0/0, FDBB::0101/64)", count: 1 },
+        { type: "pc", label: "PC0 (R3 Gig0/0, FDCC::0101/64)", count: 1 },
       ],
       connections: [
         "R1 Gig0/1 (FD00::2/127) ↔ R2 Gig0/2 (FD00::3/127) — Backbone-Link \"x=2\"",
@@ -8620,7 +8620,7 @@ export const LABS: LabScenario[] = [
         "R2 Gig0/0 (FDBB::FFFF/64) ↔ PC1 Fa0 (FDBB::0101/64)",
         "R3 Gig0/0 (FDCC::FFFF/64) ↔ PC0 Fa0 (FDCC::0101/64)",
       ],
-      hint: "Reihenfolge ist entscheidend: 1) IPv6-Routing + Adressierung auf allen drei Routern. 2) RIPng als Baseline auf ALLEN Interfaces (LAN + Backbone) — Ziel: Alle drei PCs pingen sich gegenseitig. 3) OSPFv3 auf den Backbone-Links einführen, RIPng dort ENTFERNEN, Redistribution RIPng→OSPFv3 je LAN-Router einrichten. 4) EIGRPv6 zusätzlich parallel auf den Backbone-Links, Redistribution RIPng→EIGRPv6 ergänzen. 5) Jede Phase einzeln verifizieren, bevor die nächste beginnt.",
+      hint: "Reihenfolge: 1) IPv6-Routing + Adressierung auf allen Routern. 2) OSPFv3 auf ALLEN Interfaces (LAN + Backbone) mit passive-interface auf Gig0/0. 3) EIGRPv6 zusätzlich auf den Backbone-Links. 4) Nach jedem Schritt Ping zwischen den PCs verifizieren — bei korrekter Konfiguration darf der Ping nie verloren gehen.",
     },
     steps: [
       {
@@ -8631,8 +8631,8 @@ export const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "ipv6 unicast-routing", explanation: "Aktiviert IPv6-Forwarding auf dem Router. Ohne diesen Befehl kann der Router keine IPv6-Pakete zwischen Interfaces weiterleiten, egal wie die Adressierung konfiguriert ist — er bleibt im reinen Host-Modus." },
-              { cmd: "ipv6 cef", explanation: "Stellt sicher, dass Cisco Express Forwarding für IPv6 aktiv ist (Hardware-beschleunigtes Forwarding statt langsamem Process-Switching)." },
+              { cmd: "ipv6 unicast-routing", explanation: "PFLICHT: Aktiviert IPv6-Forwarding auf dem Router. Ohne diesen Befehl bleibt der Router im reinen Host-Modus und kann keine IPv6-Pakete zwischen Interfaces weiterleiten — egal wie Adressen und Protokolle konfiguriert sind." },
+              { cmd: "ipv6 cef", explanation: "Aktiviert Cisco Express Forwarding für IPv6 (Hardware-beschleunigtes Forwarding). Ohne CEF fällt der Router auf langsameres Process-Switching zurück. Sicherstellen dass KEIN 'no ipv6 cef' in der Config steht." },
             ],
           },
           {
@@ -8656,69 +8656,64 @@ export const LABS: LabScenario[] = [
         ],
       },
       {
-        title: "2) R1 — Interfaces (LAN + Backbone, /127-P2P)",
+        title: "2) R1 — Interface-Adressierung (LAN + Backbone)",
         blocks: [
           {
             device: "R1",
             mode: "interface",
-            modeLabel: "R1(config)#",
+            modeLabel: "R1(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 address FDAA::FFFF/64\nno shutdown", explanation: "LAN-Interface Richtung PC2. Global-Unicast-Adresse als Gateway für das LAN FDAA::/64." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::2/127\nno shutdown", explanation: "Backbone-Link zu R2 (x=2). /127 belegt genau 2 Adressen im Subnetz (FD00::2 und FD00::3) — Best Practice für Punkt-zu-Punkt-Links (RFC 6164)." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::6/127\nno shutdown", explanation: "Backbone-Link zu R3 (x=6). Partner-Adresse ist FD00::7/127 auf R3 — beide Enden müssen im selben /127-Subnetz liegen." },
+              { cmd: "interface GigabitEthernet0/0\nipv6 address FDAA::FFFF/64\nno shutdown\nipv6 ospf 1 area 0", explanation: "LAN-Interface Richtung PC2. Global-Unicast-Adresse als Gateway für LAN FDAA::/64. OSPFv3 direkt am Interface aktivieren und Area 0 zuweisen — kein network-Statement wie bei OSPFv2." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::2/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R2 (x=2). /127 belegt genau 2 Adressen (FD00::2 und FD00::3) — Best Practice für P2P-Links (RFC 6164). Beide Enden MÜSSEN im selben /127-Subnetz liegen, sonst schlägt der direkte Ping trotz up/up fehl. OSPFv3 auf dem Backbone-Link, Area 0." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::6/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R3 (x=6). Partner-Adresse auf R3 Gig0/1 ist FD00::7/127 — selbes /127-Subnetz. OSPFv3 auf dem Backbone-Link zu R3, Area 0." },
             ],
           },
         ],
       },
       {
-        title: "3) R2 — Interfaces (LAN + Backbone, /127-P2P)",
+        title: "3) R2 — Interface-Adressierung (LAN + Backbone)",
         blocks: [
           {
             device: "R2",
             mode: "interface",
-            modeLabel: "R2(config)#",
+            modeLabel: "R2(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 address FDBB::FFFF/64\nno shutdown", explanation: "LAN-Interface Richtung PC1. Gateway für LAN FDBB::/64." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::4/127\nno shutdown", explanation: "Backbone-Link zu R3 (x=4). Partner: R3 Gig0/2 = FD00::5/127 — selbes /127-Subnetz." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::3/127\nno shutdown", explanation: "Backbone-Link zu R1 (x=2). Partner: R1 Gig0/1 = FD00::2/127." },
+              { cmd: "interface GigabitEthernet0/0\nipv6 address FDBB::FFFF/64\nno shutdown\nipv6 ospf 1 area 0", explanation: "LAN-Interface Richtung PC1. Gateway für LAN FDBB::/64. OSPFv3 Area 0 — das LAN-Präfix wird dadurch automatisch in OSPFv3 beworben, keine Redistribution nötig." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::4/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R3 (x=4). Partner auf R3 Gig0/2: FD00::5/127 — selbes Subnetz. OSPFv3 Area 0." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::3/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R1 (x=2). Partner auf R1 Gig0/1: FD00::2/127 — selbes Subnetz. OSPFv3 Area 0." },
             ],
           },
         ],
       },
       {
-        title: "4) R3 — Interfaces (LAN + Backbone, /127-P2P)",
+        title: "4) R3 — Interface-Adressierung (LAN + Backbone)",
         blocks: [
           {
             device: "R3",
             mode: "interface",
-            modeLabel: "R3(config)#",
+            modeLabel: "R3(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 address FDCC::FFFF/64\nno shutdown", explanation: "LAN-Interface Richtung PC0. Gateway für LAN FDCC::/64." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::7/127\nno shutdown", explanation: "Backbone-Link zu R1 (x=6). Partner: R1 Gig0/2 = FD00::6/127." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::5/127\nno shutdown", explanation: "Backbone-Link zu R2 (x=4). Partner: R2 Gig0/1 = FD00::4/127." },
+              { cmd: "interface GigabitEthernet0/0\nipv6 address FDCC::FFFF/64\nno shutdown\nipv6 ospf 1 area 0", explanation: "LAN-Interface Richtung PC0. Gateway für LAN FDCC::/64. OSPFv3 Area 0." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 address FD00::7/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R1 (x=6). Partner auf R1 Gig0/2: FD00::6/127 — selbes Subnetz. OSPFv3 Area 0." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 address FD00::5/127\nno shutdown\nipv6 ospf 1 area 0", explanation: "Backbone-Link zu R2 (x=4). Partner auf R2 Gig0/1: FD00::4/127 — selbes Subnetz. OSPFv3 Area 0." },
             ],
           },
         ],
       },
       {
-        title: "5) RIPng-Baseline — Prozess + alle Interfaces (R1/R2/R3)",
+        title: "5) OSPFv3-Prozess konfigurieren (R1, R2, R3)",
         blocks: [
           {
             device: "R1",
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "ipv6 router rip FSG", explanation: "Erstellt den RIPng-Prozess mit dem Tag-Namen \"FSG\". Der Name ist frei wählbar, muss aber bei allen Interface-Befehlen exakt gleich verwendet werden." },
-            ],
-          },
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 rip FSG enable", explanation: "RIPng auf dem LAN-Interface aktivieren." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R2 aktivieren." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R3 aktivieren. In der Baseline-Phase läuft RIPng auf ALLEN Interfaces (LAN und Backbone), damit das gesamte Netz von Anfang an durchgängig erreichbar ist." },
+              { cmd: "ipv6 router ospf 1", explanation: "Startet den OSPFv3-Prozess. OSPFv3 ist ein eigener Prozess für IPv6 — kann dieselbe oder eine andere Process-ID wie ein eventueller IPv4-OSPF haben." },
+              { cmd: "router-id 1.1.1.1", explanation: "ZWINGEND bei reinen IPv6-Routern: OSPFv3 benötigt eine 32-Bit Router-ID in IPv4-Notation. Da kein einziges Interface eine IPv4-Adresse hat, kann der Prozess die ID nicht automatisch ableiten und startet sonst nicht sauber." },
+              { cmd: "log-adjacency-changes", explanation: "Protokolliert Nachbarschaftswechsel im Log — sehr nützlich beim Troubleshooting." },
+              { cmd: "passive-interface default", explanation: "Setzt ALLE Interfaces auf passiv: keine OSPF-Hello-Pakete werden gesendet. Anschließend werden nur die Backbone-Links gezielt wieder aktiv geschaltet. Hinweis: Gig0/0 bleibt passiv — das LAN-Präfix wird trotzdem über OSPFv3 beworben, weil das Interface der Area 0 zugewiesen ist. passive-interface unterdrückt nur Hellos, nicht die LSA-Werbung." },
+              { cmd: "no passive-interface GigabitEthernet0/1", explanation: "Backbone-Link zu R2/R3 wieder aktivieren — hier müssen Hellos laufen damit die OSPFv3-Adjacency aufgebaut wird." },
+              { cmd: "no passive-interface GigabitEthernet0/2", explanation: "Zweiten Backbone-Link aktivieren." },
             ],
           },
           {
@@ -8726,148 +8721,12 @@ export const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R2(config)#",
             commands: [
-              { cmd: "ipv6 router rip FSG", explanation: "RIPng-Prozess mit Tag \"FSG\" starten." },
-            ],
-          },
-          {
-            device: "R2",
-            mode: "interface",
-            modeLabel: "R2(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 rip FSG enable", explanation: "RIPng auf dem LAN-Interface aktivieren." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R3 aktivieren." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R1 aktivieren." },
-            ],
-          },
-          {
-            device: "R3",
-            mode: "global",
-            modeLabel: "R3(config)#",
-            commands: [
-              { cmd: "ipv6 router rip FSG", explanation: "RIPng-Prozess mit Tag \"FSG\" starten." },
-            ],
-          },
-          {
-            device: "R3",
-            mode: "interface",
-            modeLabel: "R3(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/0\nipv6 rip FSG enable", explanation: "RIPng auf dem LAN-Interface aktivieren." },
-              { cmd: "interface GigabitEthernet0/1\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R1 aktivieren." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 rip FSG enable", explanation: "RIPng auf dem Backbone-Link zu R2 aktivieren." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "6) Verifikation Phase 1 — RIPng-Baseline",
-        blocks: [
-          {
-            device: "R1 / R2 / R3",
-            mode: "privileged",
-            modeLabel: "Router#",
-            commands: [
-              { cmd: "show ipv6 interface brief", explanation: "Alle Interfaces müssen up/up zeigen, keines administratively down." },
-              { cmd: "show ipv6 route rip", explanation: "Jeder Router muss die beiden fremden LAN-Präfixe (z. B. auf R1: FDBB::/64 und FDCC::/64) über RIP gelernt haben." },
-            ],
-          },
-          {
-            device: "PC0 / PC1 / PC2",
-            mode: "cli",
-            modeLabel: "PC>",
-            commands: [
-              { cmd: "ping <andere PC-Adresse>", explanation: "Alle drei PCs müssen sich gegenseitig erreichen, bevor Phase 2 beginnt." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "7) RIPng von den Backbone-Interfaces entfernen (R1/R2/R3)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R2 entfernen." },
-              { cmd: "interface GigabitEthernet0/2\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R3 entfernen. RIPng bleibt bewusst nur auf dem LAN-Interface (Gig0/0) aktiv — das Backbone soll ausschließlich über OSPFv3 laufen." },
-            ],
-          },
-          {
-            device: "R2",
-            mode: "interface",
-            modeLabel: "R2(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R3 entfernen." },
-              { cmd: "interface GigabitEthernet0/2\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R1 entfernen." },
-            ],
-          },
-          {
-            device: "R3",
-            mode: "interface",
-            modeLabel: "R3(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R1 entfernen." },
-              { cmd: "interface GigabitEthernet0/2\nno ipv6 rip FSG enable", explanation: "RIPng vom Backbone-Link zu R2 entfernen." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "8) OSPFv3 auf Backbone-Interfaces aktivieren (R1/R2/R3)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "interface",
-            modeLabel: "R1(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 ospf 1 area 0", explanation: "Aktiviert OSPFv3-Prozess 1 direkt am Interface zu R2. Anders als bei OSPFv2 gibt es kein network-Statement im Router-Prozess — die Zuordnung zur Area erfolgt ausschließlich interface-basiert." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 ospf 1 area 0", explanation: "OSPFv3 auf dem Link zu R3. Bei nur drei Routern im Dreieck reicht eine einzige Area 0 völlig aus." },
-            ],
-          },
-          {
-            device: "R2",
-            mode: "interface",
-            modeLabel: "R2(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 ospf 1 area 0", explanation: "OSPFv3 auf dem Link zu R3, Area 0." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 ospf 1 area 0", explanation: "OSPFv3 auf dem Link zu R1, Area 0." },
-            ],
-          },
-          {
-            device: "R3",
-            mode: "interface",
-            modeLabel: "R3(config-if)#",
-            commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 ospf 1 area 0", explanation: "OSPFv3 auf dem Link zu R1, Area 0." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 ospf 1 area 0", explanation: "OSPFv3 auf dem Link zu R2, Area 0." },
-            ],
-          },
-        ],
-      },
-      {
-        title: "9) OSPFv3-Prozess + Redistribution RIPng→OSPFv3 (R1/R2/R3)",
-        blocks: [
-          {
-            device: "R1",
-            mode: "global",
-            modeLabel: "R1(config)#",
-            commands: [
-              { cmd: "ipv6 router ospf 1", explanation: "Startet den OSPFv3-Prozess." },
-              { cmd: "router-id 1.1.1.1", explanation: "Zwingend erforderlich, wenn der Router keine einzige aktive IPv4-Adresse besitzt (hier: alle Interfaces sind reines IPv6) — OSPFv3 kann die Router-ID sonst nicht automatisch ableiten und der Prozess startet nicht sauber." },
-              { cmd: "log-adjacency-changes", explanation: "Protokolliert Nachbarschaftswechsel im Log — nützlich zur Fehlersuche bei Adjacency-Problemen." },
-              { cmd: "redistribute rip FSG metric 20 metric-type 2", explanation: "Da RIPng jetzt nur noch auf dem eigenen LAN-Interface läuft, muss das lokale LAN-Präfix (FDAA::/64) explizit in OSPFv3 eingespeist werden. metric-type 2 (E2) bedeutet: die externe Metrik (20) bleibt über alle Hops hinweg konstant." },
-            ],
-          },
-          {
-            device: "R2",
-            mode: "global",
-            modeLabel: "R2(config)#",
-            commands: [
-              { cmd: "ipv6 router ospf 1", explanation: "Startet den OSPFv3-Prozess." },
-              { cmd: "router-id 2.2.2.2", explanation: "Muss netzwerkweit eindeutig sein — jede Router-ID darf nur einmal im gesamten OSPF-Prozess vorkommen." },
+              { cmd: "ipv6 router ospf 1", explanation: "OSPFv3-Prozess starten." },
+              { cmd: "router-id 2.2.2.2", explanation: "Eindeutige Router-ID für R2. Muss netzwerkweit einmalig sein." },
               { cmd: "log-adjacency-changes", explanation: "Adjacency-Änderungen protokollieren." },
-              { cmd: "redistribute rip FSG metric 20 metric-type 2", explanation: "Speist das lokale LAN-Präfix (FDBB::/64) in OSPFv3 ein." },
+              { cmd: "passive-interface default", explanation: "Alle Interfaces passiv setzen." },
+              { cmd: "no passive-interface GigabitEthernet0/1", explanation: "Backbone-Link reaktivieren." },
+              { cmd: "no passive-interface GigabitEthernet0/2", explanation: "Zweiten Backbone-Link reaktivieren." },
             ],
           },
           {
@@ -8875,24 +8734,27 @@ export const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R3(config)#",
             commands: [
-              { cmd: "ipv6 router ospf 1", explanation: "Startet den OSPFv3-Prozess." },
-              { cmd: "router-id 3.3.3.3", explanation: "Eindeutige Router-ID für R3." },
+              { cmd: "ipv6 router ospf 1", explanation: "OSPFv3-Prozess starten." },
+              { cmd: "router-id 3.3.3.3", explanation: "Eindeutige Router-ID für R3. Muss netzwerkweit einmalig sein." },
               { cmd: "log-adjacency-changes", explanation: "Adjacency-Änderungen protokollieren." },
-              { cmd: "redistribute rip FSG metric 20 metric-type 2", explanation: "Speist das lokale LAN-Präfix (FDCC::/64) in OSPFv3 ein. Es wird bewusst nur RIPng → OSPFv3 redistribuiert (Einbahnstraße), nicht umgekehrt, um Redistribution-Loops zu vermeiden." },
+              { cmd: "passive-interface default", explanation: "Alle Interfaces passiv setzen." },
+              { cmd: "no passive-interface GigabitEthernet0/1", explanation: "Backbone-Link reaktivieren." },
+              { cmd: "no passive-interface GigabitEthernet0/2", explanation: "Zweiten Backbone-Link reaktivieren." },
             ],
           },
         ],
       },
       {
-        title: "10) Verifikation Phase 2 — OSPFv3",
+        title: "6) Verifikation Phase 1 — OSPFv3-Baseline",
         blocks: [
           {
             device: "R1 / R2 / R3",
             mode: "privileged",
             modeLabel: "Router#",
             commands: [
-              { cmd: "show ipv6 ospf neighbor", explanation: "Zeigt die OSPFv3-Nachbarn im Zustand FULL auf beiden Backbone-Links." },
-              { cmd: "show ipv6 route ospf", explanation: "Die fremden LAN-Präfixe müssen jetzt als OE2 (OSPF External Type 2) erscheinen — nicht mehr als R (RIP)." },
+              { cmd: "show ipv6 interface brief", explanation: "Alle Interfaces up/up — kein Interface administratively down." },
+              { cmd: "show ipv6 ospf neighbor", explanation: "Beide Backbone-Nachbarn im Zustand FULL/DR oder FULL/BDR — nicht INIT oder EXSTART." },
+              { cmd: "show ipv6 route ospf", explanation: "Zwei fremde LAN-Präfixe als 'O' (OSPF intra-area) — z.B. auf R1: FDBB::/64 und FDCC::/64." },
             ],
           },
           {
@@ -8900,21 +8762,21 @@ export const LABS: LabScenario[] = [
             mode: "cli",
             modeLabel: "PC>",
             commands: [
-              { cmd: "ping <andere PC-Adresse>", explanation: "Alle drei PCs müssen weiterhin erreichbar sein, jetzt über OSPFv3 statt RIPng." },
+              { cmd: "ping <andere PC-Adresse>", explanation: "Alle drei PCs erreichen sich gegenseitig bevor Phase 2 beginnt." },
             ],
           },
         ],
       },
       {
-        title: "11) EIGRPv6 auf Backbone-Interfaces aktivieren (R1/R2/R3)",
+        title: "7) EIGRPv6 auf Backbone-Interfaces aktivieren (R1/R2/R3)",
         blocks: [
           {
             device: "R1",
             mode: "interface",
             modeLabel: "R1(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "Aktiviert EIGRPv6-Autonomous-System 1 zusätzlich zu OSPFv3 auf dem Link zu R2 — beide Protokolle laufen ab jetzt parallel auf demselben Link." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 zusätzlich auf dem Link zu R3 aktivieren." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "Aktiviert EIGRPv6-Prozess AS 1 auf diesem Interface — ZUSÄTZLICH zu OSPFv3. Beide Protokolle laufen ab jetzt parallel auf demselben physischen Link. Das LAN-Interface (Gig0/0) bekommt KEIN 'ipv6 eigrp 1' — EIGRP wird nur auf dem Backbone benötigt." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 auch auf dem zweiten Backbone-Link aktivieren." },
             ],
           },
           {
@@ -8922,8 +8784,8 @@ export const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "R2(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Link zu R3 aktivieren." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Link zu R1 aktivieren." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Backbone-Link zu R3 aktivieren." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Backbone-Link zu R1 aktivieren." },
             ],
           },
           {
@@ -8931,24 +8793,23 @@ export const LABS: LabScenario[] = [
             mode: "interface",
             modeLabel: "R3(config-if)#",
             commands: [
-              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Link zu R1 aktivieren." },
-              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Link zu R2 aktivieren." },
+              { cmd: "interface GigabitEthernet0/1\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Backbone-Link zu R1 aktivieren." },
+              { cmd: "interface GigabitEthernet0/2\nipv6 eigrp 1", explanation: "EIGRPv6 auf dem Backbone-Link zu R2 aktivieren." },
             ],
           },
         ],
       },
       {
-        title: "12) EIGRPv6-Prozess + Redistribution RIPng→EIGRPv6 (R1/R2/R3)",
+        title: "8) EIGRPv6-Prozess konfigurieren (R1, R2, R3)",
         blocks: [
           {
             device: "R1",
             mode: "global",
             modeLabel: "R1(config)#",
             commands: [
-              { cmd: "ipv6 router eigrp 1", explanation: "Startet den EIGRPv6-Prozess mit AS-Nummer 1. Alle Router im selben EIGRP-Verbund müssen dieselbe AS-Nummer verwenden, sonst bilden sie keine Nachbarschaft." },
-              { cmd: "eigrp router-id 1.1.1.1", explanation: "Auch EIGRPv6 benötigt bei reinen IPv6-Routern eine explizite Router-ID, da keine IPv4-Adresse zur automatischen Ableitung existiert." },
-              { cmd: "no shutdown", explanation: "Der EIGRPv6-Prozess ist standardmäßig im Zustand shutdown und muss explizit aktiviert werden — ein häufig übersehener Schritt." },
-              { cmd: "redistribute rip FSG metric 100000 100 255 1 1500", explanation: "EIGRP benötigt bei Redistribution zwingend eine explizite Seed-Metrik: Bandwidth, Delay, Reliability, Load, MTU. Ohne diese Angabe wird die redistribuierte Route verworfen." },
+              { cmd: "ipv6 router eigrp 1", explanation: "Startet den EIGRPv6-Prozess mit AS-Nummer 1. Alle Router im selben EIGRP-Verbund MÜSSEN dieselbe AS-Nummer verwenden — sonst bilden sie keine Nachbarschaft." },
+              { cmd: "eigrp router-id 1.1.1.1", explanation: "Auch EIGRPv6 benötigt bei reinen IPv6-Routern eine explizite Router-ID (32-Bit, IPv4-Notation), da keine IPv4-Adresse zur automatischen Ableitung existiert." },
+              { cmd: "no shutdown", explanation: "PFLICHT: Der EIGRPv6-Prozess startet standardmäßig im Zustand 'shutdown' und muss explizit aktiviert werden. Ohne diesen Befehl baut EIGRP trotz korrekter Interface-Konfiguration keine einzige Nachbarschaft auf — häufigste Fehlerquelle." },
             ],
           },
           {
@@ -8956,10 +8817,9 @@ export const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R2(config)#",
             commands: [
-              { cmd: "ipv6 router eigrp 1", explanation: "EIGRPv6-Prozess starten." },
-              { cmd: "eigrp router-id 2.2.2.2", explanation: "Eindeutige Router-ID." },
-              { cmd: "no shutdown", explanation: "Prozess aktivieren." },
-              { cmd: "redistribute rip FSG metric 100000 100 255 1 1500", explanation: "Seed-Metrik für die Redistribution von RIPng nach EIGRPv6 setzen." },
+              { cmd: "ipv6 router eigrp 1", explanation: "EIGRPv6-Prozess AS 1 starten." },
+              { cmd: "eigrp router-id 2.2.2.2", explanation: "Eindeutige Router-ID für R2." },
+              { cmd: "no shutdown", explanation: "Prozess aktivieren — nicht vergessen!" },
             ],
           },
           {
@@ -8967,25 +8827,24 @@ export const LABS: LabScenario[] = [
             mode: "global",
             modeLabel: "R3(config)#",
             commands: [
-              { cmd: "ipv6 router eigrp 1", explanation: "EIGRPv6-Prozess starten." },
-              { cmd: "eigrp router-id 3.3.3.3", explanation: "Eindeutige Router-ID." },
-              { cmd: "no shutdown", explanation: "Prozess aktivieren." },
-              { cmd: "redistribute rip FSG metric 100000 100 255 1 1500", explanation: "Seed-Metrik für die Redistribution von RIPng nach EIGRPv6 setzen." },
+              { cmd: "ipv6 router eigrp 1", explanation: "EIGRPv6-Prozess AS 1 starten." },
+              { cmd: "eigrp router-id 3.3.3.3", explanation: "Eindeutige Router-ID für R3." },
+              { cmd: "no shutdown", explanation: "Prozess aktivieren — nicht vergessen!" },
             ],
           },
         ],
       },
       {
-        title: "13) Verifikation Phase 3 — EIGRPv6 + finale AD-Prüfung",
+        title: "9) Verifikation Phase 2 — EIGRPv6 + AD-Koexistenz",
         blocks: [
           {
             device: "R1 / R2 / R3",
             mode: "privileged",
             modeLabel: "Router#",
             commands: [
-              { cmd: "show ipv6 eigrp neighbors", explanation: "Zeigt die EIGRPv6-Nachbarn auf beiden Backbone-Links — beide müssen erscheinen." },
-              { cmd: "show ipv6 protocols", explanation: "Zeigt alle drei aktiven Prozesse (RIPng, OSPFv3, EIGRPv6) inkl. der jeweils zugeordneten Interfaces." },
-              { cmd: "show ipv6 route", explanation: "Backbone-Präfixe erscheinen als D (EIGRP, AD 90), LAN-Präfixe als OE2 (OSPF External, AD 110) — EIGRP gewinnt auf dem Backbone, OSPF-Redistribution gewinnt für die LANs gegenüber EIGRP-extern (AD 170)." },
+              { cmd: "show ipv6 eigrp neighbors", explanation: "Beide Backbone-Nachbarn gelistet — Uptime steigt, Q Cnt = 0." },
+              { cmd: "show ipv6 route", explanation: "Backbone-Präfixe als 'D' (EIGRP, AD 90). LAN-Präfixe als 'O' (OSPF, AD 110). EIGRP gewinnt auf dem Backbone, OSPF bleibt für die LANs aktiv." },
+              { cmd: "show ipv6 protocols", explanation: "Beide Prozesse (OSPFv3, EIGRPv6) aktiv, mit jeweiligen Interface-Zuordnungen." },
             ],
           },
           {
@@ -8993,30 +8852,28 @@ export const LABS: LabScenario[] = [
             mode: "cli",
             modeLabel: "PC>",
             commands: [
-              { cmd: "ping <andere PC-Adresse>", explanation: "Alle drei PCs müssen weiterhin uneingeschränkt erreichbar sein — jetzt über die kombinierte OSPFv3/EIGRPv6-Topologie." },
+              { cmd: "ping <andere PC-Adresse>", explanation: "Alle drei PCs weiterhin erreichbar — Ping darf nie verloren gehen." },
             ],
           },
         ],
       },
     ],
     verifyCommands: [
-      { cmd: "show ipv6 interface brief (R1/R2/R3)", expected: "Alle Interfaces up/up, keine Subnetz-Mismatches auf den /127-Links" },
-      { cmd: "show ipv6 route rip (R1/R2/R3)", expected: "Nach Phase 1: alle drei LAN-Präfixe über RIP gelernt" },
-      { cmd: "show ipv6 ospf neighbor (R1/R2/R3)", expected: "Nach Phase 2: beide Backbone-Nachbarn im Zustand FULL" },
-      { cmd: "show ipv6 eigrp neighbors (R1/R2/R3)", expected: "Nach Phase 3: beide Backbone-Nachbarn als EIGRP-Nachbarn gelistet" },
-      { cmd: "show ipv6 route (R1/R2/R3)", expected: "Finale Tabelle zeigt D für Backbone-Präfixe und OE2 für die drei LAN-Präfixe" },
-      { cmd: "ping (PC0 ↔ PC1 ↔ PC2)", expected: "Funktioniert nach jeder der drei Phasen ohne Unterbrechung" },
+      { cmd: "show ipv6 interface brief (R1/R2/R3)", expected: "Alle Interfaces up/up — kein Subnetz-Mismatch auf den /127-Links" },
+      { cmd: "show ipv6 ospf neighbor (R1/R2/R3)", expected: "Beide Backbone-Nachbarn im Zustand FULL — auf zwei verschiedenen Interfaces" },
+      { cmd: "show ipv6 eigrp neighbors (R1/R2/R3)", expected: "Beide Backbone-Nachbarn als EIGRP-Nachbarn mit steigendem Uptime" },
+      { cmd: "show ipv6 route (R1/R2/R3)", expected: "Backbone-Präfix als D (EIGRP) — LAN-Präfixe als O (OSPF) — AD-Hierarchie korrekt" },
+      { cmd: "ping PC0 ↔ PC1 ↔ PC2", expected: "Alle PCs erreichen sich gegenseitig — nach Phase 1 UND nach Phase 2" },
     ],
     glossary: [
-      { term: "ipv6 unicast-routing", def: "Globaler Befehl, der IPv6-Forwarding auf dem Router überhaupt erst aktiviert. Ohne ihn bleibt der Router im IPv6-Host-Modus." },
-      { term: "/127-Adressierung", def: "Punkt-zu-Punkt-Subnetz mit genau 2 nutzbaren Adressen (RFC 6164). Beide Enden eines Links müssen im selben /127-Subnetz liegen." },
-      { term: "RIPng", def: "Distance-Vector-Routingprotokoll für IPv6, AD 120, mit Split-Horizon/Poison-Reverse. Läuft nach Phase 2 nur noch auf den LAN-Interfaces." },
-      { term: "OSPFv3", def: "Link-State-Protokoll für IPv6, AD 110. Interfaces werden direkt per 'ipv6 ospf <process-id> area <area-id>' einer Area zugewiesen — kein network-Statement wie bei OSPFv2." },
-      { term: "EIGRPv6", def: "Advanced-Distance-Vector-Protokoll von Cisco für IPv6, AD 90 (intern) / 170 (extern). Wird per 'ipv6 eigrp <as-number>' am Interface aktiviert und benötigt zusätzlich 'no shutdown' im Router-Prozess." },
-      { term: "Router-ID (OSPFv3/EIGRPv6)", def: "Bei reinen IPv6-Only-Routern ohne aktive IPv4-Adresse zwingend explizit zu setzen, da die automatische Ableitung sonst fehlschlägt." },
-      { term: "Redistribution", def: "Einspeisen von Routen aus einem Routingprotokoll in ein anderes. Hier bewusst als Einbahnstraße (RIPng → OSPFv3, RIPng → EIGRPv6) konfiguriert, um Redistribution-Loops zu vermeiden." },
-      { term: "Administrative Distanz (AD)", def: "Entscheidet, welche Quelle gewinnt, wenn mehrere Protokolle dieselbe Route lernen. Niedrigere AD gewinnt (Connected=0, EIGRP-intern=90, OSPF=110, RIPng=120, EIGRP-extern=170)." },
-      { term: "Seed-Metric (EIGRP-Redistribution)", def: "Die fünf Pflichtwerte (Bandwidth, Delay, Reliability, Load, MTU), die EIGRP bei jeder Redistribution aus einem Fremdprotokoll benötigt." },
+      { term: "ipv6 unicast-routing", def: "Globaler Pflichtbefehl für IPv6-Forwarding. Ohne ihn bleibt der Router im Host-Modus." },
+      { term: "/127-Adressierung", def: "Punkt-zu-Punkt-Subnetz mit genau 2 nutzbaren Adressen (RFC 6164). Beide Enden MÜSSEN im selben /127-Subnetz liegen." },
+      { term: "OSPFv3", def: "Link-State-Protokoll für IPv6 (RFC 5340), AD 110. Area-Zuweisung direkt am Interface per 'ipv6 ospf area' — kein network-Statement wie bei OSPFv2." },
+      { term: "EIGRPv6", def: "Advanced-Distance-Vector-Protokoll von Cisco für IPv6, AD 90 (intern). Interface-basiert per 'ipv6 eigrp'. Benötigt 'no shutdown' im Prozess." },
+      { term: "Router-ID (OSPFv3/EIGRPv6)", def: "32-Bit-Kennung in IPv4-Notation — bei reinen IPv6-Routern ZWINGEND manuell zu setzen." },
+      { term: "passive-interface default", def: "Setzt alle Interfaces passiv (keine Hellos). Mit 'no passive-interface' gezielt freigeben. Das LAN-Präfix wird trotzdem beworben — nur Hellos werden unterdrückt." },
+      { term: "Administrative Distanz (AD)", def: "Bestimmt welche Route-Quelle gewinnt: Connected=0, EIGRP-intern=90, OSPF=110, EIGRP-extern=170. EIGRP gewinnt automatisch gegen OSPF auf den Backbone-Links." },
+      { term: "no shutdown (EIGRPv6)", def: "Der EIGRPv6-Prozess startet im Zustand 'shutdown' — muss explizit aktiviert werden. Häufigstes vergessenes Kommando bei EIGRPv6." },
     ],
   },
 ];
