@@ -56,15 +56,25 @@ export function ProgressTracker({
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const cardBg = isDark ? "bg-slate-800/50" : "bg-slate-50";
 
+  // Selbstheilung: currentStepIndex darf nie hinter den tatsächlichen
+  // Fortschritt zurückfallen (z.B. wenn ein abgeschlossener Schritt zum
+  // Nachlesen angeklickt wurde). Der erste nicht abgeschlossene Schritt
+  // ist die verlässliche Untergrenze für den aktuellen Schritt.
+  const firstIncompleteIndex = path.steps.findIndex(
+    (s) => !progress.completedSteps.includes(s.id),
+  );
+  const currentStepIndex =
+    firstIncompleteIndex === -1
+      ? progress.currentStepIndex
+      : Math.max(progress.currentStepIndex, firstIncompleteIndex);
+
   const [showHints, setShowHints] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
-  const [expandedStep, setExpandedStep] = useState<number>(
-    progress.currentStepIndex,
-  );
+  const [expandedStep, setExpandedStep] = useState<number>(currentStepIndex);
   // Letztes Prüfergebnis (für sichtbares Feedback nach "Überprüfen")
   const [lastValidation, setLastValidation] = useState<ScoreResult | null>(null);
 
-  const currentStep = path.steps[progress.currentStepIndex];
+  const currentStep = path.steps[currentStepIndex];
   const completedCount = progress.completedSteps.length;
   const totalSteps = path.steps.length;
   const overallProgress = Math.round((completedCount / totalSteps) * 100);
@@ -117,7 +127,7 @@ export function ProgressTracker({
       const newCompletedSteps = [
         ...new Set([...progress.completedSteps, currentStep.id]),
       ];
-      const nextIndex = Math.min(progress.currentStepIndex + 1, totalSteps - 1);
+      const nextIndex = Math.min(currentStepIndex + 1, totalSteps - 1);
 
       // Calculate hint deductions for this step
       const usedHints = progress.hintsUsed[currentStep.id] || [];
@@ -142,6 +152,7 @@ export function ProgressTracker({
     return result;
   }, [
     currentStep,
+    currentStepIndex,
     objects,
     connections,
     progress,
@@ -162,10 +173,7 @@ export function ProgressTracker({
         const newCompletedSteps = [
           ...new Set([...progress.completedSteps, currentStep.id]),
         ];
-        const nextIndex = Math.min(
-          progress.currentStepIndex + 1,
-          totalSteps - 1,
-        );
+        const nextIndex = Math.min(currentStepIndex + 1, totalSteps - 1);
 
         onUpdateProgress({
           ...progress,
@@ -187,7 +195,7 @@ export function ProgressTracker({
 
       setActiveQuiz(null);
     },
-    [currentStep, progress, totalSteps, onUpdateProgress],
+    [currentStep, currentStepIndex, progress, totalSteps, onUpdateProgress],
   );
 
   const handleUseHint = useCallback(
@@ -206,26 +214,6 @@ export function ProgressTracker({
       });
     },
     [currentStep, progress, onUpdateProgress],
-  );
-
-  const handleGoToStep = useCallback(
-    (index: number) => {
-      // Can only go to completed steps or the next uncompleted step
-      const step = path.steps[index];
-      if (!step) return;
-      if (
-        progress.completedSteps.includes(step.id) ||
-        index === progress.currentStepIndex
-      ) {
-        onUpdateProgress({
-          ...progress,
-          currentStepIndex: index,
-          lastActivityAt: Date.now(),
-        });
-        setExpandedStep(index);
-      }
-    },
-    [path.steps, progress, onUpdateProgress],
   );
 
   const isPathComplete = completedCount === totalSteps;
@@ -295,7 +283,7 @@ export function ProgressTracker({
         <div className="flex-1 overflow-y-auto">
           {path.steps.map((step, index) => {
             const isCompleted = progress.completedSteps.includes(step.id);
-            const isCurrent = index === progress.currentStepIndex;
+            const isCurrent = index === currentStepIndex;
             const isExpanded = index === expandedStep;
             const isAccessible = isCompleted || isCurrent;
 
@@ -311,7 +299,6 @@ export function ProgressTracker({
                       return;
                     }
                     setExpandedStep(isExpanded ? -1 : index);
-                    handleGoToStep(index);
                   }}
                   className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${
                     isCurrent
