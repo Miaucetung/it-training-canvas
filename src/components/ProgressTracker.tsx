@@ -16,6 +16,7 @@ import {
   CheckCircle,
   Clock,
   Lightning,
+  Lock,
   Medal,
   Play,
   Question,
@@ -303,15 +304,23 @@ export function ProgressTracker({
                 {/* Step Header */}
                 <button
                   onClick={() => {
+                    if (!isAccessible) {
+                      toast.error(
+                        "Schließe zuerst die vorherigen Schritte ab, um diesen Schritt freizuschalten.",
+                      );
+                      return;
+                    }
                     setExpandedStep(isExpanded ? -1 : index);
-                    if (isAccessible) handleGoToStep(index);
+                    handleGoToStep(index);
                   }}
                   className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${
                     isCurrent
                       ? isDark
                         ? "bg-indigo-500/10"
                         : "bg-indigo-50"
-                      : "hover:bg-slate-800/30"
+                      : isAccessible
+                        ? "hover:bg-slate-800/30"
+                        : "opacity-60 cursor-not-allowed"
                   }`}
                 >
                   {/* Status Indicator */}
@@ -368,7 +377,9 @@ export function ProgressTracker({
                     </div>
                   </div>
 
-                  {isExpanded ? (
+                  {!isAccessible ? (
+                    <Lock size={14} className={textMuted} />
+                  ) : isExpanded ? (
                     <CaretDown size={14} className={textMuted} />
                   ) : (
                     <CaretRight size={14} className={textMuted} />

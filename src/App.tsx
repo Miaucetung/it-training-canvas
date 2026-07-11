@@ -84,12 +84,13 @@ import {
 import { AuthDialog } from "@/components/AuthDialog";
 import { AuthMenu } from "@/components/AuthMenu";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
-const AccountDialog = lazy(() =>
-  import("@/components/AccountDialog").then((m) => ({ default: m.AccountDialog })),
-);
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
+
+const AccountDialog = lazy(() =>
+  import("@/components/AccountDialog").then((m) => ({ default: m.AccountDialog })),
+);
 
 // ── Lazy-loaded heavy dialogs (code-split on first use) ───────
 const ExamPrepDialog = lazy(() => import("@/components/ExamPrepDialog"));
