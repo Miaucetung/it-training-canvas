@@ -70,22 +70,6 @@ export function categorizeQuestion(textRaw: string): string {
   return FALLBACK_CATEGORY;
 }
 
-/** Alle im Pool vorkommenden Kategorien, alphabetisch sortiert. */
-export function getPoolCategories(): string[] {
-  const cats = new Set(ccnaQuestions.map((q) => categorizeQuestion(q.question)));
-  return Array.from(cats).sort();
-}
-
-/** Anzahl Fragen je Kategorie (für die Filter-Dropdown-Anzeige). */
-export function getPoolCategoryCounts(): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const q of ccnaQuestions) {
-    const cat = categorizeQuestion(q.question);
-    counts[cat] = (counts[cat] ?? 0) + 1;
-  }
-  return counts;
-}
-
 export interface QuestionPoolQuizOptions {
   /** Nur Fragen dieser Kategorie (aus categorizeQuestion). "all" = keine Einschränkung. */
   category?: string;
