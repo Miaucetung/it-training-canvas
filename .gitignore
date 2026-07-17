@@ -37,3 +37,7 @@ pids
 ~$*.doc*
 
 coverage/
+
+# Exhibit-Quell-SVGs: lokales Referenzmaterial, nicht im Repo benoetigt
+# (strukturierte Exhibit-Daten in ccnaQuestions(Classified).ts ersetzen sie)
+notes/ccna-exam/images/
