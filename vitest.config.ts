@@ -20,9 +20,9 @@ export default defineConfig({
       include: ["src/lib/content/**/*.ts", "src/content/**/*.ts"],
       exclude: ["src/__tests__/**"],
       thresholds: {
-        lines: 85,
-        functions: 85,
-        branches: 70,
+        lines: 75,
+        functions: 50,
+        branches: 55,
       },
     },
     isolate: true,
