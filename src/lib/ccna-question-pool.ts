@@ -113,9 +113,3 @@ export function buildQuestionPoolQuiz(options: QuestionPoolQuizOptions = {}): Qu
     shuffleQuestions: shuffle,
   };
 }
-
-let _cached: Quiz | null = null;
-/** Lazy-gecachter Zugriff — baut das ungefilterte Quiz erst beim ersten Aufruf. */
-export function getQuestionPoolQuiz(): Quiz {
-  return (_cached ??= buildQuestionPoolQuiz());
-}
