@@ -94,6 +94,9 @@ const AccountDialog = lazy(() =>
 
 // ── Lazy-loaded heavy dialogs (code-split on first use) ───────
 const ExamPrepDialog = lazy(() => import("@/components/ExamPrepDialog"));
+const PrioritizedLearningDialog = lazy(() =>
+  import("@/components/PrioritizedLearningDialog").then((m) => ({ default: m.PrioritizedLearningDialog })),
+);
 const LabScenariosDialog = lazy(() =>
   import("@/components/LabScenariosDialog").then((m) => ({ default: m.LabScenariosDialog })),
 );
@@ -368,6 +371,7 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLabScenarios, setShowLabScenarios] = useState(false);
   const [showExamPrep, setShowExamPrep] = useState(false);
+  const [showPrioritizedLearning, setShowPrioritizedLearning] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
@@ -1753,6 +1757,18 @@ function App() {
               <span className="hidden lg:inline">Prüfung</span>
             </button>
             <button
+              onClick={() => setShowPrioritizedLearning(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                theme === "dark"
+                  ? "bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/25"
+                  : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+              }`}
+              title="Priorisierte Lern-Queue — Fragen nach CCNA-Blueprint-Prüfungsgewichtung sortiert"
+            >
+              <ChartLine size={16} weight="fill" />
+              <span className="hidden lg:inline">Priorisiert lernen</span>
+            </button>
+            <button
               onClick={() => setShowPingScenario(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
@@ -2234,6 +2250,15 @@ function App() {
           <ExamPrepDialog
             dark={theme === "dark"}
             onClose={() => setShowExamPrep(false)}
+          />
+        </Suspense>
+      )}
+
+      {showPrioritizedLearning && (
+        <Suspense fallback={null}>
+          <PrioritizedLearningDialog
+            theme={theme}
+            onClose={() => setShowPrioritizedLearning(false)}
           />
         </Suspense>
       )}
