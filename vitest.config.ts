@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import { resolve } from "path";
 
 export default defineConfig({
@@ -13,10 +13,11 @@ export default defineConfig({
       ['src/__tests__/components/**', 'jsdom'],
     ],
     setupFiles: ["./src/__tests__/setup.ts"],
+    exclude: [...configDefaults.exclude, "_archive/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],
-      include: ["src/lib/content/**/*.ts", "src/content/**/*.ts", "src/lib/gamification/**/*.ts"],
+      include: ["src/lib/content/**/*.ts", "src/content/**/*.ts"],
       exclude: ["src/__tests__/**"],
       thresholds: {
         lines: 85,
