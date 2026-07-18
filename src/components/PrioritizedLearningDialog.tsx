@@ -158,6 +158,16 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
     );
   }
 
+  function handleAnswerConfirmed(questionId: string, passed: boolean) {
+    setWeakIds((prev) => {
+      const next = new Set(prev);
+      if (passed) next.delete(questionId);
+      else next.add(questionId);
+      saveWeakIds(next);
+      return next;
+    });
+  }
+
   function handleQuizComplete(result: ScoreResult) {
     setWeakIds((prev) => {
       const next = new Set(prev);
@@ -176,6 +186,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
       <QuizDialog
         quiz={activeQuiz}
         onComplete={handleQuizComplete}
+        onAnswerConfirmed={handleAnswerConfirmed}
         onClose={() => setActiveQuiz(null)}
         theme={theme}
       />

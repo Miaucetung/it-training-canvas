@@ -16,6 +16,28 @@ interface QuizDialogProps {
   onComplete: (result: ScoreResult) => void;
   onClose: () => void;
   theme: "light" | "dark";
+  /** Optional: feuert sofort bei "Prüfen" pro Frage (nicht erst bei Quiz-Abschluss).
+   * Für Sessions mit vielen Fragen (z. B. Lern-Queue-Fragenpool), bei denen der Nutzer
+   * die Session evtl. nie bis zum Ende durchspielt und onComplete nie erreicht wird. */
+  onAnswerConfirmed?: (questionId: string, passed: boolean) => void;
+}
+
+function gradeQuestion(
+  q: Question,
+  selectedIds: string[],
+  textAnswer: string,
+): boolean {
+  if (q.type === "text-input") {
+    const correctAnswers = q.answers
+      .filter((a) => a.isCorrect)
+      .map((a) => a.text.toLowerCase().trim());
+    return correctAnswers.includes(textAnswer.toLowerCase().trim());
+  }
+  const correctIds = q.answers.filter((a) => a.isCorrect).map((a) => a.id);
+  return (
+    selectedIds.length === correctIds.length &&
+    selectedIds.every((id) => correctIds.includes(id))
+  );
 }
 
 interface QuizState {
@@ -35,6 +57,7 @@ export function QuizDialog({
   onComplete,
   onClose,
   theme,
+  onAnswerConfirmed,
 }: QuizDialogProps) {
   const isDark = theme === "dark";
   const bg = isDark ? "bg-slate-900" : "bg-white";
@@ -111,11 +134,24 @@ export function QuizDialog({
   );
 
   const confirmAnswer = useCallback((questionId: string) => {
-    setState((prev) => ({
-      ...prev,
-      confirmedQuestions: { ...prev.confirmedQuestions, [questionId]: true },
-    }));
-  }, []);
+    setState((prev) => {
+      if (onAnswerConfirmed) {
+        const q = questions.find((question) => question.id === questionId);
+        if (q) {
+          const passed = gradeQuestion(
+            q,
+            prev.answers[questionId] || [],
+            prev.textAnswers[questionId] || "",
+          );
+          onAnswerConfirmed(questionId, passed);
+        }
+      }
+      return {
+        ...prev,
+        confirmedQuestions: { ...prev.confirmedQuestions, [questionId]: true },
+      };
+    });
+  }, [questions, onAnswerConfirmed]);
 
   const setTextAnswer = useCallback((questionId: string, text: string) => {
     setState((prev) => {
@@ -165,22 +201,7 @@ export function QuizDialog({
       maxPoints += q.points;
       const selectedIds = state.answers[q.id] || [];
       const textAnswer = state.textAnswers[q.id] || "";
-
-      let passed = false;
-
-      if (q.type === "text-input") {
-        const correctAnswers = q.answers
-          .filter((a) => a.isCorrect)
-          .map((a) => a.text.toLowerCase().trim());
-        passed = correctAnswers.includes(textAnswer.toLowerCase().trim());
-      } else {
-        const correctIds = q.answers
-          .filter((a) => a.isCorrect)
-          .map((a) => a.id);
-        passed =
-          selectedIds.length === correctIds.length &&
-          selectedIds.every((id) => correctIds.includes(id));
-      }
+      const passed = gradeQuestion(q, selectedIds, textAnswer);
 
       if (passed) totalPoints += q.points;
 
