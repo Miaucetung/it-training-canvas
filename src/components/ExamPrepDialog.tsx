@@ -792,7 +792,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                   <button
                     onClick={revealAnswer}
                     disabled={!canReveal}
-                    className="flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
                   >
                     <CheckCircle size={16} />
                     Prüfen

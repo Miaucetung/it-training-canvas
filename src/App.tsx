@@ -1703,9 +1703,7 @@ function App() {
                     {gi > 0 && (
                       <div className={`my-1 h-px ${theme === "dark" ? "bg-slate-700/60" : "bg-slate-100"}`} />
                     )}
-                    <p className={`px-3 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider ${
-                      theme === "dark" ? "text-slate-500" : "text-slate-400"
-                    }`}>
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                       {group.group}
                     </p>
                     {group.tools.map((tool) => (
@@ -1726,9 +1724,7 @@ function App() {
                         }`}>
                           {tool.name}
                         </span>
-                        <span className={`block text-[10px] ${
-                          theme === "dark" ? "text-slate-500" : "text-slate-400"
-                        }`}>
+                        <span className="block text-[10px] text-slate-500">
                           {tool.hint}
                         </span>
                       </button>
