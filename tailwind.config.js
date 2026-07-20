@@ -138,7 +138,9 @@ const defaultTheme = {
     80: "var(--size-80)",
     96: "var(--size-96)",
   },
-  darkMode: ["selector", '[data-appearance="dark"]'],
+  // Muss zur .dark-Klasse passen, die App.tsx auf <html> toggelt
+  // (und zum @custom-variant dark in src/main.css).
+  darkMode: ["selector", ".dark"],
 }
 
 export default {
