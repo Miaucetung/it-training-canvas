@@ -1501,7 +1501,7 @@ function App() {
                 title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
               >
                 <GraduationCap size={16} />
-                <span className="hidden lg:inline">Lernpfade</span>
+                <span className="hidden xl:inline">Lernpfade</span>
                 {Object.keys(learningPaths).length > 0 && (
                   <span
                     className={`px-1.5 py-0.5 rounded-full text-[10px] ${
@@ -1617,7 +1617,7 @@ function App() {
               title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
             >
               <Plus size={16} />
-              <span className="hidden lg:inline">Gerät</span>
+              <span className="hidden xl:inline">Gerät</span>
             </button>
             <button
               onClick={() => {
@@ -1643,7 +1643,7 @@ function App() {
               title="IOS-CLI für selektiertes Gerät öffnen"
             >
               <Terminal size={16} />
-              <span className="hidden lg:inline">CLI</span>
+              <span className="hidden xl:inline">CLI</span>
             </button>
             <button
               onClick={() => setShowLabScenarios(true)}
@@ -1657,7 +1657,7 @@ function App() {
               title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
             >
               <BookOpen size={16} />
-              <span className="hidden lg:inline">Labs</span>
+              <span className="hidden xl:inline">Labs</span>
             </button>
             <button
               ref={toolsButtonRef}
@@ -1678,7 +1678,7 @@ function App() {
               title="Alle Simulatoren, Trainer & Rechner"
             >
               <Wrench size={16} />
-              <span className="hidden lg:inline">Tools</span>
+              <span className="hidden xl:inline">Tools</span>
               <CaretDown
                 size={11}
                 className={`transition-transform duration-150 ${showToolsMenu ? "rotate-180" : ""}`}
@@ -1748,7 +1748,7 @@ function App() {
               title="CCNA Prüfungsvorbereitung — 1200+ echte Prüfungsfragen"
             >
               <Target size={16} weight="fill" />
-              <span className="hidden lg:inline">Prüfung</span>
+              <span className="hidden min-[1360px]:inline">Prüfung</span>
             </button>
             <button
               onClick={() => setShowPrioritizedLearning(true)}
@@ -1760,7 +1760,7 @@ function App() {
               title="Priorisierte Lern-Queue — Fragen nach CCNA-Blueprint-Prüfungsgewichtung sortiert"
             >
               <ChartLine size={16} weight="fill" />
-              <span className="hidden lg:inline">Priorisiert lernen</span>
+              <span className="hidden min-[1360px]:inline">Priorisiert lernen</span>
             </button>
             <button
               onClick={() => setShowPingScenario(true)}
@@ -1772,7 +1772,7 @@ function App() {
               title="Ping testen – geführte Schritt-für-Schritt-Analyse"
             >
               <Lightning size={16} weight="fill" />
-              <span className="hidden lg:inline">Ping testen</span>
+              <span className="hidden min-[1360px]:inline">Ping testen</span>
             </button>
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
