@@ -149,6 +149,9 @@ const RoutingSimulatorDialog = lazy(() =>
 const VerkabelungTrainerDialog = lazy(() =>
   import("@/components/VerkabelungTrainerDialog").then((m) => ({ default: m.VerkabelungTrainerDialog })),
 );
+const DragDropTrainerDialog = lazy(() =>
+  import("@/components/DragDropTrainerDialog").then((m) => ({ default: m.DragDropTrainerDialog })),
+);
 const TopologieExplorerDialog = lazy(() =>
   import("@/components/TopologieExplorerDialog").then((m) => ({ default: m.TopologieExplorerDialog })),
 );
@@ -171,6 +174,7 @@ type ToolId =
   | "osi-simulator"
   | "routing-simulator"
   | "verkabelung-trainer"
+  | "dragdrop-trainer"
   | "topologie-explorer"
   | "cli-glossary";
 
@@ -199,6 +203,7 @@ const TOOL_GROUPS: Array<{
       { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
       { id: "ipv6-calculator", name: "IPv6-Rechner", hint: "Adressen kürzen, EUI-64, Präfixe" },
       { id: "verkabelung-trainer", name: "Verkabelungs-Trainer", hint: "Kabeltypen richtig zuordnen" },
+      { id: "dragdrop-trainer", name: "Drag-&-Drop-Trainer", hint: "Zuordnungsfragen wie in der Prüfung" },
     ],
   },
   {
@@ -2498,6 +2503,9 @@ function App() {
           )}
           {activeTool === "routing-simulator" && (
             <RoutingSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+          )}
+          {activeTool === "dragdrop-trainer" && (
+            <DragDropTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
           )}
           {activeTool === "verkabelung-trainer" && (
             <VerkabelungTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />

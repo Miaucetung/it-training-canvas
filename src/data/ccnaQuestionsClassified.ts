@@ -2,7 +2,9 @@
 // Source: ccna-classifier repo, commit 1c5c42ea2c68bcef8636d7727a71d4b5f00c642c
 // Manuelle Reparatur 2026-07-20 (auch in questions_classified.json nachgezogen):
 //   Q0311 hatte Q312-Q317 in die Optionen verschluckt -> 7 saubere Einträge;
-//   Q0173 wireless-zones-Exhibit ergänzt; Q0964 exhibit:false (PDF ohne Grafik).
+//   Q0173 wireless-zones-Exhibit ergänzt; Q0964 exhibit:false (PDF ohne Grafik);
+//   Q1135 entfernt — ist eine DRAG-DROP-Frage, lebt jetzt in ccnaDragDrop.ts
+//   (Drag-&-Drop-Trainer), nicht als kaputte Multiple-Choice.
 
 import type { ExhibitData } from "../types/exhibit";
 
@@ -27439,25 +27441,6 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "blueprint_section": "4.6",
     "blueprint_domain": "4.0",
     "priority_score": 60,
-    "classifier_confidence": "medium"
-  },
-  {
-    "id": "Q1135",
-    "question": "-\n#anycast #multicast\nAnycast:\nis assigned to more than one interface\nis used exclusively by a non-host device\nMulticast:\ncannot be used as a source address\nprovides one-to-many communications\nRefer to the exhibit. Which switch becomes the root bridge?",
-    "options": [
-      "SW4 - Bridge Priority - 8192 - mac-address 05:4a:f7:06:33:22",
-      "SW2 - Bridge Priority - 8192 - mac-address 05:52:bd:0c:be:69",
-      "SW3 - Bridge Priority - 61440 - mac-address 06:15:2e:7f:20:58",
-      "SW4 - Bridge Priority - 61440 - mac-address 0a:e5:03:a6:6e:37 - #copper #singlemodefiber Copper Small office Conductor Single-mode fiber Wavelenght Long distance"
-    ],
-    "correct": 0,
-    "exhibit": {
-      "needsExhibit": true,
-      "exhibitData": null
-    },
-    "blueprint_section": "2.5.a",
-    "blueprint_domain": "2.0",
-    "priority_score": 70,
     "classifier_confidence": "medium"
   },
   {

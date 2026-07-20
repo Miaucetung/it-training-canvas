@@ -42,12 +42,12 @@ describe("toQuestion (classified) — Exhibit-Mapping", () => {
     expect(q.exhibit).toMatchObject({ type: "topology" });
   });
 
-  it("nur die echten needsExhibit-Fragen landen als Platzhalter im Pool", () => {
+  it("kein Eintrag zeigt mehr den Exhibit-Platzhalter-Banner", () => {
     const placeholders = ccnaQuestionsClassified
       .filter((raw) => toQuestion(raw).exhibit === true)
       .map((raw) => raw.id);
-    // Q1135 ist eine Drag-and-Drop-Frage — Platzhalter bis das DnD-Format sie ablöst.
-    expect(placeholders).toEqual(["Q1135"]);
+    // Q1135 (Drag-and-Drop) wurde in ccnaDragDrop.ts überführt und entfernt.
+    expect(placeholders).toEqual([]);
   });
 
   it("die reparierten Fragen Q0311-Q0317 sind vollständig und wohlgeformt", () => {
