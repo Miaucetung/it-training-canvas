@@ -2235,7 +2235,6 @@ function App() {
         <LabScenariosDialog
           open={showLabScenarios}
           onClose={() => setShowLabScenarios(false)}
-          theme={theme}
         />
       </Suspense>
 

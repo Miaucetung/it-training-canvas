@@ -9328,10 +9328,9 @@ function printLabAsPdf(lab: LabScenario) {
 interface LabScenariosDialogProps {
   open: boolean;
   onClose: () => void;
-  theme?: "light" | "dark";
 }
 
-export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenariosDialogProps) {
+export function LabScenariosDialog({ open, onClose }: LabScenariosDialogProps) {
   const [selectedId, setSelectedId] = useState(LABS_ORDERED[0].id);
   const lab = LABS_ORDERED.find((l) => l.id === selectedId) ?? LABS_ORDERED[0];
 
@@ -9341,10 +9340,10 @@ export function LabScenariosDialog({ open, onClose, theme = "dark" }: LabScenari
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div
         className={cn(
+          // Bewusst immer dunkel (Terminal-Konvention): das gesamte Innenleben
+          // ist auf slate-800/900/950 gebaut und in einem hellen Shell unlesbar.
           "flex flex-col w-full max-w-6xl h-[90vh] rounded-2xl border shadow-2xl overflow-hidden",
-          theme === "dark"
-            ? "bg-slate-900 border-slate-700"
-            : "bg-white border-slate-200",
+          "bg-slate-900 border-slate-700",
         )}
       >
         {/* ── Header ── */}
