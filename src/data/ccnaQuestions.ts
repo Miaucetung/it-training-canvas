@@ -2137,7 +2137,21 @@ GigabitEthernet0/0/3 is up, line protocol is up
     "between zones 3 and 6"
     ],
     correct: 2,
-    exhibit: true,
+    // Nachbau aus PDF S. 63: Zonen 3+4 überlappen auf demselben Kanal (11) —
+    // alle anderen überlappenden Nachbarn nutzen unterschiedliche Kanäle.
+    exhibit: {
+      type: "wireless-zones",
+      zones: [
+        { id: "z1", label: "Zone 1", channel: 1, x: 100, y: 100 },
+        { id: "z2", label: "Zone 2", channel: 6, x: 260, y: 100 },
+        { id: "z3", label: "Zone 3", channel: 11, x: 420, y: 100 },
+        { id: "z4", label: "Zone 4", channel: 11, x: 580, y: 100 },
+        { id: "z5", label: "Zone 5", channel: 11, x: 180, y: 240 },
+        { id: "z6", label: "Zone 6", channel: 1, x: 340, y: 240 },
+        { id: "z7", label: "Zone 7", channel: 6, x: 500, y: 240 },
+        { id: "z8", label: "Zone 8", channel: 1, x: 660, y: 240 },
+      ],
+    },
   },
   {
     id: "q0174",
@@ -13695,7 +13709,9 @@ SW1(config-if)#switchport access vlan 20`, highlight: ["DHCPServer(dhcp-config)#
     "Router(config)#ip domain-name cisco.com Router(config)#crypto key generate rsa general-keys modulus 1024 Router(contig)#ip ssh version 2 - Router(config-line)#line vty 0 15 Router(config-line)# transport input all Router(config)#ip ssh logging events"
     ],
     correct: 0,
-    exhibit: true,
+    // PDF S. 428: Die Frage hat dort kein Exhibit — die Konfigurationen stehen
+    // vollständig in den Antwortoptionen ("Refer to the exhibit" ist Artefakt).
+    exhibit: false,
   },
   {
     id: "q0965",

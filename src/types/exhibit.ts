@@ -46,6 +46,22 @@ export interface TableExhibit {
   rows: string[][];
 }
 
+/** RF-Abdeckungszonen (z. B. 2,4-GHz-Kanalüberlappung, Q0173). */
+export interface ZoneCircle {
+  id: string;
+  label: string;
+  /** WLAN-Kanal; Zonen mit gleichem Kanal erhalten dasselbe Füllmuster. */
+  channel: number;
+  x: number;
+  y: number;
+  r?: number;
+}
+
+export interface WirelessZonesExhibit {
+  type: "wireless-zones";
+  zones: ZoneCircle[];
+}
+
 export interface NoneExhibit {
   type: "none";
 }
@@ -54,4 +70,5 @@ export type ExhibitData =
   | CLIExhibit
   | TopologyExhibit
   | TableExhibit
+  | WirelessZonesExhibit
   | NoneExhibit;

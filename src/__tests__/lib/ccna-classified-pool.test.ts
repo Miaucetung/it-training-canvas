@@ -46,6 +46,17 @@ describe("toQuestion (classified) — Exhibit-Mapping", () => {
     const placeholders = ccnaQuestionsClassified
       .filter((raw) => toQuestion(raw).exhibit === true)
       .map((raw) => raw.id);
-    expect(placeholders).toEqual(["Q0173", "Q0311", "Q0964", "Q1135"]);
+    // Q1135 ist eine Drag-and-Drop-Frage — Platzhalter bis das DnD-Format sie ablöst.
+    expect(placeholders).toEqual(["Q1135"]);
+  });
+
+  it("die reparierten Fragen Q0311-Q0317 sind vollständig und wohlgeformt", () => {
+    for (const id of ["Q0311", "Q0312", "Q0313", "Q0314", "Q0315", "Q0316", "Q0317"]) {
+      const raw = ccnaQuestionsClassified.find((q) => q.id === id);
+      expect(raw, id).toBeDefined();
+      expect(raw!.options.length, id).toBeLessThanOrEqual(5);
+      const correct = Array.isArray(raw!.correct) ? raw!.correct : [raw!.correct];
+      for (const c of correct) expect(c, id).toBeLessThan(raw!.options.length);
+    }
   });
 });

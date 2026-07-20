@@ -76,7 +76,9 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (334)", () => {
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(334);
+  it("Anzahl Exhibit-Fragen stimmt (333)", () => {
+    // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
+    // Konfigurationen stehen vollständig in den Antwortoptionen.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(333);
   });
 });
