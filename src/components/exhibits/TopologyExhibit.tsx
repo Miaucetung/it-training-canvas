@@ -4,8 +4,11 @@ import type {
 } from "@/types/exhibit";
 
 // Farben über shadcn-CSS-Variablen (dark-mode-fähig); Fallbacks falls Token fehlt.
+// STROKE bewusst muted-foreground statt border: --border ist im Light-Mode zu
+// hell (oklch 0.922) — Icons und Links wären auf Weiß praktisch unsichtbar.
 const FILL = "var(--card, #1a2230)";
-const STROKE = "var(--border, #2b3647)";
+const STROKE = "var(--muted-foreground, #64748b)";
+const HAIRLINE = "var(--border, #2b3647)";
 const TEXT = "var(--foreground, #e5e7eb)";
 const TEXT_MUTED = "var(--muted-foreground, #94a3b8)";
 const ACCENT = "var(--primary, #6366f1)";
@@ -108,7 +111,7 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
   const h = maxY - minY;
 
   return (
-    <div className="bg-white dark:bg-gray-900 p-2">
+    <div className="bg-card p-2">
       <svg
         viewBox={`${minX} ${minY} ${w} ${h}`}
         className="w-full h-auto"
@@ -142,7 +145,7 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
                     width={link.subnet.length * 6.8 + 8}
                     height={18}
                     rx={9}
-                    style={{ fill: FILL, stroke: STROKE }}
+                    style={{ fill: FILL, stroke: HAIRLINE }}
                     strokeWidth={1}
                   />
                   <text x={mx} y={my} textAnchor="middle" dy={3.5} fontSize={10} fontFamily="monospace" style={{ fill: TEXT_MUTED }}>
