@@ -31,7 +31,12 @@ export { hasExhibit, getExhibitList };
 function toAppExhibit(
   exhibit: CCNAQuestionClassified["exhibit"],
 ): boolean | ExhibitData | ExhibitData[] {
-  if (typeof exhibit === "object" && exhibit !== null && !Array.isArray(exhibit)) {
+  if (
+    typeof exhibit === "object" &&
+    exhibit !== null &&
+    !Array.isArray(exhibit) &&
+    "needsExhibit" in exhibit
+  ) {
     return true;
   }
   return exhibit;
