@@ -1309,8 +1309,239 @@ O     172.16.4.0/23   [110/3184437] via 207.165.200.250, Serial0/0/0`,
     explanation:
       "Accounting misst und berichtet, Authorization regelt Rechte. Identitätsprüfung (Distraktoren) wäre Authentication.",
   },
+  // ── Batch 5 ──────────────────────────────────────────────
+  {
+    id: "dd-q1132",
+    instruction: "Drag and drop the IPv6 addresses from the left onto the types on the right.",
+    targets: [
+      { id: "global", label: "Global Unicast" },
+      { id: "linklocal", label: "Link-Local Unicast" },
+      { id: "multicast", label: "Multicast" },
+      { id: "unique", label: "Unique Local" },
+    ],
+    items: [
+      { id: "i1", label: "2000:1092:a1e8:827d:527c:3ce7:9816:1", target: "global" },
+      { id: "i2", label: "fe80:cc72:4b9e:445c:8179:0420:5988:7", target: "linklocal" },
+      { id: "i3", label: "ff00:ec6c:dbb1:3e8b:6d46:bd27:a236:12", target: "multicast" },
+      { id: "i4", label: "fc00:9860:653f:5146:8cb2:a27c:cb6f:3", target: "unique" },
+    ],
+    explanation: "Präfix-Regel: 2000::/3 global, fe80::/10 link-local, ff00::/8 multicast, fc00::/7 unique local.",
+  },
+  {
+    id: "dd-q1144",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "is unable to route on the internet", target: "unique" },
+      { id: "i2", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i3", label: "has a unicast source sent to a group", target: "multicast" },
+      { id: "i4", label: "sends packets to a group address rather than a single address", target: "multicast" },
+    ],
+    explanation:
+      "Unique Local ist nicht Internet-routbar und standortübergreifend kollisionsfrei. Multicast: eine Unicast-Quelle sendet an eine Gruppenadresse.",
+  },
+  {
+    id: "dd-q1147",
+    instruction: "Drag and drop the traffic types from the left onto the QoS delivery mechanisms on the right.",
+    targets: [
+      { id: "be", label: "best effort" },
+      { id: "pol", label: "policing" },
+      { id: "pq", label: "priority queue" },
+      { id: "shape", label: "shaping" },
+    ],
+    items: [
+      { id: "i1", label: "standard Web browsing traffic", target: "be" },
+      { id: "i2", label: "video traffic", target: "pol" },
+      { id: "i3", label: "VoIP traffic", target: "pq" },
+      { id: "i4", label: "database synchronization traffic", target: "shape" },
+    ],
+    explanation:
+      "Web = Best Effort; Video wird bei Ratenüberschreitung policed; VoIP braucht die Priority Queue (LLQ) für geringe Latenz; DB-Sync verträgt Shaping (Verzögern statt Verwerfen).",
+  },
+  {
+    id: "dd-q1153",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "contains a conductor, bedding, and sheathing", target: "copper" },
+      { id: "i2", label: "is typically used in small office applications", target: "copper" },
+      { id: "i3", label: "is typically used for DWDM optical systems spanning long distances", target: "smf" },
+      { id: "i4", label: "eliminates distortion from overlapping light pulses", target: "smf" },
+    ],
+    explanation:
+      "Kupferkabel (Leiter/Bettung/Mantel) für Office-Verkabelung; Single-Mode ohne Modendispersion für DWDM-Langstrecken.",
+  },
+  {
+    id: "dd-q1155",
+    instruction: "Drag and drop the HTTP verbs from the left onto the API operations on the right.",
+    targets: [
+      { id: "t1", label: "creates a subordinate resource under the specified URI" },
+      { id: "t2", label: "erases a specific resource" },
+      { id: "t3", label: "fully replaces the current version of a specific resource with new content from the payload" },
+      { id: "t4", label: "partially modifies a specific resource" },
+      { id: "t5", label: "requests specific information about a resource" },
+    ],
+    items: [
+      { id: "i1", label: "POST", target: "t1" },
+      { id: "i2", label: "DELETE", target: "t2" },
+      { id: "i3", label: "PUT", target: "t3" },
+      { id: "i4", label: "PATCH", target: "t4" },
+      { id: "i5", label: "GET", target: "t5" },
+    ],
+    explanation:
+      "CRUD-Mapping: POST erzeugt (unterhalb der URI), GET liest, PUT ersetzt vollständig, PATCH ändert teilweise, DELETE löscht.",
+  },
+  {
+    id: "dd-q1165",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "is easy to tap into and obtain secure information", target: "copper" },
+      { id: "i2", label: "is affected by electrical and magnetic interference", target: "copper" },
+      { id: "i3", label: "transmits data of up to 40Gbit/s over long distances", target: "smf" },
+      { id: "i4", label: "has minimal light reflection as it travels down the core", target: "smf" },
+    ],
+    explanation:
+      "Kupfer ist abhörbar und EMI-empfindlich; Single-Mode liefert 40G+ über weite Strecken bei minimaler Reflexion.",
+  },
+  {
+    id: "dd-q1170",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "is unable to route on the internet", target: "unique" },
+      { id: "i2", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i3", label: "provides one-to-many communications", target: "multicast" },
+      { id: "i4", label: "sends packets to a group address rather than a single address", target: "multicast" },
+    ],
+    explanation: "Variante der Unique-Local/Multicast-Familie — gleiche Merkmalslogik.",
+  },
+  {
+    id: "dd-q1188",
+    instruction: "Drag and drop the IPv6 addresses from the left onto the types on the right.",
+    targets: [
+      { id: "global", label: "Global Unicast" },
+      { id: "linklocal", label: "Link-Local Unicast" },
+      { id: "multicast", label: "Multicast" },
+      { id: "unique", label: "Unique Local" },
+    ],
+    items: [
+      { id: "i1", label: "2000:4011:2a0d:d571:1976:4bab:adb7:1", target: "global" },
+      { id: "i2", label: "fe80:5db2:1f32:0ee4:32a3:855f:b0d5:7", target: "linklocal" },
+      { id: "i3", label: "ff00:b823:1dc6:263b:ba6a:50f5:15b7:12", target: "multicast" },
+      { id: "i4", label: "fc00:e896:c4cd:422b:7660:59e5:dd00:3", target: "unique" },
+    ],
+    explanation: "Präfix-Regel wie gehabt: 2000::/3, fe80::/10, ff00::/8, fc00::/7.",
+  },
+  {
+    id: "dd-q1190",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "may be used by multiple organizations at the same time", target: "unique" },
+      { id: "i2", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i3", label: "cannot be used as a source address", target: "multicast" },
+      { id: "i4", label: "has a unicast source sent to a group", target: "multicast" },
+    ],
+    explanation: "Unique Local = privater, mehrfach nutzbarer Bereich; Multicast nie Quelladresse.",
+  },
+  {
+    id: "dd-q1256",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "multicast", label: "Multicast" },
+      { id: "unique", label: "Unique Local" },
+    ],
+    items: [
+      { id: "i1", label: "never used as a source address", target: "multicast" },
+      { id: "i2", label: "provides one-to-many communications", target: "multicast" },
+      { id: "i3", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i4", label: "unable to route on the internet", target: "unique" },
+    ],
+    explanation: "Multicast: Zieladresse für Gruppen. Unique Local: privat, nicht global routbar.",
+  },
+  {
+    id: "dd-q1263",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "global", label: "Global Unicast Address" },
+    ],
+    items: [
+      { id: "i1", label: "may be used by multiple organizations at the same time", target: "unique" },
+      { id: "i2", label: "counterpart of private IPv4 addresses", target: "unique" },
+      { id: "i3", label: "publicly routable in the same way as IPv4 addresses", target: "global" },
+      { id: "i4", label: "provides for one-to-one communication", target: "global" },
+    ],
+    explanation:
+      "Unique Local ≙ RFC-1918-Adressen; Global Unicast ist öffentlich routbar und für Eins-zu-eins-Kommunikation.",
+  },
+  {
+    id: "dd-q1267",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "mmf", label: "multi-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "is easy to tap into and obtain secure information", target: "copper" },
+      { id: "i2", label: "transmits data in the form of electronic signals", target: "copper" },
+      { id: "i3", label: "transmits signals using pulses of light", target: "mmf" },
+      { id: "i4", label: "contains a core, cladding, and coating", target: "mmf" },
+    ],
+    explanation:
+      "Kupfer: elektrische Signale, leicht abgreifbar. Glasfaser: Lichtpulse im Aufbau Kern/Mantel/Beschichtung.",
+  },
+  {
+    id: "dd-q1289",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "linklocal", label: "Link-Local Address" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "serves as the next-hop addresses in IGP", target: "linklocal" },
+      { id: "i2", label: "confined to a single link", target: "linklocal" },
+      { id: "i3", label: "has a unicast source sent to a group", target: "multicast" },
+      { id: "i4", label: "never used as a source address", target: "multicast" },
+    ],
+    explanation:
+      "IGPs (OSPFv3, EIGRP) nutzen Link-Local-Adressen als Next-Hop; sie gelten nur auf dem Link. Multicast bleibt reine Zieladresse.",
+  },
+  {
+    id: "dd-q1325",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "counterpart of private IPv4 addresses", target: "unique" },
+      { id: "i2", label: "may be used by multiple organizations at the same time", target: "unique" },
+      { id: "i3", label: "never used as a source address", target: "multicast" },
+      { id: "i4", label: "provides one-to-many communications", target: "multicast" },
+    ],
+    explanation: "Letzte Variante der Familie: privates IPv6 vs. Gruppenkommunikation.",
+  },
   // SKIP: Q0260 — beide Bilder zeigen nur ein Config-Snippet (interface Gi1/0 …),
   // kein Drag-Drop-Widget; Zuordnung nicht rekonstruierbar.
+  // SKIP: Q1292 — "Refer to the exhibit": das Routing-Tabellen-Exhibit fehlt in
+  // beiden Bildern; Zuordnung Präfix→Routenquelle ohne Exhibit nicht ableitbar.
   // SKIP: Q1028 — Lösung nur im (fehlenden) Antwort-Widget; die Beschreibung
   // "device hardware that runs without embedded management features" ist mit den
   // gegebenen Begriffen (agent/agentless/provision/pull/push/post) nicht eindeutig lösbar.
