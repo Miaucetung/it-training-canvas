@@ -795,6 +795,271 @@ O     172.16.4.0/23   [110/3184437] via 207.165.200.250, Serial0/0/0`,
     explanation:
       "MIB = adressierbare Objektsammlung, Managed Device = überwachter Knoten, NMS = Monitoring-Zentrale, Agent = Software auf dem Gerät, die Daten erfasst und übersetzt.",
   },
+  // ── Batch 3 ──────────────────────────────────────────────
+  {
+    id: "dd-q0956",
+    instruction: "Drag and drop the QoS features from the left onto the corresponding statements on the right.",
+    targets: [
+      { id: "t1", label: "applies a specific action to packets whenever the maximum rate of packets is exceeded" },
+      { id: "t2", label: "set the ToS value to associate a packet with a QoS group" },
+      { id: "t3", label: "reduces traffic congestion by holding packets and distributing them when the available bandwidth allows" },
+      { id: "t4", label: "the overall process of using specific criteria to differentiate traffic into categories" },
+    ],
+    items: [
+      { id: "i1", label: "policing", target: "t1" },
+      { id: "i2", label: "marking", target: "t2" },
+      { id: "i3", label: "queuing", target: "t3" },
+      { id: "i4", label: "classification", target: "t4" },
+    ],
+    explanation:
+      "Policing greift bei Ratenüberschreitung, Marking setzt ToS/DSCP, Queuing puffert und verteilt nach Bandbreite, Classification teilt Traffic nach Kriterien in Klassen.",
+  },
+  {
+    id: "dd-q0958",
+    instruction: "Drag and drop the steps in a standard DNS lookup operation from the left into the order on the right.",
+    targets: [
+      { id: "s1", label: "Step 1" },
+      { id: "s2", label: "Step 2" },
+      { id: "s3", label: "Step 3" },
+      { id: "s4", label: "Step 4" },
+      { id: "s5", label: "Step 5" },
+    ],
+    items: [
+      { id: "i1", label: "An endpoint submits a request for the IP address of a domain name.", target: "s1" },
+      { id: "i2", label: "The DNS submits a request to a root DNS server.", target: "s2" },
+      { id: "i3", label: "The DNS submits a request to the domain DNS server.", target: "s3" },
+      { id: "i4", label: "The DNS receives a reply from the domain DNS server.", target: "s4" },
+      { id: "i5", label: "The DNS responds to the endpoint.", target: "s5" },
+    ],
+    explanation:
+      "Rekursive Auflösung: Client fragt Resolver → Resolver fragt Root → dann den autoritativen Domain-Server → erhält die Antwort → liefert sie an den Client zurück.",
+  },
+  {
+    id: "dd-q0960",
+    instruction: "Drag and drop the DNS commands from the left onto their effects on the right.",
+    targets: [
+      { id: "t1", label: "adds an entry to the host table" },
+      { id: "t2", label: "completes the FQDN of the DNS server" },
+      { id: "t3", label: "displays address-mapping information" },
+      { id: "t4", label: "enables host-to-IP-address translation" },
+      { id: "t5", label: "specifies the IP address of the DNS server" },
+    ],
+    items: [
+      { id: "i1", label: "ip host switch_1 192.168.0.1", target: "t1" },
+      { id: "i2", label: "ip domain-name", target: "t2" },
+      { id: "i3", label: "show hosts", target: "t3" },
+      { id: "i4", label: "ip domain-lookup", target: "t4" },
+      { id: "i5", label: "ip name-server", target: "t5" },
+    ],
+    explanation:
+      "ip host = statischer Hosteintrag, ip domain-name = Default-Domain für FQDNs, show hosts = Mapping-Tabelle anzeigen, ip domain-lookup = DNS-Auflösung aktivieren, ip name-server = DNS-Server-IP setzen.",
+  },
+  {
+    id: "dd-q0963",
+    instruction: "Drag and drop the DNS lookup commands from the left onto the functions on the right.",
+    targets: [
+      { id: "t1", label: "enables DNS lookup on an individual interface" },
+      { id: "t2", label: "enables the DNS server on the device" },
+      { id: "t3", label: "identifies a DNS server to provide lookup services" },
+      { id: "t4", label: "specifies a sequence of domain names" },
+      { id: "t5", label: "specifies the default domain to append to unqualified host names" },
+      { id: "t6", label: "statically maps an IP address to a hostname" },
+    ],
+    items: [
+      { id: "i1", label: "ip domain lookup source-interface", target: "t1" },
+      { id: "i2", label: "ip dns server", target: "t2" },
+      { id: "i3", label: "ip name-server", target: "t3" },
+      { id: "i4", label: "ip domain list", target: "t4" },
+      { id: "i5", label: "ip domain name", target: "t5" },
+      { id: "i6", label: "ip host", target: "t6" },
+    ],
+    explanation:
+      "domain list = Suchreihenfolge mehrerer Domains, domain name = eine Default-Domain, name-server = externer Resolver, dns server = Gerät selbst wird DNS-Server, ip host = statisches Mapping.",
+  },
+  {
+    id: "dd-q0970",
+    instruction:
+      "Drag and drop the attack-mitigation techniques from the left onto the types of attack that they mitigate on the right.",
+    targets: [
+      { id: "t1", label: "802.1q double-tagging VLAN-hopping attack" },
+      { id: "t2", label: "MAC flooding attack" },
+      { id: "t3", label: "man-in-the-middle spoofing attack" },
+      { id: "t4", label: "switch-spoofing VLAN-hopping attack" },
+    ],
+    items: [
+      { id: "i1", label: "Configure the native VLAN with a nondefault VLAN", target: "t1" },
+      { id: "i2", label: "Configure the 802.1x authentication protocol", target: "t2" },
+      { id: "i3", label: "Configure the DHCP snooping feature", target: "t3" },
+      { id: "i4", label: "Disable Dynamic Trunking Protocol", target: "t4" },
+    ],
+    explanation:
+      "Wie dd-q0623 in anderer Formulierung: Native-VLAN ändern gegen Double-Tagging, 802.1X gegen MAC-Flooding, DHCP-Snooping gegen MITM, DTP aus gegen Switch-Spoofing.",
+  },
+  {
+    id: "dd-q0975",
+    instruction:
+      "Drag and drop the statements about AAA services from the left to the corresponding AAA services on the right. Not all options are used.",
+    targets: [
+      { id: "authc", label: "Authentication" },
+      { id: "authz", label: "Authorization" },
+    ],
+    items: [
+      { id: "i1", label: "It performs user validation via TACACS+.", target: "authc" },
+      { id: "i2", label: 'It verifies "who you are".', target: "authc" },
+      { id: "i3", label: "It grants access to network assets, such as FTP servers.", target: "authz" },
+      { id: "i4", label: "It restricts the CLI commands that a user is able to perform.", target: "authz" },
+      { id: "i5", label: "It records the duration of each connection.", target: null },
+      { id: "i6", label: "It supports User Access Reporting.", target: null },
+    ],
+    explanation:
+      "Authentication prüft die Identität (TACACS+-Validierung, „wer bist du“). Authorization vergibt Rechte (Asset-Zugriff, CLI-Einschränkung). Die Distraktoren sind Accounting-Merkmale.",
+  },
+  {
+    id: "dd-q0989",
+    instruction:
+      "Drag and drop the statements about AAA from the left onto the corresponding AAA services on the right. Not all options are used.",
+    targets: [
+      { id: "authc", label: "Authentication" },
+      { id: "authz", label: "Authorization" },
+    ],
+    items: [
+      { id: "i1", label: "It permits and denies login attempts.", target: "authc" },
+      { id: "i2", label: "It supports local, PPP, RADIUS, and TACACS+ options.", target: "authc" },
+      { id: "i3", label: "It assigns per-user attributes.", target: "authz" },
+      { id: "i4", label: "It restricts the CLI commands that a user is able to perform.", target: "authz" },
+      { id: "i5", label: "It records the amount of network resources consumed by the user.", target: null },
+      { id: "i6", label: "It tracks the services that a user is using.", target: null },
+    ],
+    explanation:
+      "Authentication entscheidet über Logins und kennt die Methoden local/PPP/RADIUS/TACACS+. Authorization vergibt Attribute und begrenzt Befehle. Ressourcen-/Dienst-Tracking = Accounting (Distraktoren).",
+  },
+  {
+    id: "dd-q0992",
+    instruction:
+      "Drag and drop the statements about AAA services from the left onto the corresponding AAA services on the right. Not all options are used.",
+    targets: [
+      { id: "acct", label: "Accounting" },
+      { id: "authz", label: "Authorization" },
+    ],
+    items: [
+      { id: "i1", label: "It records the duration of each connection.", target: "acct" },
+      { id: "i2", label: "It supports User Access Reporting.", target: "acct" },
+      { id: "i3", label: "It grants access to network assets, such as FTP servers.", target: "authz" },
+      { id: "i4", label: "It limits the services available to a user.", target: "authz" },
+      { id: "i5", label: "It performs user validation via TACACS+.", target: null },
+      { id: "i6", label: 'It verifies "who you are".', target: null },
+    ],
+    explanation:
+      "Accounting protokolliert Verbindungsdauern und liefert Reports. Authorization regelt Zugriffe und Dienste. Die Identitätsprüfung (TACACS+, „wer bist du“) ist Authentication — hier Distraktor.",
+  },
+  {
+    id: "dd-q1000",
+    instruction:
+      "Drag and drop the characteristics of northbound APIs from the left onto any of the positions on the right. Not all characteristics are used.",
+    targets: [{ id: "nbi", label: "Northbound APIs (4)" }],
+    items: [
+      { id: "i1", label: "supports automation", target: "nbi" },
+      { id: "i2", label: "communicates between the SDN controller and the application plane", target: "nbi" },
+      { id: "i3", label: "supports data sharing between systems", target: "nbi" },
+      { id: "i4", label: "supports REST-based requirements", target: "nbi" },
+      { id: "i5", label: "communicates between the SDN controller and the data plane", target: null },
+      { id: "i6", label: "supports network virtualization protocols", target: null },
+      { id: "i7", label: "uses OpenFlow to interface between the data and control planes", target: null },
+    ],
+    explanation:
+      "Northbound = Controller ↔ Applikationen (REST, Automatisierung, Datenaustausch). Southbound = Controller ↔ Data Plane (OpenFlow, Virtualisierungsprotokolle) — die Distraktoren.",
+  },
+  {
+    id: "dd-q1008",
+    instruction:
+      "Drag and drop the statements about device management from the left onto the corresponding types on the right.",
+    targets: [
+      { id: "trad", label: "Traditional Campus Device Management" },
+      { id: "dna", label: "Cisco DNA Center Device Management" },
+    ],
+    items: [
+      { id: "i1", label: "leverages Cisco Prime Infrastructure", target: "trad" },
+      { id: "i2", label: "requires manual configuration of complex protocols", target: "trad" },
+      { id: "i3", label: "lacks support for SDA", target: "trad" },
+      { id: "i4", label: "reduces the workload for enterprise customers", target: "dna" },
+      { id: "i5", label: "uses algorithms to detect security threats", target: "dna" },
+      { id: "i6", label: "uses northbound APIs", target: "dna" },
+    ],
+    explanation:
+      "Traditionell: Prime Infrastructure, Handarbeit, kein SDA. DNA Center: Automatisierung entlastet, KI-gestützte Threat-Detection, offene Northbound-APIs.",
+  },
+  {
+    id: "dd-q1018",
+    instruction: "Drag and drop the Ansible features from the left to the right. Not all features are used.",
+    targets: [{ id: "ansible", label: "Ansible (4)" }],
+    items: [
+      { id: "i1", label: "executes modules via SSH by default", target: "ansible" },
+      { id: "i2", label: "uses the YAML language", target: "ansible" },
+      { id: "i3", label: "pushes configurations to the client", target: "ansible" },
+      { id: "i4", label: "operates without agents", target: "ansible" },
+      { id: "i5", label: "uses agents to manage hosts", target: null },
+      { id: "i6", label: "requires clients to pull configurations from the server", target: null },
+    ],
+    explanation:
+      "Ansible ist agentenlos, arbeitet per SSH im Push-Modell und beschreibt Playbooks in YAML. Agenten und Pull-Modell kennzeichnen Puppet/Chef (Distraktoren).",
+  },
+  {
+    id: "dd-q1021",
+    instruction:
+      "Drag and drop the use cases of device-management technologies from the left onto the corresponding types on the right.",
+    targets: [
+      { id: "dna", label: "Cisco DNA Center" },
+      { id: "trad", label: "Traditional" },
+    ],
+    items: [
+      { id: "i1", label: "overlay and underlay configuration", target: "dna" },
+      { id: "i2", label: "routed access deployment", target: "dna" },
+      { id: "i3", label: "VXLAN and LISP configuration", target: "dna" },
+      { id: "i4", label: "STP deployment", target: "trad" },
+      { id: "i5", label: "VLAN and HSRP configuration", target: "trad" },
+      { id: "i6", label: "configuration via console", target: "trad" },
+    ],
+    explanation:
+      "DNA Center automatisiert Fabric-Konzepte (Overlay/Underlay, VXLAN, LISP, Routed Access). Klassisch bleiben STP, VLAN/HSRP und Konsolen-Konfiguration.",
+  },
+  {
+    id: "dd-q1024",
+    instruction:
+      "Drag and drop the statements about device management from the left onto the corresponding device-management types on the right.",
+    targets: [
+      { id: "dna", label: "Cisco DNA Center Device Management" },
+      { id: "trad", label: "Traditional Device Management" },
+    ],
+    items: [
+      { id: "i1", label: "It provides a single interface for network security and analytics.", target: "dna" },
+      { id: "i2", label: "It supports CLI templates to apply a consistent configuration to multiple devices.", target: "dna" },
+      { id: "i3", label: "It uses NetFlow to analyze potential security threats and take appropriate action on that traffic.", target: "dna" },
+      { id: "i4", label: "It manages device configurations on a per-device basis.", target: "trad" },
+      { id: "i5", label: "Security is managed near the perimeter of the network with firewalls, VPNs, and IPS.", target: "trad" },
+      { id: "i6", label: "It uses multiple tools and applications to analyze and troubleshoot different types of data.", target: "trad" },
+    ],
+    explanation:
+      "DNA Center bündelt Security/Analytics in einer Oberfläche (CLI-Templates, NetFlow-Analyse). Traditionell: pro Gerät, Perimeter-Security, viele Einzeltools.",
+  },
+  {
+    id: "dd-q1081",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "contains a single solid conductor", target: "copper" },
+      { id: "i2", label: "is affected by electrical and magnetic interference", target: "copper" },
+      { id: "i3", label: "is typically used for DWDM optical systems spanning long distances", target: "smf" },
+      { id: "i4", label: "eliminates distortion from overlapping light pulses", target: "smf" },
+    ],
+    explanation:
+      "Kupfer: massiver Leiter, EMI-anfällig. Single-Mode-Glasfaser: ein Lichtpfad ohne Modendispersion, Standard für DWDM-Langstrecken.",
+  },
   // SKIP: Q0260 — beide Bilder zeigen nur ein Config-Snippet (interface Gi1/0 …),
   // kein Drag-Drop-Widget; Zuordnung nicht rekonstruierbar.
+  // SKIP: Q1028 — Lösung nur im (fehlenden) Antwort-Widget; die Beschreibung
+  // "device hardware that runs without embedded management features" ist mit den
+  // gegebenen Begriffen (agent/agentless/provision/pull/push/post) nicht eindeutig lösbar.
 ];
