@@ -1057,6 +1057,258 @@ O     172.16.4.0/23   [110/3184437] via 207.165.200.250, Serial0/0/0`,
     explanation:
       "Kupfer: massiver Leiter, EMI-anfällig. Single-Mode-Glasfaser: ein Lichtpfad ohne Modendispersion, Standard für DWDM-Langstrecken.",
   },
+  // ── Batch 4 ──────────────────────────────────────────────
+  {
+    id: "dd-q1086",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "contains a single solid conductor", target: "copper" },
+      { id: "i2", label: "transmits data in the form of electronic signals", target: "copper" },
+      { id: "i3", label: "is typically used for DWDM optical systems spanning long distances", target: "smf" },
+      { id: "i4", label: "uses a single wavelength of light", target: "smf" },
+    ],
+    explanation:
+      "Kupfer überträgt elektrische Signale über einen massiven Leiter; Single-Mode-Faser nutzt eine Wellenlänge und trägt DWDM über lange Strecken.",
+  },
+  {
+    id: "dd-q1087",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "copper", label: "copper" },
+      { id: "mmf", label: "multimode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "is typically used in small office applications", target: "copper" },
+      { id: "i2", label: "is comprised of shielded and unshielded twisted pairs", target: "copper" },
+      { id: "i3", label: "is typically used for internal datacenter connectivity", target: "mmf" },
+      { id: "i4", label: "has increased attenuation over long distances", target: "mmf" },
+    ],
+    explanation:
+      "Twisted-Pair-Kupfer dominiert im Office-Bereich; Multimode verbindet kurze Strecken im Rechenzentrum, dämpft aber über Distanz stärker als Single-Mode.",
+  },
+  {
+    id: "dd-q1088",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "smf", label: "single-mode fiber" },
+      { id: "copper", label: "copper" },
+    ],
+    items: [
+      { id: "i1", label: "is ideal for longer distances with little loss of integrity", target: "smf" },
+      { id: "i2", label: "has minimal light reflection as it travels down the core", target: "smf" },
+      { id: "i3", label: "is not easily broken", target: "copper" },
+      { id: "i4", label: "contains a single solid conductor", target: "copper" },
+    ],
+    explanation:
+      "Single-Mode: verlustarme Langstrecke, kaum Reflexion im dünnen Kern. Kupfer: robust und mit massivem Leiter aufgebaut.",
+  },
+  {
+    id: "dd-q1089",
+    instruction: "Drag and drop the characteristics from the left onto the fiber types on the right.",
+    targets: [
+      { id: "smf", label: "single-mode fiber" },
+      { id: "mmf", label: "multimode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "uses a single wavelength of light", target: "smf" },
+      { id: "i2", label: "has minimal light reflection as it travels down the core", target: "smf" },
+      { id: "i3", label: "becomes distorted at longer lengths", target: "mmf" },
+      { id: "i4", label: "transmits data up to 100 Gbits which degrades over distance", target: "mmf" },
+    ],
+    explanation:
+      "Single-Mode: eine Wellenlänge, minimale Reflexion. Multimode: Modendispersion verzerrt bei Länge; hohe Datenraten nur auf kurzer Distanz.",
+  },
+  {
+    id: "dd-q1091",
+    instruction: "Drag and drop the characteristics from the left onto the cable types on the right.",
+    targets: [
+      { id: "smf", label: "single-mode fiber" },
+      { id: "copper", label: "copper" },
+    ],
+    items: [
+      { id: "i1", label: "uses a single wavelength of light", target: "smf" },
+      { id: "i2", label: "has a core diameter of 9 microns", target: "smf" },
+      { id: "i3", label: "is comprised of shielded and unshielded twisted pairs", target: "copper" },
+      { id: "i4", label: "contains a conductor, bedding, and sheathing", target: "copper" },
+    ],
+    explanation:
+      "Single-Mode: ~9-µm-Kern, eine Wellenlänge. Kupfer: STP/UTP-Adernpaare mit Leiter, Bettung und Mantel.",
+  },
+  {
+    id: "dd-q1101",
+    instruction: "Drag and drop the IPv6 addresses from the left onto the types on the right.",
+    targets: [
+      { id: "global", label: "Global Unicast" },
+      { id: "unique", label: "Unique Local" },
+      { id: "linklocal", label: "Link-Local Unicast" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "2000:0962:6dee:8c78:93b8:c429:c78d:1", target: "global" },
+      { id: "i2", label: "fc00:9e81:2346:4929:7fec:34e9:7b8c:3", target: "unique" },
+      { id: "i3", label: "fe80:27bb:1ef9:6b3d:b347:686f:f3b7:7", target: "linklocal" },
+      { id: "i4", label: "ff00:0a7c:cf36:cd7c:6dad:44fa:c11c:12", target: "multicast" },
+    ],
+    explanation:
+      "2000::/3 = Global Unicast, fc00::/7 = Unique Local, fe80::/10 = Link-Local, ff00::/8 = Multicast.",
+  },
+  {
+    id: "dd-q1102",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "may be used by multiple organizations at the same time", target: "unique" },
+      { id: "i2", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i3", label: "sends packets to a group address rather than a single address", target: "multicast" },
+      { id: "i4", label: "provides one-to-many communications", target: "multicast" },
+    ],
+    explanation:
+      "Unique Local (fc00::/7) ist das private IPv6 — mehrfach nutzbar, kollisionsfrei kombinierbar. Multicast adressiert Gruppen (eins-zu-viele).",
+  },
+  {
+    id: "dd-q1103",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "linklocal", label: "Link-Local Address" },
+    ],
+    items: [
+      { id: "i1", label: "may be used by multiple organizations at the same time", target: "unique" },
+      { id: "i2", label: "is a counterpart of private IPv4 address", target: "unique" },
+      { id: "i3", label: "attached to a single subnet", target: "linklocal" },
+      { id: "i4", label: "required on all IPv6 devices", target: "linklocal" },
+    ],
+    explanation:
+      "Unique Local entspricht RFC-1918-Adressen. Link-Local (fe80::/10) gilt nur im lokalen Segment und ist auf jedem IPv6-Interface Pflicht.",
+  },
+  {
+    id: "dd-q1112",
+    instruction: "Drag and drop the DHCP snooping terms from the left onto the descriptions on the right.",
+    targets: [
+      { id: "t1", label: "list of hosts on the network that are unknown to the administrative domain" },
+      { id: "t2", label: "network component that propagates IP addresses to hosts on the network" },
+      { id: "t3", label: "internal device under the control of the network administrator" },
+      { id: "t4", label: "unknown DHCP server within an administrative domain" },
+      { id: "t5", label: "default state of all interfaces" },
+    ],
+    items: [
+      { id: "i1", label: "snooping binding database", target: "t1" },
+      { id: "i2", label: "DHCP server", target: "t2" },
+      { id: "i3", label: "trusted", target: "t3" },
+      { id: "i4", label: "spurious DHCP server", target: "t4" },
+      { id: "i5", label: "untrusted", target: "t5" },
+    ],
+    explanation:
+      "Die Binding-Datenbank sammelt unbekannte Hosts mit Leases; trusted = vom Admin kontrollierte Ports, untrusted = Default; spurious = nicht autorisierter DHCP-Server.",
+  },
+  {
+    id: "dd-q1114",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "unique", label: "Unique Local" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "is a counterpart of private IPv4 addresses", target: "unique" },
+      { id: "i2", label: "allows sites to be combined without address conflicts", target: "unique" },
+      { id: "i3", label: "sends packets to a group address rather than a single address", target: "multicast" },
+      { id: "i4", label: "has a unicast source sent to a group", target: "multicast" },
+    ],
+    explanation:
+      "Variante von dd-q1102: Unique Local = privates IPv6; Multicast = Unicast-Quelle sendet an eine Gruppenadresse.",
+  },
+  {
+    id: "dd-q1115",
+    instruction: "Drag and drop the characteristics from the left onto the fiber types on the right.",
+    targets: [
+      { id: "mmf", label: "multimode fiber" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "is typically used for internal datacenter connectivity", target: "mmf" },
+      { id: "i2", label: "becomes distorted at longer lengths", target: "mmf" },
+      { id: "i3", label: "uses a single wavelength of light", target: "smf" },
+      { id: "i4", label: "has minimal light reflection as it travels down the core", target: "smf" },
+    ],
+    explanation:
+      "Multimode: kurze RZ-Strecken, Verzerrung durch Modendispersion. Single-Mode: eine Wellenlänge, minimale Reflexion.",
+  },
+  {
+    id: "dd-q1119",
+    instruction: "Drag and drop the IPv6 addresses from the left onto the types on the right.",
+    targets: [
+      { id: "global", label: "Global Unicast" },
+      { id: "linklocal", label: "Link-Local Unicast" },
+      { id: "multicast", label: "Multicast" },
+      { id: "unique", label: "Unique Local" },
+    ],
+    items: [
+      { id: "i1", label: "2000:87aa:84ab:fdd9:5ac3:41a5:ef72:1", target: "global" },
+      { id: "i2", label: "fe80:ccc7:17f1:5d15:f611:5cea:ef92:7", target: "linklocal" },
+      { id: "i3", label: "ff00:520a:3e47:de13:fe6f:476e:5325:12", target: "multicast" },
+      { id: "i4", label: "fc00:c51f:922d:0c12:9c54:7644:28f5:3", target: "unique" },
+    ],
+    explanation:
+      "Wieder die Präfix-Regel: 2000::/3, fe80::/10, ff00::/8, fc00::/7.",
+  },
+  {
+    id: "dd-q1125",
+    instruction: "Drag and drop the characteristics from the left onto the fiber types on the right.",
+    targets: [
+      { id: "mmf", label: "multimode fiber" },
+      { id: "smf", label: "single-mode fiber" },
+    ],
+    items: [
+      { id: "i1", label: "uses multiple wavelengths of light", target: "mmf" },
+      { id: "i2", label: "has increased attenuation over long distances", target: "mmf" },
+      { id: "i3", label: "has a core diameter of 9 microns", target: "smf" },
+      { id: "i4", label: "uses a single wavelength of light", target: "smf" },
+    ],
+    explanation:
+      "Multimode führt mehrere Lichtmoden und dämpft stärker; Single-Mode hat den 9-µm-Kern mit einer Wellenlänge.",
+  },
+  {
+    id: "dd-q1127",
+    instruction: "Drag and drop the characteristics from the left onto the IPv6 address types on the right.",
+    targets: [
+      { id: "anycast", label: "Anycast" },
+      { id: "multicast", label: "Multicast" },
+    ],
+    items: [
+      { id: "i1", label: "assigned to multiple devices", target: "anycast" },
+      { id: "i2", label: "routed to the nearest interface", target: "anycast" },
+      { id: "i3", label: "can't be used as a source address", target: "multicast" },
+      { id: "i4", label: "provides communication one to many", target: "multicast" },
+    ],
+    explanation:
+      "Anycast: gleiche Adresse auf mehreren Geräten, Routing zum nächstgelegenen. Multicast: Gruppenkommunikation, nie Quelladresse. (Wortlaut-Variante von dd-q1135.)",
+  },
+  {
+    id: "dd-q1130",
+    instruction:
+      "Drag and drop the statements about AAA services from the left to the corresponding AAA services on the right. Not all options are used.",
+    targets: [
+      { id: "acct", label: "Accounting" },
+      { id: "authz", label: "Authorization" },
+    ],
+    items: [
+      { id: "i1", label: "It records the duration of each connection.", target: "acct" },
+      { id: "i2", label: "It supports User Access Reporting.", target: "acct" },
+      { id: "i3", label: "It grants access to network assets, such as FTP servers.", target: "authz" },
+      { id: "i4", label: "It restricts the CLI commands that a user is able to perform.", target: "authz" },
+      { id: "i5", label: "It performs user validation via TACACS+.", target: null },
+      { id: "i6", label: 'It verifies "who you are".', target: null },
+    ],
+    explanation:
+      "Accounting misst und berichtet, Authorization regelt Rechte. Identitätsprüfung (Distraktoren) wäre Authentication.",
+  },
   // SKIP: Q0260 — beide Bilder zeigen nur ein Config-Snippet (interface Gi1/0 …),
   // kein Drag-Drop-Widget; Zuordnung nicht rekonstruierbar.
   // SKIP: Q1028 — Lösung nur im (fehlenden) Antwort-Widget; die Beschreibung
