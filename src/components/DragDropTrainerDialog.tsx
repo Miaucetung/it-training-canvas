@@ -105,6 +105,11 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
         {/* Body */}
         <div className="min-h-0 flex-1 overflow-y-auto p-5 space-y-4">
           <p className={`text-sm font-medium ${text}`}>{q.instruction}</p>
+          {q.context && (
+            <pre className="rounded-lg bg-slate-950 text-slate-200 text-xs leading-relaxed p-3 overflow-x-auto font-mono">
+              {q.context}
+            </pre>
+          )}
           {hasDistractors && (
             <p className={`text-xs ${muted}`}>Nicht alle Elemente werden verwendet.</p>
           )}
