@@ -497,6 +497,304 @@ O        10.10.13.160/29 [110/2] via 10.10.10.1, GigabitEthernet0/0`,
     explanation:
       "Classification markiert nach Deskriptoren, CBWFQ garantiert Mindestbandbreite bei Stau, Shaping verzögert Überschusstraffic, Congestion = Folge von Überlastung, Policing begrenzt/verwirft nach Kriterien. (Hinweis: Das Dump-Antwortbild vertauscht CBWFQ und Policing — hier fachlich korrekt.)",
   },
+  // ── Batch 2 ──────────────────────────────────────────────
+  {
+    id: "dd-q0588",
+    instruction: "Drag and drop the fault-management processes from the left onto the descriptions on the right.",
+    targets: [
+      { id: "t1", label: "The administrator can manually intervene at the source of the fault." },
+      { id: "t2", label: "The network management system launches a preconfigured script to restore functionality." },
+      { id: "t3", label: "The system groups alarms from related issues." },
+      { id: "t4", label: "The system identifies performance degradation or service interruption." },
+      { id: "t5", label: "The system reports on the source of the issue." },
+    ],
+    items: [
+      { id: "i1", label: "problem resolution", target: "t1" },
+      { id: "i2", label: "restoration of service", target: "t2" },
+      { id: "i3", label: "event correlation and aggregation", target: "t3" },
+      { id: "i4", label: "fault detection", target: "t4" },
+      { id: "i5", label: "fault diagnosis and isolation", target: "t5" },
+    ],
+    explanation:
+      "Detection erkennt die Störung, Diagnosis/Isolation lokalisiert die Quelle, Correlation gruppiert zusammengehörige Alarme, Restoration stellt per Skript wieder her, Resolution ist der manuelle Eingriff an der Ursache.",
+  },
+  {
+    id: "dd-q0592",
+    instruction:
+      "Drag and drop the DHCP functions from the left onto any of the positions on the right. Not all functions are used.",
+    targets: [{ id: "dhcp", label: "DHCP-Funktionen (4)" }],
+    items: [
+      { id: "i1", label: "provides local control for network segments using a client-server scheme", target: "dhcp" },
+      { id: "i2", label: "maintains an address pool", target: "dhcp" },
+      { id: "i3", label: "reduces the administrative burden for onboarding end users", target: "dhcp" },
+      { id: "i4", label: "assigns IP addresses to local hosts for a configurable lease time", target: "dhcp" },
+      { id: "i5", label: "uses authoritative servers for record keeping", target: null },
+      { id: "i6", label: "associates hostnames to IP address", target: null },
+      { id: "i7", label: "offers domain name server configuration", target: null },
+    ],
+    explanation:
+      "DHCP: Client-Server-Adressvergabe mit Pool, Lease-Zeit und geringem Onboarding-Aufwand. Die Distraktoren beschreiben DNS (autoritative Server, Namen↔IP-Zuordnung).",
+  },
+  {
+    id: "dd-q0614",
+    instruction: "Drag and drop the AAA functions from the left onto the AAA services on the right.",
+    targets: [
+      { id: "authc", label: "Authentication" },
+      { id: "authz", label: "Authorization" },
+      { id: "acct", label: "Accounting" },
+    ],
+    items: [
+      { id: "i1", label: "verifies the password associated with a user", target: "authc" },
+      { id: "i2", label: "identifies the user", target: "authc" },
+      { id: "i3", label: "controls the actions that a user can perform", target: "authz" },
+      { id: "i4", label: "restricts the services that are available to a user", target: "authz" },
+      { id: "i5", label: "provides analytical information for the network administrator", target: "acct" },
+      { id: "i6", label: "records user activities", target: "acct" },
+    ],
+    explanation:
+      "Authentication = Wer bist du (Identität + Passwort). Authorization = Was darfst du (Aktionen/Dienste). Accounting = Was hast du getan (Protokoll + Auswertung).",
+  },
+  {
+    id: "dd-q0617",
+    instruction:
+      "Drag and drop the WLAN security mechanisms from the left onto the security mechanism categories on the right.",
+    targets: [
+      { id: "l2", label: "Layer 2 Security Mechanisms" },
+      { id: "l3", label: "Layer 3 Security Mechanisms (for WLAN)" },
+    ],
+    items: [
+      { id: "i1", label: "WPA+WPA2", target: "l2" },
+      { id: "i2", label: "802.1X", target: "l2" },
+      { id: "i3", label: "web policy", target: "l3" },
+      { id: "i4", label: "Passthrough", target: "l3" },
+    ],
+    explanation:
+      "Auf dem WLC sind WPA/WPA2 und 802.1X Layer-2-Security; Web-Policy (Web-Auth) und Passthrough arbeiten auf Layer 3 über die IP-Verbindung.",
+  },
+  {
+    id: "dd-q0623",
+    instruction: "Drag and drop the security measures from the left onto the attacks they prevent on the right.",
+    targets: [
+      { id: "t1", label: "802.1q double-tagging VLAN-hopping attack" },
+      { id: "t2", label: "MAC flooding attack" },
+      { id: "t3", label: "man-in-the-middle spoofing attack" },
+      { id: "t4", label: "switch-spoofing VLAN-hopping attack" },
+    ],
+    items: [
+      { id: "i1", label: "configure the native VLAN with a nondefault VLAN ID", target: "t1" },
+      { id: "i2", label: "configure 802.1x authenticate", target: "t2" },
+      { id: "i3", label: "configure DHCP snooping", target: "t3" },
+      { id: "i4", label: "disable DTP", target: "t4" },
+    ],
+    explanation:
+      "Double-Tagging nutzt das Native VLAN → umbenennen. MAC-Flooding scheitert an 802.1X-Port-Auth. DHCP-Snooping blockt Rogue-DHCP (MITM). Switch-Spoofing braucht DTP → abschalten.",
+  },
+  {
+    id: "dd-q0667",
+    instruction:
+      "Drag and drop the AAA features from the left onto the corresponding AAA security services on the right. Not all options are used.",
+    targets: [
+      { id: "acct", label: "Accounting" },
+      { id: "authz", label: "Authorization" },
+    ],
+    items: [
+      { id: "i1", label: "It records the amount of time for which a user accesses the network on a remote server.", target: "acct" },
+      { id: "i2", label: "It uses TACACS+ to log the configuration commands entered by a network administrator.", target: "acct" },
+      { id: "i3", label: "It leverages a RADIUS server to grant user access to a reverse Telnet session.", target: "authz" },
+      { id: "i4", label: "It restricts the CLI commands that a user can perform.", target: "authz" },
+      { id: "i5", label: "It enables the device to allow user- or group-based access.", target: null },
+      { id: "i6", label: "It verifies the user and password before granting access to the device.", target: null },
+    ],
+    explanation:
+      "Accounting protokolliert (Zeiten, Befehle via TACACS+). Authorization steuert, was erlaubt ist (CLI-Befehle, Reverse-Telnet-Zugriff). Die Distraktoren beschreiben Authentication.",
+  },
+  {
+    id: "dd-q0700",
+    instruction: "Drag and drop the Layer 2 protection features from the left onto the attacks they mitigate on the right.",
+    targets: [
+      { id: "t1", label: "rogue server that spoofs IP configuration" },
+      { id: "t2", label: "cache poisoning" },
+      { id: "t3", label: "rogue clients on the network" },
+      { id: "t4", label: "flood attacks" },
+    ],
+    items: [
+      { id: "i1", label: "DHCP snooping", target: "t1" },
+      { id: "i2", label: "Dynamic ARP Inspection", target: "t2" },
+      { id: "i3", label: "IP Source Guard", target: "t3" },
+      { id: "i4", label: "storm control", target: "t4" },
+    ],
+    explanation:
+      "DHCP-Snooping filtert Rogue-DHCP-Server, DAI verhindert ARP-Cache-Poisoning, IP Source Guard blockt Clients mit gefälschten Quell-IPs, Storm Control drosselt Broadcast-/Multicast-Fluten.",
+  },
+  {
+    id: "dd-q0715",
+    instruction:
+      "Drag and drop the characteristics of networking from the left onto the correct networking types on the right.",
+    targets: [
+      { id: "ctrl", label: "Controller-Based Networking" },
+      { id: "trad", label: "Traditional Networking" },
+    ],
+    items: [
+      { id: "i1", label: "focused on network", target: "ctrl" },
+      { id: "i2", label: "user input is a policy", target: "ctrl" },
+      { id: "i3", label: "uses allow list security model", target: "ctrl" },
+      { id: "i4", label: "focused on devices", target: "trad" },
+      { id: "i5", label: "user input is a configuration", target: "trad" },
+      { id: "i6", label: "uses block list security model", target: "trad" },
+    ],
+    explanation:
+      "Controller-basiert: netzwerkweite Policies, Allow-List (nur Erlaubtes). Traditionell: Gerät-für-Gerät-Konfiguration, Block-List (alles erlaubt außer Verbotenem).",
+  },
+  {
+    id: "dd-q0868",
+    instruction:
+      "Drag and drop the wireless architecture benefits from the left onto the architecture types on the right.",
+    targets: [
+      { id: "split", label: "Split-MAC" },
+      { id: "auto", label: "Autonomous" },
+    ],
+    items: [
+      { id: "i1", label: "Work is divided between the access point and the controller.", target: "split" },
+      { id: "i2", label: "Uses the CAPWAP tunneling protocol.", target: "split" },
+      { id: "i3", label: "The access points transmit beacon frames.", target: "split" },
+      { id: "i4", label: "Appropriate for a small-business environment.", target: "auto" },
+      { id: "i5", label: "Supports per device configuration and management.", target: "auto" },
+    ],
+    explanation:
+      "Split-MAC teilt die Arbeit zwischen Lightweight-AP (Echtzeit, z. B. Beacons) und WLC (Management) via CAPWAP. Autonomous-APs werden einzeln verwaltet — praktikabel nur in kleinen Umgebungen.",
+  },
+  {
+    id: "dd-q0871",
+    instruction: "Drag and drop the WLAN components from the left onto the correct descriptions on the right.",
+    targets: [
+      { id: "t1", label: "manages access points" },
+      { id: "t2", label: "provides Wi-Fi devices with a connection to a wired network" },
+      { id: "t3", label: "used for out-of-band management" },
+      { id: "t4", label: "used for guest authentication" },
+      { id: "t5", label: "applied to the WLAN for wireless client communication" },
+    ],
+    items: [
+      { id: "i1", label: "wireless LAN controller", target: "t1" },
+      { id: "i2", label: "access point", target: "t2" },
+      { id: "i3", label: "service port", target: "t3" },
+      { id: "i4", label: "virtual interface", target: "t4" },
+      { id: "i5", label: "dynamic interface", target: "t5" },
+    ],
+    explanation:
+      "WLC verwaltet die APs, der AP verbindet Clients mit dem LAN. Am WLC: Service-Port = Out-of-Band-Management, Virtual Interface = Web-/Gast-Auth (Redirect), Dynamic Interface = VLAN-Anbindung der WLANs.",
+  },
+  {
+    id: "dd-q0909",
+    instruction:
+      "Refer to the exhibit. Drag and drop the static route commands from the left onto the routers on the right so that Host A and Host B can reach each other. Not all commands are used.",
+    context: `Host A (10.10.14.10/24) — R1 [.2] —10.10.10.0/30— [.1] R2 [.6] —10.10.10.4/30— [.5] R3 — Host B (10.10.13.10/25)`,
+    targets: [
+      { id: "r1", label: "R1" },
+      { id: "r2", label: "R2 (2 Routen)" },
+      { id: "r3", label: "R3" },
+    ],
+    items: [
+      { id: "i1", label: "ip route 10.10.13.0 255.255.255.128 10.10.10.1", target: "r1" },
+      { id: "i2", label: "ip route 10.10.13.0 255.255.255.128 10.10.10.5", target: "r2" },
+      { id: "i3", label: "ip route 10.10.14.0 255.255.255.0 10.10.10.2", target: "r2" },
+      { id: "i4", label: "ip route 10.10.14.0 255.255.255.0 10.10.10.6", target: "r3" },
+      { id: "i5", label: "ip route 10.10.13.10 255.255.255.255 10.10.10.1", target: null },
+      { id: "i6", label: "ip route 10.10.14.10 255.255.255.255 10.10.10.6", target: null },
+    ],
+    explanation:
+      "R1 erreicht Host-B-Netz über R2 (.1); R2 braucht beide Richtungen: 13.0/25 über R3 (.5) und 14.0/24 über R1 (.2); R3 erreicht Host-A-Netz über R2 (.6). Die /32-Host-Routen sind unnötig.",
+  },
+  {
+    id: "dd-q0928",
+    instruction:
+      "Refer to the exhibit. OSPF is running between site A and site B. Drag and drop the destination IPs from the left onto the network segments used to reach the destinations on the right.",
+    context: `Router2#show ip route
+Gateway of last resort is 10.10.10.13 to network 0.0.0.0
+C     10.10.10.8/30  directly connected, FastEthernet0/3
+C     10.10.10.12/30 directly connected, FastEthernet0/4
+C     10.10.10.0/30  directly connected, FastEthernet0/1
+O     10.10.13.0/25   [110/6576] via 10.10.10.9 ... (Router1)
+C     10.10.10.4/30  directly connected, FastEthernet0/2
+O     10.10.13.144/28 [110/110]  via 10.10.10.9 ... (Router1)
+S*    0.0.0.0/0 [1/0] via 10.10.10.13`,
+    targets: [
+      { id: "inet", label: "Internet" },
+      { id: "r1", label: "Router1" },
+    ],
+    items: [
+      { id: "i1", label: "10.10.10.16", target: "inet" },
+      { id: "i2", label: "10.10.13.129", target: "inet" },
+      { id: "i3", label: "10.10.100.128", target: "inet" },
+      { id: "i4", label: "10.10.13.1", target: "r1" },
+      { id: "i5", label: "10.10.13.150", target: "r1" },
+    ],
+    explanation:
+      "13.1 liegt in 10.10.13.0/25, 13.150 in 10.10.13.144/28 — beide via Router1. 13.129 fällt in KEINE gelernte Route (Lücke zwischen /25 und /28) und geht wie 10.10.10.16 und 10.10.100.128 über die Default-Route ins Internet.",
+  },
+  {
+    id: "dd-q0936",
+    instruction:
+      "Refer to the exhibit. Drag and drop the learned prefixes from the left onto the subnet masks on the right.",
+    context: `R1# show ip route | begin gateway
+      172.16.0.0/16 is variably subnetted, 5 subnets, 5 masks
+O     172.16.2.128/25 [110/3184437] via 207.165.200.250, Serial0/0/0
+O     172.16.3.64/27  [110/3184437] via 207.165.200.250, Serial0/0/0
+O     172.16.3.128/28 [110/3184437] via 207.165.200.250, Serial0/0/0
+O     172.16.3.192/29 [110/3184437] via 207.165.200.250, Serial0/0/0
+O     172.16.4.0/23   [110/3184437] via 207.165.200.250, Serial0/0/0`,
+    targets: [
+      { id: "t1", label: "255.255.254.0" },
+      { id: "t2", label: "255.255.255.128" },
+      { id: "t3", label: "255.255.255.224" },
+      { id: "t4", label: "255.255.255.240" },
+      { id: "t5", label: "255.255.255.248" },
+    ],
+    items: [
+      { id: "i1", label: "172.16.4.0", target: "t1" },
+      { id: "i2", label: "172.16.2.128", target: "t2" },
+      { id: "i3", label: "172.16.3.64", target: "t3" },
+      { id: "i4", label: "172.16.3.128", target: "t4" },
+      { id: "i5", label: "172.16.3.192", target: "t5" },
+    ],
+    explanation: "Präfix→Maske: /23=254.0, /25=255.128, /27=255.224, /28=255.240, /29=255.248.",
+  },
+  {
+    id: "dd-q0938",
+    instruction:
+      "Refer to the exhibit. Router1 has multiple methods to reach 10.10.10.0/24 (OSPF, eBGP, Static, EIGRP, iBGP). The default Administrative Distance is used. Drag and drop the failure scenarios from the left onto the routing methods that Router1 then uses on the right.",
+    targets: [
+      { id: "ebgp", label: "eBGP" },
+      { id: "eigrp", label: "EIGRP" },
+      { id: "static", label: "Static" },
+    ],
+    items: [
+      { id: "i1", label: "The static route and EIGRP are down.", target: "ebgp" },
+      { id: "i2", label: "The static route and OSPF are down.", target: "ebgp" },
+      { id: "i3", label: "The static route and eBGP are down.", target: "eigrp" },
+      { id: "i4", label: "All protocols are up.", target: "static" },
+      { id: "i5", label: "OSPF and eBGP are down.", target: "static" },
+    ],
+    explanation:
+      "AD-Rangfolge: Static 1 < eBGP 20 < EIGRP 90 < OSPF 110 < iBGP 200. Es gewinnt immer die kleinste AD unter den verbleibenden Quellen.",
+  },
+  {
+    id: "dd-q0950",
+    instruction: "Drag and drop the SNMP components from the left onto the descriptions on the right.",
+    targets: [
+      { id: "t1", label: "collection of uniquely identifiable objects whose state can be interrogated over SNMP" },
+      { id: "t2", label: "network node-controlled by SNMP" },
+      { id: "t3", label: "system that runs monitoring applications and controls network nodes" },
+      { id: "t4", label: "SNMP component that captures and translates device and network data" },
+    ],
+    items: [
+      { id: "i1", label: "MIB", target: "t1" },
+      { id: "i2", label: "managed device", target: "t2" },
+      { id: "i3", label: "NMS", target: "t3" },
+      { id: "i4", label: "agent", target: "t4" },
+    ],
+    explanation:
+      "MIB = adressierbare Objektsammlung, Managed Device = überwachter Knoten, NMS = Monitoring-Zentrale, Agent = Software auf dem Gerät, die Daten erfasst und übersetzt.",
+  },
   // SKIP: Q0260 — beide Bilder zeigen nur ein Config-Snippet (interface Gi1/0 …),
   // kein Drag-Drop-Widget; Zuordnung nicht rekonstruierbar.
 ];
