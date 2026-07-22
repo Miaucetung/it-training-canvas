@@ -8888,14 +8888,14 @@ export const LABS: LabScenario[] = [
     id: "ipsec-s2s-vpn",
     icon: <Shield size={20} />,
     title: "IPSec Site-to-Site VPN: Hamburg ↔ Bremen",
-    subtitle: "Hamburg/Bremen · IKE Ph1/Ph2 · ISAKMP · Transform-Set · Crypto Map · AES-256/SHA · PFS G5",
+    subtitle: "6 Router · 2 Switches · 6 Hosts · komplette Adressierung · IKE Ph1/Ph2 · Crypto Map · AES-256/SHA · PFS G5",
     difficulty: "Fortgeschritten",
-    duration: "45 min",
+    duration: "90 min",
     context: {
       problem:
         "Zwei Firmenstandorte — Hamburg (LAN 192.168.1.0/24) und Bremen (LAN 192.168.2.0/24) — sollen über das öffentliche Internet sicher gekoppelt werden. Das Provider-Backbone (ISP1, Internet1, Internet2, ISP2) routet nur öffentliche Netze und kennt die privaten LANs NICHT — direkter Verkehr PC0 → PC2 schlägt fehl. Ein IPSec Site-to-Site VPN zwischen den WAN-Routern Hamburg (100.0.0.1) und Bremen (200.0.0.1) baut einen verschlüsselten Tunnel über das Internet.",
       purpose:
-        "Vermittelt die vollständige IPSec-Site-to-Site-Konfiguration auf Cisco IOS: IKE Phase 1 (ISAKMP-Policy, Pre-Shared Key) und Phase 2 (Transform-Set, Crypto-ACL, Crypto Map) inkl. der beidseitigen Übereinstimmungspflicht der Parameter. Schwerpunkte: spiegelbildliche Crypto-ACLs, Crypto Map aufs Outside-Interface, PFS, die zwei verschiedenen Lifetimes (Phase 1 vs. Phase 2) und die Selektivität der Crypto-ACL (Split Tunneling). Angefasst werden nur Hamburg und Bremen — der Core ist vorkonfiguriert.",
+        "Das Lab wird komplett von null aufgebaut: alle sechs Router (Hostname, Interfaces, Adressen, statisches Core-Routing), beide Switches (Access-Ports, Management-SVI, Default-Gateway) und alle sechs Endgeräte (IP, Maske, Gateway). Erst wenn das Underlay nachweislich steht, folgt die IPSec-Site-to-Site-Konfiguration: IKE Phase 1 (ISAKMP-Policy, Pre-Shared Key) und Phase 2 (Transform-Set, Crypto-ACL, Crypto Map) inkl. der beidseitigen Übereinstimmungspflicht der Parameter. Schwerpunkte: spiegelbildliche Crypto-ACLs, Crypto Map aufs Outside-Interface, PFS, die zwei verschiedenen Lifetimes (Phase 1 vs. Phase 2) und die Selektivität der Crypto-ACL (Split Tunneling).",
     },
     topology: {
       description:
@@ -8905,7 +8905,7 @@ export const LABS: LabScenario[] = [
         { type: "Server", label: "DHCP .11 (SW1 Fa0/24)", count: 1 },
         { type: "Switch", label: "SW1 (Hamburg, Uplink Gig0/1)", count: 1 },
         { type: "Router", label: "Hamburg (LAN .254 / WAN 100.0.0.1)", count: 1 },
-        { type: "Router", label: "Core: ISP1 / Internet1 / Internet2 / ISP2 (vorkonfiguriert)", count: 4 },
+        { type: "Router", label: "Core: ISP1 / Internet1 / Internet2 / ISP2 (statisches Routing)", count: 4 },
         { type: "Server", label: "Webserver 47.11.8.15 (an Internet2)", count: 1 },
         { type: "Router", label: "Bremen (LAN .254 / WAN 200.0.0.1)", count: 1 },
         { type: "Switch", label: "SW2 (Bremen, Uplink Gig0/2)", count: 1 },
@@ -8922,7 +8922,7 @@ export const LABS: LabScenario[] = [
         "Bremen Gig0/0 .254 ──── SW2 ──── PC2/PC3 (LAN 192.168.2.0/24)",
         "IPSec-Tunnel: Hamburg 100.0.0.1 ↔ Bremen 200.0.0.1 (über das Provider-Internet)",
       ],
-      hint: "Nur Hamburg und Bremen anfassen — der Core ist vorkonfiguriert. Reihenfolge: 1) Underlay-Ping 200.0.0.1 (MUSS klappen). 2) Phase 1: ISAKMP-Policy + PSK. 3) Phase 2: Transform-Set + Crypto-ACL + Crypto Map. 4) Crypto Map aufs WAN-Interface Gig0/1. Der Tunnel baut sich erst bei interessantem Traffic (PC0 → PC2) auf — nicht durch einen Ping vom Router selbst.",
+      hint: "Reihenfolge: 1) Alle sechs Router adressieren inkl. Core-Routing (Steps 1–6). 2) Switches und Endgeräte (Steps 7–8). 3) Underlay prüfen (Step 9): Hamburg → 200.0.0.1 MUSS klappen, PC0 → PC2 muss noch FEHLSCHLAGEN. 4) Erst dann IPSec: Phase 1 (ISAKMP + PSK), Phase 2 (Transform-Set + Crypto-ACL + Crypto Map), Crypto Map aufs WAN-Interface Gig0/1. Der Tunnel baut sich erst bei interessantem Traffic (PC0 → PC2) auf — nicht durch einen Ping vom Router selbst.",
     },
     exhibits: [
       {
@@ -9007,23 +9007,300 @@ interface: GigabitEthernet0/1
     ],
     steps: [
       {
-        title: "1) Underlay prüfen (Hamburg) — VPN braucht eine funktionierende IP-Verbindung",
+        title: "1) Router Hamburg — Grundkonfiguration, Interfaces, Default-Route",
         blocks: [
           {
             device: "Hamburg",
             mode: "privileged",
-            modeLabel: "Hamburg>",
+            modeLabel: "Router>",
             commands: [
-              { cmd: "enable", explanation: "Vom User-EXEC (Hamburg>) in den privilegierten EXEC-Modus (Hamburg#) wechseln — Voraussetzung für ping/show und die spätere Konfiguration." },
-              { cmd: "ping 200.0.0.1", explanation: "Erreichbarkeit der Bremen-WAN-Adresse über das Provider-Underlay prüfen. MUSS erfolgreich sein — IPSec setzt eine funktionierende IP-Verbindung zwischen den beiden WAN-Peers voraus. Schlägt dieser Ping fehl, ist das Routing kaputt und kein Tunnel hilft." },
-              { cmd: "show ip interface brief", explanation: "Kontrolle, dass Gig0/0 (LAN 192.168.1.254) und Gig0/1 (WAN 100.0.0.1) up/up sind." },
-              { cmd: "show ip route", explanation: "Die Default-Route 0.0.0.0/0 Richtung ISP1 (100.0.0.2) muss vorhanden sein. Das ferne LAN 192.168.2.0/24 taucht hier NICHT auf — der Core kennt es nicht. Genau deshalb der Tunnel." },
+              { cmd: "enable", explanation: "Vom User-EXEC (Router>) in den privilegierten EXEC-Modus (Router#) wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln. Kurzform: conf t." },
+              { cmd: "hostname Hamburg", explanation: "Setzt den Gerätenamen — der Prompt wechselt auf Hamburg(config)#. Wichtig, damit die späteren VPN-Prompts eindeutig sind." },
+              { cmd: "no ip domain-lookup", explanation: "Verhindert, dass der Router bei Tippfehlern minutenlang eine DNS-Auflösung versucht." },
+              { cmd: "interface GigabitEthernet0/0", explanation: "LAN-Interface Richtung SW1 auswählen (Prompt: Hamburg(config-if)#)." },
+              { cmd: "ip address 192.168.1.254 255.255.255.0", explanation: "LAN-IP = Default Gateway für PC0, PC1 und den DHCP-Server im Netz 192.168.1.0/24." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren — ohne diesen Befehl bleibt es administrativ down." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "WAN-Interface Richtung ISP1 auswählen." },
+              { cmd: "ip address 100.0.0.1 255.255.255.252", explanation: "WAN-IP 100.0.0.1/30 — das ist später der lokale IPSec-Endpunkt (aus Sicht von Bremen die Peer-Adresse)." },
+              { cmd: "no shutdown", explanation: "WAN-Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 100.0.0.2", explanation: "Default-Route zum Provider ISP1. Hamburg kennt keine Core-Netze — alles Unbekannte geht an 100.0.0.2." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (Hamburg#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft ins NVRAM speichern." },
             ],
           },
         ],
       },
       {
-        title: "2) In den Konfig-Modus + IKE Phase 1 (ISAKMP-Policy, Hamburg)",
+        title: "2) Router ISP1 — Grundkonfiguration, Interfaces, Default-Route",
+        blocks: [
+          {
+            device: "ISP1",
+            mode: "privileged",
+            modeLabel: "Router>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname ISP1", explanation: "Gerätename setzen." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface GigabitEthernet0/2", explanation: "Interface Richtung Hamburg auswählen." },
+              { cmd: "ip address 100.0.0.2 255.255.255.252", explanation: "Gegenstelle zu Hamburg Gig0/1 (100.0.0.1) im Transfernetz 100.0.0.0/30." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "Interface Richtung Internet1 auswählen." },
+              { cmd: "ip address 2.2.2.1 255.255.255.252", explanation: "Transfernetz 2.2.2.0/30 zum Core-Router Internet1." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 2.2.2.2", explanation: "Default-Route in den Core (Internet1). ISP1 kennt nur seine beiden Transfernetze — alles andere geht nach oben." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (ISP1#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Router Internet1 — Core-Hub mit drei Interfaces und statischen Routen",
+        blocks: [
+          {
+            device: "Internet1",
+            mode: "privileged",
+            modeLabel: "Router>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname Internet1", explanation: "Gerätename setzen." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface GigabitEthernet0/2", explanation: "Interface Richtung ISP1 auswählen." },
+              { cmd: "ip address 2.2.2.2 255.255.255.252", explanation: "Gegenstelle zu ISP1 Gig0/1 (2.2.2.1)." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "Interface Richtung Internet2 auswählen." },
+              { cmd: "ip address 1.1.1.1 255.255.255.252", explanation: "Transfernetz 1.1.1.0/30 zu Internet2 (dahinter liegt der Webserver)." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/0", explanation: "Interface Richtung ISP2 auswählen." },
+              { cmd: "ip address 3.3.3.1 255.255.255.252", explanation: "Transfernetz 3.3.3.0/30 zu ISP2 (dahinter liegt Bremen)." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 100.0.0.0 255.255.255.252 2.2.2.1", explanation: "Rückweg zum Hamburg-Transfernetz über ISP1. Ohne diese Route kommt kein Antwortpaket bei Hamburg an." },
+              { cmd: "ip route 200.0.0.0 255.255.255.252 3.3.3.2", explanation: "Weg zum Bremen-Transfernetz über ISP2 — die Grundlage für den späteren Tunnel Hamburg ↔ Bremen." },
+              { cmd: "ip route 47.11.8.0 255.255.255.0 1.1.1.2", explanation: "Weg zum Webserver-Netz über Internet2." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (Internet1#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) Router Internet2 — Interfaces und Default-Route (Webserver-Segment)",
+        blocks: [
+          {
+            device: "Internet2",
+            mode: "privileged",
+            modeLabel: "Router>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname Internet2", explanation: "Gerätename setzen." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface GigabitEthernet0/2", explanation: "Interface Richtung Internet1 auswählen." },
+              { cmd: "ip address 1.1.1.2 255.255.255.252", explanation: "Gegenstelle zu Internet1 Gig0/1 (1.1.1.1)." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/0", explanation: "Interface Richtung Webserver-Segment auswählen." },
+              { cmd: "ip address 47.11.8.1 255.255.255.0", explanation: "Default Gateway für den Webserver 47.11.8.15 im Netz 47.11.8.0/24." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 1.1.1.1", explanation: "Default-Route zurück in den Core. Internet2 kennt nur sein Transfernetz und das Webserver-Netz." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (Internet2#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Router ISP2 — Interfaces und Default-Route",
+        blocks: [
+          {
+            device: "ISP2",
+            mode: "privileged",
+            modeLabel: "Router>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname ISP2", explanation: "Gerätename setzen." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "Interface Richtung Internet1 auswählen." },
+              { cmd: "ip address 3.3.3.2 255.255.255.252", explanation: "Gegenstelle zu Internet1 Gig0/0 (3.3.3.1)." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/2", explanation: "Interface Richtung Bremen auswählen." },
+              { cmd: "ip address 200.0.0.2 255.255.255.252", explanation: "Gegenstelle zu Bremen Gig0/1 (200.0.0.1) im Transfernetz 200.0.0.0/30." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 3.3.3.1", explanation: "Default-Route in den Core (Internet1)." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (ISP2#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Router Bremen — Grundkonfiguration, Interfaces, Default-Route",
+        blocks: [
+          {
+            device: "Bremen",
+            mode: "privileged",
+            modeLabel: "Router>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname Bremen", explanation: "Gerätename setzen — Prompt wechselt auf Bremen(config)#." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface GigabitEthernet0/0", explanation: "LAN-Interface Richtung SW2 auswählen." },
+              { cmd: "ip address 192.168.2.254 255.255.255.0", explanation: "LAN-IP = Default Gateway für PC2 und PC3 im Netz 192.168.2.0/24." },
+              { cmd: "no shutdown", explanation: "Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface GigabitEthernet0/1", explanation: "WAN-Interface Richtung ISP2 auswählen." },
+              { cmd: "ip address 200.0.0.1 255.255.255.252", explanation: "WAN-IP 200.0.0.1/30 — der lokale IPSec-Endpunkt (aus Sicht von Hamburg die Peer-Adresse)." },
+              { cmd: "no shutdown", explanation: "WAN-Interface aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip route 0.0.0.0 0.0.0.0 200.0.0.2", explanation: "Default-Route zum Provider ISP2." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (Bremen#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7) Switches SW1 und SW2 — Grundkonfiguration, Management-IP, Gateway",
+        blocks: [
+          {
+            device: "SW1",
+            mode: "privileged",
+            modeLabel: "Switch>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname SW1", explanation: "Gerätename für den Hamburg-Access-Switch." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface range FastEthernet0/1-24", explanation: "Alle Host-Ports gemeinsam auswählen (PC0 an Fa0/1, PC1 an Fa0/2, DHCP-Server an Fa0/24)." },
+              { cmd: "switchport mode access", explanation: "Ports fest als Access-Ports setzen — kein DTP-Aushandeln, kein versehentlicher Trunk." },
+              { cmd: "switchport access vlan 1", explanation: "Alle Hosts liegen im flachen Default-VLAN 1. Der Uplink Gig0/1 zu Hamburg bleibt ebenfalls Access-Port in VLAN 1." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface vlan 1", explanation: "Management-SVI auswählen — ein Switch braucht eine IP nur für die Verwaltung, nicht fürs Switching." },
+              { cmd: "ip address 192.168.1.2 255.255.255.0", explanation: "Management-IP des Switches im LAN Hamburg." },
+              { cmd: "no shutdown", explanation: "SVI aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip default-gateway 192.168.1.254", explanation: "Default Gateway des Switches. Achtung: am Switch heißt der Befehl 'ip default-gateway', nicht 'ip route' — ein L2-Switch routet nicht." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (SW1#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+          {
+            device: "SW2",
+            mode: "privileged",
+            modeLabel: "Switch>",
+            commands: [
+              { cmd: "enable", explanation: "In den privilegierten EXEC-Modus wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus wechseln." },
+              { cmd: "hostname SW2", explanation: "Gerätename für den Bremen-Access-Switch." },
+              { cmd: "no ip domain-lookup", explanation: "DNS-Auflösung bei Tippfehlern abschalten." },
+              { cmd: "interface range FastEthernet0/1-24", explanation: "Alle Host-Ports gemeinsam auswählen (PC2 an Fa0/1, PC3 an Fa0/2)." },
+              { cmd: "switchport mode access", explanation: "Ports fest als Access-Ports setzen." },
+              { cmd: "switchport access vlan 1", explanation: "Alle Hosts im Default-VLAN 1. Der Uplink Gig0/2 zu Bremen bleibt ebenfalls Access-Port in VLAN 1." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "interface vlan 1", explanation: "Management-SVI auswählen." },
+              { cmd: "ip address 192.168.2.2 255.255.255.0", explanation: "Management-IP des Switches im LAN Bremen." },
+              { cmd: "no shutdown", explanation: "SVI aktivieren." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+              { cmd: "ip default-gateway 192.168.2.254", explanation: "Default Gateway des Switches (LAN-Interface von Bremen)." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (SW2#)." },
+              { cmd: "copy running-config startup-config", explanation: "Konfiguration dauerhaft speichern." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "8) Endgeräte adressieren — PCs, DHCP-Server, Webserver",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 192.168.1.10\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.1.254", explanation: "PT: PC0 anklicken → Desktop-Tab → IP Configuration → Static. Gateway ist das LAN-Interface von Hamburg. PC0 ist später die Quelle für den interessanten VPN-Traffic." },
+            ],
+          },
+          {
+            device: "PC1",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 192.168.1.20\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.1.254", explanation: "Zweiter Host im LAN Hamburg, gleiches Gateway." },
+            ],
+          },
+          {
+            device: "DHCP-Server",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 192.168.1.11\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.1.254", explanation: "Der Server bekommt selbst immer eine STATISCHE Adresse (an SW1 Fa0/24). Optional kann unter Services → DHCP ein Pool für 192.168.1.0/24 mit Gateway .254 aktiviert werden; für dieses Lab sind die PCs bewusst statisch adressiert, damit die Ziel-IPs deterministisch bleiben." },
+            ],
+          },
+          {
+            device: "PC2",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 192.168.2.10\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.2.254", explanation: "Erster Host im LAN Bremen — das spätere Ziel des Tunnel-Pings von PC0." },
+            ],
+          },
+          {
+            device: "PC3",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 192.168.2.20\nSubnet Mask: 255.255.255.0\nDefault Gateway: 192.168.2.254", explanation: "Zweiter Host im LAN Bremen, gleiches Gateway." },
+            ],
+          },
+          {
+            device: "Webserver",
+            mode: "desktop",
+            modeLabel: "Desktop > IP Configuration",
+            commands: [
+              { cmd: "IP Address: 47.11.8.15\nSubnet Mask: 255.255.255.0\nDefault Gateway: 47.11.8.1", explanation: "Öffentlicher Server hinter Internet2. Dient später als Gegenprobe: Traffic dorthin wird NICHT vom Tunnel erfasst." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "9) Underlay verifizieren — Peer erreichbar, LAN-zu-LAN noch NICHT",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "privileged",
+            modeLabel: "Hamburg#",
+            commands: [
+              { cmd: "show ip interface brief", explanation: "Kontrolle, dass Gig0/0 (192.168.1.254) und Gig0/1 (100.0.0.1) up/up sind." },
+              { cmd: "show ip route", explanation: "Die Default-Route 0.0.0.0/0 via 100.0.0.2 muss stehen. Das ferne LAN 192.168.2.0/24 taucht NICHT auf — der Core kennt keine privaten Netze. Genau deshalb der Tunnel." },
+              { cmd: "ping 200.0.0.1", explanation: "Erreichbarkeit der Bremen-WAN-Adresse über das Provider-Underlay. MUSS erfolgreich sein — IPSec setzt eine funktionierende IP-Verbindung zwischen den WAN-Peers voraus. Schlägt das fehl, stimmt das Core-Routing (Steps 2–5) nicht." },
+            ],
+          },
+          {
+            device: "PC0",
+            mode: "desktop",
+            modeLabel: "Desktop > Command Prompt",
+            commands: [
+              { cmd: "ping 192.168.2.10", explanation: "MUSS an dieser Stelle FEHLSCHLAGEN. Der Core routet 192.168.1.0/24 und 192.168.2.0/24 nicht — private Netze sind im Internet unbekannt. Genau dieses Problem löst der IPSec-Tunnel in den folgenden Schritten." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "10) In den Konfig-Modus + IKE Phase 1 (ISAKMP-Policy, Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9043,7 +9320,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "3) Pre-Shared Key (Hamburg)",
+        title: "11) Pre-Shared Key (Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9056,7 +9333,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "4) IKE Phase 2 — Transform-Set (Hamburg)",
+        title: "12) IKE Phase 2 — Transform-Set (Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9069,7 +9346,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "5) Crypto-ACL — interesting traffic (Hamburg)",
+        title: "13) Crypto-ACL — interesting traffic (Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9082,7 +9359,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "6) Crypto Map — alle Bausteine zusammenführen (Hamburg)",
+        title: "14) Crypto Map — alle Bausteine zusammenführen (Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9092,16 +9369,16 @@ interface: GigabitEthernet0/1
               { cmd: "crypto map IPSEC-MAP 10 ipsec-isakmp", explanation: "Legt die Crypto Map an, die Peer + Transform-Set + ACL verbindet. 'ipsec-isakmp' = SAs dynamisch per IKE aushandeln. Beim Anlegen erscheint die NOTE 'This new crypto map will remain disabled until a peer and a valid access list have been configured.' — das ist KEIN Fehler; sie verschwindet, sobald peer + match address gesetzt sind." },
               { cmd: "set peer 200.0.0.1", explanation: "VPN-Gegenstelle = Bremen WAN 200.0.0.1." },
               { cmd: "set pfs group5", explanation: "Perfect Forward Secrecy mit DH-Gruppe 5: erzeugt für Phase 2 frisches Schlüsselmaterial, unabhängig von Phase 1. Schreibweise OHNE Leerzeichen: 'group5', nicht 'group 5'. Muss beidseitig gleich sein." },
-              { cmd: "set security-association lifetime seconds 86400", explanation: "Phase-2-Lebensdauer der IPSec-SA (Default wäre 3600 s). Das Schlüsselwort 'seconds' ist PFLICHT, sonst Syntaxfehler; Maximum 86400 s. Nicht verwechseln mit der ISAKMP-'lifetime' aus Step 2 (Phase 1)." },
-              { cmd: "set transform-set HH-HB", explanation: "Verknüpft den in Step 4 definierten Phase-2-Schutz mit dieser Crypto Map." },
-              { cmd: "match address 100", explanation: "Verknüpft die Crypto-ACL 100 (Step 5): nur dieser Traffic wird verschlüsselt. Ab jetzt ist die Map vollständig und die NOTE-Warnung gegenstandslos." },
+              { cmd: "set security-association lifetime seconds 86400", explanation: "Phase-2-Lebensdauer der IPSec-SA (Default wäre 3600 s). Das Schlüsselwort 'seconds' ist PFLICHT, sonst Syntaxfehler; Maximum 86400 s. Nicht verwechseln mit der ISAKMP-'lifetime' aus Step 10 (Phase 1)." },
+              { cmd: "set transform-set HH-HB", explanation: "Verknüpft den in Step 12 definierten Phase-2-Schutz mit dieser Crypto Map." },
+              { cmd: "match address 100", explanation: "Verknüpft die Crypto-ACL 100 (Step 13): nur dieser Traffic wird verschlüsselt. Ab jetzt ist die Map vollständig und die NOTE-Warnung gegenstandslos." },
               { cmd: "exit", explanation: "Zurück in den globalen Modus." },
             ],
           },
         ],
       },
       {
-        title: "7) Crypto Map aufs WAN-Interface (Hamburg)",
+        title: "15) Crypto Map aufs WAN-Interface (Hamburg)",
         blocks: [
           {
             device: "Hamburg",
@@ -9117,7 +9394,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "8) Spiegelbildliche Konfiguration auf Bremen (vollständig, von Grund auf)",
+        title: "16) Spiegelbildliche IPSec-Konfiguration auf Bremen (vollständig)",
         blocks: [
           {
             device: "Bremen",
@@ -9173,7 +9450,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "9) Tunnel aufbauen und verifizieren",
+        title: "17) Tunnel aufbauen und verifizieren",
         blocks: [
           {
             device: "PC0",
@@ -9196,14 +9473,14 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "10) Gegenprobe — Selektivität der Crypto-ACL (Split Tunneling)",
+        title: "18) Gegenprobe — Selektivität der Crypto-ACL (Split Tunneling)",
         blocks: [
           {
             device: "PC0",
             mode: "cli",
             modeLabel: "PC>",
             commands: [
-              { cmd: "ping 47.11.8.15", explanation: "Ping zum Webserver im Internet. Dieser Verkehr wird von der Crypto-ACL 100 NICHT erfasst (Ziel ist nicht 192.168.2.0/24) → er läuft unverschlüsselt am Tunnel vorbei." },
+              { cmd: "ping 47.11.8.15", explanation: "Ping zum Webserver im Internet. Dieser Verkehr wird von der Crypto-ACL 100 NICHT erfasst (Ziel ist nicht 192.168.2.0/24) → er geht NICHT in den Tunnel. Der Ping selbst scheitert hier zusätzlich am fehlenden Rückweg: der Core kennt 192.168.1.0/24 nicht (ohne NAT/PAT). Entscheidend für diese Gegenprobe ist nicht der Ping-Erfolg, sondern dass der encaps-Zähler unverändert bleibt." },
             ],
           },
           {
@@ -9217,7 +9494,7 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "11) Häufige Fehler & Troubleshooting",
+        title: "19) Häufige Fehler & Troubleshooting",
         blocks: [
           {
             device: "Merke",
@@ -9241,11 +9518,14 @@ interface: GigabitEthernet0/1
       },
     ],
     verifyCommands: [
+      { cmd: "show ip interface brief (alle 6 Router)", expected: "Alle konfigurierten Interfaces up/up — kein 'administratively down' (no shutdown vergessen)" },
+      { cmd: "ping Hamburg → 200.0.0.1 (vor IPSec)", expected: "Erfolgreich — Core-Routing/Underlay steht, Voraussetzung für IKE" },
+      { cmd: "ping PC0 → PC2 (vor IPSec)", expected: "Schlägt fehl — der Core routet keine privaten Netze. Genau das löst der Tunnel" },
       { cmd: "show crypto isakmp sa (Hamburg & Bremen)", expected: "Zustand QM_IDLE, status ACTIVE — IKE-SA (Phase 1) steht auf beiden Seiten" },
       { cmd: "show crypto ipsec sa (Hamburg & Bremen)", expected: "#pkts encaps UND #pkts decaps steigen beidseitig — Phase 2 verschlüsselt bidirektional" },
       { cmd: "show crypto map (Hamburg & Bremen)", expected: "Peer, transform-set, match address 100 und Interface-Binding korrekt angezeigt" },
       { cmd: "ping PC0 → PC2 (192.168.2.x)", expected: "Erfolgreich — LAN-zu-LAN läuft durch den Tunnel (erster Ping ggf. verloren, während IKE aushandelt)" },
-      { cmd: "ping PC0 → Webserver 47.11.8.15", expected: "Erfolgreich, aber encaps-Zähler steigt NICHT — Traffic läuft unverschlüsselt (Split Tunneling)" },
+      { cmd: "ping PC0 → Webserver 47.11.8.15", expected: "encaps-Zähler steigt NICHT — Traffic geht nicht in den Tunnel (ohne NAT scheitert der Ping am fehlenden Rückweg)" },
     ],
     glossary: [
       { term: "ISAKMP / IKE", def: "Internet Security Association and Key Management Protocol — das Aushandlungsprotokoll (IKE) für IPSec. Läuft über UDP 500." },
@@ -9262,6 +9542,9 @@ interface: GigabitEthernet0/1
       { term: "Zwei Lifetimes", def: "'lifetime' in der ISAKMP-Policy = Phase 1 (Default 86400 s); 'set security-association lifetime seconds' in der Crypto Map = Phase 2 (Default 3600 s). Nicht verwechseln." },
       { term: "enable / configure terminal", def: "enable wechselt vom User-EXEC (>) in den privilegierten EXEC (#); configure terminal (conf t) öffnet von dort den globalen Konfigurationsmodus ((config)#)." },
       { term: "end / copy running-config startup-config", def: "end springt aus jedem Config-Untermodus direkt zurück nach #; copy running-config startup-config (write memory) speichert die Konfiguration dauerhaft ins NVRAM." },
+      { term: "ip route (statische Route)", def: "Trägt manuell einen Weg in die Routing-Tabelle ein: 'ip route <Ziel> <Maske> <Next-Hop>'. Mit 0.0.0.0 0.0.0.0 wird daraus die Default-Route für alles Unbekannte." },
+      { term: "ip default-gateway (Switch)", def: "Gateway eines reinen L2-Switches für seinen eigenen Management-Verkehr. Nicht mit 'ip route' verwechseln — ein L2-Switch routet keinen Nutzerverkehr." },
+      { term: "Transfernetz /30", def: "Punkt-zu-Punkt-Netz mit genau 2 nutzbaren Adressen (z. B. 100.0.0.0/30 → .1 und .2). Standard für Router-zu-Router-Links im WAN." },
     ],
   },
 ];
