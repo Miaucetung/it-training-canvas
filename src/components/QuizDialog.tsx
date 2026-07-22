@@ -470,7 +470,7 @@ export function QuizDialog({
         onClick={onClose}
       />
       <div
-        className={`relative w-[650px] max-w-[95vw] max-h-[90vh] rounded-2xl ${bg} ${border} border shadow-2xl flex flex-col`}
+        className={`relative w-[calc(100vw-32px)] max-w-5xl max-h-[90vh] rounded-2xl ${bg} ${border} border shadow-2xl flex flex-col`}
       >
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
