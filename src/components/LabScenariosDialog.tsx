@@ -21,6 +21,8 @@ import {
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import { exportLabForPacketTracer } from "@/lib/packet-tracer-export";
+import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
+import type { ExhibitData } from "@/types/exhibit";
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -60,6 +62,8 @@ interface LabScenario {
   verifyCommands: Array<{ cmd: string; expected: string; explanation?: string }>;
   /** Kurz-Glossar der im Lab verwendeten Fachbegriffe. */
   glossary?: Array<{ term: string; def: string }>;
+  /** Strukturierte Exhibits (Topologie/Adressplan/CLI), gerendert über ExhibitRenderer. */
+  exhibits?: ExhibitData[];
 }
 
 // ── Lab-Szenarien ─────────────────────────────────────────────
@@ -8876,6 +8880,382 @@ export const LABS: LabScenario[] = [
       { term: "no shutdown (EIGRPv6)", def: "Der EIGRPv6-Prozess startet im Zustand 'shutdown' — muss explizit aktiviert werden. Häufigstes vergessenes Kommando bei EIGRPv6." },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────────
+  // IPSec Site-to-Site VPN — Hamburg ↔ Bremen
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ipsec-s2s-vpn",
+    icon: <Shield size={20} />,
+    title: "IPSec Site-to-Site VPN: Hamburg ↔ Bremen",
+    subtitle: "Hamburg/Bremen · IKE Ph1/Ph2 · ISAKMP · Transform-Set · Crypto Map · AES-256/SHA · PFS G5",
+    difficulty: "Fortgeschritten",
+    duration: "45 min",
+    context: {
+      problem:
+        "Zwei Firmenstandorte — Hamburg (LAN 192.168.1.0/24) und Bremen (LAN 192.168.2.0/24) — sollen über das öffentliche Internet sicher gekoppelt werden. Das Provider-Backbone (ISP1, Internet1, Internet2, ISP2) routet nur öffentliche Netze und kennt die privaten LANs NICHT — direkter Verkehr PC0 → PC2 schlägt fehl. Ein IPSec Site-to-Site VPN zwischen den WAN-Routern Hamburg (100.0.0.1) und Bremen (200.0.0.1) baut einen verschlüsselten Tunnel über das Internet.",
+      purpose:
+        "Vermittelt die vollständige IPSec-Site-to-Site-Konfiguration auf Cisco IOS: IKE Phase 1 (ISAKMP-Policy, Pre-Shared Key) und Phase 2 (Transform-Set, Crypto-ACL, Crypto Map) inkl. der beidseitigen Übereinstimmungspflicht der Parameter. Schwerpunkte: spiegelbildliche Crypto-ACLs, Crypto Map aufs Outside-Interface, PFS, die zwei verschiedenen Lifetimes (Phase 1 vs. Phase 2) und die Selektivität der Crypto-ACL (Split Tunneling). Angefasst werden nur Hamburg und Bremen — der Core ist vorkonfiguriert.",
+    },
+    topology: {
+      description:
+        "Zwei Standorte über ein Provider-Internet gekoppelt. Links Hamburg: PC0, PC1 und ein DHCP-Server (.11) an SW1, dahinter Router Hamburg (LAN .254 / WAN 100.0.0.1). Rechts Bremen: Router Bremen (LAN .254 / WAN 200.0.0.1) an SW2 mit PC2 und PC3. Dazwischen der vorkonfigurierte Core aus ISP1, Internet1, Internet2 und ISP2 (nur /30-Transfernetze) sowie ein Webserver 47.11.8.15. Über dieses Underlay wird der IPSec-Tunnel Hamburg (100.0.0.1) ↔ Bremen (200.0.0.1) aufgebaut.",
+      devices: [
+        { type: "PC", label: "PC0/PC1 (LAN Hamburg, an SW1)", count: 2 },
+        { type: "Server", label: "DHCP .11 (SW1 Fa0/24)", count: 1 },
+        { type: "Switch", label: "SW1 (Hamburg, Uplink Gig0/1)", count: 1 },
+        { type: "Router", label: "Hamburg (LAN .254 / WAN 100.0.0.1)", count: 1 },
+        { type: "Router", label: "Core: ISP1 / Internet1 / Internet2 / ISP2 (vorkonfiguriert)", count: 4 },
+        { type: "Server", label: "Webserver 47.11.8.15 (an Internet2)", count: 1 },
+        { type: "Router", label: "Bremen (LAN .254 / WAN 200.0.0.1)", count: 1 },
+        { type: "Switch", label: "SW2 (Bremen, Uplink Gig0/2)", count: 1 },
+        { type: "PC", label: "PC2/PC3 (LAN Bremen, an SW2)", count: 2 },
+      ],
+      connections: [
+        "Hamburg Gig0/0 .254 ──── SW1 ──── PC0/PC1 + DHCP .11 (LAN 192.168.1.0/24)",
+        "Hamburg Gig0/1 100.0.0.1 ──── 100.0.0.0/30 ──── ISP1 Gig0/2 100.0.0.2",
+        "ISP1 Gig0/1 2.2.2.1 ──── 2.2.2.0/30 ──── Internet1 Gig0/2 2.2.2.2",
+        "Internet1 Gig0/1 1.1.1.1 ──── 1.1.1.0/30 ──── Internet2 Gig0/2 1.1.1.2",
+        "Internet1 Gig0/0 3.3.3.1 ──── 3.3.3.0/30 ──── ISP2 Gig0/1 3.3.3.2",
+        "Internet2 Gig0/0 47.11.8.1 ──── 47.11.8.0/24 ──── Webserver Fa0 47.11.8.15",
+        "ISP2 Gig0/2 200.0.0.2 ──── 200.0.0.0/30 ──── Bremen Gig0/1 200.0.0.1",
+        "Bremen Gig0/0 .254 ──── SW2 ──── PC2/PC3 (LAN 192.168.2.0/24)",
+        "IPSec-Tunnel: Hamburg 100.0.0.1 ↔ Bremen 200.0.0.1 (über das Provider-Internet)",
+      ],
+      hint: "Nur Hamburg und Bremen anfassen — der Core ist vorkonfiguriert. Reihenfolge: 1) Underlay-Ping 200.0.0.1 (MUSS klappen). 2) Phase 1: ISAKMP-Policy + PSK. 3) Phase 2: Transform-Set + Crypto-ACL + Crypto Map. 4) Crypto Map aufs WAN-Interface Gig0/1. Der Tunnel baut sich erst bei interessantem Traffic (PC0 → PC2) auf — nicht durch einen Ping vom Router selbst.",
+    },
+    exhibits: [
+      {
+        type: "topology",
+        devices: [
+          { id: "pc0", type: "pc", label: "PC0", x: 40, y: 40 },
+          { id: "pc1", type: "pc", label: "PC1", x: 40, y: 130 },
+          { id: "dhcp", type: "pc", label: "DHCP .11", x: 40, y: 220 },
+          { id: "sw1", type: "switch", label: "SW1", x: 165, y: 130 },
+          { id: "hamburg", type: "router", label: "Hamburg", x: 300, y: 130 },
+          { id: "isp1", type: "router", label: "ISP1", x: 430, y: 130 },
+          { id: "internet1", type: "router", label: "Internet1", x: 560, y: 130 },
+          { id: "isp2", type: "router", label: "ISP2", x: 690, y: 130 },
+          { id: "bremen", type: "router", label: "Bremen", x: 820, y: 130 },
+          { id: "sw2", type: "switch", label: "SW2", x: 950, y: 130 },
+          { id: "pc2", type: "pc", label: "PC2", x: 1075, y: 90 },
+          { id: "pc3", type: "pc", label: "PC3", x: 1075, y: 175 },
+          { id: "internet2", type: "router", label: "Internet2", x: 560, y: 285 },
+          { id: "webserver", type: "pc", label: "Webserver .15", x: 415, y: 285 },
+        ],
+        links: [
+          { from: "pc0", to: "sw1" },
+          { from: "pc1", to: "sw1" },
+          { from: "dhcp", to: "sw1", labelTo: "Fa0/24" },
+          { from: "sw1", to: "hamburg", subnet: "192.168.1.0/24", labelTo: "G0/0 .254" },
+          { from: "hamburg", to: "isp1", subnet: "100.0.0.0/30", labelFrom: "G0/1 .1", labelTo: "G0/2 .2" },
+          { from: "isp1", to: "internet1", subnet: "2.2.2.0/30", labelFrom: "G0/1 .1", labelTo: "G0/2 .2" },
+          { from: "internet1", to: "isp2", subnet: "3.3.3.0/30", labelFrom: "G0/0 .1", labelTo: "G0/1 .2" },
+          { from: "isp2", to: "bremen", subnet: "200.0.0.0/30", labelFrom: "G0/2 .2", labelTo: "G0/1 .1" },
+          { from: "bremen", to: "sw2", subnet: "192.168.2.0/24", labelFrom: "G0/0 .254" },
+          { from: "sw2", to: "pc2" },
+          { from: "sw2", to: "pc3" },
+          { from: "internet1", to: "internet2", subnet: "1.1.1.0/30", labelFrom: "G0/1 .1", labelTo: "G0/2 .2" },
+          { from: "internet2", to: "webserver", subnet: "47.11.8.0/24", labelFrom: "G0/0 .1", labelTo: "Fa0 .15" },
+        ],
+        labels: [
+          { text: "◄═══ IPSec-Tunnel: Hamburg 100.0.0.1 ↔ Bremen 200.0.0.1 ═══►", attachTo: "internet1", position: "above" },
+        ],
+      },
+      {
+        type: "table",
+        headers: ["Gerät", "Interface", "IP-Adresse", "Netz", "Gegenstelle"],
+        rows: [
+          ["Hamburg", "Gig0/0", "192.168.1.254/24", "192.168.1.0/24", "SW1 Gig0/1"],
+          ["Hamburg", "Gig0/1", "100.0.0.1/30", "100.0.0.0/30", "ISP1 Gig0/2"],
+          ["ISP1", "Gig0/2", "100.0.0.2/30", "100.0.0.0/30", "Hamburg Gig0/1"],
+          ["ISP1", "Gig0/1", "2.2.2.1/30", "2.2.2.0/30", "Internet1 Gig0/2"],
+          ["Internet1", "Gig0/2", "2.2.2.2/30", "2.2.2.0/30", "ISP1 Gig0/1"],
+          ["Internet1", "Gig0/1", "1.1.1.1/30", "1.1.1.0/30", "Internet2 Gig0/2"],
+          ["Internet1", "Gig0/0", "3.3.3.1/30", "3.3.3.0/30", "ISP2 Gig0/1"],
+          ["Internet2", "Gig0/2", "1.1.1.2/30", "1.1.1.0/30", "Internet1 Gig0/1"],
+          ["Internet2", "Gig0/0", "47.11.8.1/24", "47.11.8.0/24", "Webserver"],
+          ["Webserver", "Fa0", "47.11.8.15/24", "47.11.8.0/24", "Internet2 Gig0/0"],
+          ["ISP2", "Gig0/1", "3.3.3.2/30", "3.3.3.0/30", "Internet1 Gig0/0"],
+          ["ISP2", "Gig0/2", "200.0.0.2/30", "200.0.0.0/30", "Bremen Gig0/1"],
+          ["Bremen", "Gig0/1", "200.0.0.1/30", "200.0.0.0/30", "ISP2 Gig0/2"],
+          ["Bremen", "Gig0/0", "192.168.2.254/24", "192.168.2.0/24", "SW2 Gig0/2"],
+        ],
+      },
+      {
+        type: "cli",
+        content: `Hamburg# show crypto isakmp sa
+IPv4 Crypto ISAKMP SA
+dst             src             state          conn-id slot status
+200.0.0.1       100.0.0.1       QM_IDLE           1001    0 ACTIVE
+
+Hamburg# show crypto ipsec sa
+interface: GigabitEthernet0/1
+    Crypto map tag: IPSEC-MAP, local addr 100.0.0.1
+
+   local  ident (addr/mask/prot/port): (192.168.1.0/255.255.255.0/0/0)
+   remote ident (addr/mask/prot/port): (192.168.2.0/255.255.255.0/0/0)
+   current_peer 200.0.0.1 port 500
+    #pkts encaps: 4, #pkts encrypt: 4, #pkts digest: 4
+    #pkts decaps: 4, #pkts decrypt: 4, #pkts verify: 4`,
+        highlight: [
+          "200.0.0.1       100.0.0.1       QM_IDLE           1001    0 ACTIVE",
+          "    #pkts encaps: 4, #pkts encrypt: 4, #pkts digest: 4",
+          "    #pkts decaps: 4, #pkts decrypt: 4, #pkts verify: 4",
+        ],
+      },
+    ],
+    steps: [
+      {
+        title: "1) Underlay prüfen (Hamburg) — VPN braucht eine funktionierende IP-Verbindung",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "privileged",
+            modeLabel: "Hamburg#",
+            commands: [
+              { cmd: "ping 200.0.0.1", explanation: "Erreichbarkeit der Bremen-WAN-Adresse über das Provider-Underlay prüfen. MUSS erfolgreich sein — IPSec setzt eine funktionierende IP-Verbindung zwischen den beiden WAN-Peers voraus. Schlägt dieser Ping fehl, ist das Routing kaputt und kein Tunnel hilft." },
+              { cmd: "show ip interface brief", explanation: "Kontrolle, dass Gig0/0 (LAN 192.168.1.254) und Gig0/1 (WAN 100.0.0.1) up/up sind." },
+              { cmd: "show ip route", explanation: "Die Default-Route 0.0.0.0/0 Richtung ISP1 (100.0.0.2) muss vorhanden sein. Das ferne LAN 192.168.2.0/24 taucht hier NICHT auf — der Core kennt es nicht. Genau deshalb der Tunnel." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2) IKE Phase 1 — ISAKMP-Policy (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "isakmp",
+            modeLabel: "Hamburg(config)#",
+            commands: [
+              { cmd: "crypto isakmp policy 10", explanation: "Legt ISAKMP/IKE-Phase-1-Policy Nr. 10 an (niedrigere Nummer = höhere Priorität). Diese Policy handelt aus, WIE der sichere Management-Kanal (IKE-SA) aufgebaut wird." },
+              { cmd: "encryption aes 256", explanation: "Verschlüsselung des IKE-Kanals mit AES-256. Muss auf beiden Peers identisch sein, sonst scheitert Phase 1." },
+              { cmd: "hash sha", explanation: "Integritätsschutz per SHA-1 (HMAC). Beidseitig identisch." },
+              { cmd: "authentication pre-share", explanation: "Peer-Authentisierung über Pre-Shared Key (statt Zertifikate). Bestimmt, dass im nächsten Schritt ein PSK definiert wird." },
+              { cmd: "group 5", explanation: "Diffie-Hellman-Gruppe 5 (1536 Bit) für den Schlüsselaustausch. DH erzeugt ein gemeinsames Geheimnis, ohne es je über die Leitung zu schicken. Muss beidseitig gleich sein." },
+              { cmd: "lifetime 86400", explanation: "Gültigkeitsdauer der IKE-SA (Phase 1) in Sekunden = 24 h. NICHT verwechseln mit der Phase-2-Lifetime in der Crypto Map." },
+              { cmd: "exit", explanation: "Zurück in den globalen Konfigurationsmodus." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3) Pre-Shared Key (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "global",
+            modeLabel: "Hamburg(config)#",
+            commands: [
+              { cmd: "crypto isakmp key ganzganzganzgeheim! address 200.0.0.1", explanation: "PSK an die PEER-IP (Bremen WAN 200.0.0.1) binden — nicht an ein Interface. Der Schlüssel inkl. Ausrufezeichen muss auf beiden Seiten ZEICHENGENAU identisch sein, sonst schlägt die Phase-1-Authentisierung fehl." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4) IKE Phase 2 — Transform-Set (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "global",
+            modeLabel: "Hamburg(config)#",
+            commands: [
+              { cmd: "crypto ipsec transform-set HH-HB esp-aes 256 esp-sha-hmac", explanation: "Definiert den Phase-2-Schutz für die Nutzdaten: ESP mit AES-256 (Vertraulichkeit) + SHA-HMAC (Integrität). Der NAME (HH-HB) ist lokal frei wählbar und muss NICHT mit Bremen übereinstimmen — die PARAMETER (esp-aes 256, esp-sha-hmac) aber schon. Bindestrich statt '->' verwenden (Packet-Tracer-kompatibel)." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5) Crypto-ACL — interesting traffic (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "global",
+            modeLabel: "Hamburg(config)#",
+            commands: [
+              { cmd: "access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255", explanation: "Definiert, WELCHER Verkehr in den Tunnel soll — hier LAN Hamburg → LAN Bremen. permit = verschlüsseln. Alles andere (z. B. Richtung Webserver/Internet) bleibt unverschlüsselt. Alternativ als benannte ACL (ip access-list extended VPN-TRAFFIC) — funktional identisch, in der Praxis lesbarer; die nummerierte Variante bleibt hier die Referenz." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6) Crypto Map — alle Bausteine zusammenführen (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "crypto-map",
+            modeLabel: "Hamburg(config)#",
+            commands: [
+              { cmd: "crypto map IPSEC-MAP 10 ipsec-isakmp", explanation: "Legt die Crypto Map an, die Peer + Transform-Set + ACL verbindet. 'ipsec-isakmp' = SAs dynamisch per IKE aushandeln. Beim Anlegen erscheint die NOTE 'This new crypto map will remain disabled until a peer and a valid access list have been configured.' — das ist KEIN Fehler; sie verschwindet, sobald peer + match address gesetzt sind." },
+              { cmd: "set peer 200.0.0.1", explanation: "VPN-Gegenstelle = Bremen WAN 200.0.0.1." },
+              { cmd: "set pfs group5", explanation: "Perfect Forward Secrecy mit DH-Gruppe 5: erzeugt für Phase 2 frisches Schlüsselmaterial, unabhängig von Phase 1. Schreibweise OHNE Leerzeichen: 'group5', nicht 'group 5'. Muss beidseitig gleich sein." },
+              { cmd: "set security-association lifetime seconds 86400", explanation: "Phase-2-Lebensdauer der IPSec-SA (Default wäre 3600 s). Das Schlüsselwort 'seconds' ist PFLICHT, sonst Syntaxfehler; Maximum 86400 s. Nicht verwechseln mit der ISAKMP-'lifetime' aus Step 2 (Phase 1)." },
+              { cmd: "set transform-set HH-HB", explanation: "Verknüpft den in Step 4 definierten Phase-2-Schutz mit dieser Crypto Map." },
+              { cmd: "match address 100", explanation: "Verknüpft die Crypto-ACL 100 (Step 5): nur dieser Traffic wird verschlüsselt. Ab jetzt ist die Map vollständig und die NOTE-Warnung gegenstandslos." },
+              { cmd: "exit", explanation: "Zurück in den globalen Modus." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7) Crypto Map aufs WAN-Interface (Hamburg)",
+        blocks: [
+          {
+            device: "Hamburg",
+            mode: "interface",
+            modeLabel: "Hamburg(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/1", explanation: "Das WAN-/Outside-Interface Richtung ISP1 (100.0.0.1) — hier tritt der zu schützende Verkehr aus. NICHT das LAN-Interface." },
+              { cmd: "crypto map IPSEC-MAP", explanation: "Aktiviert die Crypto Map auf dem Interface. Erst JETZT wird IPSec scharf. Erwartete Konsolenmeldung: %CRYPTO-6-ISAKMP_ON_OFF: ISAKMP is ON. Pro Interface ist nur EINE Crypto Map möglich." },
+              { cmd: "exit", explanation: "Konfiguration Hamburg abgeschlossen." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "8) Spiegelbildliche Konfiguration auf Bremen (vollständig)",
+        blocks: [
+          {
+            device: "Bremen",
+            mode: "isakmp",
+            modeLabel: "Bremen(config)#",
+            commands: [
+              { cmd: "crypto isakmp policy 10", explanation: "Identische Phase-1-Policy wie Hamburg — die Parameter MÜSSEN matchen." },
+              { cmd: "encryption aes 256", explanation: "AES-256, wie Hamburg." },
+              { cmd: "hash sha", explanation: "SHA, wie Hamburg." },
+              { cmd: "authentication pre-share", explanation: "Pre-Shared Key, wie Hamburg." },
+              { cmd: "group 5", explanation: "DH-Gruppe 5, wie Hamburg." },
+              { cmd: "lifetime 86400", explanation: "Phase-1-Lifetime 86400 s, wie Hamburg." },
+              { cmd: "exit", explanation: "Zurück in den globalen Modus." },
+            ],
+          },
+          {
+            device: "Bremen",
+            mode: "global",
+            modeLabel: "Bremen(config)#",
+            commands: [
+              { cmd: "crypto isakmp key ganzganzganzgeheim! address 100.0.0.1", explanation: "GLEICHER Schlüssel wie Hamburg, aber gebunden an die PEER-IP Hamburg (100.0.0.1). Nur die Adresse ist spiegelverkehrt, der Key selbst ist identisch." },
+              { cmd: "crypto ipsec transform-set HB-HH esp-aes 256 esp-sha-hmac", explanation: "Lokaler Name HB-HH (darf sich von Hamburgs HH-HB unterscheiden) — die Parameter esp-aes 256 + esp-sha-hmac sind identisch. Genau das ist entscheidend, nicht der Name." },
+              { cmd: "access-list 100 permit ip 192.168.2.0 0.0.0.255 192.168.1.0 0.0.0.255", explanation: "SPIEGELBILDLICH zu Hamburg: Source = LAN Bremen, Destination = LAN Hamburg. Werden Source/Destination nicht korrekt vertauscht, gibt es einen Proxy-ID-Mismatch und Phase 2 kommt nicht hoch." },
+            ],
+          },
+          {
+            device: "Bremen",
+            mode: "crypto-map",
+            modeLabel: "Bremen(config)#",
+            commands: [
+              { cmd: "crypto map IPSEC-MAP 10 ipsec-isakmp", explanation: "Wie Hamburg — dieselbe NOTE-Warnung, bis peer + match address gesetzt sind." },
+              { cmd: "set peer 100.0.0.1", explanation: "Gegenstelle = Hamburg WAN 100.0.0.1." },
+              { cmd: "set pfs group5", explanation: "PFS Gruppe 5, wie Hamburg (Schreibweise group5)." },
+              { cmd: "set security-association lifetime seconds 86400", explanation: "Phase-2-Lifetime 86400 s, wie Hamburg." },
+              { cmd: "set transform-set HB-HH", explanation: "Lokales Transform-Set HB-HH verknüpfen." },
+              { cmd: "match address 100", explanation: "Crypto-ACL 100 (Bremen → Hamburg) verknüpfen." },
+              { cmd: "exit", explanation: "Zurück in den globalen Modus." },
+            ],
+          },
+          {
+            device: "Bremen",
+            mode: "interface",
+            modeLabel: "Bremen(config-if)#",
+            commands: [
+              { cmd: "interface GigabitEthernet0/1", explanation: "WAN-/Outside-Interface Richtung ISP2 (200.0.0.1)." },
+              { cmd: "crypto map IPSEC-MAP", explanation: "Crypto Map aktivieren → ISAKMP is ON. Konfiguration Bremen abgeschlossen." },
+              { cmd: "exit", explanation: "Fertig." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "9) Tunnel aufbauen und verifizieren",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC>",
+            commands: [
+              { cmd: "ping 192.168.2.10", explanation: "Interessanten Traffic erzeugen (LAN Hamburg → LAN Bremen), damit der Tunnel überhaupt aufgebaut wird. Der erste Ping kann verloren gehen, während IKE Phase 1+2 aushandelt — danach läuft es." },
+            ],
+          },
+          {
+            device: "Hamburg",
+            mode: "privileged",
+            modeLabel: "Hamburg#",
+            commands: [
+              { cmd: "show crypto isakmp sa", explanation: "Phase 1 prüfen: Zustand QM_IDLE + status ACTIVE = IKE-SA steht (Quick Mode idle). Ohne QM_IDLE ist Phase 1 nicht fertig — dann PSK/Policy prüfen." },
+              { cmd: "show crypto ipsec sa", explanation: "Phase 2 prüfen: die Zähler #pkts encaps/encrypt und #pkts decaps/decrypt müssen auf BEIDEN Seiten steigen. Steigt nur encaps, decaps bleibt 0 → die Gegenseite antwortet nicht (ACL/Routing/Peer prüfen)." },
+              { cmd: "show crypto map", explanation: "Zeigt Peer, Transform-Set, match address und das Interface-Binding — schnelle Gesamtübersicht der VPN-Konfiguration." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "10) Gegenprobe — Selektivität der Crypto-ACL (Split Tunneling)",
+        blocks: [
+          {
+            device: "PC0",
+            mode: "cli",
+            modeLabel: "PC>",
+            commands: [
+              { cmd: "ping 47.11.8.15", explanation: "Ping zum Webserver im Internet. Dieser Verkehr wird von der Crypto-ACL 100 NICHT erfasst (Ziel ist nicht 192.168.2.0/24) → er läuft unverschlüsselt am Tunnel vorbei." },
+            ],
+          },
+          {
+            device: "Hamburg",
+            mode: "privileged",
+            modeLabel: "Hamburg#",
+            commands: [
+              { cmd: "show crypto ipsec sa", explanation: "Gegenprobe: der #pkts encaps-Zähler steigt bei diesem Webserver-Ping NICHT — Beweis, dass nur ACL-gematchter Traffic in den Tunnel geht (Split Tunneling / Selektivität der Crypto-ACL)." },
+            ],
+          },
+        ],
+      },
+      {
+        title: "11) Häufige Fehler & Troubleshooting",
+        blocks: [
+          {
+            device: "Merke",
+            mode: "info",
+            modeLabel: "Häufige Fehler",
+            commands: [
+              { cmd: "ACLs spiegelbildlich halten", explanation: "Source/Destination auf der Gegenseite vertauschen — sonst Proxy-ID-Mismatch, Phase 2 kommt nicht hoch." },
+              { cmd: "Transform-Set: Name lokal, Parameter global", explanation: "Der Name muss NICHT identisch sein, die Parameter (esp-aes 256 + esp-sha-hmac) auf beiden Seiten schon." },
+              { cmd: "Keine Sonderzeichen im Namen", explanation: "'HH->HB' funktioniert in Packet Tracer nicht zuverlässig → 'HH-HB' verwenden." },
+              { cmd: "set security-association lifetime seconds 86400", explanation: "Das Schlüsselwort 'seconds' (bzw. 'kilobytes') ist Pflicht, sonst Syntaxfehler. Maximum 86400 s." },
+              { cmd: "set pfs group5 (ohne Leerzeichen)", explanation: "'group5', nicht 'group 5'. Im crypto-map-Modus hilft 'set pfs ?' bei der richtigen Schreibweise." },
+              { cmd: "Zwei Lifetimes nicht verwechseln", explanation: "'lifetime' in der ISAKMP-Policy = Phase 1 (Default 86400 s); 'set security-association lifetime' in der Crypto Map = Phase 2 (Default 3600 s)." },
+              { cmd: "PSK zeichengenau + an Peer-IP", explanation: "Muss exakt übereinstimmen, inkl. Ausrufezeichen. Der PSK ist an die Peer-IP gebunden, nicht ans Interface." },
+              { cmd: "Crypto Map aufs WAN-Interface", explanation: "Gehört aufs Outside-/WAN-Interface, nicht aufs LAN. Pro Interface nur EINE Crypto Map." },
+              { cmd: "DH-Group + Encryption müssen matchen", explanation: "Group 5 (1536 Bit) und AES-256 auf beiden Seiten identisch." },
+              { cmd: "Tunnel braucht interessanten Traffic", explanation: "Ein Ping vom Router selbst (Source = WAN-IP) matcht die ACL nicht → immer von PC0 zu PC2 pingen bzw. 'ping 192.168.2.10 source 192.168.1.254'." },
+              { cmd: "NAT/PAT vor VPN ausnehmen", explanation: "Falls NAT aktiv ist: in der NAT-ACL 'deny ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255' VOR den Overload-Eintrag setzen, sonst wird übersetzt und matcht die Crypto-ACL nicht mehr (optionaler Advanced-Step)." },
+            ],
+          },
+        ],
+      },
+    ],
+    verifyCommands: [
+      { cmd: "show crypto isakmp sa (Hamburg & Bremen)", expected: "Zustand QM_IDLE, status ACTIVE — IKE-SA (Phase 1) steht auf beiden Seiten" },
+      { cmd: "show crypto ipsec sa (Hamburg & Bremen)", expected: "#pkts encaps UND #pkts decaps steigen beidseitig — Phase 2 verschlüsselt bidirektional" },
+      { cmd: "show crypto map (Hamburg & Bremen)", expected: "Peer, transform-set, match address 100 und Interface-Binding korrekt angezeigt" },
+      { cmd: "ping PC0 → PC2 (192.168.2.x)", expected: "Erfolgreich — LAN-zu-LAN läuft durch den Tunnel (erster Ping ggf. verloren, während IKE aushandelt)" },
+      { cmd: "ping PC0 → Webserver 47.11.8.15", expected: "Erfolgreich, aber encaps-Zähler steigt NICHT — Traffic läuft unverschlüsselt (Split Tunneling)" },
+    ],
+    glossary: [
+      { term: "ISAKMP / IKE", def: "Internet Security Association and Key Management Protocol — das Aushandlungsprotokoll (IKE) für IPSec. Läuft über UDP 500." },
+      { term: "IKE Phase 1", def: "Baut den sicheren Management-Kanal (IKE-SA) zwischen den Peers auf: ISAKMP-Policy (Encryption/Hash/DH/Auth/Lifetime) + Peer-Authentisierung (PSK). Ergebnis: Zustand QM_IDLE." },
+      { term: "IKE Phase 2 (Quick Mode)", def: "Handelt unter dem Schutz von Phase 1 die IPSec-SAs für die eigentlichen Nutzdaten aus: Transform-Set + Crypto-ACL + PFS." },
+      { term: "QM_IDLE", def: "Zustand in 'show crypto isakmp sa': Quick Mode idle = Phase 1 steht, IKE-SA aufgebaut und bereit. Nur mit QM_IDLE + ACTIVE ist die Basis für Phase 2 gelegt." },
+      { term: "ESP", def: "Encapsulating Security Payload (IP-Protokoll 50): verschlüsselt UND authentifiziert die Nutzdaten. Für Vertraulichkeit immer ESP (nicht AH)." },
+      { term: "AH", def: "Authentication Header (IP-Protokoll 51): authentifiziert nur, verschlüsselt NICHT — daher für Vertraulichkeit ungeeignet." },
+      { term: "Transform-Set", def: "Definiert den Phase-2-Schutz (z. B. esp-aes 256 esp-sha-hmac). Name lokal frei, Parameter müssen beidseitig gleich sein." },
+      { term: "Crypto-ACL (interesting traffic)", def: "permit-ACL, die festlegt, welcher Verkehr verschlüsselt wird. Muss auf beiden Peers spiegelbildlich sein (Source/Destination vertauscht)." },
+      { term: "Crypto Map", def: "Bindet Peer + Transform-Set + Crypto-ACL + PFS/Lifetime zusammen und wird aufs WAN-/Outside-Interface gelegt. Pro Interface nur eine." },
+      { term: "PFS (set pfs group5)", def: "Perfect Forward Secrecy: erzeugt für Phase 2 frisches DH-Schlüsselmaterial, unabhängig von Phase 1. Schreibweise 'group5' ohne Leerzeichen." },
+      { term: "Pre-Shared Key (PSK)", def: "Gemeinsames Geheimnis zur Peer-Authentisierung, an die Peer-IP gebunden. Muss zeichengenau (inkl. Sonderzeichen) beidseitig gleich sein." },
+      { term: "Zwei Lifetimes", def: "'lifetime' in der ISAKMP-Policy = Phase 1 (Default 86400 s); 'set security-association lifetime seconds' in der Crypto Map = Phase 2 (Default 3600 s). Nicht verwechseln." },
+    ],
+  },
 ];
 
 // ── Didaktisch-kognitive Lernreihenfolge ─────────────────────
@@ -8928,6 +9308,7 @@ const LAB_ORDER: string[] = [
   "ntp-syslog-snmp",      // Management-Protokolle
   "hsrp",                 // FHRP — braucht Routing + Redundanz-Konzept
   "gre-tunnel",           // Site-to-Site VPN über Internet
+  "ipsec-s2s-vpn",        // Verschlüsselter Site-to-Site VPN (IKE/IPSec) — Fortsetzung von GRE
 
   // ── Security: einfach → komplex ───────────────────────────
   "device-hardening",     // Banner, Password-Policy, Login-Block
@@ -9501,6 +9882,17 @@ export function LabScenariosDialog({ open, onClose }: LabScenariosDialogProps) {
                 {lab.topology.topologyDiagram && (
                   <div className="mt-3 rounded-lg overflow-hidden border border-slate-700/50">
                     {lab.topology.topologyDiagram}
+                  </div>
+                )}
+
+                {/* Strukturierte Exhibits (Topologie / Adressplan / erwartete CLI-Ausgabe) */}
+                {lab.exhibits && lab.exhibits.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {lab.exhibits.map((ex, i) => (
+                      <div key={i} className="rounded-lg overflow-hidden border border-slate-700/50">
+                        <ExhibitRenderer exhibit={ex} />
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
