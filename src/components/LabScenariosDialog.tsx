@@ -9012,8 +9012,9 @@ interface: GigabitEthernet0/1
           {
             device: "Hamburg",
             mode: "privileged",
-            modeLabel: "Hamburg#",
+            modeLabel: "Hamburg>",
             commands: [
+              { cmd: "enable", explanation: "Vom User-EXEC (Hamburg>) in den privilegierten EXEC-Modus (Hamburg#) wechseln — Voraussetzung für ping/show und die spätere Konfiguration." },
               { cmd: "ping 200.0.0.1", explanation: "Erreichbarkeit der Bremen-WAN-Adresse über das Provider-Underlay prüfen. MUSS erfolgreich sein — IPSec setzt eine funktionierende IP-Verbindung zwischen den beiden WAN-Peers voraus. Schlägt dieser Ping fehl, ist das Routing kaputt und kein Tunnel hilft." },
               { cmd: "show ip interface brief", explanation: "Kontrolle, dass Gig0/0 (LAN 192.168.1.254) und Gig0/1 (WAN 100.0.0.1) up/up sind." },
               { cmd: "show ip route", explanation: "Die Default-Route 0.0.0.0/0 Richtung ISP1 (100.0.0.2) muss vorhanden sein. Das ferne LAN 192.168.2.0/24 taucht hier NICHT auf — der Core kennt es nicht. Genau deshalb der Tunnel." },
@@ -9022,13 +9023,14 @@ interface: GigabitEthernet0/1
         ],
       },
       {
-        title: "2) IKE Phase 1 — ISAKMP-Policy (Hamburg)",
+        title: "2) In den Konfig-Modus + IKE Phase 1 (ISAKMP-Policy, Hamburg)",
         blocks: [
           {
             device: "Hamburg",
             mode: "isakmp",
-            modeLabel: "Hamburg(config)#",
+            modeLabel: "Hamburg#",
             commands: [
+              { cmd: "configure terminal", explanation: "Vom privilegierten EXEC (Hamburg#) in den globalen Konfigurationsmodus (Hamburg(config)#) wechseln. Kurzform: conf t." },
               { cmd: "crypto isakmp policy 10", explanation: "Legt ISAKMP/IKE-Phase-1-Policy Nr. 10 an (niedrigere Nummer = höhere Priorität). Diese Policy handelt aus, WIE der sichere Management-Kanal (IKE-SA) aufgebaut wird." },
               { cmd: "encryption aes 256", explanation: "Verschlüsselung des IKE-Kanals mit AES-256. Muss auf beiden Peers identisch sein, sonst scheitert Phase 1." },
               { cmd: "hash sha", explanation: "Integritätsschutz per SHA-1 (HMAC). Beidseitig identisch." },
@@ -9108,19 +9110,22 @@ interface: GigabitEthernet0/1
             commands: [
               { cmd: "interface GigabitEthernet0/1", explanation: "Das WAN-/Outside-Interface Richtung ISP1 (100.0.0.1) — hier tritt der zu schützende Verkehr aus. NICHT das LAN-Interface." },
               { cmd: "crypto map IPSEC-MAP", explanation: "Aktiviert die Crypto Map auf dem Interface. Erst JETZT wird IPSec scharf. Erwartete Konsolenmeldung: %CRYPTO-6-ISAKMP_ON_OFF: ISAKMP is ON. Pro Interface ist nur EINE Crypto Map möglich." },
-              { cmd: "exit", explanation: "Konfiguration Hamburg abgeschlossen." },
+              { cmd: "end", explanation: "Verlässt den Konfigurationsmodus direkt zurück in den privilegierten EXEC (Hamburg#). Alternativ mehrfach exit." },
+              { cmd: "copy running-config startup-config", explanation: "Speichert die laufende Konfiguration dauerhaft ins NVRAM (startup-config), damit sie einen Reload übersteht. Kurzform: write memory. Konfiguration Hamburg abgeschlossen." },
             ],
           },
         ],
       },
       {
-        title: "8) Spiegelbildliche Konfiguration auf Bremen (vollständig)",
+        title: "8) Spiegelbildliche Konfiguration auf Bremen (vollständig, von Grund auf)",
         blocks: [
           {
             device: "Bremen",
             mode: "isakmp",
-            modeLabel: "Bremen(config)#",
+            modeLabel: "Bremen>",
             commands: [
+              { cmd: "enable", explanation: "Auf dem Bremen-Router: vom User-EXEC (Bremen>) in den privilegierten EXEC-Modus (Bremen#) wechseln." },
+              { cmd: "configure terminal", explanation: "In den globalen Konfigurationsmodus (Bremen(config)#) wechseln. Kurzform: conf t." },
               { cmd: "crypto isakmp policy 10", explanation: "Identische Phase-1-Policy wie Hamburg — die Parameter MÜSSEN matchen." },
               { cmd: "encryption aes 256", explanation: "AES-256, wie Hamburg." },
               { cmd: "hash sha", explanation: "SHA, wie Hamburg." },
@@ -9160,8 +9165,9 @@ interface: GigabitEthernet0/1
             modeLabel: "Bremen(config-if)#",
             commands: [
               { cmd: "interface GigabitEthernet0/1", explanation: "WAN-/Outside-Interface Richtung ISP2 (200.0.0.1)." },
-              { cmd: "crypto map IPSEC-MAP", explanation: "Crypto Map aktivieren → ISAKMP is ON. Konfiguration Bremen abgeschlossen." },
-              { cmd: "exit", explanation: "Fertig." },
+              { cmd: "crypto map IPSEC-MAP", explanation: "Crypto Map aktivieren → ISAKMP is ON." },
+              { cmd: "end", explanation: "Zurück in den privilegierten EXEC (Bremen#)." },
+              { cmd: "copy running-config startup-config", explanation: "Bremen-Konfiguration dauerhaft speichern. Konfiguration Bremen abgeschlossen." },
             ],
           },
         ],
@@ -9254,6 +9260,8 @@ interface: GigabitEthernet0/1
       { term: "PFS (set pfs group5)", def: "Perfect Forward Secrecy: erzeugt für Phase 2 frisches DH-Schlüsselmaterial, unabhängig von Phase 1. Schreibweise 'group5' ohne Leerzeichen." },
       { term: "Pre-Shared Key (PSK)", def: "Gemeinsames Geheimnis zur Peer-Authentisierung, an die Peer-IP gebunden. Muss zeichengenau (inkl. Sonderzeichen) beidseitig gleich sein." },
       { term: "Zwei Lifetimes", def: "'lifetime' in der ISAKMP-Policy = Phase 1 (Default 86400 s); 'set security-association lifetime seconds' in der Crypto Map = Phase 2 (Default 3600 s). Nicht verwechseln." },
+      { term: "enable / configure terminal", def: "enable wechselt vom User-EXEC (>) in den privilegierten EXEC (#); configure terminal (conf t) öffnet von dort den globalen Konfigurationsmodus ((config)#)." },
+      { term: "end / copy running-config startup-config", def: "end springt aus jedem Config-Untermodus direkt zurück nach #; copy running-config startup-config (write memory) speichert die Konfiguration dauerhaft ins NVRAM." },
     ],
   },
 ];
