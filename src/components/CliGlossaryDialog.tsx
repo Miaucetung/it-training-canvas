@@ -3,9 +3,9 @@
 // Mit Kategorien-Filter, Volltextsuche und Copy-to-Clipboard pro Befehl.
 // ============================================================
 
-import { X, MagnifyingGlass, Copy, Check } from "@phosphor-icons/react";
+import { X, MagnifyingGlass, Copy, Check, Warning } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { ENTRIES, CATEGORIES, type Category } from "@/content/ccna/cli-glossary";
+import { ENTRIES, CATEGORIES, PT_LIMITS_CATEGORY, type Category } from "@/content/ccna/cli-glossary";
 
 interface Props {
   dark: boolean;
@@ -51,6 +51,10 @@ export function CliGlossaryDialog({ dark, onClose }: Props) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ENTRIES.filter((e) => {
+      // Packet-Tracer-Limits sind in der Prüfung falsch — sie dürfen nur
+      // sichtbar werden, wenn der Chip explizit aktiv ist, nie beiläufig
+      // über "Alle" oder eine Volltextsuche.
+      if (e.category === PT_LIMITS_CATEGORY && activeCat !== PT_LIMITS_CATEGORY) return false;
       if (activeCat !== "Alle" && e.category !== activeCat) return false;
       if (!q) return true;
       return (
@@ -138,6 +142,24 @@ export function CliGlossaryDialog({ dark, onClose }: Props) {
                 </button>
               );
             })}
+            {/* Separat angehängt und optisch abgesetzt: Simulator-Verhalten
+                ist in der Prüfung falsch und soll nicht wie eine normale
+                Kategorie neben echter IOS-Syntax wirken. */}
+            <button
+              onClick={() => setActiveCat(activeCat === PT_LIMITS_CATEGORY ? "Alle" : PT_LIMITS_CATEGORY)}
+              className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                activeCat === PT_LIMITS_CATEGORY
+                  ? dark
+                    ? "bg-amber-500/20 border-amber-500/50 text-amber-200"
+                    : "bg-amber-100 border-amber-400 text-amber-900"
+                  : dark
+                    ? "border-amber-800 text-amber-500/80 hover:bg-amber-500/10"
+                    : "border-amber-300 text-amber-700 hover:bg-amber-50"
+              }`}
+            >
+              <Warning size={12} weight="bold" />
+              {PT_LIMITS_CATEGORY}
+            </button>
           </div>
         </div>
 
@@ -149,38 +171,83 @@ export function CliGlossaryDialog({ dark, onClose }: Props) {
             </div>
           ) : (
             <ul className="space-y-2">
-              {filtered.map((e, i) => (
-                <li
-                  key={i}
-                  className={`flex items-start gap-3 rounded-lg border px-3 py-2.5 ${
-                    dark
-                      ? "border-slate-700 bg-slate-800/40 hover:bg-slate-800/70"
-                      : "border-slate-200 bg-slate-50 hover:bg-slate-100"
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <code className={`text-sm font-mono font-semibold ${
-                        dark ? "text-cyan-300" : "text-cyan-700"
-                      }`}>
-                        {e.cmd}
-                      </code>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                        dark ? "bg-slate-700 text-slate-300" : "bg-slate-200 text-slate-600"
-                      }`}>
-                        {e.mode}
-                      </span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                        dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-50 text-indigo-700"
-                      }`}>
-                        {e.category}
-                      </span>
+              {filtered.map((e, i) => {
+                const isPtLimit = e.category === PT_LIMITS_CATEGORY;
+                return (
+                  <li
+                    key={i}
+                    className={`flex items-start gap-3 rounded-lg border px-3 py-2.5 ${
+                      isPtLimit
+                        ? dark
+                          ? "border-amber-800 bg-amber-500/10 hover:bg-amber-500/15"
+                          : "border-amber-300 bg-amber-50 hover:bg-amber-100"
+                        : dark
+                          ? "border-slate-700 bg-slate-800/40 hover:bg-slate-800/70"
+                          : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <code className={`text-sm font-mono font-semibold ${
+                          isPtLimit
+                            ? dark ? "text-amber-300" : "text-amber-800"
+                            : dark ? "text-cyan-300" : "text-cyan-700"
+                        }`}>
+                          {e.cmd}
+                        </code>
+                        {!isPtLimit && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
+                            dark ? "bg-slate-700 text-slate-300" : "bg-slate-200 text-slate-600"
+                          }`}>
+                            {e.mode}
+                          </span>
+                        )}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                          isPtLimit
+                            ? dark ? "bg-amber-500/20 text-amber-300" : "bg-amber-100 text-amber-800"
+                            : dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-50 text-indigo-700"
+                        }`}>
+                          {e.category}
+                        </span>
+                        {isPtLimit && (
+                          <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                            dark ? "bg-amber-500/25 text-amber-200" : "bg-amber-200 text-amber-900"
+                          }`}>
+                            <Warning size={10} weight="bold" />
+                            Simulator-Verhalten, nicht prüfungsrelevant
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs opacity-80 mt-1">{e.desc}</div>
+                      {e.example && (
+                        <pre className={`text-[11px] font-mono mt-1.5 px-2 py-1.5 rounded whitespace-pre-wrap ${
+                          dark ? "bg-slate-950 text-slate-300" : "bg-slate-900 text-slate-100"
+                        }`}>
+                          {e.example}
+                        </pre>
+                      )}
+                      {e.verifyWith && e.verifyWith.length > 0 && (
+                        <div className="text-[11px] mt-1 opacity-75">
+                          <span className="font-semibold">Verifikation:</span>{" "}
+                          <code className="font-mono">{e.verifyWith.join(", ")}</code>
+                        </div>
+                      )}
+                      {e.pitfall && (
+                        <div className={`text-[11px] mt-1 ${dark ? "text-amber-400" : "text-amber-700"}`}>
+                          <span className="font-semibold">Pitfall:</span> {e.pitfall}
+                        </div>
+                      )}
+                      {e.ptNote && (
+                        <div className={`text-[11px] mt-1 flex items-start gap-1 ${dark ? "text-amber-400/90" : "text-amber-700"}`}>
+                          <Warning size={11} weight="bold" className="mt-0.5 shrink-0" />
+                          <span><span className="font-semibold">Packet Tracer:</span> {e.ptNote}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs opacity-80 mt-1">{e.desc}</div>
-                  </div>
-                  <CopyButton text={e.cmd} dark={dark} />
-                </li>
-              ))}
+                    {!isPtLimit && <CopyButton text={e.cmd} dark={dark} />}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
