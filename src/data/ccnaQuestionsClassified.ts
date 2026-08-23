@@ -9050,13 +9050,22 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
             "from": "atl",
             "to": "ny",
             "subnet": "2012::/126",
-            "labelFrom": "Se0/0/0"
+            "labelFrom": "Se0/0/0",
+            "labelTo": "Se0/0/0"
           },
           {
             "from": "ny",
             "to": "wsh",
             "subnet": "2023::/126",
+            "labelFrom": "Se0/0/1",
             "labelTo": "Se0/0/0"
+          },
+          {
+            "from": "atl",
+            "to": "wsh",
+            "subnet": "2013::/126",
+            "labelFrom": "Se0/0/1",
+            "labelTo": "Se0/0/1"
           }
         ],
         "labels": [
@@ -9089,6 +9098,11 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
             "Atlanta",
             "Serial 0/0/0",
             "2012::1/126"
+          ],
+          [
+            "Atlanta",
+            "Serial 0/0/1",
+            "2013::1/126"
           ],
           [
             "Atlanta",
