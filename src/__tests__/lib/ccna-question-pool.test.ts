@@ -76,9 +76,12 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (333)", () => {
+  it("Anzahl Exhibit-Fragen stimmt (340)", () => {
     // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
     // Konfigurationen stehen vollständig in den Antwortoptionen.
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(333);
+    // 333 -> 340: "Which interface condition is occurring in this output?"
+    // existiert 7x (q1095, q1099, q1117, q1131, q1189, q1259, q1296) und hatte
+    // in allen Varianten kein Exhibit — show-interface-Output nachgetragen.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(340);
   });
 });

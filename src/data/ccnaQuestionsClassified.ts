@@ -26663,7 +26663,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "broadcast storm"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
@@ -26722,12 +26725,15 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "question": "Which interface condition is occurring in this output?",
     "options": [
       "broadcast storm",
-      "duplex mismatch",
+      "bad NIC",
       "high throughput",
       "queueing"
     ],
-    "correct": 2,
-    "exhibit": false,
+    "correct": 1,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
@@ -26997,12 +27003,15 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "question": "Which interface condition is occurring in this output?",
     "options": [
       "broadcast storm",
-      "collisions",
+      "bad NIC",
       "high throughput",
       "duplex mismatch"
     ],
-    "correct": 2,
-    "exhibit": false,
+    "correct": 1,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
@@ -27390,13 +27399,16 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "id": "Q1131",
     "question": "Which interface condition is occurring in this output?",
     "options": [
-      "collisions",
+      "bad NIC",
       "broadcast storm",
       "duplex mismatch",
       "queueing"
     ],
-    "correct": 2,
-    "exhibit": false,
+    "correct": 0,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
@@ -29974,8 +29986,11 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "bad NIC",
       "duplex mismatch"
     ],
-    "correct": 1,
-    "exhibit": false,
+    "correct": 2,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
@@ -30807,8 +30822,11 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "duplex mismatch",
       "high throughput"
     ],
-    "correct": 3,
-    "exhibit": false,
+    "correct": 0,
+    "exhibit": {
+      "type": "cli",
+      "content": "R16# show interface fa0/0\nFastEthernet0/0 is up, line protocol is up\n  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)\n  Description: sanfrancisco_subnet\n  Internet address is 10.32.102.2/30\n  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (60 sec)\n  Full-duplex, 100 Mb/s, 100BaseTX/FX\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output 00:00:00, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/300 (size/max)\n  30 second input rate 0 bits/sec, 0 packets/sec\n  30 second output rate 0 bits/sec, 0 packets/sec\n     7331 packets input, 7101162 bytes\n     Received 267 broadcasts (0 IP multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 watchdog\n     0 input packets with dribble condition detected\n     3927 packets output, 1440403 bytes, 0 underruns\n     0 output errors, 0 collisions, 0 interface resets\n     0 unknown protocol drops\n     0 babbles, 0 late collision, 0 deferred\n     0 lost carrier, 0 no carrier\n     0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 70,
