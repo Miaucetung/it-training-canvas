@@ -10679,6 +10679,18 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     exhibit: { type: "cli", content: `RTR-1(config)#access-list 10 deny host 10.1.1.10\nRTR-1(config)#line vty 0 4\nRTR-1(config-line)#access-class 10 in\nRTR-1(config-line)#password cisco\nRTR-1(config-line)#login`, highlight: ["RTR-1(config-line)#access-class 10 in"] },
   },
   {
+    id: "q0665",
+    question: "How does MAC learning function?",
+    options: [
+      "sends the frame back to the source to verify availably",
+      "rewrites the source and destination MAC address",
+      "drops received MAC addresses not listed in the address table",
+      "adds unknown source MAC addresses to the CAM table",
+    ],
+    correct: 3,
+    exhibit: false,
+  },
+  {
     id: "q0666",
     question: "What is a function of Opportunistic Wireless Encryption in an environment?",
     options: [
@@ -12599,7 +12611,21 @@ copy run start`, highlight: ["cdp run"] }],
     "Enable traffic shaping for the LAN interface of the WLC."
     ],
     correct: [2, 3],
-    exhibit: { type: "cli", content: `Cat9300-1# show interface g1/0/1 switchport
+    exhibit: false,
+  },
+  {
+    id: "q0846",
+    question: "Refer to the exhibit. A network administrator configures an interface on a new switch so that it connects to interface Gi1/0/1 on switch Cat9300-1. Which configuration must be applied to the new interface?",
+    options: [
+      "switchport mode trunk\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100,200,300",
+      "switchport mode dynamic desirable\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100,200,300",
+      "switchport trunk encapsulation dot1q\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100-300",
+      "switchport nonegotiate\nswitchport access vlan 321\nswitchport trunk allowed vlan except 2-1001",
+    ],
+    correct: 0,
+    exhibit: {
+      type: "cli",
+      content: `Cat9300-1# show interface g1/0/1 switchport
 Name: Gi1/0/1
 Switchport: Enabled
 Administrative Mode: trunk
@@ -12611,7 +12637,12 @@ Access Mode VLAN: 1 (default)
 Trunking Native Mode VLAN: 321 (VLAN0321)
 Administrative Native VLAN tagging: enabled
 Trunking VLANs Enabled: 100,200,300
-Pruning VLANs Enabled: 2-1001`, highlight: ["Trunking Native Mode VLAN: 321 (VLAN0321)", "Trunking VLANs Enabled: 100,200,300"] },
+Pruning VLANs Enabled: 2-1001`,
+      highlight: [
+        "Trunking Native Mode VLAN: 321 (VLAN0321)",
+        "Trunking VLANs Enabled: 100,200,300",
+      ],
+    },
   },
   {
     id: "q0847",
@@ -16848,6 +16879,18 @@ S       10.10.0.0/22 is directly connected, GigabitEthernet0/0
 S       10.10.10.0/28 is directly connected, GigabitEthernet0/0
 S       10.10.10.1/32 is directly connected, GigabitEthernet0/0
 S*   0.0.0.0/0 is directly connected, GigabitEthernet0/0`, highlight: ["S       10.10.10.0/28 is directly connected, GigabitEthernet0/0"] },
+  },
+  {
+    id: "q1224",
+    question: "Which cable type must be used when connecting a router and switch together using these criteria?\n• Pins 1 and 2 are receivers and pins 3 and 6 are transmitters.\n• Auto detection MDI-X is unavailable.",
+    options: [
+      "crossover",
+      "rollover",
+      "console",
+      "straight-through",
+    ],
+    correct: 0,
+    exhibit: false,
   },
   {
     id: "q1226",

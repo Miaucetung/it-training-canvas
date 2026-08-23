@@ -17674,6 +17674,22 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "classifier_confidence": "medium"
   },
   {
+    "id": "Q0665",
+    "question": "How does MAC learning function?",
+    "options": [
+      "sends the frame back to the source to verify availably",
+      "rewrites the source and destination MAC address",
+      "drops received MAC addresses not listed in the address table",
+      "adds unknown source MAC addresses to the CAM table"
+    ],
+    "correct": 3,
+    "exhibit": false,
+    "blueprint_section": "2.1",
+    "blueprint_domain": "2.0",
+    "priority_score": 60,
+    "classifier_confidence": "high"
+  },
+  {
     "id": "Q0666",
     "question": "What is a function of Opportunistic Wireless Encryption in an environment?",
     "options": [
@@ -20784,6 +20800,22 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Enable traffic shaping for the LAN interface of the WLC."
     ],
     "correct": [2, 3],
+    "exhibit": false,
+    "blueprint_section": "2.9",
+    "blueprint_domain": "2.0",
+    "priority_score": 50,
+    "classifier_confidence": "low"
+  },
+  {
+    "id": "Q0846",
+    "question": "Refer to the exhibit. A network administrator configures an interface on a new switch so that it connects to interface Gi1/0/1 on switch Cat9300-1. Which configuration must be applied to the new interface?",
+    "options": [
+      "switchport mode trunk\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100,200,300",
+      "switchport mode dynamic desirable\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100,200,300",
+      "switchport trunk encapsulation dot1q\nswitchport trunk native vlan 321\nswitchport trunk allowed vlan 100-300",
+      "switchport nonegotiate\nswitchport access vlan 321\nswitchport trunk allowed vlan except 2-1001"
+    ],
+    "correct": 0,
     "exhibit": {
       "type": "cli",
       "content": "Cat9300-1# show interface g1/0/1 switchport\nName: Gi1/0/1\nSwitchport: Enabled\nAdministrative Mode: trunk\nOperational Mode: trunk\nAdministrative Trunking Encapsulation: dot1q\nOperational Trunking Encapsulation: dot1q\nNegotiation of Trunking: On\nAccess Mode VLAN: 1 (default)\nTrunking Native Mode VLAN: 321 (VLAN0321)\nAdministrative Native VLAN tagging: enabled\nTrunking VLANs Enabled: 100,200,300\nPruning VLANs Enabled: 2-1001",
@@ -20792,10 +20824,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
         "Trunking VLANs Enabled: 100,200,300"
       ]
     },
-    "blueprint_section": "2.9",
+    "blueprint_section": "2.4",
     "blueprint_domain": "2.0",
-    "priority_score": 50,
-    "classifier_confidence": "low"
+    "priority_score": 70,
+    "classifier_confidence": "high"
   },
   {
     "id": "Q0847",
@@ -29578,6 +29610,22 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
     "blueprint_domain": "3.0",
     "priority_score": 55,
     "classifier_confidence": "low"
+  },
+  {
+    "id": "Q1224",
+    "question": "Which cable type must be used when connecting a router and switch together using these criteria?\n• Pins 1 and 2 are receivers and pins 3 and 6 are transmitters.\n• Auto detection MDI-X is unavailable.",
+    "options": [
+      "crossover",
+      "rollover",
+      "console",
+      "straight-through"
+    ],
+    "correct": 0,
+    "exhibit": false,
+    "blueprint_section": "1.3",
+    "blueprint_domain": "1.0",
+    "priority_score": 55,
+    "classifier_confidence": "high"
   },
   {
     "id": "Q1226",

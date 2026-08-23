@@ -59,7 +59,10 @@ describe("buildQuestionPoolQuiz", () => {
 
   it("enthält alle Fragen aus dem Datensatz (1078)", () => {
     expect(quiz.questions).toHaveLength(ccnaQuestions.length);
-    expect(quiz.questions).toHaveLength(1078);
+    // 1078 -> 1081: Q0664(2), Q0846 und Q1224 waren bei der Extraktion
+    // verloren gegangen (Text war in die Nachbarfrage geleakt) und wurden
+    // aus dem Loesungs-PDF nachgetragen.
+    expect(quiz.questions).toHaveLength(1081);
   });
 
   it("behält Reihenfolge/Nummerierung bei (kein Shuffle)", () => {
