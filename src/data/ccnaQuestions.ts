@@ -15771,8 +15771,40 @@ FastEthernet0/0 is up, line protocol is up
     "bad NIC",
     "broadcast storm"
     ],
-    correct: 1,
-    exhibit: false,
+    correct: 2,
+    exhibit: {
+      type: "cli",
+      content: `R16# show interface fa0/0
+FastEthernet0/0 is up, line protocol is up
+  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+  Description: sanfrancisco_subnet
+  Internet address is 10.32.102.2/30
+  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (60 sec)
+  Full-duplex, 100 Mb/s, 100BaseTX/FX
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:01, output 00:00:00, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/300 (size/max)
+  30 second input rate 0 bits/sec, 0 packets/sec
+  30 second output rate 0 bits/sec, 0 packets/sec
+     7331 packets input, 7101162 bytes
+     Received 267 broadcasts (0 IP multicasts)
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 watchdog
+     0 input packets with dribble condition detected
+     3927 packets output, 1440403 bytes, 0 underruns
+     0 output errors, 0 collisions, 0 interface resets
+     0 unknown protocol drops
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out`,
+    },
   },
   {
     id: "q1192",
