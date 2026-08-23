@@ -4828,7 +4828,7 @@ Vlan   Mac Address      Type      Ports
     "Channel-group mode desirable.",
     "Channel-group mode active."
     ],
-    correct: 3,
+    correct: 1,
     exhibit: { type: "none" },
   },
   {
@@ -10670,12 +10670,12 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     id: "q0664",
     question: "Refer to the exhibit. An access list is created to deny Telnet access from host PC-1 to RTR-1 and allow access from all other hosts. A Telnet attempt from PC-2 gives this message: \"% Connection refused by remote host.\" Without allowing Telnet access from PC-1, which action must be taken to permit the traffic?",
     options: [
-    "Add the access-list 10 permit any command to the configuration. sends the frame back to the source to verify availably",
-    "Remove the access-class 10 in command from line vty 0 4 rewrites the source and destination MAC address",
-    "Add the ip access-group 10 out command to interface g0/0. drops received MAC addresses not listed in the address table",
-    "Remove the password command from line vty 0 4. Q0664 (2) How does MAC learning function? adds unknown source MAC addresses to the CAM table"
+    "Add the access-list 10 permit any command to the configuration.",
+    "Remove the access-class 10 in command from line vty 0 4",
+    "Add the ip access-group 10 out command to interface g0/0.",
+    "Remove the password command from line vty 0 4."
     ],
-    correct: [0, 3],
+    correct: 0,
     exhibit: { type: "cli", content: `RTR-1(config)#access-list 10 deny host 10.1.1.10\nRTR-1(config)#line vty 0 4\nRTR-1(config-line)#access-class 10 in\nRTR-1(config-line)#password cisco\nRTR-1(config-line)#login`, highlight: ["RTR-1(config-line)#access-class 10 in"] },
   },
   {
@@ -12592,13 +12592,13 @@ copy run start`, highlight: ["cdp run"] }],
     id: "q0845",
     question: "SIP-based Call Admission Control must be configured in the Cisco WLC GUI. SIP call-snooping ports are configured. Which two actions must be completed next? (Choose two.)",
     options: [
-    "Set the QoS level to silver or greater for voice traffic. switchport mode trunk",
-    "Configure two different QoS roles for data and voice traffic. switchport mode dynamic desirable",
-    "Enable Media Session Snooping on the WLAN. switchport trunk encapsulation dot1q",
-    "Set the QoS level to platinum for voice traffic. switchport nonegotiate",
-    "Enable traffic shaping for the LAN interface of the WLC. Q0846 Nachfragen Refer to the exhibit. A network administrator configures an interface on a new switch so that it connects to interface Gi1/0/1 on switch Cat9300-1. Which configuration must be applied to the new interface? switchport trunk native vlan 321 switchport trunk allowed vlan 100,200,300 switchport trunk native vlan 321 switchport trunk allowed vian 100,200,300 switchport trunk native vlan 321 switchport trunk allowed vlan 100-300 switchport access vlan 321 switchport trunk allowed vlan except 2-1001"
+    "Set the QoS level to silver or greater for voice traffic.",
+    "Configure two different QoS roles for data and voice traffic.",
+    "Enable Media Session Snooping on the WLAN.",
+    "Set the QoS level to platinum for voice traffic.",
+    "Enable traffic shaping for the LAN interface of the WLC."
     ],
-    correct: [2, 3, 0],
+    correct: [2, 3],
     exhibit: { type: "cli", content: `Cat9300-1# show interface g1/0/1 switchport
 Name: Gi1/0/1
 Switchport: Enabled
@@ -16832,12 +16832,12 @@ VLAN  Name                             Status    Ports
     id: "q1223",
     question: "Refer to the exhibit. Which IP route command created the best path for a packet destined for 10.10.10.3?",
     options: [
-    "ip route 10.10.0.0 255.255.252.0 g0/0 crossover",
-    "ip route 10.10.10.0 255.255.255.240 g0/0 rollover",
-    "ip route 10.0.0.0 255.0.0.0 g0/0 console",
-    "ip route 10.10.10.1 255.255.255.255 g0/0 Q1224 Nachfragen Which cable type must be used when connecting a router and switch together using these criteria? • Pins 1 and 2 are receivers and pins 3 and 6 are transmitters. • Auto detection MDI-X is unavailable. straight-through"
+    "ip route 10.10.0.0 255.255.252.0 g0/0",
+    "ip route 10.10.10.0 255.255.255.240 g0/0",
+    "ip route 10.0.0.0 255.0.0.0 g0/0",
+    "ip route 10.10.10.1 255.255.255.255 g0/0"
     ],
-    correct: [1, 0],
+    correct: 1,
     exhibit: { type: "cli", content: `Gateway of last resort is 0.0.0.0 to network 0.0.0.0
 
  10.0.0.0/8 is variably subnetted, 6 subnets, 5 masks
@@ -16868,20 +16868,10 @@ S*   0.0.0.0/0 is directly connected, GigabitEthernet0/0`, highlight: ["S       
     "Subnet Mask",
     "DNS Servers",
     "Default Gateway",
-    "DHCP Servers •"
+    "DHCP Servers"
     ],
-    correct: 0,
-    exhibit: [{ type: "topology", devices: [{ id: "isp", type: "cloud", label: "Internet", x: 100, y: 150 }, { id: "r1", type: "router", label: "Router (10.2.2.1/27)", x: 400, y: 150 }, { id: "sw", type: "switch", label: "SW", x: 700, y: 150 }, { id: "pc", type: "pc", label: "PC (10.2.2.2)", x: 1000, y: 150 }], links: [{ from: "isp", to: "r1" }, { from: "r1", to: "sw" }, { from: "sw", to: "pc" }] }, { type: "cli", content: `C:\\>ipconfig /all
-Ethernet adapter Ethernet:
-   Connection-specific DNS Suffix  . :
-   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F
-   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)
-   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)
-   Subnet Mask . . . . . . . . . . . : 255.255.255.192
-   Default Gateway . . . . . . . . . : 10.2.2.1
-   DHCP Server . . . . . . . . . . . : 192.168.1.15
-   DNS Servers . . . . . . . . . . . : 8.8.8.8
-   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   Subnet Mask . . . . . . . . . . . : 255.255.255.192"] }],
+    correct: 2,
+    exhibit: [{ type: "topology", devices: [{ id: "isp", type: "cloud", label: "Internet", x: 100, y: 150 }, { id: "r1", type: "router", label: "Router", x: 350, y: 150 }, { id: "sw", type: "switch", label: "Switch", x: 600, y: 150 }, { id: "pc", type: "pc", label: "PC", x: 850, y: 150 }], links: [{ from: "isp", to: "r1" }, { from: "r1", to: "sw", subnet: "10.2.2.0/29" }, { from: "sw", to: "pc", labelTo: "10.2.2.2" }] }, { type: "cli", content: "C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Connection-specific DNS Suffix  . :\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.248\n   Default Gateway . . . . . . . . . : 10.2.2.10\n   DHCP Server . . . . . . . . . . . : 0.0.0.0\n   DNS Servers . . . . . . . . . . . : 8.8.8.8\n   NetBIOS over Tcpip. . . . . . . . : Enabled" }],
   },
   {
     id: "q1229",

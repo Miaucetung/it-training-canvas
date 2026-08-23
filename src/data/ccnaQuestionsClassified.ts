@@ -7854,16 +7854,9 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Channel-group mode passive.",
       "Channel-group mode on.",
       "Channel-group mode desirable.",
-      "Channel-group mode active. Q 0326 Topic Refer to the exhibit. Which switch become the root of a spanning tree for VLAN 20 if all links are of equal speed?",
-      "SW1",
-      "SW2",
-      "SW3",
-      "SW4"
+      "Channel-group mode active."
     ],
-    "correct": [
-      0,
-      1
-    ],
+    "correct": 1,
     "exhibit": {
       "type": "none"
     },
@@ -17665,16 +17658,9 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Add the access-list 10 permit any command to the configuration.",
       "Remove the access-class 10 in command from line vty 0 4",
       "Add the ip access-group 10 out command to interface g0/0.",
-      "Remove the password command from line vty 0 4. How does MAC learning function?",
-      "sends the frame back to the source to verify availably",
-      "rewrites the source and destination MAC address",
-      "drops received MAC addresses not listed in the address table",
-      "adds unknown source MAC addresses to the CAM table"
+      "Remove the password command from line vty 0 4."
     ],
-    "correct": [
-      0,
-      3
-    ],
+    "correct": 0,
     "exhibit": {
       "type": "cli",
       "content": "RTR-1(config)#access-list 10 deny host 10.1.1.10\nRTR-1(config)#line vty 0 4\nRTR-1(config-line)#access-class 10 in\nRTR-1(config-line)#password cisco\nRTR-1(config-line)#login",
@@ -20795,17 +20781,9 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Configure two different QoS roles for data and voice traffic.",
       "Enable Media Session Snooping on the WLAN.",
       "Set the QoS level to platinum for voice traffic.",
-      "Enable traffic shaping for the LAN interface of the WLC. Refer to the exhibit. A network administrator configures an interface on a new switch so that it connects to interface Gi1/0/1 on switch Cat9300-1. Which configuration must be applied to the new interface?",
-      "switchport mode trunk switchport trunk native vlan 321 switchport trunk allowed vlan 100,200,300",
-      "switchport mode dynamic desirable switchport trunk native vlan 321 switchport trunk allowed vian 100,200,300",
-      "switchport trunk encapsulation dot1q switchport trunk native vlan 321 switchport trunk allowed vlan 100-300",
-      "switchport nonegotiate switchport access vlan 321 switchport trunk allowed vlan except 2-1001"
+      "Enable traffic shaping for the LAN interface of the WLC."
     ],
-    "correct": [
-      0,
-      2,
-      3
-    ],
+    "correct": [2, 3],
     "exhibit": {
       "type": "cli",
       "content": "Cat9300-1# show interface g1/0/1 switchport\nName: Gi1/0/1\nSwitchport: Enabled\nAdministrative Mode: trunk\nOperational Mode: trunk\nAdministrative Trunking Encapsulation: dot1q\nOperational Trunking Encapsulation: dot1q\nNegotiation of Trunking: On\nAccess Mode VLAN: 1 (default)\nTrunking Native Mode VLAN: 321 (VLAN0321)\nAdministrative Native VLAN tagging: enabled\nTrunking VLANs Enabled: 100,200,300\nPruning VLANs Enabled: 2-1001",
@@ -29586,16 +29564,9 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "ip route 10.10.0.0 255.255.252.0 g0/0",
       "ip route 10.10.10.0 255.255.255.240 g0/0",
       "ip route 10.0.0.0 255.0.0.0 g0/0",
-      "ip route 10.10.10.1 255.255.255.255 g0/0 Which cable type must be used when connecting a router and switch together using these criteria? • Pins 1 and 2 are receivers and pins 3 and 6 are transmitters. • Auto detection MDI-X is unavailable.",
-      "crossover",
-      "rollover",
-      "console",
-      "straight-through"
+      "ip route 10.10.10.1 255.255.255.255 g0/0"
     ],
-    "correct": [
-      0,
-      1
-    ],
+    "correct": 1,
     "exhibit": {
       "type": "cli",
       "content": "Gateway of last resort is 0.0.0.0 to network 0.0.0.0\n\n 10.0.0.0/8 is variably subnetted, 6 subnets, 5 masks\nS       10.0.0.0/8 is directly connected, GigabitEthernet0/0\nC       10.1.1.0/24 is directly connected, GigabitEthernet0/0\nL       10.1.1.1/32 is directly connected, GigabitEthernet0/0\nS       10.10.0.0/22 is directly connected, GigabitEthernet0/0\nS       10.10.10.0/28 is directly connected, GigabitEthernet0/0\nS       10.10.10.1/32 is directly connected, GigabitEthernet0/0\nS*   0.0.0.0/0 is directly connected, GigabitEthernet0/0",
@@ -29631,9 +29602,9 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Subnet Mask",
       "DNS Servers",
       "Default Gateway",
-      "DHCP Servers •"
+      "DHCP Servers"
     ],
-    "correct": 0,
+    "correct": 2,
     "exhibit": [
       {
         "type": "topology",
@@ -29648,22 +29619,22 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
           {
             "id": "r1",
             "type": "router",
-            "label": "Router (10.2.2.1/27)",
-            "x": 400,
+            "label": "Router",
+            "x": 350,
             "y": 150
           },
           {
             "id": "sw",
             "type": "switch",
-            "label": "SW",
-            "x": 700,
+            "label": "Switch",
+            "x": 600,
             "y": 150
           },
           {
             "id": "pc",
             "type": "pc",
-            "label": "PC (10.2.2.2)",
-            "x": 1000,
+            "label": "PC",
+            "x": 850,
             "y": 150
           }
         ],
@@ -29674,20 +29645,19 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
           },
           {
             "from": "r1",
-            "to": "sw"
+            "to": "sw",
+            "subnet": "10.2.2.0/29"
           },
           {
             "from": "sw",
-            "to": "pc"
+            "to": "pc",
+            "labelTo": "10.2.2.2"
           }
         ]
       },
       {
         "type": "cli",
-        "content": "C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Connection-specific DNS Suffix  . :\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.192\n   Default Gateway . . . . . . . . . : 10.2.2.1\n   DHCP Server . . . . . . . . . . . : 192.168.1.15\n   DNS Servers . . . . . . . . . . . : 8.8.8.8\n   NetBIOS over Tcpip. . . . . . . . : Enabled",
-        "highlight": [
-          "   Subnet Mask . . . . . . . . . . . : 255.255.255.192"
-        ]
+        "content": "C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Connection-specific DNS Suffix  . :\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.248\n   Default Gateway . . . . . . . . . : 10.2.2.10\n   DHCP Server . . . . . . . . . . . : 0.0.0.0\n   DNS Servers . . . . . . . . . . . : 8.8.8.8\n   NetBIOS over Tcpip. . . . . . . . : Enabled"
       }
     ],
     "blueprint_section": "1.10",
