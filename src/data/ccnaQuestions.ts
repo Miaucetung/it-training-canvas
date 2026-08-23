@@ -14887,7 +14887,13 @@ Group  Port-channel  Protocol    Ports
     "F0/9"
     ],
     correct: 2,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `D    10.10.20.64/27 [90/6881] via F0/12
+D    10.10.20.64/27 [90/43618] via F0/5
+R    10.10.20.64/27 [120/7] via F0/9
+R    10.10.20.64/27 [120/3] via F0/6`,
+    },
   },
   {
     id: "q1070",
@@ -15407,7 +15413,13 @@ FastEthernet0/0 is up, line protocol is up
     "G0/11"
     ],
     correct: 1,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `O    10.139.120.253/29 [110/9443] via G0/20
+O    10.139.120.253/29 [110/29560] via G0/16
+R    10.139.120.253/29 [120/12] via G0/11
+R    10.139.120.253/29 [120/6] via G0/9`,
+    },
   },
   {
     id: "q1122",
@@ -15606,7 +15618,13 @@ FastEthernet0/0 is up, line protocol is up
     "G0/1"
     ],
     correct: 1,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `D    10.148.172.22/27 [90/10259] via G0/24
+D    10.148.172.22/27 [90/47955] via G0/10
+R    10.148.172.22/27 [120/14] via G0/5
+R    10.148.172.22/27 [120/1] via G0/1`,
+    },
   },
   {
     id: "q1146",
@@ -15888,7 +15906,13 @@ FastEthernet0/0 is up, line protocol is up
     "G0/16"
     ],
     correct: 3,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `D    10.245.54.69/29 [90/9388] via G0/16
+D    10.245.54.69/29 [90/50147] via G0/21
+R    10.245.54.69/29 [120/15] via G0/5
+R    10.245.54.69/29 [120/13] via G0/4`,
+    },
   },
   {
     id: "q1189",
@@ -16910,7 +16934,13 @@ B       10.226.34.0/24 [20/0] via 10.224.1.5, 5d18h`, highlight: ["B       10.22
     "G0/23"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `O    10.18.75.113/27 [110/6906] via G0/6
+O    10.18.75.113/27 [110/23018] via G0/3
+R    10.18.75.113/27 [120/16] via G0/16
+R    10.18.75.113/27 [120/14] via G0/23`,
+    },
   },
   {
     id: "q1278",

@@ -26259,7 +26259,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "F0/9"
     ],
     "correct": 2,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "D    10.10.20.64/27 [90/6881] via F0/12\nD    10.10.20.64/27 [90/43618] via F0/5\nR    10.10.20.64/27 [120/7] via F0/9\nR    10.10.20.64/27 [120/3] via F0/6"
+    },
     "blueprint_section": "3.2.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -27145,7 +27148,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "G0/11"
     ],
     "correct": 1,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "O    10.139.120.253/29 [110/9443] via G0/20\nO    10.139.120.253/29 [110/29560] via G0/16\nR    10.139.120.253/29 [120/12] via G0/11\nR    10.139.120.253/29 [120/6] via G0/9"
+    },
     "blueprint_section": "3.2.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -27547,7 +27553,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "G0/1"
     ],
     "correct": 1,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "D    10.148.172.22/27 [90/10259] via G0/24\nD    10.148.172.22/27 [90/47955] via G0/10\nR    10.148.172.22/27 [120/14] via G0/5\nR    10.148.172.22/27 [120/1] via G0/1"
+    },
     "blueprint_section": "3.2.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -28058,7 +28067,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "G0/16"
     ],
     "correct": 3,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "D    10.245.54.69/29 [90/9388] via G0/16\nD    10.245.54.69/29 [90/50147] via G0/21\nR    10.245.54.69/29 [120/15] via G0/5\nR    10.245.54.69/29 [120/13] via G0/4"
+    },
     "blueprint_section": "3.2.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -30437,7 +30449,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "G0/23"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "O    10.18.75.113/27 [110/6906] via G0/6\nO    10.18.75.113/27 [110/23018] via G0/3\nR    10.18.75.113/27 [120/16] via G0/16\nR    10.18.75.113/27 [120/14] via G0/23"
+    },
     "blueprint_section": "3.2.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,

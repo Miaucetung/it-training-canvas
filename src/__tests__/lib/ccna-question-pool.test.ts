@@ -76,12 +76,15 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (340)", () => {
+  it("Anzahl Exhibit-Fragen stimmt (345)", () => {
     // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
     // Konfigurationen stehen vollständig in den Antwortoptionen.
     // 333 -> 340: "Which interface condition is occurring in this output?"
     // existiert 7x (q1095, q1099, q1117, q1131, q1189, q1259, q1296) und hatte
     // in allen Varianten kein Exhibit — show-interface-Output nachgetragen.
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(340);
+    // 340 -> 345: "Which interface is used to send traffic to the destination
+    // network?" existiert 5x (q1069, q1121, q1145, q1184, q1276) und hatte in
+    // allen Varianten kein Exhibit — Routing-Tabelle nachgetragen.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(345);
   });
 });
