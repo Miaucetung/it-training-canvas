@@ -9897,8 +9897,8 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Default Gateway",
     "DHCP Servers"
     ],
-    correct: 1,
-    exhibit: [{ type: "topology", devices: [{ id: "net", type: "cloud", label: "Internet", x: 100, y: 130 }, { id: "r1", type: "router", label: "Router", x: 300, y: 130 }, { id: "sw", type: "switch", label: "Switch", x: 480, y: 130 }, { id: "pc", type: "pc", label: "PC", x: 660, y: 130 }], links: [{ from: "net", to: "r1" }, { from: "r1", to: "sw", labelFrom: "10.2.2.1/29" }, { from: "sw", to: "pc", labelTo: "10.2.2.2" }] }, { type: "cli", content: `C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.248\n   Default Gateway . . . . . . . . . : 10.2.2.1\n   DHCP Server . . . . . . . . . . . : 0.0.0.0\n   DNS Servers . . . . . . . . . . . : 0.0.0.0\n   NetBIOS over Tcpip. . . . . . . . : Enabled`, highlight: ["   DNS Servers . . . . . . . . . . . : 0.0.0.0"] }],
+    correct: 2,
+    exhibit: [{ type: "topology", devices: [{ id: "net", type: "cloud", label: "Internet", x: 100, y: 130 }, { id: "r1", type: "router", label: "Router", x: 300, y: 130 }, { id: "sw", type: "switch", label: "Switch", x: 480, y: 130 }, { id: "pc", type: "pc", label: "PC", x: 660, y: 130 }], links: [{ from: "net", to: "r1" }, { from: "r1", to: "sw", subnet: "10.2.2.0/29" }, { from: "sw", to: "pc", labelTo: "10.2.2.2" }] }, { type: "cli", content: "C:\\>ipconfig /all\nEthernet adapter Ethernet:\n   Connection-specific DNS Suffix  . :\n   Physical Address. . . . . . . . . : F8-75-A4-3B-AB-4F\n   Link-local IPv6 Address . . . . . : fe80::644a:b01:3e5f:ae6%14(Preferred)\n   IPv4 Address. . . . . . . . . . . : 10.2.2.2(Preferred)\n   Subnet Mask . . . . . . . . . . . : 255.255.255.248\n   Default Gateway . . . . . . . . . : 10.2.2.10\n   DHCP Server . . . . . . . . . . . : 0.0.0.0\n   DNS Servers . . . . . . . . . . . : 8.8.8.8\n   NetBIOS over Tcpip. . . . . . . . : Enabled" }],
   },
   {
     id: "q0594",
@@ -15509,34 +15509,34 @@ R    10.10.20.64/27 [120/3] via F0/6`,
       type: "cli",
       content: `R16# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: sanfrancisco_subnet
+Internet address is 10.32.102.2/30
+MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 1/255, rxload 1/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters never
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 0 bits/sec, 0 packets/sec
+30 second output rate 0 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -15580,43 +15580,43 @@ FastEthernet0/0 is up, line protocol is up
     question: "Which interface condition is occurring in this output?",
     options: [
     "broadcast storm",
-    "bad NIC",
+    "duplex mismatch",
     "high throughput",
     "queueing"
     ],
-    correct: 1,
+    correct: 2,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R43# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: munich_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 255/255, rxload 255/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters never
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 200234873 bits/sec, 0 packets/sec
+30 second output rate 233830309 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -15758,43 +15758,43 @@ Switch2(config-if)#switchport trunk allowed vlan 5,10`, highlight: ["Switch2(con
     question: "Which interface condition is occurring in this output?",
     options: [
     "broadcast storm",
-    "bad NIC",
+    "collisions",
     "high throughput",
     "duplex mismatch"
     ],
-    correct: 1,
+    correct: 2,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R45# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: atlanta_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 255/255, rxload 255/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters never
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 234712855 bits/sec, 0 packets/sec
+30 second output rate 228528957 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -15939,44 +15939,44 @@ Ethernet adapter Ethernet:
     id: "q1131",
     question: "Which interface condition is occurring in this output?",
     options: [
-    "bad NIC",
+    "collisions",
     "broadcast storm",
     "duplex mismatch",
     "queueing"
     ],
-    correct: 0,
+    correct: 2,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R7# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: admin_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 1/255, rxload 1/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Half-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters never
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 0 bits/sec, 0 packets/sec
+30 second output rate 0 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 119 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -16355,39 +16355,39 @@ R    10.245.54.69/29 [120/13] via G0/4`,
     "bad NIC",
     "broadcast storm"
     ],
-    correct: 2,
+    correct: 1,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R36# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: sanfrancisco_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 255/255, rxload 255/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters never
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 217244011 bits/sec, 0 packets/sec
+30 second output rate 236536306 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -17198,39 +17198,39 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "bad NIC",
     "duplex mismatch"
     ],
-    correct: 2,
+    correct: 1,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R9# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: atlanta_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 1/255, rxload 1/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters 00:00:18
+Input queue: 175/300/0/0 (size/max/drops/flushes); Total output drops: 100
+Queueing strategy: fifo
+Output queue: 50/300 (size/max)
+30 second input rate 0 bits/sec, 0 packets/sec
+30 second output rate 0 bits/sec, 0 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
@@ -17535,39 +17535,39 @@ Fa0/1                notconnect   1          a-full  a-100 10/100BaseTX`, highli
     "duplex mismatch",
     "high throughput"
     ],
-    correct: 0,
+    correct: 3,
     exhibit: {
       type: "cli",
-      content: `R16# show interface fa0/0
+      content: `R18# show interface fa0/0
 FastEthernet0/0 is up, line protocol is up
-  Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
-  Description: sanfrancisco_subnet
-  Internet address is 10.32.102.2/30
-  MTU 1397 bytes, BW 100000 Kbit/sec, DLY 100 usec,
-     reliability 255/255, txload 1/255, rxload 1/255
-  Encapsulation ARPA, loopback not set
-  Keepalive set (60 sec)
-  Full-duplex, 100 Mb/s, 100BaseTX/FX
-  ARP type: ARPA, ARP Timeout 04:00:00
-  Last input 00:00:01, output 00:00:00, output hang never
-  Last clearing of "show interface" counters never
-  Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
-  Queueing strategy: fifo
-  Output queue: 0/300 (size/max)
-  30 second input rate 0 bits/sec, 0 packets/sec
-  30 second output rate 0 bits/sec, 0 packets/sec
-     7331 packets input, 7101162 bytes
-     Received 267 broadcasts (0 IP multicasts)
-     0 runts, 0 giants, 0 throttles
-     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
-     0 watchdog
-     0 input packets with dribble condition detected
-     3927 packets output, 1440403 bytes, 0 underruns
-     0 output errors, 0 collisions, 0 interface resets
-     0 unknown protocol drops
-     0 babbles, 0 late collision, 0 deferred
-     0 lost carrier, 0 no carrier
-     0 output buffer failures, 0 output buffers swapped out`,
+Hardware is DEC21140, address is ca02.7788.0000 (bia ca02.7788.0000)
+Description: dallas_subnet
+Internet address is 10.32.102.2/30
+MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+reliability 255/255, txload 255/255, rxload 255/255
+Encapsulation ARPA, loopback not set
+Keepalive set (60 sec)
+Full-duplex, 100 Mb/s, 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 00:00:01, output 00:00:00, output hang never
+Last clearing of "show interface" counters 00:00:18
+Input queue: 0/300/0/0 (size/max/drops/flushes); Total output drops: 0
+Queueing strategy: fifo
+Output queue: 0/300 (size/max)
+30 second input rate 230000000 bits/sec, 40 packets/sec
+30 second output rate 200000000 bits/sec, 40 packets/sec
+7331 packets input, 7101162 bytes
+Received 267 broadcasts (0 IP multicasts)
+0 runts, 0 giants, 0 throttles
+0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+0 watchdog
+0 input packets with dribble condition detected
+3927 packets output, 1440403 bytes, 0 underruns
+0 output errors, 0 collisions, 0 interface resets
+0 unknown protocol drops
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out`,
     },
   },
   {
