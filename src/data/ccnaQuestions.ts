@@ -2595,7 +2595,12 @@ Group   Port-channel   Protocol   Ports
     "The phone and a workstation that is connected to the phone send and receive data in VLAN 50."
     ],
     correct: 1,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `interface GigabitEthernet3/1/4
+ switchport voice vlan 50
+!`,
+    },
   },
   {
     id: "q0203",
@@ -2681,7 +2686,76 @@ interface GigabitEthernet0/1
     "VLAN 20"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          {
+            id: "sw1",
+            type: "switch",
+            label: "SW1",
+            x: 90,
+            y: 70,
+          },
+          {
+            id: "sw2",
+            type: "switch",
+            label: "SW2",
+            x: 380,
+            y: 70,
+          },
+          {
+            id: "pca",
+            type: "pc",
+            label: "PC A",
+            x: 90,
+            y: 300,
+          },
+          {
+            id: "pcb",
+            type: "pc",
+            label: "PC B",
+            x: 380,
+            y: 300,
+          },
+        ],
+        links: [
+          {
+            from: "sw1",
+            to: "sw2",
+          },
+          {
+            from: "sw1",
+            to: "pca",
+          },
+          {
+            from: "sw2",
+            to: "pcb",
+            labelFrom: "F0/0",
+          },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1
+interface FastEthernet0/0
+    switchport mode access
+    switchport access vlan 5
+interface FastEthernet0/1
+    switchport mode trunk
+    switchport trunk allow vlan 5-20
+    switchport trunk native vlan 10
+
+SW2
+interface FastEthernet0/0
+    switchport mode access
+    switchport access vlan 5
+interface FastEthernet0/1
+    switchport mode trunk
+    switchport trunk allow vlan 5-20
+    switchport trunk native vlan 10`,
+      },
+    ],
   },
   {
     id: "q0210",
@@ -2732,7 +2806,79 @@ interface GigabitEthernet0/1
     "It sends the traffic to VLAN 1."
     ],
     correct: [1, 2],
-    exhibit: false,
+    exhibit: [
+      {
+        type: "topology",
+        devices: [
+          {
+            id: "sw1",
+            type: "switch",
+            label: "SW1",
+            x: 90,
+            y: 70,
+          },
+          {
+            id: "sw2",
+            type: "switch",
+            label: "SW2",
+            x: 380,
+            y: 70,
+          },
+          {
+            id: "pca",
+            type: "pc",
+            label: "PC A",
+            x: 90,
+            y: 300,
+          },
+          {
+            id: "pcb",
+            type: "pc",
+            label: "PC B",
+            x: 380,
+            y: 300,
+          },
+        ],
+        links: [
+          {
+            from: "sw1",
+            to: "sw2",
+            labelFrom: "F0/1",
+            labelTo: "F0/1",
+          },
+          {
+            from: "sw1",
+            to: "pca",
+            labelFrom: "F0/0",
+          },
+          {
+            from: "sw2",
+            to: "pcb",
+            labelFrom: "F0/0",
+          },
+        ],
+      },
+      {
+        type: "cli",
+        content: `SW1
+interface FastEthernet0/0
+    switchport mode access
+    switchport access vlan 5
+interface FastEthernet0/1
+    switchport mode trunk
+    switchport trunk allow vlan 5-20
+    switchport trunk native vlan 10
+
+SW2
+interface FastEthernet0/0
+    switchport mode access
+    switchport access vlan 5
+interface FastEthernet0/1
+    switchport mode trunk
+    switchport trunk allow vlan 5-20
+    switchport trunk native vlan 100`,
+      },
+    ],
   },
   {
     id: "q0214",
@@ -4719,7 +4865,17 @@ Vlan   Mac Address      Type      Ports
     "Disable auto-negotiation."
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `interface gigabitethernet0/0
+ description Circuit-ATT4139-84320
+ duplex full
+ speed 1000
+ media-type gbic
+ negotiation auto
+ lldp transmit
+ lldp receive`,
+    },
   },
   {
     id: "q0331",
@@ -5839,7 +5995,29 @@ router bgp 100
     "120"
     ],
     correct: 1,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `R1#show ip route
+Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route
+
+Gateway of last resort is 192.168.14.4 to network 0.0.0.0
+
+C    192.168.12.0/24 is directly connected, FastEthernet0/0
+C    192.168.13.0/24 is directly connected, FastEthernet0/1
+C    192.168.14.0/24 is directly connected, FastEthernet1/0
+     192.168.10.0/16 is variably subnetted, 3 subnets, 3 masks
+O       192.168.10.0/24 [110/2] via 192.168.14.4, 00:02:01, FastEthernet1/0
+O       192.168.10.32/27 [110/11] via 192.168.13.3, 00:00:52, FastEthernet0/1
+O       192.168.0.0/16 [110/2] via 192.168.15.5, 00:05:01, FastEthernet1/1
+D       192.168.10.1/32 [90/52778] via 192.168.12.2, 00:03:44, FastEthernet0/0
+O*E2 0.0.0.0/0 [110/1] via 192.168.14.4, 00:00:10, FastEthernet1/0`,
+    },
   },
   {
     id: "q0390",
@@ -6149,7 +6327,24 @@ network 10.0.0.0                                network 10.0.0.0`,
     "The OSPF process ID numbers must match."
     ],
     correct: 3,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `R1:  Ethernet0 is up, line protocol is up
+       Internet address is 192.168.1.2/24, Area 0
+       Process ID 1, Router ID 192.168.31.33, Network Type BROADCAST, Cost: 10
+       Transmit Delay is 1 sec, State DR, Priority 1
+       Designated Router (ID) 192.168.31.33, Interface address 192.168.1.2
+       No backup designated router on this network
+       Timer intervals configured, Hello 5, Dead 20, Wait 20, Retransmit 5
+
+R2:  Ethernet0 is up, line protocol is up
+       Internet address is 192.168.1.2/24, Area 0
+       Process ID 2, Router ID 192.168.31.11, Network Type BROADCAST, Cost: 10
+       Transmit Delay is 1 sec, State DR, Priority 1
+       Designated Router (ID) 192.168.31.11, Interface address 192.168.1.1
+       No backup designated router on this network
+       Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5`,
+    },
   },
   {
     id: "q0404",
@@ -6649,7 +6844,49 @@ L        10.13.0.2/32 is directly connected, GigabitEthernet0/1`,
     "R1 and R3 are configured in different areas."
     ],
     correct: [3, 5],
-    exhibit: false,
+    exhibit: {
+      type: "topology",
+      devices: [
+        {
+          id: "r1",
+          type: "router",
+          label: "R1",
+          x: 70,
+          y: 130,
+        },
+        {
+          id: "r2",
+          type: "router",
+          label: "R2",
+          x: 280,
+          y: 130,
+        },
+        {
+          id: "r3",
+          type: "router",
+          label: "R3",
+          x: 490,
+          y: 130,
+        },
+      ],
+      links: [
+        {
+          from: "r1",
+          to: "r2",
+        },
+        {
+          from: "r2",
+          to: "r3",
+        },
+      ],
+      labels: [
+        {
+          text: "OSPF Area 0",
+          attachTo: "r2",
+          position: "above",
+        },
+      ],
+    },
   },
   {
     id: "q0428",
@@ -8532,7 +8769,81 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "Router ospf 100 Network 10.120.10.0 255.255.255.0 area 0"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "topology",
+      devices: [
+        {
+          id: "r14",
+          type: "router",
+          label: "R14",
+          x: 170,
+          y: 110,
+        },
+        {
+          id: "r86",
+          type: "router",
+          label: "R86",
+          x: 520,
+          y: 110,
+        },
+        {
+          id: "lan1",
+          type: "cloud",
+          label: "10.120.10.0/24",
+          x: 170,
+          y: 330,
+        },
+        {
+          id: "pc10",
+          type: "pc",
+          label: "PC 10",
+          x: 520,
+          y: 330,
+        },
+      ],
+      links: [
+        {
+          from: "r14",
+          to: "r86",
+          labelFrom: "Fa0/0 .65",
+          labelTo: ".66 Fa0/0",
+          subnet: "10.73.65.64/30",
+        },
+        {
+          from: "r14",
+          to: "lan1",
+          labelFrom: "Fa0/1",
+        },
+        {
+          from: "r86",
+          to: "pc10",
+          labelFrom: "Fa0/1",
+          subnet: "10.80.65.0/29",
+        },
+      ],
+      labels: [
+        {
+          text: "OSPF 100 / Area 0",
+          attachTo: "r86",
+          position: "above",
+        },
+        {
+          text: "Loopback0: 10.10.1.14/32",
+          attachTo: "r14",
+          position: "left",
+        },
+        {
+          text: "Loopback0: 10.10.1.86/32",
+          attachTo: "r86",
+          position: "right",
+        },
+        {
+          text: ".10",
+          attachTo: "pc10",
+          position: "above",
+        },
+      ],
+    },
   },
   {
     id: "q0500",
@@ -10742,7 +11053,58 @@ Neighbor ID  Pri  State      Dead Time  Address       Interface
     "interface gi1/0/15 switchport port-security mac-address 0000.abcd.0004 vlan 100 interface switchport secure-mac limit 2"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "topology",
+      devices: [
+        {
+          id: "sw1",
+          type: "switch",
+          label: "SW1",
+          x: 130,
+          y: 90,
+        },
+        {
+          id: "sw2",
+          type: "switch",
+          label: "SW2",
+          x: 520,
+          y: 90,
+        },
+        {
+          id: "pc1",
+          type: "pc",
+          label: "PC1",
+          x: 130,
+          y: 320,
+        },
+      ],
+      links: [
+        {
+          from: "sw1",
+          to: "sw2",
+          labelFrom: "Gi0/0/1",
+          labelTo: "Gi0/0/1",
+          subnet: "802.1q — VLANs 1, 100, 101, 102, 103",
+        },
+        {
+          from: "sw1",
+          to: "pc1",
+          labelFrom: "Gi1/0/15",
+        },
+      ],
+      labels: [
+        {
+          text: "VLAN 100 — MAC: 0000.abcd.0004",
+          attachTo: "pc1",
+          position: "below",
+        },
+        {
+          text: "Lobby Conference Room (Access port)",
+          attachTo: "sw2",
+          position: "below",
+        },
+      ],
+    },
   },
   {
     id: "q0703",
@@ -14815,7 +15177,14 @@ Group  Port-channel  Protocol    Ports
     "key"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"load balancer": "LB20", "interface": "te4/3"},
+3 {"firewall": "FW49", "interface": "ge4/14"},
+4 {"IDS": "IPS_frankfurt", "interface": "e9/7"}
+5 ]`,
+    },
   },
   {
     id: "q1063",
@@ -14827,7 +15196,14 @@ Group  Port-channel  Protocol    Ports
     "value"
     ],
     correct: 2,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"firewall": "FW24", "interface": "fe1/34"},
+3 {"switch": "SWseattle", "interface": "ge8/21"},
+4 {"IDS": "IPSsydney", "interface": "te2/43"}
+5 ]`,
+    },
   },
   {
     id: "q1064",
@@ -14839,7 +15215,14 @@ Group  Port-channel  Protocol    Ports
     "key"
     ],
     correct: 3,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"firewall": "FW_portland", "port": "e2/5"},
+3 {"IDS": "IPS31", "port": "ge0/28"},
+4 {"load balancer": "LB48", "port": "fe0/43"}
+5 ]`,
+    },
   },
   {
     id: "q1065",
@@ -14851,7 +15234,14 @@ Group  Port-channel  Protocol    Ports
     "value"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"switch": "SWbarcelona", "interface": "ge1/40"},
+3 {"firewall": "FWamsterdam", "interface": "fe21"},
+4 {"router": "R_frankfurt", "interface": "te8/30"}
+5 ]`,
+    },
   },
   {
     id: "q1066",
@@ -14863,7 +15253,14 @@ Group  Port-channel  Protocol    Ports
     "object"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"router": "R_pittsburgh", "port": "te6/21"},
+3 {"VPN concentrator": "VPN47", "port": "e6/37"},
+4 {"firewall": "FW28", "port": "ge7/42"}
+5 ]`,
+    },
   },
   {
     id: "q1067",
@@ -15027,7 +15424,14 @@ R    10.10.20.64/27 [120/3] via F0/6`,
     "value"
     ],
     correct: 3,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"VPN concentrator": "VPN11", "port":"fe7/12"},
+3 {"router": "Radmin", "port":"e5/1"},
+4 {"switch": "SWbangkok", "port":"ge6/6"}
+5 ]`,
+    },
   },
   {
     id: "q1083",
@@ -15051,7 +15455,14 @@ R    10.10.20.64/27 [120/3] via F0/6`,
     "value"
     ],
     correct: 3,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"firewall": "FW15", "interface":"e8/33"},
+3 {"switch": "SW_chicago", "interface":"ge5/26"},
+4 {"router": "R29", "interface":"fe4/25"}
+5 ]`,
+    },
   },
   {
     id: "q1085",
@@ -15063,7 +15474,14 @@ R    10.10.20.64/27 [120/3] via F0/6`,
     "array"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"switch": "SW16", "interface":"fe3/43"},
+3 {"load balancer": "LBmiami", "interface":"e0/1"},
+4 {"firewall": "FWboston", "interface":"ge6/12"}
+5 ]`,
+    },
   },
   {
     id: "q1094",
@@ -15431,7 +15849,14 @@ R    10.139.120.253/29 [120/6] via G0/9`,
     "key"
     ],
     correct: 2,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"load balancer": "LB_milwaukee", "port":"fe5/42"},
+3 {"VPN concentrator": "VPNadmin", "port":"e1/39"},
+4 {"firewall": "FW_chicago", "port":"te3/42"},
+5 ]`,
+    },
   },
   {
     id: "q1123",
@@ -15501,7 +15926,14 @@ Ethernet adapter Ethernet:
     "object"
     ],
     correct: 2,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"IDS": "IPS_pittsburgh", "port":"te8/30"},
+3 {"router": "R20", "port":"ge9/23"},
+4 {"firewall": "FW42", "port":"fe3/24"},
+5 ]`,
+    },
   },
   {
     id: "q1131",
@@ -16748,7 +17180,14 @@ L    172.18.32.37/32 is directly connected, GigabitEthernet0/0`, highlight: ["C 
     "key"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"firewall": "FW12", "port": "e0/23"},
+3 {"router": "R20", "port": "te5/5"},
+4 {"switch": "SW25", "port": "ge1/36"}
+5 ]`,
+    },
   },
   {
     id: "q1259",
@@ -16804,7 +17243,14 @@ FastEthernet0/0 is up, line protocol is up
     "array"
     ],
     correct: 0,
-    exhibit: false,
+    exhibit: {
+      type: "cli",
+      content: `1 [
+2 {"switch": "SW_dallas", "port": "ge16"},
+3 {"load balancer": "LB_munich", "port": "te0/26"},
+4 {"VPN concentrator": "VPN_toronto", "port": "ge8/15"}
+5 ]`,
+    },
   },
   {
     id: "q1262",

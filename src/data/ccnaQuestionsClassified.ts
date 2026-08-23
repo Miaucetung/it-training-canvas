@@ -4008,7 +4008,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "The phone and a workstation that is connected to the phone send and receive data in VLAN 50."
     ],
     "correct": 1,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "interface GigabitEthernet3/1/4\n switchport voice vlan 50\n!"
+    },
     "blueprint_section": "2.1.a",
     "blueprint_domain": "2.0",
     "priority_score": 70,
@@ -4112,7 +4115,60 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "VLAN 20"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": [
+      {
+        "type": "topology",
+        "devices": [
+          {
+            "id": "sw1",
+            "type": "switch",
+            "label": "SW1",
+            "x": 90,
+            "y": 70
+          },
+          {
+            "id": "sw2",
+            "type": "switch",
+            "label": "SW2",
+            "x": 380,
+            "y": 70
+          },
+          {
+            "id": "pca",
+            "type": "pc",
+            "label": "PC A",
+            "x": 90,
+            "y": 300
+          },
+          {
+            "id": "pcb",
+            "type": "pc",
+            "label": "PC B",
+            "x": 380,
+            "y": 300
+          }
+        ],
+        "links": [
+          {
+            "from": "sw1",
+            "to": "sw2"
+          },
+          {
+            "from": "sw1",
+            "to": "pca"
+          },
+          {
+            "from": "sw2",
+            "to": "pcb",
+            "labelFrom": "F0/0"
+          }
+        ]
+      },
+      {
+        "type": "cli",
+        "content": "SW1\ninterface FastEthernet0/0\n    switchport mode access\n    switchport access vlan 5\ninterface FastEthernet0/1\n    switchport mode trunk\n    switchport trunk allow vlan 5-20\n    switchport trunk native vlan 10\n\nSW2\ninterface FastEthernet0/0\n    switchport mode access\n    switchport access vlan 5\ninterface FastEthernet0/1\n    switchport mode trunk\n    switchport trunk allow vlan 5-20\n    switchport trunk native vlan 10"
+      }
+    ],
     "blueprint_section": "2.1.b",
     "blueprint_domain": "2.0",
     "priority_score": 70,
@@ -4191,7 +4247,63 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       1,
       2
     ],
-    "exhibit": false,
+    "exhibit": [
+      {
+        "type": "topology",
+        "devices": [
+          {
+            "id": "sw1",
+            "type": "switch",
+            "label": "SW1",
+            "x": 90,
+            "y": 70
+          },
+          {
+            "id": "sw2",
+            "type": "switch",
+            "label": "SW2",
+            "x": 380,
+            "y": 70
+          },
+          {
+            "id": "pca",
+            "type": "pc",
+            "label": "PC A",
+            "x": 90,
+            "y": 300
+          },
+          {
+            "id": "pcb",
+            "type": "pc",
+            "label": "PC B",
+            "x": 380,
+            "y": 300
+          }
+        ],
+        "links": [
+          {
+            "from": "sw1",
+            "to": "sw2",
+            "labelFrom": "F0/1",
+            "labelTo": "F0/1"
+          },
+          {
+            "from": "sw1",
+            "to": "pca",
+            "labelFrom": "F0/0"
+          },
+          {
+            "from": "sw2",
+            "to": "pcb",
+            "labelFrom": "F0/0"
+          }
+        ]
+      },
+      {
+        "type": "cli",
+        "content": "SW1\ninterface FastEthernet0/0\n    switchport mode access\n    switchport access vlan 5\ninterface FastEthernet0/1\n    switchport mode trunk\n    switchport trunk allow vlan 5-20\n    switchport trunk native vlan 10\n\nSW2\ninterface FastEthernet0/0\n    switchport mode access\n    switchport access vlan 5\ninterface FastEthernet0/1\n    switchport mode trunk\n    switchport trunk allow vlan 5-20\n    switchport trunk native vlan 100"
+      }
+    ],
     "blueprint_section": "2.2.c",
     "blueprint_domain": "2.0",
     "priority_score": 70,
@@ -7802,7 +7914,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Disable auto-negotiation."
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "interface gigabitethernet0/0\n description Circuit-ATT4139-84320\n duplex full\n speed 1000\n media-type gbic\n negotiation auto\n lldp transmit\n lldp receive"
+    },
     "blueprint_section": "2.3",
     "blueprint_domain": "2.0",
     "priority_score": 70,
@@ -9531,7 +9646,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "120"
     ],
     "correct": 1,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "R1#show ip route\nCodes: C - connected, S - static, R - RIP, M - mobile, B - BGP\n       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area\n       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2\n       E1 - OSPF external type 1, E2 - OSPF external type 2\n       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2\n       ia - IS-IS inter area, * - candidate default, U - per-user static route\n       o - ODR, P - periodic downloaded static route\n\nGateway of last resort is 192.168.14.4 to network 0.0.0.0\n\nC    192.168.12.0/24 is directly connected, FastEthernet0/0\nC    192.168.13.0/24 is directly connected, FastEthernet0/1\nC    192.168.14.0/24 is directly connected, FastEthernet1/0\n     192.168.10.0/16 is variably subnetted, 3 subnets, 3 masks\nO       192.168.10.0/24 [110/2] via 192.168.14.4, 00:02:01, FastEthernet1/0\nO       192.168.10.32/27 [110/11] via 192.168.13.3, 00:00:52, FastEthernet0/1\nO       192.168.0.0/16 [110/2] via 192.168.15.5, 00:05:01, FastEthernet1/1\nD       192.168.10.1/32 [90/52778] via 192.168.12.2, 00:03:44, FastEthernet0/0\nO*E2 0.0.0.0/0 [110/1] via 192.168.14.4, 00:00:10, FastEthernet1/0"
+    },
     "blueprint_section": "3.1.e",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -9815,7 +9933,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "The OSPF process ID numbers must match."
     ],
     "correct": 3,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "R1:  Ethernet0 is up, line protocol is up\n       Internet address is 192.168.1.2/24, Area 0\n       Process ID 1, Router ID 192.168.31.33, Network Type BROADCAST, Cost: 10\n       Transmit Delay is 1 sec, State DR, Priority 1\n       Designated Router (ID) 192.168.31.33, Interface address 192.168.1.2\n       No backup designated router on this network\n       Timer intervals configured, Hello 5, Dead 20, Wait 20, Retransmit 5\n\nR2:  Ethernet0 is up, line protocol is up\n       Internet address is 192.168.1.2/24, Area 0\n       Process ID 2, Router ID 192.168.31.11, Network Type BROADCAST, Cost: 10\n       Transmit Delay is 1 sec, State DR, Priority 1\n       Designated Router (ID) 192.168.31.11, Interface address 192.168.1.1\n       No backup designated router on this network\n       Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5"
+    },
     "blueprint_section": "3.4.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -10575,7 +10696,49 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       3,
       5
     ],
-    "exhibit": false,
+    "exhibit": {
+      "type": "topology",
+      "devices": [
+        {
+          "id": "r1",
+          "type": "router",
+          "label": "R1",
+          "x": 70,
+          "y": 130
+        },
+        {
+          "id": "r2",
+          "type": "router",
+          "label": "R2",
+          "x": 280,
+          "y": 130
+        },
+        {
+          "id": "r3",
+          "type": "router",
+          "label": "R3",
+          "x": 490,
+          "y": 130
+        }
+      ],
+      "links": [
+        {
+          "from": "r1",
+          "to": "r2"
+        },
+        {
+          "from": "r2",
+          "to": "r3"
+        }
+      ],
+      "labels": [
+        {
+          "text": "OSPF Area 0",
+          "attachTo": "r2",
+          "position": "above"
+        }
+      ]
+    },
     "blueprint_section": "3.4.a",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -14175,7 +14338,81 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "Router ospf 100 Network 10.120.10.0 255.255.255.0 area 0"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "topology",
+      "devices": [
+        {
+          "id": "r14",
+          "type": "router",
+          "label": "R14",
+          "x": 170,
+          "y": 110
+        },
+        {
+          "id": "r86",
+          "type": "router",
+          "label": "R86",
+          "x": 520,
+          "y": 110
+        },
+        {
+          "id": "lan1",
+          "type": "cloud",
+          "label": "10.120.10.0/24",
+          "x": 170,
+          "y": 330
+        },
+        {
+          "id": "pc10",
+          "type": "pc",
+          "label": "PC 10",
+          "x": 520,
+          "y": 330
+        }
+      ],
+      "links": [
+        {
+          "from": "r14",
+          "to": "r86",
+          "labelFrom": "Fa0/0 .65",
+          "labelTo": ".66 Fa0/0",
+          "subnet": "10.73.65.64/30"
+        },
+        {
+          "from": "r14",
+          "to": "lan1",
+          "labelFrom": "Fa0/1"
+        },
+        {
+          "from": "r86",
+          "to": "pc10",
+          "labelFrom": "Fa0/1",
+          "subnet": "10.80.65.0/29"
+        }
+      ],
+      "labels": [
+        {
+          "text": "OSPF 100 / Area 0",
+          "attachTo": "r86",
+          "position": "above"
+        },
+        {
+          "text": "Loopback0: 10.10.1.14/32",
+          "attachTo": "r14",
+          "position": "left"
+        },
+        {
+          "text": "Loopback0: 10.10.1.86/32",
+          "attachTo": "r86",
+          "position": "right"
+        },
+        {
+          "text": ".10",
+          "attachTo": "pc10",
+          "position": "above"
+        }
+      ]
+    },
     "blueprint_section": "3.4",
     "blueprint_domain": "3.0",
     "priority_score": 75,
@@ -18139,7 +18376,58 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "interface gi1/0/15 switchport port-security mac-address 0000.abcd.0004 vlan 100 interface switchport secure-mac limit 2"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "topology",
+      "devices": [
+        {
+          "id": "sw1",
+          "type": "switch",
+          "label": "SW1",
+          "x": 130,
+          "y": 90
+        },
+        {
+          "id": "sw2",
+          "type": "switch",
+          "label": "SW2",
+          "x": 520,
+          "y": 90
+        },
+        {
+          "id": "pc1",
+          "type": "pc",
+          "label": "PC1",
+          "x": 130,
+          "y": 320
+        }
+      ],
+      "links": [
+        {
+          "from": "sw1",
+          "to": "sw2",
+          "labelFrom": "Gi0/0/1",
+          "labelTo": "Gi0/0/1",
+          "subnet": "802.1q — VLANs 1, 100, 101, 102, 103"
+        },
+        {
+          "from": "sw1",
+          "to": "pc1",
+          "labelFrom": "Gi1/0/15"
+        }
+      ],
+      "labels": [
+        {
+          "text": "VLAN 100 — MAC: 0000.abcd.0004",
+          "attachTo": "pc1",
+          "position": "below"
+        },
+        {
+          "text": "Lobby Conference Room (Access port)",
+          "attachTo": "sw2",
+          "position": "below"
+        }
+      ]
+    },
     "blueprint_section": "5.7",
     "blueprint_domain": "5.0",
     "priority_score": 65,
@@ -26163,7 +26451,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "key"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"load balancer\": \"LB20\", \"interface\": \"te4/3\"},\n3 {\"firewall\": \"FW49\", \"interface\": \"ge4/14\"},\n4 {\"IDS\": \"IPS_frankfurt\", \"interface\": \"e9/7\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26179,7 +26470,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "value"
     ],
     "correct": 2,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"firewall\": \"FW24\", \"interface\": \"fe1/34\"},\n3 {\"switch\": \"SWseattle\", \"interface\": \"ge8/21\"},\n4 {\"IDS\": \"IPSsydney\", \"interface\": \"te2/43\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26195,7 +26489,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "key"
     ],
     "correct": 3,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"firewall\": \"FW_portland\", \"port\": \"e2/5\"},\n3 {\"IDS\": \"IPS31\", \"port\": \"ge0/28\"},\n4 {\"load balancer\": \"LB48\", \"port\": \"fe0/43\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26211,7 +26508,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "value"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"switch\": \"SWbarcelona\", \"interface\": \"ge1/40\"},\n3 {\"firewall\": \"FWamsterdam\", \"interface\": \"fe21\"},\n4 {\"router\": \"R_frankfurt\", \"interface\": \"te8/30\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26227,7 +26527,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "object"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"router\": \"R_pittsburgh\", \"port\": \"te6/21\"},\n3 {\"VPN concentrator\": \"VPN47\", \"port\": \"e6/37\"},\n4 {\"firewall\": \"FW28\", \"port\": \"ge7/42\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26586,7 +26889,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "value"
     ],
     "correct": 3,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"VPN concentrator\": \"VPN11\", \"port\":\"fe7/12\"},\n3 {\"router\": \"Radmin\", \"port\":\"e5/1\"},\n4 {\"switch\": \"SWbangkok\", \"port\":\"ge6/6\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26618,7 +26924,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "value"
     ],
     "correct": 3,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"firewall\": \"FW15\", \"interface\":\"e8/33\"},\n3 {\"switch\": \"SW_chicago\", \"interface\":\"ge5/26\"},\n4 {\"router\": \"R29\", \"interface\":\"fe4/25\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -26634,7 +26943,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "array"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"switch\": \"SW16\", \"interface\":\"fe3/43\"},\n3 {\"load balancer\": \"LBmiami\", \"interface\":\"e0/1\"},\n4 {\"firewall\": \"FWboston\", \"interface\":\"ge6/12\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -27167,7 +27479,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "key"
     ],
     "correct": 2,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"load balancer\": \"LB_milwaukee\", \"port\":\"fe5/42\"},\n3 {\"VPN concentrator\": \"VPNadmin\", \"port\":\"e1/39\"},\n4 {\"firewall\": \"FW_chicago\", \"port\":\"te3/42\"},\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,
@@ -27395,7 +27710,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "object"
     ],
     "correct": 2,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"IDS\": \"IPS_pittsburgh\", \"port\":\"te8/30\"},\n3 {\"router\": \"R20\", \"port\":\"ge9/23\"},\n4 {\"firewall\": \"FW42\", \"port\":\"fe3/24\"},\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 75,
@@ -29983,7 +30301,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "key"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"firewall\": \"FW12\", \"port\": \"e0/23\"},\n3 {\"router\": \"R20\", \"port\": \"te5/5\"},\n4 {\"switch\": \"SW25\", \"port\": \"ge1/36\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 40,
@@ -30018,7 +30339,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "array"
     ],
     "correct": 0,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "1 [\n2 {\"switch\": \"SW_dallas\", \"port\": \"ge16\"},\n3 {\"load balancer\": \"LB_munich\", \"port\": \"te0/26\"},\n4 {\"VPN concentrator\": \"VPN_toronto\", \"port\": \"ge8/15\"}\n5 ]"
+    },
     "blueprint_section": "6.7",
     "blueprint_domain": "6.0",
     "priority_score": 60,

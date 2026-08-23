@@ -76,7 +76,7 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (345)", () => {
+  it("Anzahl Exhibit-Fragen stimmt (366)", () => {
     // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
     // Konfigurationen stehen vollständig in den Antwortoptionen.
     // 333 -> 340: "Which interface condition is occurring in this output?"
@@ -85,6 +85,9 @@ describe("buildQuestionPoolQuiz", () => {
     // 340 -> 345: "Which interface is used to send traffic to the destination
     // network?" existiert 5x (q1069, q1121, q1145, q1184, q1276) und hatte in
     // allen Varianten kein Exhibit — Routing-Tabelle nachgetragen.
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(345);
+    // 345 -> 366: Abgleich gegen die Original-Extraktion
+    // (notes/ccna-exam/images + questions_full.json) — 21 Fragen fehlte das
+    // Exhibit, obwohl im Original vorhanden.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(366);
   });
 });
