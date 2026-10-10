@@ -1,9 +1,9 @@
 # CCNA-Lernplattform: Umfassender Audit-Bericht & Canvas-Inventur
 
-> **Dokument:** Phase 1 Audit-Bericht (Cisco CCNA 200-301 Lernplattform)  
-> **Repository:** `it-training-canvas-new` (Live: `ccna.ajti.online`)  
-> **Zielgruppe:** Fachinformatiker Systemintegration (Umschulung / Weiterbildung), Desktop (1440px) & Smartphone (390px)  
-> **Branch:** `feature/canvas-audit-redesign`  
+> **Dokument:** Phase 1 Audit-Bericht (Cisco CCNA 200-301 Lernplattform)
+> **Repository:** `it-training-canvas-new` (Live: `ccna.ajti.online`)
+> **Zielgruppe:** Fachinformatiker Systemintegration (Umschulung / Weiterbildung), Desktop (1440px) & Smartphone (390px)
+> **Branch:** `feature/canvas-audit-redesign`
 > **Status:** Phase 1 abgeschlossen — Wartet auf Freigabe für Phase 2
 
 ---
@@ -26,40 +26,40 @@ Die Bestandsaufnahme der Plattform `ccna.ajti.online` zeigt eine fachlich reichh
 
 ### Die 10 wichtigsten Befunde im Detail:
 
-1. **HiDPI/Retina-Unschärfe des Canvas (Kritisch):**  
+1. **HiDPI/Retina-Unschärfe des Canvas (Kritisch):**
    Der aktuelle HTML5 Canvas setzt `canvas.width = container.clientWidth` und ignoriert `window.devicePixelRatio`. Auf modernen Geräten (DPR 2x bis 3x) wirkt die Zeichenfläche verschwommen. Beim Hineinzoomen pixelieren Shapes sofort, da SVGs vorab als 80x80px Bitmaps gerastert werden.
    *(Referenz-Screenshot: `docs/screenshots/03_desktop_dark_canvas.png`)*
 
-2. **Mobile Nichtbenutzbarkeit des Flip-Mechanismus auf 390px (Kritisch):**  
+2. **Mobile Nichtbenutzbarkeit des Flip-Mechanismus auf 390px (Kritisch):**
    Auf Smartphones (390px Breite) ist die obere Header-Navigationsleiste überfüllt und nicht responsiv umgebrochen. Der Flip-Button (`Canvas` / `Lernen`) wird rechts aus dem Viewport geschoben. Lernende am Smartphone können den Canvas weder gezielt betreten noch zur Lektion zurückkehren.
    *(Referenz-Screenshot: `docs/screenshots/09_mobile_dark_dashboard.png`)*
 
-3. **Kollidierende und unpassende Overlays auf Mobilgeräten (Kritisch):**  
+3. **Kollidierende und unpassende Overlays auf Mobilgeräten (Kritisch):**
    Auf dem Canvas überlappen sich auf 390px die linke Tastaturkürzel-Box ("Linke Maustaste... Scrollrad... Ctrl+C...") und die "Simple/Detail"-Schalter vollständig. Eine Maus-Kürzel-Box auf einem Touchscreen stiftet Verwirrung.
    *(Referenz-Screenshot: `docs/screenshots/11_mobile_dark_canvas.png`)*
 
-4. **Fehlender `ResizeObserver` führt zu Canvas-Verzerrungen:**  
+4. **Fehlender `ResizeObserver` führt zu Canvas-Verzerrungen:**
    Die Canvas-Größe lauscht nur auf `window.addEventListener("resize")`. Wird die Fach-Sidebar eingeklappt, ein Dialog geöffnet oder die 3D-Flip-Animation ausgeführt, ändert sich der Container ohne Window-Resize. Die Folge: Asymmetrische Streckung und ungenaue Klick-/Touch-Koordinaten.
 
-5. **Inkonsistentes Theming & unvollständiger Light-Mode:**  
+5. **Inkonsistentes Theming & unvollständiger Light-Mode:**
    Es gibt keinen globalen Theme-Schalter auf der Lernoberfläche; der Toggle existiert nur in der Canvas-Toolbar. Zudem sind viele Dialoge und Oberflächen mit harten Klassen wie `bg-slate-900` und `bg-[#0a0f1e]` codiert, sodass ein Umschalten auf "Light" zu unlesbaren Farbkontrasten führt.
    *(Referenz-Screenshot: `docs/screenshots/02_desktop_light_dashboard.png`)*
 
-6. **Fragmentierte Simulatoren statt integrierter Lernumgebung:**  
+6. **Fragmentierte Simulatoren statt integrierter Lernumgebung:**
    Hochwertige CCNA-Simulatoren (VLAN-Simulator, STP-Simulator, OSI-Simulator, Routing-Drill) existieren als isolierte Dialog-Popups im "Tools"-Menü, sind jedoch weder mit den eigentlichen Lektionen noch mit dem Haupt-Canvas verknüpft. Der Canvas selbst startet leer und hat keinen Bezug zur aktuellen Lektion.
 
-7. **SVG-Cache-Kollision und asynchroner Render-Drop im Canvas-Core:**  
+7. **SVG-Cache-Kollision und asynchroner Render-Drop im Canvas-Core:**
    In `src/lib/canvas-utils.ts` wird der Cache-Key für Shapes mit `svgPath.substring(0, 50)` gebildet. Da Cisco- und IT-SVGs oft mit identischen Tags beginnen (`<svg xmlns="http://www.w3.org/2000/svg"...`), teilen sich verschiedene Shapes denselben Cache-Eintrag. Zudem führt asynchrones Laden bei Neuaufrufen zu fehlenden Icons ("..."-Platzhaltern).
 
-8. **Fehlende Trennung von Prompt, Command und Output bei CLI-Exhibits:**  
+8. **Fehlende Trennung von Prompt, Command und Output bei CLI-Exhibits:**
    Cisco-IOS-Ausgaben (`show ip route`, `show mac address-table`, `running-config`) werden in einfachen unstrukturierten `<pre>`-Blöcken ohne Syntax-Highlighting dargestellt. Ein Prompt wie `Router#` ist optisch nicht vom Befehl oder der Ausgabe getrennt, was das Einprägen von Prüfungsbefehlen erschwert.
    *(Referenz-Screenshot: `docs/screenshots/18_desktop_cli_topic_detail.png`)*
 
-9. **Eingeschränkte Touch-Bedienung bei den 81 Drag-and-Drop-Fragen:**  
+9. **Eingeschränkte Touch-Bedienung bei den 81 Drag-and-Drop-Fragen:**
    Obwohl eine Klick-Zuordnung implementiert ist, sind die Zielbereiche auf 390px Touchscreens zu schmal und erfordern extremes vertikales Scrollen. CLI-Exhibits in D&D-Fragen erzwingen horizontales Scrollen, was Touch-Gesten abfängt.
    *(Referenz-Screenshot: `docs/screenshots/17_mobile_drag_drop_exhibit.png`)*
 
-10. **Barrierefreiheit (WCAG AA) & Semantik-Defizite:**  
+10. **Barrierefreiheit (WCAG AA) & Semantik-Defizite:**
     Der HTML5-Pixel-Canvas ist für Screenreader und Tastaturbedienung eine Black Box. Gesetzte Netzwerkgeräte besitzen keine barrierefreien Beschriftungen oder Fokus-Ringe. Farbkontraste im Dark-Mode (`text-slate-500` auf `bg-slate-950`) unterschreiten teilweise das Mindestkontrastverhältnis von 4,5:1.
 
 ---
@@ -246,5 +246,5 @@ flowchart LR
 
 Phase 1 hat alle Stärken und gravierenden Schwachstellen der Plattform transparent offengelegt. Der bestehende Code wurde während des Audits **nicht verändert**.
 
-**Nächster Schritt:**  
+**Nächster Schritt:**
 Nach deiner Durchsicht und deinem **OK** beginnen wir mit **Phase 2: Canvas-Neuaufbau** auf dem Feature-Branch `feature/canvas-audit-redesign`.
