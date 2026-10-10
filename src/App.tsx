@@ -71,6 +71,7 @@ import {
   GraduationCap,
   Keyboard,
   Lightning,
+  List,
   Notepad,
   Plus,
   Pulse,
@@ -378,6 +379,7 @@ function App() {
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [canvasView, setCanvasView] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreMenuContentRef = useRef<HTMLDivElement>(null);
@@ -1739,6 +1741,22 @@ function App() {
               </div>,
               document.body
             )}
+            {/* Mobile-Menü Button (nur auf Mobile < sm sichtbar): Macht Prüfung, Labs & Werkzeuge mobil erreichbar */}
+            <button
+              onClick={() => setShowMobileMenu(true)}
+              className={`sm:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                showMobileMenu
+                  ? "bg-sky-500/20 text-sky-300"
+                  : theme === "dark"
+                    ? "text-slate-300 hover:text-white hover:bg-slate-800"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              title="Menü & Werkzeuge (Prüfung, Labs, Simulatoren)"
+              aria-label="Menü & Werkzeuge öffnen"
+            >
+              <List size={16} weight="bold" />
+              <span>Menü</span>
+            </button>
             <button
               onClick={() => setShowExamPrep(true)}
               className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
@@ -2743,6 +2761,243 @@ function App() {
           }}
         />
         </Suspense>
+      )}
+
+      {/* Mobile-Menü Drawer: Alle Werkzeuge, Prüfungs-Dialoge & Labs für < sm Viewports */}
+      {showMobileMenu && createPortal(
+        <div className="fixed inset-0 z-[250] flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setShowMobileMenu(false)}
+            aria-hidden="true"
+          />
+          {/* Drawer Panel */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Hauptmenü und Werkzeuge"
+            className={`relative z-[251] w-[320px] max-w-[85vw] h-full flex flex-col shadow-2xl border-l overflow-hidden ${
+              theme === "dark"
+                ? "bg-slate-900 border-slate-700/80 text-white"
+                : "bg-white border-slate-200 text-slate-900"
+            }`}
+          >
+            {/* Header */}
+            <div className={`flex items-center justify-between px-4 py-3 border-b shrink-0 ${
+              theme === "dark" ? "border-slate-800 bg-slate-900/90" : "border-slate-100 bg-slate-50/90"
+            }`}>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
+                <span className="text-sm font-bold tracking-wide">Menü & Werkzeuge</span>
+              </div>
+              <button
+                onClick={() => setShowMobileMenu(false)}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  theme === "dark" ? "text-slate-400 hover:bg-slate-800 hover:text-white" : "text-slate-500 hover:bg-slate-200"
+                }`}
+                aria-label="Menü schließen"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable Items */}
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+              {/* Gruppe 1: Prüfung & Lernen */}
+              <div>
+                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-sky-400">
+                  Prüfung & Lernen
+                </p>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowExamPrep(true); }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
+                      theme === "dark" ? "bg-sky-500/10 text-sky-200 hover:bg-sky-500/20" : "bg-sky-50 text-sky-700 hover:bg-sky-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Target size={16} weight="fill" className="text-sky-400 shrink-0" />
+                      <span>Prüfungsvorbereitung</span>
+                    </div>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">1200+</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowPrioritizedLearning(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <ChartLine size={16} weight="fill" className="text-indigo-400 shrink-0" />
+                    <span>Priorisiert lernen (Blueprint)</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowLearningPathEditor(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <GraduationCap size={16} className="text-indigo-400 shrink-0" />
+                    <span>Lernpfade bearbeiten / starten</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Gruppe 2: Geräte & Cisco Labs */}
+              <div>
+                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                  Geräte & Cisco Labs
+                </p>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowShapePicker(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Plus size={16} className="text-emerald-400 shrink-0" />
+                    <span>Netzwerkgerät hinzufügen</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      const sel = canvasState.objects.find((o) => o.selected && o.type === "shape");
+                      if (sel) {
+                        handleOpenTerminal(sel);
+                      } else {
+                        toast.info("Wähle zuerst ein Netzwerkgerät auf dem Canvas aus", { duration: 2500 });
+                      }
+                    }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Terminal size={16} className="text-green-400 shrink-0" />
+                    <span>IOS-CLI Terminal öffnen</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowLabScenarios(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <BookOpen size={16} className="text-violet-400 shrink-0" />
+                    <span>Lab-Szenarien (IOS-Übungen)</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowPingScenario(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Lightning size={16} weight="fill" className="text-cyan-400 shrink-0" />
+                    <span>Ping testen (Schritt-für-Schritt)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Gruppe 3: Simulatoren & Trainer */}
+              <div>
+                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400">
+                  Simulatoren & Trainer
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {TOOL_GROUPS.flatMap((g) => g.tools).map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setShowMobileMenu(false);
+                        setActiveTool(t.id);
+                      }}
+                      className={`text-left p-2 rounded-lg transition-colors border ${
+                        theme === "dark"
+                          ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-800 text-slate-200"
+                          : "bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      <div className="font-semibold text-[11px] truncate">{t.name}</div>
+                      <div className="text-[9px] text-slate-400 truncate">{t.hint}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Gruppe 4: Weitere Werkzeuge */}
+              <div>
+                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Weitere Werkzeuge
+                </p>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowPacketFlow(!showPacketFlow); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      showPacketFlow ? "bg-emerald-500/20 text-emerald-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Lightning size={15} />
+                    <span>Paketfluss</span>
+                    {showPacketFlow && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowMetrics(!showMetrics); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      showMetrics ? "bg-blue-500/20 text-blue-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <ChartLine size={15} />
+                    <span>Metriken</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowAnnotations(!showAnnotations); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      showAnnotations ? "bg-pink-500/20 text-pink-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Notepad size={15} />
+                    <span>Notizen</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowTemplateGallery(!showTemplateGallery); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <FolderOpen size={15} />
+                    <span>Vorlagen</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowShareExport(!showShareExport); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Export size={15} />
+                    <span>Teilen & Export</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowCostCalculator(!showCostCalculator); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <CurrencyDollar size={15} />
+                    <span>Kosten-Rechner</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowKeyboardShortcuts(true); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Keyboard size={15} />
+                    <span>Tastenkürzel & Hilfe</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       <input
