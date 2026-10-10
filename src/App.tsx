@@ -1463,7 +1463,7 @@ function App() {
             />
             <div>
               <h2
-                className={`text-base md:text-lg font-semibold truncate max-w-[40vw] md:max-w-none ${theme === "dark" ? "text-white" : "text-slate-900"}`}
+                className={`text-base md:text-lg font-semibold truncate max-w-[120px] sm:max-w-none ${theme === "dark" ? "text-white" : "text-slate-900"}`}
               >
                 {currentConfig?.name || currentSubject}
               </h2>
@@ -1474,8 +1474,8 @@ function App() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="hidden md:block">
               <button
                 ref={learningPathButtonRef}
                 onClick={() => {
@@ -1614,7 +1614,7 @@ function App() {
 
             <button
               onClick={() => setShowShapePicker(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 theme === "dark"
                   ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
                   : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
@@ -1638,7 +1638,7 @@ function App() {
                   );
                 }
               }}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showTerminal
                   ? "bg-green-500/20 text-green-300"
                   : theme === "dark"
@@ -1652,7 +1652,7 @@ function App() {
             </button>
             <button
               onClick={() => setShowLabScenarios(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showLabScenarios
                   ? "bg-violet-500/20 text-violet-300"
                   : theme === "dark"
@@ -1741,7 +1741,7 @@ function App() {
             )}
             <button
               onClick={() => setShowExamPrep(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
                   ? "bg-sky-500/15 text-sky-300 hover:bg-sky-500/25"
                   : "bg-sky-50 text-sky-700 hover:bg-sky-100"
@@ -1753,7 +1753,7 @@ function App() {
             </button>
             <button
               onClick={() => setShowPrioritizedLearning(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
                   ? "bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/25"
                   : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
@@ -1765,7 +1765,7 @@ function App() {
             </button>
             <button
               onClick={() => setShowPingScenario(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                 theme === "dark"
                   ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
                   : "bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
@@ -1779,7 +1779,7 @@ function App() {
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             {/* Mehr-Dropdown */}
-            <div ref={moreMenuRef} className="relative">
+            <div ref={moreMenuRef} className="relative hidden sm:block">
               <button
                 ref={moreButtonRef}
                 onClick={() => {
@@ -1932,7 +1932,7 @@ function App() {
 
             <button
               onClick={() => setCanvasView((v) => !v)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+              className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                 canvasView
                   ? theme === "dark"
                     ? "border-indigo-600/50 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
@@ -1944,7 +1944,7 @@ function App() {
               title={canvasView ? "Zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
             >
               <ArrowClockwise size={14} />
-              <span className="hidden sm:inline">{canvasView ? "Lernen" : "Canvas"}</span>
+              <span>{canvasView ? "Lernen" : "Canvas"}</span>
             </button>
           </div>
         </div>

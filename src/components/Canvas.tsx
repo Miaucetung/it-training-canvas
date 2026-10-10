@@ -1705,7 +1705,7 @@ function CanvasInner({
       {/* Tool hints — nur wenn Canvas leer (UX-QW-1) */}
       {objects.length === 0 && (
         <div
-          className={`absolute top-4 left-4 px-3 py-2 rounded-lg text-xs ${
+          className={`hidden md:block absolute top-4 left-4 px-3 py-2 rounded-lg text-xs ${
             theme === "dark"
               ? "bg-slate-800/80 text-slate-400"
               : "bg-white/80 text-slate-600 shadow-md"
