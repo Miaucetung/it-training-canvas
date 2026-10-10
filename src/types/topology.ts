@@ -117,6 +117,37 @@ export interface TopologySubnetZone {
   height: number;
 }
 
+export type TopologyAnnotationType =
+  | "text"
+  | "note"
+  | "box"
+  | "circle"
+  | "arrow"
+  | "line"
+  | "freehand"
+  | "callout";
+
+export interface TopologyAnnotation {
+  id: string;
+  type: TopologyAnnotationType;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  endX?: number;
+  endY?: number;
+  points?: Array<{ x: number; y: number }>;
+  text?: string;
+  color?: string;
+  fillColor?: string;
+  strokeWidth?: number;
+  fontSize?: number;
+  fontFamily?: string;
+  targetDeviceId?: string;
+  author?: string;
+  createdAt?: string;
+}
+
 export interface NetworkTopology {
   id: string;
   name: string;
@@ -127,6 +158,7 @@ export interface NetworkTopology {
   links: TopologyLink[];
   vlans?: TopologyVlan[];
   subnetZones?: TopologySubnetZone[];
+  annotations?: TopologyAnnotation[];
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
@@ -235,6 +267,27 @@ export const topologyLinkSchema = z.object({
   animated: z.boolean().optional(),
 });
 
+export const topologyAnnotationSchema = z.object({
+  id: z.string(),
+  type: z.enum(["text", "note", "box", "circle", "arrow", "line", "freehand", "callout"]),
+  x: z.number(),
+  y: z.number(),
+  width: z.number().optional(),
+  height: z.number().optional(),
+  endX: z.number().optional(),
+  endY: z.number().optional(),
+  points: z.array(z.object({ x: z.number(), y: z.number() })).optional(),
+  text: z.string().optional(),
+  color: z.string().optional(),
+  fillColor: z.string().optional(),
+  strokeWidth: z.number().optional(),
+  fontSize: z.number().optional(),
+  fontFamily: z.string().optional(),
+  targetDeviceId: z.string().optional(),
+  author: z.string().optional(),
+  createdAt: z.string().optional(),
+});
+
 export const networkTopologySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -269,6 +322,7 @@ export const networkTopologySchema = z.object({
       })
     )
     .optional(),
+  annotations: z.array(topologyAnnotationSchema).optional(),
   metadata: z
     .object({
       createdAt: z.string().optional(),

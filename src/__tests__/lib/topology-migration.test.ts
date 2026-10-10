@@ -8,6 +8,9 @@ import {
   migrateLegacyCanvasToTopology,
   migrateLegacyConnectionToLink,
   migrateLegacyShapeToDevice,
+  migrateLocalStorageCanvasToV2,
+  V1_STORAGE_KEY,
+  V2_STORAGE_KEY,
 } from "@/lib/topology/migration";
 import {
   BUILT_IN_CCNA_TOPOLOGIES,
@@ -178,5 +181,175 @@ describe("Legacy Canvas to NetworkTopology Migration", () => {
 
     const validated = networkTopologySchema.safeParse(topology);
     expect(validated.success).toBe(true);
+  });
+
+  it("migrates all drawing object types (pen, text, arrow, line, circle) losslessly into annotations", () => {
+    const mixedObjects: DrawingObject[] = [
+      {
+        id: "pen-1",
+        type: "pen",
+        color: "#F59E0B",
+        width: 3,
+        startPoint: { x: 10, y: 10 },
+        points: [
+          { x: 10, y: 10 },
+          { x: 20, y: 25 },
+          { x: 30, y: 30 },
+        ],
+      },
+      {
+        id: "text-note",
+        type: "text",
+        color: "#ffffff",
+        width: 1,
+        text: "Wichtige Konfiguration: no shutdown",
+        fontSize: 16,
+        fontFamily: "IBM Plex Mono",
+        startPoint: { x: 100, y: 80 },
+      },
+      {
+        id: "arrow-flow",
+        type: "arrow",
+        color: "#10B981",
+        width: 2,
+        label: "Next-Hop 10.0.0.2",
+        startPoint: { x: 150, y: 50 },
+        endPoint: { x: 250, y: 50 },
+      },
+      {
+        id: "line-divider",
+        type: "line",
+        color: "#64748B",
+        width: 1,
+        startPoint: { x: 50, y: 200 },
+        endPoint: { x: 500, y: 200 },
+      },
+      {
+        id: "circle-highlight",
+        type: "circle",
+        color: "#EC4899",
+        width: 2,
+        label: "Broadcast-Domäne",
+        startPoint: { x: 300, y: 100 },
+        endPoint: { x: 420, y: 220 },
+      },
+    ];
+
+    const topology = migrateLegacyCanvasToTopology(mixedObjects, [], {
+      name: "Topologie mit Annotationen",
+    });
+
+    expect(topology.annotations).toBeDefined();
+    expect(topology.annotations).toHaveLength(5);
+
+    const types = topology.annotations?.map((a) => a.type);
+    expect(types).toContain("freehand");
+    expect(types).toContain("text");
+    expect(types).toContain("arrow");
+    expect(types).toContain("line");
+    expect(types).toContain("circle");
+
+    const validated = networkTopologySchema.safeParse(topology);
+    expect(validated.success).toBe(true);
+  });
+});
+
+describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology-v2)", () => {
+  class MockStorage implements Storage {
+    private store: Record<string, string> = {};
+    get length(): number {
+      return Object.keys(this.store).length;
+    }
+    clear(): void {
+      this.store = {};
+    }
+    getItem(key: string): string | null {
+      return this.store[key] ?? null;
+    }
+    key(index: number): string | null {
+      return Object.keys(this.store)[index] ?? null;
+    }
+    removeItem(key: string): void {
+      delete this.store[key];
+    }
+    setItem(key: string, value: string): void {
+      this.store[key] = value;
+    }
+  }
+
+  it("migrates from canvas-app-data into canvas-topology-v2 without touching canvas-app-data", () => {
+    const mockStorage = new MockStorage();
+    const legacyData = {
+      CCNA: {
+        name: "CCNA",
+        lastModified: 1700000000000,
+        canvasState: {
+          objects: [
+            {
+              id: "r1",
+              type: "shape",
+              shapeId: "router",
+              label: "Core-R1",
+              color: "#10B981",
+              width: 2,
+              startPoint: { x: 100, y: 100 },
+            },
+            {
+              id: "sw1",
+              type: "shape",
+              shapeId: "switch",
+              label: "Dist-SW1",
+              color: "#3B82F6",
+              width: 2,
+              startPoint: { x: 250, y: 100 },
+            },
+          ],
+          connections: [
+            {
+              id: "c1",
+              sourceShapeId: "r1",
+              targetShapeId: "sw1",
+              connectionType: "ethernet",
+              status: "active",
+            },
+          ],
+        },
+      },
+    };
+
+    mockStorage.setItem(V1_STORAGE_KEY, JSON.stringify(legacyData));
+
+    // Execute migration
+    const res1 = migrateLocalStorageCanvasToV2({ storage: mockStorage });
+    expect(res1.success).toBe(true);
+    expect(res1.migratedCount).toBe(1);
+
+    // canvas-app-data MUST be untouched
+    expect(mockStorage.getItem(V1_STORAGE_KEY)).toBe(JSON.stringify(legacyData));
+
+    // canvas-topology-v2 MUST be created and contain CCNA
+    const v2Raw = mockStorage.getItem(V2_STORAGE_KEY);
+    expect(v2Raw).not.toBeNull();
+    const v2Data = JSON.parse(v2Raw!);
+    expect(v2Data.CCNA).toBeDefined();
+    expect(v2Data.CCNA.version).toBe("2.0");
+    expect(v2Data.CCNA.devices).toHaveLength(2);
+    expect(v2Data.CCNA.links).toHaveLength(1);
+
+    // Idempotency: Running a second time does not duplicate or re-write unnecessarily
+    const res2 = migrateLocalStorageCanvasToV2({ storage: mockStorage });
+    expect(res2.success).toBe(true);
+    expect(res2.skippedBecauseCurrent).toBe(true);
+    expect(res2.migratedCount).toBe(0);
+  });
+
+  it("handles corrupted JSON and malformed data gracefully without throwing", () => {
+    const mockStorage = new MockStorage();
+    mockStorage.setItem(V1_STORAGE_KEY, "{ invalid json !!!");
+
+    const res = migrateLocalStorageCanvasToV2({ storage: mockStorage });
+    expect(res.success).toBe(false);
+    expect(res.errors.length).toBeGreaterThan(0);
+    expect(res.errors[0]).toContain("Ungültiges JSON");
   });
 });

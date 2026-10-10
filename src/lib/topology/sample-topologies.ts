@@ -145,7 +145,7 @@ export const TOPOLOGY_BASIC_LAN: NetworkTopology = {
 export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
   id: "ccna-router-on-a-stick",
   name: "Router-on-a-Stick (Inter-VLAN)",
-  description: "802.1Q Trunk-Link zwischen R1 und SW1; Subinterfaces Gi0/0.10 (Verkauf) und Gi0/0.20 (Entwicklung) ermöglichen Routing zwischen getrennten VLANs.",
+  description: "802.1Q Trunk-Link zwischen R1 und SW1; Subinterfaces Gi0/0.10 (encapsulation dot1q 10) und Gi0/0.20 (encapsulation dot1q 20) ermöglichen Inter-VLAN-Routing.",
   version: "2.0",
   category: "switching",
   devices: [
@@ -156,13 +156,16 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
       x: 360,
       y: 50,
       interfaces: [
-        { id: "r1-sub10", name: "Gi0/0.10", ip: "192.168.10.1/24", vlan: 10, status: "up" },
-        { id: "r1-sub20", name: "Gi0/0.20", ip: "192.168.20.1/24", vlan: 20, status: "up" },
+        { id: "r1-gi00", name: "Gi0/0", status: "up", description: "Physical Trunk (no ip address)" },
+        { id: "r1-sub10", name: "Gi0/0.10", ip: "192.168.10.1/24", vlan: 10, status: "up", description: "encapsulation dot1q 10" },
+        { id: "r1-sub20", name: "Gi0/0.20", ip: "192.168.20.1/24", vlan: 20, status: "up", description: "encapsulation dot1q 20" },
       ],
       config: {
         hostname: "R1-ROAS",
         showOutputs: {
-          "show ip route": "C    192.168.10.0/24 is directly connected, GigabitEthernet0/0.10\nC    192.168.20.0/24 is directly connected, GigabitEthernet0/0.20",
+          "show ip route": "Codes: C - connected, S - static, R - RIP, O - OSPF\n\nC    192.168.10.0/24 is directly connected, GigabitEthernet0/0.10\nC    192.168.20.0/24 is directly connected, GigabitEthernet0/0.20",
+          "show running-config interface GigabitEthernet0/0": "interface GigabitEthernet0/0\n no ip address\n no shutdown\n!\ninterface GigabitEthernet0/0.10\n encapsulation dot1q 10\n ip address 192.168.10.1 255.255.255.0\n!\ninterface GigabitEthernet0/0.20\n encapsulation dot1q 20\n ip address 192.168.20.1 255.255.255.0",
+          "show ip interface brief": "Interface              IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0     unassigned      YES manual up                    up\nGigabitEthernet0/0.10  192.168.10.1    YES manual up                    up\nGigabitEthernet0/0.20  192.168.20.1    YES manual up                    up",
         },
       },
     },
@@ -173,9 +176,9 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
       x: 360,
       y: 190,
       interfaces: [
-        { id: "sw1-trunk", name: "Gi0/1", mode: "trunk", status: "up" },
-        { id: "sw1-fa10", name: "Fa0/10", vlan: 10, mode: "access", status: "up" },
-        { id: "sw1-fa20", name: "Fa0/20", vlan: 20, mode: "access", status: "up" },
+        { id: "sw1-trunk", name: "Gi0/1", mode: "trunk", status: "up", description: "switchport mode trunk" },
+        { id: "sw1-fa10", name: "Fa0/10", vlan: 10, mode: "access", status: "up", description: "switchport access vlan 10" },
+        { id: "sw1-fa20", name: "Fa0/20", vlan: 20, mode: "access", status: "up", description: "switchport access vlan 20" },
       ],
       config: {
         hostname: "SW1",
@@ -184,7 +187,8 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
           { id: 20, name: "DEV" },
         ],
         showOutputs: {
-          "show interfaces trunk": "Port        Mode             Encapsulation  Status        Native vlan\nGi0/1       on               802.1q         trunking      1\n\nPort        Vlans allowed on trunk\nGi0/1       10,20",
+          "show interfaces trunk": "Port        Mode             Encapsulation  Status        Native vlan\nGi0/1       on               802.1q         trunking      1\n\nPort        Vlans allowed on trunk\nGi0/1       10,20\n\nPort        Vlans in spanning tree forwarding state and not pruned\nGi0/1       10,20",
+          "show vlan brief": "VLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n1    default                          active    Fa0/1-9, Fa0/11-19, Fa0/21-24\n10   SALES                            active    Fa0/10\n20   DEV                              active    Fa0/20",
         },
       },
     },
@@ -215,7 +219,7 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
     {
       id: "link-trunk",
       sourceDeviceId: "roas-r1",
-      sourceInterfaceId: "r1-sub10",
+      sourceInterfaceId: "r1-gi00",
       targetDeviceId: "roas-sw1",
       targetInterfaceId: "sw1-trunk",
       linkType: "trunk",
@@ -255,7 +259,7 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
 export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
   id: "ccna-stp-triangle",
   name: "Spanning Tree (STP) Schleifenvermeidung",
-  description: "Klassisches 3-Switch-Dreieck. SW-A ist Root Bridge (Prio 4096). Ein redundanter Link zwischen SW-B und SW-C wird zur Schleifenvermeidung blockiert (Alternate/Blocking Port).",
+  description: "Klassisches 3-Switch-Dreieck. SW-A ist Root Bridge (Prio 24576). Ein redundanter Link zwischen SW-B und SW-C wird zur Schleifenvermeidung blockiert (Alternate/Blocking Port an SW-C).",
   version: "2.0",
   category: "switching",
   devices: [
@@ -266,13 +270,13 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       x: 380,
       y: 60,
       interfaces: [
-        { id: "swa-gi01", name: "Gi0/1", status: "up" },
-        { id: "swa-gi02", name: "Gi0/2", status: "up" },
+        { id: "swa-gi01", name: "Gi0/1", status: "up", description: "Designated Port (FWD)" },
+        { id: "swa-gi02", name: "Gi0/2", status: "up", description: "Designated Port (FWD)" },
       ],
       config: {
         hostname: "SW-A-ROOT",
         showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Spanning tree enabled protocol rstp\n  Root ID    Priority    4096\n             Address     0050.7966.0001\n             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Desg FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
+          "show spanning-tree": "VLAN0001\n  Spanning tree enabled protocol rstp\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Desg FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
         },
       },
     },
@@ -283,13 +287,13 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       x: 180,
       y: 280,
       interfaces: [
-        { id: "swb-gi01", name: "Gi0/1", status: "up" },
-        { id: "swb-gi02", name: "Gi0/2", status: "up" },
+        { id: "swb-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD)" },
+        { id: "swb-gi02", name: "Gi0/2", status: "up", description: "Designated Port (FWD)" },
       ],
       config: {
         hostname: "SW-B",
         showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Root ID    Priority    4096\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
+          "show spanning-tree": "VLAN0001\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n  Bridge ID  Priority    32768\n             Address     0050.7966.0002\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
         },
       },
     },
@@ -300,13 +304,13 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       x: 580,
       y: 280,
       interfaces: [
-        { id: "swc-gi01", name: "Gi0/1", status: "up" },
-        { id: "swc-gi02", name: "Gi0/2", status: "down" },
+        { id: "swc-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD)" },
+        { id: "swc-gi02", name: "Gi0/2", status: "up", description: "Alternate Port (BLK)" },
       ],
       config: {
         hostname: "SW-C",
         showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Root ID    Priority    4096\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Altn BLK 4         128.2    P2p (BLOCKING)",
+          "show spanning-tree": "VLAN0001\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n  Bridge ID  Priority    32768\n             Address     0050.7966.0003\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Altn BLK 4         128.2    P2p (BLOCKING)",
         },
       },
     },
@@ -349,7 +353,7 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
 export const TOPOLOGY_OSPF: NetworkTopology = {
   id: "ccna-ospf-routing",
   name: "OSPFv2 Point-to-Point Routing",
-  description: "Zwei Router R1 und R2 in OSPF Area 0 mit /30 Point-to-Point Transitnetz und Full Adjacency.",
+  description: "Zwei Router R1 und R2 in OSPF Area 0 mit /30 Point-to-Point Transitnetz (10.0.0.0/30) und Loopback Router-IDs.",
   version: "2.0",
   category: "routing",
   devices: [
@@ -365,9 +369,11 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       ],
       config: {
         hostname: "R1",
-        routingProtocols: ["OSPF 1"],
+        routingProtocols: ["OSPF 1 Area 0"],
         showOutputs: {
           "show ip ospf neighbor": "Neighbor ID     Pri   State           Dead Time   Address         Interface\n2.2.2.2           0   FULL/  -        00:00:34    10.0.0.2        GigabitEthernet0/0/0",
+          "show ip protocols": "*** Routing Protocol is \"ospf 1\" ***\n  Router ID 1.1.1.1\n  Number of areas in this router is 1. 1 normal, 0 stub, 0 nssa\n  Routing for Networks:\n    10.0.0.0 0.0.0.3 area 0\n    1.1.1.1 0.0.0.0 area 0\n  Routing Information Sources:\n    Gateway         Distance      Last Update\n    2.2.2.2              110      00:14:22",
+          "show ip route ospf": "Codes: C - connected, S - static, R - RIP, O - OSPF\n\nO    2.2.2.2/32 [110/2] via 10.0.0.2, 00:14:22, GigabitEthernet0/0/0",
         },
       },
     },
@@ -383,9 +389,11 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       ],
       config: {
         hostname: "R2",
-        routingProtocols: ["OSPF 1"],
+        routingProtocols: ["OSPF 1 Area 0"],
         showOutputs: {
           "show ip ospf neighbor": "Neighbor ID     Pri   State           Dead Time   Address         Interface\n1.1.1.1           0   FULL/  -        00:00:36    10.0.0.1        GigabitEthernet0/0/0",
+          "show ip protocols": "*** Routing Protocol is \"ospf 1\" ***\n  Router ID 2.2.2.2\n  Number of areas in this router is 1. 1 normal, 0 stub, 0 nssa\n  Routing for Networks:\n    10.0.0.0 0.0.0.3 area 0\n    2.2.2.2 0.0.0.0 area 0\n  Routing Information Sources:\n    Gateway         Distance      Last Update\n    1.1.1.1              110      00:14:25",
+          "show ip route ospf": "Codes: C - connected, S - static, R - RIP, O - OSPF\n\nO    1.1.1.1/32 [110/2] via 10.0.0.1, 00:14:25, GigabitEthernet0/0/0",
         },
       },
     },
@@ -399,7 +407,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       targetInterfaceId: "r2-transit",
       linkType: "serial",
       status: "up",
-      label: "10.0.0.0/30 (OSPF Area 0)",
+      label: "10.0.0.0/30 (Area 0)",
+      bandwidth: "1.544 Mbps",
       animated: true,
     },
   ],
