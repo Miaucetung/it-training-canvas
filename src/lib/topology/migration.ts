@@ -400,13 +400,26 @@ export function getBackupKeys(storage: Storage): string[] {
 
 /**
  * Bereinigt alte Backups, sodass maximal keepMax Backups erhalten bleiben.
+ * Löscht NIEMALS das jüngste Backup und NIEMALS Backups, die in protectedKeys gelistet sind.
  */
-export function pruneBackups(storage: Storage, keepMax: number = MAX_BACKUPS): void {
+export function pruneBackups(
+  storage: Storage,
+  keepMax: number = MAX_BACKUPS,
+  protectedKeys: string[] = []
+): void {
   const keys = getBackupKeys(storage);
-  while (keys.length > keepMax) {
-    const oldest = keys.shift();
-    if (oldest) {
-      storage.removeItem(oldest);
+  if (keys.length <= keepMax) return;
+
+  const newestKey = keys[keys.length - 1];
+  // Nur ältere Backups löschen, die weder das jüngste sind noch geschützt werden
+  const prunableKeys = keys.filter((k) => k !== newestKey && !protectedKeys.includes(k));
+
+  let currentCount = keys.length;
+  while (currentCount > keepMax && prunableKeys.length > 0) {
+    const toDelete = prunableKeys.shift();
+    if (toDelete) {
+      storage.removeItem(toDelete);
+      currentCount--;
     }
   }
 }
@@ -417,7 +430,8 @@ export function pruneBackups(storage: Storage, keepMax: number = MAX_BACKUPS): v
 export function safeSetItem(
   storage: Storage,
   key: string,
-  value: string
+  value: string,
+  protectedKeys: string[] = []
 ): { success: boolean; quotaExceeded?: boolean; error?: string } {
   try {
     storage.setItem(key, value);
@@ -432,8 +446,8 @@ export function safeSetItem(
       (err as Error)?.message?.toLowerCase().includes("quota");
 
     if (isQuota) {
-      // Versuch: Älteste Backups aufräumen
-      pruneBackups(storage, 1);
+      // Versuch: Ältere, ungeschützte Backups aufräumen
+      pruneBackups(storage, 1, protectedKeys);
       try {
         storage.setItem(key, value);
         return { success: true };

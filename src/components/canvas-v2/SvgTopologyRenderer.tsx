@@ -9,16 +9,28 @@ import {
 import { DeviceIcon } from "./DeviceIcons";
 import { LinkRenderer } from "./LinkRenderer";
 
+export type AnnotationHandleType = "nw" | "ne" | "se" | "sw" | "start" | "end";
+
 interface SvgTopologyRendererProps {
   topology: NetworkTopology;
   viewDensity?: "simple" | "detail";
   theme?: "dark" | "light";
   selectedDeviceId?: string | null;
   selectedLinkId?: string | null;
+  selectedAnnotationId?: string | null;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
   onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
   onDeviceContextMenu?: (device: TopologyDevice, e: React.MouseEvent) => void;
+  onAnnotationClick?: (annotation: TopologyAnnotation) => void;
+  onAnnotationPointerDown?: (annotation: TopologyAnnotation, e: React.PointerEvent) => void;
+  onAnnotationDoubleClick?: (annotation: TopologyAnnotation) => void;
+  onHandlePointerDown?: (
+    annotation: TopologyAnnotation,
+    handle: AnnotationHandleType,
+    e: React.PointerEvent
+  ) => void;
+  drawingAnnotationPreview?: TopologyAnnotation | null;
   snapGrid?: boolean;
   gridSize?: number;
   width?: number | string;
@@ -34,10 +46,16 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   theme = "dark",
   selectedDeviceId = null,
   selectedLinkId = null,
+  selectedAnnotationId = null,
   onDeviceClick,
   onLinkClick,
   onDevicePointerDown,
   onDeviceContextMenu,
+  onAnnotationClick,
+  onAnnotationPointerDown,
+  onAnnotationDoubleClick,
+  onHandlePointerDown,
+  drawingAnnotationPreview = null,
   snapGrid = false,
   gridSize = 20,
   width = "100%",
@@ -54,12 +72,203 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
     deviceMap.set(d.id, d);
   }
 
+  // 1. Trennung der Annotationen für CCNA-Ebenenreihenfolge:
+  // Hintergrund: Boxen, Kreise, Linien, Pfeile, Freihand, Text (hinter Geräten)
+  // Vordergrund: Notizen / Post-its (vor Geräten und Links!)
+  const backgroundAnnotations = (topology.annotations || []).filter(
+    (ann) => ann.type !== "note"
+  );
+  const noteAnnotations = (topology.annotations || []).filter(
+    (ann) => ann.type === "note"
+  );
+
+  const selectedAnnotation = (topology.annotations || []).find(
+    (a) => a.id === selectedAnnotationId
+  );
+
+  // Render-Funktion für ein einzelnes Annotations-Element
+  const renderAnnotationItem = (ann: TopologyAnnotation, isInteractive: boolean = true) => {
+    const isSelected = selectedAnnotationId === ann.id;
+
+    return (
+      <g
+        key={ann.id}
+        className={`topology-annotation ${isInteractive ? "cursor-pointer" : ""}`}
+        onPointerDown={
+          isInteractive
+            ? (e) => {
+                e.stopPropagation();
+                onAnnotationPointerDown?.(ann, e);
+              }
+            : undefined
+        }
+        onClick={
+          isInteractive
+            ? (e) => {
+                e.stopPropagation();
+                onAnnotationClick?.(ann);
+              }
+            : undefined
+        }
+        onDoubleClick={
+          isInteractive
+            ? (e) => {
+                e.stopPropagation();
+                onAnnotationDoubleClick?.(ann);
+              }
+            : undefined
+        }
+      >
+        {/* Freihand-Pfad */}
+        {ann.type === "freehand" && ann.points && ann.points.length > 0 && (
+          <polyline
+            points={ann.points.map((p) => `${p.x},${p.y}`).join(" ")}
+            fill="none"
+            stroke={isSelected ? "#38BDF8" : ann.color || "#F59E0B"}
+            strokeWidth={ann.strokeWidth || 3}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+
+        {/* Text */}
+        {ann.type === "text" && (
+          <text
+            x={ann.x}
+            y={ann.y}
+            fill={ann.color || (isDark ? "#38BDF8" : "#0284C7")}
+            fontSize={ann.fontSize || 14}
+            fontFamily={ann.fontFamily || "monospace"}
+            fontWeight="600"
+            className="select-none"
+          >
+            {ann.text || "Text"}
+          </text>
+        )}
+
+        {/* Haftnotiz (Post-it) */}
+        {ann.type === "note" && (
+          <g transform={`translate(${ann.x}, ${ann.y})`}>
+            {/* Notiz-Karte mit Schatten */}
+            <rect
+              x="0"
+              y="0"
+              width={ann.width || 150}
+              height={ann.height || 100}
+              rx="6"
+              fill={ann.fillColor || (isDark ? "#1E293B" : "#FEF3C7")}
+              stroke={isSelected ? "#38BDF8" : ann.color || (isDark ? "#475569" : "#F59E0B")}
+              strokeWidth={isSelected ? "2" : "1.5"}
+            />
+            {/* Notiz-Kopfleiste */}
+            <rect
+              x="0"
+              y="0"
+              width={ann.width || 150}
+              height="18"
+              rx="6"
+              fill={ann.color || (isDark ? "#334155" : "#FDE68A")}
+              opacity="0.85"
+            />
+            <text
+              x="8"
+              y="13"
+              fill={isDark ? "#F8FAFC" : "#78350F"}
+              fontSize="10"
+              fontWeight="bold"
+              fontFamily="sans-serif"
+            >
+              {ann.author ? `${ann.author}` : "NOTIZ"}
+            </text>
+            {/* Multi-Line Text mit Zeilenumbruch-Rendering */}
+            {(ann.text || "Notiz...").split("\n").map((line, lIdx) => (
+              <text
+                key={lIdx}
+                x="8"
+                y={32 + lIdx * 14}
+                fill={isDark ? "#E2E8F0" : "#92400E"}
+                fontSize="10.5"
+                fontFamily="sans-serif"
+              >
+                {line}
+              </text>
+            ))}
+          </g>
+        )}
+
+        {/* Linie */}
+        {ann.type === "line" && (
+          <line
+            x1={ann.x}
+            y1={ann.y}
+            x2={ann.endX ?? ann.x}
+            y2={ann.endY ?? ann.y}
+            stroke={isSelected ? "#38BDF8" : ann.color || "#64748B"}
+            strokeWidth={ann.strokeWidth || 2}
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+
+        {/* Pfeil */}
+        {ann.type === "arrow" && (
+          <line
+            x1={ann.x}
+            y1={ann.y}
+            x2={ann.endX ?? ann.x}
+            y2={ann.endY ?? ann.y}
+            stroke={isSelected ? "#38BDF8" : ann.color || "#10B981"}
+            strokeWidth={ann.strokeWidth || 2}
+            strokeLinecap="round"
+            markerEnd="url(#topo-arrowhead)"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+
+        {/* Rechteck / Box */}
+        {ann.type === "box" && (
+          <rect
+            x={ann.x}
+            y={ann.y}
+            width={ann.width || 140}
+            height={ann.height || 90}
+            rx="6"
+            fill={ann.fillColor || "transparent"}
+            stroke={isSelected ? "#38BDF8" : ann.color || "#64748B"}
+            strokeWidth={ann.strokeWidth || 2}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+
+        {/* Kreis / Ellipse */}
+        {ann.type === "circle" && (
+          <ellipse
+            cx={ann.x + (ann.width || 110) / 2}
+            cy={ann.y + (ann.height || 110) / 2}
+            rx={(ann.width || 110) / 2}
+            ry={(ann.height || 110) / 2}
+            fill={ann.fillColor || "transparent"}
+            stroke={isSelected ? "#38BDF8" : ann.color || "#EC4899"}
+            strokeWidth={ann.strokeWidth || 2}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+      </g>
+    );
+  };
+
   return (
     <svg
       width={width}
       height={height}
       className="w-full h-full select-none"
-      style={{ touchAction: "none" }}
+      style={{
+        touchAction: "none",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
     >
       {/* SVG Definitionen für Marker (Pfeilspitzen, Muster) */}
       <defs>
@@ -73,7 +282,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
         >
           <polygon
             points="0 0, 10 3.5, 0 7"
-            fill={isDark ? "#94A3B8" : "#475569"}
+            fill={isDark ? "#10B981" : "#059669"}
           />
         </marker>
         <pattern
@@ -139,115 +348,10 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           </g>
         ))}
 
-        {/* 2. Annotationen (Formen, Text, Pfeile, Freihand) */}
-        {topology.annotations?.map((ann) => (
-          <g key={ann.id} className="topology-annotation">
-            {ann.type === "freehand" && ann.points && ann.points.length > 1 && (
-              <polyline
-                points={ann.points.map((p) => `${p.x},${p.y}`).join(" ")}
-                fill="none"
-                stroke={ann.color || "#F59E0B"}
-                strokeWidth={ann.strokeWidth || 2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-            {ann.type === "text" && (
-              <text
-                x={ann.x}
-                y={ann.y}
-                fill={ann.color || (isDark ? "#F8FAFC" : "#0F172A")}
-                fontSize={ann.fontSize || 13}
-                fontFamily={ann.fontFamily || "monospace"}
-                fontWeight="500"
-              >
-                {ann.text}
-              </text>
-            )}
-            {ann.type === "note" && (
-              <g transform={`translate(${ann.x}, ${ann.y})`}>
-                <rect
-                  x="0"
-                  y="0"
-                  width={ann.width || 140}
-                  height={ann.height || 48}
-                  rx="6"
-                  fill={isDark ? "#1E293B" : "#FEF3C7"}
-                  stroke={ann.color || "#F59E0B"}
-                  strokeWidth="1"
-                />
-                <text
-                  x="8"
-                  y="16"
-                  fill={isDark ? "#F8FAFC" : "#78350F"}
-                  fontSize="11"
-                  fontWeight="600"
-                >
-                  {ann.author ? `${ann.author}:` : "Notiz:"}
-                </text>
-                <text
-                  x="8"
-                  y="32"
-                  fill={isDark ? "#CBD5E1" : "#92400E"}
-                  fontSize="10"
-                >
-                  {ann.text}
-                </text>
-              </g>
-            )}
-            {ann.type === "line" && (
-              <line
-                x1={ann.x}
-                y1={ann.y}
-                x2={ann.endX ?? ann.x}
-                y2={ann.endY ?? ann.y}
-                stroke={ann.color || "#64748B"}
-                strokeWidth={ann.strokeWidth || 1.5}
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-            {ann.type === "arrow" && (
-              <line
-                x1={ann.x}
-                y1={ann.y}
-                x2={ann.endX ?? ann.x}
-                y2={ann.endY ?? ann.y}
-                stroke={ann.color || "#10B981"}
-                strokeWidth={ann.strokeWidth || 2}
-                markerEnd="url(#topo-arrowhead)"
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-            {ann.type === "box" && (
-              <rect
-                x={ann.x}
-                y={ann.y}
-                width={ann.width || 80}
-                height={ann.height || 50}
-                rx="6"
-                fill={ann.fillColor || "transparent"}
-                stroke={ann.color || "#64748B"}
-                strokeWidth={ann.strokeWidth || 1.5}
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-            {ann.type === "circle" && (
-              <ellipse
-                cx={ann.x + (ann.width || 60) / 2}
-                cy={ann.y + (ann.height || 60) / 2}
-                rx={(ann.width || 60) / 2}
-                ry={(ann.height || 60) / 2}
-                fill={ann.fillColor || "transparent"}
-                stroke={ann.color || "#EC4899"}
-                strokeWidth={ann.strokeWidth || 1.5}
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
-          </g>
-        ))}
+        {/* 2. Hintergrund-Annotationen (Formen, Linien, Freihand, Text hinter Geräten) */}
+        {backgroundAnnotations.map((ann) => renderAnnotationItem(ann))}
 
-        {/* 3. Links (Verbindungen zwischen Geräten) */}
+        {/* 3. Links (Physische Verbindungen zwischen Geräten) */}
         {topology.links.map((link) => {
           const src = deviceMap.get(link.sourceDeviceId);
           const tgt = deviceMap.get(link.targetDeviceId);
@@ -267,7 +371,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           );
         })}
 
-        {/* 4. Geräte (Vordergrund-Layer) */}
+        {/* 4. Geräte (Netzwerkkomponenten) */}
         {topology.devices.map((device) => {
           const isSelected = selectedDeviceId === device.id;
           const w = device.width || 64;
@@ -377,6 +481,150 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
             </g>
           );
         })}
+
+        {/* 5. Vordergrund-Annotationen: Notizen / Post-its (vor Geräten!) */}
+        {noteAnnotations.map((ann) => renderAnnotationItem(ann))}
+
+        {/* 6. Live-Vorschau der aktuell gezeichneten Annotation */}
+        {drawingAnnotationPreview && renderAnnotationItem(drawingAnnotationPreview, false)}
+
+        {/* 7. Selektions-Anfasser (Resize & Move Handles) für ausgewählte Annotation */}
+        {selectedAnnotation && (
+          <g className="annotation-handles pointer-events-auto">
+            {/* Box, Kreis & Notiz: 4 Eckgriffe */}
+            {["box", "circle", "note"].includes(selectedAnnotation.type) && (
+              <>
+                <rect
+                  x={selectedAnnotation.x - 2}
+                  y={selectedAnnotation.y - 2}
+                  width={(selectedAnnotation.width || 120) + 4}
+                  height={(selectedAnnotation.height || 80) + 4}
+                  fill="none"
+                  stroke="#38BDF8"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                  vectorEffect="non-scaling-stroke"
+                  pointerEvents="none"
+                />
+                {/* NW Griff */}
+                <rect
+                  x={selectedAnnotation.x - 5}
+                  y={selectedAnnotation.y - 5}
+                  width={10}
+                  height={10}
+                  rx="2"
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-nwse-resize"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "nw", e);
+                  }}
+                />
+                {/* NE Griff */}
+                <rect
+                  x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
+                  y={selectedAnnotation.y - 5}
+                  width={10}
+                  height={10}
+                  rx="2"
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-nesw-resize"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "ne", e);
+                  }}
+                />
+                {/* SE Griff */}
+                <rect
+                  x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
+                  y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
+                  width={10}
+                  height={10}
+                  rx="2"
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-nwse-resize"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "se", e);
+                  }}
+                />
+                {/* SW Griff */}
+                <rect
+                  x={selectedAnnotation.x - 5}
+                  y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
+                  width={10}
+                  height={10}
+                  rx="2"
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-nesw-resize"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "sw", e);
+                  }}
+                />
+              </>
+            )}
+
+            {/* Linie & Pfeil: Start- und Endpunkt-Griffe */}
+            {["line", "arrow"].includes(selectedAnnotation.type) && (
+              <>
+                {/* Startpunkt */}
+                <circle
+                  cx={selectedAnnotation.x}
+                  cy={selectedAnnotation.y}
+                  r={6}
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-move"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "start", e);
+                  }}
+                />
+                {/* Endpunkt */}
+                <circle
+                  cx={selectedAnnotation.endX ?? selectedAnnotation.x}
+                  cy={selectedAnnotation.endY ?? selectedAnnotation.y}
+                  r={6}
+                  fill="#FFFFFF"
+                  stroke="#0284C7"
+                  strokeWidth="2"
+                  className="cursor-move"
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onHandlePointerDown?.(selectedAnnotation, "end", e);
+                  }}
+                />
+              </>
+            )}
+
+            {/* Text & Freihand: Bounding-Halo */}
+            {["text", "freehand"].includes(selectedAnnotation.type) && (
+              <rect
+                x={selectedAnnotation.x - 6}
+                y={selectedAnnotation.y - (selectedAnnotation.type === "text" ? 18 : 6)}
+                width={(selectedAnnotation.width || (selectedAnnotation.text?.length || 10) * 9) + 12}
+                height={(selectedAnnotation.height || 26) + 12}
+                rx="4"
+                fill="none"
+                stroke="#38BDF8"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+                vectorEffect="non-scaling-stroke"
+                pointerEvents="none"
+              />
+            )}
+          </g>
+        )}
       </g>
     </svg>
   );

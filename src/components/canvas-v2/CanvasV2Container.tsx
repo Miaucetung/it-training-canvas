@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import {
   LinkType,
   NetworkTopology,
+  TopologyAnnotation,
   TopologyDevice,
   TopologyLink,
 } from "@/types/topology";
@@ -16,6 +17,7 @@ import {
 import {
   migrateLocalStorageCanvasToV2,
   restoreBackupSnapshot,
+  safeSetItem,
   V2_STORAGE_KEY,
   MigrationConflict,
 } from "@/lib/topology/migration";
@@ -28,12 +30,18 @@ import {
   deleteLinkFromTopology,
   snapToGrid,
   DEFAULT_GRID_SIZE,
+  createNewAnnotation,
+  addAnnotationToTopology,
+  updateAnnotationInTopology,
+  deleteAnnotationFromTopology,
+  moveAnnotationInTopology,
+  smoothFreehandPoints,
 } from "@/lib/topology/topology-operations";
 import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
-import { SvgTopologyRenderer } from "./SvgTopologyRenderer";
+import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
-import { DevicePalette } from "./DevicePalette";
+import { CanvasToolMode, DevicePalette } from "./DevicePalette";
 import { ConnectDialog } from "./ConnectDialog";
 import { DeviceContextMenu } from "./DeviceContextMenu";
 import { toast } from "sonner";
@@ -49,23 +57,22 @@ import {
 } from "@phosphor-icons/react";
 
 interface CanvasV2ContainerProps {
-  theme?: "dark" | "light";
+  initialTopology?: NetworkTopology;
   onSwitchToV1?: () => void;
+  theme?: "dark" | "light";
 }
 
 const MIN_SCALE = 0.25;
-const MAX_SCALE = 3.5;
+const MAX_SCALE = 3.0;
 
 export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
-  theme = "dark",
+  initialTopology = TOPOLOGY_ROUTER_ON_A_STICK,
   onSwitchToV1,
+  theme = "dark",
 }) => {
   const isDark = theme === "dark";
 
-  // Verfügbare Topologien
-  const [selectedTopologyId, setSelectedTopologyId] = useState<string>("ccna-router-on-a-stick");
-
-  // Undo/Redo Topology History
+  // Undo / Redo Historie mit useTopologyHistory Hook
   const {
     topology: activeTopology,
     setTopology,
@@ -74,28 +81,31 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     canUndo,
     canRedo,
     resetTopology,
-  } = useTopologyHistory(TOPOLOGY_ROUTER_ON_A_STICK);
+  } = useTopologyHistory(initialTopology);
 
-  // Migrierte Topologien aus dem Altsystem laden
+  // Topologie-Auswahl
+  const [selectedTopologyId, setSelectedTopologyId] = useState<string>(initialTopology.id);
   const [migratedTopologies, setMigratedTopologies] = useState<Record<string, NetworkTopology> | null>(null);
   const [migrationConflicts, setMigrationConflicts] = useState<MigrationConflict[]>([]);
 
-  // View-State (Zoom & Pan)
+  // Viewport & Zoom/Pan State
   const [scale, setScale] = useState<number>(1);
   const [translateX, setTranslateX] = useState<number>(0);
   const [translateY, setTranslateY] = useState<number>(0);
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const [panStart, setPanStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Touch Gesture Tracking (Pinch & Double Tap)
+  // Touch Zoom (Pinch) Tracking
   const lastTouchDistRef = useRef<number | null>(null);
   const lastTouchCenterRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapTimeRef = useRef<number>(0);
   const lastTapPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const touchStartClientRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Bearbeitungs-Modi & Palette (Schritt 2d-1)
+  // Bearbeitungs-Modi & Palette (Schritte 2d-1 & 2d-2)
   const [activePlacementType, setActivePlacementType] = useState<TopologyDevice["type"] | null>(null);
-  const [activeMode, setActiveMode] = useState<"select" | "connect">("select");
+  const [activeMode, setActiveMode] = useState<CanvasToolMode>("select");
+  const [activeAnnotationColor, setActiveAnnotationColor] = useState<string>("#F59E0B");
   const [snapGrid, setSnapGrid] = useState<boolean>(false);
 
   // Dragging von Geräten auf dem Canvas
@@ -104,6 +114,32 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [initialDevicePos, setInitialDevicePos] = useState<{ x: number; y: number } | null>(null);
   const [hasMovedDevice, setHasMovedDevice] = useState<boolean>(false);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Dragging & Resizing von Annotationen (Schritt 2d-2)
+  const [selectedAnnotation, setSelectedAnnotation] = useState<TopologyAnnotation | null>(null);
+  const [draggingAnnotationId, setDraggingAnnotationId] = useState<string | null>(null);
+  const [hasMovedAnnotation, setHasMovedAnnotation] = useState<boolean>(false);
+  const [draggingHandle, setDraggingHandle] = useState<{
+    annotation: TopologyAnnotation;
+    handle: AnnotationHandleType;
+    startClient: { x: number; y: number };
+  } | null>(null);
+
+  // Live-Zeichnen von Annotationen
+  const [isDrawingAnnotation, setIsDrawingAnnotation] = useState<boolean>(false);
+  const [drawingStart, setDrawingStart] = useState<{ x: number; y: number } | null>(null);
+  const [drawingAnnotationPreview, setDrawingAnnotationPreview] = useState<TopologyAnnotation | null>(null);
+
+  // Inline-Editor für Text und Notizen (DOM-Overlay)
+  const [editingAnnotation, setEditingAnnotation] = useState<{
+    id: string;
+    text: string;
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+  } | null>(null);
+  const [editingText, setEditingText] = useState<string>("");
 
   // Verbindungs-Dialog & Kontextmenü
   const [connectSourceDevice, setConnectSourceDevice] = useState<TopologyDevice | null>(null);
@@ -157,7 +193,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     }
   }, []);
 
-  // ResizeObserver: Reaktives Tracking für Container-Größe, Orientierungswechsel und Sidebar-Kollaps
+  // ResizeObserver: Reaktives Tracking für Container-Größe
   useEffect(() => {
     if (!viewportRef.current) return;
 
@@ -183,17 +219,30 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Ansicht einpassen (Fit View)
   const fitView = useCallback((topo = activeTopology) => {
-    if (topo.devices.length === 0) {
+    if (topo.devices.length === 0 && (!topo.annotations || topo.annotations.length === 0)) {
       setScale(1);
       setTranslateX(0);
       setTranslateY(0);
       return;
     }
 
-    const minX = Math.min(...topo.devices.map((d) => d.x));
-    const maxX = Math.max(...topo.devices.map((d) => d.x + (d.width || 80)));
-    const minY = Math.min(...topo.devices.map((d) => d.y));
-    const maxY = Math.max(...topo.devices.map((d) => d.y + (d.height || 60)));
+    const allX: number[] = [
+      ...topo.devices.map((d) => d.x),
+      ...topo.devices.map((d) => d.x + (d.width || 80)),
+      ...(topo.annotations || []).map((a) => a.x),
+      ...(topo.annotations || []).map((a) => a.x + (a.width || 80)),
+    ];
+    const allY: number[] = [
+      ...topo.devices.map((d) => d.y),
+      ...topo.devices.map((d) => d.y + (d.height || 60)),
+      ...(topo.annotations || []).map((a) => a.y),
+      ...(topo.annotations || []).map((a) => a.y + (a.height || 60)),
+    ];
+
+    const minX = Math.min(...allX);
+    const maxX = Math.max(...allX);
+    const minY = Math.min(...allY);
+    const maxY = Math.max(...allY);
 
     const width = maxX - minX + 120;
     const height = maxY - minY + 120;
@@ -216,6 +265,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     setSelectedTopologyId(id);
     setSelectedDevice(null);
     setSelectedLink(null);
+    setSelectedAnnotation(null);
     setConnectSourceDevice(null);
 
     let nextTopo: NetworkTopology | null = null;
@@ -275,7 +325,6 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   };
 
   // ── GERÄTE-INTERAKTIONEN (Schritt 2d-1) ──
-  // PointerDown auf Gerät: Vorbereitung Verschieben oder Connect
   const handleDevicePointerDown = (device: TopologyDevice, e: React.PointerEvent) => {
     if (activeMode === "connect") {
       e.stopPropagation();
@@ -289,9 +338,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       return;
     }
 
+    if (activeMode !== "select") return;
+
     e.stopPropagation();
     setSelectedDevice(device);
     setSelectedLink(null);
+    setSelectedAnnotation(null);
 
     setDraggingDeviceId(device.id);
     setDragStartClient({ x: e.clientX, y: e.clientY });
@@ -306,14 +358,72 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     }, 500);
   };
 
-  // Rechtsklick auf Gerät = Kontextmenü
   const handleDeviceContextMenu = (device: TopologyDevice, e: React.MouseEvent) => {
     e.preventDefault();
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     setContextMenuState({ device, x: e.clientX, y: e.clientY });
   };
 
-  // Löschen des selektierten Geräts oder Links mit Undo
+  // ── ANNOTATION-INTERAKTIONEN (Schritt 2d-2) ──
+  const handleAnnotationPointerDown = (ann: TopologyAnnotation, e: React.PointerEvent) => {
+    if (activeMode !== "select") return;
+
+    e.stopPropagation();
+    setSelectedAnnotation(ann);
+    setSelectedDevice(null);
+    setSelectedLink(null);
+
+    setDraggingAnnotationId(ann.id);
+    setDragStartClient({ x: e.clientX, y: e.clientY });
+    setHasMovedAnnotation(false);
+  };
+
+  const handleAnnotationDoubleClick = (ann: TopologyAnnotation) => {
+    if (ann.type === "text" || ann.type === "note") {
+      setEditingAnnotation({
+        id: ann.id,
+        text: ann.text || "",
+        x: ann.x,
+        y: ann.y,
+        width: ann.width,
+        height: ann.height,
+      });
+      setEditingText(ann.text || "");
+    }
+  };
+
+  const handleHandlePointerDown = (
+    ann: TopologyAnnotation,
+    handle: AnnotationHandleType,
+    e: React.PointerEvent
+  ) => {
+    e.stopPropagation();
+    setDraggingHandle({
+      annotation: ann,
+      handle,
+      startClient: { x: e.clientX, y: e.clientY },
+    });
+  };
+
+  // Inline-Editor Commit / Cancel (1 Undo-Schritt!)
+  const commitInlineEdit = () => {
+    if (!editingAnnotation) return;
+    setTopology(
+      (prev) =>
+        updateAnnotationInTopology(prev, editingAnnotation.id, {
+          text: editingText,
+        }),
+      true
+    );
+    setEditingAnnotation(null);
+    toast.success("Text aktualisiert");
+  };
+
+  const cancelInlineEdit = () => {
+    setEditingAnnotation(null);
+  };
+
+  // Löschen des selektierten Elements mit Undo
   const handleDeleteSelected = useCallback(() => {
     if (selectedDevice) {
       const devName = selectedDevice.name;
@@ -324,8 +434,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       setTopology((prev) => deleteLinkFromTopology(prev, selectedLink.id), true);
       setSelectedLink(null);
       toast.info(`Verbindung gelöscht (Rückgängig mit Strg+Z)`);
+    } else if (selectedAnnotation) {
+      setTopology((prev) => deleteAnnotationFromTopology(prev, selectedAnnotation.id), true);
+      setSelectedAnnotation(null);
+      toast.info(`Annotation gelöscht (Rückgängig mit Strg+Z)`);
     }
-  }, [selectedDevice, selectedLink, setTopology]);
+  }, [selectedDevice, selectedLink, selectedAnnotation, setTopology]);
 
   // Platzieren per Tap auf freie Canvas-Fläche
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -351,6 +465,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     // Leere Fläche angeklickt -> Selektion aufheben
     setSelectedDevice(null);
     setSelectedLink(null);
+    setSelectedAnnotation(null);
     setConnectSourceDevice(null);
   };
 
@@ -374,20 +489,146 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     toast.success(`${newDev.name} hinzugefügt`);
   };
 
-  // Maus- und Touch-Pan / Drag Handlers
+  // Maus- und Touch-Pan / Drag / Draw Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button, select")) return;
+    if ((e.target as HTMLElement).closest(".topology-device, .topology-link, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
+    if (!viewportRef.current) return;
+
+    const isDrawingTool = ["freehand", "line", "arrow", "box", "circle", "text", "note"].includes(activeMode);
+
+    if (isDrawingTool) {
+      const rect = viewportRef.current.getBoundingClientRect();
+      let worldX = (e.clientX - rect.left - translateX) / scale;
+      let worldY = (e.clientY - rect.top - translateY) / scale;
+      if (snapGrid) {
+        worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+        worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+      }
+
+      if (activeMode === "text") {
+        const textAnn = createNewAnnotation("text", Math.round(worldX), Math.round(worldY), {
+          color: activeAnnotationColor,
+          text: "Neuer Text",
+        });
+        setTopology((prev) => addAnnotationToTopology(prev, textAnn), true);
+        setSelectedAnnotation(textAnn);
+        setEditingAnnotation({ id: textAnn.id, text: "Neuer Text", x: textAnn.x, y: textAnn.y });
+        setEditingText("Neuer Text");
+        setActiveMode("select");
+        return;
+      }
+
+      if (activeMode === "note") {
+        const noteAnn = createNewAnnotation("note", Math.round(worldX), Math.round(worldY), {
+          color: activeAnnotationColor,
+          text: "Wichtige Notiz...",
+        });
+        setTopology((prev) => addAnnotationToTopology(prev, noteAnn), true);
+        setSelectedAnnotation(noteAnn);
+        setEditingAnnotation({
+          id: noteAnn.id,
+          text: "Wichtige Notiz...",
+          x: noteAnn.x,
+          y: noteAnn.y,
+          width: noteAnn.width,
+          height: noteAnn.height,
+        });
+        setEditingText("Wichtige Notiz...");
+        setActiveMode("select");
+        return;
+      }
+
+      setIsDrawingAnnotation(true);
+      setDrawingStart({ x: worldX, y: worldY });
+      const initialPreview = createNewAnnotation(activeMode as TopologyAnnotation["type"], Math.round(worldX), Math.round(worldY), {
+        color: activeAnnotationColor,
+        endX: Math.round(worldX),
+        endY: Math.round(worldY),
+        width: 0,
+        height: 0,
+        points: [{ x: Math.round(worldX), y: Math.round(worldY) }],
+      });
+      setDrawingAnnotationPreview(initialPreview);
+      return;
+    }
+
     setIsPanning(true);
     setPanStart({ x: e.clientX - translateX, y: e.clientY - translateY });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    // 1. Live-Zeichnen von Annotationen
+    if (isDrawingAnnotation && drawingStart && drawingAnnotationPreview && viewportRef.current) {
+      const rect = viewportRef.current.getBoundingClientRect();
+      let worldX = (e.clientX - rect.left - translateX) / scale;
+      let worldY = (e.clientY - rect.top - translateY) / scale;
+      if (snapGrid) {
+        worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+        worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+      }
+
+      if (drawingAnnotationPreview.type === "freehand") {
+        setDrawingAnnotationPreview((prev) =>
+          prev
+            ? {
+                ...prev,
+                points: [...(prev.points || []), { x: Math.round(worldX), y: Math.round(worldY) }],
+              }
+            : null
+        );
+      } else if (drawingAnnotationPreview.type === "line" || drawingAnnotationPreview.type === "arrow") {
+        setDrawingAnnotationPreview((prev) =>
+          prev ? { ...prev, endX: Math.round(worldX), endY: Math.round(worldY) } : null
+        );
+      } else if (drawingAnnotationPreview.type === "box" || drawingAnnotationPreview.type === "circle") {
+        const minX = Math.min(drawingStart.x, worldX);
+        const minY = Math.min(drawingStart.y, worldY);
+        const w = Math.abs(worldX - drawingStart.x);
+        const h = Math.abs(worldY - drawingStart.y);
+        setDrawingAnnotationPreview((prev) =>
+          prev
+            ? {
+                ...prev,
+                x: Math.round(minX),
+                y: Math.round(minY),
+                width: Math.round(Math.max(10, w)),
+                height: Math.round(Math.max(10, h)),
+              }
+            : null
+        );
+      }
+      return;
+    }
+
+    // 2. Resizen von Annotationen über Anfasser
+    if (draggingHandle) {
+      const dx = (e.clientX - draggingHandle.startClient.x) / scale;
+      const dy = (e.clientY - draggingHandle.startClient.y) / scale;
+      const ann = draggingHandle.annotation;
+
+      if (draggingHandle.handle === "se") {
+        const newW = Math.max(20, (ann.width || 120) + dx);
+        const newH = Math.max(20, (ann.height || 80) + dy);
+        setTopology((prev) => updateAnnotationInTopology(prev, ann.id, { width: Math.round(newW), height: Math.round(newH) }), false);
+      } else if (draggingHandle.handle === "end") {
+        const endX = (ann.endX ?? ann.x) + dx;
+        const endY = (ann.endY ?? ann.y) + dy;
+        setTopology((prev) => updateAnnotationInTopology(prev, ann.id, { endX: Math.round(endX), endY: Math.round(endY) }), false);
+      } else if (draggingHandle.handle === "start") {
+        const startX = ann.x + dx;
+        const startY = ann.y + dy;
+        setTopology((prev) => updateAnnotationInTopology(prev, ann.id, { x: Math.round(startX), y: Math.round(startY) }), false);
+      }
+      return;
+    }
+
+    // 3. Verschieben von Geräten
     if (draggingDeviceId && dragStartClient && initialDevicePos) {
       const dx = e.clientX - dragStartClient.x;
       const dy = e.clientY - dragStartClient.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist > 6) {
+      if (dist > 10) {
         if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
         setHasMovedDevice(true);
       }
@@ -403,6 +644,19 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       return;
     }
 
+    // 4. Verschieben von Annotationen
+    if (draggingAnnotationId && dragStartClient) {
+      const dx = (e.clientX - dragStartClient.x) / scale;
+      const dy = (e.clientY - dragStartClient.y) / scale;
+      if (Math.hypot(dx, dy) > 6) {
+        setHasMovedAnnotation(true);
+      }
+      setTopology((prev) => moveAnnotationInTopology(prev, draggingAnnotationId, dx, dy, 0), false);
+      setDragStartClient({ x: e.clientX, y: e.clientY });
+      return;
+    }
+
+    // 5. Panning des Canvas
     if (!isPanning) return;
     setTranslateX(e.clientX - panStart.x);
     setTranslateY(e.clientY - panStart.y);
@@ -411,19 +665,54 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const handleMouseUp = () => {
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
 
+    // Live-Zeichnen abschließen (1 Undo-Schritt!)
+    if (isDrawingAnnotation && drawingAnnotationPreview) {
+      let finalAnn = drawingAnnotationPreview;
+      if (finalAnn.type === "freehand") {
+        finalAnn = {
+          ...finalAnn,
+          points: smoothFreehandPoints(finalAnn.points || []),
+        };
+      }
+
+      const isValid =
+        (finalAnn.type === "freehand" && (finalAnn.points?.length || 0) > 1) ||
+        (finalAnn.type !== "freehand" && ((finalAnn.width || 0) > 10 || Math.hypot((finalAnn.endX ?? 0) - finalAnn.x, (finalAnn.endY ?? 0) - finalAnn.y) > 10));
+
+      if (isValid) {
+        setTopology((prev) => addAnnotationToTopology(prev, finalAnn), true);
+        setSelectedAnnotation(finalAnn);
+        toast.success("Annotation hinzugefügt");
+      }
+
+      setIsDrawingAnnotation(false);
+      setDrawingStart(null);
+      setDrawingAnnotationPreview(null);
+    }
+
+    if (draggingHandle) {
+      setTopology((prev) => ({ ...prev }), true);
+      setDraggingHandle(null);
+    }
+
     if (draggingDeviceId && hasMovedDevice) {
-      // Endgültige Position in Undo-Historie sichern
+      setTopology((prev) => ({ ...prev }), true);
+    }
+
+    if (draggingAnnotationId && hasMovedAnnotation) {
       setTopology((prev) => ({ ...prev }), true);
     }
 
     setDraggingDeviceId(null);
+    setDraggingAnnotationId(null);
     setDragStartClient(null);
     setInitialDevicePos(null);
     setHasMovedDevice(false);
+    setHasMovedAnnotation(false);
     setIsPanning(false);
   };
 
-  // Touch-Gesten: Pinch-to-Zoom zum Mittelpunkt der Finger & 1-Finger Pan / Device Drag
+  // Touch-Gesten: 1 Finger zeichnet / verschiebt / pannt, 2 Finger führen Pinch & Pan aus
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!viewportRef.current) return;
     const rect = viewportRef.current.getBoundingClientRect();
@@ -432,6 +721,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       const t = e.touches[0];
       const now = Date.now();
       const distFromLastTap = Math.hypot(t.clientX - lastTapPosRef.current.x, t.clientY - lastTapPosRef.current.y);
+      touchStartClientRef.current = { x: t.clientX, y: t.clientY };
 
       // Doppeltipp-Erkennung (< 300ms)
       if (now - lastTapTimeRef.current < 300 && distFromLastTap < 30) {
@@ -447,14 +737,64 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       lastTapTimeRef.current = now;
       lastTapPosRef.current = { x: t.clientX, y: t.clientY };
 
-      if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button, select")) return;
+      const isDrawingTool = ["freehand", "line", "arrow", "box", "circle", "text", "note"].includes(activeMode);
+      if (isDrawingTool) {
+        let worldX = (t.clientX - rect.left - translateX) / scale;
+        let worldY = (t.clientY - rect.top - translateY) / scale;
+        if (snapGrid) {
+          worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+          worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+        }
+
+        if (activeMode === "text" || activeMode === "note") {
+          const newAnn = createNewAnnotation(activeMode, Math.round(worldX), Math.round(worldY), {
+            color: activeAnnotationColor,
+            text: activeMode === "text" ? "Neuer Text" : "Wichtige Notiz...",
+          });
+          setTopology((prev) => addAnnotationToTopology(prev, newAnn), true);
+          setSelectedAnnotation(newAnn);
+          setEditingAnnotation({
+            id: newAnn.id,
+            text: newAnn.text || "",
+            x: newAnn.x,
+            y: newAnn.y,
+            width: newAnn.width,
+            height: newAnn.height,
+          });
+          setEditingText(newAnn.text || "");
+          setActiveMode("select");
+          return;
+        }
+
+        setIsDrawingAnnotation(true);
+        setDrawingStart({ x: worldX, y: worldY });
+        const initialPreview = createNewAnnotation(activeMode as TopologyAnnotation["type"], Math.round(worldX), Math.round(worldY), {
+          color: activeAnnotationColor,
+          endX: Math.round(worldX),
+          endY: Math.round(worldY),
+          width: 0,
+          height: 0,
+          points: [{ x: Math.round(worldX), y: Math.round(worldY) }],
+        });
+        setDrawingAnnotationPreview(initialPreview);
+        return;
+      }
+
+      if ((e.target as HTMLElement).closest(".topology-device, .topology-link, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
+
       setIsPanning(true);
       setPanStart({ x: t.clientX - translateX, y: t.clientY - translateY });
     } else if (e.touches.length === 2) {
-      // 2 Finger Pinch Start
+      // 2 Finger Touch: Abbrechen von Zeichnen/Long-Press und Umschalten auf 2-Finger Zoom/Pan
       if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      if (isDrawingAnnotation) {
+        setIsDrawingAnnotation(false);
+        setDrawingAnnotationPreview(null);
+      }
       setDraggingDeviceId(null);
+      setDraggingAnnotationId(null);
       setIsPanning(false);
+
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
@@ -473,13 +813,62 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     if (e.touches.length === 1) {
       const t = e.touches[0];
 
+      // Long-Press bricht sofort ab bei Bewegung > 10px
+      const distFromStart = Math.hypot(
+        t.clientX - touchStartClientRef.current.x,
+        t.clientY - touchStartClientRef.current.y
+      );
+      if (distFromStart > 10 && longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+
+      // 1-Finger Zeichnen
+      if (isDrawingAnnotation && drawingStart && drawingAnnotationPreview) {
+        let worldX = (t.clientX - rect.left - translateX) / scale;
+        let worldY = (t.clientY - rect.top - translateY) / scale;
+        if (snapGrid) {
+          worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+          worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+        }
+
+        if (drawingAnnotationPreview.type === "freehand") {
+          setDrawingAnnotationPreview((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  points: [...(prev.points || []), { x: Math.round(worldX), y: Math.round(worldY) }],
+                }
+              : null
+          );
+        } else if (drawingAnnotationPreview.type === "line" || drawingAnnotationPreview.type === "arrow") {
+          setDrawingAnnotationPreview((prev) =>
+            prev ? { ...prev, endX: Math.round(worldX), endY: Math.round(worldY) } : null
+          );
+        } else if (drawingAnnotationPreview.type === "box" || drawingAnnotationPreview.type === "circle") {
+          const minX = Math.min(drawingStart.x, worldX);
+          const minY = Math.min(drawingStart.y, worldY);
+          const w = Math.abs(worldX - drawingStart.x);
+          const h = Math.abs(worldY - drawingStart.y);
+          setDrawingAnnotationPreview((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  x: Math.round(minX),
+                  y: Math.round(minY),
+                  width: Math.round(Math.max(10, w)),
+                  height: Math.round(Math.max(10, h)),
+                }
+              : null
+          );
+        }
+        return;
+      }
+
+      // 1-Finger Geräte Verschieben
       if (draggingDeviceId && dragStartClient && initialDevicePos) {
         const dx = t.clientX - dragStartClient.x;
         const dy = t.clientY - dragStartClient.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist > 8) {
-          if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+        if (Math.hypot(dx, dy) > 10) {
           setHasMovedDevice(true);
         }
 
@@ -494,11 +883,13 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         return;
       }
 
+      // 1-Finger Pan
       if (isPanning) {
         setTranslateX(t.clientX - panStart.x);
         setTranslateY(t.clientY - panStart.y);
       }
     } else if (e.touches.length === 2 && lastTouchDistRef.current !== null && lastTouchCenterRef.current) {
+      // 2 Finger Zoom & Pan
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
@@ -516,29 +907,44 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   };
 
   const handleTouchEnd = () => {
-    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-
-    if (draggingDeviceId && hasMovedDevice) {
-      setTopology((prev) => ({ ...prev }), true);
-    }
-
-    setDraggingDeviceId(null);
-    setDragStartClient(null);
-    setInitialDevicePos(null);
-    setHasMovedDevice(false);
-    setIsPanning(false);
+    handleMouseUp();
     lastTouchDistRef.current = null;
     lastTouchCenterRef.current = null;
   };
 
   // Tastatursteuerung:
+  // - Escape: Zurück zu Modus 'select', Selektion aufheben
+  // - Delete / Backspace: Löscht nur wenn Fokus NICHT in Input/Textarea/Dialog liegt!
   // - Shift + Pfeiltasten: Verschiebt ausgewähltes Gerät am Raster
   // - Reguläre Pfeiltasten: Pannen des Viewports
   // - Strg+Z / Strg+Y: Undo / Redo
-  // - Entf / Backspace: Ausgewähltes Element löschen
   // - +/- / 0: Zoom & Fit View
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+    const target = e.target as HTMLElement | null;
+    const isFocusInInput =
+      target?.tagName === "INPUT" ||
+      target?.tagName === "TEXTAREA" ||
+      target?.tagName === "SELECT" ||
+      target?.isContentEditable ||
+      Boolean(target?.closest("input, textarea, select, [contenteditable='true'], dialog, [role='dialog']")) ||
+      connectDialogState !== null ||
+      contextMenuState !== null ||
+      editingAnnotation !== null;
+
+    // Wenn Fokus in einem Formularfeld oder Dialog liegt: Keinerlei Tastatur-Canvas-Aktionen!
+    if (isFocusInInput) return;
+
+    // Escape: Zurück zu Auswahl-Modus
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setActiveMode("select");
+      setActivePlacementType(null);
+      setSelectedDevice(null);
+      setSelectedLink(null);
+      setSelectedAnnotation(null);
+      setConnectSourceDevice(null);
+      return;
+    }
 
     // Undo / Redo (Strg+Z / Strg+Y bzw. Cmd+Z / Cmd+Shift+Z)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -557,7 +963,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       return;
     }
 
-    // Löschen mit Undo
+    // Löschen mit Undo (nur wenn Canvas-Fokus!)
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       handleDeleteSelected();
@@ -565,7 +971,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     }
 
     // Ausgewähltes Gerät mit Shift + Pfeiltasten verschieben
-    if (selectedDevice && e.shiftKey && (e.key.startsWith("Arrow"))) {
+    if (selectedDevice && e.shiftKey && e.key.startsWith("Arrow")) {
       e.preventDefault();
       const step = snapGrid ? DEFAULT_GRID_SIZE : 15;
       let newX = selectedDevice.x;
@@ -613,6 +1019,11 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       className={`relative w-full h-full flex flex-col select-none overflow-hidden outline-none ${
         isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       }`}
+      style={{
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
     >
       {/* ── TOPBAR: Steuerung, Topologie-Auswahl & Feature-Flag ── */}
       <div
@@ -768,7 +1179,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       </div>
 
-      {/* ── 2. GERÄTEPALETTE & EDITING TOOLBAR (Schritt 2d-1) ── */}
+      {/* ── 2. GERÄTEPALETTE & EDITING TOOLBAR (Schritte 2d-1 & 2d-2) ── */}
       <DevicePalette
         theme={theme}
         activePlacementType={activePlacementType}
@@ -778,6 +1189,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           setActiveMode(m);
           setConnectSourceDevice(null);
         }}
+        activeAnnotationColor={activeAnnotationColor}
+        onSelectAnnotationColor={setActiveAnnotationColor}
         snapGrid={snapGrid}
         onToggleSnapGrid={() => setSnapGrid((s) => !s)}
         canUndo={canUndo}
@@ -786,38 +1199,46 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         onRedo={redo}
         selectedDeviceId={selectedDevice?.id}
         selectedLinkId={selectedLink?.id}
+        selectedAnnotationId={selectedAnnotation?.id}
         onDeleteSelected={handleDeleteSelected}
       />
 
-      {/* ── KONFLIKT-BANNER (aus Nacharbeit 2) ── */}
+      {/* ── KONFLIKT-BANNER (Präzise formuliert mit reversibler Wiederherstellung) ── */}
       {migrationConflicts.length > 0 && (
         <div className="bg-amber-500/15 border-b border-amber-500/40 px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 text-amber-200">
           <div className="flex items-center gap-2">
             <Warning size={16} className="text-amber-400 shrink-0" />
-            <span className="font-bold text-amber-400">Versionskonflikt:</span>
-            <span>{migrationConflicts[0].message}</span>
+            <span className="font-bold text-amber-400">Hinweis zur Datenmigration:</span>
+            <span>Deine Zeichnung wurde im alten und im neuen Canvas unterschiedlich bearbeitet. Der neue Stand ist gesichert.</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMigrationConflicts([])}
+              className="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-[11px] transition-colors"
+              title="Behält deine aktuellen Änderungen im neuen Canvas"
+            >
+              Neuen Stand behalten
+            </button>
             <button
               onClick={() => {
                 const conflict = migrationConflicts[0];
                 if (conflict.backupKey) {
+                  // Reversibles Snapshotting vor dem Überschreiben
+                  const currentV2 = localStorage.getItem(V2_STORAGE_KEY);
+                  if (currentV2) {
+                    safeSetItem(localStorage, `${V2_STORAGE_KEY}-backup-pre-v1-restore-${Date.now()}`, currentV2);
+                  }
                   restoreBackupSnapshot(conflict.backupKey);
                   const stored = localStorage.getItem(V2_STORAGE_KEY);
                   if (stored) setMigratedTopologies(JSON.parse(stored));
-                  toast.success("Snapshot erfolgreich wiederhergestellt");
+                  toast.success("Alten Stand geladen. Du kannst jederzeit über den v2-Snapshot zurückwechseln.");
                 }
                 setMigrationConflicts([]);
               }}
               className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-[11px] transition-colors"
+              title="Lädt die Version aus dem alten Canvas (v1)"
             >
-              Snapshot wiederherstellen
-            </button>
-            <button
-              onClick={() => setMigrationConflicts([])}
-              className="px-2 py-1 rounded-lg border border-amber-500/40 hover:bg-amber-500/20 text-amber-300 text-[11px] transition-colors"
-            >
-              Schließen
+              Alten Stand (v1) laden
             </button>
           </div>
         </div>
@@ -859,11 +1280,16 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       )}
 
-      {/* ── CANVAS BEREICH: Interaktives SVG Rendering mit Touch-Action none ── */}
+      {/* ── CANVAS BEREICH: Interaktives SVG Rendering ── */}
       <div
         ref={viewportRef}
         className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
-        style={{ touchAction: "none" }}
+        style={{
+          touchAction: "none",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
+        }}
         onWheel={handleWheel}
         onClick={handleCanvasClick}
         onDragOver={(e) => {
@@ -886,6 +1312,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           gridSize={DEFAULT_GRID_SIZE}
           selectedDeviceId={selectedDevice?.id}
           selectedLinkId={selectedLink?.id}
+          selectedAnnotationId={selectedAnnotation?.id}
           onDeviceClick={(d) => {
             if (activeMode === "connect") {
               if (!connectSourceDevice) {
@@ -899,17 +1326,84 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             }
             setSelectedDevice(d);
             setSelectedLink(null);
+            setSelectedAnnotation(null);
           }}
           onLinkClick={(l) => {
             setSelectedLink(l);
             setSelectedDevice(null);
+            setSelectedAnnotation(null);
+          }}
+          onAnnotationClick={(ann) => {
+            setSelectedAnnotation(ann);
+            setSelectedDevice(null);
+            setSelectedLink(null);
           }}
           onDevicePointerDown={handleDevicePointerDown}
           onDeviceContextMenu={handleDeviceContextMenu}
+          onAnnotationPointerDown={handleAnnotationPointerDown}
+          onAnnotationDoubleClick={handleAnnotationDoubleClick}
+          onHandlePointerDown={handleHandlePointerDown}
+          drawingAnnotationPreview={drawingAnnotationPreview}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
         />
+
+        {/* ── INLINE TEXT / NOTIZEN EDITOR DOM-OVERLAY (Schritt 2d-2) ── */}
+        {editingAnnotation && (
+          <div
+            className={`absolute z-50 p-2.5 rounded-xl shadow-2xl border backdrop-blur-md ${
+              isDark
+                ? "bg-slate-900/98 border-sky-400 text-white"
+                : "bg-white/98 border-sky-500 text-slate-900"
+            }`}
+            style={{
+              left: Math.max(10, Math.min(window.innerWidth - 240, translateX + editingAnnotation.x * scale)),
+              top: Math.max(50, Math.min(window.innerHeight - 180, translateY + editingAnnotation.y * scale)),
+              width: Math.max(200, (editingAnnotation.width || 150) * scale),
+            }}
+          >
+            <div className="flex items-center justify-between text-[11px] font-bold text-sky-400 mb-1">
+              <span>Text bearbeiten</span>
+              <span className="text-[9px] text-slate-400">Enter = Speichern</span>
+            </div>
+            <textarea
+              autoFocus
+              rows={3}
+              value={editingText}
+              onChange={(e) => setEditingText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  commitInlineEdit();
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  cancelInlineEdit();
+                }
+              }}
+              className={`w-full p-2 rounded-lg text-xs font-medium border outline-none resize-none ${
+                isDark
+                  ? "bg-slate-950 border-slate-700 text-white focus:border-sky-400"
+                  : "bg-slate-50 border-slate-300 text-slate-900 focus:border-sky-500"
+              }`}
+              placeholder="Text oder Notiz eingeben (Umlaute äöüß)..."
+            />
+            <div className="flex items-center justify-end gap-1.5 mt-2">
+              <button
+                onClick={cancelInlineEdit}
+                className="px-2.5 py-1 rounded text-[11px] text-slate-400 hover:text-white"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={commitInlineEdit}
+                className="px-3 py-1 rounded bg-sky-500 hover:bg-sky-400 text-white font-bold text-[11px] transition-colors"
+              >
+                Fertig
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Legende Overlay */}
         {showLegend && (
@@ -932,6 +1426,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           <span>·</span>
           <span>
             <strong className="text-sky-400">{activeTopology.links.length}</strong> Links
+          </span>
+          <span>·</span>
+          <span>
+            <strong className="text-amber-400">{activeTopology.annotations?.length || 0}</strong> Annotationen
           </span>
           {renderDurationMs > 0 && (
             <>

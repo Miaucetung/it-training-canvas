@@ -1,11 +1,17 @@
 import {
+  addAnnotationToTopology,
+  createNewAnnotation,
   createNewDevice,
   createNewLink,
+  deleteAnnotationFromTopology,
   deleteDeviceFromTopology,
   deleteLinkFromTopology,
   getDeviceInterfaceOptions,
+  moveAnnotationInTopology,
   moveDeviceInTopology,
+  smoothFreehandPoints,
   snapToGrid,
+  updateAnnotationInTopology,
   validateLinkConnection,
 } from "@/lib/topology/topology-operations";
 import { NetworkTopology } from "@/types/topology";
@@ -121,10 +127,11 @@ describe("Topology Operations (2d-1 Geräte und Links)", () => {
     expect(r2sw.error).toContain("nur zwischen zwei Routern zulässig");
   });
 
-  it("validates Link-Type constraints: Wireless requires AP or WLC", () => {
+  it("validates Link-Type constraints: Wireless requires AP and End-Device, forbids WLC", () => {
     const pc = createNewDevice("pc", 100, 100);
     const router = createNewDevice("router", 300, 100);
     const ap = createNewDevice("access-point", 200, 200);
+    const wlc = createNewDevice("wlc", 400, 200);
 
     // PC to Router with Wireless -> Invalid!
     const invalidWireless = validateLinkConnection(
@@ -137,15 +144,29 @@ describe("Topology Operations (2d-1 Geräte und Links)", () => {
     );
     expect(invalidWireless.valid).toBe(false);
     expect(invalidWireless.error).toContain(
-      "Access Point (AP) oder Wireless Controller (WLC)"
+      "Access Point (AP) als Basisstation"
     );
 
-    // PC to AP with Wireless -> Valid!
+    // AP to WLC with Wireless -> Invalid! (WLC has no radio interfaces, CAPWAP over Ethernet)
+    const wlcWireless = validateLinkConnection(
+      ap,
+      wlc,
+      ap.interfaces[1].id,
+      wlc.interfaces[0].id,
+      "wireless",
+      []
+    );
+    expect(wlcWireless.valid).toBe(false);
+    expect(wlcWireless.error).toContain("WLC besitzt keine Funkschnittstelle");
+
+    // PC (wlan0) to AP (Radio0) with Wireless -> Valid!
+    const wlanPort = pc.interfaces.find((i) => i.name.toLowerCase().includes("wlan"))!;
+    const apRadio = ap.interfaces.find((i) => i.name.toLowerCase().includes("radio"))!;
     const validWireless = validateLinkConnection(
       pc,
       ap,
-      pc.interfaces[0].id,
-      ap.interfaces[1].id,
+      wlanPort.id,
+      apRadio.id,
       "wireless",
       []
     );
@@ -247,5 +268,104 @@ describe("Topology Operations (2d-1 Geräte und Links)", () => {
     expect(snapToGrid(42, 20)).toBe(40);
     expect(snapToGrid(53, 20)).toBe(60);
     expect(snapToGrid(105, 50)).toBe(100);
+  });
+});
+
+describe("Topology Annotation Operations (2d-2 Annotationen)", () => {
+  const baseTopology: NetworkTopology = {
+    version: "2.0",
+    id: "test-topo-annotations",
+    name: "Annotation Test Topology",
+    devices: [],
+    links: [],
+    annotations: [],
+  };
+
+  it("creates valid default annotations for each supported type", () => {
+    const textAnn = createNewAnnotation("text", 100, 100, { text: "CCNA VLAN 10" });
+    expect(textAnn.type).toBe("text");
+    expect(textAnn.text).toBe("CCNA VLAN 10");
+    expect(textAnn.fontSize).toBe(14);
+
+    const noteAnn = createNewAnnotation("note", 200, 150, { text: "Prüfungsrelevant: OSPF Dead Timer = 40s" });
+    expect(noteAnn.type).toBe("note");
+    expect(noteAnn.width).toBe(150);
+    expect(noteAnn.height).toBe(100);
+
+    const boxAnn = createNewAnnotation("box", 50, 50);
+    expect(boxAnn.type).toBe("box");
+    expect(boxAnn.width).toBe(140);
+    expect(boxAnn.height).toBe(90);
+
+    const lineAnn = createNewAnnotation("line", 10, 20);
+    expect(lineAnn.type).toBe("line");
+    expect(lineAnn.endX).toBe(110);
+    expect(lineAnn.endY).toBe(80);
+
+    const arrowAnn = createNewAnnotation("arrow", 10, 20);
+    expect(arrowAnn.type).toBe("arrow");
+    expect(arrowAnn.color).toBe("#10B981");
+
+    const freehandAnn = createNewAnnotation("freehand", 30, 40);
+    expect(freehandAnn.type).toBe("freehand");
+    expect(freehandAnn.points).toEqual([{ x: 30, y: 40 }]);
+  });
+
+  it("adds, updates and deletes annotations in topology with metadata update", () => {
+    const ann = createNewAnnotation("note", 100, 100, { text: "Stammnotiz" });
+    let topo = addAnnotationToTopology(baseTopology, ann);
+    expect(topo.annotations).toHaveLength(1);
+    expect(topo.annotations![0].text).toBe("Stammnotiz");
+
+    // Update (z.B. Umlaut-Textedit)
+    topo = updateAnnotationInTopology(topo, ann.id, { text: "Überarbeitete Notiz mit Umlauten: äöüß" });
+    expect(topo.annotations![0].text).toBe("Überarbeitete Notiz mit Umlauten: äöüß");
+
+    // Delete
+    topo = deleteAnnotationFromTopology(topo, ann.id);
+    expect(topo.annotations).toHaveLength(0);
+  });
+
+  it("moves annotations including box, lines, and freehand points with and without grid", () => {
+    const line = createNewAnnotation("line", 100, 100, { endX: 200, endY: 150 });
+    const freehand = createNewAnnotation("freehand", 0, 0, {
+      points: [
+        { x: 10, y: 10 },
+        { x: 20, y: 30 },
+      ],
+    });
+
+    let topo = addAnnotationToTopology(baseTopology, line);
+    topo = addAnnotationToTopology(topo, freehand);
+
+    // Move without grid (+15, +25)
+    topo = moveAnnotationInTopology(topo, line.id, 15, 25, 0);
+    const movedLine = topo.annotations!.find((a) => a.id === line.id)!;
+    expect(movedLine.x).toBe(115);
+    expect(movedLine.y).toBe(125);
+    expect(movedLine.endX).toBe(215);
+    expect(movedLine.endY).toBe(175);
+
+    // Move freehand
+    topo = moveAnnotationInTopology(topo, freehand.id, 20, 20, 0);
+    const movedFreehand = topo.annotations!.find((a) => a.id === freehand.id)!;
+    expect(movedFreehand.points).toEqual([
+      { x: 30, y: 30 },
+      { x: 40, y: 50 },
+    ]);
+  });
+
+  it("smooths freehand points to eliminate jitter and average points", () => {
+    const jitteryPoints = [
+      { x: 10, y: 10 },
+      { x: 10.5, y: 10.5 }, // micro-jitter (< tolerance 2)
+      { x: 20, y: 20 },
+      { x: 30, y: 30 },
+      { x: 40, y: 40 },
+    ];
+    const smoothed = smoothFreehandPoints(jitteryPoints, 2);
+    expect(smoothed.length).toBeLessThan(jitteryPoints.length);
+    expect(smoothed[0]).toEqual({ x: 10, y: 10 });
+    expect(smoothed[smoothed.length - 1]).toEqual({ x: 40, y: 40 });
   });
 });
