@@ -54,14 +54,27 @@ Es gibt **zwei parallele, unabhängige Datenquellen** für CCNA-Fragen — das i
 - **Gemischte Zeilenenden**: Historisch CRLF/LF je nach Datei (kein `.gitattributes` vorhanden). Seit Einführung von `.gitattributes` (`* text=auto`) ist das für neue Dateien konsistent; bestehende Dateien wurden bewusst nicht angefasst, um unnötig große Diffs zu vermeiden.
 - **`notes/ccna-exam/images/`**: Liegt nur lokal (nicht in Git getrackt). Rohe Exhibit-SVGs/PNGs aus der PDF-Extraktion, mittlerweile durch strukturierte Exhibit-Daten in den `ccnaQuestions*.ts`-Dateien ersetzt — bei Bedarf für manuelle Nacharbeit an einzelnen Exhibits vorhanden.
 
-## 6. Setup
+## 6. Setup & Tests
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm test         # Vitest
-npm run build    # Produktions-Build nach dist/
+npm run dev              # http://localhost:5000 / 5173
+npm test                 # Vitest Unit- und Integrations-Tests (310 Tests)
+npm run test:e2e:canvas  # Reproduzierbare E2E-Tests (CDP) für Canvas V2 (Desktop & Mobile 390px)
+npm run build            # Produktions-Build nach dist/
 ```
+
+### 6.1 Canvas V2 & E2E-Tests
+
+Der interaktive Netzwerk-Canvas (`src/components/canvas-v2/`) basiert auf React 19 + SVG ohne externe Canvas-Bibliotheken:
+- **Dokumentation:**
+  - [`docs/topology-link-matrix.md`](./docs/topology-link-matrix.md) — Physische Link-Validierungsmatrix (Ethernet, Serial, Wireless, Trunk, AP vs. WLC)
+  - [`docs/topology-hardware-profiles.md`](./docs/topology-hardware-profiles.md) — Realistische Cisco Hardware-Profile (ISR 4321, Catalyst 2960/3650, ASA 5506-X, Catalyst 9100 AP, 9800 WLC)
+- **E2E-Skript (`scripts/e2e/canvas-e2e.mjs`):**
+  - Führt automatisierte UI- und Gesten-Tests über das Chrome DevTools Protocol (CDP) aus.
+  - Prüft Geräteplatzierung, Verbindungs-Dialog, Schnittstellenbelegung, Annotationen (Haftnotizen mit Umlauten, geglättete Freihandlinien, Pfeile, Boxen) sowie Undo/Redo.
+  - Testet Viewport-Skalierung sowohl in Desktop-Breite (1440px) als auch im Mobile-Viewport (390px iPhone).
+  - Speichert aktuelle Referenz-Screenshots direkt in `docs/screenshots/canvas-v2/`.
 
 **Environment:** `src/lib/supabase.ts` erwartet `VITE_SUPABASE_URL` und `VITE_SUPABASE_ANON_KEY` (z. B. in `.env.local`). Es existiert aktuell **keine** `.env.example` im Repo — Werte müssen von einem bestehenden Supabase-Projekt bezogen oder ein eigenes Projekt aufgesetzt werden.
 

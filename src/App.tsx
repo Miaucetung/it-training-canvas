@@ -1,5 +1,7 @@
 import { AnnotationLayer } from "@/components/AnnotationLayer";
 import { Canvas } from "@/components/Canvas";
+import { CanvasV2Container } from "@/components/canvas-v2/CanvasV2Container";
+import { migrateLocalStorageCanvasToV2 } from "@/lib/topology/migration";
 import { CanvasContextMenu } from "@/components/CanvasContextMenu";
 import { ConnectionPropertiesPanel } from "@/components/ConnectionPropertiesPanel";
 import { CostCalculator } from "@/components/CostCalculator";
@@ -379,6 +381,10 @@ function App() {
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [canvasView, setCanvasView] = useState(false);
+  const [canvasEngine, setCanvasEngine] = useLocalStorage<"v1" | "v2">(
+    "ccna-canvas-version",
+    "v1",
+  );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
@@ -1470,7 +1476,7 @@ function App() {
                 {currentConfig?.name || currentSubject}
               </h2>
               <p
-                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}
+                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}
               >
                 {currentConfig?.description || "Training Canvas"}
               </p>
@@ -1503,7 +1509,7 @@ function App() {
                     ? "bg-indigo-500/20 text-indigo-300"
                     : theme === "dark"
                       ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                      : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                      : "text-slate-700 hover:text-indigo-600 hover:bg-indigo-50"
                 }`}
                 title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
               >
@@ -1512,7 +1518,7 @@ function App() {
                 {Object.keys(learningPaths).length > 0 && (
                   <span
                     className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                      theme === "dark" ? "bg-slate-700" : "bg-slate-200"
+                      theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-800"
                     }`}
                   >
                     {Object.keys(learningPaths).length}
@@ -1619,7 +1625,7 @@ function App() {
               className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 theme === "dark"
                   ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
-                  : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                  : "text-slate-700 hover:text-sky-600 hover:bg-sky-50"
               }`}
               title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
             >
@@ -1645,7 +1651,7 @@ function App() {
                   ? "bg-green-500/20 text-green-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-green-300 hover:bg-green-500/10"
-                    : "text-slate-500 hover:text-green-600 hover:bg-green-50"
+                    : "text-slate-700 hover:text-green-600 hover:bg-green-50"
               }`}
               title="IOS-CLI für selektiertes Gerät öffnen"
             >
@@ -1659,7 +1665,7 @@ function App() {
                   ? "bg-violet-500/20 text-violet-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
-                    : "text-slate-500 hover:text-violet-600 hover:bg-violet-50"
+                    : "text-slate-700 hover:text-violet-600 hover:bg-violet-50"
               }`}
               title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
             >
@@ -1680,7 +1686,7 @@ function App() {
                   ? "bg-amber-500/20 text-amber-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-amber-300 hover:bg-amber-500/10"
-                    : "text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                    : "text-slate-700 hover:text-amber-600 hover:bg-amber-50"
               }`}
               title="Alle Simulatoren, Trainer & Rechner"
             >
@@ -1821,7 +1827,7 @@ function App() {
                       : "bg-slate-100 text-slate-700"
                     : theme === "dark"
                       ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
                 }`}
                 title="Weitere Werkzeuge"
               >
@@ -1888,7 +1894,7 @@ function App() {
                     <Notepad size={15} />
                     Notizen
                     {(annotations[currentSubject]?.length ?? 0) > 0 && (
-                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-100 text-slate-700"}`}>
                         {annotations[currentSubject]?.length}
                       </span>
                     )}
@@ -2039,9 +2045,40 @@ function App() {
                 pointerEvents: canvasView ? "auto" : "none",
               }}
             >
-              {/* Floating View-Density toggle (Simple ↔ Detail) */}
-              <div
-                className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
+              {/* Feature-Flag Toggle (v1 Canvas ↔ v2 SVG Next) - schwebend nur auf v1 anzeigen, v2 hat eigene Leiste */}
+              {canvasEngine === "v1" && (
+                <div
+                  className="absolute top-2 left-2 z-30 flex items-center p-0.5 rounded-lg border border-slate-700/80 bg-slate-900/90 backdrop-blur-md text-xs shadow-lg"
+                  title="Canvas-Architektur umschalten: v1 (Legacy HTML5 Pixel-Canvas) oder v2 (Neuer SVG-Renderer)"
+                >
+                  <button
+                    onClick={() => setCanvasEngine("v1")}
+                    className="px-2.5 py-1 rounded-md font-semibold transition-colors bg-slate-700 text-white shadow-xs"
+                  >
+                    v1 (Canvas)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCanvasEngine("v2");
+                      migrateLocalStorageCanvasToV2();
+                    }}
+                    className="px-2.5 py-1 rounded-md font-semibold transition-colors text-slate-400 hover:text-indigo-300"
+                  >
+                    v2 (SVG Next)
+                  </button>
+                </div>
+              )}
+
+              {canvasEngine === "v2" ? (
+                <CanvasV2Container
+                  theme={theme}
+                  onSwitchToV1={() => setCanvasEngine("v1")}
+                />
+              ) : (
+                <>
+                  {/* Floating View-Density toggle (Simple ↔ Detail) */}
+                  <div
+                    className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
                 title="Anzeige-Dichte umschalten — Simple blendet Verbindungs-Labels aus für klare Übersicht"
               >
                 <button
@@ -2172,12 +2209,14 @@ function App() {
                   </div>
                 </div>
               )}
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Floating Toolbar — only visible on canvas face */}
-        {canvasView && (
+        {/* Floating Toolbar — only visible on canvas face when v1 is active */}
+        {canvasView && canvasEngine === "v1" && (
           <FloatingToolbar
             tool={tool}
             onToolChange={handleToolChange}
