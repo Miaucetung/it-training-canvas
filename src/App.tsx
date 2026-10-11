@@ -78,6 +78,8 @@ import {
   Plus,
   Pulse,
   Stethoscope,
+  Sun,
+  Moon,
   Target,
   Terminal,
   Wrench,
@@ -311,7 +313,14 @@ function App() {
   const [penWidth, setPenWidth] = useState<PenWidth>("normal");
   const [textSize, setTextSize] = useState<TextSize>("medium");
   const [fontFamily, setFontFamily] = useState<FontFamily>("IBM Plex Mono");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("canvas-theme") as "light" | "dark" | null;
+      if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) return "light";
+    }
+    return "dark";
+  });
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState<GridSize>("medium");
   const [gridPattern, setGridPattern] = useState<GridPattern>("dots");
@@ -520,17 +529,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("canvas-theme") as
-      | "light"
-      | "dark"
-      | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      // Default to dark theme
-      document.documentElement.classList.add("dark");
-    }
+    document.documentElement.classList.toggle("dark", theme === "dark");
 
     const savedGridColor = localStorage.getItem("canvas-grid-color");
     const savedGridAccentColor = localStorage.getItem(
@@ -1973,6 +1972,23 @@ function App() {
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
+            {/* Globaler Theme-Schalter (Header) */}
+            <button
+              type="button"
+              onClick={handleThemeToggle}
+              className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors border ${
+                theme === "dark"
+                  ? "border-[var(--border-default)] text-[var(--text-secondary)] hover:text-amber-400 hover:bg-[var(--surface-elevated)]"
+                  : "border-[var(--border-default)] text-[var(--text-secondary)] hover:text-indigo-600 hover:bg-[var(--surface-elevated)]"
+              }`}
+              title={theme === "dark" ? "Zum hellen Modus wechseln (Light Mode)" : "Zum dunklen Modus wechseln (Dark Mode)"}
+              aria-label={theme === "dark" ? "Hell-Modus aktivieren" : "Dunkel-Modus aktivieren"}
+            >
+              {theme === "dark" ? <Sun size={16} weight="bold" /> : <Moon size={16} weight="bold" />}
+            </button>
+
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+
             <AuthMenu
               user={user}
               dark={theme === "dark"}
@@ -2014,7 +2030,7 @@ function App() {
           >
             {/* FRONT: Lernoberfläche — Dashboard */}
             <div
-              className={`absolute inset-0 overflow-hidden flex ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              className="absolute inset-0 overflow-hidden flex bg-[var(--app-bg)]"
               inert={(!isFlipping && canvasView) ? true : undefined}
               style={{
                 backfaceVisibility: "hidden",
@@ -2061,7 +2077,7 @@ function App() {
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                  <p className="text-sm text-[var(--text-muted)]">
                     Kein Lerninhalt für dieses Thema.
                   </p>
                 </div>
@@ -2070,7 +2086,7 @@ function App() {
 
             {/* BACK: Canvas */}
             <div
-              className={`absolute inset-0 overflow-hidden ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              className="absolute inset-0 overflow-hidden bg-[var(--app-bg)]"
               inert={(!isFlipping && !canvasView) ? true : undefined}
               style={{
                 backfaceVisibility: "hidden",
