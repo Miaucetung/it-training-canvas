@@ -86,4 +86,18 @@ describe("Cisco IOS CLI Dynamic Show Generator", () => {
     expect(output).toContain("Gi0/1               Root FWD");
     expect(output).toContain("Gi0/2               Blk  BLK");
   });
+
+  it("generates OSPF neighbor with FULL/  - (no DR/BDR) on point-to-point networks", () => {
+    const r1 = TOPOLOGY_OSPF.devices.find((d) => d.id === "ospf-r1")!;
+    const output = CiscoCliGenerator.generateShowIpOspfNeighbor(r1, TOPOLOGY_OSPF);
+
+    expect(output).toContain("Neighbor ID     Pri   State           Dead Time   Address         Interface");
+    expect(output).toContain("2.2.2.2");
+    expect(output).toContain("FULL/  -");
+    expect(output).toContain("10.0.12.2");
+    expect(output).toContain("Gi0/0/0");
+    // Ensure no DR or BDR is indicated
+    expect(output).not.toContain("FULL/DR");
+    expect(output).not.toContain("FULL/BDR");
+  });
 });

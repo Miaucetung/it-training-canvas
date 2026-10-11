@@ -378,6 +378,102 @@ export function migrateLegacyCanvasToTopology(
 
 export const V1_STORAGE_KEY = "canvas-app-data";
 export const V2_STORAGE_KEY = "canvas-topology-v2";
+export const MAX_BACKUPS = 3;
+
+/**
+ * Liefert alle existierenden Backup-Keys sortiert von alt nach neu
+ */
+export function getBackupKeys(storage: Storage): string[] {
+  const keys: string[] = [];
+  for (let i = 0; i < storage.length; i++) {
+    const k = storage.key(i);
+    if (k && k.startsWith(`${V2_STORAGE_KEY}-backup-`)) {
+      keys.push(k);
+    }
+  }
+  return keys.sort((a, b) => {
+    const tsA = parseInt(a.replace(`${V2_STORAGE_KEY}-backup-`, ""), 10) || 0;
+    const tsB = parseInt(b.replace(`${V2_STORAGE_KEY}-backup-`, ""), 10) || 0;
+    return tsA - tsB;
+  });
+}
+
+/**
+ * Bereinigt alte Backups, sodass maximal keepMax Backups erhalten bleiben.
+ */
+export function pruneBackups(storage: Storage, keepMax: number = MAX_BACKUPS): void {
+  const keys = getBackupKeys(storage);
+  while (keys.length > keepMax) {
+    const oldest = keys.shift();
+    if (oldest) {
+      storage.removeItem(oldest);
+    }
+  }
+}
+
+/**
+ * Schreibt sicher in localStorage und fängt QuotaExceededError ab.
+ */
+export function safeSetItem(
+  storage: Storage,
+  key: string,
+  value: string
+): { success: boolean; quotaExceeded?: boolean; error?: string } {
+  try {
+    storage.setItem(key, value);
+    return { success: true };
+  } catch (err: unknown) {
+    const isQuota =
+      (err instanceof DOMException &&
+        (err.name === "QuotaExceededError" ||
+          err.code === 22 ||
+          err.code === 1014 ||
+          err.name === "NS_ERROR_DOM_QUOTA_REACHED")) ||
+      (err as Error)?.message?.toLowerCase().includes("quota");
+
+    if (isQuota) {
+      // Versuch: Älteste Backups aufräumen
+      pruneBackups(storage, 1);
+      try {
+        storage.setItem(key, value);
+        return { success: true };
+      } catch {
+        return {
+          success: false,
+          quotaExceeded: true,
+          error:
+            "Speicherlimit im Browser (localStorage Quota) erreicht. Bitte Speicher freigeben oder ungenutzte Daten löschen.",
+        };
+      }
+    }
+    return {
+      success: false,
+      error: (err as Error)?.message || "Fehler beim Schreiben in den lokalen Speicher",
+    };
+  }
+}
+
+/**
+ * Stellt eine Topologie-Sicherung aus einem Backup-Key wieder her
+ */
+export function restoreBackupSnapshot(backupKey: string, storage?: Storage): boolean {
+  const store = storage || (typeof window !== "undefined" ? window.localStorage : null);
+  if (!store) return false;
+  const backupData = store.getItem(backupKey);
+  if (!backupData) return false;
+
+  const writeResult = safeSetItem(store, V2_STORAGE_KEY, backupData);
+  return writeResult.success;
+}
+
+/**
+ * Löscht einen Backup-Snapshot
+ */
+export function deleteBackupSnapshot(backupKey: string, storage?: Storage): void {
+  const store = storage || (typeof window !== "undefined" ? window.localStorage : null);
+  if (!store) return;
+  store.removeItem(backupKey);
+}
 
 export interface MigrationConflict {
   subjectKey: string;
@@ -474,13 +570,16 @@ export function migrateLocalStorageCanvasToV2(options?: {
         const wasEditedInV2 = existing.metadata.author !== "Migration-Engine";
         if (!options?.force && wasEditedInV2 && v1Time > v2Time) {
           // KONFLIKT-REGEL: Niemals stillschweigend überschreiben!
-          // Sicherungskopie von V2 erstellen
+          // Sicherungskopie von V2 erstellen (max. MAX_BACKUPS erhalten)
+          pruneBackups(storage, MAX_BACKUPS - 1);
           const backupKey = `${V2_STORAGE_KEY}-backup-${Date.now()}`;
-          try {
-            storage.setItem(backupKey, JSON.stringify(existingV2));
+          const backupWrite = safeSetItem(storage, backupKey, JSON.stringify(existingV2));
+          if (backupWrite.success) {
             result.backupCreated = backupKey;
-          } catch (backupErr) {
-            console.warn("Konnte automatisches V2-Backup nicht schreiben:", backupErr);
+          } else {
+            result.errors.push(
+              `Backup-Erstellung fehlgeschlagen (${backupKey}): ${backupWrite.error || "QuotaExceeded"}`
+            );
           }
 
           result.conflicts.push({
@@ -524,7 +623,12 @@ export function migrateLocalStorageCanvasToV2(options?: {
     }
 
     if (hasChanges) {
-      storage.setItem(V2_STORAGE_KEY, JSON.stringify(migratedTopologies));
+      const saveResult = safeSetItem(storage, V2_STORAGE_KEY, JSON.stringify(migratedTopologies));
+      if (!saveResult.success) {
+        result.errors.push(
+          `Speichern der migrierten V2-Topologien fehlgeschlagen: ${saveResult.error || "QuotaExceeded"}`
+        );
+      }
     } else {
       result.skippedBecauseCurrent = true;
     }

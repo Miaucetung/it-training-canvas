@@ -373,6 +373,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       interfaces: [
         { id: "sw1-up", name: "Gi0/1", status: "up" },
         { id: "sw1-down", name: "Fa0/1", status: "up" },
+        { id: "sw1-fa2", name: "Fa0/2", status: "up" },
+        { id: "sw1-fa3", name: "Fa0/3", status: "up" },
       ],
       config: { hostname: "SW1" },
     },
@@ -412,6 +414,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       interfaces: [
         { id: "sw2-up", name: "Gi0/1", status: "up" },
         { id: "sw2-down", name: "Fa0/1", status: "up" },
+        { id: "sw2-fa2", name: "Fa0/2", status: "up" },
+        { id: "sw2-fa3", name: "Fa0/3", status: "up" },
       ],
       config: { hostname: "SW2" },
     },

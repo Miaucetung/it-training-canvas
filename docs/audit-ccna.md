@@ -177,6 +177,10 @@ flowchart LR
    - Didaktischer Rechner, der visuell zeigt, warum `/26` vor `/24` gewinnt.
 4. **Interaktiver ACL-Evaluator & NAT-Session-Tracker.**
 
+> [!IMPORTANT]
+> **Anforderung für Phase 3 (Lektionen-Einbettung & Mobile Scrolling):**
+> In Lektionen und Aufgaben eingebettete Canvas-Topologien dürfen das vertikale Scrollen der Lernseite auf Touch-Geräten **nicht** blockieren. Das Attribut `touch-action: none` darf ausschließlich im Vollbild-/Vollansicht-Canvas aktiv sein. In Lektionen eingebettete Topologien verwenden `touch-action: pan-y` (oder dedizierte Zwei-Finger-Gesten / explizite Interaktions-Schalter), damit Smartphone-Nutzer ungehindert im Lesefluss bleiben.
+
 ---
 
 ## 6. Technologie-Empfehlung für den neuen Canvas

@@ -17,6 +17,10 @@ interface SvgTopologyRendererProps {
   selectedLinkId?: string | null;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
+  onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
+  onDeviceContextMenu?: (device: TopologyDevice, e: React.MouseEvent) => void;
+  snapGrid?: boolean;
+  gridSize?: number;
   width?: number | string;
   height?: number | string;
   scale?: number;
@@ -32,6 +36,10 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   selectedLinkId = null,
   onDeviceClick,
   onLinkClick,
+  onDevicePointerDown,
+  onDeviceContextMenu,
+  snapGrid = false,
+  gridSize = 20,
   width = "100%",
   height = "100%",
   scale = 1,
@@ -274,7 +282,15 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               key={device.id}
               transform={`translate(${device.x}, ${device.y})`}
               className="topology-device cursor-pointer transition-transform hover:scale-105"
-              onClick={() => onDeviceClick?.(device)}
+              onPointerDown={(e) => onDevicePointerDown?.(device, e)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                onDeviceContextMenu?.(device, e);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeviceClick?.(device);
+              }}
             >
               {/* Selektions-Halo */}
               {isSelected && (

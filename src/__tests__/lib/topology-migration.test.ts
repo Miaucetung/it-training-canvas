@@ -9,6 +9,10 @@ import {
   migrateLegacyConnectionToLink,
   migrateLegacyShapeToDevice,
   migrateLocalStorageCanvasToV2,
+  getBackupKeys,
+  pruneBackups,
+  safeSetItem,
+  restoreBackupSnapshot,
   V1_STORAGE_KEY,
   V2_STORAGE_KEY,
 } from "@/lib/topology/migration";
@@ -465,5 +469,51 @@ describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology
     // A non-destructive backup key was created
     const backupRaw = mockStorage.getItem(res.backupCreated!);
     expect(backupRaw).not.toBeNull();
+  });
+
+  it("limits backup snapshots to MAX_BACKUPS (3) and deletes older backups", () => {
+    const mockStorage = new MockStorage();
+    // Simulate 4 sequential backups
+    mockStorage.setItem(`${V2_STORAGE_KEY}-backup-1000`, '{"snap": 1}');
+    mockStorage.setItem(`${V2_STORAGE_KEY}-backup-2000`, '{"snap": 2}');
+    mockStorage.setItem(`${V2_STORAGE_KEY}-backup-3000`, '{"snap": 3}');
+    mockStorage.setItem(`${V2_STORAGE_KEY}-backup-4000`, '{"snap": 4}');
+
+    // Prune to 3
+    pruneBackups(mockStorage, 3);
+    const keys = getBackupKeys(mockStorage);
+
+    expect(keys).toHaveLength(3);
+    // Oldest (1000) must have been removed
+    expect(mockStorage.getItem(`${V2_STORAGE_KEY}-backup-1000`)).toBeNull();
+    expect(mockStorage.getItem(`${V2_STORAGE_KEY}-backup-2000`)).not.toBeNull();
+    expect(mockStorage.getItem(`${V2_STORAGE_KEY}-backup-3000`)).not.toBeNull();
+    expect(mockStorage.getItem(`${V2_STORAGE_KEY}-backup-4000`)).not.toBeNull();
+  });
+
+  it("catches QuotaExceededError gracefully without unhandled crash and notifies user", () => {
+    const mockStorage = new MockStorage();
+    // Force quota error on setItem
+    mockStorage.setItem = () => {
+      const err = new DOMException("The quota has been exceeded", "QuotaExceededError");
+      throw err;
+    };
+
+    const res = safeSetItem(mockStorage, "test-key", "some-data");
+    expect(res.success).toBe(false);
+    expect(res.quotaExceeded).toBe(true);
+    expect(res.error).toContain("Speicherlimit im Browser (localStorage Quota) erreicht");
+  });
+
+  it("restores backup snapshot correctly into V2_STORAGE_KEY", () => {
+    const mockStorage = new MockStorage();
+    const backupKey = `${V2_STORAGE_KEY}-backup-12345`;
+    mockStorage.setItem(backupKey, JSON.stringify({ restored: true }));
+
+    const restored = restoreBackupSnapshot(backupKey, mockStorage);
+    expect(restored).toBe(true);
+
+    const activeV2 = JSON.parse(mockStorage.getItem(V2_STORAGE_KEY)!);
+    expect(activeV2.restored).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
+  LinkType,
   NetworkTopology,
   TopologyDevice,
   TopologyLink,
@@ -14,11 +15,28 @@ import {
 } from "@/lib/topology/sample-topologies";
 import {
   migrateLocalStorageCanvasToV2,
+  restoreBackupSnapshot,
   V2_STORAGE_KEY,
+  MigrationConflict,
 } from "@/lib/topology/migration";
+import {
+  createNewDevice,
+  addDeviceToTopology,
+  addLinkToTopology,
+  moveDeviceInTopology,
+  deleteDeviceFromTopology,
+  deleteLinkFromTopology,
+  snapToGrid,
+  DEFAULT_GRID_SIZE,
+} from "@/lib/topology/topology-operations";
+import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import { SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
+import { DevicePalette } from "./DevicePalette";
+import { ConnectDialog } from "./ConnectDialog";
+import { DeviceContextMenu } from "./DeviceContextMenu";
+import { toast } from "sonner";
 import {
   ArrowsIn,
   CheckCircle,
@@ -26,6 +44,7 @@ import {
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
   Terminal,
+  Warning,
   X,
 } from "@phosphor-icons/react";
 
@@ -45,10 +64,21 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Verfügbare Topologien
   const [selectedTopologyId, setSelectedTopologyId] = useState<string>("ccna-router-on-a-stick");
-  const [activeTopology, setActiveTopology] = useState<NetworkTopology>(TOPOLOGY_ROUTER_ON_A_STICK);
+
+  // Undo/Redo Topology History
+  const {
+    topology: activeTopology,
+    setTopology,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    resetTopology,
+  } = useTopologyHistory(TOPOLOGY_ROUTER_ON_A_STICK);
 
   // Migrierte Topologien aus dem Altsystem laden
   const [migratedTopologies, setMigratedTopologies] = useState<Record<string, NetworkTopology> | null>(null);
+  const [migrationConflicts, setMigrationConflicts] = useState<MigrationConflict[]>([]);
 
   // View-State (Zoom & Pan)
   const [scale, setScale] = useState<number>(1);
@@ -62,6 +92,30 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const lastTouchCenterRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapTimeRef = useRef<number>(0);
   const lastTapPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Bearbeitungs-Modi & Palette (Schritt 2d-1)
+  const [activePlacementType, setActivePlacementType] = useState<TopologyDevice["type"] | null>(null);
+  const [activeMode, setActiveMode] = useState<"select" | "connect">("select");
+  const [snapGrid, setSnapGrid] = useState<boolean>(false);
+
+  // Dragging von Geräten auf dem Canvas
+  const [draggingDeviceId, setDraggingDeviceId] = useState<string | null>(null);
+  const [dragStartClient, setDragStartClient] = useState<{ x: number; y: number } | null>(null);
+  const [initialDevicePos, setInitialDevicePos] = useState<{ x: number; y: number } | null>(null);
+  const [hasMovedDevice, setHasMovedDevice] = useState<boolean>(false);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Verbindungs-Dialog & Kontextmenü
+  const [connectSourceDevice, setConnectSourceDevice] = useState<TopologyDevice | null>(null);
+  const [connectDialogState, setConnectDialogState] = useState<{
+    source: TopologyDevice;
+    target: TopologyDevice;
+  } | null>(null);
+  const [contextMenuState, setContextMenuState] = useState<{
+    device: TopologyDevice;
+    x: number;
+    y: number;
+  } | null>(null);
 
   // View-Optionen
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
@@ -87,9 +141,13 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
   }, [selectedDevice, activeTopology]);
 
-  // Altdaten-Prüfung beim Start
+  // Altdaten-Prüfung & Konflikterkennung beim Start
   useEffect(() => {
     try {
+      const migResult = migrateLocalStorageCanvasToV2();
+      if (migResult.conflicts && migResult.conflicts.length > 0) {
+        setMigrationConflicts(migResult.conflicts);
+      }
       const stored = localStorage.getItem(V2_STORAGE_KEY);
       if (stored) {
         setMigratedTopologies(JSON.parse(stored));
@@ -158,6 +216,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     setSelectedTopologyId(id);
     setSelectedDevice(null);
     setSelectedLink(null);
+    setConnectSourceDevice(null);
 
     let nextTopo: NetworkTopology | null = null;
 
@@ -171,7 +230,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     }
 
     if (nextTopo) {
-      setActiveTopology(nextTopo);
+      resetTopology(nextTopo);
       fitView(nextTopo);
     }
 
@@ -215,7 +274,107 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     zoomAtPoint(scale * zoomFactor, mouseX, mouseY);
   };
 
-  // Maus-Pan Handlers
+  // ── GERÄTE-INTERAKTIONEN (Schritt 2d-1) ──
+  // PointerDown auf Gerät: Vorbereitung Verschieben oder Connect
+  const handleDevicePointerDown = (device: TopologyDevice, e: React.PointerEvent) => {
+    if (activeMode === "connect") {
+      e.stopPropagation();
+      if (!connectSourceDevice) {
+        setConnectSourceDevice(device);
+        toast.info(`Quellgerät ausgewählt: ${device.name}. Klicke nun auf das Zielgerät.`);
+      } else if (connectSourceDevice.id !== device.id) {
+        setConnectDialogState({ source: connectSourceDevice, target: device });
+        setConnectSourceDevice(null);
+      }
+      return;
+    }
+
+    e.stopPropagation();
+    setSelectedDevice(device);
+    setSelectedLink(null);
+
+    setDraggingDeviceId(device.id);
+    setDragStartClient({ x: e.clientX, y: e.clientY });
+    setInitialDevicePos({ x: device.x, y: device.y });
+    setHasMovedDevice(false);
+
+    // Langes Drücken auf Touch (>500ms) = Kontextmenü
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      setContextMenuState({ device, x: e.clientX, y: e.clientY });
+      setDraggingDeviceId(null);
+    }, 500);
+  };
+
+  // Rechtsklick auf Gerät = Kontextmenü
+  const handleDeviceContextMenu = (device: TopologyDevice, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    setContextMenuState({ device, x: e.clientX, y: e.clientY });
+  };
+
+  // Löschen des selektierten Geräts oder Links mit Undo
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedDevice) {
+      const devName = selectedDevice.name;
+      setTopology((prev) => deleteDeviceFromTopology(prev, selectedDevice.id), true);
+      setSelectedDevice(null);
+      toast.info(`${devName} gelöscht (Rückgängig mit Strg+Z)`);
+    } else if (selectedLink) {
+      setTopology((prev) => deleteLinkFromTopology(prev, selectedLink.id), true);
+      setSelectedLink(null);
+      toast.info(`Verbindung gelöscht (Rückgängig mit Strg+Z)`);
+    }
+  }, [selectedDevice, selectedLink, setTopology]);
+
+  // Platzieren per Tap auf freie Canvas-Fläche
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (!viewportRef.current) return;
+
+    if (activePlacementType) {
+      const rect = viewportRef.current.getBoundingClientRect();
+      let worldX = (e.clientX - rect.left - translateX) / scale;
+      let worldY = (e.clientY - rect.top - translateY) / scale;
+      if (snapGrid) {
+        worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+        worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+      }
+
+      const newDev = createNewDevice(activePlacementType, Math.round(worldX - 30), Math.round(worldY - 30));
+      setTopology((prev) => addDeviceToTopology(prev, newDev), true);
+      setSelectedDevice(newDev);
+      setActivePlacementType(null);
+      toast.success(`${newDev.name} platziert`);
+      return;
+    }
+
+    // Leere Fläche angeklickt -> Selektion aufheben
+    setSelectedDevice(null);
+    setSelectedLink(null);
+    setConnectSourceDevice(null);
+  };
+
+  // Platzieren per Drag from Palette (Maus)
+  const handleCanvasDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData("application/ccna-device-type") as TopologyDevice["type"];
+    if (!type || !viewportRef.current) return;
+
+    const rect = viewportRef.current.getBoundingClientRect();
+    let worldX = (e.clientX - rect.left - translateX) / scale;
+    let worldY = (e.clientY - rect.top - translateY) / scale;
+    if (snapGrid) {
+      worldX = snapToGrid(worldX, DEFAULT_GRID_SIZE);
+      worldY = snapToGrid(worldY, DEFAULT_GRID_SIZE);
+    }
+
+    const newDev = createNewDevice(type, Math.round(worldX - 30), Math.round(worldY - 30));
+    setTopology((prev) => addDeviceToTopology(prev, newDev), true);
+    setSelectedDevice(newDev);
+    toast.success(`${newDev.name} hinzugefügt`);
+  };
+
+  // Maus- und Touch-Pan / Drag Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button, select")) return;
     setIsPanning(true);
@@ -223,14 +382,48 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (draggingDeviceId && dragStartClient && initialDevicePos) {
+      const dx = e.clientX - dragStartClient.x;
+      const dy = e.clientY - dragStartClient.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 6) {
+        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+        setHasMovedDevice(true);
+      }
+
+      let newX = initialDevicePos.x + dx / scale;
+      let newY = initialDevicePos.y + dy / scale;
+      if (snapGrid) {
+        newX = snapToGrid(newX, DEFAULT_GRID_SIZE);
+        newY = snapToGrid(newY, DEFAULT_GRID_SIZE);
+      }
+
+      setTopology((prev) => moveDeviceInTopology(prev, draggingDeviceId, newX, newY, 0), false);
+      return;
+    }
+
     if (!isPanning) return;
     setTranslateX(e.clientX - panStart.x);
     setTranslateY(e.clientY - panStart.y);
   };
 
-  const handleMouseUp = () => setIsPanning(false);
+  const handleMouseUp = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
 
-  // Touch-Gesten: Pinch-to-Zoom zum Mittelpunkt der Finger & 1-Finger Pan
+    if (draggingDeviceId && hasMovedDevice) {
+      // Endgültige Position in Undo-Historie sichern
+      setTopology((prev) => ({ ...prev }), true);
+    }
+
+    setDraggingDeviceId(null);
+    setDragStartClient(null);
+    setInitialDevicePos(null);
+    setHasMovedDevice(false);
+    setIsPanning(false);
+  };
+
+  // Touch-Gesten: Pinch-to-Zoom zum Mittelpunkt der Finger & 1-Finger Pan / Device Drag
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!viewportRef.current) return;
     const rect = viewportRef.current.getBoundingClientRect();
@@ -259,6 +452,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       setPanStart({ x: t.clientX - translateX, y: t.clientY - translateY });
     } else if (e.touches.length === 2) {
       // 2 Finger Pinch Start
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      setDraggingDeviceId(null);
       setIsPanning(false);
       const t1 = e.touches[0];
       const t2 = e.touches[1];
@@ -275,10 +470,34 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     if (!viewportRef.current) return;
     const rect = viewportRef.current.getBoundingClientRect();
 
-    if (e.touches.length === 1 && isPanning) {
+    if (e.touches.length === 1) {
       const t = e.touches[0];
-      setTranslateX(t.clientX - panStart.x);
-      setTranslateY(t.clientY - panStart.y);
+
+      if (draggingDeviceId && dragStartClient && initialDevicePos) {
+        const dx = t.clientX - dragStartClient.x;
+        const dy = t.clientY - dragStartClient.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 8) {
+          if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+          setHasMovedDevice(true);
+        }
+
+        let newX = initialDevicePos.x + dx / scale;
+        let newY = initialDevicePos.y + dy / scale;
+        if (snapGrid) {
+          newX = snapToGrid(newX, DEFAULT_GRID_SIZE);
+          newY = snapToGrid(newY, DEFAULT_GRID_SIZE);
+        }
+
+        setTopology((prev) => moveDeviceInTopology(prev, draggingDeviceId, newX, newY, 0), false);
+        return;
+      }
+
+      if (isPanning) {
+        setTranslateX(t.clientX - panStart.x);
+        setTranslateY(t.clientY - panStart.y);
+      }
     } else if (e.touches.length === 2 && lastTouchDistRef.current !== null && lastTouchCenterRef.current) {
       const t1 = e.touches[0];
       const t2 = e.touches[1];
@@ -297,15 +516,72 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   };
 
   const handleTouchEnd = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+
+    if (draggingDeviceId && hasMovedDevice) {
+      setTopology((prev) => ({ ...prev }), true);
+    }
+
+    setDraggingDeviceId(null);
+    setDragStartClient(null);
+    setInitialDevicePos(null);
+    setHasMovedDevice(false);
     setIsPanning(false);
     lastTouchDistRef.current = null;
     lastTouchCenterRef.current = null;
   };
 
-  // Tastatursteuerung (+/- zoomen, Pfeiltasten pannen, 0 = einpassen)
+  // Tastatursteuerung:
+  // - Shift + Pfeiltasten: Verschiebt ausgewähltes Gerät am Raster
+  // - Reguläre Pfeiltasten: Pannen des Viewports
+  // - Strg+Z / Strg+Y: Undo / Redo
+  // - Entf / Backspace: Ausgewähltes Element löschen
+  // - +/- / 0: Zoom & Fit View
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
 
+    // Undo / Redo (Strg+Z / Strg+Y bzw. Cmd+Z / Cmd+Shift+Z)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (canRedo) redo();
+      } else {
+        if (canUndo) undo();
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+      e.preventDefault();
+      if (canRedo) redo();
+      return;
+    }
+
+    // Löschen mit Undo
+    if (e.key === "Delete" || e.key === "Backspace") {
+      e.preventDefault();
+      handleDeleteSelected();
+      return;
+    }
+
+    // Ausgewähltes Gerät mit Shift + Pfeiltasten verschieben
+    if (selectedDevice && e.shiftKey && (e.key.startsWith("Arrow"))) {
+      e.preventDefault();
+      const step = snapGrid ? DEFAULT_GRID_SIZE : 15;
+      let newX = selectedDevice.x;
+      let newY = selectedDevice.y;
+
+      if (e.key === "ArrowUp") newY -= step;
+      if (e.key === "ArrowDown") newY += step;
+      if (e.key === "ArrowLeft") newX -= step;
+      if (e.key === "ArrowRight") newX += step;
+
+      setTopology((prev) => moveDeviceInTopology(prev, selectedDevice.id, newX, newY, 0), true);
+      setSelectedDevice((prev) => (prev ? { ...prev, x: newX, y: newY } : null));
+      return;
+    }
+
+    // Reguläre Tastaturkürzel (Canvas Viewport Steuerung)
     if (e.key === "+" || e.key === "=") {
       e.preventDefault();
       handleZoomIn();
@@ -317,16 +593,16 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       fitView();
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setTranslateY((y) => y + (e.shiftKey ? 80 : 35));
+      setTranslateY((y) => y + 35);
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      setTranslateY((y) => y - (e.shiftKey ? 80 : 35));
+      setTranslateY((y) => y - 35);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      setTranslateX((x) => x + (e.shiftKey ? 80 : 35));
+      setTranslateX((x) => x + 35);
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
-      setTranslateX((x) => x - (e.shiftKey ? 80 : 35));
+      setTranslateX((x) => x - 35);
     }
   };
 
@@ -334,8 +610,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     <div
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className={`relative w-full h-full flex flex-col overflow-hidden select-none outline-none focus:ring-1 focus:ring-sky-500/30 ${
-        isDark ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-900"
+      className={`relative w-full h-full flex flex-col select-none overflow-hidden outline-none ${
+        isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       }`}
     >
       {/* ── TOPBAR: Steuerung, Topologie-Auswahl & Feature-Flag ── */}
@@ -492,12 +768,109 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       </div>
 
+      {/* ── 2. GERÄTEPALETTE & EDITING TOOLBAR (Schritt 2d-1) ── */}
+      <DevicePalette
+        theme={theme}
+        activePlacementType={activePlacementType}
+        onSelectPlacementType={setActivePlacementType}
+        activeMode={activeMode}
+        onSelectMode={(m) => {
+          setActiveMode(m);
+          setConnectSourceDevice(null);
+        }}
+        snapGrid={snapGrid}
+        onToggleSnapGrid={() => setSnapGrid((s) => !s)}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
+        selectedDeviceId={selectedDevice?.id}
+        selectedLinkId={selectedLink?.id}
+        onDeleteSelected={handleDeleteSelected}
+      />
+
+      {/* ── KONFLIKT-BANNER (aus Nacharbeit 2) ── */}
+      {migrationConflicts.length > 0 && (
+        <div className="bg-amber-500/15 border-b border-amber-500/40 px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 text-amber-200">
+          <div className="flex items-center gap-2">
+            <Warning size={16} className="text-amber-400 shrink-0" />
+            <span className="font-bold text-amber-400">Versionskonflikt:</span>
+            <span>{migrationConflicts[0].message}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const conflict = migrationConflicts[0];
+                if (conflict.backupKey) {
+                  restoreBackupSnapshot(conflict.backupKey);
+                  const stored = localStorage.getItem(V2_STORAGE_KEY);
+                  if (stored) setMigratedTopologies(JSON.parse(stored));
+                  toast.success("Snapshot erfolgreich wiederhergestellt");
+                }
+                setMigrationConflicts([]);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-[11px] transition-colors"
+            >
+              Snapshot wiederherstellen
+            </button>
+            <button
+              onClick={() => setMigrationConflicts([])}
+              className="px-2 py-1 rounded-lg border border-amber-500/40 hover:bg-amber-500/20 text-amber-300 text-[11px] transition-colors"
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── PLACEMENT-HINWEIS BANNER ── */}
+      {activePlacementType && (
+        <div className="bg-sky-500/20 border-b border-sky-500/40 px-3 py-1.5 text-xs flex items-center justify-between text-sky-200">
+          <div className="flex items-center gap-2">
+            <span className="animate-pulse">📍</span>
+            <span>
+              Tippe oder klicke auf die Zielfläche im Canvas, um <strong>{activePlacementType.toUpperCase()}</strong> zu platzieren.
+            </span>
+          </div>
+          <button
+            onClick={() => setActivePlacementType(null)}
+            className="text-[11px] underline text-sky-300 hover:text-white"
+          >
+            Abbrechen
+          </button>
+        </div>
+      )}
+
+      {/* ── CONNECT-MODUS HINWEIS ── */}
+      {activeMode === "connect" && connectSourceDevice && (
+        <div className="bg-indigo-500/20 border-b border-indigo-500/40 px-3 py-1.5 text-xs flex items-center justify-between text-indigo-200">
+          <div className="flex items-center gap-2">
+            <span className="animate-pulse">🔌</span>
+            <span>
+              Quellgerät <strong>{connectSourceDevice.name}</strong> aktiv. Klicke jetzt auf das Zielgerät zum Verbinden.
+            </span>
+          </div>
+          <button
+            onClick={() => setConnectSourceDevice(null)}
+            className="text-[11px] underline text-indigo-300 hover:text-white"
+          >
+            Abbrechen
+          </button>
+        </div>
+      )}
+
       {/* ── CANVAS BEREICH: Interaktives SVG Rendering mit Touch-Action none ── */}
       <div
         ref={viewportRef}
         className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
         style={{ touchAction: "none" }}
         onWheel={handleWheel}
+        onClick={handleCanvasClick}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+        }}
+        onDrop={handleCanvasDrop}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -509,9 +882,21 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           topology={activeTopology}
           viewDensity={viewDensity}
           theme={theme}
+          snapGrid={snapGrid}
+          gridSize={DEFAULT_GRID_SIZE}
           selectedDeviceId={selectedDevice?.id}
           selectedLinkId={selectedLink?.id}
           onDeviceClick={(d) => {
+            if (activeMode === "connect") {
+              if (!connectSourceDevice) {
+                setConnectSourceDevice(d);
+                toast.info(`Quellgerät: ${d.name}. Wähle nun das Zielgerät.`);
+              } else if (connectSourceDevice.id !== d.id) {
+                setConnectDialogState({ source: connectSourceDevice, target: d });
+                setConnectSourceDevice(null);
+              }
+              return;
+            }
             setSelectedDevice(d);
             setSelectedLink(null);
           }}
@@ -519,6 +904,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             setSelectedLink(l);
             setSelectedDevice(null);
           }}
+          onDevicePointerDown={handleDevicePointerDown}
+          onDeviceContextMenu={handleDeviceContextMenu}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
@@ -526,7 +913,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
         {/* Legende Overlay */}
         {showLegend && (
-          <div className="absolute bottom-4 left-4 z-30 max-w-[340px]">
+          <div className="absolute top-3 left-3 z-30 max-w-xs shadow-2xl">
             <TopologyLegend theme={theme} onClose={() => setShowLegend(false)} />
           </div>
         )}
@@ -558,7 +945,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       {/* ── DETAIL-PANEL: Beim Klick auf Gerät / Link ── */}
       {selectedDevice && (
         <div
-          className={`absolute bottom-0 right-0 sm:top-12 sm:bottom-auto sm:right-3 w-full sm:w-80 max-h-[55vh] sm:max-h-[80vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border shadow-2xl p-4 z-40 transition-all ${
+          className={`absolute bottom-0 right-0 sm:top-24 sm:bottom-auto sm:right-3 w-full sm:w-80 max-h-[55vh] sm:max-h-[75vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border shadow-2xl p-4 z-40 transition-all ${
             isDark
               ? "bg-slate-900/98 border-slate-700/80 text-white"
               : "bg-white/98 border-slate-200 text-slate-900"
@@ -569,12 +956,15 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               <div className="text-xs font-bold uppercase text-sky-400">{selectedDevice.type.toUpperCase()}</div>
               <h3 className="text-sm font-bold truncate">{selectedDevice.name}</h3>
             </div>
-            <button
-              onClick={() => setSelectedDevice(null)}
-              className="p-1 rounded-lg text-slate-400 hover:text-white"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleDeleteSelected}
+                className="p-1 rounded-lg text-red-400 hover:bg-red-500/20"
+                title="Gerät löschen (Entf)"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Interface Tabelle */}
@@ -634,6 +1024,49 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* ── VERBINDUNGS-DIALOG (Schritt 2d-1) ── */}
+      {connectDialogState && (
+        <ConnectDialog
+          sourceDevice={connectDialogState.source}
+          targetDevice={connectDialogState.target}
+          existingLinks={activeTopology.links}
+          theme={theme}
+          onConnect={(newLink) => {
+            setTopology((prev) => addLinkToTopology(prev, newLink), true);
+            toast.success(`Verbindung ${connectDialogState.source.name} ↔ ${connectDialogState.target.name} erstellt`);
+            setConnectDialogState(null);
+          }}
+          onClose={() => setConnectDialogState(null)}
+        />
+      )}
+
+      {/* ── KONTEXTMENÜ (Touch Long-Press & Rechtsklick) ── */}
+      {contextMenuState && (
+        <DeviceContextMenu
+          device={contextMenuState.device}
+          x={contextMenuState.x}
+          y={contextMenuState.y}
+          theme={theme}
+          onConnect={() => {
+            setConnectSourceDevice(contextMenuState.device);
+            setActiveMode("connect");
+            toast.info(`Quellgerät ausgewählt: ${contextMenuState.device.name}. Wähle das Zielgerät.`);
+          }}
+          onConfigure={() => {
+            setSelectedDevice(contextMenuState.device);
+          }}
+          onDelete={() => {
+            const devName = contextMenuState.device.name;
+            setTopology((prev) => deleteDeviceFromTopology(prev, contextMenuState.device.id), true);
+            if (selectedDevice?.id === contextMenuState.device.id) {
+              setSelectedDevice(null);
+            }
+            toast.info(`${devName} gelöscht (Rückgängig mit Strg+Z)`);
+          }}
+          onClose={() => setContextMenuState(null)}
+        />
       )}
     </div>
   );
