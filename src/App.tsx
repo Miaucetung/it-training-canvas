@@ -1741,10 +1741,10 @@ function App() {
               </div>,
               document.body
             )}
-            {/* Mobile-Menü Button (nur auf Mobile < sm sichtbar): Macht Prüfung, Labs & Werkzeuge mobil erreichbar */}
+            {/* Mobile/Tablet-Menü Button (auf allen Viewports < lg sichtbar): Macht Prüfung, Labs & Werkzeuge erreichbar */}
             <button
               onClick={() => setShowMobileMenu(true)}
-              className={`sm:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`lg:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 showMobileMenu
                   ? "bg-sky-500/20 text-sky-300"
                   : theme === "dark"
