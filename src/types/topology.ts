@@ -13,10 +13,12 @@ export type DeviceType =
   | "wlc"
   | "server"
   | "pc"
+  | "laptop"
   | "cloud";
 
 export type InterfaceStatus = "up" | "down" | "admin-down";
 export type InterfaceMode = "access" | "trunk" | "routed";
+export type ChannelGroupMode = "on" | "active" | "passive" | "desirable" | "auto";
 
 export type LinkType =
   | "ethernet"
@@ -34,15 +36,48 @@ export type LinkStatus =
   | "stp-learning"
   | "stp-listening";
 
+export interface TopologySubinterface {
+  id: string;
+  name: string; // e.g. "Gi0/0.10"
+  vlan: number;
+  ip?: string; // e.g. "192.168.10.1/24"
+  description?: string;
+  isShutdown?: boolean;
+}
+
+export interface InterfaceChannelGroup {
+  id: number; // 1-6
+  mode: ChannelGroupMode;
+}
+
 export interface TopologyInterface {
   id: string;
-  name: string; // e.g. "Gi0/0/0", "Fa0/1"
+  name: string; // e.g. "Gi0/0", "Fa0/1"
   ip?: string; // e.g. "192.168.1.1/24"
   mac?: string; // e.g. "00:50:79:66:68:01"
-  vlan?: number; // e.g. 10
+  vlan?: number; // Access VLAN, e.g. 10
+  allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
+  nativeVlan?: number; // Trunk Native VLAN, e.g. 1
   mode?: InterfaceMode;
   status: InterfaceStatus;
   description?: string;
+  channelGroup?: InterfaceChannelGroup;
+  subinterfaces?: TopologySubinterface[];
+  isShutdown?: boolean;
+}
+
+export interface DeviceSvi {
+  vlan: number;
+  ip: string;
+  status?: "up" | "down" | "admin-down";
+  description?: string;
+}
+
+export interface DevicePortChannel {
+  id: number;
+  mode: ChannelGroupMode;
+  protocol?: "lacp" | "pagp" | "static";
+  members: string[];
 }
 
 export interface DeviceConfig {
@@ -50,6 +85,9 @@ export interface DeviceConfig {
   domain?: string;
   defaultGateway?: string;
   dnsServers?: string[];
+  ipRoutingEnabled?: boolean; // Für L3 Switch
+  svis?: DeviceSvi[]; // Für L3 Switch
+  portChannels?: DevicePortChannel[];
   routingProtocols?: string[]; // e.g. ["OSPF 1", "Static"]
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
@@ -174,15 +212,48 @@ export interface NetworkTopology {
 // Runtime Zod Validation Schema
 // ============================================================================
 
+export const topologySubinterfaceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  vlan: z.number().int().min(1).max(4094),
+  ip: z.string().optional(),
+  description: z.string().optional(),
+  isShutdown: z.boolean().optional(),
+});
+
+export const interfaceChannelGroupSchema = z.object({
+  id: z.number().int().min(1).max(64),
+  mode: z.enum(["on", "active", "passive", "desirable", "auto"]),
+});
+
 export const topologyInterfaceSchema = z.object({
   id: z.string(),
   name: z.string(),
   ip: z.string().optional(),
   mac: z.string().optional(),
   vlan: z.number().int().min(1).max(4094).optional(),
+  allowedVlans: z.array(z.number().int().min(1).max(4094)).optional(),
+  nativeVlan: z.number().int().min(1).max(4094).optional(),
   mode: z.enum(["access", "trunk", "routed"]).optional(),
   status: z.enum(["up", "down", "admin-down"]).default("up"),
   description: z.string().optional(),
+  channelGroup: interfaceChannelGroupSchema.optional(),
+  subinterfaces: z.array(topologySubinterfaceSchema).optional(),
+  isShutdown: z.boolean().optional(),
+});
+
+export const deviceSviSchema = z.object({
+  vlan: z.number().int().min(1).max(4094),
+  ip: z.string(),
+  status: z.enum(["up", "down", "admin-down"]).optional(),
+  description: z.string().optional(),
+});
+
+export const devicePortChannelSchema = z.object({
+  id: z.number().int().min(1).max(64),
+  mode: z.enum(["on", "active", "passive", "desirable", "auto"]),
+  protocol: z.enum(["lacp", "pagp", "static"]).optional(),
+  members: z.array(z.string()),
 });
 
 export const deviceConfigSchema = z.object({
@@ -190,6 +261,9 @@ export const deviceConfigSchema = z.object({
   domain: z.string().optional(),
   defaultGateway: z.string().optional(),
   dnsServers: z.array(z.string()).optional(),
+  ipRoutingEnabled: z.boolean().optional(),
+  svis: z.array(deviceSviSchema).optional(),
+  portChannels: z.array(devicePortChannelSchema).optional(),
   routingProtocols: z.array(z.string()).optional(),
   routingTable: z
     .array(
@@ -236,6 +310,7 @@ export const topologyDeviceSchema = z.object({
     "wlc",
     "server",
     "pc",
+    "laptop",
     "cloud",
   ]),
   x: z.number(),

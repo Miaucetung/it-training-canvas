@@ -31,16 +31,24 @@ describe("Topology Operations (2d-1 Geräte und Links)", () => {
     expect(router.type).toBe("router");
     expect(router.x).toBe(100);
     expect(router.y).toBe(150);
-    expect(router.interfaces.map((i) => i.name)).toContain("Gi0/0/0");
+    expect(router.interfaces.map((i) => i.name)).toContain("Gi0/0");
     expect(router.interfaces.map((i) => i.name)).toContain("Lo0");
+
+    const laptop = createNewDevice("laptop", 150, 200);
+    expect(laptop.type).toBe("laptop");
+    expect(laptop.name).toContain("LT-");
+    expect(laptop.interfaces.map((i) => i.name)).toContain("wlan0");
+    expect(laptop.interfaces.map((i) => i.name)).toContain("eth0");
 
     const switchDev = createNewDevice("switch-l2", 200, 250);
     expect(switchDev.type).toBe("switch-l2");
+    expect(switchDev.interfaces.map((i) => i.name)).toContain("Fa0/1");
     expect(switchDev.interfaces.map((i) => i.name)).toContain("Gi0/1");
     expect(switchDev.interfaces.map((i) => i.name)).toContain("Vlan1");
 
     const ap = createNewDevice("access-point", 300, 350);
     expect(ap.type).toBe("access-point");
+    expect(ap.interfaces.map((i) => i.name)).toContain("Gi0");
     expect(ap.interfaces.map((i) => i.name)).toContain("Radio0");
   });
 

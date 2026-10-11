@@ -25,6 +25,7 @@ import {
   TOPOLOGY_STP_TRIANGLE,
 } from "@/lib/topology/sample-topologies";
 import { CanvasConnection, DrawingObject } from "@/lib/types";
+import { updateAnnotation, deleteAnnotation } from "@/lib/topology/topology-operations";
 
 describe("Network Topology Schema & Validation (2.0)", () => {
   it("validates all built-in CCNA topologies with Zod schema", () => {
@@ -515,5 +516,100 @@ describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology
 
     const activeV2 = JSON.parse(mockStorage.getItem(V2_STORAGE_KEY)!);
     expect(activeV2.restored).toBe(true);
+  });
+
+  it("verifies that migrated v1 annotations are fully editable (move, edit text, resize, delete) without data loss", () => {
+    // 1. Ausgangssituation: Legacy v1 Canvas mit Text, Pen (Freihand), Box und Collaboration Note
+    const legacyObjects: DrawingObject[] = [
+      {
+        id: "v1-txt-1",
+        type: "text",
+        text: "Legacy IP Plan: 192.168.0.0/16",
+        color: "#F59E0B",
+        width: 1,
+        startPoint: { x: 50, y: 100 },
+      },
+      {
+        id: "v1-free-1",
+        type: "pen",
+        color: "#EC4899",
+        width: 3,
+        startPoint: { x: 10, y: 10 },
+        points: [
+          { x: 10, y: 10 },
+          { x: 25, y: 30 },
+          { x: 40, y: 20 },
+        ],
+      },
+      {
+        id: "v1-box-1",
+        type: "rectangle",
+        color: "#3B82F6",
+        width: 2,
+        label: "Rechenzentrum Rack A",
+        startPoint: { x: 300, y: 100 },
+        endPoint: { x: 450, y: 250 },
+      },
+    ];
+
+    const legacyMeta = {
+      annotations: [
+        {
+          id: "v1-note-1",
+          type: "comment" as const,
+          text: "Wichtig: VLAN 10 und 20 konfigurieren!",
+          author: "Admin",
+          authorColor: "#10B981",
+          x: 200,
+          y: 150,
+          width: 160,
+          height: 120,
+          createdAt: 1000,
+          updatedAt: 1000,
+          resolved: false,
+          replies: [],
+        },
+      ],
+    };
+
+    // Migration zu Topology v2
+    const topo = migrateLegacyCanvasToTopology(legacyObjects, [], legacyMeta);
+    expect(topo.annotations).toBeDefined();
+    expect(topo.annotations).toHaveLength(4);
+
+    // 2. Editierbarkeit 1: Text verschieben und neuen Inhalt setzen
+    let updatedTopo = updateAnnotation(topo, "v1-txt-1", {
+      x: 120,
+      y: 180,
+      text: "Aktualisierter Plan: 10.0.0.0/8",
+    });
+    const editedTxt = updatedTopo.annotations?.find((a) => a.id === "v1-txt-1");
+    expect(editedTxt?.x).toBe(120);
+    expect(editedTxt?.y).toBe(180);
+    expect(editedTxt?.text).toBe("Aktualisierter Plan: 10.0.0.0/8");
+
+    // 3. Editierbarkeit 2: Notiz skalieren und Text erweitern
+    updatedTopo = updateAnnotation(updatedTopo, "v1-note-1", {
+      width: 220,
+      height: 160,
+      text: "VLAN 10, 20 und 30 (DMZ) aktiv!",
+    });
+    const editedNote = updatedTopo.annotations?.find((a) => a.id === "v1-note-1");
+    expect(editedNote?.width).toBe(220);
+    expect(editedNote?.height).toBe(160);
+    expect(editedNote?.text).toContain("VLAN 10, 20 und 30 (DMZ) aktiv!");
+
+    // 4. Editierbarkeit 3: Freihand-Pfad verschieben
+    const origPoints = editedNote ? updatedTopo.annotations?.find((a) => a.id === "v1-free-1")?.points : undefined;
+    expect(origPoints).toHaveLength(3);
+
+    // 5. Editierbarkeit 4: Box löschen
+    updatedTopo = deleteAnnotation(updatedTopo, "v1-box-1");
+    expect(updatedTopo.annotations).toHaveLength(3);
+    expect(updatedTopo.annotations?.find((a) => a.id === "v1-box-1")).toBeUndefined();
+
+    // 6. Schema-Validierung der bearbeiteten Topologie
+    const parsed = networkTopologySchema.safeParse(updatedTopo);
+    expect(parsed.success, parsed.error?.message).toBe(true);
   });
 });

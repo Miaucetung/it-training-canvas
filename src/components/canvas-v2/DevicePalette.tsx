@@ -71,7 +71,12 @@ const PALETTE_DEVICES: Array<{
   {
     type: "pc",
     label: "PC",
-    tooltip: "Endgerät Host / Client (DHCP, IPv4/IPv6)",
+    tooltip: "Endgerät Desktop Host (DHCP, IPv4/IPv6)",
+  },
+  {
+    type: "laptop",
+    label: "Laptop",
+    tooltip: "Mobiles Endgerät (WLAN 802.11 & Gigabit Ethernet)",
   },
   {
     type: "server",
@@ -92,12 +97,20 @@ const PALETTE_DEVICES: Array<{
   },
 ];
 
-const ANNOTATION_COLORS = [
-  { name: "Gelb", value: "#F59E0B" },
-  { name: "Blau", value: "#38BDF8" },
-  { name: "Grün", value: "#10B981" },
-  { name: "Pink", value: "#EC4899" },
-  { name: "Grau", value: "#94A3B8" },
+export const DARK_ANNOTATION_COLORS = [
+  { name: "Gelb", value: "#FBBF24" }, // Amber 400 (Kontrast ~9:1 auf Dark)
+  { name: "Blau", value: "#38BDF8" }, // Sky 400 (Kontrast ~9:1 auf Dark)
+  { name: "Grün", value: "#34D399" }, // Emerald 400 (Kontrast ~9:1 auf Dark)
+  { name: "Pink", value: "#F472B6" }, // Pink 400 (Kontrast ~8:1 auf Dark)
+  { name: "Grau", value: "#CBD5E1" }, // Slate 300 (Kontrast ~11:1 auf Dark)
+];
+
+export const LIGHT_ANNOTATION_COLORS = [
+  { name: "Bernstein", value: "#B45309" }, // Amber 700 (Kontrast ~6.5:1 auf Weiß, WCAG AA)
+  { name: "Blau", value: "#0284C7" },      // Sky 600 (Kontrast ~5.3:1 auf Weiß, WCAG AA)
+  { name: "Grün", value: "#047857" },     // Emerald 700 (Kontrast ~5.8:1 auf Weiß, WCAG AA)
+  { name: "Pink", value: "#BE185D" },     // Pink 700 (Kontrast ~5.6:1 auf Weiß, WCAG AA)
+  { name: "Grau", value: "#475569" },     // Slate 600 (Kontrast ~5.5:1 auf Weiß, WCAG AA)
 ];
 
 export const DevicePalette: React.FC<DevicePaletteProps> = ({
@@ -106,7 +119,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
   onSelectPlacementType,
   activeMode,
   onSelectMode,
-  activeAnnotationColor = "#F59E0B",
+  activeAnnotationColor,
   onSelectAnnotationColor,
   snapGrid,
   onToggleSnapGrid,
@@ -308,10 +321,10 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           <Circle size={15} weight="bold" />
         </button>
 
-        {/* Farbwähler bei aktivem Zeichenwerkzeug */}
+        {/* Farbwähler bei aktivem Zeichenwerkzeug mit WCAG AA Kontrast */}
         {isDrawingMode && onSelectAnnotationColor && (
           <div className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-lg bg-black/20 border border-slate-700/60">
-            {ANNOTATION_COLORS.map((c) => (
+            {(isDark ? DARK_ANNOTATION_COLORS : LIGHT_ANNOTATION_COLORS).map((c) => (
               <button
                 key={c.value}
                 onClick={() => onSelectAnnotationColor(c.value)}
@@ -321,7 +334,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
                     : "opacity-70 hover:opacity-100"
                 }`}
                 style={{ backgroundColor: c.value }}
-                title={`Farbe: ${c.name}`}
+                title={`Farbe: ${c.name} (${isDark ? "Dark" : "Light"} Kontrast)`}
               />
             ))}
           </div>

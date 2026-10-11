@@ -18,32 +18,35 @@ export interface InterfaceOption {
 }
 
 /**
- * Erzeugt standardmäßige Schnittstellen für einen gegebenen CCNA-Gerätetyp.
+ * Erzeugt standardmäßige Schnittstellen für einen gegebenen CCNA-Gerätetyp (Packet Tracer Standard).
  */
 export function getDefaultInterfacesForType(type: TopologyDevice["type"]): TopologyDevice["interfaces"] {
   switch (type) {
     case "router":
       return [
-        { id: "if-gi0-0-0", name: "Gi0/0/0", status: "up", description: "WAN/P2P Interface (Routed)" },
-        { id: "if-gi0-0-1", name: "Gi0/0/1", status: "up", description: "LAN Gateway (Routed)" },
-        { id: "if-gi0-0-2", name: "Gi0/0/2", status: "up", description: "SFP WAN Combo Port" },
+        { id: "if-gi0-0", name: "Gi0/0", status: "up", description: "LAN Gateway / RoaS Trunk (Routed)" },
+        { id: "if-gi0-1", name: "Gi0/1", status: "up", description: "WAN Transit / P2P (Routed)" },
+        { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Zusatz Routed Interface" },
+        { id: "if-se0-1-0", name: "Se0/1/0", status: "up", description: "Serial WAN WIC-2T" },
+        { id: "if-se0-1-1", name: "Se0/1/1", status: "up", description: "Serial WAN WIC-2T" },
         { id: "if-lo0", name: "Lo0", status: "up", ip: "1.1.1.1/32", description: "OSPF Router ID" },
       ];
     case "switch-l2":
       return [
-        { id: "if-gi0-1", name: "Gi0/1", status: "up", description: "Access / Trunk Port" },
-        { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Access / Trunk Port" },
-        { id: "if-gi0-3", name: "Gi0/3", status: "up", description: "Access / Trunk Port" },
-        { id: "if-gi0-4", name: "Gi0/4", status: "up", description: "Access / Trunk Port" },
-        { id: "if-gi0-23", name: "Gi0/23", status: "up", description: "Uplink Port" },
-        { id: "if-gi0-24", name: "Gi0/24", status: "up", description: "Uplink Port" },
+        { id: "if-fa0-1", name: "Fa0/1", status: "up", description: "FastEthernet Access / Trunk" },
+        { id: "if-fa0-2", name: "Fa0/2", status: "up", description: "FastEthernet Access / Trunk" },
+        { id: "if-fa0-3", name: "Fa0/3", status: "up", description: "FastEthernet Access / Trunk" },
+        { id: "if-fa0-4", name: "Fa0/4", status: "up", description: "FastEthernet Access / Trunk" },
+        { id: "if-gi0-1", name: "Gi0/1", status: "up", description: "Gigabit Uplink / Trunk Port" },
+        { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Gigabit Uplink / Trunk Port" },
         { id: "if-vlan1", name: "Vlan1", status: "up", description: "Management SVI" },
       ];
     case "switch-l3":
       return [
-        { id: "if-gi1-0-1", name: "Gi1/0/1", status: "up", description: "Routed / Switchport" },
-        { id: "if-gi1-0-2", name: "Gi1/0/2", status: "up", description: "Routed / Switchport" },
-        { id: "if-gi1-0-3", name: "Gi1/0/3", status: "up", description: "Routed / Switchport" },
+        { id: "if-gi1-0-1", name: "Gi1/0/1", status: "up", description: "Gigabit Routed / Switchport" },
+        { id: "if-gi1-0-2", name: "Gi1/0/2", status: "up", description: "Gigabit Routed / Switchport" },
+        { id: "if-gi1-0-3", name: "Gi1/0/3", status: "up", description: "Gigabit Routed / Switchport" },
+        { id: "if-gi1-0-4", name: "Gi1/0/4", status: "up", description: "Gigabit Routed / Switchport" },
         { id: "if-vlan10", name: "Vlan10", status: "up", description: "SVI Gateway VLAN 10" },
         { id: "if-vlan20", name: "Vlan20", status: "up", description: "SVI Gateway VLAN 20" },
         { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback Management" },
@@ -53,6 +56,11 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
         { id: "if-eth0", name: "eth0", status: "up", description: "Gigabit Ethernet NIC" },
         { id: "if-wlan0", name: "wlan0", status: "up", description: "802.11 Wi-Fi Adapter" },
       ];
+    case "laptop":
+      return [
+        { id: "if-wlan0", name: "wlan0", status: "up", description: "802.11 Wi-Fi Adapter (Standard)" },
+        { id: "if-eth0", name: "eth0", status: "up", description: "Gigabit Ethernet NIC" },
+      ];
     case "server":
       return [
         { id: "if-eth0", name: "eth0", status: "up", description: "Primary Production LAN" },
@@ -60,27 +68,28 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
       ];
     case "access-point":
       return [
-        { id: "if-eth0", name: "GigabitEthernet0", status: "up", description: "PoE Uplink to Switch" },
+        { id: "if-gi0", name: "Gi0", status: "up", description: "PoE Uplink to Switch" },
         { id: "if-radio0", name: "Radio0", status: "up", description: "2.4 GHz 802.11ax WLAN" },
         { id: "if-radio1", name: "Radio1", status: "up", description: "5 GHz 802.11ax WLAN" },
       ];
     case "wlc":
       return [
-        { id: "if-mgmt", name: "GigabitEthernet1", status: "up", description: "Service Port (OOB Mgmt)" },
-        { id: "if-data", name: "GigabitEthernet2", status: "up", description: "Distribution Trunk (CAPWAP)" },
-        { id: "if-red", name: "GigabitEthernet3", status: "up", description: "Redundancy Port (HA SSO)" },
+        { id: "if-gi1", name: "Gi1", status: "up", description: "Distribution Trunk (CAPWAP)" },
+        { id: "if-gi2", name: "Gi2", status: "up", description: "Redundancy Port (HA SSO)" },
+        { id: "if-mgmt", name: "mgmt0", status: "up", description: "Service Port (OOB Mgmt)" },
       ];
     case "firewall":
       return [
-        { id: "if-inside", name: "GigabitEthernet1/1", status: "up", description: "Inside (LAN)" },
-        { id: "if-outside", name: "GigabitEthernet1/2", status: "up", description: "Outside (Internet/WAN)" },
-        { id: "if-dmz", name: "GigabitEthernet1/3", status: "up", description: "DMZ Zone" },
-        { id: "if-mgmt", name: "Management1/1", status: "up", description: "OOB Management" },
+        { id: "if-inside", name: "Gi1/1", status: "up", description: "Inside (LAN)" },
+        { id: "if-outside", name: "Gi1/2", status: "up", description: "Outside (Internet/WAN)" },
+        { id: "if-dmz", name: "Gi1/3", status: "up", description: "DMZ Zone" },
+        { id: "if-mgmt", name: "mgmt0", status: "up", description: "OOB Management" },
       ];
     case "cloud":
       return [
-        { id: "if-isp0", name: "GigabitEthernet0/0", status: "up", description: "ISP Gateway" },
-        { id: "if-isp1", name: "GigabitEthernet0/1", status: "up", description: "Customer WAN Handoff" },
+        { id: "if-ser0", name: "Serial0", status: "up", description: "WAN Provider Port" },
+        { id: "if-ser1", name: "Serial1", status: "up", description: "WAN Provider Port" },
+        { id: "if-eth0", name: "Ethernet0", status: "up", description: "ISP Handoff" },
       ];
     default:
       return [{ id: "if-eth0", name: "eth0", status: "up" }];
@@ -106,17 +115,19 @@ export function createNewDevice(
           ? "MLS"
           : type === "pc"
             ? "PC"
-            : type === "server"
-              ? "SRV"
-              : type === "access-point"
-                ? "AP"
-                : type === "wlc"
-                  ? "WLC"
-                  : type === "firewall"
-                    ? "FW"
-                    : type === "cloud"
-                      ? "CLOUD"
-                      : "DEV";
+            : type === "laptop"
+              ? "LT"
+              : type === "server"
+                ? "SRV"
+                : type === "access-point"
+                  ? "AP"
+                  : type === "wlc"
+                    ? "WLC"
+                    : type === "firewall"
+                      ? "FW"
+                      : type === "cloud"
+                        ? "CLOUD"
+                        : "DEV";
 
   const name = customName || `${typePrefix}-${shortId.toUpperCase()}`;
 
@@ -250,7 +261,7 @@ export function validateLinkConnection(
     }
 
     const clientDev = isSourceAp ? targetDevice : sourceDevice;
-    if (clientDev.type !== "pc") {
+    if (clientDev.type !== "pc" && clientDev.type !== "laptop") {
       return {
         valid: false,
         error: "Wireless-Links sind nur zwischen einem Access Point und Endgeräten (PC/Laptop) zulässig. Netzwerkgeräte werden per Ethernet verkabelt.",
@@ -263,7 +274,7 @@ export function validateLinkConnection(
     if (srcIface?.name.startsWith("Radio") || tgtIface?.name.startsWith("Radio")) {
       return {
         valid: false,
-        error: "Ethernet-Kabel können nicht an eine Funkschnittstelle (Radio) angeschlossen werden. Bitte den kabelgebundenen Port 'GigabitEthernet0' wählen.",
+        error: "Ethernet-Kabel können nicht an eine Funkschnittstelle (Radio) angeschlossen werden. Bitte den kabelgebundenen Port 'Gi0' wählen.",
       };
     }
   }
@@ -538,6 +549,10 @@ export function deleteAnnotationFromTopology(
     },
   };
 }
+
+export const updateAnnotation = updateAnnotationInTopology;
+export const deleteAnnotation = deleteAnnotationFromTopology;
+export const addAnnotation = addAnnotationToTopology;
 
 /**
  * Verschiebt eine Annotation in der Topologie.

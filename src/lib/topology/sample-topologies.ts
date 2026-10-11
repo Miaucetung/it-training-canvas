@@ -19,15 +19,15 @@ export const TOPOLOGY_BASIC_LAN: NetworkTopology = {
       x: 380,
       y: 60,
       interfaces: [
-        { id: "r1-gi00", name: "Gi0/0/0", ip: "192.168.1.1/24", mac: "00:50:79:66:68:01", status: "up" },
-        { id: "r1-gi01", name: "Gi0/0/1", ip: "203.0.113.2/30", status: "up" },
+        { id: "r1-gi00", name: "Gi0/0", ip: "192.168.1.1/24", mac: "00:50:79:66:68:01", status: "up" },
+        { id: "r1-gi01", name: "Gi0/1", ip: "203.0.113.2/30", status: "up" },
       ],
       config: {
         hostname: "R1-Gateway",
         defaultGateway: "203.0.113.1",
         showOutputs: {
-          "show ip interface brief": "Interface              IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0/0   192.168.1.1     YES manual up                    up\nGigabitEthernet0/0/1   203.0.113.2     YES manual up                    up",
-          "show ip route": "Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP\n       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area\n\nGateway of last resort is 203.0.113.1 to network 0.0.0.0\n\nS*    0.0.0.0/0 [1/0] via 203.0.113.1\nC     192.168.1.0/24 is directly connected, GigabitEthernet0/0/0\nC     203.0.113.0/30 is directly connected, GigabitEthernet0/0/1",
+          "show ip interface brief": "Interface              IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0     192.168.1.1     YES manual up                    up\nGigabitEthernet0/1     203.0.113.2     YES manual up                    up",
+          "show ip route": "Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP\n       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area\n\nGateway of last resort is 203.0.113.1 to network 0.0.0.0\n\nS*    0.0.0.0/0 [1/0] via 203.0.113.1\nC     192.168.1.0/24 is directly connected, GigabitEthernet0/0\nC     203.0.113.0/30 is directly connected, GigabitEthernet0/1",
         },
       },
     },
@@ -93,7 +93,7 @@ export const TOPOLOGY_BASIC_LAN: NetworkTopology = {
       targetInterfaceId: "sw1-gi01",
       linkType: "ethernet",
       status: "up",
-      label: "Gi0/0/0 ↔ Gi0/1",
+      label: "Gi0/0 ↔ Gi0/1",
       bandwidth: "1 Gbps",
     },
     {
@@ -355,8 +355,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       x: 320,
       y: 120,
       interfaces: [
-        { id: "r1-transit", name: "Gi0/0/0", ip: "10.0.12.1/30", status: "up", description: "ip ospf network point-to-point" },
-        { id: "r1-lan", name: "Gi0/0/1", ip: "192.168.1.1/24", status: "up", description: "LAN 1 Gateway" },
+        { id: "r1-transit", name: "Gi0/0", ip: "10.0.12.1/30", status: "up", description: "ip ospf network point-to-point" },
+        { id: "r1-lan", name: "Gi0/1", ip: "192.168.1.1/24", status: "up", description: "LAN 1 Gateway" },
         { id: "r1-loopback", name: "Lo0", ip: "1.1.1.1/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {
@@ -396,8 +396,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       x: 560,
       y: 120,
       interfaces: [
-        { id: "r2-transit", name: "Gi0/0/0", ip: "10.0.12.2/30", status: "up", description: "ip ospf network point-to-point" },
-        { id: "r2-lan", name: "Gi0/0/1", ip: "192.168.2.1/24", status: "up", description: "LAN 2 Gateway" },
+        { id: "r2-transit", name: "Gi0/0", ip: "10.0.12.2/30", status: "up", description: "ip ospf network point-to-point" },
+        { id: "r2-lan", name: "Gi0/1", ip: "192.168.2.1/24", status: "up", description: "LAN 2 Gateway" },
         { id: "r2-loopback", name: "Lo0", ip: "2.2.2.2/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {
@@ -452,7 +452,7 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       targetInterfaceId: "sw1-up",
       linkType: "ethernet",
       status: "up",
-      label: "Gi0/0/1 ↔ Gi0/1",
+      label: "Gi0/1 ↔ Gi0/1",
     },
     {
       id: "link-sw1-pc1",
@@ -472,7 +472,7 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       targetInterfaceId: "sw2-up",
       linkType: "ethernet",
       status: "up",
-      label: "Gi0/0/1 ↔ Gi0/1",
+      label: "Gi0/1 ↔ Gi0/1",
     },
     {
       id: "link-sw2-pc2",

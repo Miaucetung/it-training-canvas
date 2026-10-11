@@ -44,13 +44,20 @@ import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
 import { ConnectDialog } from "./ConnectDialog";
 import { DeviceContextMenu } from "./DeviceContextMenu";
+import { DeviceConfigDialog } from "./DeviceConfigDialog";
+import { TopologyStorageDialog } from "./TopologyStorageDialog";
+import { saveNamedTopology } from "@/lib/topology/storage-manager";
+import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
 import {
   ArrowsIn,
   CheckCircle,
   Eye,
+  FloppyDisk,
+  Gear,
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
+  ShieldCheck,
   Terminal,
   Warning,
   X,
@@ -161,8 +168,26 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [selectedDevice, setSelectedDevice] = useState<TopologyDevice | null>(null);
   const [selectedLink, setSelectedLink] = useState<TopologyLink | null>(null);
 
+  // Schritt 2d-3 Dialoge & Storage
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
+  const [isStorageDialogOpen, setIsStorageDialogOpen] = useState<boolean>(false);
+  const [isAutosaving, setIsAutosaving] = useState<boolean>(false);
+
   // Performance-Tracking
   const [renderDurationMs, setRenderDurationMs] = useState<number>(0);
+
+  // Live-Diagnose der Topologie
+  const diagnostics = useMemo(() => validateTopology(activeTopology), [activeTopology]);
+
+  // Debounced Autosave (1500ms Drosselung nach Änderungen)
+  useEffect(() => {
+    setIsAutosaving(true);
+    const timer = setTimeout(() => {
+      saveNamedTopology(activeTopology);
+      setIsAutosaving(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [activeTopology]);
 
   // Viewport Container Ref für ResizeObserver und Koordinaten-Messung
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -1124,6 +1149,45 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           >
             <ArrowsIn size={15} />
           </button>
+
+          {/* Speichern & Export Dialog */}
+          <button
+            onClick={() => setIsStorageDialogOpen(true)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              isDark
+                ? "border-slate-700 text-slate-200 hover:bg-slate-800 bg-slate-800/50"
+                : "border-slate-200 text-slate-700 hover:bg-slate-100 bg-slate-50"
+            }`}
+            title="Topologie speichern, exportieren (JSON/SVG/PNG) oder importieren"
+          >
+            <FloppyDisk size={15} weight="bold" />
+            <span className="hidden md:inline">Speichern & Export</span>
+          </button>
+
+          {/* Netzwerk-Diagnose Button mit Badge */}
+          <button
+            onClick={() => setIsStorageDialogOpen(true)}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              diagnostics.warningsCount > 0
+                ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
+                : isDark
+                  ? "border-slate-700 text-slate-300 hover:bg-slate-800"
+                  : "border-slate-200 text-slate-700 hover:bg-slate-100"
+            }`}
+            title="CCNA Validierung & Diagnose"
+          >
+            {diagnostics.warningsCount > 0 ? (
+              <>
+                <Warning size={15} weight="bold" className="text-amber-400" />
+                <span className="font-bold">{diagnostics.warningsCount}</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck size={15} weight="bold" className="text-emerald-400" />
+                <span className="hidden md:inline text-emerald-300 text-[11px]">OK</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Rechte Seite: Zoom & Feature-Flag */}
@@ -1456,6 +1520,14 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             </div>
             <div className="flex items-center gap-1">
               <button
+                onClick={() => setIsConfigDialogOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 transition-colors"
+                title="Gerät konfigurieren"
+              >
+                <Gear size={14} weight="bold" />
+                <span>Konfigurieren</span>
+              </button>
+              <button
                 onClick={handleDeleteSelected}
                 className="p-1 rounded-lg text-red-400 hover:bg-red-500/20"
                 title="Gerät löschen (Entf)"
@@ -1554,6 +1626,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           }}
           onConfigure={() => {
             setSelectedDevice(contextMenuState.device);
+            setIsConfigDialogOpen(true);
           }}
           onDelete={() => {
             const devName = contextMenuState.device.name;
@@ -1564,6 +1637,48 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             toast.info(`${devName} gelöscht (Rückgängig mit Strg+Z)`);
           }}
           onClose={() => setContextMenuState(null)}
+        />
+      )}
+
+      {/* ── GERÄTE-KONFIGURATIONSDIALOG (Schritt 2d-3) ── */}
+      {isConfigDialogOpen && selectedDevice && (
+        <DeviceConfigDialog
+          device={selectedDevice}
+          topology={activeTopology}
+          theme={theme}
+          isOpen={isConfigDialogOpen}
+          onClose={() => setIsConfigDialogOpen(false)}
+          onSave={(updatedDev) => {
+            setTopology((prev) => ({
+              ...prev,
+              devices: prev.devices.map((d) => (d.id === updatedDev.id ? updatedDev : d)),
+            }), true);
+            setSelectedDevice(updatedDev);
+            toast.success(`${updatedDev.name} Konfiguration gespeichert`);
+          }}
+        />
+      )}
+
+      {/* ── TOPOLOGIE-SPEICHER- & EXPORT-DIALOG (Schritt 2d-3) ── */}
+      {isStorageDialogOpen && (
+        <TopologyStorageDialog
+          currentTopology={activeTopology}
+          theme={theme}
+          isOpen={isStorageDialogOpen}
+          onClose={() => setIsStorageDialogOpen(false)}
+          onLoadTopology={(loadedTopo) => {
+            setTopology(() => loadedTopo, true);
+            setSelectedTopologyId(loadedTopo.id);
+            setSelectedDevice(null);
+            setSelectedLink(null);
+            setSelectedAnnotation(null);
+            toast.success(`Topologie '${loadedTopo.name}' geladen`);
+          }}
+          svgElementRef={{
+            get current() {
+              return viewportRef.current?.querySelector("svg") as SVGSVGElement | null;
+            },
+          }}
         />
       )}
     </div>

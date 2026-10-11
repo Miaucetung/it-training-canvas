@@ -373,6 +373,58 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
         </svg>
       );
 
+    case "laptop":
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={className}
+          role="img"
+          aria-label="Laptop Client (WLAN & Ethernet)"
+        >
+          {/* Display Deckel */}
+          <rect
+            x="14"
+            y="14"
+            width="36"
+            height="26"
+            rx="3"
+            fill={statusColor || "#1E293B"}
+            stroke="#38BDF8"
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+          />
+          {/* Display Screen */}
+          <rect x="17" y="17" width="30" height="19" rx="1.5" fill="#0F172A" />
+          {/* Wi-Fi Funkwellen-Indikator auf Bildschirm */}
+          <path
+            d="M32 23 C29 23 27 25 25 27 M32 26 C30 26 29 27 28 28 M32 30 A1 1 0 1 1 31.99 30"
+            stroke="#38BDF8"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
+          {/* Webcam */}
+          <circle cx="32" cy="15.5" r="0.8" fill="#94A3B8" />
+          {/* Scharnier */}
+          <rect x="26" y="39.5" width="12" height="2" rx="0.5" fill="#64748B" />
+          {/* Basis Gehäuse / Tastaturdeckel */}
+          <path
+            d="M8 43 L12 40 L52 40 L56 43 L54 49 C54 50.5 52.5 51 51 51 L13 51 C11.5 51 10 50.5 10 49 Z"
+            fill={statusColor || "#334155"}
+            stroke="#60A5FA"
+            strokeWidth="1.2"
+            vectorEffect="non-scaling-stroke"
+          />
+          {/* Tastaturfeld */}
+          <polygon points="15,42 49,42 48,46 16,46" fill="#1E293B" />
+          {/* Trackpad */}
+          <rect x="27" y="47" width="10" height="3" rx="0.8" fill="#475569" />
+        </svg>
+      );
+
     case "cloud":
       return (
         <svg

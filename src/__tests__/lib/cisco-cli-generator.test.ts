@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CiscoCliGenerator, getNetworkAddress } from "@/lib/topology/cisco-cli-generator";
 import { TOPOLOGY_OSPF, TOPOLOGY_ROUTER_ON_A_STICK, TOPOLOGY_STP_TRIANGLE } from "@/lib/topology/sample-topologies";
-import { NetworkTopology } from "@/types/topology";
+import { NetworkTopology, TopologyDevice } from "@/types/topology";
 
 describe("Cisco IOS CLI Dynamic Show Generator", () => {
   it("calculates network address and host CIDR correctly", () => {
@@ -95,9 +95,107 @@ describe("Cisco IOS CLI Dynamic Show Generator", () => {
     expect(output).toContain("2.2.2.2");
     expect(output).toContain("FULL/  -");
     expect(output).toContain("10.0.12.2");
-    expect(output).toContain("Gi0/0/0");
+    expect(output).toContain("Gi0/0");
     // Ensure no DR or BDR is indicated
     expect(output).not.toContain("FULL/DR");
     expect(output).not.toContain("FULL/BDR");
+  });
+
+  it("generates authentic show vlan brief with active ports excluding trunks", () => {
+    const sw1 = TOPOLOGY_ROUTER_ON_A_STICK.devices.find((d) => d.id === "roas-sw1")!;
+    const output = CiscoCliGenerator.generateShowVlanBrief(sw1);
+
+    expect(output).toContain("VLAN Name                             Status    Ports");
+    expect(output).toContain("10   SALES");
+    expect(output).toContain("20   DEV");
+    expect(output).toContain("Fa0/10");
+    expect(output).toContain("Fa0/20");
+    // Trunk port Gi0/1 must NOT appear in show vlan brief
+    expect(output).not.toContain("Gi0/1");
+  });
+
+  it("generates authentic show interfaces trunk with native and allowed VLANs", () => {
+    const sw1 = TOPOLOGY_ROUTER_ON_A_STICK.devices.find((d) => d.id === "roas-sw1")!;
+    const output = CiscoCliGenerator.generateShowInterfacesTrunk(sw1);
+
+    expect(output).toContain("Port        Mode             Encapsulation  Status        Native vlan");
+    expect(output).toContain("Gi0/1       on               802.1q         trunking      1");
+    expect(output).toContain("Port        Vlans allowed on trunk");
+    expect(output).toContain("Gi0/1");
+  });
+
+  it("generates authentic show etherchannel summary table with protocol and ports", () => {
+    const swWithChannel: TopologyDevice = {
+      id: "sw-channel",
+      name: "SW-Channel",
+      type: "switch-l2",
+      x: 100,
+      y: 100,
+      interfaces: [
+        { id: "gi01", name: "Gi0/1", status: "up", channelGroup: { id: 1, mode: "active" } },
+        { id: "gi02", name: "Gi0/2", status: "up", channelGroup: { id: 1, mode: "active" } },
+      ],
+    };
+
+    const output = CiscoCliGenerator.generateShowEtherchannelSummary(swWithChannel);
+
+    expect(output).toContain("Flags:  D - down        P - bundled in port-channel");
+    expect(output).toContain("Number of channel-groups in use: 1");
+    expect(output).toContain("Group  Port-channel  Protocol    Ports");
+    expect(output).toContain("Po1(SU)");
+    expect(output).toContain("LACP");
+    expect(output).toContain("Gi0/1(P)");
+    expect(output).toContain("Gi0/2(P)");
+  });
+
+  it("generates complete show running-config including SVIs, channel-group and dot1q subinterfaces", () => {
+    const mls: TopologyDevice = {
+      id: "mls-1",
+      name: "MLS-Distribution",
+      type: "switch-l3",
+      x: 100,
+      y: 100,
+      interfaces: [
+        {
+          id: "gi101",
+          name: "Gi1/0/1",
+          status: "up",
+          mode: "trunk",
+          nativeVlan: 99,
+          allowedVlans: [10, 20, 30],
+          channelGroup: { id: 2, mode: "active" },
+        },
+      ],
+      config: {
+        hostname: "MLS-DIST-1",
+        ipRoutingEnabled: true,
+        vlans: [
+          { id: 10, name: "SALES" },
+          { id: 20, name: "DEV" },
+        ],
+        svis: [
+          { vlan: 10, ip: "192.168.10.1/24" },
+          { vlan: 20, ip: "192.168.20.1/24" },
+        ],
+        defaultGateway: "10.0.0.1",
+      },
+    };
+
+    const output = CiscoCliGenerator.generateFullShowRunningConfig(mls);
+
+    expect(output).toContain("hostname MLS-DIST-1");
+    expect(output).toContain("ip routing");
+    expect(output).toContain("vlan 10");
+    expect(output).toContain(" name SALES");
+    expect(output).toContain("interface Gi1/0/1");
+    expect(output).toContain("switchport mode trunk");
+    expect(output).toContain("switchport trunk native vlan 99");
+    expect(output).toContain("switchport trunk allowed vlan 10,20,30");
+    expect(output).toContain("channel-group 2 mode active");
+    expect(output).toContain("interface Vlan10");
+    expect(output).toContain("ip address 192.168.10.1 255.255.255.0");
+    expect(output).toContain("interface Vlan20");
+    expect(output).toContain("ip address 192.168.20.1 255.255.255.0");
+    expect(output).toContain("end");
   });
 });

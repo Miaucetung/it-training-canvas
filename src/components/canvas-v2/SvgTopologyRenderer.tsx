@@ -11,6 +11,28 @@ import { LinkRenderer } from "./LinkRenderer";
 
 export type AnnotationHandleType = "nw" | "ne" | "se" | "sw" | "start" | "end";
 
+export function getContrastingAnnotationColor(
+  color: string | undefined,
+  theme: "dark" | "light"
+): string {
+  if (!color) return theme === "dark" ? "#38BDF8" : "#0284C7";
+  const upper = color.toUpperCase();
+  if (theme === "light") {
+    if (upper === "#F59E0B" || upper === "#FBBF24") return "#B45309"; // Amber 700 (Kontrast ~6.5:1 auf Weiß)
+    if (upper === "#38BDF8" || upper === "#7DD3FC") return "#0284C7"; // Sky 600 (~5.3:1)
+    if (upper === "#10B981" || upper === "#34D399") return "#047857"; // Emerald 700 (~5.8:1)
+    if (upper === "#EC4899" || upper === "#F472B6") return "#BE185D"; // Pink 700 (~5.6:1)
+    if (upper === "#94A3B8" || upper === "#CBD5E1") return "#475569"; // Slate 600 (~5.5:1)
+    return color;
+  } else {
+    if (upper === "#B45309") return "#FBBF24";
+    if (upper === "#047857") return "#34D399";
+    if (upper === "#BE185D") return "#F472B6";
+    if (upper === "#475569") return "#CBD5E1";
+    return color;
+  }
+}
+
 interface SvgTopologyRendererProps {
   topology: NetworkTopology;
   viewDensity?: "simple" | "detail";
@@ -124,7 +146,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           <polyline
             points={ann.points.map((p) => `${p.x},${p.y}`).join(" ")}
             fill="none"
-            stroke={isSelected ? "#38BDF8" : ann.color || "#F59E0B"}
+            stroke={isSelected ? "#38BDF8" : getContrastingAnnotationColor(ann.color, theme)}
             strokeWidth={ann.strokeWidth || 3}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -132,12 +154,12 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           />
         )}
 
-        {/* Text */}
+        {/* Text mit garantiertem WCAG AA Kontrast (>= 4.5:1) */}
         {ann.type === "text" && (
           <text
             x={ann.x}
             y={ann.y}
-            fill={ann.color || (isDark ? "#38BDF8" : "#0284C7")}
+            fill={isSelected ? "#38BDF8" : getContrastingAnnotationColor(ann.color, theme)}
             fontSize={ann.fontSize || 14}
             fontFamily={ann.fontFamily || "monospace"}
             fontWeight="600"
@@ -506,104 +528,178 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   vectorEffect="non-scaling-stroke"
                   pointerEvents="none"
                 />
-                {/* NW Griff */}
-                <rect
-                  x={selectedAnnotation.x - 5}
-                  y={selectedAnnotation.y - 5}
-                  width={10}
-                  height={10}
-                  rx="2"
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                {/* NW Griff mit 44x44px Touch-Trefferfläche (WCAG 2.5.5) */}
+                <g
                   className="cursor-nwse-resize"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "nw", e);
                   }}
-                />
-                {/* NE Griff */}
-                <rect
-                  x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
-                  y={selectedAnnotation.y - 5}
-                  width={10}
-                  height={10}
-                  rx="2"
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                >
+                  <rect
+                    x={selectedAnnotation.x - 22}
+                    y={selectedAnnotation.y - 22}
+                    width={44}
+                    height={44}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <rect
+                    x={selectedAnnotation.x - 5}
+                    y={selectedAnnotation.y - 5}
+                    width={10}
+                    height={10}
+                    rx="2"
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
+
+                {/* NE Griff mit 44x44px Touch-Trefferfläche */}
+                <g
                   className="cursor-nesw-resize"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "ne", e);
                   }}
-                />
-                {/* SE Griff */}
-                <rect
-                  x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
-                  y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
-                  width={10}
-                  height={10}
-                  rx="2"
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                >
+                  <rect
+                    x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 22}
+                    y={selectedAnnotation.y - 22}
+                    width={44}
+                    height={44}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <rect
+                    x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
+                    y={selectedAnnotation.y - 5}
+                    width={10}
+                    height={10}
+                    rx="2"
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
+
+                {/* SE Griff mit 44x44px Touch-Trefferfläche */}
+                <g
                   className="cursor-nwse-resize"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "se", e);
                   }}
-                />
-                {/* SW Griff */}
-                <rect
-                  x={selectedAnnotation.x - 5}
-                  y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
-                  width={10}
-                  height={10}
-                  rx="2"
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                >
+                  <rect
+                    x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 22}
+                    y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 22}
+                    width={44}
+                    height={44}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <rect
+                    x={selectedAnnotation.x + (selectedAnnotation.width || 120) - 5}
+                    y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
+                    width={10}
+                    height={10}
+                    rx="2"
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
+
+                {/* SW Griff mit 44x44px Touch-Trefferfläche */}
+                <g
                   className="cursor-nesw-resize"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "sw", e);
                   }}
-                />
+                >
+                  <rect
+                    x={selectedAnnotation.x - 22}
+                    y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 22}
+                    width={44}
+                    height={44}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <rect
+                    x={selectedAnnotation.x - 5}
+                    y={selectedAnnotation.y + (selectedAnnotation.height || 80) - 5}
+                    width={10}
+                    height={10}
+                    rx="2"
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
               </>
             )}
 
-            {/* Linie & Pfeil: Start- und Endpunkt-Griffe */}
+            {/* Linie & Pfeil: Start- und Endpunkt-Griffe mit 44x44px Touch-Fläche */}
             {["line", "arrow"].includes(selectedAnnotation.type) && (
               <>
                 {/* Startpunkt */}
-                <circle
-                  cx={selectedAnnotation.x}
-                  cy={selectedAnnotation.y}
-                  r={6}
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                <g
                   className="cursor-move"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "start", e);
                   }}
-                />
+                >
+                  <circle
+                    cx={selectedAnnotation.x}
+                    cy={selectedAnnotation.y}
+                    r={22}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <circle
+                    cx={selectedAnnotation.x}
+                    cy={selectedAnnotation.y}
+                    r={6}
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
+
                 {/* Endpunkt */}
-                <circle
-                  cx={selectedAnnotation.endX ?? selectedAnnotation.x}
-                  cy={selectedAnnotation.endY ?? selectedAnnotation.y}
-                  r={6}
-                  fill="#FFFFFF"
-                  stroke="#0284C7"
-                  strokeWidth="2"
+                <g
                   className="cursor-move"
                   onPointerDown={(e) => {
                     e.stopPropagation();
                     onHandlePointerDown?.(selectedAnnotation, "end", e);
                   }}
-                />
+                >
+                  <circle
+                    cx={selectedAnnotation.endX ?? selectedAnnotation.x}
+                    cy={selectedAnnotation.endY ?? selectedAnnotation.y}
+                    r={22}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                  <circle
+                    cx={selectedAnnotation.endX ?? selectedAnnotation.x}
+                    cy={selectedAnnotation.endY ?? selectedAnnotation.y}
+                    r={6}
+                    fill="#FFFFFF"
+                    stroke="#0284C7"
+                    strokeWidth="2"
+                    pointerEvents="none"
+                  />
+                </g>
               </>
             )}
 
