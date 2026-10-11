@@ -75,26 +75,31 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   const isAdminDown = link.status === "admin-down";
   const isStpBlocking = link.status === "stp-blocking";
 
-  let strokeColor = isDark ? "#38BDF8" : "#0284C7"; // Standard Ethernet
+  let baseStrokeColor = isDark ? "#38BDF8" : "#0284C7"; // Standard Ethernet
   let strokeDasharray = "none";
   let strokeWidth = 2.5;
 
   if (link.linkType === "serial") {
-    strokeColor = "#DC2626"; // Cisco Serial Rot
+    baseStrokeColor = "#DC2626"; // Cisco Serial Rot
     strokeWidth = 2.2;
   } else if (link.linkType === "trunk") {
-    strokeColor = isDark ? "#818CF8" : "#4F46E5"; // Trunk Indigo
+    baseStrokeColor = isDark ? "#818CF8" : "#4F46E5"; // Trunk Indigo
     strokeWidth = 3;
     strokeDasharray = "7 3";
   } else if (link.linkType === "etherchannel") {
-    strokeColor = isDark ? "#34D399" : "#059669"; // EtherChannel Emerald
+    baseStrokeColor = isDark ? "#34D399" : "#059669"; // EtherChannel Emerald
     strokeWidth = 3.5;
   } else if (link.linkType === "wireless") {
-    strokeColor = "#06B6D4"; // WLAN Cyan
+    baseStrokeColor = "#06B6D4"; // WLAN Cyan
     strokeDasharray = "4 4";
     strokeWidth = 2;
   }
 
+  // Schnittstellen-Labels (aus den Interfaces der Geräte suchen)
+  const sourceIf = sourceDevice.interfaces.find((i) => i.id === link.sourceInterfaceId);
+  const targetIf = targetDevice.interfaces.find((i) => i.id === link.targetInterfaceId);
+
+  let strokeColor = baseStrokeColor;
   // Status-Übersteuerungen
   if (isDown) {
     strokeColor = "#EF4444";
@@ -103,7 +108,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
     strokeColor = isDark ? "#64748B" : "#94A3B8";
     strokeDasharray = "4 4";
   } else if (isStpBlocking) {
-    strokeColor = "#F97316"; // STP Blocking Orange
+    strokeColor = `url(#grad-stp-blocking-${link.id})`;
   }
 
   if (selected) {
@@ -111,15 +116,11 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
     strokeWidth = 3.5;
   }
 
-  // Schnittstellen-Labels (aus den Interfaces der Geräte suchen)
-  const sourceIf = sourceDevice.interfaces.find((i) => i.id === link.sourceInterfaceId);
-  const targetIf = targetDevice.interfaces.find((i) => i.id === link.targetInterfaceId);
-
   const srcLabel = sourceIf ? sourceIf.name : link.sourceInterfaceId;
   const tgtLabel = targetIf ? targetIf.name : link.targetInterfaceId;
 
   // Berechne versetzte Positionen für Labels an beiden Enden (Kollisionsschutz!)
-  const labelDistFromCenter = Math.min(48, length * 0.28);
+  const labelDistFromCenter = Math.min(68, length * 0.32);
   const labelOffsetNormal = 14;
 
   const srcLabelX = x1 + ux * labelDistFromCenter + nx * labelOffsetNormal;
@@ -148,6 +149,93 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
     return path;
   };
 
+  const renderInterfaceBadge = (
+    label: string,
+    role?: "RP" | "DP" | "BLK" | "ALT",
+  ) => {
+    if (!role) {
+      return (
+        <>
+          <rect
+            x="-18"
+            y="-7"
+            width="36"
+            height="14"
+            rx="3"
+            fill={isDark ? "#0F172A" : "#FFFFFF"}
+            stroke={isDark ? "#334155" : "#CBD5E1"}
+            strokeWidth="1"
+            opacity="0.95"
+          />
+          <text
+            x="0"
+            y="3.5"
+            fill={isDark ? "#94A3B8" : "#475569"}
+            fontSize="8"
+            fontWeight="600"
+            textAnchor="middle"
+            fontFamily="monospace"
+          >
+            {label}
+          </text>
+        </>
+      );
+    }
+
+    const roleConfig =
+      role === "RP"
+        ? { bg: "#065F46", text: "#A7F3D0", label: "RP" }
+        : role === "DP"
+          ? { bg: "#1E3A8A", text: "#DBEAFE", label: "DP" }
+          : { bg: "#7C2D12", text: "#FFEDD5", label: "BLK" };
+
+    return (
+      <>
+        <rect
+          x="-28"
+          y="-7.5"
+          width="56"
+          height="15"
+          rx="3.5"
+          fill={isDark ? "#0F172A" : "#FFFFFF"}
+          stroke={isDark ? "#334155" : "#CBD5E1"}
+          strokeWidth="1"
+          opacity="0.95"
+        />
+        <text
+          x="-9"
+          y="3.5"
+          fill={isDark ? "#94A3B8" : "#475569"}
+          fontSize="7.5"
+          fontWeight="600"
+          textAnchor="middle"
+          fontFamily="monospace"
+        >
+          {label}
+        </text>
+        <rect
+          x="7"
+          y="-5.5"
+          width="18"
+          height="11"
+          rx="2"
+          fill={roleConfig.bg}
+        />
+        <text
+          x="16"
+          y="3"
+          fill={roleConfig.text}
+          fontSize="7"
+          fontWeight="bold"
+          textAnchor="middle"
+          fontFamily="monospace"
+        >
+          {roleConfig.label}
+        </text>
+      </>
+    );
+  };
+
   return (
     <g
       data-link-id={link.id}
@@ -165,6 +253,25 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
         }
       }}
     >
+      {/* STP-Blocking Gradient: Normalfarbton am Forwarding-Port, Orange am Blocking-Port */}
+      {isStpBlocking && (
+        <defs>
+          <linearGradient
+            id={`grad-stp-blocking-${link.id}`}
+            gradientUnits="userSpaceOnUse"
+            x1={sourceIf?.portRole === "BLK" ? x2 : x1}
+            y1={sourceIf?.portRole === "BLK" ? y2 : y1}
+            x2={sourceIf?.portRole === "BLK" ? x1 : x2}
+            y2={sourceIf?.portRole === "BLK" ? y1 : y2}
+          >
+            <stop offset="0%" stopColor={baseStrokeColor} />
+            <stop offset="55%" stopColor={baseStrokeColor} />
+            <stop offset="75%" stopColor="#F97316" />
+            <stop offset="100%" stopColor="#F97316" />
+          </linearGradient>
+        </defs>
+      )}
+
       {/* Breiter unsichtbarer Trefferbereich für Klick / Hover */}
       <line
         x1={x1}
@@ -309,56 +416,14 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           {/* Quell-Interface Label */}
           {srcLabel && (
             <g transform={`translate(${srcLabelX}, ${srcLabelY})`}>
-              <rect
-                x="-18"
-                y="-7"
-                width="36"
-                height="14"
-                rx="3"
-                fill={isDark ? "#0F172A" : "#FFFFFF"}
-                stroke={isDark ? "#334155" : "#CBD5E1"}
-                strokeWidth="1"
-                opacity="0.95"
-              />
-              <text
-                x="0"
-                y="3.5"
-                fill={isDark ? "#94A3B8" : "#475569"}
-                fontSize="8"
-                fontWeight="600"
-                textAnchor="middle"
-                fontFamily="monospace"
-              >
-                {srcLabel}
-              </text>
+              {renderInterfaceBadge(srcLabel, sourceIf?.portRole)}
             </g>
           )}
 
           {/* Ziel-Interface Label */}
           {tgtLabel && (
             <g transform={`translate(${tgtLabelX}, ${tgtLabelY})`}>
-              <rect
-                x="-18"
-                y="-7"
-                width="36"
-                height="14"
-                rx="3"
-                fill={isDark ? "#0F172A" : "#FFFFFF"}
-                stroke={isDark ? "#334155" : "#CBD5E1"}
-                strokeWidth="1"
-                opacity="0.95"
-              />
-              <text
-                x="0"
-                y="3.5"
-                fill={isDark ? "#94A3B8" : "#475569"}
-                fontSize="8"
-                fontWeight="600"
-                textAnchor="middle"
-                fontFamily="monospace"
-              >
-                {tgtLabel}
-              </text>
+              {renderInterfaceBadge(tgtLabel, targetIf?.portRole)}
             </g>
           )}
         </>

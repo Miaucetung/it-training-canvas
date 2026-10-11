@@ -103,6 +103,25 @@ export const TopologyLegend: React.FC<TopologyLegendProps> = ({
             <span>STP Blocking (BLK ||)</span>
           </div>
         </div>
+
+        {/* STP Port-Rollen (Detail-Modus) */}
+        <div className="space-y-1.5 col-span-2 pt-2 border-t border-slate-700/40">
+          <p className="font-semibold text-[10px] uppercase text-slate-400">STP Port-Rollen (Detail-Modus)</p>
+          <div className="flex items-center gap-3.5 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold font-mono bg-blue-900 text-blue-200 border border-blue-700">DP</span>
+              <span>Designated Port (Forwarding)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold font-mono bg-emerald-900 text-emerald-200 border border-emerald-700">RP</span>
+              <span>Root Port (Forwarding)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold font-mono bg-orange-950 text-orange-200 border border-orange-800">BLK</span>
+              <span>Blocking (Loop Prevention)</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tastaturbedienung & Barrierefreiheit (Roving Tabindex) */}

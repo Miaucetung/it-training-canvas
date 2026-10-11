@@ -270,8 +270,8 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       x: 380,
       y: 60,
       interfaces: [
-        { id: "swa-gi01", name: "Gi0/1", status: "up", description: "Designated Port (FWD)" },
-        { id: "swa-gi02", name: "Gi0/2", status: "up", description: "Designated Port (FWD)" },
+        { id: "swa-gi01", name: "Gi0/1", status: "up", portRole: "DP", description: "Designated Port (FWD)" },
+        { id: "swa-gi02", name: "Gi0/2", status: "up", portRole: "DP", description: "Designated Port (FWD)" },
       ],
       config: {
         hostname: "SW-A",
@@ -279,13 +279,13 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
     },
     {
       id: "stp-swb",
-      name: "SW-B (Designated)",
+      name: "SW-B",
       type: "switch-l2",
       x: 180,
       y: 280,
       interfaces: [
-        { id: "swb-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD)" },
-        { id: "swb-gi02", name: "Gi0/2", status: "up", description: "Designated Port (FWD)" },
+        { id: "swb-gi01", name: "Gi0/1", status: "up", portRole: "RP", description: "Root Port (FWD)" },
+        { id: "swb-gi02", name: "Gi0/2", status: "up", portRole: "DP", description: "Designated Port (FWD)" },
       ],
       config: {
         hostname: "SW-B",
@@ -293,13 +293,13 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
     },
     {
       id: "stp-swc",
-      name: "SW-C (Blocking)",
+      name: "SW-C",
       type: "switch-l2",
       x: 580,
       y: 280,
       interfaces: [
-        { id: "swc-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD - Richtung SW-A)" },
-        { id: "swc-gi02", name: "Gi0/2", status: "up", description: "Blocking Port (BLK - Richtung SW-B)" },
+        { id: "swc-gi01", name: "Gi0/1", status: "up", portRole: "RP", description: "Root Port (FWD - Richtung SW-A)" },
+        { id: "swc-gi02", name: "Gi0/2", status: "up", portRole: "BLK", description: "Blocking Port (BLK - Richtung SW-B)" },
       ],
       config: {
         hostname: "SW-C",

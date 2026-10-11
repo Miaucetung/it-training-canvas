@@ -60,6 +60,7 @@ export interface TopologyInterface {
   nativeVlan?: number; // Trunk Native VLAN, e.g. 1
   mode?: InterfaceMode;
   status: InterfaceStatus;
+  portRole?: "RP" | "DP" | "BLK" | "ALT";
   description?: string;
   channelGroup?: InterfaceChannelGroup;
   subinterfaces?: TopologySubinterface[];
@@ -236,6 +237,7 @@ export const topologyInterfaceSchema = z.object({
   nativeVlan: z.number().int().min(1).max(4094).optional(),
   mode: z.enum(["access", "trunk", "routed"]).optional(),
   status: z.enum(["up", "down", "admin-down"]).default("up"),
+  portRole: z.enum(["RP", "DP", "BLK", "ALT"]).optional(),
   description: z.string().optional(),
   channelGroup: interfaceChannelGroupSchema.optional(),
   subinterfaces: z.array(topologySubinterfaceSchema).optional(),

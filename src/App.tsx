@@ -381,6 +381,18 @@ function App() {
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [canvasView, setCanvasView] = useState(false);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleToggleCanvasView = useCallback(() => {
+    setIsFlipping(true);
+    setCanvasView((v) => !v);
+    if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    flipTimerRef.current = setTimeout(() => {
+      setIsFlipping(false);
+    }, 700);
+  }, []);
+
   const [canvasEngine, setCanvasEngine] = useLocalStorage<"v1" | "v2">(
     "ccna-canvas-version",
     "v1",
@@ -1320,8 +1332,24 @@ function App() {
   );
 
   useEffect(() => {
-    setCanvasView(!(SUBJECT_TO_MODULE_ID[currentSubject] ?? null));
+    const nextCanvas = !(SUBJECT_TO_MODULE_ID[currentSubject] ?? null);
+    setCanvasView((prev) => {
+      if (prev !== nextCanvas) {
+        setIsFlipping(true);
+        if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+        flipTimerRef.current = setTimeout(() => {
+          setIsFlipping(false);
+        }, 700);
+      }
+      return nextCanvas;
+    });
   }, [currentSubject]);
+
+  useEffect(() => {
+    return () => {
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!showMoreMenu) return;
@@ -1955,7 +1983,7 @@ function App() {
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
             <button
-              onClick={() => setCanvasView((v) => !v)}
+              onClick={handleToggleCanvasView}
               className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                 canvasView
                   ? theme === "dark"
@@ -1977,6 +2005,7 @@ function App() {
         <div className="flex-1 relative overflow-hidden" style={{ perspective: "1400px" }}>
           <div
             className="absolute inset-0"
+            onTransitionEnd={() => setIsFlipping(false)}
             style={{
               transformStyle: "preserve-3d",
               transition: "transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -1985,9 +2014,14 @@ function App() {
           >
             {/* FRONT: Lernoberfläche — Dashboard */}
             <div
-              className="absolute inset-0 overflow-hidden flex"
-              inert={canvasView || undefined}
-              style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], pointerEvents: canvasView ? "none" : "auto" }}
+              className={`absolute inset-0 overflow-hidden flex ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              inert={(!isFlipping && canvasView) ? true : undefined}
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+                pointerEvents: canvasView ? "none" : "auto",
+                visibility: (!canvasView || isFlipping) ? "visible" : "hidden",
+              }}
             >
               {catalogModuleId ? (
                 <>
@@ -2036,13 +2070,14 @@ function App() {
 
             {/* BACK: Canvas */}
             <div
-              className="absolute inset-0 overflow-hidden"
-              inert={!canvasView || undefined}
+              className={`absolute inset-0 overflow-hidden ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              inert={(!isFlipping && !canvasView) ? true : undefined}
               style={{
                 backfaceVisibility: "hidden",
                 WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
                 transform: "rotateY(180deg)",
                 pointerEvents: canvasView ? "auto" : "none",
+                visibility: (canvasView || isFlipping) ? "visible" : "hidden",
               }}
             >
               {/* Feature-Flag Toggle (v1 Canvas ↔ v2 SVG Next) - schwebend nur auf v1 anzeigen, v2 hat eigene Leiste */}

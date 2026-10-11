@@ -1178,9 +1178,13 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               <option value="ccna-ospf-routing">OSPFv2 P2P mit Kunden-LANs</option>
               <option value="ccna-basic-lan">Basic LAN (Switching)</option>
             </optgroup>
-            <optgroup label="Stresstest / Benchmark">
-              <option value="benchmark-50-80">Benchmark Lasttest (50 Geräte, 80 Links)</option>
-            </optgroup>
+            {(Boolean(import.meta.env.DEV) ||
+              (typeof window !== "undefined" &&
+                new URLSearchParams(window.location.search).get("debug") === "true")) && (
+              <optgroup label="Stresstest / Benchmark">
+                <option value="benchmark-50-80">Benchmark Lasttest (50 Geräte, 80 Links)</option>
+              </optgroup>
+            )}
             {migratedTopologies && Object.keys(migratedTopologies).length > 0 && (
               <optgroup label="Aus bestehendem Canvas migriert">
                 {Object.keys(migratedTopologies).map((k) => (

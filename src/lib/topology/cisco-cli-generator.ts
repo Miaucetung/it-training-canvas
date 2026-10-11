@@ -258,12 +258,15 @@ export class CiscoCliGenerator {
       let role = "Desg";
       let sts = "FWD";
 
-      if (iface.description?.includes("Root")) {
+      if (iface.portRole === "RP" || iface.description?.includes("Root")) {
         role = "Root";
         sts = "FWD";
-      } else if (iface.description?.includes("Blocking") || iface.description?.includes("BLK")) {
+      } else if (iface.portRole === "BLK" || iface.description?.includes("Blocking") || iface.description?.includes("BLK")) {
         role = "Blk ";
         sts = "BLK";
+      } else if (iface.portRole === "DP") {
+        role = "Desg";
+        sts = "FWD";
       }
 
       lines.push(`${iface.name.padEnd(20, " ")}${role} ${sts} 4         128.${i + 1}    Shr`);
