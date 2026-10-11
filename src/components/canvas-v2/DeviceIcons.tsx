@@ -147,7 +147,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           </g>
           {/* L3 Kennzeichnung Badge */}
           <rect x="42" y="14" width="16" height="10" rx="3" fill="#312E81" stroke="#A5B4FC" strokeWidth="1" />
-          <text x="45" y="22" fill="#E0E7FF" fontSize="7" fontWeight="bold" fontFamily="monospace">L3</text>
+          <text x="45" y="22" fill="#E0E7FF" fontSize="7" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">L3</text>
         </svg>
       );
 
@@ -273,7 +273,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           <circle cx="18" cy="33" r="2.5" fill="#34D399" />
           <circle cx="26" cy="33" r="2.5" fill="#38BDF8" />
           {/* WLC Schriftzug */}
-          <text x="33" y="36" fill="#F5F3FF" fontSize="9" fontWeight="bold" fontFamily="monospace">
+          <text x="33" y="36" fill="#F5F3FF" fontSize="9" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
             WLC
           </text>
         </svg>
@@ -447,7 +447,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
             vectorEffect="non-scaling-stroke"
           />
           {/* WAN Schriftzug */}
-          <text x="23" y="32" fill="#F0F9FF" fontSize="10" fontWeight="bold" fontFamily="monospace">
+          <text x="23" y="32" fill="#F0F9FF" fontSize="10" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
             WAN
           </text>
         </svg>

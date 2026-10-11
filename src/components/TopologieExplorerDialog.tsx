@@ -316,7 +316,7 @@ function TopologyDiagram({
               textAnchor="middle"
               fontSize={10}
               fill={dark ? "#e2e8f0" : "#0f172a"}
-              fontFamily="monospace"
+              fontFamily="'IBM Plex Mono', monospace"
             >
               {isCenter ? "SW" : i}
             </text>

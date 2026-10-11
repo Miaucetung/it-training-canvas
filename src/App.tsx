@@ -68,6 +68,7 @@ import {
   CaretDown,
   ChartLine,
   CurrencyDollar,
+  Desktop,
   Export,
   FolderOpen,
   GraduationCap,
@@ -78,6 +79,8 @@ import {
   Plus,
   Pulse,
   Stethoscope,
+  Sun,
+  Moon,
   Target,
   Terminal,
   Wrench,
@@ -86,6 +89,8 @@ import {
 import { AuthDialog } from "@/components/AuthDialog";
 import { AuthMenu } from "@/components/AuthMenu";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
+
+export type ThemePreference = "system" | "light" | "dark";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
@@ -311,7 +316,39 @@ function App() {
   const [penWidth, setPenWidth] = useState<PenWidth>("normal");
   const [textSize, setTextSize] = useState<TextSize>("medium");
   const [fontFamily, setFontFamily] = useState<FontFamily>("IBM Plex Mono");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("canvas-theme") as ThemePreference | null;
+      if (savedTheme === "light" || savedTheme === "dark" || savedTheme === "system") {
+        return savedTheme;
+      }
+    }
+    return "system";
+  });
+
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      setSystemPrefersDark(e.matches);
+    };
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, []);
+
+  const theme: "light" | "dark" =
+    themePreference === "system"
+      ? systemPrefersDark
+        ? "dark"
+        : "light"
+      : themePreference;
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState<GridSize>("medium");
   const [gridPattern, setGridPattern] = useState<GridPattern>("dots");
@@ -520,18 +557,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("canvas-theme") as
-      | "light"
-      | "dark"
-      | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      // Default to dark theme
-      document.documentElement.classList.add("dark");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    if (theme === "dark" && color === "#000000") {
+      setColor("#ffffff");
+    } else if (theme === "light" && color === "#ffffff") {
+      setColor("#000000");
     }
+  }, [theme]);
 
+  useEffect(() => {
     const savedGridColor = localStorage.getItem("canvas-grid-color");
     const savedGridAccentColor = localStorage.getItem(
       "canvas-grid-accent-color",
@@ -1209,19 +1243,19 @@ function App() {
     [getCurrentCanvasState, updateCanvasState],
   );
 
-  const handleThemeToggle = useCallback(() => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-    localStorage.setItem("canvas-theme", newTheme);
+  const handleSelectTheme = useCallback((pref: ThemePreference) => {
+    setThemePreference(pref);
+    localStorage.setItem("canvas-theme", pref);
+  }, []);
 
-    // Automatically switch color based on theme
-    if (newTheme === "dark" && color === "#000000") {
-      setColor("#ffffff");
-    } else if (newTheme === "light" && color === "#ffffff") {
-      setColor("#000000");
-    }
-  }, [theme, color]);
+  const handleCycleTheme = useCallback(() => {
+    setThemePreference((prev) => {
+      const next: ThemePreference =
+        prev === "system" ? "light" : prev === "light" ? "dark" : "system";
+      localStorage.setItem("canvas-theme", next);
+      return next;
+    });
+  }, []);
 
   const handleGridToggle = useCallback(() => {
     setShowGrid((prev) => !prev);
@@ -1973,6 +2007,88 @@ function App() {
 
             <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
 
+            {/* Globaler Theme-Schalter (Header) */}
+            {/* Desktop: 3-Segment-Control (System / Hell / Dunkel) */}
+            <div
+              className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border-default bg-surface text-xs"
+              role="group"
+              aria-label="Theme-Auswahl"
+            >
+              <button
+                type="button"
+                onClick={() => handleSelectTheme("system")}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+                  themePreference === "system"
+                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
+                    : "text-text-muted hover:text-text-primary"
+                }`}
+                title="System-Einstellung folgen"
+                aria-pressed={themePreference === "system"}
+              >
+                <Desktop size={14} weight={themePreference === "system" ? "bold" : "regular"} />
+                <span>System</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectTheme("light")}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+                  themePreference === "light"
+                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
+                    : "text-text-muted hover:text-text-primary"
+                }`}
+                title="Heller Modus"
+                aria-pressed={themePreference === "light"}
+              >
+                <Sun size={14} weight={themePreference === "light" ? "bold" : "regular"} />
+                <span>Hell</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectTheme("dark")}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+                  themePreference === "dark"
+                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
+                    : "text-text-muted hover:text-text-primary"
+                }`}
+                title="Dunkler Modus"
+                aria-pressed={themePreference === "dark"}
+              >
+                <Moon size={14} weight={themePreference === "dark" ? "bold" : "regular"} />
+                <span>Dunkel</span>
+              </button>
+            </div>
+
+            {/* Mobile (< sm): Zyklischer Einzel-Button */}
+            <button
+              type="button"
+              onClick={handleCycleTheme}
+              className="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg transition-colors border border-border-default text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+              title={`Theme: ${
+                themePreference === "system"
+                  ? "System (folgt Gerät)"
+                  : themePreference === "light"
+                    ? "Hell"
+                    : "Dunkel"
+              } – Tippen zum Umschalten`}
+              aria-label={`Aktuell ${themePreference}. Nächster Modus: ${
+                themePreference === "system"
+                  ? "Hell"
+                  : themePreference === "light"
+                    ? "Dunkel"
+                    : "System"
+              }`}
+            >
+              {themePreference === "system" ? (
+                <Desktop size={16} weight="bold" />
+              ) : themePreference === "light" ? (
+                <Sun size={16} weight="bold" />
+              ) : (
+                <Moon size={16} weight="bold" />
+              )}
+            </button>
+
+            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+
             <AuthMenu
               user={user}
               dark={theme === "dark"}
@@ -2014,7 +2130,7 @@ function App() {
           >
             {/* FRONT: Lernoberfläche — Dashboard */}
             <div
-              className={`absolute inset-0 overflow-hidden flex ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              className="absolute inset-0 overflow-hidden flex bg-app-bg"
               inert={(!isFlipping && canvasView) ? true : undefined}
               style={{
                 backfaceVisibility: "hidden",
@@ -2061,7 +2177,7 @@ function App() {
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className={`text-sm ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
+                  <p className="text-sm text-text-muted">
                     Kein Lerninhalt für dieses Thema.
                   </p>
                 </div>
@@ -2070,7 +2186,7 @@ function App() {
 
             {/* BACK: Canvas */}
             <div
-              className={`absolute inset-0 overflow-hidden ${theme === "dark" ? "bg-slate-950" : "bg-slate-50"}`}
+              className="absolute inset-0 overflow-hidden bg-app-bg"
               inert={(!isFlipping && !canvasView) ? true : undefined}
               style={{
                 backfaceVisibility: "hidden",
@@ -2264,7 +2380,6 @@ function App() {
             fontFamily={fontFamily}
             onFontFamilyChange={setFontFamily}
             theme={theme}
-            onThemeToggle={handleThemeToggle}
             showGrid={showGrid}
             onGridToggle={handleGridToggle}
             gridSize={gridSize}

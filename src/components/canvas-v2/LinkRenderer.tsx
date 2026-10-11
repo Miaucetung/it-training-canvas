@@ -174,7 +174,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
             fontSize="8"
             fontWeight="600"
             textAnchor="middle"
-            fontFamily="monospace"
+            fontFamily="'IBM Plex Mono', monospace"
           >
             {label}
           </text>
@@ -209,7 +209,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           fontSize="7.5"
           fontWeight="600"
           textAnchor="middle"
-          fontFamily="monospace"
+          fontFamily="'IBM Plex Mono', monospace"
         >
           {label}
         </text>
@@ -228,7 +228,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           fontSize="7"
           fontWeight="bold"
           textAnchor="middle"
-          fontFamily="monospace"
+          fontFamily="'IBM Plex Mono', monospace"
         >
           {roleConfig.label}
         </text>
@@ -377,7 +377,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           <line x1="2.5" y1="-4" x2="2.5" y2="4" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />
           {/* Label BLK */}
           <rect x="-11" y="10" width="22" height="11" rx="2.5" fill="#9A3412" />
-          <text x="0" y="18" fill="#FFEDD5" fontSize="7.5" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+          <text x="0" y="18" fill="#FFEDD5" fontSize="7.5" fontWeight="bold" textAnchor="middle" fontFamily="'IBM Plex Mono', monospace">
             BLK
           </text>
         </g>
@@ -403,7 +403,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
             fontSize="8"
             fontWeight="bold"
             textAnchor="middle"
-            fontFamily="monospace"
+            fontFamily="'IBM Plex Mono', monospace"
           >
             802.1Q
           </text>

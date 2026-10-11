@@ -690,6 +690,17 @@ function CanvasInner({
     return () => setImageLoadCallback(() => {});
   }, [redraw]);
 
+  // Redraw canvas sobald Webfonts geladen sind (verhindert FOUT-Fallback auf Canvas-Text)
+  useEffect(() => {
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready
+        .then(() => {
+          redraw();
+        })
+        .catch(() => {});
+    }
+  }, [redraw]);
+
   const drawSelectionHandles = (
     ctx: CanvasRenderingContext2D,
     obj: DrawingObject,

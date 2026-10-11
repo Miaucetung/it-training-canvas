@@ -6,6 +6,7 @@ import {
 } from "@/types/topology";
 import { DeviceIcon } from "./DeviceIcons";
 import { LinkRenderer } from "./LinkRenderer";
+import { getFontStack } from "@/lib/canvas-utils";
 
 export type AnnotationHandleType = "nw" | "ne" | "se" | "sw" | "start" | "end";
 
@@ -215,7 +216,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
             y={ann.y}
             fill={isSelected ? "#38BDF8" : getContrastingAnnotationColor(ann.color, theme)}
             fontSize={ann.fontSize || 14}
-            fontFamily={ann.fontFamily || "monospace"}
+            fontFamily={getFontStack(ann.fontFamily)}
             fontWeight="600"
             className="select-none"
           >
@@ -253,7 +254,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               fill={isDark ? "#F8FAFC" : "#78350F"}
               fontSize="10"
               fontWeight="bold"
-              fontFamily="sans-serif"
+              fontFamily="'IBM Plex Sans', sans-serif"
             >
               {ann.author ? `${ann.author}` : "NOTIZ"}
             </text>
@@ -265,7 +266,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 y={32 + lIdx * 14}
                 fill={isDark ? "#E2E8F0" : "#92400E"}
                 fontSize="10.5"
-                fontFamily="sans-serif"
+                fontFamily="'IBM Plex Sans', sans-serif"
               >
                 {line}
               </text>
@@ -416,7 +417,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 fill={isDark ? "#F1F5F9" : "#1E293B"}
                 fontSize="10"
                 fontWeight="bold"
-                fontFamily="sans-serif"
+                fontFamily="'IBM Plex Sans', sans-serif"
               >
                 {zone.name} <tspan fill={zone.color}>({zone.cidr})</tspan>
               </text>
@@ -544,7 +545,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   fontSize="9.5"
                   fontWeight="bold"
                   textAnchor="middle"
-                  fontFamily="monospace"
+                  fontFamily="'IBM Plex Mono', monospace"
                 >
                   {device.name}
                 </text>
@@ -573,7 +574,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                         fontSize="7.5"
                         fontWeight="600"
                         textAnchor="middle"
-                        fontFamily="monospace"
+                        fontFamily="'IBM Plex Mono', monospace"
                       >
                         {iface.name}: {iface.ip?.split("/")[0]}
                       </text>
