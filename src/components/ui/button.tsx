@@ -5,21 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--accent-primary-fg)] text-white shadow-xs hover:opacity-90 active:scale-[0.98]",
+          "bg-accent-solid text-on-accent-solid shadow-xs hover:opacity-90 active:scale-[0.98]",
         destructive:
-          "bg-[var(--status-error-border)] text-white shadow-xs hover:opacity-90 focus-visible:ring-[var(--status-error-border)] active:scale-[0.98]",
+          "bg-status-error-solid text-on-status-error-solid shadow-xs hover:opacity-90 focus-visible:ring-status-error-solid active:scale-[0.98]",
         outline:
-          "border border-[var(--border-default)] bg-[var(--surface)] text-[var(--text-primary)] shadow-xs hover:bg-[var(--surface-elevated)] active:scale-[0.98]",
+          "border border-border-default bg-surface text-text-primary shadow-xs hover:bg-surface-elevated active:scale-[0.98]",
         secondary:
-          "border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] shadow-xs hover:bg-[var(--surface-sunken)] active:scale-[0.98]",
+          "border border-border-subtle bg-surface-elevated text-text-primary shadow-xs hover:bg-surface-sunken active:scale-[0.98]",
         ghost:
-          "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]",
-        link: "text-[var(--accent-primary-fg)] underline-offset-4 hover:underline",
+          "text-text-secondary hover:text-text-primary hover:bg-surface-elevated",
+        link: "text-accent-primary-fg underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

@@ -1,4 +1,35 @@
-import { DrawingObject, Point, ShapeDefinition } from "./types";
+import { CanonicalFontFamily, DrawingObject, Point, ShapeDefinition } from "./types";
+
+/**
+ * Mappt legacy / gespeicherte v1-Schriftnamen (z. B. "Arial", "Helvetica", "sans-serif")
+ * sauber auf die beiden kanonischen IBM Plex Schriften ("IBM Plex Sans" oder "IBM Plex Mono").
+ */
+export function mapLegacyFontToPlex(font?: string): CanonicalFontFamily {
+  if (!font) return "IBM Plex Mono";
+  const f = font.toLowerCase();
+  if (
+    f.includes("sans") ||
+    f.includes("arial") ||
+    f.includes("helvetica") ||
+    f.includes("system") ||
+    f.includes("segoe") ||
+    f.includes("roboto") ||
+    f.includes("inter")
+  ) {
+    return "IBM Plex Sans";
+  }
+  return "IBM Plex Mono";
+}
+
+/**
+ * Liefert den vollqualifizierten CSS font-family Stack für Text-Elemente und Canvas-Rendering.
+ */
+export function getFontStack(font?: string): string {
+  const mapped = mapLegacyFontToPlex(font);
+  return mapped === "IBM Plex Sans"
+    ? "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    : "'IBM Plex Mono', monospace";
+}
 
 // SVG Image Cache for shapes
 const svgImageCache = new Map<string, HTMLImageElement>();
@@ -236,7 +267,8 @@ export function drawObject(
 
     case "text":
       if (obj.startPoint && obj.text) {
-        ctx.font = `${obj.fontSize || 20}px ${obj.fontFamily || "IBM Plex Mono"}`;
+        const fontStack = getFontStack(obj.fontFamily);
+        ctx.font = `${obj.fontSize || 20}px ${fontStack}`;
         ctx.fillText(obj.text, obj.startPoint.x, obj.startPoint.y);
       }
       break;
@@ -295,7 +327,7 @@ export function drawObject(
 
           // Draw loading indicator
           ctx.fillStyle = obj.color;
-          ctx.font = "10px IBM Plex Mono";
+          ctx.font = "10px 'IBM Plex Mono', monospace";
           ctx.textAlign = "center";
           ctx.fillText("...", centerX, centerY + 4);
         }
@@ -590,11 +622,27 @@ export function importFromJSON(file: File): Promise<any> {
 }
 
 // Export canvas as PNG
-export function exportCanvasAsPNG(
+export async function exportCanvasAsPNG(
   canvas: HTMLCanvasElement,
   filename: string,
   backgroundColor?: string,
-): void {
+): Promise<void> {
+  // Vor dem Export sicherstellen, dass Webfonts geladen sind (inkl. fette Schnitte)
+  if (typeof document !== "undefined" && document.fonts) {
+    try {
+      await document.fonts.ready;
+      await Promise.all([
+        document.fonts.load('400 14px "IBM Plex Sans"'),
+        document.fonts.load('500 14px "IBM Plex Sans"'),
+        document.fonts.load('700 14px "IBM Plex Sans"'),
+        document.fonts.load('400 12px "IBM Plex Mono"'),
+        document.fonts.load('700 12px "IBM Plex Mono"'),
+      ]);
+    } catch {
+      // Ignoriere Font-API Fehler in Testumgebungen
+    }
+  }
+
   // Create a temporary canvas with white/custom background
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = canvas.width;
@@ -650,7 +698,8 @@ export function exportCanvasAsSVG(
       const r = distance(obj.startPoint, obj.endPoint);
       svgContent += `\n    <circle cx="${obj.startPoint.x}" cy="${obj.startPoint.y}" r="${r}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none"/>`;
     } else if (obj.type === "text" && obj.startPoint && obj.text) {
-      svgContent += `\n    <text x="${obj.startPoint.x}" y="${obj.startPoint.y}" fill="${obj.color}" font-size="${obj.fontSize || 20}px" font-family="${obj.fontFamily || "IBM Plex Mono"}">${obj.text}</text>`;
+      const fontStack = getFontStack(obj.fontFamily);
+      svgContent += `\n    <text x="${obj.startPoint.x}" y="${obj.startPoint.y}" fill="${obj.color}" font-size="${obj.fontSize || 20}px" font-family="${fontStack}">${obj.text}</text>`;
     } else if (obj.type === "shape" && obj.startPoint && obj.svgPath) {
       svgContent += `\n    <g transform="translate(${obj.startPoint.x}, ${obj.startPoint.y})" style="color: ${obj.color}">${obj.svgPath}</g>`;
     }

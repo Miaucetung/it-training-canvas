@@ -262,7 +262,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       fontSize={9}
                       fill="white"
                       fontWeight={700}
-                      fontFamily="monospace"
+                      fontFamily="'IBM Plex Mono', monospace"
                     >
                       {roleLabel(roleA.role)}
                     </text>
@@ -284,7 +284,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       fontSize={9}
                       fill="white"
                       fontWeight={700}
-                      fontFamily="monospace"
+                      fontFamily="'IBM Plex Mono', monospace"
                     >
                       {roleLabel(roleB.role)}
                     </text>
@@ -311,7 +311,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     textAnchor="middle"
                     fontSize={10}
                     fill={broken ? "#9ca3af" : dark ? "#e2e8f0" : "#334155"}
-                    fontFamily="monospace"
+                    fontFamily="'IBM Plex Mono', monospace"
                   >
                     {broken ? "✕ down" : `cost ${l.cost}`}
                   </text>
@@ -353,7 +353,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   fontSize={15}
                   fontWeight={700}
                   fill={dark ? "#f1f5f9" : "#0f172a"}
-                  fontFamily="monospace"
+                  fontFamily="'IBM Plex Mono', monospace"
                 >
                   {sw.name}
                 </text>
@@ -363,7 +363,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize={10}
                   fill={dark ? "#94a3b8" : "#475569"}
-                  fontFamily="monospace"
+                  fontFamily="'IBM Plex Mono', monospace"
                 >
                   prio {sw.priority}
                 </text>
@@ -373,7 +373,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize={9}
                   fill={dark ? "#64748b" : "#64748b"}
-                  fontFamily="monospace"
+                  fontFamily="'IBM Plex Mono', monospace"
                 >
                   MAC ..{sw.mac} · cost→{result.costToRoot[sw.id]}
                 </text>

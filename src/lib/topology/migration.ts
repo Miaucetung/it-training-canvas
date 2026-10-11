@@ -5,6 +5,7 @@ import {
   Annotation,
   SubjectData,
 } from "@/lib/types";
+import { mapLegacyFontToPlex } from "@/lib/canvas-utils";
 import {
   DeviceType,
   LinkType,
@@ -173,7 +174,7 @@ export function migrateLegacyDrawingObjectToAnnotation(
       text: obj.text || obj.label || "",
       color: obj.color,
       fontSize: obj.fontSize,
-      fontFamily: obj.fontFamily,
+      fontFamily: obj.fontFamily ? mapLegacyFontToPlex(obj.fontFamily) : undefined,
     };
   }
 

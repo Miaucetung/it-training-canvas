@@ -1,0 +1,133 @@
+{
+  "timestamp": "2026-10-11T19:15:40.103Z",
+  "comparisons": [
+    {
+      "file": "01_dashboard_desktop_dark.png",
+      "pct": 0.67,
+      "diffPixels": 8637,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "01_dashboard_desktop_light.png",
+      "pct": 0.81,
+      "diffPixels": 10524,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "01_dashboard_mobile_dark.png",
+      "pct": 4.69,
+      "diffPixels": 15430,
+      "totalPixels": 329160
+    },
+    {
+      "file": "01_dashboard_mobile_light.png",
+      "pct": 4.69,
+      "diffPixels": 15430,
+      "totalPixels": 329160
+    },
+    {
+      "file": "04_exam_prep_desktop_dark.png",
+      "pct": 33.83,
+      "diffPixels": 438483,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "04_exam_prep_desktop_light.png",
+      "pct": 33.45,
+      "diffPixels": 433464,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "06_sim_vlan_desktop_dark.png",
+      "pct": 30.74,
+      "diffPixels": 398442,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "06_sim_vlan_desktop_light.png",
+      "pct": 30.74,
+      "diffPixels": 398430,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "07_sim_stp_desktop_dark.png",
+      "pct": 20.6,
+      "diffPixels": 267022,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "07_sim_stp_desktop_light.png",
+      "pct": 20.6,
+      "diffPixels": 267027,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "13_canvas_desktop_dark.png",
+      "pct": 36.69,
+      "diffPixels": 475551,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "13_canvas_desktop_light.png",
+      "pct": 37.02,
+      "diffPixels": 479840,
+      "totalPixels": 1296000
+    },
+    {
+      "file": "13_canvas_mobile_dark.png",
+      "pct": 62.5,
+      "diffPixels": 205709,
+      "totalPixels": 329160
+    },
+    {
+      "file": "13_canvas_mobile_light.png",
+      "pct": 62.5,
+      "diffPixels": 205714,
+      "totalPixels": 329160
+    }
+  ],
+  "dragDropChecks": [
+    {
+      "test": "Frage 15 (Windows ipconfig /all)",
+      "id": "dd-q0182",
+      "screenshot": "dd_390px_dd-q0182.png",
+      "hasPageHorizontalScroll": false,
+      "pageScrollWidth": 390,
+      "pageClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 542,
+      "preClientWidth": 308
+    },
+    {
+      "test": "Frage 35 (Router2 show ip route)",
+      "id": "dd-q0928",
+      "screenshot": "dd_390px_dd-q0928.png",
+      "hasPageHorizontalScroll": false,
+      "pageScrollWidth": 390,
+      "pageClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 463,
+      "preClientWidth": 308
+    },
+    {
+      "test": "Frage 36 (R1 show ip route begin gateway)",
+      "id": "dd-q0936",
+      "screenshot": "dd_390px_dd-q0936.png",
+      "hasPageHorizontalScroll": false,
+      "pageScrollWidth": 390,
+      "pageClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 514,
+      "preClientWidth": 308
+    }
+  ]
+}

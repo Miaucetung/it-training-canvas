@@ -16,7 +16,8 @@ export type PenWidth = "thin" | "normal" | "thick";
 
 export type TextSize = "small" | "medium" | "large" | "xlarge";
 
-export type FontFamily = "IBM Plex Sans" | "IBM Plex Mono" | "Arial";
+export type CanonicalFontFamily = "IBM Plex Sans" | "IBM Plex Mono";
+export type FontFamily = CanonicalFontFamily | "Arial" | (string & {});
 
 export type GridSize = "small" | "medium" | "large" | "xlarge";
 

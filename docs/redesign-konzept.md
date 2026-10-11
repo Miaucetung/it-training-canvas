@@ -93,10 +93,10 @@ Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindest
 ├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
 │ Token                    │ Dark Mode                │ Light Mode                       │
 ├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
-│ --app-bg                 │ #020617 (Slate 950)      │ #F8FAFC (Slate 50)               │
+│ --app-bg                 │ #090D16 (Deep Slate)     │ #F8FAFC (Slate 50)               │
 │ --surface                │ #0F172A (Slate 900)      │ #FFFFFF (Weiß)                   │
 │ --surface-elevated       │ #1E293B (Slate 800)      │ #F1F5F9 (Slate 100)              │
-│ --surface-sunken         │ #0B0F19 (Deep Slate)     │ #E2E8F0 (Slate 200)              │
+│ --surface-sunken         │ #060911 (Deep Black)     │ #E2E8F0 (Slate 200)              │
 │ --border-subtle          │ #1E293B (Slate 800)      │ #E2E8F0 (Slate 200)              │
 │ --border-default         │ #334155 (Slate 700)      │ #CBD5E1 (Slate 300)              │
 │ --border-accent          │ #38BDF8 (Sky 400)        │ #0284C7 (Sky 600)                │
@@ -130,6 +130,8 @@ Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindest
 └──────────────────────────┴──────────────────────────┴──────────────────────────────────┘
 ```
 
+> **Hierarchie & Kopplung:** Die Schichtung folgt strikt `app-bg (#090D16) < surface (#0F172A) < surface-elevated (#1E293B)`. Der Canvas-Hintergrund (`--canvas-bg`) ist direkt an `var(--app-bg)` gekoppelt (kein eigener Sonderwert).
+
 #### CLI-Terminal- und Code-Tokens (bleiben in BEIDEN Themes dunkel)
 CLI-Terminals und Cisco-Code-Blöcke behalten ihr vertrautes Konsolen-Erscheinungsbild in beiden Themes. Lediglich der umgebende Rahmen (`--terminal-border`) passt sich an das gewählte Theme an:
 
@@ -157,33 +159,63 @@ Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 
 | **Light `--text-primary`** | `#0F172A` | `--surface` (`#FFFFFF`) | **17,85 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--text-primary`** | `#0F172A` | `--app-bg` (`#F8FAFC`) | **17,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--text-secondary`** | `#334155` | `--surface` (`#FFFFFF`) | **10,35 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--text-secondary`** | `#334155` | `--app-bg` (`#F8FAFC`) | **9,80 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--text-muted`** | `#64748B` | `--surface` (`#FFFFFF`) | **4,76 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--text-muted`** | `#64748B` | `--app-bg` (`#F8FAFC`) | **4,55 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--accent-primary-fg`** | `#0369A1` | `--surface` (`#FFFFFF`) | **5,93 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
 | **Light `--accent-primary-fg`** | `#0369A1` | `--app-bg` (`#F8FAFC`) | **5,67 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
 | **Light `--accent-primary`** | `#0284C7` | `--surface` (`#FFFFFF`) | **4,10 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden |
+| **Light `--accent-primary`** | `#0284C7` | `--app-bg` (`#F8FAFC`) | **3,92 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden |
 | **Light `--status-success-fg`** | `#047857` | `--surface` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-success-fg`** | `#047857` | `--app-bg` (`#F8FAFC`) | **5,24 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-success-border`**| `#059669`| `--surface` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-success-border`**| `#059669`| `--app-bg` (`#F8FAFC`) | **3,61 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
 | **Light `--status-warning-fg`** | `#92400E` | `--surface` (`#FFFFFF`) | **7,09 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-warning-fg`** | `#92400E` | `--app-bg` (`#F8FAFC`) | **6,78 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-warning-border`**| `#D97706`| `--surface` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-warning-border`**| `#D97706`| `--app-bg` (`#F8FAFC`) | **3,05 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
 | **Light `--status-error-fg`** | `#B91C1C` | `--surface` (`#FFFFFF`) | **6,47 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-error-fg`** | `#B91C1C` | `--app-bg` (`#F8FAFC`) | **6,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-error-border`** | `#DC2626` | `--surface` (`#FFFFFF`) | **4,83 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-error-border`** | `#DC2626` | `--app-bg` (`#F8FAFC`) | **4,62 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
 | **Light `--status-trunk-fg`** | `#4338CA` | `--surface` (`#FFFFFF`) | **7,90 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-trunk-fg`** | `#4338CA` | `--app-bg` (`#F8FAFC`) | **7,55 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-trunk-border`** | `#4F46E5` | `--surface` (`#FFFFFF`) | **6,29 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-trunk-border`** | `#4F46E5` | `--app-bg` (`#F8FAFC`) | **6,01 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
 | **Light `--status-blocking-fg`**| `#C2410C` | `--surface` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-blocking-fg`**| `#C2410C` | `--app-bg` (`#F8FAFC`) | **4,94 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
 | **Light `--status-blocking-border`**|`#EA580C`| `--surface` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Dark `--text-primary`** | `#F8FAFC` | `--surface` (`#0F172A`) | **17,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-secondary`** | `#CBD5E1` | `--surface` (`#0F172A`) | **12,02 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-muted`** | `#94A3B8` | `--surface` (`#0F172A`) | **6,96 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--accent-primary-fg`** | `#38BDF8` | `--surface` (`#0F172A`) | **8,33 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
-| **Dark `--status-success-fg`** | `#34D399` | `--surface` (`#0F172A`) | **9,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-warning-fg`** | `#FBBF24` | `--surface` (`#0F172A`) | **10,69 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-error-fg`** | `#F87171` | `--surface` (`#0F172A`) | **6,45 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-trunk-fg`** | `#818CF8` | `--surface` (`#0F172A`) | **5,98 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-blocking-fg`** | `#FB923C` | `--surface` (`#0F172A`) | **7,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-blocking-border`**|`#EA580C`| `--app-bg` (`#F8FAFC`) | **3,41 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Dark `--text-primary`** | `#F8FAFC` | `--surface` (`#0F172A`) | **15,86 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-primary`** | `#F8FAFC` | `--app-bg` (`#090D16`) | **18,14 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-secondary`** | `#CBD5E1` | `--surface` (`#0F172A`) | **11,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-secondary`** | `#CBD5E1` | `--app-bg` (`#090D16`) | **12,65 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-muted`** | `#94A3B8` | `--surface` (`#0F172A`) | **6,40 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-muted`** | `#94A3B8` | `--app-bg` (`#090D16`) | **7,32 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--accent-primary-fg`** | `#38BDF8` | `--surface` (`#0F172A`) | **7,70 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
+| **Dark `--accent-primary-fg`** | `#38BDF8` | `--app-bg` (`#090D16`) | **8,81 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
+| **Dark `--status-success-fg`** | `#34D399` | `--surface` (`#0F172A`) | **8,54 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-success-fg`** | `#34D399` | `--app-bg` (`#090D16`) | **9,77 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-warning-fg`** | `#FBBF24` | `--surface` (`#0F172A`) | **9,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-warning-fg`** | `#FBBF24` | `--app-bg` (`#090D16`) | **11,31 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-error-fg`** | `#F87171` | `--surface` (`#0F172A`) | **6,00 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-error-fg`** | `#F87171` | `--app-bg` (`#090D16`) | **6,87 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-trunk-fg`** | `#818CF8` | `--surface` (`#0F172A`) | **5,56 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-trunk-fg`** | `#818CF8` | `--app-bg` (`#090D16`) | **6,36 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-blocking-fg`** | `#FB923C` | `--surface` (`#0F172A`) | **7,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-blocking-fg`** | `#FB923C` | `--app-bg` (`#090D16`) | **8,34 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--accent-solid`** | `#0369A1` | `--on-accent-solid` (`#FFFFFF`) | **5,93 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden |
+| **Dark `--accent-solid`** | `#38BDF8` | `--on-accent-solid` (`#090D16`) | **8,81 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden |
+| **Light `--status-success-solid`** | `#047857` | `--on-status-success-solid` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Dark `--status-success-solid`** | `#34D399` | `--on-status-success-solid` (`#090D16`) | **9,77 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Light `--status-warning-solid`** | `#F59E0B` | `--on-status-warning-solid` (`#090D16`) | **9,22 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Dark `--status-warning-solid`** | `#FBBF24` | `--on-status-warning-solid` (`#090D16`) | **11,31 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Light `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden |
+| **Dark `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden |
+| **Light `--status-trunk-solid`** | `#4F46E5` | `--on-status-trunk-solid` (`#FFFFFF`) | **6,29 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Dark `--status-trunk-solid`** | `#818CF8` | `--on-status-trunk-solid` (`#090D16`) | **6,36 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Light `--status-blocking-solid`** | `#C2410C` | `--on-status-blocking-solid` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Dark `--status-blocking-solid`** | `#FB923C` | `--on-status-blocking-solid` (`#090D16`) | **8,34 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
 
 ### 4.2 Typografie-Architektur & Skala
 

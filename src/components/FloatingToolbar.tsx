@@ -41,14 +41,12 @@ import {
   LineSegment,
   List,
   Minus,
-  Moon,
   PencilLine,
   Question,
   Selection,
   SelectionAll,
   Shapes,
   Square,
-  Sun,
   TextT,
   UploadSimple,
 } from "@phosphor-icons/react";
@@ -65,7 +63,6 @@ interface FloatingToolbarProps {
   fontFamily: FontFamily;
   onFontFamilyChange: (font: FontFamily) => void;
   theme: "light" | "dark";
-  onThemeToggle: () => void;
   showGrid: boolean;
   onGridToggle: () => void;
   gridSize: GridSize;
@@ -121,7 +118,6 @@ function FloatingToolbarInner({
   textSize,
   onTextSizeChange,
   theme,
-  onThemeToggle,
   showGrid,
   onGridToggle,
   gridSize,
@@ -851,45 +847,6 @@ function FloatingToolbarInner({
               </Tooltip>
             )}
           </div>
-
-          <Separator
-            orientation="vertical"
-            className={cn(
-              "h-8 mx-1",
-              theme === "dark" ? "bg-slate-500" : "bg-slate-200",
-            )}
-          />
-
-          {/* Theme Toggle */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onThemeToggle}
-                className={cn(
-                  "h-10 w-10 rounded-xl",
-                  theme === "dark"
-                    ? "text-yellow-400 hover:text-yellow-300 hover:bg-slate-800"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
-                )}
-              >
-                {theme === "dark" ? (
-                  <Sun size={20} weight="fill" />
-                ) : (
-                  <Moon size={20} />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="top"
-              className={
-                theme === "dark" ? "bg-slate-800 border-slate-700" : ""
-              }
-            >
-              <p>{theme === "dark" ? "Heller Modus" : "Dunkler Modus"}</p>
-            </TooltipContent>
-          </Tooltip>
 
           {/* Minimize button */}
           <Tooltip>

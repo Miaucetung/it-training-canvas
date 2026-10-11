@@ -295,6 +295,24 @@ export async function exportTopologyAsPng(
     filename = "ccna-topology.png",
   } = options;
 
+  // Vor dem Rendern sicherstellen, dass Webfonts geladen sind (inkl. fette Schnitte)
+  if (typeof document !== "undefined" && document.fonts) {
+    try {
+      await document.fonts.ready;
+      await Promise.all([
+        document.fonts.load('400 14px "IBM Plex Sans"'),
+        document.fonts.load('500 14px "IBM Plex Sans"'),
+        document.fonts.load('700 14px "IBM Plex Sans"'),
+        document.fonts.load('400 12px "IBM Plex Mono"'),
+        document.fonts.load('700 12px "IBM Plex Mono"'),
+        document.fonts.load(`bold ${9 * scale}px "IBM Plex Mono"`),
+        document.fonts.load(`${8 * scale}px "IBM Plex Sans"`),
+      ]);
+    } catch {
+      // Ignoriere Font-API Fehler in Testumgebungen
+    }
+  }
+
   const svgString = generateCleanSvgString(svgElement, theme);
   const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -383,11 +401,11 @@ function drawPngLegend(
   ctx.fill();
   ctx.stroke();
 
-  ctx.font = `bold ${9 * scale}px monospace`;
+  ctx.font = `bold ${9 * scale}px 'IBM Plex Mono', monospace`;
   ctx.fillStyle = theme === "dark" ? "#38BDF8" : "#0284C7";
   ctx.fillText("CCNA 200-301 TOPOLOGIE", legX + 10 * scale, legY + 16 * scale);
 
-  ctx.font = `${8 * scale}px sans-serif`;
+  ctx.font = `${8 * scale}px 'IBM Plex Sans', sans-serif`;
   ctx.fillStyle = theme === "dark" ? "#E2E8F0" : "#1E293B";
 
   // Legende Items

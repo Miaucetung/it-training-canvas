@@ -26,6 +26,20 @@
   --accent-primary-fg: #0369A1;
   --accent-primary: #0284C7;
 
+  /* ── Solid Surface & Action Tokens (Light Mode - WCAG AA >= 4.5:1) ─ */
+  --accent-solid: #0369A1;
+  --on-accent-solid: #FFFFFF;
+  --status-success-solid: #047857;
+  --on-status-success-solid: #FFFFFF;
+  --status-warning-solid: #F59E0B;
+  --on-status-warning-solid: #090D16;
+  --status-error-solid: #DC2626;
+  --on-status-error-solid: #FFFFFF;
+  --status-trunk-solid: #4F46E5;
+  --on-status-trunk-solid: #FFFFFF;
+  --status-blocking-solid: #C2410C;
+  --on-status-blocking-solid: #FFFFFF;
+
   /* ── Status Tokens (Light Mode - WCAG AA Verified) ───────── */
   --status-success-fg: #047857;
   --status-success-bg: #ECFDF5;
@@ -90,10 +104,10 @@
 
 .dark {
   /* ── Core Surface & Background Tokens (Dark Mode) ─────────── */
-  --app-bg: #020617;
+  --app-bg: #090D16;
   --surface: #0F172A;
   --surface-elevated: #1E293B;
-  --surface-sunken: #0B0F19;
+  --surface-sunken: #060911;
   --border-subtle: #1E293B;
   --border-default: #334155;
   --border-accent: #38BDF8;
@@ -106,6 +120,20 @@
   /* ── Interactive & Accent Tokens (Dark Mode) ──────────────── */
   --accent-primary-fg: #38BDF8;
   --accent-primary: #0284C7;
+
+  /* ── Solid Surface & Action Tokens (Dark Mode - WCAG AA >= 4.5:1) ── */
+  --accent-solid: #38BDF8;
+  --on-accent-solid: #090D16;
+  --status-success-solid: #34D399;
+  --on-status-success-solid: #090D16;
+  --status-warning-solid: #FBBF24;
+  --on-status-warning-solid: #090D16;
+  --status-error-solid: #DC2626;
+  --on-status-error-solid: #FFFFFF;
+  --status-trunk-solid: #818CF8;
+  --on-status-trunk-solid: #090D16;
+  --status-blocking-solid: #FB923C;
+  --on-status-blocking-solid: #090D16;
 
   /* ── Status Tokens (Dark Mode) ───────────────────────────── */
   --status-success-fg: #34D399;
@@ -145,7 +173,7 @@
   --popover: var(--surface);
   --popover-foreground: var(--text-primary);
   --primary: var(--accent-primary-fg);
-  --primary-foreground: #020617;
+  --primary-foreground: #090D16;
   --secondary: var(--surface-elevated);
   --secondary-foreground: var(--text-secondary);
   --muted: var(--surface-elevated);
@@ -179,6 +207,19 @@
 
   --color-accent-primary: var(--accent-primary);
   --color-accent-primary-fg: var(--accent-primary-fg);
+  --color-accent-solid: var(--accent-solid);
+  --color-on-accent-solid: var(--on-accent-solid);
+
+  --color-status-success-solid: var(--status-success-solid);
+  --color-on-status-success-solid: var(--on-status-success-solid);
+  --color-status-warning-solid: var(--status-warning-solid);
+  --color-on-status-warning-solid: var(--on-status-warning-solid);
+  --color-status-error-solid: var(--status-error-solid);
+  --color-on-status-error-solid: var(--on-status-error-solid);
+  --color-status-trunk-solid: var(--status-trunk-solid);
+  --color-on-status-trunk-solid: var(--on-status-trunk-solid);
+  --color-status-blocking-solid: var(--status-blocking-solid);
+  --color-on-status-blocking-solid: var(--on-status-blocking-solid);
 
   --color-status-success-fg: var(--status-success-fg);
   --color-status-success-bg: var(--status-success-bg);

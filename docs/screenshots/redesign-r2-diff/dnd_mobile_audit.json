@@ -1,0 +1,56 @@
+[
+  {
+    "id": "dd-q0182",
+    "label": "Frage 15 (Windows ipconfig /all)",
+    "metrics": {
+      "headerText": "Drag-&-Drop-Trainer · Frage 15 / 81 · 0 gelöst",
+      "hasPageHorizontalScroll": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 542,
+      "preClientWidth": 308,
+      "preTextSnippet": "C:\\>ipconfig/all\nWireless LAN adapter Local Area Connection*"
+    },
+    "screenshot": "dd_390px_dd-q0182.png"
+  },
+  {
+    "id": "dd-q0928",
+    "label": "Frage 35 (Router2 show ip route)",
+    "metrics": {
+      "headerText": "Drag-&-Drop-Trainer · Frage 35 / 81 · 0 gelöst",
+      "hasPageHorizontalScroll": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 463,
+      "preClientWidth": 308,
+      "preTextSnippet": "Router2#show ip route\nGateway of last resort is 10.10.10.13 "
+    },
+    "screenshot": "dd_390px_dd-q0928.png"
+  },
+  {
+    "id": "dd-q0936",
+    "label": "Frage 36 (R1 show ip route begin gateway)",
+    "metrics": {
+      "headerText": "Drag-&-Drop-Trainer · Frage 36 / 81 · 0 gelöst",
+      "hasPageHorizontalScroll": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardScrollWidth": 356,
+      "cardClientWidth": 356,
+      "hasCardOverflow": false,
+      "preOverflowX": "auto",
+      "preScrollWidth": 514,
+      "preClientWidth": 308,
+      "preTextSnippet": "R1# show ip route | begin gateway\n      172.16.0.0/16 is var"
+    },
+    "screenshot": "dd_390px_dd-q0936.png"
+  }
+]

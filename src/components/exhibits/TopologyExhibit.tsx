@@ -148,18 +148,18 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
                     style={{ fill: FILL, stroke: HAIRLINE }}
                     strokeWidth={1}
                   />
-                  <text x={mx} y={my} textAnchor="middle" dy={3.5} fontSize={10} fontFamily="monospace" style={{ fill: TEXT_MUTED }}>
+                  <text x={mx} y={my} textAnchor="middle" dy={3.5} fontSize={10} fontFamily="'IBM Plex Mono', monospace" style={{ fill: TEXT_MUTED }}>
                     {link.subnet}
                   </text>
                 </g>
               )}
               {link.labelFrom && (
-                <text x={fx} y={fy - 5} textAnchor="middle" fontSize={10} fontFamily="monospace" style={{ fill: TEXT_MUTED }}>
+                <text x={fx} y={fy - 5} textAnchor="middle" fontSize={10} fontFamily="'IBM Plex Mono', monospace" style={{ fill: TEXT_MUTED }}>
                   {link.labelFrom}
                 </text>
               )}
               {link.labelTo && (
-                <text x={tx} y={ty - 5} textAnchor="middle" fontSize={10} fontFamily="monospace" style={{ fill: TEXT_MUTED }}>
+                <text x={tx} y={ty - 5} textAnchor="middle" fontSize={10} fontFamily="'IBM Plex Mono', monospace" style={{ fill: TEXT_MUTED }}>
                   {link.labelTo}
                 </text>
               )}

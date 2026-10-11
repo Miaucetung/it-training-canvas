@@ -611,4 +611,78 @@ describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology
     const parsed = networkTopologySchema.safeParse(updatedTopo);
     expect(parsed.success, parsed.error?.message).toBe(true);
   });
+
+  it("akzeptiert gespeicherte v1-Altdaten mit 'Arial' und unbekannten Schriften verlustfrei, ohne unmapped[] und mappt auf Plex", () => {
+    // Altdaten mit verschiedenen Legacy-Schriften aus v1-Zeichnungen
+    const legacyObjects: DrawingObject[] = [
+      {
+        id: "legacy-txt-arial",
+        type: "text",
+        color: "#ffffff",
+        width: 1,
+        text: "Legacy Beschriftung mit Arial",
+        fontSize: 14,
+        fontFamily: "Arial",
+        startPoint: { x: 50, y: 50 },
+      },
+      {
+        id: "legacy-txt-helvetica",
+        type: "text",
+        color: "#38bdf8",
+        width: 1,
+        text: "System-Schrift Helvetica",
+        fontSize: 16,
+        fontFamily: "Helvetica Neue",
+        startPoint: { x: 50, y: 100 },
+      },
+      {
+        id: "legacy-txt-courier",
+        type: "text",
+        color: "#10b981",
+        width: 1,
+        text: "Terminal Notiz Courier",
+        fontSize: 12,
+        fontFamily: "Courier New",
+        startPoint: { x: 50, y: 150 },
+      },
+      {
+        id: "legacy-txt-unknown",
+        type: "text",
+        color: "#f59e0b",
+        width: 1,
+        text: "Custom Font XYZ",
+        fontSize: 13,
+        fontFamily: "CustomFont123",
+        startPoint: { x: 50, y: 200 },
+      },
+    ];
+
+    // Migration ausführen
+    const topology = migrateLegacyCanvasToTopology(legacyObjects, [], {
+      name: "Legacy Font Test",
+    });
+
+    // 1. Nichts darf nach unmapped[] verschoben werden
+    expect(topology.unmapped).toBeUndefined();
+
+    // 2. Alle 4 Text-Objekte müssen in annotations vorhanden sein
+    expect(topology.annotations).toHaveLength(4);
+
+    // 3. Schema-Validierung muss ohne Fehler bestehen
+    const validation = networkTopologySchema.safeParse(topology);
+    expect(validation.success, validation.error?.message).toBe(true);
+
+    // 4. Überprüfe Mappings auf kanonische Plex-Schriften
+    const arialAnn = topology.annotations?.find((a) => a.id === "legacy-txt-arial");
+    expect(arialAnn?.fontFamily).toBe("IBM Plex Sans");
+
+    const helveticaAnn = topology.annotations?.find((a) => a.id === "legacy-txt-helvetica");
+    expect(helveticaAnn?.fontFamily).toBe("IBM Plex Sans");
+
+    const courierAnn = topology.annotations?.find((a) => a.id === "legacy-txt-courier");
+    expect(courierAnn?.fontFamily).toBe("IBM Plex Mono");
+
+    const unknownAnn = topology.annotations?.find((a) => a.id === "legacy-txt-unknown");
+    expect(unknownAnn?.fontFamily).toBe("IBM Plex Mono");
+  });
 });

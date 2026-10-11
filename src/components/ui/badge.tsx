@@ -5,26 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-[var(--accent-primary-fg)] text-white [a&]:hover:opacity-90",
+          "border-transparent bg-accent-solid text-on-accent-solid [a&]:hover:opacity-90",
         secondary:
-          "border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] [a&]:hover:bg-[var(--surface-sunken)]",
+          "border-border-subtle bg-surface-elevated text-text-secondary [a&]:hover:bg-surface-sunken",
         success:
-          "border-[var(--status-success-border)] bg-[var(--status-success-bg)] text-[var(--status-success-fg)]",
+          "border-status-success-border bg-status-success-bg text-status-success-fg",
         warning:
-          "border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] text-[var(--status-warning-fg)]",
+          "border-status-warning-border bg-status-warning-bg text-status-warning-fg",
         destructive:
-          "border-[var(--status-error-border)] bg-[var(--status-error-bg)] text-[var(--status-error-fg)]",
+          "border-status-error-border bg-status-error-bg text-status-error-fg",
         trunk:
-          "border-[var(--status-trunk-border)] bg-[var(--status-trunk-bg)] text-[var(--status-trunk-fg)]",
+          "border-status-trunk-border bg-status-trunk-bg text-status-trunk-fg",
         blocking:
-          "border-[var(--status-blocking-border)] bg-[var(--status-blocking-bg)] text-[var(--status-blocking-fg)]",
+          "border-status-blocking-border bg-status-blocking-bg text-status-blocking-fg",
         outline:
-          "border-[var(--border-default)] text-[var(--text-primary)] [a&]:hover:bg-[var(--surface-elevated)]",
+          "border-border-default text-text-primary [a&]:hover:bg-surface-elevated",
       },
     },
     defaultVariants: {
