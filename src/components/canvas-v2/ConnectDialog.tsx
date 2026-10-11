@@ -6,6 +6,7 @@ import {
   createNewLink,
 } from "@/lib/topology/topology-operations";
 import { X, PlugsConnected, Warning, Check } from "@phosphor-icons/react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface ConnectDialogProps {
   sourceDevice: TopologyDevice;
@@ -81,10 +82,17 @@ export const ConnectDialog: React.FC<ConnectDialogProps> = ({
     onClose();
   };
 
+  const dialogRef = useFocusTrap<HTMLDivElement>(true, onClose);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden ${
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="connect-dialog-title"
+        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
           isDark
             ? "bg-slate-900 border-slate-700 text-white"
             : "bg-white border-slate-200 text-slate-900"
@@ -97,7 +105,7 @@ export const ConnectDialog: React.FC<ConnectDialogProps> = ({
               <PlugsConnected size={20} weight="bold" />
             </div>
             <div>
-              <h3 className="text-sm font-bold">Geräte verbinden</h3>
+              <h3 id="connect-dialog-title" className="text-sm font-bold">Geräte verbinden</h3>
               <p className="text-[11px] text-slate-400">
                 {sourceDevice.name} ↔ {targetDevice.name}
               </p>

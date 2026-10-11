@@ -1476,7 +1476,7 @@ function App() {
                 {currentConfig?.name || currentSubject}
               </h2>
               <p
-                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}
+                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}
               >
                 {currentConfig?.description || "Training Canvas"}
               </p>
@@ -1509,7 +1509,7 @@ function App() {
                     ? "bg-indigo-500/20 text-indigo-300"
                     : theme === "dark"
                       ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                      : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                      : "text-slate-700 hover:text-indigo-600 hover:bg-indigo-50"
                 }`}
                 title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
               >
@@ -1518,7 +1518,7 @@ function App() {
                 {Object.keys(learningPaths).length > 0 && (
                   <span
                     className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                      theme === "dark" ? "bg-slate-700" : "bg-slate-200"
+                      theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-800"
                     }`}
                   >
                     {Object.keys(learningPaths).length}
@@ -1625,7 +1625,7 @@ function App() {
               className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 theme === "dark"
                   ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
-                  : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                  : "text-slate-700 hover:text-sky-600 hover:bg-sky-50"
               }`}
               title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
             >
@@ -1651,7 +1651,7 @@ function App() {
                   ? "bg-green-500/20 text-green-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-green-300 hover:bg-green-500/10"
-                    : "text-slate-500 hover:text-green-600 hover:bg-green-50"
+                    : "text-slate-700 hover:text-green-600 hover:bg-green-50"
               }`}
               title="IOS-CLI für selektiertes Gerät öffnen"
             >
@@ -1665,7 +1665,7 @@ function App() {
                   ? "bg-violet-500/20 text-violet-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
-                    : "text-slate-500 hover:text-violet-600 hover:bg-violet-50"
+                    : "text-slate-700 hover:text-violet-600 hover:bg-violet-50"
               }`}
               title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
             >
@@ -1686,7 +1686,7 @@ function App() {
                   ? "bg-amber-500/20 text-amber-300"
                   : theme === "dark"
                     ? "text-slate-400 hover:text-amber-300 hover:bg-amber-500/10"
-                    : "text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                    : "text-slate-700 hover:text-amber-600 hover:bg-amber-50"
               }`}
               title="Alle Simulatoren, Trainer & Rechner"
             >
@@ -1827,7 +1827,7 @@ function App() {
                       : "bg-slate-100 text-slate-700"
                     : theme === "dark"
                       ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
                 }`}
                 title="Weitere Werkzeuge"
               >
@@ -1894,7 +1894,7 @@ function App() {
                     <Notepad size={15} />
                     Notizen
                     {(annotations[currentSubject]?.length ?? 0) > 0 && (
-                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"}`}>
+                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-100 text-slate-700"}`}>
                         {annotations[currentSubject]?.length}
                       </span>
                     )}

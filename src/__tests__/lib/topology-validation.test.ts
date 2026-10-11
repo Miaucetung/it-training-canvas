@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
   areIpsInSameSubnet,
   checkAccessVlanMismatches,
@@ -10,6 +9,7 @@ import {
   validateTopology,
 } from "@/lib/topology/topology-validation";
 import { NetworkTopology } from "@/types/topology";
+import { describe, expect, it } from "vitest";
 
 describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
   describe("Subnet Math & Host Gateway Validation", () => {
@@ -40,7 +40,9 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
       expect(res.valid).toBe(false);
       expect(res.issue).toBeDefined();
       expect(res.issue?.code).toBe("HOST_GATEWAY_NOT_IN_SUBNET");
-      expect(res.issue?.message).toContain("liegt nicht im Subnetz 192.168.1.0/24");
+      expect(res.issue?.message).toContain(
+        "liegt nicht im Subnetz 192.168.1.0/24",
+      );
       expect(res.issue?.didacticExplanation).toContain("ARP-Auflösung");
     });
 
@@ -48,7 +50,9 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
       const res = validateHostGateway("192.168.1.10/24", "192.168.1.10");
       expect(res.valid).toBe(false);
       expect(res.issue?.code).toBe("HOST_GATEWAY_NOT_IN_SUBNET");
-      expect(res.issue?.title).toContain("Gateway entspricht eigener IP-Adresse");
+      expect(res.issue?.title).toContain(
+        "Gateway entspricht eigener IP-Adresse",
+      );
     });
   });
 
@@ -66,7 +70,13 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
             x: 100,
             y: 100,
             interfaces: [
-              { id: "sw1-gi01", name: "Gi0/1", status: "up", mode: "trunk", nativeVlan: 1 },
+              {
+                id: "sw1-gi01",
+                name: "Gi0/1",
+                status: "up",
+                mode: "trunk",
+                nativeVlan: 1,
+              },
             ],
           },
           {
@@ -76,7 +86,13 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
             x: 300,
             y: 100,
             interfaces: [
-              { id: "sw2-gi01", name: "Gi0/1", status: "up", mode: "trunk", nativeVlan: 99 },
+              {
+                id: "sw2-gi01",
+                name: "Gi0/1",
+                status: "up",
+                mode: "trunk",
+                nativeVlan: 99,
+              },
             ],
           },
         ],
@@ -98,7 +114,9 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
       expect(issues[0].code).toBe("TRUNK_NATIVE_VLAN_MISMATCH");
       expect(issues[0].message).toContain("Native VLAN 1");
       expect(issues[0].message).toContain("Native VLAN 99");
-      expect(issues[0].didacticExplanation).toContain("%CDP-4-NATIVE_VLAN_MISMATCH");
+      expect(issues[0].didacticExplanation).toContain(
+        "%CDP-4-NATIVE_VLAN_MISMATCH",
+      );
     });
 
     it("detects Access VLAN mismatch (VLAN Leaking) between switches", () => {
@@ -114,7 +132,13 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
             x: 100,
             y: 100,
             interfaces: [
-              { id: "sw1-fa01", name: "Fa0/1", status: "up", mode: "access", vlan: 10 },
+              {
+                id: "sw1-fa01",
+                name: "Fa0/1",
+                status: "up",
+                mode: "access",
+                vlan: 10,
+              },
             ],
           },
           {
@@ -124,7 +148,13 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
             x: 300,
             y: 100,
             interfaces: [
-              { id: "sw2-fa01", name: "Fa0/1", status: "up", mode: "access", vlan: 20 },
+              {
+                id: "sw2-fa01",
+                name: "Fa0/1",
+                status: "up",
+                mode: "access",
+                vlan: 20,
+              },
             ],
           },
         ],
@@ -275,7 +305,9 @@ describe("Topology Validation & Didactic Network Diagnostics (2d-3)", () => {
             type: "pc",
             x: 100,
             y: 200,
-            interfaces: [{ id: "pc1-eth0", name: "eth0", status: "up", ip: "10.0.0.5/24" }],
+            interfaces: [
+              { id: "pc1-eth0", name: "eth0", status: "up", ip: "10.0.0.5/24" },
+            ],
             config: { hostname: "PC1", defaultGateway: "192.168.1.1" }, // Gateway in wrong subnet
           },
         ],

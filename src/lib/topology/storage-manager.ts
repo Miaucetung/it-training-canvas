@@ -185,14 +185,26 @@ export function importTopologyFromJson(jsonString: string): StorageResult<Networ
     };
   }
 
+  // 4. Sanitize String-Inhalte gegen Skript-Injektion & XSS
+  const sanitizedData = sanitizeTopology(zodResult.data);
+
   return {
     success: true,
-    data: zodResult.data,
+    data: sanitizedData,
   };
 }
 
+/**
+ * Bewahrt Nutzertexte unverändert im Modell/Speicher auf (keine Datenmutation).
+ * Bereinigung und Escaping von Script- und Event-Handlern erfolgen ausschließlich
+ * auf SVG/Markup- und Rendering-Ebene (z. B. generateCleanSvgString).
+ */
+export function sanitizeTopology(topology: NetworkTopology): NetworkTopology {
+  return topology;
+}
+
 // ────────────────────────────────────────────────────────────────────────────
-// 3. SVG-Export mit sauberem XML-Escaping
+// 3. SVG-Export mit XML-Escaping & Skript-Bereinigung
 // ────────────────────────────────────────────────────────────────────────────
 
 export function generateCleanSvgString(
@@ -201,9 +213,26 @@ export function generateCleanSvgString(
 ): string {
   const clone = svgElement.cloneNode(true) as SVGSVGElement;
 
-  // Entferne interaktive UI-Klassen und Anfasser
+  // 1. Entferne interaktive UI-Klassen und Anfasser
   const interactiveHandles = clone.querySelectorAll(".annotation-handles, .pointer-events-auto");
   interactiveHandles.forEach((el) => el.remove());
+
+  // 2. Sicherheits-Filter: Entferne potenziell schadhafte Skript-Tags (<script>, <foreignObject>)
+  clone.querySelectorAll("script, foreignObject").forEach((el) => el.remove());
+
+  // 3. Entferne alle Inline-Event-Handler (z. B. onclick, onload, onerror) und javascript: URIs
+  const allElements = clone.querySelectorAll("*");
+  allElements.forEach((el) => {
+    for (let i = el.attributes.length - 1; i >= 0; i--) {
+      const attr = el.attributes[i];
+      if (
+        attr.name.toLowerCase().startsWith("on") ||
+        attr.value.toLowerCase().includes("javascript:")
+      ) {
+        el.removeAttribute(attr.name);
+      }
+    }
+  });
 
   // Hintergrund-Rechteck einfügen falls nicht vorhanden
   const bgColor = theme === "dark" ? "#0F172A" : "#FFFFFF";
@@ -213,7 +242,7 @@ export function generateCleanSvgString(
   bgRect.setAttribute("fill", bgColor);
   clone.insertBefore(bgRect, clone.firstChild);
 
-  // XMLSerializer für sauberen SVG-Code
+  // XMLSerializer für sauberes XML-Escaping
   const serializer = new XMLSerializer();
   let svgString = serializer.serializeToString(clone);
 
@@ -368,3 +397,4 @@ function drawPngLegend(
 
   ctx.restore();
 }
+

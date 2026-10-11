@@ -1,0 +1,31 @@
+{
+  "summary": "0 automatisch erkennbare Verstöße (axe-core WCAG 2.1 AA)",
+  "violationsCount": 0,
+  "passesCount": 83,
+  "scenarios": [
+    {
+      "scenario": "1. Dark Theme - Canvas v2 mit geöffnetem Inspector",
+      "violationsCount": 0,
+      "passesCount": 18,
+      "violations": []
+    },
+    {
+      "scenario": "2. Dark Theme - Geräte-Konfigurationsdialog geöffnet",
+      "violationsCount": 0,
+      "passesCount": 18,
+      "violations": []
+    },
+    {
+      "scenario": "3. Light Theme - Canvas v2 mit geöffnetem Inspector",
+      "violationsCount": 0,
+      "passesCount": 23,
+      "violations": []
+    },
+    {
+      "scenario": "4. Light Theme - Geräte-Konfigurationsdialog geöffnet",
+      "violationsCount": 0,
+      "passesCount": 24,
+      "violations": []
+    }
+  ]
+}

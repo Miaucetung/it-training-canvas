@@ -24,7 +24,7 @@ export function AuthMenu({ user, dark, onLogin, onAccount }: Props) {
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
           dark
             ? "border-sky-700/60 text-sky-400 hover:bg-sky-500/10 hover:border-sky-500/80"
-            : "border-sky-400/60 text-sky-600 hover:bg-sky-50 hover:border-sky-500"
+            : "border-sky-500/60 text-sky-800 hover:bg-sky-50 hover:border-sky-600"
         }`}
         title="Anmelden — Fortschritt geräteübergreifend synchronisieren"
       >

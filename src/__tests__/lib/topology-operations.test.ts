@@ -13,6 +13,7 @@ import {
   snapToGrid,
   updateAnnotationInTopology,
   validateLinkConnection,
+  findNextSpatialElement,
 } from "@/lib/topology/topology-operations";
 import { NetworkTopology } from "@/types/topology";
 import { describe, expect, it } from "vitest";
@@ -50,6 +51,16 @@ describe("Topology Operations (2d-1 Geräte und Links)", () => {
     expect(ap.type).toBe("access-point");
     expect(ap.interfaces.map((i) => i.name)).toContain("Gi0");
     expect(ap.interfaces.map((i) => i.name)).toContain("Radio0");
+
+    const l3Switch = createNewDevice("switch-l3", 400, 450);
+    expect(l3Switch.type).toBe("switch-l3");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Gi1/0/1");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Gi1/0/24");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Gi1/1/1");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Gi1/1/4");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Vlan10");
+    expect(l3Switch.interfaces.map((i) => i.name)).toContain("Lo0");
+    expect(l3Switch.interfaces.length).toBe(31); // 24 downlinks + 4 uplinks + 2 SVIs + 1 loopback
   });
 
   it("prevents connecting a device to itself", () => {
@@ -375,5 +386,30 @@ describe("Topology Annotation Operations (2d-2 Annotationen)", () => {
     expect(smoothed.length).toBeLessThan(jitteryPoints.length);
     expect(smoothed[0]).toEqual({ x: 10, y: 10 });
     expect(smoothed[smoothed.length - 1]).toEqual({ x: 40, y: 40 });
+  });
+
+  it("navigates spatially in 2D directions for roving tabindex keyboard navigation", () => {
+    const candidates = [
+      { id: "r1", type: "device" as const, x: 100, y: 100 },
+      { id: "sw1", type: "device" as const, x: 300, y: 100 }, // right of r1
+      { id: "pc1", type: "device" as const, x: 100, y: 250 }, // below r1
+      { id: "cloud", type: "device" as const, x: 100, y: 20 }, // above r1
+    ];
+
+    // Navigating right from R1
+    const nextRight = findNextSpatialElement({ x: 100, y: 100 }, "right", candidates);
+    expect(nextRight?.id).toBe("sw1");
+
+    // Navigating down from R1
+    const nextDown = findNextSpatialElement({ x: 100, y: 100 }, "down", candidates);
+    expect(nextDown?.id).toBe("pc1");
+
+    // Navigating up from R1
+    const nextUp = findNextSpatialElement({ x: 100, y: 100 }, "up", candidates);
+    expect(nextUp?.id).toBe("cloud");
+
+    // Navigating left from R1 (none available)
+    const nextLeft = findNextSpatialElement({ x: 100, y: 100 }, "left", candidates);
+    expect(nextLeft).toBeNull();
   });
 });

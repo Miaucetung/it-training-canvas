@@ -148,7 +148,7 @@ async function run() {
 
     const ws = await connectWS(versionData.webSocketDebuggerUrl);
     await send(ws, 'Target.setDiscoverTargets', { discover: true });
-    
+
     const targetInfo = await send(ws, 'Target.createTarget', { url: APP_URL });
     const targetWsUrl = `ws://127.0.0.1:${DEBUG_PORT}/devtools/page/${targetInfo.targetId}`;
     const pageWs = await connectWS(targetWsUrl);
@@ -191,7 +191,7 @@ async function run() {
     // Sicherstellen, dass v2 aktiv ist
     console.log('[E2E 2d-3] Prüfe v2 SVG Next Modus...');
     await evalExpr(pageWs, `
-      const v2Btn = Array.from(document.querySelectorAll('button')).find(b => 
+      const v2Btn = Array.from(document.querySelectorAll('button')).find(b =>
         b.textContent && b.textContent.trim() === 'v2 (SVG Next)' && !b.disabled
       );
       if (v2Btn) v2Btn.click();

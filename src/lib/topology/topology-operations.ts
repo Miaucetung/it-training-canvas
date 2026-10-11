@@ -3,6 +3,7 @@ import {
   NetworkTopology,
   TopologyAnnotation,
   TopologyDevice,
+  TopologyInterface,
   TopologyLink,
 } from "@/types/topology";
 
@@ -41,16 +42,34 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
         { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Gigabit Uplink / Trunk Port" },
         { id: "if-vlan1", name: "Vlan1", status: "up", description: "Management SVI" },
       ];
-    case "switch-l3":
-      return [
-        { id: "if-gi1-0-1", name: "Gi1/0/1", status: "up", description: "Gigabit Routed / Switchport" },
-        { id: "if-gi1-0-2", name: "Gi1/0/2", status: "up", description: "Gigabit Routed / Switchport" },
-        { id: "if-gi1-0-3", name: "Gi1/0/3", status: "up", description: "Gigabit Routed / Switchport" },
-        { id: "if-gi1-0-4", name: "Gi1/0/4", status: "up", description: "Gigabit Routed / Switchport" },
+    case "switch-l3": {
+      const ports: TopologyInterface[] = [];
+      // 24x GigabitEthernet Downlink Switchports (Catalyst 3650-24PS)
+      for (let i = 1; i <= 24; i++) {
+        ports.push({
+          id: `if-gi1-0-${i}`,
+          name: `Gi1/0/${i}`,
+          status: "up",
+          description: `Gigabit Downlink Port ${i}`,
+        });
+      }
+      // 4x GigabitEthernet SFP Uplink Ports
+      for (let i = 1; i <= 4; i++) {
+        ports.push({
+          id: `if-gi1-1-${i}`,
+          name: `Gi1/1/${i}`,
+          status: "up",
+          description: `Gigabit SFP Uplink Port ${i}`,
+        });
+      }
+      // SVIs und Loopback Management
+      ports.push(
         { id: "if-vlan10", name: "Vlan10", status: "up", description: "SVI Gateway VLAN 10" },
         { id: "if-vlan20", name: "Vlan20", status: "up", description: "SVI Gateway VLAN 20" },
-        { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback Management" },
-      ];
+        { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback Management" }
+      );
+      return ports;
+    }
     case "pc":
       return [
         { id: "if-eth0", name: "eth0", status: "up", description: "Gigabit Ethernet NIC" },
@@ -645,4 +664,58 @@ export function smoothFreehandPoints(
   smoothed.push(filtered[filtered.length - 1]);
 
   return smoothed;
+}
+
+export type SpatialDirection = "up" | "down" | "left" | "right";
+
+export interface SpatialElementTarget {
+  id: string;
+  type: "device" | "link";
+  x: number;
+  y: number;
+}
+
+/**
+ * 2D Spatial Navigation für Roving Tabindex:
+ * Ermittelt das am nächsten liegende Element in Pfeiltasten-Richtung.
+ */
+export function findNextSpatialElement(
+  currentPos: { x: number; y: number },
+  direction: SpatialDirection,
+  candidates: SpatialElementTarget[]
+): SpatialElementTarget | null {
+  const filtered = candidates.filter((c) => {
+    const dx = c.x - currentPos.x;
+    const dy = c.y - currentPos.y;
+    if (direction === "right") return dx > 8;
+    if (direction === "left") return dx < -8;
+    if (direction === "down") return dy > 8;
+    if (direction === "up") return dy < -8;
+    return false;
+  });
+
+  if (filtered.length === 0) return null;
+
+  // Score mit Gewichtung der Hauptachse vs Nebenachse
+  let best = filtered[0];
+  let minScore = Infinity;
+
+  for (const c of filtered) {
+    const dx = Math.abs(c.x - currentPos.x);
+    const dy = Math.abs(c.y - currentPos.y);
+    let score = Infinity;
+
+    if (direction === "right" || direction === "left") {
+      score = dx + 2 * dy;
+    } else {
+      score = dy + 2 * dx;
+    }
+
+    if (score < minScore) {
+      minScore = score;
+      best = c;
+    }
+  }
+
+  return best;
 }

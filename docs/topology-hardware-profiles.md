@@ -29,12 +29,13 @@ Dieses Dokument definiert die realistischen Cisco-Hardware-Profile, abgestimmt a
 
 ## 3. Cisco Catalyst 3650-24PS Multilayer Switch (`switch-l3`)
 
-- **Modell-Referenz:** Cisco Catalyst 3650-24PS Multilayer Switch (L2 Switching + Hardware-Routing)
+- **Modell-Referenz:** Cisco Catalyst 3650-24PS Multilayer Switch (24x GigabitEthernet PoE+ Downlinks + 4x 1G SFP Uplinks)
 - **Standard-Schnittstellen:**
-  - `Gi1/0/1` bis `Gi1/0/4` (GigabitEthernet Routed Ports oder Switchports)
+  - `Gi1/0/1` bis `Gi1/0/24` (24x GigabitEthernet Downlink Switchports / Routed Ports)
+  - `Gi1/1/1` bis `Gi1/1/4` (4x GigabitEthernet SFP Uplink Ports)
   - `Vlan10` (SVI Default Gateway für VLAN 10)
   - `Vlan20` (SVI Default Gateway für VLAN 20)
-  - `Lo0` (Loopback Management)
+  - `Lo0` (Loopback Management Interface)
 
 ---
 

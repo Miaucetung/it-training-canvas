@@ -104,6 +104,23 @@ export const TopologyLegend: React.FC<TopologyLegendProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Tastaturbedienung & Barrierefreiheit (Roving Tabindex) */}
+      <div className="mt-3 pt-2.5 border-t border-slate-700/50">
+        <p className="font-semibold text-[10px] uppercase text-sky-400 mb-1.5">
+          Tastaturbedienung (Roving Tabindex)
+        </p>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-300">
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Tab</kbd> Canvas betreten/verlassen</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Pfeile</kbd> Fokus wechseln / Pannen</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Shift+Pfeile</kbd> Gerät verschieben</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Alt+Pfeile</kbd> Canvas pannen</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Enter</kbd> Konfiguration öffnen</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Shift+F10</kbd> Kontextmenü</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Entf</kbd> Element löschen</div>
+          <div><kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[9px]">Strg+Z / Y</kbd> Rückgängig / Wiederholen</div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -25,6 +25,7 @@ import {
   FolderOpen,
   Info,
 } from "@phosphor-icons/react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface TopologyStorageDialogProps {
   currentTopology: NetworkTopology;
@@ -72,15 +73,8 @@ export const TopologyStorageDialog: React.FC<TopologyStorageDialogProps> = ({
     refreshList();
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  // WCAG AA Focus-Trap & Return-Focus Management
+  const dialogRef = useFocusTrap<HTMLDivElement>(isOpen, onClose);
 
   const refreshList = () => {
     setSavedList(getNamedTopologies());
@@ -189,7 +183,9 @@ export const TopologyStorageDialog: React.FC<TopologyStorageDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`w-full max-w-2xl max-h-[88vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden ${
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`w-full max-w-2xl max-h-[88vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
           isDark
             ? "bg-slate-900 border-slate-700 text-white"
             : "bg-white border-slate-200 text-slate-900"

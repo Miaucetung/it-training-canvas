@@ -4,6 +4,7 @@ import {
   TopologyInterface,
   TopologyLink,
 } from "@/types/topology";
+import { checkEtherChannelMemberConsistency } from "./topology-validation";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -457,10 +458,41 @@ export class CiscoCliGenerator {
 
     const rows: string[] = [];
     for (const [id, data] of channelMap.entries()) {
+      const consistency = checkEtherChannelMemberConsistency(device, id);
       const grpCol = id.toString().padEnd(7, " ");
-      const poCol = `Po${id}(SU)`.padEnd(14, " ");
+
+      const portStrings: string[] = [];
+      let bundledCount = 0;
+      for (const iface of device.interfaces) {
+        if (iface.channelGroup?.id === id) {
+          const isSuspended = consistency.inconsistentPorts.some((p) => p.iface.id === iface.id) || (iface.status as string) === "suspended";
+          const isDown = iface.status === "down" || iface.status === "admin-down";
+
+          if (isDown) {
+            portStrings.push(`${iface.name}(D)`);
+          } else if (isSuspended) {
+            portStrings.push(`${iface.name}(s)`);
+          } else {
+            portStrings.push(`${iface.name}(P)`);
+            bundledCount++;
+          }
+        }
+      }
+
+      // Fallback falls Interfaces nicht direkt auf dem Device gefunden wurden, sondern aus data.ports
+      if (portStrings.length === 0 && data.ports.length > 0) {
+        for (const p of data.ports) {
+          if (p.includes("(P)")) bundledCount++;
+        }
+      }
+
+      // Cisco Regel: Po bleibt (SU), solange mindestens ein Member gebündelt ist (P).
+      // (SD) nur, wenn kein Member gebündelt ist.
+      const poStatus = bundledCount > 0 ? `Po${id}(SU)` : `Po${id}(SD)`;
+      const poCol = poStatus.padEnd(14, " ");
       const protoCol = data.protocol.padEnd(12, " ");
-      const portsCol = data.ports.join("    ");
+
+      const portsCol = (portStrings.length > 0 ? portStrings : data.ports).join("    ");
       rows.push(`${grpCol}${poCol}${protoCol}${portsCol}`);
     }
 

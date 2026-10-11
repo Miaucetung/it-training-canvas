@@ -162,7 +162,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           }}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg font-semibold transition-all ${
             activeMode === "select" && !activePlacementType
-              ? "bg-sky-500 text-white shadow-xs ring-1 ring-sky-300"
+              ? "bg-sky-700 text-white shadow-xs ring-1 ring-sky-500"
               : isDark
                 ? "bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:text-black hover:bg-slate-200"
@@ -203,7 +203,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           }}
           className={`p-1.5 rounded-lg font-semibold transition-all ${
             activeMode === "note"
-              ? "bg-amber-500 text-white shadow-xs ring-1 ring-amber-300"
+              ? "bg-amber-600 text-white shadow-xs ring-1 ring-amber-400"
               : isDark
                 ? "bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:text-black hover:bg-slate-200"
@@ -221,7 +221,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           }}
           className={`p-1.5 rounded-lg font-semibold transition-all ${
             activeMode === "text"
-              ? "bg-sky-500 text-white shadow-xs ring-1 ring-sky-300"
+              ? "bg-sky-700 text-white shadow-xs ring-1 ring-sky-500"
               : isDark
                 ? "bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:text-black hover:bg-slate-200"
@@ -239,7 +239,7 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           }}
           className={`p-1.5 rounded-lg font-semibold transition-all ${
             activeMode === "freehand"
-              ? "bg-emerald-500 text-white shadow-xs ring-1 ring-emerald-300"
+              ? "bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-400"
               : isDark
                 ? "bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:text-black hover:bg-slate-200"
@@ -345,7 +345,9 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
 
       {/* ── 2. GERÄTE-PALETTE (Drag per Maus & Tap per Touch) ── */}
       <div className="flex items-center gap-1 overflow-x-auto py-0.5 max-w-full">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-0.5 hidden xl:inline">
+        <span className={`text-[10px] font-bold uppercase tracking-wider mr-0.5 hidden xl:inline ${
+          isDark ? "text-slate-400" : "text-slate-700"
+        }`}>
           Geräte:
         </span>
         {PALETTE_DEVICES.map((d) => {
@@ -424,7 +426,9 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
           onClick={onToggleSnapGrid}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-[11px] font-semibold transition-colors ${
             snapGrid
-              ? "bg-emerald-500/20 border-emerald-500 text-emerald-300"
+              ? isDark
+                ? "bg-emerald-500/20 border-emerald-500 text-emerald-300"
+                : "bg-emerald-100 border-emerald-600 text-emerald-800"
               : isDark
                 ? "border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                 : "border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -439,7 +443,11 @@ export const DevicePalette: React.FC<DevicePaletteProps> = ({
         {(selectedDeviceId || selectedLinkId || selectedAnnotationId) && (
           <button
             onClick={onDeleteSelected}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 font-semibold text-[11px] transition-colors"
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border font-semibold text-[11px] transition-colors ${
+              isDark
+                ? "bg-red-500/20 hover:bg-red-500/30 border-red-500/50 text-red-300"
+                : "bg-red-100 hover:bg-red-200 border-red-300 text-red-800"
+            }`}
             title="Ausgewähltes Element löschen (Taste Entf) mit Undo"
           >
             <Trash size={14} weight="bold" />

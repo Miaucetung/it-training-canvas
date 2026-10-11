@@ -33,6 +33,63 @@ export function getContrastingAnnotationColor(
   }
 }
 
+export function getDeviceAriaLabel(
+  device: TopologyDevice,
+  topology: NetworkTopology
+): string {
+  const typeLabel =
+    device.type === "router"
+      ? "Router"
+      : device.type === "switch-l2"
+      ? "Switch (Layer 2)"
+      : device.type === "switch-l3"
+      ? "Multilayer Switch (Layer 3)"
+      : device.type === "firewall"
+      ? "Firewall"
+      : device.type === "access-point"
+      ? "Access Point"
+      : device.type === "wlc"
+      ? "Wireless LAN Controller"
+      : device.type === "pc"
+      ? "PC"
+      : device.type === "laptop"
+      ? "Laptop"
+      : device.type === "server"
+      ? "Server"
+      : "Cloud-Netzwerk";
+
+  const parts: string[] = [`${typeLabel} ${device.name}`];
+
+  const ipInterfaces = device.interfaces.filter((i) => i.ip);
+  const upInterfaces = device.interfaces.filter((i) => i.status === "up");
+
+  if (ipInterfaces.length > 0) {
+    const ifaceTexts = ipInterfaces.map((i) => `${i.name} ${i.status}: ${i.ip}`).join(", ");
+    parts.push(ifaceTexts);
+  } else if (upInterfaces.length > 0) {
+    parts.push(`${upInterfaces.length} aktive Ports`);
+  }
+
+  if (device.config?.defaultGateway) {
+    parts.push(`Gateway ${device.config.defaultGateway}`);
+  }
+
+  if (device.config?.routingProtocols && device.config.routingProtocols.length > 0) {
+    parts.push(`Routing ${device.config.routingProtocols.join(", ")}`);
+  }
+
+  const deviceLinks = topology.links.filter(
+    (l) => l.sourceDeviceId === device.id || l.targetDeviceId === device.id
+  );
+  parts.push(`${deviceLinks.length} Verbindung${deviceLinks.length === 1 ? "" : "en"}`);
+
+  if (device.status && device.status !== "active") {
+    parts.push(`Status ${device.status}`);
+  }
+
+  return parts.join(", ");
+}
+
 interface SvgTopologyRendererProps {
   topology: NetworkTopology;
   viewDensity?: "simple" | "detail";
@@ -44,6 +101,7 @@ interface SvgTopologyRendererProps {
   onLinkClick?: (link: TopologyLink) => void;
   onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
   onDeviceContextMenu?: (device: TopologyDevice, e: React.MouseEvent) => void;
+  onDeviceMoveByKey?: (device: TopologyDevice, dx: number, dy: number) => void;
   onAnnotationClick?: (annotation: TopologyAnnotation) => void;
   onAnnotationPointerDown?: (annotation: TopologyAnnotation, e: React.PointerEvent) => void;
   onAnnotationDoubleClick?: (annotation: TopologyAnnotation) => void;
@@ -73,6 +131,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   onLinkClick,
   onDevicePointerDown,
   onDeviceContextMenu,
+  onDeviceMoveByKey,
   onAnnotationClick,
   onAnnotationPointerDown,
   onAnnotationDoubleClick,
@@ -394,8 +453,13 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
         })}
 
         {/* 4. Geräte (Netzwerkkomponenten) */}
-        {topology.devices.map((device) => {
+        {topology.devices.map((device, index) => {
           const isSelected = selectedDeviceId === device.id;
+          // Roving Tabindex: Genau ein Tab-Stopp für den gesamten Canvas
+          // Ist ein Gerät selektiert, erhält es tabIndex=0.
+          // Ist kein Gerät und kein Link selektiert, erhält das erste Gerät tabIndex=0.
+          // Alle anderen Elemente erhalten tabIndex=-1.
+          const isRovingActive = isSelected || (!selectedDeviceId && !selectedLinkId && index === 0);
           const w = device.width || 64;
           const h = device.height || 54;
           const iconSize = 48;
@@ -406,8 +470,16 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           return (
             <g
               key={device.id}
+              data-device-id={device.id}
               transform={`translate(${device.x}, ${device.y})`}
-              className="topology-device cursor-pointer transition-transform hover:scale-105"
+              className={`topology-device cursor-pointer transition-transform hover:scale-105 focus:outline-none ${
+                isSelected ? "filter drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" : ""
+              }`}
+              tabIndex={isRovingActive ? 0 : -1}
+              role="button"
+              aria-label={getDeviceAriaLabel(device, topology)}
+              aria-haspopup="dialog"
+              aria-expanded={isSelected}
               onPointerDown={(e) => onDevicePointerDown?.(device, e)}
               onContextMenu={(e) => {
                 e.preventDefault();
@@ -416,6 +488,20 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onDeviceClick?.(device);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onDeviceClick?.(device);
+                } else if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+                  e.preventDefault();
+                  const rect = (e.currentTarget as SVGElement).getBoundingClientRect();
+                  onDeviceContextMenu?.(device, {
+                    clientX: rect.left + rect.width / 2,
+                    clientY: rect.top + rect.height / 2,
+                    preventDefault: () => {},
+                  } as unknown as React.MouseEvent);
+                }
               }}
             >
               {/* Selektions-Halo */}

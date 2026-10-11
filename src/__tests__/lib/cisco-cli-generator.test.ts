@@ -148,6 +148,48 @@ describe("Cisco IOS CLI Dynamic Show Generator", () => {
     expect(output).toContain("Gi0/2(P)");
   });
 
+  it("keeps Po as (SU) when at least one member port is bundled (P) while another is suspended (s)", () => {
+    const swPartial: TopologyDevice = {
+      id: "sw-partial",
+      name: "SW-Partial",
+      type: "switch-l2",
+      x: 100,
+      y: 100,
+      interfaces: [
+        { id: "gi01", name: "Gi0/1", status: "up", mode: "trunk", nativeVlan: 1, channelGroup: { id: 1, mode: "active" } },
+        { id: "fa010", name: "Fa0/10", status: "up", mode: "access", vlan: 10, channelGroup: { id: 1, mode: "active" } },
+      ],
+    };
+
+    const output = CiscoCliGenerator.generateShowEtherchannelSummary(swPartial);
+
+    // Po1 remains (SU) because Gi0/1 is bundled (P), while Fa0/10 is suspended (s)
+    expect(output).toContain("Po1(SU)");
+    expect(output).toContain("Gi0/1(P)");
+    expect(output).toContain("Fa0/10(s)");
+  });
+
+  it("marks Po as (SD) when no member port is bundled in the channel", () => {
+    const swAllDown: TopologyDevice = {
+      id: "sw-alldown",
+      name: "SW-AllDown",
+      type: "switch-l2",
+      x: 100,
+      y: 100,
+      interfaces: [
+        { id: "gi01", name: "Gi0/1", status: "down", channelGroup: { id: 1, mode: "active" } },
+        { id: "gi02", name: "Gi0/2", status: "down", channelGroup: { id: 1, mode: "active" } },
+      ],
+    };
+
+    const output = CiscoCliGenerator.generateShowEtherchannelSummary(swAllDown);
+
+    // Po1 becomes (SD) because 0 ports are bundled (both are down)
+    expect(output).toContain("Po1(SD)");
+    expect(output).toContain("Gi0/1(D)");
+    expect(output).toContain("Gi0/2(D)");
+  });
+
   it("generates complete show running-config including SVIs, channel-group and dot1q subinterfaces", () => {
     const mls: TopologyDevice = {
       id: "mls-1",

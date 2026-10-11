@@ -284,6 +284,7 @@ function SidebarInner({
                       <TooltipTrigger asChild>
                         <button
                           onClick={() => onSubjectChange(subject)}
+                          aria-label={`Thema wechseln zu ${SUBJECT_CONFIGS[subject]?.name || subject}`}
                           className={cn(
                             "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 mb-2",
                             isActive
@@ -399,6 +400,7 @@ function SidebarInner({
               <TooltipTrigger asChild>
                 <Button
                   onClick={() => setIsAdding(true)}
+                  aria-label="Neues Thema hinzufügen"
                   className={cn(
                     "bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white border border-dashed border-slate-600 hover:border-indigo-500 transition-all",
                     collapsed ? "w-12 h-12 p-0" : "w-full h-10",
@@ -427,6 +429,7 @@ function SidebarInner({
             <TooltipTrigger asChild>
               <Button
                 onClick={onToggleCollapse}
+                aria-label={collapsed ? "Seitenleiste ausklappen" : "Seitenleiste minimieren"}
                 variant="ghost"
                 className={cn(
                   "text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all",

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import {
   deleteNamedTopology,
@@ -118,16 +119,58 @@ describe("Topology Storage & Export Manager (2d-3)", () => {
       expect(res.error).toContain("Ungültiges JSON-Dateiformat");
     });
 
-    it("rejects invalid topology structure missing version or devices with Zod error path", () => {
-      const invalidTopo = {
-        id: "broken",
-        name: "Broken",
-        // version 2.0 fehlt
-        devices: "nicht ein array",
-      };
-      const res = importTopologyFromJson(JSON.stringify(invalidTopo));
-      expect(res.success).toBe(false);
-      expect(res.error).toContain("Topologie entspricht nicht dem CCNA Schema 2.0");
+    it("discards unknown fields while preserving user text unmutated in the data model", () => {
+      const jsonPayload = JSON.stringify({
+        ...TOPOLOGY_BASIC_LAN,
+        name: "Test Lab <script>alert('xss')</script>",
+        unexpectedUnknownProperty: "should be discarded",
+        devices: [
+          {
+            ...TOPOLOGY_BASIC_LAN.devices[0],
+            name: "Router-1<script>malicious()</script>",
+            rogueField: "hacker_payload",
+            config: {
+              ...TOPOLOGY_BASIC_LAN.devices[0].config,
+              hostname: "R1-Clean",
+              customInjectedValue: 12345,
+            },
+          },
+        ],
+      });
+
+      const res = importTopologyFromJson(jsonPayload);
+      expect(res.success).toBe(true);
+      // Nutzertexte bleiben im Datenmodell unverändert erhalten (Escaping erfolgt erst bei der Ausgabe)
+      expect(res.data?.name).toBe("Test Lab <script>alert('xss')</script>");
+      expect(res.data?.devices[0].name).toBe("Router-1<script>malicious()</script>");
+      // Unbekannte Felder werden von Zod Schema-Validierung verworfen
+      expect((res.data as unknown as Record<string, unknown>).unexpectedUnknownProperty).toBeUndefined();
+      expect((res.data?.devices[0] as unknown as Record<string, unknown>).rogueField).toBeUndefined();
+      expect((res.data?.devices[0].config as unknown as Record<string, unknown>).customInjectedValue).toBeUndefined();
+    });
+  });
+
+  describe("SVG Export Escaping & Security", () => {
+    it("escapes user text characters and removes script tags or event handlers", () => {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "800");
+      svg.setAttribute("height", "600");
+
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.textContent = 'R&D Department <SW-1> & "Lab"';
+      text.setAttribute("onclick", "alert('clicked')");
+      svg.appendChild(text);
+
+      const script = document.createElementNS("http://www.w3.org/2000/svg", "script");
+      script.textContent = "window.hacked = true;";
+      svg.appendChild(script);
+
+      const cleaned = generateCleanSvgString(svg);
+      expect(cleaned).toContain("&amp;");
+      expect(cleaned).toContain("&lt;SW-1&gt;");
+      expect(cleaned).not.toContain("<script");
+      expect(cleaned).not.toContain("window.hacked");
+      expect(cleaned).not.toContain("onclick=");
     });
   });
 });

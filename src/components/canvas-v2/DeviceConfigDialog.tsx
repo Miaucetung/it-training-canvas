@@ -11,6 +11,7 @@ import {
 import {
   validateHostGateway,
   evaluateEtherChannelModes,
+  checkEtherChannelMemberConsistency,
   parseIpCidr,
 } from "@/lib/topology/topology-validation";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
@@ -26,6 +27,7 @@ import {
   Sliders,
   TreeStructure,
 } from "@phosphor-icons/react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface DeviceConfigDialogProps {
   device: TopologyDevice;
@@ -134,6 +136,30 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
     return CiscoCliGenerator.getDynamicShowOutputs(previewDevice, topology);
   }, [previewDevice, topology]);
 
+  // Live-Prüfung auf Member-Port-Inkonsistenzen (%EC-5-CANNOT_BUNDLE2)
+  const etherChannelConsistencyIssues = useMemo(() => {
+    if (!isSwitch) return [];
+    const channelIds = new Set<number>();
+    for (const iface of interfaces) {
+      if (iface.channelGroup) channelIds.add(iface.channelGroup.id);
+    }
+    const result: Array<{ chId: number; leadName: string; ifaceName: string; reason: string }> = [];
+    for (const chId of Array.from(channelIds)) {
+      const consistency = checkEtherChannelMemberConsistency(previewDevice, chId);
+      if (!consistency.isConsistent) {
+        for (const item of consistency.inconsistentPorts) {
+          result.push({
+            chId,
+            leadName: consistency.leadInterface?.name || "Lead-Port",
+            ifaceName: item.iface.name,
+            reason: item.reason,
+          });
+        }
+      }
+    }
+    return result;
+  }, [isSwitch, interfaces, previewDevice]);
+
   const handleSave = () => {
     onSave(previewDevice);
     onClose();
@@ -145,20 +171,15 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
     setTimeout(() => setCopiedCli(false), 2000);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  // WCAG AA Focus-Trap & Return-Focus Management
+  const dialogRef = useFocusTrap<HTMLDivElement>(isOpen, onClose);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden ${
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
           isDark
             ? "bg-slate-900 border-slate-700 text-white"
             : "bg-white border-slate-200 text-slate-900"
@@ -178,7 +199,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
               <Gear size={22} weight="bold" />
             </div>
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-sky-400">
+              <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
                 Geräte-Konfiguration · {device.type.toUpperCase()}
               </div>
               <h2 id="device-dialog-title" className="text-base font-bold truncate">
@@ -209,8 +230,8 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
             onClick={() => setActiveTab("general")}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 transition-all ${
               activeTab === "general"
-                ? "border-sky-400 text-sky-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? isDark ? "border-sky-400 text-sky-400" : "border-sky-600 text-sky-700"
+                : isDark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-600 hover:text-slate-900 font-medium"
             }`}
           >
             <Sliders size={14} weight="bold" />
@@ -220,8 +241,8 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
             onClick={() => setActiveTab("interfaces")}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 transition-all ${
               activeTab === "interfaces"
-                ? "border-sky-400 text-sky-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? isDark ? "border-sky-400 text-sky-400" : "border-sky-600 text-sky-700"
+                : isDark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-600 hover:text-slate-900 font-medium"
             }`}
           >
             <TreeStructure size={14} weight="bold" />
@@ -232,8 +253,8 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
               onClick={() => setActiveTab("vlans")}
               className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 transition-all ${
                 activeTab === "vlans"
-                  ? "border-sky-400 text-sky-400"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                  ? isDark ? "border-sky-400 text-sky-400" : "border-sky-600 text-sky-700"
+                  : isDark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-600 hover:text-slate-900 font-medium"
               }`}
             >
               <TreeStructure size={14} weight="bold" />
@@ -244,8 +265,8 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
             onClick={() => setActiveTab("cli")}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold border-b-2 transition-all ${
               activeTab === "cli"
-                ? "border-sky-400 text-sky-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? isDark ? "border-sky-400 text-sky-400" : "border-sky-600 text-sky-700"
+                : isDark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-600 hover:text-slate-900 font-medium"
             }`}
           >
             <TerminalWindow size={14} weight="bold" />
@@ -259,7 +280,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
           {activeTab === "general" && (
             <div className="space-y-4 max-w-xl">
               <div>
-                <label className="block text-xs font-semibold mb-1 text-slate-300">
+                <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Gerätename (Hostname):
                 </label>
                 <input
@@ -276,7 +297,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold mb-1 text-slate-300">
+                <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Domain Name (DNS-Suffix):
                 </label>
                 <input
@@ -294,7 +315,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
 
               {/* Gateway für Hosts & Switche */}
               <div>
-                <label className="block text-xs font-semibold mb-1 text-slate-300">
+                <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Default Gateway:
                 </label>
                 <input
@@ -330,7 +351,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
 
               {isHost && (
                 <div>
-                  <label className="block text-xs font-semibold mb-1 text-slate-300">
+                  <label className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                     DNS Server:
                   </label>
                   <input
@@ -355,10 +376,10 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
                   }`}
                 >
                   <div>
-                    <div className="font-bold text-xs text-sky-400">
+                    <div className={`font-bold text-xs ${isDark ? "text-sky-400" : "text-sky-700"}`}>
                       Cisco IP Routing (Layer-3 Forwarding)
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                       Befehl: <code>ip routing</code> (ermöglicht Routing zwischen SVIs).
                     </div>
                   </div>
@@ -379,6 +400,24 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
               <div className="text-xs text-slate-400">
                 Konfigurieren Sie IP-Adressen, Switchport-Modi, 802.1Q Trunks und EtherChannels:
               </div>
+
+              {/* Nicht-blockierender EtherChannel Inkonsistenz-Hinweis (%EC-5-CANNOT_BUNDLE2) */}
+              {etherChannelConsistencyIssues.length > 0 && (
+                <div className="p-3 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs space-y-1.5 animate-in fade-in">
+                  <div className="flex items-center gap-2 font-bold text-amber-300">
+                    <Warning size={16} className="text-amber-400 shrink-0" />
+                    <span>EtherChannel Inkonsistenz (%EC-5-CANNOT_BUNDLE2)</span>
+                  </div>
+                  {etherChannelConsistencyIssues.map((issue, idx) => (
+                    <div key={idx} className="text-[11px] leading-relaxed">
+                      • Port-Channel {issue.chId}: <span className="font-mono font-bold text-amber-300">{issue.ifaceName}</span> weicht von <span className="font-mono font-bold text-amber-300">{issue.leadName}</span> ab: {issue.reason}. Port wird im Bündel suspendiert (s).
+                    </div>
+                  ))}
+                  <div className="text-[10px] text-amber-200/80 italic pt-0.5">
+                    Didaktischer CCNA-Hinweis: Alle Member-Ports einer channel-group müssen gleichen Modus (Access/Trunk) und identische VLAN-Parameter aufweisen.
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {interfaces.map((iface, idx) => (
@@ -565,37 +604,70 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
 
                     {/* EtherChannel (Channel-Group) Konfiguration für Switche */}
                     {isSwitch && (
-                      <div className="pt-2 border-t border-slate-700/40 flex items-center gap-3">
-                        <span className="text-[11px] text-slate-400">EtherChannel:</span>
-                        <select
-                          value={iface.channelGroup ? `${iface.channelGroup.id}-${iface.channelGroup.mode}` : "none"}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            const updated = [...interfaces];
-                            if (val === "none") {
-                              delete updated[idx].channelGroup;
-                            } else {
-                              const [idStr, modeStr] = val.split("-");
-                              updated[idx].channelGroup = {
-                                id: parseInt(idStr, 10),
-                                mode: modeStr as ChannelGroupMode,
-                              };
-                            }
-                            setInterfaces(updated);
-                          }}
-                          className={`text-xs px-2.5 py-1 rounded border font-mono ${
-                            isDark
-                              ? "bg-slate-900 border-slate-700 text-white"
-                              : "bg-white border-slate-300 text-slate-900"
-                          }`}
-                        >
-                          <option value="none">Kein Channel-Group</option>
-                          <option value="1-active">Channel 1: mode active (LACP)</option>
-                          <option value="1-passive">Channel 1: mode passive (LACP)</option>
-                          <option value="1-desirable">Channel 1: mode desirable (PAgP)</option>
-                          <option value="1-auto">Channel 1: mode auto (PAgP)</option>
-                          <option value="1-on">Channel 1: mode on (Statisch)</option>
-                        </select>
+                      <div className="pt-2 border-t border-slate-700/40 flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-400 font-medium">EtherChannel:</span>
+                          <select
+                            value={iface.channelGroup ? String(iface.channelGroup.id) : "none"}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const updated = [...interfaces];
+                              if (val === "none") {
+                                delete updated[idx].channelGroup;
+                              } else {
+                                const chId = parseInt(val, 10);
+                                const curMode = updated[idx].channelGroup?.mode || "active";
+                                updated[idx].channelGroup = {
+                                  id: chId,
+                                  mode: curMode,
+                                };
+                              }
+                              setInterfaces(updated);
+                            }}
+                            className={`text-xs px-2.5 py-1 rounded border font-mono ${
+                              isDark
+                                ? "bg-slate-900 border-slate-700 text-white"
+                                : "bg-white border-slate-300 text-slate-900"
+                            }`}
+                          >
+                            <option value="none">Kein Channel</option>
+                            <option value="1">Channel-Group 1</option>
+                            <option value="2">Channel-Group 2</option>
+                            <option value="3">Channel-Group 3</option>
+                            <option value="4">Channel-Group 4</option>
+                          </select>
+                        </div>
+
+                        {iface.channelGroup && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-slate-400">Modus:</span>
+                            <select
+                              value={iface.channelGroup.mode}
+                              onChange={(e) => {
+                                const newMode = e.target.value as ChannelGroupMode;
+                                const updated = [...interfaces];
+                                if (updated[idx].channelGroup) {
+                                  updated[idx].channelGroup = {
+                                    ...updated[idx].channelGroup!,
+                                    mode: newMode,
+                                  };
+                                  setInterfaces(updated);
+                                }
+                              }}
+                              className={`text-xs px-2.5 py-1 rounded border font-mono ${
+                                isDark
+                                  ? "bg-slate-900 border-slate-700 text-white"
+                                  : "bg-white border-slate-300 text-slate-900"
+                              }`}
+                            >
+                              <option value="active">active (LACP aktiv)</option>
+                              <option value="passive">passive (LACP passiv)</option>
+                              <option value="desirable">desirable (PAgP aktiv)</option>
+                              <option value="auto">auto (PAgP passiv)</option>
+                              <option value="on">on (Statisch unkonditioniert)</option>
+                            </select>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -784,7 +856,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-sky-700 hover:bg-sky-600 text-white transition-colors shadow-sm"
           >
             Übernehmen & Speichern
           </button>

@@ -11,6 +11,37 @@ interface LinkRendererProps {
   onLinkClick?: (link: TopologyLink) => void;
 }
 
+export function getLinkAriaLabel(
+  link: TopologyLink,
+  sourceDevice: TopologyDevice,
+  targetDevice: TopologyDevice
+): string {
+  const srcIface = sourceDevice.interfaces.find((i) => i.id === link.sourceInterfaceId);
+  const tgtIface = targetDevice.interfaces.find((i) => i.id === link.targetInterfaceId);
+
+  const typeName =
+    link.linkType === "serial"
+      ? "Serielle WAN-Verbindung"
+      : link.linkType === "trunk"
+      ? "802.1Q Trunk-Verbindung"
+      : link.linkType === "etherchannel"
+      ? "EtherChannel-Bündel"
+      : link.linkType === "wireless"
+      ? "WLAN-Verbindung"
+      : "Ethernet-Verbindung";
+
+  const statusName =
+    link.status === "stp-blocking"
+      ? "STP Blocking"
+      : link.status === "down"
+      ? "Down"
+      : link.status === "admin-down"
+      ? "Administrativ Down"
+      : "Up";
+
+  return `${typeName} zwischen ${sourceDevice.name} (${srcIface?.name || "Port"}) und ${targetDevice.name} (${tgtIface?.name || "Port"}), Status ${statusName}`;
+}
+
 export const LinkRenderer: React.FC<LinkRendererProps> = ({
   link,
   sourceDevice,
@@ -120,8 +151,20 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
 
   return (
     <g
-      className="topology-link cursor-pointer transition-opacity hover:opacity-95"
+      data-link-id={link.id}
+      className={`topology-link cursor-pointer transition-opacity hover:opacity-95 focus:outline-none ${
+        selected ? "filter drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" : ""
+      }`}
+      tabIndex={selected ? 0 : -1}
+      role="button"
+      aria-label={getLinkAriaLabel(link, sourceDevice, targetDevice)}
       onClick={() => onLinkClick?.(link)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onLinkClick?.(link);
+        }
+      }}
     >
       {/* Breiter unsichtbarer Trefferbereich für Klick / Hover */}
       <line

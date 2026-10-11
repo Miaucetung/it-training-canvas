@@ -15,7 +15,6 @@ import {
   TOPOLOGY_STP_TRIANGLE,
 } from "@/lib/topology/sample-topologies";
 import {
-  migrateLocalStorageCanvasToV2,
   restoreBackupSnapshot,
   safeSetItem,
   V2_STORAGE_KEY,
@@ -36,6 +35,9 @@ import {
   deleteAnnotationFromTopology,
   moveAnnotationInTopology,
   smoothFreehandPoints,
+  findNextSpatialElement,
+  SpatialDirection,
+  SpatialElementTarget,
 } from "@/lib/topology/topology-operations";
 import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
@@ -46,6 +48,7 @@ import { ConnectDialog } from "./ConnectDialog";
 import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { TopologyStorageDialog } from "./TopologyStorageDialog";
+import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
 import { saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
@@ -58,6 +61,7 @@ import {
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
   ShieldCheck,
+  Table,
   Terminal,
   Warning,
   X,
@@ -171,6 +175,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   // Schritt 2d-3 Dialoge & Storage
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState<boolean>(false);
+  const [showScreenReaderView, setShowScreenReaderView] = useState<boolean>(false);
   const [isAutosaving, setIsAutosaving] = useState<boolean>(false);
 
   // Performance-Tracking
@@ -202,13 +207,9 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
   }, [selectedDevice, activeTopology]);
 
-  // Altdaten-Prüfung & Konflikterkennung beim Start
+  // Gespeicherte V2-Topologien beim Start laden (Migration läuft ausschließlich bei aktivem Umschalten in App.tsx)
   useEffect(() => {
     try {
-      const migResult = migrateLocalStorageCanvasToV2();
-      if (migResult.conflicts && migResult.conflicts.length > 0) {
-        setMigrationConflicts(migResult.conflicts);
-      }
       const stored = localStorage.getItem(V2_STORAGE_KEY);
       if (stored) {
         setMigratedTopologies(JSON.parse(stored));
@@ -348,6 +349,21 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
     zoomAtPoint(scale * zoomFactor, mouseX, mouseY);
   };
+
+  // Tastaturgesteuerte Bewegung eines Geräts (Pfeiltasten / Barrierefreiheit)
+  const handleDeviceMoveByKey = useCallback(
+    (device: TopologyDevice, dx: number, dy: number) => {
+      let newX = device.x + dx;
+      let newY = device.y + dy;
+      if (snapGrid) {
+        newX = snapToGrid(newX, DEFAULT_GRID_SIZE);
+        newY = snapToGrid(newY, DEFAULT_GRID_SIZE);
+      }
+      setTopology((prev) => moveDeviceInTopology(prev, device.id, newX, newY, 0), true);
+      setSelectedDevice((prev) => (prev && prev.id === device.id ? { ...prev, x: newX, y: newY } : prev));
+    },
+    [snapGrid, setTopology]
+  );
 
   // ── GERÄTE-INTERAKTIONEN (Schritt 2d-1) ──
   const handleDevicePointerDown = (device: TopologyDevice, e: React.PointerEvent) => {
@@ -995,24 +1011,127 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       return;
     }
 
-    // Ausgewähltes Gerät mit Shift + Pfeiltasten verschieben
-    if (selectedDevice && e.shiftKey && e.key.startsWith("Arrow")) {
+    // Enter öffnet Gerätekonfiguration / Inspector (Barrierefreiheit)
+    if (e.key === "Enter" && selectedDevice) {
       e.preventDefault();
-      const step = snapGrid ? DEFAULT_GRID_SIZE : 15;
-      let newX = selectedDevice.x;
-      let newY = selectedDevice.y;
-
-      if (e.key === "ArrowUp") newY -= step;
-      if (e.key === "ArrowDown") newY += step;
-      if (e.key === "ArrowLeft") newX -= step;
-      if (e.key === "ArrowRight") newX += step;
-
-      setTopology((prev) => moveDeviceInTopology(prev, selectedDevice.id, newX, newY, 0), true);
-      setSelectedDevice((prev) => (prev ? { ...prev, x: newX, y: newY } : null));
+      setIsConfigDialogOpen(true);
       return;
     }
 
-    // Reguläre Tastaturkürzel (Canvas Viewport Steuerung)
+    // Kontextmenü per Tastatur (Menütaste oder Shift+F10)
+    if ((e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) && selectedDevice) {
+      e.preventDefault();
+      setContextMenuState({
+        device: selectedDevice,
+        x: selectedDevice.x * scale + translateX,
+        y: selectedDevice.y * scale + translateY,
+      });
+      return;
+    }
+
+    // ── Tastaturbedienung (WCAG 2.1 AA & Roving Tabindex) ──
+    if (e.key.startsWith("Arrow")) {
+      // 1. Shift + Pfeiltasten: Fokussiertes Gerät auf dem Canvas verschieben
+      if (e.shiftKey && selectedDevice) {
+        e.preventDefault();
+        const step = snapGrid ? DEFAULT_GRID_SIZE : 10;
+        let newX = selectedDevice.x;
+        let newY = selectedDevice.y;
+
+        if (e.key === "ArrowUp") newY -= step;
+        if (e.key === "ArrowDown") newY += step;
+        if (e.key === "ArrowLeft") newX -= step;
+        if (e.key === "ArrowRight") newX += step;
+
+        setTopology((prev) => moveDeviceInTopology(prev, selectedDevice.id, newX, newY, 0), true);
+        setSelectedDevice((prev) => (prev ? { ...prev, x: newX, y: newY } : null));
+        return;
+      }
+
+      // 2. Unmodifizierte Pfeiltasten bei aktivem Element: Spatial Navigation (Roving Tabindex)
+      if ((selectedDevice || selectedLink) && !e.altKey) {
+        e.preventDefault();
+        const dir: SpatialDirection =
+          e.key === "ArrowUp" ? "up" :
+          e.key === "ArrowDown" ? "down" :
+          e.key === "ArrowLeft" ? "left" : "right";
+
+        // Kandidaten für 2D-Navigation
+        const candidates: SpatialElementTarget[] = [
+          ...activeTopology.devices.map((d) => ({
+            id: d.id,
+            type: "device" as const,
+            x: d.x,
+            y: d.y,
+          })),
+          ...activeTopology.links.map((l) => {
+            const s = activeTopology.devices.find((d) => d.id === l.sourceDeviceId);
+            const t = activeTopology.devices.find((d) => d.id === l.targetDeviceId);
+            return {
+              id: l.id,
+              type: "link" as const,
+              x: s && t ? (s.x + t.x) / 2 : 0,
+              y: s && t ? (s.y + t.y) / 2 : 0,
+            };
+          }),
+        ];
+
+        const currentPos = selectedDevice
+          ? { x: selectedDevice.x, y: selectedDevice.y }
+          : selectedLink
+          ? (() => {
+              const s = activeTopology.devices.find((d) => d.id === selectedLink.sourceDeviceId);
+              const t = activeTopology.devices.find((d) => d.id === selectedLink.targetDeviceId);
+              return { x: s && t ? (s.x + t.x) / 2 : 0, y: s && t ? (s.y + t.y) / 2 : 0 };
+            })()
+          : { x: 0, y: 0 };
+
+        const otherCandidates = candidates.filter((c) =>
+          selectedDevice ? c.id !== selectedDevice.id : c.id !== selectedLink?.id
+        );
+
+        const next = findNextSpatialElement(currentPos, dir, otherCandidates);
+        if (next) {
+          if (next.type === "device") {
+            const dev = activeTopology.devices.find((d) => d.id === next.id);
+            if (dev) {
+              setSelectedDevice(dev);
+              setSelectedLink(null);
+              setSelectedAnnotation(null);
+              setTimeout(() => {
+                const el = viewportRef.current?.querySelector(`[data-device-id="${dev.id}"]`) as HTMLElement | SVGElement | null;
+                el?.focus();
+              }, 0);
+            }
+          } else {
+            const lnk = activeTopology.links.find((l) => l.id === next.id);
+            if (lnk) {
+              setSelectedLink(lnk);
+              setSelectedDevice(null);
+              setSelectedAnnotation(null);
+              setTimeout(() => {
+                const el = viewportRef.current?.querySelector(`[data-link-id="${lnk.id}"]`) as HTMLElement | SVGElement | null;
+                el?.focus();
+              }, 0);
+            }
+          }
+        }
+        return;
+      }
+
+      // 3. Pannen per Tastatur: Nur wenn kein Element fokussiert ist ODER über Alt + Pfeile
+      if ((!selectedDevice && !selectedLink) || e.altKey) {
+        e.preventDefault();
+        const panStep = e.shiftKey ? 80 : 40;
+        if (e.key === "ArrowUp") setTranslateY((y) => y + panStep);
+        if (e.key === "ArrowDown") setTranslateY((y) => y - panStep);
+        if (e.key === "ArrowLeft") setTranslateX((x) => x + panStep);
+        if (e.key === "ArrowRight") setTranslateX((x) => x - panStep);
+        return;
+      }
+    }
+
+    // Reguläre Tastaturkürzel (Canvas Zoom & Viewport)
     if (e.key === "+" || e.key === "=") {
       e.preventDefault();
       handleZoomIn();
@@ -1022,24 +1141,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     } else if (e.key === "0") {
       e.preventDefault();
       fitView();
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setTranslateY((y) => y + 35);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setTranslateY((y) => y - 35);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      setTranslateX((x) => x + 35);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      setTranslateX((x) => x - 35);
     }
   };
 
   return (
     <div
-      tabIndex={0}
+      tabIndex={-1}
       onKeyDown={handleKeyDown}
       className={`relative w-full h-full flex flex-col select-none overflow-hidden outline-none ${
         isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
@@ -1060,10 +1167,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       >
         {/* Linke Seite: Topologie-Auswahl */}
         <div className="flex items-center gap-2">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-sky-400">
+          <label htmlFor="topology-selector" className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
             Topologie:
           </label>
           <select
+            id="topology-selector"
+            aria-label="Topologie auswählen"
             value={selectedTopologyId}
             onChange={(e) => handleSelectTopology(e.target.value)}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer outline-none transition-colors ${
@@ -1105,8 +1214,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               onClick={() => setViewDensity("simple")}
               className={`px-2 py-1 rounded-md transition-colors ${
                 viewDensity === "simple"
-                  ? "bg-sky-500 text-white font-bold"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-sky-700 text-white font-bold"
+                  : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900 font-medium"
               }`}
             >
               Simple
@@ -1115,8 +1224,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               onClick={() => setViewDensity("detail")}
               className={`px-2 py-1 rounded-md transition-colors ${
                 viewDensity === "detail"
-                  ? "bg-sky-500 text-white font-bold"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-sky-700 text-white font-bold"
+                  : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900 font-medium"
               }`}
             >
               Detail
@@ -1183,10 +1292,27 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               </>
             ) : (
               <>
-                <ShieldCheck size={15} weight="bold" className="text-emerald-400" />
-                <span className="hidden md:inline text-emerald-300 text-[11px]">OK</span>
+                <ShieldCheck size={15} weight="bold" className="text-emerald-500" />
+                <span className={`hidden md:inline text-[11px] font-bold ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>
+                  OK
+                </span>
               </>
             )}
+          </button>
+
+          {/* Barrierefreie Semantik-Tabelle (WCAG AA Textalternative) */}
+          <button
+            onClick={() => setShowScreenReaderView(true)}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              isDark
+                ? "border-slate-700 text-slate-300 hover:bg-slate-800"
+                : "border-slate-200 text-slate-700 hover:bg-slate-100"
+            }`}
+            title="Semantische Textübersicht der Topologie (Barrierefreie Tabelle)"
+            aria-label="Semantische Textübersicht der Topologie anzeigen"
+          >
+            <Table size={15} weight="bold" className="text-sky-400" />
+            <span className="hidden lg:inline text-[11px]">Tabelle</span>
           </button>
         </div>
 
@@ -1226,7 +1352,9 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             >
               <button
                 onClick={onSwitchToV1}
-                className="px-2 py-1 rounded-md text-slate-400 hover:text-white transition-colors"
+                className={`px-2 py-1 rounded-md transition-colors ${
+                  isDark ? "text-slate-400 hover:text-white" : "text-slate-700 hover:text-slate-950 font-semibold"
+                }`}
                 title="Zurück zum bestehenden Pixel-Canvas (v1)"
               >
                 v1 (Canvas)
@@ -1404,6 +1532,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           }}
           onDevicePointerDown={handleDevicePointerDown}
           onDeviceContextMenu={handleDeviceContextMenu}
+          onDeviceMoveByKey={handleDeviceMoveByKey}
           onAnnotationPointerDown={handleAnnotationPointerDown}
           onAnnotationDoubleClick={handleAnnotationDoubleClick}
           onHandlePointerDown={handleHandlePointerDown}
@@ -1552,18 +1681,22 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                     }`}
                   >
                     <div>
-                      <div className="font-bold text-sky-400">{iface.name}</div>
-                      {iface.ip && <div className="text-slate-300">{iface.ip}</div>}
+                      <div className={`font-bold ${isDark ? "text-sky-400" : "text-sky-700"}`}>{iface.name}</div>
+                      {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
                       {iface.description && (
-                        <div className="text-[10px] text-slate-400">{iface.description}</div>
+                        <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>
                       )}
                     </div>
                     <div className="text-right">
-                      <span className="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-bold">
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                        isDark ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-100 text-emerald-800"
+                      }`}>
                         {iface.status.toUpperCase()}
                       </span>
                       {iface.vlan && (
-                        <div className="text-[10px] text-indigo-400 mt-0.5">VLAN {iface.vlan}</div>
+                        <div className={`text-[10px] mt-0.5 font-medium ${isDark ? "text-indigo-400" : "text-indigo-700"}`}>
+                          VLAN {iface.vlan}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1584,7 +1717,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                       <div className="px-2.5 py-1 bg-slate-800/90 text-green-400 font-mono text-[10px] font-bold">
                         # {cmd}
                       </div>
-                      <pre className="p-2 bg-black/90 text-slate-300 font-mono text-[9.5px] overflow-x-auto whitespace-pre leading-tight">
+                      <pre
+                        tabIndex={0}
+                        role="region"
+                        aria-label={`CLI-Ausgabe für Befehl ${cmd}`}
+                        className="p-2 bg-black/90 text-slate-300 font-mono text-[9.5px] overflow-x-auto whitespace-pre leading-tight outline-none focus:ring-1 focus:ring-sky-500"
+                      >
                         {out}
                       </pre>
                     </div>
@@ -1679,6 +1817,18 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               return viewportRef.current?.querySelector("svg") as SVGSVGElement | null;
             },
           }}
+        />
+      )}
+
+      {/* ── BARRIEREFREIE TEXTALTERNATIVE (Screenreader sr-only & Modale Ansicht) ── */}
+      <TopologyScreenReaderView topology={activeTopology} isSrOnly={true} />
+      {showScreenReaderView && (
+        <TopologyScreenReaderView
+          topology={activeTopology}
+          isSrOnly={false}
+          isOpen={true}
+          theme={theme}
+          onClose={() => setShowScreenReaderView(false)}
         />
       )}
     </div>

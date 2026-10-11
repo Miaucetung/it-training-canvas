@@ -20,6 +20,7 @@ export interface TopologyValidationIssue {
     | "ACCESS_VLAN_MISMATCH"
     | "ETHERCHANNEL_INCOMPATIBLE_MODES"
     | "ETHERCHANNEL_MISMATCHED_MEMBERS"
+    | "ETHERCHANNEL_MEMBER_INCONSISTENCY"
     | "ROUTER_GATEWAY_MISSING_IP"
     | "DUPLICATE_IP_ADDRESS";
   severity: IssueSeverity;
@@ -437,6 +438,113 @@ export function checkEtherChannelCompatibility(
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// 5b. EtherChannel Member-Port-Konsistenzprüfung (%EC-5-CANNOT_BUNDLE2)
+// ────────────────────────────────────────────────────────────────────────────
+
+export interface EtherChannelMemberConsistency {
+  isConsistent: boolean;
+  leadInterface?: TopologyInterface;
+  inconsistentPorts: Array<{
+    iface: TopologyInterface;
+    reason: string;
+  }>;
+}
+
+export function checkEtherChannelMemberConsistency(
+  device: TopologyDevice,
+  channelGroupId: number
+): EtherChannelMemberConsistency {
+  const memberIfaces = device.interfaces.filter(
+    (i) => i.channelGroup?.id === channelGroupId
+  );
+
+  if (memberIfaces.length <= 1) {
+    return { isConsistent: true, leadInterface: memberIfaces[0], inconsistentPorts: [] };
+  }
+
+  const lead = memberIfaces[0];
+  const leadMode = lead.mode || "access";
+  const leadVlan = lead.vlan ?? 1;
+  const leadNativeVlan = lead.nativeVlan ?? 1;
+  const leadAllowed = (lead.allowedVlans || []).slice().sort().join(",");
+
+  const inconsistent: Array<{ iface: TopologyInterface; reason: string }> = [];
+
+  for (let i = 1; i < memberIfaces.length; i++) {
+    const cur = memberIfaces[i];
+    const curMode = cur.mode || "access";
+    const curVlan = cur.vlan ?? 1;
+    const curNativeVlan = cur.nativeVlan ?? 1;
+    const curAllowed = (cur.allowedVlans || []).slice().sort().join(",");
+
+    if (curMode !== leadMode) {
+      inconsistent.push({
+        iface: cur,
+        reason: `Port-Modus weicht ab (${cur.name}: ${curMode} vs. ${lead.name}: ${leadMode})`,
+      });
+    } else if (curMode === "access" && curVlan !== leadVlan) {
+      inconsistent.push({
+        iface: cur,
+        reason: `Access-VLAN weicht ab (${cur.name}: VLAN ${curVlan} vs. ${lead.name}: VLAN ${leadVlan})`,
+      });
+    } else if (curMode === "trunk") {
+      if (curNativeVlan !== leadNativeVlan) {
+        inconsistent.push({
+          iface: cur,
+          reason: `Native-VLAN weicht ab (${cur.name}: VLAN ${curNativeVlan} vs. ${lead.name}: VLAN ${leadNativeVlan})`,
+        });
+      } else if (curAllowed !== leadAllowed) {
+        inconsistent.push({
+          iface: cur,
+          reason: `Trunk Allowed-VLANs weichen ab (${cur.name}: [${curAllowed || "alle"}] vs. ${lead.name}: [${leadAllowed || "alle"}])`,
+        });
+      }
+    }
+  }
+
+  return {
+    isConsistent: inconsistent.length === 0,
+    leadInterface: lead,
+    inconsistentPorts: inconsistent,
+  };
+}
+
+export function checkEtherChannelMemberConsistencyAcrossTopology(
+  topology: NetworkTopology
+): TopologyValidationIssue[] {
+  const issues: TopologyValidationIssue[] = [];
+
+  for (const dev of topology.devices) {
+    if (dev.type === "switch-l2" || dev.type === "switch-l3") {
+      const channelIds = new Set<number>();
+      for (const iface of dev.interfaces) {
+        if (iface.channelGroup) channelIds.add(iface.channelGroup.id);
+      }
+
+      for (const chId of channelIds) {
+        const consistency = checkEtherChannelMemberConsistency(dev, chId);
+        if (!consistency.isConsistent) {
+          for (const item of consistency.inconsistentPorts) {
+            issues.push({
+              id: `etherchannel-bundle-mismatch-${dev.id}-${chId}-${item.iface.id}`,
+              code: "ETHERCHANNEL_MEMBER_INCONSISTENCY",
+              severity: "warning",
+              deviceId: dev.id,
+              title: `%EC-5-CANNOT_BUNDLE2 auf ${dev.name} (Port-Channel ${chId})`,
+              message: `%EC-5-CANNOT_BUNDLE2: ${item.iface.name} ist nicht kompatibel mit ${consistency.leadInterface?.name} und wird suspendiert (${item.reason}).`,
+              didacticExplanation:
+                "In Cisco IOS müssen alle Member-Ports eines EtherChannels (channel-group) exakt identische Schnittstellen-Parameter aufweisen (Access/Trunk-Modus, Access-VLAN bzw. Native- und Allowed-VLANs). Abweichende Ports können nicht gebündelt werden und wechseln in den Status 'suspended' (s).",
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return issues;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // 6. Umfassende Topologie-Diagnose (Gesamtauswertung)
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -470,11 +578,15 @@ export function validateTopology(topology: NetworkTopology): {
   // 3. Access VLAN Mismatches
   issues.push(...checkAccessVlanMismatches(topology));
 
-  // 4. EtherChannel Modi
+  // 4. EtherChannel Modi (Link-Level)
   issues.push(...checkEtherChannelCompatibility(topology));
+
+  // 5. EtherChannel Member-Port-Konsistenz (Device-Level)
+  issues.push(...checkEtherChannelMemberConsistencyAcrossTopology(topology));
 
   const warningsCount = issues.filter((i) => i.severity === "warning").length;
   const infoCount = issues.filter((i) => i.severity === "info").length;
 
   return { issues, warningsCount, infoCount };
 }
+
