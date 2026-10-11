@@ -352,4 +352,118 @@ describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology
     expect(res.errors.length).toBeGreaterThan(0);
     expect(res.errors[0]).toContain("Ungültiges JSON");
   });
+
+  it("preserves unmapped objects and handles rectangles strictly based on CIDR", () => {
+    const objects: DrawingObject[] = [
+      {
+        id: "rect-plain",
+        type: "rectangle",
+        color: "#6B7280",
+        width: 1,
+        label: "Notizblock / Gruppierung ohne CIDR",
+        startPoint: { x: 10, y: 10 },
+        endPoint: { x: 100, y: 100 },
+      },
+      {
+        id: "rect-cidr",
+        type: "rectangle",
+        color: "#3B82F6",
+        width: 2,
+        label: "Management LAN (192.168.100.0/24)",
+        startPoint: { x: 200, y: 200 },
+        endPoint: { x: 400, y: 400 },
+      },
+      {
+        id: "corrupt-object",
+        type: "unknown-legacy" as any,
+        color: "#000",
+        width: 1,
+      },
+    ];
+
+    const danglingConn: CanvasConnection = {
+      id: "dangling-1",
+      sourceShapeId: "non-existent-1",
+      sourcePort: "p1",
+      targetShapeId: "non-existent-2",
+      targetPort: "p2",
+      connectionType: "ethernet",
+      status: "active",
+    };
+
+    const topo = migrateLegacyCanvasToTopology(objects, [danglingConn]);
+
+    // 1. Only the rectangle with valid CIDR becomes a subnetZone, original label is preserved in name
+    expect(topo.subnetZones).toHaveLength(1);
+    expect(topo.subnetZones?.[0].cidr).toBe("192.168.100.0/24");
+    expect(topo.subnetZones?.[0].name).toBe("Management LAN (192.168.100.0/24)");
+
+    // 2. The plain rectangle without CIDR becomes a box annotation with original text preserved
+    const boxAnn = topo.annotations?.find((a) => a.id === "rect-plain");
+    expect(boxAnn).toBeDefined();
+    expect(boxAnn?.type).toBe("box");
+    expect(boxAnn?.text).toBe("Notizblock / Gruppierung ohne CIDR");
+
+    // 3. Corrupt object and dangling link are stored in unmapped without data loss
+    expect(topo.unmapped).toBeDefined();
+    expect(topo.unmapped?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("detects conflict when both v1 and v2 have divergent local edits and creates a non-destructive backup", () => {
+    const mockStorage = new MockStorage();
+
+    // Setup: Existing V2 that was edited by user in V2
+    const existingV2 = {
+      CCNA: {
+        id: "topology-ccna",
+        name: "CCNA Topologie",
+        version: "2.0",
+        devices: [],
+        links: [],
+        metadata: {
+          updatedAt: new Date(1000).toISOString(),
+          author: "User-In-V2-Editor", // User edited in V2
+        },
+      },
+    };
+    mockStorage.setItem(V2_STORAGE_KEY, JSON.stringify(existingV2));
+
+    // Setup: V1 also updated afterwards
+    const legacyV1 = {
+      CCNA: {
+        lastModified: 2000, // Newer than V2
+        canvasState: {
+          objects: [
+            {
+              id: "r1",
+              type: "shape",
+              shapeId: "router",
+              label: "New-Router-From-V1",
+              color: "#10B981",
+              width: 2,
+              startPoint: { x: 50, y: 50 },
+            },
+          ],
+          connections: [],
+        },
+      },
+    };
+    mockStorage.setItem(V1_STORAGE_KEY, JSON.stringify(legacyV1));
+
+    // Migration attempt without force
+    const res = migrateLocalStorageCanvasToV2({ storage: mockStorage });
+
+    // Conflict detected: V2 is NOT overwritten!
+    expect(res.conflicts).toHaveLength(1);
+    expect(res.conflicts[0].subjectKey).toBe("CCNA");
+    expect(res.backupCreated).toBeDefined();
+
+    // V2 still contains user's original data
+    const currentV2 = JSON.parse(mockStorage.getItem(V2_STORAGE_KEY)!);
+    expect(currentV2.CCNA.metadata.author).toBe("User-In-V2-Editor");
+
+    // A non-destructive backup key was created
+    const backupRaw = mockStorage.getItem(res.backupCreated!);
+    expect(backupRaw).not.toBeNull();
+  });
 });

@@ -271,53 +271,88 @@ export function migrateLegacyCanvasToTopology(
   const devices: TopologyDevice[] = [];
   const subnetZones: TopologySubnetZone[] = [];
   const annotations: TopologyAnnotation[] = [];
+  const unmapped: unknown[] = [];
+
+  // Striktes CIDR-Regex für eindeutige Subnetz-Zonen (z. B. "192.168.1.0/24" oder "10.0.0.0/8")
+  const cidrRegex = /\b(\d{1,3}\.){3}\d{1,3}\/\d{1,2}\b/;
 
   for (const obj of objects) {
     if (obj.type === "shape") {
       const device = migrateLegacyShapeToDevice(obj);
-      if (device) devices.push(device);
-    } else if (
-      obj.type === "rectangle" &&
-      obj.startPoint &&
-      obj.endPoint &&
-      (obj.label?.includes("/") ||
-        obj.label?.toLowerCase().includes("vlan") ||
-        obj.label?.toLowerCase().includes("subnet"))
-    ) {
-      // Subnetz-Zonen-Rechteck
-      const x = Math.min(obj.startPoint.x, obj.endPoint.x);
-      const y = Math.min(obj.startPoint.y, obj.endPoint.y);
-      const width = Math.abs(obj.endPoint.x - obj.startPoint.x);
-      const height = Math.abs(obj.endPoint.y - obj.startPoint.y);
-      subnetZones.push({
-        id: obj.id,
-        name: obj.label || "Subnetz-Zone",
-        cidr: obj.label || "192.168.0.0/24",
-        color: obj.color || "#3B82F6",
-        x,
-        y,
-        width,
-        height,
-      });
+      if (device) {
+        devices.push(device);
+      } else {
+        unmapped.push({ reason: "Unbekannter oder fehlerhafter Shape-Typ", original: obj });
+      }
+    } else if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
+      const label = (obj.label || "").trim();
+      const match = label.match(cidrRegex);
+
+      if (match) {
+        // Eindeutige Subnetz-Zone mit validem CIDR-Präfix
+        const x = Math.min(obj.startPoint.x, obj.endPoint.x);
+        const y = Math.min(obj.startPoint.y, obj.endPoint.y);
+        const width = Math.abs(obj.endPoint.x - obj.startPoint.x);
+        const height = Math.abs(obj.endPoint.y - obj.startPoint.y);
+        subnetZones.push({
+          id: obj.id,
+          name: label, // Originaltext vollständig erhalten
+          cidr: match[0],
+          color: obj.color || "#3B82F6",
+          x,
+          y,
+          width,
+          height,
+        });
+      } else {
+        // Nicht eindeutig als Subnetz-Zone identifizierbar → verlustfrei als Box-Annotation erhalten!
+        const ann = migrateLegacyDrawingObjectToAnnotation(obj);
+        if (ann) {
+          annotations.push(ann);
+        } else {
+          unmapped.push({ reason: "Rechteck-Annotation konnte nicht konvertiert werden", original: obj });
+        }
+      }
     } else {
-      // Alles andere (Text, Pen, Pfeile, Linien, Kreise, Boxen) verlustfrei als Annotation
+      // Alle anderen Zeichenobjekte (Text, Pen, Pfeile, Linien, Kreise)
       const ann = migrateLegacyDrawingObjectToAnnotation(obj);
-      if (ann) annotations.push(ann);
+      if (ann) {
+        annotations.push(ann);
+      } else {
+        // Objekt ohne Mapping (z. B. Werkzeug-Marker wie select/eraser oder beschädigte Objekte)
+        if (obj.type !== "select" && obj.type !== "eraser") {
+          unmapped.push({ reason: "Objekt-Typ nicht direkt abbildbar", original: obj });
+        }
+      }
     }
   }
 
   // Kollaborations-Notizen einbetten
   if (topologyMeta?.annotations) {
     for (const ca of topologyMeta.annotations) {
-      annotations.push(migrateCollaborationAnnotationToTopology(ca));
+      try {
+        annotations.push(migrateCollaborationAnnotationToTopology(ca));
+      } catch (err) {
+        unmapped.push({ reason: "Fehler beim Konvertieren von Kollaborations-Notiz", original: ca, error: String(err) });
+      }
     }
   }
 
-  // Filter links so both endpoints refer to existing migrated devices
+  // Links validieren: Endpunkte prüfen
   const deviceIdSet = new Set(devices.map((d) => d.id));
-  const links: TopologyLink[] = connections
-    .filter((c) => deviceIdSet.has(c.sourceShapeId) && deviceIdSet.has(c.targetShapeId))
-    .map(migrateLegacyConnectionToLink);
+  const links: TopologyLink[] = [];
+
+  for (const conn of connections) {
+    if (deviceIdSet.has(conn.sourceShapeId) && deviceIdSet.has(conn.targetShapeId)) {
+      links.push(migrateLegacyConnectionToLink(conn));
+    } else {
+      // Isolierte oder herrenlose Verbindung wird im unmapped Layer aufbewahrt
+      unmapped.push({
+        reason: "Verbindung referenziert nicht mehr existente Geräte (Dangling Link)",
+        original: conn,
+      });
+    }
+  }
 
   return {
     id: topologyMeta?.id || `topology-${Date.now()}`,
@@ -328,6 +363,7 @@ export function migrateLegacyCanvasToTopology(
     links,
     subnetZones: subnetZones.length > 0 ? subnetZones : undefined,
     annotations: annotations.length > 0 ? annotations : undefined,
+    unmapped: unmapped.length > 0 ? unmapped : undefined,
     metadata: {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -343,11 +379,21 @@ export function migrateLegacyCanvasToTopology(
 export const V1_STORAGE_KEY = "canvas-app-data";
 export const V2_STORAGE_KEY = "canvas-topology-v2";
 
+export interface MigrationConflict {
+  subjectKey: string;
+  v1LastModified?: number;
+  v2UpdatedAt?: string;
+  backupKey: string;
+  message: string;
+}
+
 export interface MigrationResult {
   success: boolean;
   migratedCount: number;
   topologies: Record<string, NetworkTopology>;
   skippedBecauseCurrent: boolean;
+  conflicts: MigrationConflict[];
+  backupCreated?: string;
   errors: string[];
 }
 
@@ -362,6 +408,7 @@ export function migrateLocalStorageCanvasToV2(options?: {
     migratedCount: 0,
     topologies: {},
     skippedBecauseCurrent: false,
+    conflicts: [],
     errors: [],
   };
 
@@ -386,7 +433,7 @@ export function migrateLocalStorageCanvasToV2(options?: {
       return result;
     }
 
-    // Vorhandene V2-Daten für Idempotenz laden
+    // Vorhandene V2-Daten für Idempotenz und Konfliktprüfung laden
     const rawV2 = storage.getItem(V2_STORAGE_KEY);
     let existingV2: Record<string, NetworkTopology> = {};
     if (rawV2) {
@@ -410,17 +457,41 @@ export function migrateLocalStorageCanvasToV2(options?: {
       if (objects.length === 0 && connections.length === 0) continue;
 
       const topoId = `topology-${subjectKey.toLowerCase()}`;
-
-      // Idempotenz-Prüfung: Bereits migriert und aktuell?
       const existing = existingV2[subjectKey];
-      if (
-        !options?.force &&
-        existing &&
-        existing.metadata?.updatedAt &&
-        subjectData.lastModified &&
-        new Date(existing.metadata.updatedAt).getTime() >= subjectData.lastModified
-      ) {
-        continue;
+
+      // Idempotenz- und Konflikt-Prüfung:
+      if (existing && existing.metadata?.updatedAt && subjectData.lastModified) {
+        const v2Time = new Date(existing.metadata.updatedAt).getTime();
+        const v1Time = subjectData.lastModified;
+
+        // Fall 1: V2 ist bereits auf demselben oder neueren Stand wie V1 -> Skip
+        if (!options?.force && v2Time >= v1Time) {
+          continue;
+        }
+
+        // Fall 2: V2 wurde eigenständig in V2 bearbeitet (Author nicht reine Migration oder v2Time weicht ab)
+        // UND V1 wurde ebenfalls editiert -> Konflikt!
+        const wasEditedInV2 = existing.metadata.author !== "Migration-Engine";
+        if (!options?.force && wasEditedInV2 && v1Time > v2Time) {
+          // KONFLIKT-REGEL: Niemals stillschweigend überschreiben!
+          // Sicherungskopie von V2 erstellen
+          const backupKey = `${V2_STORAGE_KEY}-backup-${Date.now()}`;
+          try {
+            storage.setItem(backupKey, JSON.stringify(existingV2));
+            result.backupCreated = backupKey;
+          } catch (backupErr) {
+            console.warn("Konnte automatisches V2-Backup nicht schreiben:", backupErr);
+          }
+
+          result.conflicts.push({
+            subjectKey,
+            v1LastModified: v1Time,
+            v2UpdatedAt: existing.metadata.updatedAt,
+            backupKey,
+            message: `Konflikt bei Fach '${subjectKey}': Sowohl v1 als auch v2 enthalten separate Änderungen. V2 wurde geschützt und nicht überschrieben.`,
+          });
+          continue; // V2 wird ohne explizites 'force' nicht überschrieben!
+        }
       }
 
       try {

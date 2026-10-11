@@ -2053,11 +2053,7 @@ function App() {
                 >
                   <button
                     onClick={() => setCanvasEngine("v1")}
-                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
-                      canvasEngine === "v1"
-                        ? "bg-slate-700 text-white shadow-xs"
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
+                    className="px-2.5 py-1 rounded-md font-semibold transition-colors bg-slate-700 text-white shadow-xs"
                   >
                     v1 (Canvas)
                   </button>
@@ -2066,11 +2062,7 @@ function App() {
                       setCanvasEngine("v2");
                       migrateLocalStorageCanvasToV2();
                     }}
-                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
-                      canvasEngine === "v2"
-                        ? "bg-indigo-600 text-white shadow-xs"
-                        : "text-slate-400 hover:text-indigo-300"
-                    }`}
+                    className="px-2.5 py-1 rounded-md font-semibold transition-colors text-slate-400 hover:text-indigo-300"
                   >
                     v2 (SVG Next)
                   </button>

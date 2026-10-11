@@ -160,6 +160,7 @@ export interface NetworkTopology {
   vlans?: TopologyVlan[];
   subnetZones?: TopologySubnetZone[];
   annotations?: TopologyAnnotation[];
+  unmapped?: unknown[];
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
@@ -325,6 +326,7 @@ export const networkTopologySchema = z.object({
     )
     .optional(),
   annotations: z.array(topologyAnnotationSchema).optional(),
+  unmapped: z.array(z.unknown()).optional(),
   metadata: z
     .object({
       createdAt: z.string().optional(),

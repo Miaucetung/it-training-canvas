@@ -255,11 +255,11 @@ export const TOPOLOGY_ROUTER_ON_A_STICK: NetworkTopology = {
   ],
 };
 
-/** 3. Spanning Tree Protocol (STP Dreieck mit Blocking Port) */
+/** 3. Spanning Tree Protocol (STP Dreieck mit Blocking Port - 802.1D) */
 export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
   id: "ccna-stp-triangle",
-  name: "Spanning Tree (STP) Schleifenvermeidung",
-  description: "Klassisches 3-Switch-Dreieck. SW-A ist Root Bridge (Prio 24576). Ein redundanter Link zwischen SW-B und SW-C wird zur Schleifenvermeidung blockiert (Alternate/Blocking Port an SW-C).",
+  name: "Spanning Tree (802.1D STP) Schleifenvermeidung",
+  description: "Klassisches 3-Switch-Dreieck nach 802.1D. SW-A ist Root Bridge (Prio 24576). Port Gi0/2 an SW-C in Richtung SW-B ist im Zustand Blocking (BLK), um Broadcast-Stürme zu verhindern.",
   version: "2.0",
   category: "switching",
   devices: [
@@ -274,10 +274,7 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
         { id: "swa-gi02", name: "Gi0/2", status: "up", description: "Designated Port (FWD)" },
       ],
       config: {
-        hostname: "SW-A-ROOT",
-        showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Spanning tree enabled protocol rstp\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Desg FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
-        },
+        hostname: "SW-A",
       },
     },
     {
@@ -292,9 +289,6 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       ],
       config: {
         hostname: "SW-B",
-        showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n  Bridge ID  Priority    32768\n             Address     0050.7966.0002\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Desg FWD 4         128.2    P2p",
-        },
       },
     },
     {
@@ -304,14 +298,11 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       x: 580,
       y: 280,
       interfaces: [
-        { id: "swc-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD)" },
-        { id: "swc-gi02", name: "Gi0/2", status: "up", description: "Alternate Port (BLK)" },
+        { id: "swc-gi01", name: "Gi0/1", status: "up", description: "Root Port (FWD - Richtung SW-A)" },
+        { id: "swc-gi02", name: "Gi0/2", status: "up", description: "Blocking Port (BLK - Richtung SW-B)" },
       ],
       config: {
         hostname: "SW-C",
-        showOutputs: {
-          "show spanning-tree": "VLAN0001\n  Root ID    Priority    24576\n             Address     0050.7966.0001\n             Cost        4\n             Port        1 (GigabitEthernet0/1)\n  Bridge ID  Priority    32768\n             Address     0050.7966.0003\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Root FWD 4         128.1    P2p\nGi0/2               Altn BLK 4         128.2    P2p (BLOCKING)",
-        },
       },
     },
   ],
@@ -344,16 +335,16 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       targetInterfaceId: "swc-gi02",
       linkType: "trunk",
       status: "stp-blocking",
-      label: "BLK (Alternate Port SW-C)",
+      label: "BLK (SW-C Gi0/2 Richtung SW-B)",
     },
   ],
 };
 
-/** 4. OSPFv2 Multi-Router Routing */
+/** 4. OSPFv2 Multi-Router Routing mit LANs und P2P Point-to-Point */
 export const TOPOLOGY_OSPF: NetworkTopology = {
   id: "ccna-ospf-routing",
-  name: "OSPFv2 Point-to-Point Routing",
-  description: "Zwei Router R1 und R2 in OSPF Area 0 mit /30 Point-to-Point Transitnetz (10.0.0.0/30) und Loopback Router-IDs.",
+  name: "OSPFv2 Point-to-Point Routing mit LANs",
+  description: "Zwei Router R1 und R2 in OSPF Area 0. Das Transitnetz ist Ethernet mit 'ip ospf network point-to-point'. Dahinter je ein Kunden-LAN (192.168.1.0/24 und 192.168.2.0/24), wodurch OSPF-Routen (O) in der Routingtabelle gelernt werden.",
   version: "2.0",
   category: "routing",
   devices: [
@@ -361,41 +352,79 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       id: "ospf-r1",
       name: "R1 (Area 0)",
       type: "router",
-      x: 220,
-      y: 160,
+      x: 320,
+      y: 120,
       interfaces: [
-        { id: "r1-transit", name: "Gi0/0/0", ip: "10.0.0.1/30", status: "up" },
-        { id: "r1-loopback", name: "Lo0", ip: "1.1.1.1/32", status: "up" },
+        { id: "r1-transit", name: "Gi0/0/0", ip: "10.0.12.1/30", status: "up", description: "ip ospf network point-to-point" },
+        { id: "r1-lan", name: "Gi0/0/1", ip: "192.168.1.1/24", status: "up", description: "LAN 1 Gateway" },
+        { id: "r1-loopback", name: "Lo0", ip: "1.1.1.1/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {
         hostname: "R1",
         routingProtocols: ["OSPF 1 Area 0"],
-        showOutputs: {
-          "show ip ospf neighbor": "Neighbor ID     Pri   State           Dead Time   Address         Interface\n2.2.2.2           0   FULL/  -        00:00:34    10.0.0.2        GigabitEthernet0/0/0",
-          "show ip protocols": "*** Routing Protocol is \"ospf 1\" ***\n  Router ID 1.1.1.1\n  Number of areas in this router is 1. 1 normal, 0 stub, 0 nssa\n  Routing for Networks:\n    10.0.0.0 0.0.0.3 area 0\n    1.1.1.1 0.0.0.0 area 0\n  Routing Information Sources:\n    Gateway         Distance      Last Update\n    2.2.2.2              110      00:14:22",
-          "show ip route ospf": "Codes: C - connected, S - static, R - RIP, O - OSPF\n\nO    2.2.2.2/32 [110/2] via 10.0.0.2, 00:14:22, GigabitEthernet0/0/0",
-        },
       },
+    },
+    {
+      id: "ospf-sw1",
+      name: "SW1 (LAN 1)",
+      type: "switch-l2",
+      x: 140,
+      y: 240,
+      interfaces: [
+        { id: "sw1-up", name: "Gi0/1", status: "up" },
+        { id: "sw1-down", name: "Fa0/1", status: "up" },
+      ],
+      config: { hostname: "SW1" },
+    },
+    {
+      id: "ospf-pc1",
+      name: "PC1 (LAN 1)",
+      type: "pc",
+      x: 140,
+      y: 380,
+      interfaces: [
+        { id: "pc1-eth0", name: "eth0", ip: "192.168.1.10/24", status: "up" },
+      ],
+      config: { hostname: "PC1", defaultGateway: "192.168.1.1" },
     },
     {
       id: "ospf-r2",
       name: "R2 (Area 0)",
       type: "router",
-      x: 540,
-      y: 160,
+      x: 560,
+      y: 120,
       interfaces: [
-        { id: "r2-transit", name: "Gi0/0/0", ip: "10.0.0.2/30", status: "up" },
-        { id: "r2-loopback", name: "Lo0", ip: "2.2.2.2/32", status: "up" },
+        { id: "r2-transit", name: "Gi0/0/0", ip: "10.0.12.2/30", status: "up", description: "ip ospf network point-to-point" },
+        { id: "r2-lan", name: "Gi0/0/1", ip: "192.168.2.1/24", status: "up", description: "LAN 2 Gateway" },
+        { id: "r2-loopback", name: "Lo0", ip: "2.2.2.2/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {
         hostname: "R2",
         routingProtocols: ["OSPF 1 Area 0"],
-        showOutputs: {
-          "show ip ospf neighbor": "Neighbor ID     Pri   State           Dead Time   Address         Interface\n1.1.1.1           0   FULL/  -        00:00:36    10.0.0.1        GigabitEthernet0/0/0",
-          "show ip protocols": "*** Routing Protocol is \"ospf 1\" ***\n  Router ID 2.2.2.2\n  Number of areas in this router is 1. 1 normal, 0 stub, 0 nssa\n  Routing for Networks:\n    10.0.0.0 0.0.0.3 area 0\n    2.2.2.2 0.0.0.0 area 0\n  Routing Information Sources:\n    Gateway         Distance      Last Update\n    1.1.1.1              110      00:14:25",
-          "show ip route ospf": "Codes: C - connected, S - static, R - RIP, O - OSPF\n\nO    1.1.1.1/32 [110/2] via 10.0.0.1, 00:14:25, GigabitEthernet0/0/0",
-        },
       },
+    },
+    {
+      id: "ospf-sw2",
+      name: "SW2 (LAN 2)",
+      type: "switch-l2",
+      x: 740,
+      y: 240,
+      interfaces: [
+        { id: "sw2-up", name: "Gi0/1", status: "up" },
+        { id: "sw2-down", name: "Fa0/1", status: "up" },
+      ],
+      config: { hostname: "SW2" },
+    },
+    {
+      id: "ospf-pc2",
+      name: "PC2 (LAN 2)",
+      type: "pc",
+      x: 740,
+      y: 380,
+      interfaces: [
+        { id: "pc2-eth0", name: "eth0", ip: "192.168.2.10/24", status: "up" },
+      ],
+      config: { hostname: "PC2", defaultGateway: "192.168.2.1" },
     },
   ],
   links: [
@@ -405,11 +434,83 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       sourceInterfaceId: "r1-transit",
       targetDeviceId: "ospf-r2",
       targetInterfaceId: "r2-transit",
-      linkType: "serial",
+      linkType: "ethernet",
       status: "up",
-      label: "10.0.0.0/30 (Area 0)",
-      bandwidth: "1.544 Mbps",
+      label: "10.0.12.0/30 (P2P Area 0)",
+      bandwidth: "1 Gbps",
       animated: true,
+    },
+    {
+      id: "link-r1-sw1",
+      sourceDeviceId: "ospf-r1",
+      sourceInterfaceId: "r1-lan",
+      targetDeviceId: "ospf-sw1",
+      targetInterfaceId: "sw1-up",
+      linkType: "ethernet",
+      status: "up",
+      label: "Gi0/0/1 ↔ Gi0/1",
+    },
+    {
+      id: "link-sw1-pc1",
+      sourceDeviceId: "ospf-sw1",
+      sourceInterfaceId: "sw1-down",
+      targetDeviceId: "ospf-pc1",
+      targetInterfaceId: "pc1-eth0",
+      linkType: "ethernet",
+      status: "up",
+      label: "Fa0/1 ↔ eth0",
+    },
+    {
+      id: "link-r2-sw2",
+      sourceDeviceId: "ospf-r2",
+      sourceInterfaceId: "r2-lan",
+      targetDeviceId: "ospf-sw2",
+      targetInterfaceId: "sw2-up",
+      linkType: "ethernet",
+      status: "up",
+      label: "Gi0/0/1 ↔ Gi0/1",
+    },
+    {
+      id: "link-sw2-pc2",
+      sourceDeviceId: "ospf-sw2",
+      sourceInterfaceId: "sw2-down",
+      targetDeviceId: "ospf-pc2",
+      targetInterfaceId: "pc2-eth0",
+      linkType: "ethernet",
+      status: "up",
+      label: "Fa0/1 ↔ eth0",
+    },
+  ],
+  subnetZones: [
+    {
+      id: "zone-lan1",
+      name: "LAN 1",
+      cidr: "192.168.1.0/24",
+      color: "#0EA5E9",
+      x: 100,
+      y: 190,
+      width: 170,
+      height: 250,
+    },
+    {
+      id: "zone-lan2",
+      name: "LAN 2",
+      cidr: "192.168.2.0/24",
+      color: "#8B5CF6",
+      x: 700,
+      y: 190,
+      width: 170,
+      height: 250,
+    },
+    {
+      id: "zone-transit",
+      name: "OSPF Backbone Transit",
+      cidr: "10.0.12.0/30",
+      color: "#10B981",
+      x: 290,
+      y: 70,
+      width: 380,
+      height: 120,
     },
   ],
 };

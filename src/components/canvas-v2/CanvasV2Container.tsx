@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   NetworkTopology,
   TopologyDevice,
@@ -16,6 +16,7 @@ import {
   migrateLocalStorageCanvasToV2,
   V2_STORAGE_KEY,
 } from "@/lib/topology/migration";
+import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import { SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import {
@@ -33,6 +34,9 @@ interface CanvasV2ContainerProps {
   onSwitchToV1?: () => void;
 }
 
+const MIN_SCALE = 0.25;
+const MAX_SCALE = 3.5;
+
 export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   theme = "dark",
   onSwitchToV1,
@@ -43,30 +47,110 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [selectedTopologyId, setSelectedTopologyId] = useState<string>("ccna-router-on-a-stick");
   const [activeTopology, setActiveTopology] = useState<NetworkTopology>(TOPOLOGY_ROUTER_ON_A_STICK);
 
-  // View States
-  const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
-  const [showLegend, setShowLegend] = useState<boolean>(false);
-  const [selectedDevice, setSelectedDevice] = useState<TopologyDevice | null>(null);
-  const [selectedLink, setSelectedLink] = useState<TopologyLink | null>(null);
+  // Migrierte Topologien aus dem Altsystem laden
+  const [migratedTopologies, setMigratedTopologies] = useState<Record<string, NetworkTopology> | null>(null);
 
-  // Zoom & Pan
+  // View-State (Zoom & Pan)
   const [scale, setScale] = useState<number>(1);
   const [translateX, setTranslateX] = useState<number>(0);
   const [translateY, setTranslateY] = useState<number>(0);
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const [panStart, setPanStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Performance Benchmarking
+  // Touch Gesture Tracking (Pinch & Double Tap)
+  const lastTouchDistRef = useRef<number | null>(null);
+  const lastTouchCenterRef = useRef<{ x: number; y: number } | null>(null);
+  const lastTapTimeRef = useRef<number>(0);
+  const lastTapPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // View-Optionen
+  const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
+  const [showLegend, setShowLegend] = useState<boolean>(false);
+
+  // Selektion
+  const [selectedDevice, setSelectedDevice] = useState<TopologyDevice | null>(null);
+  const [selectedLink, setSelectedLink] = useState<TopologyLink | null>(null);
+
+  // Performance-Tracking
   const [renderDurationMs, setRenderDurationMs] = useState<number>(0);
 
-  // Migrierte Altdaten aus LocalStorage laden
-  const migratedTopologies = useMemo(() => {
+  // Viewport Container Ref für ResizeObserver und Koordinaten-Messung
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({
+    width: 800,
+    height: 600,
+  });
+
+  // Dynamisch generierte Cisco Show-Ausgaben für das selektierte Gerät
+  const dynamicShowOutputs = useMemo(() => {
+    if (!selectedDevice) return {};
+    return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
+  }, [selectedDevice, activeTopology]);
+
+  // Altdaten-Prüfung beim Start
+  useEffect(() => {
     try {
-      const raw = localStorage.getItem(V2_STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return null;
+      const stored = localStorage.getItem(V2_STORAGE_KEY);
+      if (stored) {
+        setMigratedTopologies(JSON.parse(stored));
+      }
+    } catch {
+      // Ignorieren falls JSON fehlerhaft
+    }
   }, []);
+
+  // ResizeObserver: Reaktives Tracking für Container-Größe, Orientierungswechsel und Sidebar-Kollaps
+  useEffect(() => {
+    if (!viewportRef.current) return;
+
+    let rafId: number | null = null;
+    const observer = new ResizeObserver((entries) => {
+      if (entries.length === 0) return;
+      const entry = entries[0];
+      const { width, height } = entry.contentRect;
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        setContainerSize({ width: Math.max(200, width), height: Math.max(200, height) });
+      });
+    });
+
+    observer.observe(viewportRef.current);
+
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  // Ansicht einpassen (Fit View)
+  const fitView = useCallback((topo = activeTopology) => {
+    if (topo.devices.length === 0) {
+      setScale(1);
+      setTranslateX(0);
+      setTranslateY(0);
+      return;
+    }
+
+    const minX = Math.min(...topo.devices.map((d) => d.x));
+    const maxX = Math.max(...topo.devices.map((d) => d.x + (d.width || 80)));
+    const minY = Math.min(...topo.devices.map((d) => d.y));
+    const maxY = Math.max(...topo.devices.map((d) => d.y + (d.height || 60)));
+
+    const width = maxX - minX + 120;
+    const height = maxY - minY + 120;
+
+    const targetW = containerSize.width || (window.innerWidth > 640 ? 860 : 360);
+    const targetH = containerSize.height || (window.innerHeight > 640 ? 550 : 420);
+
+    const scaleX = targetW / width;
+    const scaleY = targetH / height;
+    const optimalScale = Math.min(1.5, Math.max(MIN_SCALE, Math.min(scaleX, scaleY) * 0.9));
+
+    setScale(optimalScale);
+    setTranslateX((targetW - width * optimalScale) / 2 - minX * optimalScale + 60 * optimalScale);
+    setTranslateY((targetH - height * optimalScale) / 2 - minY * optimalScale + 60 * optimalScale);
+  }, [activeTopology, containerSize]);
 
   // Topologie-Wechsel
   const handleSelectTopology = (id: string) => {
@@ -75,66 +159,65 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     setSelectedDevice(null);
     setSelectedLink(null);
 
+    let nextTopo: NetworkTopology | null = null;
+
     if (id === "benchmark-50-80") {
-      const bench = generateBenchmarkTopology(50, 80);
-      setActiveTopology(bench);
-      fitView(bench);
+      nextTopo = generateBenchmarkTopology(50, 80);
     } else if (id.startsWith("migrated-") && migratedTopologies) {
       const key = id.replace("migrated-", "");
-      const topo = migratedTopologies[key];
-      if (topo) {
-        setActiveTopology(topo);
-        fitView(topo);
-      }
+      nextTopo = migratedTopologies[key] || null;
     } else {
-      const found = BUILT_IN_CCNA_TOPOLOGIES.find((t) => t.id === id);
-      if (found) {
-        setActiveTopology(found);
-        fitView(found);
-      }
+      nextTopo = BUILT_IN_CCNA_TOPOLOGIES.find((t) => t.id === id) || null;
     }
+
+    if (nextTopo) {
+      setActiveTopology(nextTopo);
+      fitView(nextTopo);
+    }
+
     const elapsed = performance.now() - startTime;
     setRenderDurationMs(parseFloat(elapsed.toFixed(1)));
   };
 
-  // Zoom & Pan Steuerungen
-  const handleZoomIn = () => setScale((s) => Math.min(2.5, s + 0.15));
-  const handleZoomOut = () => setScale((s) => Math.max(0.3, s - 0.15));
-  const handleZoomReset = () => {
-    setScale(1);
-    setTranslateX(0);
-    setTranslateY(0);
+  // Zoom mit festem Zentrum
+  const zoomAtPoint = useCallback((newScale: number, pointX: number, pointY: number) => {
+    const clampedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, newScale));
+    const unscaledX = (pointX - translateX) / scale;
+    const unscaledY = (pointY - translateY) / scale;
+
+    setScale(clampedScale);
+    setTranslateX(pointX - unscaledX * clampedScale);
+    setTranslateY(pointY - unscaledY * clampedScale);
+  }, [scale, translateX, translateY]);
+
+  // Zoom-Buttons (zentriert auf Viewport-Mitte)
+  const handleZoomIn = () => {
+    const centerX = containerSize.width / 2;
+    const centerY = containerSize.height / 2;
+    zoomAtPoint(scale * 1.2, centerX, centerY);
   };
 
-  const fitView = (topo = activeTopology) => {
-    if (topo.devices.length === 0) {
-      handleZoomReset();
-      return;
-    }
-    const minX = Math.min(...topo.devices.map((d) => d.x));
-    const maxX = Math.max(...topo.devices.map((d) => d.x + (d.width || 80)));
-    const minY = Math.min(...topo.devices.map((d) => d.y));
-    const maxY = Math.max(...topo.devices.map((d) => d.y + (d.height || 60)));
-
-    const width = maxX - minX + 80;
-    const height = maxY - minY + 80;
-
-    // Zielbereich annehmen (Standardcontainer 800x500)
-    const targetW = window.innerWidth > 640 ? 860 : 360;
-    const targetH = window.innerHeight > 640 ? 550 : 420;
-
-    const scaleX = targetW / width;
-    const scaleY = targetH / height;
-    const optimalScale = Math.min(1.4, Math.max(0.35, Math.min(scaleX, scaleY) * 0.85));
-
-    setScale(optimalScale);
-    setTranslateX((targetW - width * optimalScale) / 2 - minX * optimalScale + 20);
-    setTranslateY((targetH - height * optimalScale) / 2 - minY * optimalScale + 20);
+  const handleZoomOut = () => {
+    const centerX = containerSize.width / 2;
+    const centerY = containerSize.height / 2;
+    zoomAtPoint(scale * 0.82, centerX, centerY);
   };
 
-  // Pan Handlers
+  // Fokuspunkt-Zoom per Mausrad (zum Mauszeiger hin)
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
+    zoomAtPoint(scale * zoomFactor, mouseX, mouseY);
+  };
+
+  // Maus-Pan Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button")) return;
+    if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button, select")) return;
     setIsPanning(true);
     setPanStart({ x: e.clientX - translateX, y: e.clientY - translateY });
   };
@@ -147,16 +230,111 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   const handleMouseUp = () => setIsPanning(false);
 
-  // Wheel Zoom
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-    setScale((s) => Math.min(3, Math.max(0.2, s * zoomFactor)));
+  // Touch-Gesten: Pinch-to-Zoom zum Mittelpunkt der Finger & 1-Finger Pan
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      const now = Date.now();
+      const distFromLastTap = Math.hypot(t.clientX - lastTapPosRef.current.x, t.clientY - lastTapPosRef.current.y);
+
+      // Doppeltipp-Erkennung (< 300ms)
+      if (now - lastTapTimeRef.current < 300 && distFromLastTap < 30) {
+        if (scale > 1.2) {
+          fitView();
+        } else {
+          zoomAtPoint(1.8, t.clientX - rect.left, t.clientY - rect.top);
+        }
+        lastTapTimeRef.current = 0;
+        return;
+      }
+
+      lastTapTimeRef.current = now;
+      lastTapPosRef.current = { x: t.clientX, y: t.clientY };
+
+      if ((e.target as HTMLElement).closest(".topology-device, .topology-link, button, select")) return;
+      setIsPanning(true);
+      setPanStart({ x: t.clientX - translateX, y: t.clientY - translateY });
+    } else if (e.touches.length === 2) {
+      // 2 Finger Pinch Start
+      setIsPanning(false);
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      lastTouchDistRef.current = dist;
+      lastTouchCenterRef.current = {
+        x: (t1.clientX + t2.clientX) / 2 - rect.left,
+        y: (t1.clientY + t2.clientY) / 2 - rect.top,
+      };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!viewportRef.current) return;
+    const rect = viewportRef.current.getBoundingClientRect();
+
+    if (e.touches.length === 1 && isPanning) {
+      const t = e.touches[0];
+      setTranslateX(t.clientX - panStart.x);
+      setTranslateY(t.clientY - panStart.y);
+    } else if (e.touches.length === 2 && lastTouchDistRef.current !== null && lastTouchCenterRef.current) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const center = {
+        x: (t1.clientX + t2.clientX) / 2 - rect.left,
+        y: (t1.clientY + t2.clientY) / 2 - rect.top,
+      };
+
+      const scaleChange = dist / lastTouchDistRef.current;
+      zoomAtPoint(scale * scaleChange, center.x, center.y);
+
+      lastTouchDistRef.current = dist;
+      lastTouchCenterRef.current = center;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsPanning(false);
+    lastTouchDistRef.current = null;
+    lastTouchCenterRef.current = null;
+  };
+
+  // Tastatursteuerung (+/- zoomen, Pfeiltasten pannen, 0 = einpassen)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+
+    if (e.key === "+" || e.key === "=") {
+      e.preventDefault();
+      handleZoomIn();
+    } else if (e.key === "-" || e.key === "_") {
+      e.preventDefault();
+      handleZoomOut();
+    } else if (e.key === "0") {
+      e.preventDefault();
+      fitView();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setTranslateY((y) => y + (e.shiftKey ? 80 : 35));
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setTranslateY((y) => y - (e.shiftKey ? 80 : 35));
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setTranslateX((x) => x + (e.shiftKey ? 80 : 35));
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setTranslateX((x) => x - (e.shiftKey ? 80 : 35));
+    }
   };
 
   return (
     <div
-      className={`relative w-full h-full flex flex-col overflow-hidden select-none ${
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className={`relative w-full h-full flex flex-col overflow-hidden select-none outline-none focus:ring-1 focus:ring-sky-500/30 ${
         isDark ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-900"
       }`}
     >
@@ -184,8 +362,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           >
             <optgroup label="CCNA 200-301 Referenzen">
               <option value="ccna-router-on-a-stick">Router-on-a-Stick (Inter-VLAN)</option>
-              <option value="ccna-stp-triangle">Spanning Tree (STP-Dreieck)</option>
-              <option value="ccna-ospf-routing">OSPFv2 Point-to-Point</option>
+              <option value="ccna-stp-triangle">Spanning Tree (802.1D STP)</option>
+              <option value="ccna-ospf-routing">OSPFv2 P2P mit Kunden-LANs</option>
               <option value="ccna-basic-lan">Basic LAN (Switching)</option>
             </optgroup>
             <optgroup label="Stresstest / Benchmark">
@@ -255,7 +433,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                 ? "border-slate-700 text-slate-300 hover:bg-slate-800"
                 : "border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
-            title="Ansicht einpassen"
+            title="Ansicht einpassen (Taste 0)"
           >
             <ArrowsIn size={15} />
           </button>
@@ -270,7 +448,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               className={`p-1.5 rounded-lg border transition-colors ${
                 isDark ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-slate-200 text-slate-600 hover:bg-slate-100"
               }`}
-              title="Herauszoomen"
+              title="Herauszoomen (Taste -)"
             >
               <MagnifyingGlassMinus size={15} />
             </button>
@@ -282,7 +460,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               className={`p-1.5 rounded-lg border transition-colors ${
                 isDark ? "border-slate-700 text-slate-300 hover:bg-slate-800" : "border-slate-200 text-slate-600 hover:bg-slate-100"
               }`}
-              title="Hereinzoomen"
+              title="Hereinzoomen (Taste +)"
             >
               <MagnifyingGlassPlus size={15} />
             </button>
@@ -303,8 +481,9 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                 v1 (Canvas)
               </button>
               <button
-                className="px-2 py-1 rounded-md bg-indigo-600 text-white font-bold"
-                title="Neuer SVG Topologie-Renderer (v2)"
+                disabled
+                className="px-2 py-1 rounded-md bg-indigo-600 text-white shadow-xs"
+                title="Neuer SVG Topologie-Renderer aktiv (v2)"
               >
                 v2 (SVG Next)
               </button>
@@ -313,14 +492,18 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       </div>
 
-      {/* ── RENDERING BEREICH: SVG Canvas mit Zoom/Pan ── */}
+      {/* ── CANVAS BEREICH: Interaktives SVG Rendering mit Touch-Action none ── */}
       <div
+        ref={viewportRef}
         className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
+        style={{ touchAction: "none" }}
+        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <SvgTopologyRenderer
           topology={activeTopology}
@@ -428,15 +611,15 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               </div>
             </div>
 
-            {/* Simulierte Cisco IOS Show Befehle */}
-            {selectedDevice.config?.showOutputs && (
+            {/* Dynamisch generierte Cisco IOS Show Befehle */}
+            {Object.keys(dynamicShowOutputs).length > 0 && (
               <div>
                 <h4 className="font-semibold text-[11px] uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                   <Terminal size={14} className="text-green-400" />
-                  <span>Simulierte CLI show-Ausgaben</span>
+                  <span>Simulierte CLI show-Ausgaben (Dynamisch)</span>
                 </h4>
                 <div className="space-y-2">
-                  {Object.entries(selectedDevice.config.showOutputs).map(([cmd, out]) => (
+                  {Object.entries(dynamicShowOutputs).map(([cmd, out]) => (
                     <div key={cmd} className="rounded-lg overflow-hidden border border-slate-800">
                       <div className="px-2.5 py-1 bg-slate-800/90 text-green-400 font-mono text-[10px] font-bold">
                         # {cmd}

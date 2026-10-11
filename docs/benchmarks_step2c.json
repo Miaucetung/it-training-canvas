@@ -1,0 +1,19 @@
+{
+  "benchmark": "50 devices, 80 links on 390px mobile viewport with 4x CPU throttling",
+  "perfResults": {
+    "totalDurationMs": 5651.299999952316,
+    "totalFrames": 338,
+    "avgFrameTimeMs": 16.66,
+    "p95FrameTimeMs": 20.8,
+    "minFrameTimeMs": 7.7,
+    "maxFrameTimeMs": 37,
+    "effectiveFps": 60,
+    "longFramesCount": 0,
+    "longTasks": []
+  },
+  "timeline": {
+    "scriptingMs": 429.4,
+    "renderingMs": 201.5,
+    "paintingMs": 140.96
+  }
+}
