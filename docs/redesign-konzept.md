@@ -1,11 +1,11 @@
 # CCNA-Lernplattform: Umfassendes Redesign-Konzept (Phase R1)
 
-> **Dokument:** Phase R1 Analyse & Designkonzept (Optik & UI-Architektur)  
-> **Repository:** `it-training-canvas-new`  
-> **Branch:** `feature/app-redesign`  
-> **Status:** Konzept zur Freigabe vorgelegt (Kein Code geändert)  
-> **Zielgruppe:** Erwachsene in beruflicher Umschulung / Weiterbildung (CCNA 200-301 Fachinformatiker Systemintegration)  
-> **Zielgeräte:** Desktop (1440 × 900 px) & Smartphone (390 × 844 px), jeweils Dark & Light Mode  
+> **Dokument:** Phase R1 Analyse & Designkonzept (Optik & UI-Architektur)
+> **Repository:** `it-training-canvas-new`
+> **Branch:** `feature/app-redesign`
+> **Status:** Konzept zur Freigabe vorgelegt (Kein Code geändert)
+> **Zielgruppe:** Erwachsene in beruflicher Umschulung / Weiterbildung (CCNA 200-301 Fachinformatiker Systemintegration)
+> **Zielgeräte:** Desktop (1440 × 900 px) & Smartphone (390 × 844 px), jeweils Dark & Light Mode
 
 ---
 
@@ -85,46 +85,136 @@ Das Designsystem orientiert sich an der reduzierten, hochprofessionellen Ästhet
 
 ### 4.1 Farb-Tokens (CSS-Variablen & Tailwind-Theme)
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           SEMANTISCHE FARB-TOKENS                           │
-├──────────────────────────┬──────────────────────────┬───────────────────────┤
-│ Token                    │ Dark Mode                │ Light Mode            │
-├──────────────────────────┼──────────────────────────┼───────────────────────┤
-│ --app-bg                 │ oklch(0.12 0.02 260)     │ oklch(0.98 0.005 250) │
-│ --surface                │ oklch(0.16 0.02 260)     │ oklch(1.00 0 0)       │
-│ --surface-elevated       │ oklch(0.20 0.02 260)     │ oklch(0.96 0.01 250)  │
-│ --surface-sunken         │ oklch(0.10 0.02 260)     │ oklch(0.93 0.01 250)  │
-│ --border-subtle          │ oklch(0.24 0.02 260)     │ oklch(0.90 0.01 250)  │
-│ --border-default         │ oklch(0.30 0.02 260)     │ oklch(0.82 0.02 250)  │
-│ --border-accent          │ oklch(0.65 0.18 240)     │ oklch(0.55 0.18 240)  │
-│ --text-primary           │ oklch(0.96 0.01 250)     │ oklch(0.15 0.02 250)  │
-│ --text-secondary         │ oklch(0.72 0.02 250)     │ oklch(0.42 0.02 250)  │
-│ --text-muted             │ oklch(0.52 0.02 250)     │ oklch(0.55 0.02 250)  │
-│ --accent-primary         │ #38BDF8 (Sky)            │ #0284C7 (Sky)         │
-│ --status-success         │ #10B981 (Emerald)        │ #059669 (Emerald)     │
-│ --status-warning         │ #F59E0B (Amber)          │ #D97706 (Amber)       │
-│ --status-error           │ #EF4444 (Red)            │ #DC2626 (Red)         │
-│ --status-trunk           │ #818CF8 (Indigo)         │ #4F46E5 (Indigo)      │
-│ --status-blocking        │ #F97316 (Orange)         │ #EA580C (Orange)      │
-└──────────────────────────┴──────────────────────────┴───────────────────────┘
-```
-
-> **WCAG AA Konformität:** Alle Text- und Rahmenfarben weisen im Verhältnis zu ihrem jeweiligen Hintergrund einen Kontrastwert von mindestens **4,5 : 1** (Fließtext) bzw. **3,0 : 1** (Große Schrift / Icons / Rahmen) auf.
-
-### 4.2 Typografie-Skala
-
-- **Fließtext & UI:** `IBM Plex Sans` (präzise Lesbarkeit bei langen Texten).
-- **Code & CLI:** `IBM Plex Mono` (feste Laufweite, unmissverständliche Ziffern `0` vs `O`, `1` vs `l`).
+Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindestens 3,0 : 1 für UI-Komponenten, Rahmen und Icons) in beiden Farbmodi strikt einzuhalten, trennen wir Status- und Akzentfarben konsequent in Text-Tokens (`-fg`) und Flächen-/Rahmen-Tokens (`-bg`, `-border`):
 
 ```
-Title 2XL : 24px / 32px (font-bold)       — Hauptseiten & Lektions-Titel
-Title XL  : 20px / 28px (font-semibold)  — Modul-Überschriften
-Title LG  : 16px / 24px (font-semibold)  — Karten-Titel & Dialog-Header
-Body Base : 14px / 20px (font-normal)    — Didaktischer Lesetext
-Body SM   : 12px / 16px (font-medium)    — Badges, Labels, Toolbar-Buttons
-Code Base : 12px / 18px (font-mono)      — CLI-Befehle, Routing-Tabellen, Subnetze
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                               SEMANTISCHE FARB-TOKENS                                  │
+├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
+│ Token                    │ Dark Mode                │ Light Mode                       │
+├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
+│ --app-bg                 │ #020617 (Slate 950)      │ #F8FAFC (Slate 50)               │
+│ --surface                │ #0F172A (Slate 900)      │ #FFFFFF (Weiß)                   │
+│ --surface-elevated       │ #1E293B (Slate 800)      │ #F1F5F9 (Slate 100)              │
+│ --surface-sunken         │ #0B0F19 (Deep Slate)     │ #E2E8F0 (Slate 200)              │
+│ --border-subtle          │ #1E293B (Slate 800)      │ #E2E8F0 (Slate 200)              │
+│ --border-default         │ #334155 (Slate 700)      │ #CBD5E1 (Slate 300)              │
+│ --border-accent          │ #38BDF8 (Sky 400)        │ #0284C7 (Sky 600)                │
+│                          │                          │                                  │
+│ --text-primary           │ #F8FAFC (Slate 50)       │ #0F172A (Slate 900)              │
+│ --text-secondary         │ #CBD5E1 (Slate 300)      │ #334155 (Slate 700)              │
+│ --text-muted             │ #94A3B8 (Slate 400)      │ #64748B (Slate 500)              │
+│                          │                          │                                  │
+│ --accent-primary-fg      │ #38BDF8 (Sky 400)        │ #0369A1 (Sky 700)                │
+│ --accent-primary         │ #0284C7 (Sky 600)        │ #0284C7 (Sky 600 - Fokus/Rahmen) │
+│                          │                          │                                  │
+│ --status-success-fg      │ #34D399 (Emerald 400)    │ #047857 (Emerald 700)            │
+│ --status-success-bg      │ rgba(16, 185, 129, 0.15) │ #ECFDF5 (Emerald 50)             │
+│ --status-success-border  │ #059669 (Emerald 600)    │ #059669 (Emerald 600)            │
+│                          │                          │                                  │
+│ --status-warning-fg      │ #FBBF24 (Amber 400)      │ #92400E (Amber 800)              │
+│ --status-warning-bg      │ rgba(245, 158, 11, 0.15) │ #FFFBEB (Amber 50)               │
+│ --status-warning-border  │ #D97706 (Amber 600)      │ #D97706 (Amber 600)              │
+│                          │                          │                                  │
+│ --status-error-fg        │ #F87171 (Red 400)        │ #B91C1C (Red 700)                │
+│ --status-error-bg        │ rgba(239, 68, 68, 0.15)  │ #FEF2F2 (Red 50)                 │
+│ --status-error-border    │ #DC2626 (Red 600)        │ #DC2626 (Red 600)                │
+│                          │                          │                                  │
+│ --status-trunk-fg        │ #818CF8 (Indigo 400)     │ #4338CA (Indigo 700)             │
+│ --status-trunk-bg        │ rgba(99, 102, 241, 0.15) │ #EEF2FF (Indigo 50)              │
+│ --status-trunk-border    │ #6366F1 (Indigo 500)     │ #4F46E5 (Indigo 600)             │
+│                          │                          │                                  │
+│ --status-blocking-fg     │ #FB923C (Orange 400)     │ #C2410C (Orange 700)             │
+│ --status-blocking-bg     │ rgba(249, 115, 22, 0.15) │ #FFF7ED (Orange 50)              │
+│ --status-blocking-border │ #EA580C (Orange 600)     │ #EA580C (Orange 600)             │
+└──────────────────────────┴──────────────────────────┴──────────────────────────────────┘
 ```
+
+#### CLI-Terminal- und Code-Tokens (bleiben in BEIDEN Themes dunkel)
+CLI-Terminals und Cisco-Code-Blöcke behalten ihr vertrautes Konsolen-Erscheinungsbild in beiden Themes. Lediglich der umgebende Rahmen (`--terminal-border`) passt sich an das gewählte Theme an:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              TERMINAL-TOKENS (BEIDE THEMES)                            │
+├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
+│ Token                    │ Fester Farbwert          │ Verwendungszweck                 │
+├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
+│ --terminal-bg            │ #0B0F19 (Deep Slate)     │ Konsolen-Hintergrund             │
+│ --terminal-fg            │ #E2E8F0 (Slate 200)      │ Standard-Ausgabetext (> 14:1)    │
+│ --terminal-prompt        │ #38BDF8 (Sky 400)        │ Cisco Prompt (Router#, Switch#)  │
+│ --terminal-cmd           │ #FFFFFF (Reinweiß)       │ Eingegebener Befehl (> 18:1)     │
+│ --terminal-muted         │ #94A3B8 (Slate 400)      │ Kommentare, Interface-Header     │
+│ --terminal-selection     │ #1E293B (Slate 800)      │ Text-Markierungshervorhebung     │
+│ --terminal-border        │ var(--border-default)    │ Rahmen (passt sich dem Theme an) │
+└──────────────────────────┴──────────────────────────┴──────────────────────────────────┘
+```
+
+#### Rechnerische Kontrast-Tabelle (WCAG 2.1 AA Verifikation)
+Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 0.2126 R + 0.7152 G + 0.0722 B$ mit Gamma-Entzerrung) berechnet:
+
+| Token | Hex-Code | Ziel-Hintergrund | Kontrastverhältnis | WCAG-AA Anforderung | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Light `--text-primary`** | `#0F172A` | `--surface` (`#FFFFFF`) | **17,85 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--text-primary`** | `#0F172A` | `--app-bg` (`#F8FAFC`) | **17,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--text-secondary`** | `#334155` | `--surface` (`#FFFFFF`) | **10,35 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--text-muted`** | `#64748B` | `--surface` (`#FFFFFF`) | **4,76 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--text-muted`** | `#64748B` | `--app-bg` (`#F8FAFC`) | **4,55 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--accent-primary-fg`** | `#0369A1` | `--surface` (`#FFFFFF`) | **5,93 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
+| **Light `--accent-primary-fg`** | `#0369A1` | `--app-bg` (`#F8FAFC`) | **5,67 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
+| **Light `--accent-primary`** | `#0284C7` | `--surface` (`#FFFFFF`) | **4,10 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden |
+| **Light `--status-success-fg`** | `#047857` | `--surface` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-success-fg`** | `#047857` | `--app-bg` (`#F8FAFC`) | **5,24 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-success-border`**| `#059669`| `--surface` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-warning-fg`** | `#92400E` | `--surface` (`#FFFFFF`) | **7,09 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-warning-fg`** | `#92400E` | `--app-bg` (`#F8FAFC`) | **6,78 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-warning-border`**| `#D97706`| `--surface` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-error-fg`** | `#B91C1C` | `--surface` (`#FFFFFF`) | **6,47 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-error-fg`** | `#B91C1C` | `--app-bg` (`#F8FAFC`) | **6,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-error-border`** | `#DC2626` | `--surface` (`#FFFFFF`) | **4,83 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-trunk-fg`** | `#4338CA` | `--surface` (`#FFFFFF`) | **7,90 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-trunk-border`** | `#4F46E5` | `--surface` (`#FFFFFF`) | **6,29 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Light `--status-blocking-fg`**| `#C2410C` | `--surface` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Light `--status-blocking-border`**|`#EA580C`| `--surface` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
+| **Dark `--text-primary`** | `#F8FAFC` | `--surface` (`#0F172A`) | **17,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-secondary`** | `#CBD5E1` | `--surface` (`#0F172A`) | **12,02 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--text-muted`** | `#94A3B8` | `--surface` (`#0F172A`) | **6,96 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--accent-primary-fg`** | `#38BDF8` | `--surface` (`#0F172A`) | **8,33 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
+| **Dark `--status-success-fg`** | `#34D399` | `--surface` (`#0F172A`) | **9,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-warning-fg`** | `#FBBF24` | `--surface` (`#0F172A`) | **10,69 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-error-fg`** | `#F87171` | `--surface` (`#0F172A`) | **6,45 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-trunk-fg`** | `#818CF8` | `--surface` (`#0F172A`) | **5,98 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+| **Dark `--status-blocking-fg`** | `#FB923C` | `--surface` (`#0F172A`) | **7,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
+
+### 4.2 Typografie-Architektur & Skala
+
+#### Schriftfamilien & Fallback-Stack
+Zur Vermeidung von externen Render-Blockaden (FOUT/FOIT) und aus Datenschutz- sowie Offline-Gründen werden keine externen Webfonts nachgeladen. Als Primärschriften fungieren die bereits im Projekt eingebetteten Schriften `IBM Plex Sans` und `IBM Plex Mono`, ergänzt durch einen robusten System-Fallback:
+
+- **UI & Fließtext (`font-sans`):**  
+  `"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`  
+  *Begründung:* Entwickelt für technische und didaktische Anwendungen; exzellente Zeichenunterscheidung und ergonomische Lesbarkeit bei stundenlangem Lernen.
+- **Code & CLI-Terminal (`font-mono`):**  
+  `"IBM Plex Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", "Courier New", monospace`  
+  *Begründung:* Strikte Festbreite, unverwechselbare Differenzierung von Ziffern und Buchstaben (`0` mit Mittelpunkt vs. `O`, `1` vs. `l` vs. `I`), unerlässlich für Cisco-Konfigurationen und Subnetzmasken.
+
+#### Schriftgrößen- und Zeilenhöhen-Skala
+Alle Größen sind an ein 4px-Raster gebunden, um vertikalen Rhythmus und typografische Harmonie zu gewährleisten:
+
+| Stufe | Schriftgröße | Zeilenhöhe | Schriftstärke | Einsatzbereich |
+| :--- | :--- | :--- | :--- | :--- |
+| **Display 2XL** | 24px (1.5rem) | 32px (2.0rem) | Bold (700) | Hauptseiten-Titel, Dashboard-Hero |
+| **Title XL** | 20px (1.25rem) | 28px (1.75rem) | Semibold (600) | Modul-Überschriften, Hauptbereiche |
+| **Title LG** | 16px (1.0rem) | 24px (1.5rem) | Semibold (600) | Kartentitel, Dialog-Header |
+| **Body Base** | 14px (0.875rem)| 20px (1.25rem) | Regular (400) / Medium (500) | Didaktischer Lesetext, Lektionen |
+| **Body SM** | 12px (0.75rem) | 16px (1.0rem) | Medium (500) | Badges, Hilfetexte, Toolbar-Buttons |
+| **Code Base** | 13px (0.8125rem)| 20px (1.25rem)| Regular (400) / Semibold (600) | Cisco IOS CLI-Befehle, Routing-Tabellen |
+| **Code SM** | 11px (0.6875rem)| 16px (1.0rem) | Regular (400) | Port-Labels, Subnetz-Details, Hex-Dumps |
+
+#### Schriftstärken
+- **Regular (400):** Standard-Fließtext und Erklärungen.
+- **Medium (500):** UI-Labels, Navigationselemente, Segmented Controls, Formularbeschriftungen.
+- **Semibold (600):** Überschriften (H2/H3), Card-Headings, CLI-Kommandos (zur Unterscheidung vom Prompt).
+- **Bold (700):** Haupttitel (H1) und numerische Erfolgsmetriken / Punktestände.
 
 ### 4.3 Abstände, Radien & Schatten
 - **Raster:** Konsequentes 4px / 8px Raster (`p-2`, `p-3`, `p-4`, `p-6`).
@@ -134,6 +224,31 @@ Code Base : 12px / 18px (font-mono)      — CLI-Befehle, Routing-Tabellen, Subn
   - `rounded-xl` (12px): Inhaltskarten, Panels, Code-Blöcke.
   - `rounded-2xl` (16px): Dialog-Container.
 - **Schatten:** Ruhige, weiche Umgebungs-Schatten (`shadow-sm`, `shadow-md`, `shadow-xl`) ohne grelles Glimmen.
+
+### 4.4 Overlay- & Z-Index-Architektur
+
+Zur Vermeidung von z-Index-Konflikten und unkontrolliertem Überlagern („Modale über Modalen“) wird eine standardisierte Z-Index-Skala als Tokens etabliert:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              Z-INDEX-TOKENS & OVERLAY-EBENEN                           │
+├──────────────────────────┬──────────┬──────────────────────────────────────────────────┤
+│ Token                    │ z-Index  │ Komponenten                                      │
+├──────────────────────────┼──────────┼──────────────────────────────────────────────────┤
+│ --z-dropdown             │ 1000     │ Menü-Dropdowns, Filter-Popups, Tooltips          │
+│ --z-sticky               │ 1100     │ Fester Anwendungs-Header, Breadcrumb-Leiste      │
+│ --z-drawer               │ 1200     │ Mobiles Navigations-Drawer, Lektions-Sidebar    │
+│ --z-dialog               │ 1300     │ Modale Dialoge, Simulator-Vollbild, D&D Exhibit  │
+│ --z-toast                │ 1400     │ Systemmeldungen, Kopier-Bestätigungen, Feedback  │
+└──────────────────────────┴──────────┴──────────────────────────────────────────────────┘
+```
+
+#### Strikte Single-Overlay-Regeln:
+1. **Single-Active-Rule:** Es darf immer nur **ein einziges Overlay derselben oder einer höheren Ebene** aktiv sein.
+2. **Kaskadierendes Schließen:** Das Öffnen eines Dialogs (`--z-dialog`) schließt automatisch alle geöffneten Dropdowns (`--z-dropdown`).
+3. **Drawer schließt Dropdowns:** Das Öffnen des mobilen Drawers (`--z-drawer`) schließt sofort eventuell offene Kontext-Dropdowns.
+4. **Escape-Priorität:** Die Taste `Escape` schließt immer das hierarchisch oberste geöffnete Overlay.
+5. **Fokus-Falle (Tab-Trap):** Modale Dialoge sperren den Hintergrund mit `inert` und fangen den Tab-Fokus ein. Klick auf den Backdrop schließt das Overlay.
 
 ---
 
@@ -162,7 +277,7 @@ ZIEL-ZUSTAND (4 logische Gruppen + Global Controls):
    - 81 Drag-and-Drop-Aufgaben mit Exhibits
    - Schwächen-Drill (gezielte Wiederholung falscher Antworten)
 3. **Simulatoren**
-   - Paketfluss-Simulation (Canvas v2 integriert)
+   - Paketfluss-Simulation (Canvas v2) — **[Status: Offen / in Vorbereitung — Phase 3, wartet auf Anbindung an das v2-Topologiemodell]**
    - 802.1Q VLAN- & Trunk-Vivisektor
    - Spanning Tree Protocol (STP & RSTP)
    - OSI- & TCP/IP-Encapsulation (L1–L7)
@@ -178,10 +293,17 @@ ZIEL-ZUSTAND (4 logische Gruppen + Global Controls):
 - **Account / Anmelden**: Profil & Synchronisation.
 - **Canvas 3D-Flip (`Lernen` $\leftrightarrow$ `Canvas`)**: Klar akzentuierter Umschalter zwischen Wissens-Dashboard und interaktiver Topologie-Zeichenfläche.
 
-### 5.4 Mobile Navigation (390px Viewport)
-- **Wegfall der permanenten linken 60px-Sidebar**: Die Modul-Icons werden in ein klares Drawer-Menü oder eine schlanke mobile Bottom-Bar überführt.
-- Der Hauptinhalt erhält die **vollständigen 390px Breite** (mehr Platz für Lesetext, Tabellen und Touch-Ziele).
-- Der Flip-Button (`Lernen` / `Canvas`) ist mobil prominent und immer erreichbar.
+### 5.4 Mobile Navigation & Fachwechsel (390px Viewport)
+
+Bisher blockierte eine dauerhaft eingeblendete vertikale Sidebar auf Mobilgeräten rund 60px der Gesamtbreite von 390px. Das führte zu drastischer Platzenge für Fragentexte, Tabellen und Exhibits.
+
+**Neues mobiles Bedienkonzept:**
+- **Vollständige 390px Breite für Inhalte:** Die permanente linke 60px-Leiste entfällt vollständig.
+- **Zwei intuitive Wege zum Fachwechsel:**
+  1. **Kompakter Fach-Selector im Header:** Direkt im oberen Header neben dem App-Titel befindet sich ein Button mit Modul-Dropdown (z. B. `[Netzwerkgrundlagen ▾]`). Ein Fingertipp öffnet ein übersichtliches modales Auswahlmenü (Bottom-Sheet auf Mobile).
+  2. **Fachauswahl im Navigations-Drawer (`--z-drawer`):** Das Hamburger-Menü enthält an oberster Stelle eine übersichtliche, vertikale Liste aller CCNA-Module mit direktem Statusindikator und Prozentfortschritt.
+- **Ergonomische Touch-Targets:** Alle Interaktionselemente auf 390px erreichen mindestens **44 × 44 px** (bzw. 48 × 48 px bei Drag-&-Drop-Zielen).
+- **Permanenter Flip-Button:** Der Umschalter zwischen Wissens-Dashboard und Canvas v2 bleibt mobil im Header stets prominent und mit einem Fingertipp erreichbar.
 
 ---
 
@@ -215,12 +337,16 @@ Jeder Simulator erhält eine standardisierte, ruhige Architektur:
 ## 7. CLI-Terminal & Prüfungs-Exhibits
 
 ### 7.1 Cisco-Terminal-Komponente (`CiscoTerminalView`)
-1. **Drei-Elemente-Trennung:**
-   - **Prompt:** `Router#`, `Switch(config-if)#` in dezentem Sky/Muted.
-   - **Befehl:** `show ip route` fett und hervorgehoben.
-   - **Ausgabe:** Exakt formatiert in monospaced Typografie mit Syntax-Akzenten.
-2. **Kopier-Schutz:** Der Button *"Befehl kopieren"* kopiert ausschließlich `show ip route` in die Zwischenablage – niemals den Prompt `Router#`.
-3. **Syntax-Highlighting:** Codes (`C`, `S`, `O`, `D`), Interface-Namen (`Gi0/1`) und IP-Präfixe werden dezent und augenfreundlich farblich hervorgehoben.
+1. **Dunkles Erscheinungsbild in beiden Themes:**
+   - Terminals und Cisco-Code-Blöcke bleiben in **beiden** Farbmodi dunkel (`--terminal-bg: #0B0F19`, `--terminal-fg: #E2E8F0`).
+   - Nur der umgebende Rahmen passt sich an das globale Theme an (`--terminal-border: var(--border-default)`).
+   - Verhindert Blendung beim Lesen langer Konsolenausgaben und spiegelt die reale Putty-/SSH-Arbeitsumgebung von Netzwerk-Engineers wider.
+2. **Drei-Elemente-Trennung:**
+   - **Prompt:** `Router#`, `Switch(config-if)#` in dezentem Sky/Muted (`--terminal-prompt: #38BDF8`).
+   - **Befehl:** `show ip route` fett und hervorgehoben (`--terminal-cmd: #FFFFFF`).
+   - **Ausgabe:** Exakt formatiert in monospaced Typografie mit Syntax-Akzenten (`--terminal-fg: #E2E8F0`).
+3. **Kopier-Schutz:** Der Button *"Befehl kopieren"* kopiert ausschließlich `show ip route` in die Zwischenablage – niemals den Prompt `Router#`.
+4. **Syntax-Highlighting:** Codes (`C`, `S`, `O`, `D`), Interface-Namen (`Gi0/1`) und IP-Präfixe werden dezent und augenfreundlich farblich hervorgehoben.
 
 ### 7.2 Mobile Exhibit-Optimierung für 81 Drag-&-Drop-Fragen
 - Exhibits werden als einklappbare Referenzkarten oberhalb der Frage dargestellt.
@@ -267,5 +393,5 @@ Jeder Simulator erhält eine standardisierte, ruhige Architektur:
 
 Das Analyse- und Designkonzept ist vollständig ausgearbeitet. Im Quellcode wurden während Phase R1 **keinerlei funktionale Änderungen** vorgenommen.
 
-**Nächster Schritt:**  
+**Nächster Schritt:**
 Ich erwarte dein **OK** zum Konzept in `docs/redesign-konzept.md`. Sobald du freigibst, starten wir mit **Phase R2: Design-System & Tokens**.
