@@ -1,5 +1,7 @@
 import { AnnotationLayer } from "@/components/AnnotationLayer";
 import { Canvas } from "@/components/Canvas";
+import { CanvasV2Container } from "@/components/canvas-v2/CanvasV2Container";
+import { migrateLocalStorageCanvasToV2 } from "@/lib/topology/migration";
 import { CanvasContextMenu } from "@/components/CanvasContextMenu";
 import { ConnectionPropertiesPanel } from "@/components/ConnectionPropertiesPanel";
 import { CostCalculator } from "@/components/CostCalculator";
@@ -379,6 +381,10 @@ function App() {
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [canvasView, setCanvasView] = useState(false);
+  const [canvasEngine, setCanvasEngine] = useLocalStorage<"v1" | "v2">(
+    "ccna-canvas-version",
+    "v1",
+  );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
@@ -2039,9 +2045,48 @@ function App() {
                 pointerEvents: canvasView ? "auto" : "none",
               }}
             >
-              {/* Floating View-Density toggle (Simple ↔ Detail) */}
-              <div
-                className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
+              {/* Feature-Flag Toggle (v1 Canvas ↔ v2 SVG Next) - schwebend nur auf v1 anzeigen, v2 hat eigene Leiste */}
+              {canvasEngine === "v1" && (
+                <div
+                  className="absolute top-2 left-2 z-30 flex items-center p-0.5 rounded-lg border border-slate-700/80 bg-slate-900/90 backdrop-blur-md text-xs shadow-lg"
+                  title="Canvas-Architektur umschalten: v1 (Legacy HTML5 Pixel-Canvas) oder v2 (Neuer SVG-Renderer)"
+                >
+                  <button
+                    onClick={() => setCanvasEngine("v1")}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                      canvasEngine === "v1"
+                        ? "bg-slate-700 text-white shadow-xs"
+                        : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    v1 (Canvas)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCanvasEngine("v2");
+                      migrateLocalStorageCanvasToV2();
+                    }}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                      canvasEngine === "v2"
+                        ? "bg-indigo-600 text-white shadow-xs"
+                        : "text-slate-400 hover:text-indigo-300"
+                    }`}
+                  >
+                    v2 (SVG Next)
+                  </button>
+                </div>
+              )}
+
+              {canvasEngine === "v2" ? (
+                <CanvasV2Container
+                  theme={theme}
+                  onSwitchToV1={() => setCanvasEngine("v1")}
+                />
+              ) : (
+                <>
+                  {/* Floating View-Density toggle (Simple ↔ Detail) */}
+                  <div
+                    className="absolute top-2 right-2 z-30 flex items-center gap-0 rounded-lg overflow-hidden border border-slate-700/60 bg-slate-900/80 backdrop-blur-sm shadow-lg text-xs"
                 title="Anzeige-Dichte umschalten — Simple blendet Verbindungs-Labels aus für klare Übersicht"
               >
                 <button
@@ -2172,12 +2217,14 @@ function App() {
                   </div>
                 </div>
               )}
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Floating Toolbar — only visible on canvas face */}
-        {canvasView && (
+        {/* Floating Toolbar — only visible on canvas face when v1 is active */}
+        {canvasView && canvasEngine === "v1" && (
           <FloatingToolbar
             tool={tool}
             onToolChange={handleToolChange}

@@ -28,6 +28,7 @@ export type LinkType =
 export type LinkStatus =
   | "up"
   | "down"
+  | "admin-down"
   | "stp-forwarding"
   | "stp-blocking"
   | "stp-learning"
@@ -256,6 +257,7 @@ export const topologyLinkSchema = z.object({
   status: z.enum([
     "up",
     "down",
+    "admin-down",
     "stp-forwarding",
     "stp-blocking",
     "stp-learning",
