@@ -1,5 +1,4 @@
-import React from "react";
-import { LinkStatus, LinkType, TopologyDevice, TopologyLink } from "@/types/topology";
+import { TopologyDevice, TopologyLink } from "@/types/topology";
 
 interface LinkRendererProps {
   link: TopologyLink;

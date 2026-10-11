@@ -67,7 +67,7 @@ export function migrateLegacyShapeToDevice(obj: DrawingObject): TopologyDevice |
 
   // Extract IP / Interface configuration from legacy config object
   const interfaces: TopologyInterface[] = [];
-  const cfg = obj.config as (ShapeConfig & { network?: Record<string, any> }) | undefined;
+  const cfg = obj.config as (ShapeConfig & { network?: Partial<ShapeConfig> & { macAddress?: string } }) | undefined;
   const ipAddress = cfg?.ipAddress || cfg?.network?.ipAddress;
   const subnetMask = cfg?.subnetMask || cfg?.network?.subnetMask;
   const macAddress = cfg?.mac || cfg?.network?.macAddress || cfg?.network?.mac;

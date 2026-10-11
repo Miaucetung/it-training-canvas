@@ -1,8 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   TopologyDevice,
   TopologyInterface,
-  TopologySubinterface,
   InterfaceMode,
   ChannelGroupMode,
   DeviceSvi,
@@ -10,9 +9,7 @@ import {
 } from "@/types/topology";
 import {
   validateHostGateway,
-  evaluateEtherChannelModes,
   checkEtherChannelMemberConsistency,
-  parseIpCidr,
 } from "@/lib/topology/topology-validation";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import {
@@ -48,8 +45,6 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
   onClose,
   onSave,
 }) => {
-  if (!isOpen) return null;
-
   const isDark = theme === "dark";
   const [activeTab, setActiveTab] = useState<TabType>("general");
 
@@ -88,7 +83,6 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
 
   // Geräte-Klassifizierung
   const isHost = device.type === "pc" || device.type === "laptop" || device.type === "server";
-  const isRouter = device.type === "router";
   const isSwitch = device.type === "switch-l2" || device.type === "switch-l3";
   const isL3Switch = device.type === "switch-l3";
 
@@ -173,6 +167,8 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
 
   // WCAG AA Focus-Trap & Return-Focus Management
   const dialogRef = useFocusTrap<HTMLDivElement>(isOpen, onClose);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">

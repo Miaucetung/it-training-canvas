@@ -1,10 +1,8 @@
-import React from "react";
 import {
   NetworkTopology,
   TopologyDevice,
   TopologyLink,
   TopologyAnnotation,
-  TopologySubnetZone,
 } from "@/types/topology";
 import { DeviceIcon } from "./DeviceIcons";
 import { LinkRenderer } from "./LinkRenderer";
@@ -131,14 +129,11 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   onLinkClick,
   onDevicePointerDown,
   onDeviceContextMenu,
-  onDeviceMoveByKey,
   onAnnotationClick,
   onAnnotationPointerDown,
   onAnnotationDoubleClick,
   onHandlePointerDown,
   drawingAnnotationPreview = null,
-  snapGrid = false,
-  gridSize = 20,
   width = "100%",
   height = "100%",
   scale = 1,

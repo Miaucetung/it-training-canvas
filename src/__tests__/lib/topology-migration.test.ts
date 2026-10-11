@@ -20,7 +20,6 @@ import {
   BUILT_IN_CCNA_TOPOLOGIES,
   generateBenchmarkTopology,
   TOPOLOGY_BASIC_LAN,
-  TOPOLOGY_OSPF,
   TOPOLOGY_ROUTER_ON_A_STICK,
   TOPOLOGY_STP_TRIANGLE,
 } from "@/lib/topology/sample-topologies";
@@ -380,7 +379,7 @@ describe("Idempotent LocalStorage Migration (canvas-app-data → canvas-topology
       },
       {
         id: "corrupt-object",
-        type: "unknown-legacy" as any,
+        type: "unknown-legacy" as unknown as DrawingObject["type"],
         color: "#000",
         width: 1,
       },

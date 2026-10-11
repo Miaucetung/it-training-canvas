@@ -1,5 +1,5 @@
 import React from "react";
-import { NetworkTopology, TopologyDevice, TopologyLink } from "@/types/topology";
+import { NetworkTopology, TopologyDevice } from "@/types/topology";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { X, Table, ShieldCheck, Warning } from "@phosphor-icons/react";
 

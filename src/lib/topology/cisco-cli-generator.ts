@@ -1,8 +1,6 @@
 import {
   NetworkTopology,
   TopologyDevice,
-  TopologyInterface,
-  TopologyLink,
 } from "@/types/topology";
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
 
@@ -80,10 +78,6 @@ export class CiscoCliGenerator {
       if (!iface.ip) continue;
       const netInfo = getNetworkAddress(iface.ip);
       if (!netInfo) continue;
-
-      const ifName = iface.name.startsWith("Gi") || iface.name.startsWith("Fa")
-        ? iface.name
-        : `GigabitEthernet${iface.name}`;
 
       // Connected Route
       routes.push(`C    ${netInfo.network} is directly connected, ${iface.name}`);
@@ -233,7 +227,8 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show spanning-tree' für 802.1D Switches
    */
   static generateShowSpanningTree(device: TopologyDevice, topology: NetworkTopology): string {
-    const isRoot = device.name.includes("Root") || device.id.includes("swa");
+    const rootCandidate = topology.devices.find((d) => d.name.includes("Root") || d.id.includes("swa"));
+    const isRoot = device.name.includes("Root") || device.id.includes("swa") || (rootCandidate?.id === device.id);
     const bridgePriority = isRoot ? 24576 : device.id.includes("swb") ? 28672 : 32768;
     const rootAddress = "0050.7966.0001";
     const myAddress = isRoot

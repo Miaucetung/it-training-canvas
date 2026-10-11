@@ -3,7 +3,6 @@ import {
   NetworkTopology,
   TopologyDevice,
   TopologyInterface,
-  TopologyLink,
 } from "@/types/topology";
 
 // ============================================================================

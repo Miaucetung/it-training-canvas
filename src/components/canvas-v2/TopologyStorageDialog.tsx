@@ -10,7 +10,7 @@ import {
   exportTopologyAsPng,
   StoredTopologySummary,
 } from "@/lib/topology/storage-manager";
-import { validateTopology, TopologyValidationIssue } from "@/lib/topology/topology-validation";
+import { validateTopology } from "@/lib/topology/topology-validation";
 import {
   X,
   FloppyDisk,
@@ -23,7 +23,6 @@ import {
   FileSvg,
   Image,
   FolderOpen,
-  Info,
 } from "@phosphor-icons/react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 
@@ -46,8 +45,6 @@ export const TopologyStorageDialog: React.FC<TopologyStorageDialogProps> = ({
   onLoadTopology,
   svgElementRef,
 }) => {
-  if (!isOpen) return null;
-
   const isDark = theme === "dark";
   const [activeTab, setActiveTab] = useState<StorageTab>("saved");
 
@@ -69,16 +66,20 @@ export const TopologyStorageDialog: React.FC<TopologyStorageDialogProps> = ({
   // Diagnose State
   const diagnostics = validateTopology(currentTopology);
 
+  const refreshList = () => {
+    setSavedList(getNamedTopologies());
+  };
+
   useEffect(() => {
-    refreshList();
-  }, []);
+    if (isOpen) {
+      refreshList();
+    }
+  }, [isOpen]);
 
   // WCAG AA Focus-Trap & Return-Focus Management
   const dialogRef = useFocusTrap<HTMLDivElement>(isOpen, onClose);
 
-  const refreshList = () => {
-    setSavedList(getNamedTopologies());
-  };
+  if (!isOpen) return null;
 
   const handleSaveCurrent = () => {
     const toSave: NetworkTopology = {

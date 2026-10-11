@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
-  LinkType,
   NetworkTopology,
   TopologyAnnotation,
   TopologyDevice,
@@ -9,10 +8,7 @@ import {
 import {
   BUILT_IN_CCNA_TOPOLOGIES,
   generateBenchmarkTopology,
-  TOPOLOGY_BASIC_LAN,
-  TOPOLOGY_OSPF,
   TOPOLOGY_ROUTER_ON_A_STICK,
-  TOPOLOGY_STP_TRIANGLE,
 } from "@/lib/topology/sample-topologies";
 import {
   restoreBackupSnapshot,
@@ -54,8 +50,6 @@ import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
 import {
   ArrowsIn,
-  CheckCircle,
-  Eye,
   FloppyDisk,
   Gear,
   MagnifyingGlassMinus,
@@ -176,7 +170,6 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState<boolean>(false);
   const [showScreenReaderView, setShowScreenReaderView] = useState<boolean>(false);
-  const [isAutosaving, setIsAutosaving] = useState<boolean>(false);
 
   // Performance-Tracking
   const [renderDurationMs, setRenderDurationMs] = useState<number>(0);
@@ -186,10 +179,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Debounced Autosave (1500ms Drosselung nach Änderungen)
   useEffect(() => {
-    setIsAutosaving(true);
     const timer = setTimeout(() => {
       saveNamedTopology(activeTopology);
-      setIsAutosaving(false);
     }, 1500);
     return () => clearTimeout(timer);
   }, [activeTopology]);

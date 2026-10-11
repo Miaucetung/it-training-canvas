@@ -8,7 +8,6 @@ import {
   loadNamedTopology,
   MAX_IMPORT_BYTES,
   saveNamedTopology,
-  TOPOLOGY_LIBRARY_KEY,
 } from "@/lib/topology/storage-manager";
 import { TOPOLOGY_BASIC_LAN } from "@/lib/topology/sample-topologies";
 import { NetworkTopology } from "@/types/topology";
