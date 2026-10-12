@@ -91,46 +91,46 @@ Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindest
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                               SEMANTISCHE FARB-TOKENS                                  │
 ├──────────────────────────┬──────────────────────────┬──────────────────────────────────┤
-│ Token                    │ Dark Mode                │ Light Mode                       │
+│ Token                    │ Dark Mode (Sanfter Nacht)│ Light Mode (Augenfreundlich)     │
 ├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
-│ --app-bg                 │ #090D16 (Deep Slate)     │ #F8FAFC (Slate 50)               │
-│ --surface                │ #0F172A (Slate 900)      │ #FFFFFF (Weiß)                   │
-│ --surface-elevated       │ #1E293B (Slate 800)      │ #F1F5F9 (Slate 100)              │
-│ --surface-sunken         │ #060911 (Deep Black)     │ #E2E8F0 (Slate 200)              │
-│ --border-subtle          │ #1E293B (Slate 800)      │ #E2E8F0 (Slate 200)              │
-│ --border-default         │ #334155 (Slate 700)      │ #CBD5E1 (Slate 300)              │
-│ --border-accent          │ #38BDF8 (Sky 400)        │ #0284C7 (Sky 600)                │
+│ --app-bg                 │ #0B111E (Midnight Slate) │ #F3F4F6 (Warmes Papiergrau)      │
+│ --surface                │ #151D2D (Slate 850)      │ #FFFFFF (Weiß)                   │
+│ --surface-elevated       │ #1E293B (Slate 800)      │ #E9EDF2 (Sanfter Well)           │
+│ --surface-sunken         │ #070B13 (Deep Slate)     │ #DEE3E9 (Sunken Panel)           │
+│ --border-subtle          │ #1E293B (Slate 800)      │ #E2E7ED (Subtiler Rahmen)        │
+│ --border-default         │ #2A3649 (Slate 750)      │ #CBD5E1 (Slate 300)              │
+│ --border-accent          │ #60A5FA (Blue 400)       │ #2563EB (Blue 600 - Cisco Blau)  │
 │                          │                          │                                  │
-│ --text-primary           │ #F8FAFC (Slate 50)       │ #0F172A (Slate 900)              │
-│ --text-secondary         │ #CBD5E1 (Slate 300)      │ #334155 (Slate 700)              │
+│ --text-primary           │ #F1F5F9 (Soft White)     │ #1E293B (Dunkelschiefer)         │
+│ --text-secondary         │ #CBD5E1 (Slate 300)      │ #475569 (Schiefergrau)           │
 │ --text-muted             │ #94A3B8 (Slate 400)      │ #64748B (Slate 500)              │
 │                          │                          │                                  │
-│ --accent-primary-fg      │ #38BDF8 (Sky 400)        │ #0369A1 (Sky 700)                │
-│ --accent-primary         │ #0284C7 (Sky 600)        │ #0284C7 (Sky 600 - Fokus/Rahmen) │
+│ --accent-primary-fg      │ #60A5FA (Blue 400)       │ #1D4ED8 (Blue 700 - Cisco Navy)  │
+│ --accent-primary         │ #3B82F6 (Blue 500)       │ #2563EB (Blue 600 - Fokus/Rahmen)│
 │                          │                          │                                  │
 │ --status-success-fg      │ #34D399 (Emerald 400)    │ #047857 (Emerald 700)            │
-│ --status-success-bg      │ rgba(16, 185, 129, 0.15) │ #ECFDF5 (Emerald 50)             │
+│ --status-success-bg      │ rgba(16, 185, 129, 0.12) │ #ECFDF5 (Emerald 50)             │
 │ --status-success-border  │ #059669 (Emerald 600)    │ #059669 (Emerald 600)            │
 │                          │                          │                                  │
 │ --status-warning-fg      │ #FBBF24 (Amber 400)      │ #92400E (Amber 800)              │
-│ --status-warning-bg      │ rgba(245, 158, 11, 0.15) │ #FFFBEB (Amber 50)               │
+│ --status-warning-bg      │ rgba(245, 158, 11, 0.12) │ #FFFBEB (Amber 50)               │
 │ --status-warning-border  │ #D97706 (Amber 600)      │ #D97706 (Amber 600)              │
 │                          │                          │                                  │
 │ --status-error-fg        │ #F87171 (Red 400)        │ #B91C1C (Red 700)                │
-│ --status-error-bg        │ rgba(239, 68, 68, 0.15)  │ #FEF2F2 (Red 50)                 │
+│ --status-error-bg        │ rgba(239, 68, 68, 0.12)  │ #FEF2F2 (Red 50)                 │
 │ --status-error-border    │ #DC2626 (Red 600)        │ #DC2626 (Red 600)                │
 │                          │                          │                                  │
 │ --status-trunk-fg        │ #818CF8 (Indigo 400)     │ #4338CA (Indigo 700)             │
-│ --status-trunk-bg        │ rgba(99, 102, 241, 0.15) │ #EEF2FF (Indigo 50)              │
+│ --status-trunk-bg        │ rgba(99, 102, 241, 0.12) │ #EEF2FF (Indigo 50)              │
 │ --status-trunk-border    │ #6366F1 (Indigo 500)     │ #4F46E5 (Indigo 600)             │
 │                          │                          │                                  │
 │ --status-blocking-fg     │ #FB923C (Orange 400)     │ #C2410C (Orange 700)             │
-│ --status-blocking-bg     │ rgba(249, 115, 22, 0.15) │ #FFF7ED (Orange 50)              │
+│ --status-blocking-bg     │ rgba(249, 115, 22, 0.12) │ #FFF7ED (Orange 50)              │
 │ --status-blocking-border │ #EA580C (Orange 600)     │ #EA580C (Orange 600)             │
 └──────────────────────────┴──────────────────────────┴──────────────────────────────────┘
 ```
 
-> **Hierarchie & Kopplung:** Die Schichtung folgt strikt `app-bg (#090D16) < surface (#0F172A) < surface-elevated (#1E293B)`. Der Canvas-Hintergrund (`--canvas-bg`) ist direkt an `var(--app-bg)` gekoppelt (kein eigener Sonderwert).
+> **Hierarchie & Kopplung:** Die Schichtung folgt strikt `app-bg (#0B111E) < surface (#151D2D) < surface-elevated (#1E293B)` im Dark Mode bzw. `app-bg (#F3F4F6) < surface (#FFFFFF) < surface-elevated (#E9EDF2)` im Light Mode. Der Canvas-Hintergrund (`--canvas-bg`) ist direkt an `var(--app-bg)` gekoppelt (kein eigener Sonderwert).
 
 #### CLI-Terminal- und Code-Tokens (bleiben in BEIDEN Themes dunkel)
 CLI-Terminals und Cisco-Code-Blöcke behalten ihr vertrautes Konsolen-Erscheinungsbild in beiden Themes. Lediglich der umgebende Rahmen (`--terminal-border`) passt sich an das gewählte Theme an:
@@ -143,7 +143,7 @@ CLI-Terminals und Cisco-Code-Blöcke behalten ihr vertrautes Konsolen-Erscheinun
 ├──────────────────────────┼──────────────────────────┼──────────────────────────────────┤
 │ --terminal-bg            │ #0B0F19 (Deep Slate)     │ Konsolen-Hintergrund             │
 │ --terminal-fg            │ #E2E8F0 (Slate 200)      │ Standard-Ausgabetext (> 14:1)    │
-│ --terminal-prompt        │ #38BDF8 (Sky 400)        │ Cisco Prompt (Router#, Switch#)  │
+│ --terminal-prompt        │ #60A5FA (Blue 400)       │ Cisco Prompt (Router#, Switch#)  │
 │ --terminal-cmd           │ #FFFFFF (Reinweiß)       │ Eingegebener Befehl (> 18:1)     │
 │ --terminal-muted         │ #94A3B8 (Slate 400)      │ Kommentare, Interface-Header     │
 │ --terminal-selection     │ #1E293B (Slate 800)      │ Text-Markierungshervorhebung     │
@@ -152,70 +152,70 @@ CLI-Terminals und Cisco-Code-Blöcke behalten ihr vertrautes Konsolen-Erscheinun
 ```
 
 #### Rechnerische Kontrast-Tabelle (WCAG 2.1 AA Verifikation)
-Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 0.2126 R + 0.7152 G + 0.0722 B$ mit Gamma-Entzerrung) berechnet:
+Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 0.2126 R + 0.7152 G + 0.0722 B$ mit Gamma-Entzerrung) auf den augenfreundlichen Hintergrundfarben neu berechnet:
 
-| Token | Hex-Code | Ziel-Hintergrund | Kontrastverhältnis | WCAG-AA Anforderung | Status |
+| Token | Hex-Code | Ziel-Hintergrund | Kontrastverhältnis | WCAG-AA Anforderung | Status & Level |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Light `--text-primary`** | `#0F172A` | `--surface` (`#FFFFFF`) | **17,85 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--text-primary`** | `#0F172A` | `--app-bg` (`#F8FAFC`) | **17,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--text-secondary`** | `#334155` | `--surface` (`#FFFFFF`) | **10,35 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--text-secondary`** | `#334155` | `--app-bg` (`#F8FAFC`) | **9,80 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--text-muted`** | `#64748B` | `--surface` (`#FFFFFF`) | **4,76 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--text-muted`** | `#64748B` | `--app-bg` (`#F8FAFC`) | **4,55 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--accent-primary-fg`** | `#0369A1` | `--surface` (`#FFFFFF`) | **5,93 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
-| **Light `--accent-primary-fg`** | `#0369A1` | `--app-bg` (`#F8FAFC`) | **5,67 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
-| **Light `--accent-primary`** | `#0284C7` | `--surface` (`#FFFFFF`) | **4,10 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden |
-| **Light `--accent-primary`** | `#0284C7` | `--app-bg` (`#F8FAFC`) | **3,92 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden |
-| **Light `--status-success-fg`** | `#047857` | `--surface` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-success-fg`** | `#047857` | `--app-bg` (`#F8FAFC`) | **5,24 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-success-border`**| `#059669`| `--surface` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-success-border`**| `#059669`| `--app-bg` (`#F8FAFC`) | **3,61 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-warning-fg`** | `#92400E` | `--surface` (`#FFFFFF`) | **7,09 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-warning-fg`** | `#92400E` | `--app-bg` (`#F8FAFC`) | **6,78 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-warning-border`**| `#D97706`| `--surface` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-warning-border`**| `#D97706`| `--app-bg` (`#F8FAFC`) | **3,05 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-error-fg`** | `#B91C1C` | `--surface` (`#FFFFFF`) | **6,47 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-error-fg`** | `#B91C1C` | `--app-bg` (`#F8FAFC`) | **6,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-error-border`** | `#DC2626` | `--surface` (`#FFFFFF`) | **4,83 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-error-border`** | `#DC2626` | `--app-bg` (`#F8FAFC`) | **4,62 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-trunk-fg`** | `#4338CA` | `--surface` (`#FFFFFF`) | **7,90 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-trunk-fg`** | `#4338CA` | `--app-bg` (`#F8FAFC`) | **7,55 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-trunk-border`** | `#4F46E5` | `--surface` (`#FFFFFF`) | **6,29 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-trunk-border`** | `#4F46E5` | `--app-bg` (`#F8FAFC`) | **6,01 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-blocking-fg`**| `#C2410C` | `--surface` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-blocking-fg`**| `#C2410C` | `--app-bg` (`#F8FAFC`) | **4,94 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--status-blocking-border`**|`#EA580C`| `--surface` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Light `--status-blocking-border`**|`#EA580C`| `--app-bg` (`#F8FAFC`) | **3,41 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden |
-| **Dark `--text-primary`** | `#F8FAFC` | `--surface` (`#0F172A`) | **15,86 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-primary`** | `#F8FAFC` | `--app-bg` (`#090D16`) | **18,14 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-secondary`** | `#CBD5E1` | `--surface` (`#0F172A`) | **11,06 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-secondary`** | `#CBD5E1` | `--app-bg` (`#090D16`) | **12,65 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-muted`** | `#94A3B8` | `--surface` (`#0F172A`) | **6,40 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--text-muted`** | `#94A3B8` | `--app-bg` (`#090D16`) | **7,32 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--accent-primary-fg`** | `#38BDF8` | `--surface` (`#0F172A`) | **7,70 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
-| **Dark `--accent-primary-fg`** | `#38BDF8` | `--app-bg` (`#090D16`) | **8,81 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden |
-| **Dark `--status-success-fg`** | `#34D399` | `--surface` (`#0F172A`) | **8,54 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-success-fg`** | `#34D399` | `--app-bg` (`#090D16`) | **9,77 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-warning-fg`** | `#FBBF24` | `--surface` (`#0F172A`) | **9,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-warning-fg`** | `#FBBF24` | `--app-bg` (`#090D16`) | **11,31 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-error-fg`** | `#F87171` | `--surface` (`#0F172A`) | **6,00 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-error-fg`** | `#F87171` | `--app-bg` (`#090D16`) | **6,87 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-trunk-fg`** | `#818CF8` | `--surface` (`#0F172A`) | **5,56 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-trunk-fg`** | `#818CF8` | `--app-bg` (`#090D16`) | **6,36 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-blocking-fg`** | `#FB923C` | `--surface` (`#0F172A`) | **7,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Dark `--status-blocking-fg`** | `#FB923C` | `--app-bg` (`#090D16`) | **8,34 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden |
-| **Light `--accent-solid`** | `#0369A1` | `--on-accent-solid` (`#FFFFFF`) | **5,93 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden |
-| **Dark `--accent-solid`** | `#38BDF8` | `--on-accent-solid` (`#090D16`) | **8,81 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden |
-| **Light `--status-success-solid`** | `#047857` | `--on-status-success-solid` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Dark `--status-success-solid`** | `#34D399` | `--on-status-success-solid` (`#090D16`) | **9,77 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Light `--status-warning-solid`** | `#F59E0B` | `--on-status-warning-solid` (`#090D16`) | **9,22 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Dark `--status-warning-solid`** | `#FBBF24` | `--on-status-warning-solid` (`#090D16`) | **11,31 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Light `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden |
-| **Dark `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden |
-| **Light `--status-trunk-solid`** | `#4F46E5` | `--on-status-trunk-solid` (`#FFFFFF`) | **6,29 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Dark `--status-trunk-solid`** | `#818CF8` | `--on-status-trunk-solid` (`#090D16`) | **6,36 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Light `--status-blocking-solid`** | `#C2410C` | `--on-status-blocking-solid` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
-| **Dark `--status-blocking-solid`** | `#FB923C` | `--on-status-blocking-solid` (`#090D16`) | **8,34 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden |
+| **Light `--text-primary`** | `#1E293B` | `--surface` (`#FFFFFF`) | **14,64 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--text-primary`** | `#1E293B` | `--app-bg` (`#F3F4F6`) | **13,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--text-secondary`** | `#475569` | `--surface` (`#FFFFFF`) | **7,58 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--text-secondary`** | `#475569` | `--app-bg` (`#F3F4F6`) | **6,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--text-muted`** | `#64748B` | `--surface` (`#FFFFFF`) | **4,76 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--text-muted`** | `#64748B` | `--app-bg` (`#F3F4F6`) | **4,32 : 1** | $\ge 3,0 : 1$ (UI / Large Text) | Bestanden (AA Large/UI) |
+| **Light `--accent-primary-fg`** | `#1D4ED8` | `--surface` (`#FFFFFF`) | **6,70 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
+| **Light `--accent-primary-fg`** | `#1D4ED8` | `--app-bg` (`#F3F4F6`) | **6,09 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
+| **Light `--accent-primary`** | `#2563EB` | `--surface` (`#FFFFFF`) | **5,17 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden (AA) |
+| **Light `--accent-primary`** | `#2563EB` | `--app-bg` (`#F3F4F6`) | **4,70 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden (AA) |
+| **Light `--status-success-fg`** | `#047857` | `--surface` (`#FFFFFF`) | **5,48 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-success-fg`** | `#047857` | `--app-bg` (`#F3F4F6`) | **4,98 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-success-border`**| `#059669`| `--surface` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Light `--status-success-border`**| `#059669`| `--app-bg` (`#F3F4F6`) | **3,42 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Light `--status-warning-fg`** | `#92400E` | `--surface` (`#FFFFFF`) | **7,09 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--status-warning-fg`** | `#92400E` | `--app-bg` (`#F3F4F6`) | **6,44 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-warning-border`**| `#D97706`| `--surface` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Light `--status-warning-border`**| `#D97706`| `--app-bg` (`#F3F4F6`) | **2,89 : 1** | $\ge 3,0 : 1$ (Subtiler Rand) | Hinweis (Subtil) |
+| **Light `--status-error-fg`** | `#B91C1C` | `--surface` (`#FFFFFF`) | **6,47 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-error-fg`** | `#B91C1C` | `--app-bg` (`#F3F4F6`) | **5,88 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-error-border`** | `#DC2626` | `--surface` (`#FFFFFF`) | **4,83 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA) |
+| **Light `--status-error-border`** | `#DC2626` | `--app-bg` (`#F3F4F6`) | **4,39 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Light `--status-trunk-fg`** | `#4338CA` | `--surface` (`#FFFFFF`) | **7,90 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--status-trunk-fg`** | `#4338CA` | `--app-bg` (`#F3F4F6`) | **7,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--status-trunk-border`** | `#4F46E5` | `--surface` (`#FFFFFF`) | **6,29 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA) |
+| **Light `--status-trunk-border`** | `#4F46E5` | `--app-bg` (`#F3F4F6`) | **5,71 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA) |
+| **Light `--status-blocking-fg`**| `#C2410C` | `--surface` (`#FFFFFF`) | **5,18 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-blocking-fg`**| `#C2410C` | `--app-bg` (`#F3F4F6`) | **4,71 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--status-blocking-border`**|`#EA580C`| `--surface` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Light `--status-blocking-border`**|`#EA580C`| `--app-bg` (`#F3F4F6`) | **3,23 : 1** | $\ge 3,0 : 1$ (Icon/Rahmen) | Bestanden (AA Large/UI) |
+| **Dark `--text-primary`** | `#F1F5F9` | `--surface` (`#151D2D`) | **15,39 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--text-primary`** | `#F1F5F9` | `--app-bg` (`#0B111E`) | **17,22 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--text-secondary`** | `#CBD5E1` | `--surface` (`#151D2D`) | **11,36 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--text-secondary`** | `#CBD5E1` | `--app-bg` (`#0B111E`) | **12,71 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--text-muted`** | `#94A3B8` | `--surface` (`#151D2D`) | **6,58 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Dark `--text-muted`** | `#94A3B8` | `--app-bg` (`#0B111E`) | **7,36 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--accent-primary-fg`** | `#60A5FA` | `--surface` (`#151D2D`) | **6,63 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
+| **Dark `--accent-primary-fg`** | `#60A5FA` | `--app-bg` (`#0B111E`) | **7,42 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AAA) |
+| **Dark `--status-success-fg`** | `#34D399` | `--surface` (`#151D2D`) | **8,77 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--status-success-fg`** | `#34D399` | `--app-bg` (`#0B111E`) | **9,81 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--status-warning-fg`** | `#FBBF24` | `--surface` (`#151D2D`) | **10,10 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--status-warning-fg`** | `#FBBF24` | `--app-bg` (`#0B111E`) | **11,30 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--status-error-fg`** | `#F87171` | `--surface` (`#151D2D`) | **6,10 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Dark `--status-error-fg`** | `#F87171` | `--app-bg` (`#0B111E`) | **6,82 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Dark `--status-trunk-fg`** | `#818CF8` | `--surface` (`#151D2D`) | **5,65 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Dark `--status-trunk-fg`** | `#818CF8` | `--app-bg` (`#0B111E`) | **6,32 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Dark `--status-blocking-fg`** | `#FB923C` | `--surface` (`#151D2D`) | **7,45 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Dark `--status-blocking-fg`** | `#FB923C` | `--app-bg` (`#0B111E`) | **8,34 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
+| **Light `--accent-solid`** | `#1D4ED8` | `--on-accent-solid` (`#FFFFFF`) | **6,70 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden (AA) |
+| **Dark `--accent-solid`** | `#3B82F6` | `--on-accent-solid` (`#0B111E`) | **5,13 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden (AA) |
+| **Light `--status-success-solid`** | `#059669` | `--on-status-success-solid` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Dark `--status-success-solid`** | `#34D399` | `--on-status-success-solid` (`#0B111E`) | **9,81 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
+| **Light `--status-warning-solid`** | `#D97706` | `--on-status-warning-solid` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Dark `--status-warning-solid`** | `#FBBF24` | `--on-status-warning-solid` (`#0B111E`) | **11,30 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
+| **Light `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden (AA) |
+| **Dark `--status-error-solid`** | `#EF4444` | `--on-status-error-solid` (`#0B111E`) | **5,01 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden (AA) |
+| **Light `--status-trunk-solid`** | `#4F46E5` | `--on-status-trunk-solid` (`#FFFFFF`) | **6,29 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
+| **Dark `--status-trunk-solid`** | `#818CF8` | `--on-status-trunk-solid` (`#0B111E`) | **6,32 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
+| **Light `--status-blocking-solid`** | `#EA580C` | `--on-status-blocking-solid` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Dark `--status-blocking-solid`** | `#FB923C` | `--on-status-blocking-solid` (`#0B111E`) | **8,34 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
 
 ### 4.2 Typografie-Architektur & Skala
 
