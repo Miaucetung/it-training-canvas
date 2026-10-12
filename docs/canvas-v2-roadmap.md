@@ -83,3 +83,23 @@ Gemäß WCAG 2.1 Konformitätsstufe AA werden folgende Anforderungen umgesetzt:
    - Beim Schließen kehrt der Fokus exakt auf das zuvor ausgewählte Canvas-Element zurück.
 6. **Automatisierte Überprüfung mit axe-core:**
    - E2E- und Unit-Prüfungen stellen sicher, dass keine Kontrast-, Rollen- oder ARIA-Verletzungen vorliegen.
+
+---
+
+## 4. Phase 2f: Voraussetzungen & Migration der verbleibenden v1-Funktionen
+
+In der neuen Einzeilen-Navigation (R3) leiten alle regulären Werkzeuge (Gerät hinzufügen, Topologie-Diagnose, Topologie-Vorlagen, Teilen & Exportieren, Topologie-Notizen) bei aktivem v2 direkt auf die v2-Funktionen um.
+
+Genau **drei Funktionen** verbleiben aktuell als reine v1-Implementierung und tragen im Menü den Hinweis **„Nur v1“**:
+
+1. **Geführter Ping-Test (`ping-test`):**
+   - Nutzt die schrittweise ARP- und ICMP-Zustandsmaschine des v1-Canvas.
+   - *Voraussetzung für 2f:* Portierung der animierten Echo-Request-/Reply-Pfade auf den SVG-Renderer des v2-Canvas.
+2. **Topologie-Simulation HUD (`simulation-hud`):**
+   - Steuert Play, Pause, Single-Step und Paket-Generierung im v1-Koordinatensystem.
+   - *Voraussetzung für 2f:* Anbindung an den v2-Hop-by-Hop-Paketfluss (`PacketFlowVisualizer`).
+3. **Live-Metriken (`metrics`):**
+   - Liest Interface-Counter und Verbindungszustände aus `canvasState.objects`.
+   - *Voraussetzung für 2f:* Direkte Auswertung des Zod-basierten v2-Topologie-Datenmodells (`TopologyData`).
+
+Sobald diese drei Module in Phase 2f auf v2 migriert sind, wird v1 vollständig archiviert und der Standard-Renderer dauerhaft auf v2 festgelegt.

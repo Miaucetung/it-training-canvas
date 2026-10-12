@@ -45,7 +45,7 @@ import {
   TreeStructure,
   Wrench,
 } from "@phosphor-icons/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
@@ -157,11 +157,32 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const simulatorsBtnRef = useRef<HTMLButtonElement | null>(null);
   const toolsBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  const closeMenu = () => setOpenMenu(null);
+  const getTriggerBtn = (menuId: NavMenuId | null): HTMLButtonElement | null => {
+    switch (menuId) {
+      case "learn":
+        return learnBtnRef.current;
+      case "practice":
+        return practiceBtnRef.current;
+      case "simulators":
+        return simulatorsBtnRef.current;
+      case "tools":
+        return toolsBtnRef.current;
+      default:
+        return null;
+    }
+  };
+
+  const closeMenu = useCallback((restoreFocus = false) => {
+    const trigger = getTriggerBtn(openMenu);
+    setOpenMenu(null);
+    if (restoreFocus && trigger) {
+      trigger.focus();
+    }
+  }, [openMenu]);
 
   const toggleMenu = (menuId: NavMenuId, btnRef: React.RefObject<HTMLButtonElement | null>) => {
     if (openMenu === menuId) {
-      closeMenu();
+      closeMenu(false);
       return;
     }
     if (btnRef.current) {
@@ -182,17 +203,47 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     setOpenMenu(menuId);
   };
 
-  // Close menu on Escape
+  // Keyboard navigation within open menu (Escape, ArrowDown, ArrowUp, Home, End)
   useEffect(() => {
+    if (!openMenu) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && openMenu) {
+      const menuEl = document.getElementById(`nav-menu-${openMenu}`);
+      if (!menuEl) return;
+
+      const items = Array.from(
+        menuEl.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')
+      );
+      if (items.length === 0) return;
+
+      const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+
+      if (e.key === "Escape") {
+        e.preventDefault();
         e.stopPropagation();
-        closeMenu();
+        closeMenu(true);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+        items[nextIndex]?.focus();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+        items[prevIndex]?.focus();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        items[0]?.focus();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+      } else if (e.key === "Tab") {
+        closeMenu(false);
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [openMenu]);
+  }, [openMenu, closeMenu]);
 
   // Learning paths for current subject
   const allPaths = Object.values(learningPaths);
@@ -479,7 +530,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {/* Transparent Backdrop */}
           <div
             className="fixed inset-0 z-dropdown"
-            onClick={closeMenu}
+            onClick={() => closeMenu(false)}
             aria-hidden="true"
           />
 

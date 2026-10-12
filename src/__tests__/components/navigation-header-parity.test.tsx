@@ -301,22 +301,30 @@ describe("Punkt 3: Vollständige Funktionsparität aller ehemaligen Header-Butto
   });
 
   describe("2. v1 vs v2 Verhalten: Nie stillschweigend wirkungslos", () => {
-    it("zeigt bei aktivem v2 den Badge 'Nur v1' und toast.info bei Klick auf ein v1-exklusives Werkzeug", () => {
+    it("leitet Gerät hinzufügen in v2 direkt weiter und zeigt bei v1-exklusiven Live-Metriken 'Nur v1' und toast.info", () => {
       const props = createMockProps({ canvasEngine: "v2" });
       render(<AppHeader {...props} />);
 
       const toolsBtn = within(getMainNav()).getByRole("button", { name: /Werkzeuge/i });
       fireEvent.click(toolsBtn);
 
-      // Prüfe 'Gerät hinzufügen' im v2-Modus
+      // 1. Gerät hinzufügen leitet in v2 direkt weiter (kein 'Nur v1' Badge)
       const addDevBtn = screen.getByText("Gerät hinzufügen").closest("button");
       expect(addDevBtn).toBeDefined();
-      expect(within(addDevBtn!).getByText("Nur v1")).toBeDefined();
-
+      expect(within(addDevBtn!).queryByText("Nur v1")).toBeNull();
       fireEvent.click(addDevBtn!);
-      expect(props.onAddDevice).not.toHaveBeenCalled();
+      expect(props.onAddDevice).toHaveBeenCalledTimes(1);
+
+      // 2. Live-Metriken trägt 'Nur v1' und blockiert mit toast.info
+      fireEvent.click(toolsBtn);
+      const metricsBtn = screen.getByText("Live-Metriken").closest("button");
+      expect(metricsBtn).toBeDefined();
+      expect(within(metricsBtn!).getByText("Nur v1")).toBeDefined();
+
+      fireEvent.click(metricsBtn!);
+      expect(props.onToggleMetrics).not.toHaveBeenCalled();
       expect(toast.info).toHaveBeenCalledWith(
-        expect.stringContaining("Canvas v2"),
+        expect.stringContaining("Canvas v1"),
         expect.anything()
       );
     });
