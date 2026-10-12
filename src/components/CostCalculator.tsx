@@ -9,6 +9,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface CostCalculatorProps {
   objects: DrawingObject[];
@@ -154,18 +155,19 @@ export function CostCalculator({
   }, [resources]);
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div
-        className={`relative ml-auto w-[750px] max-w-full h-full ${bg} ${border} border-l flex flex-col shadow-2xl`}
-      >
-        {/* Header */}
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex">
         <div
-          className={`flex items-center justify-between px-6 py-4 border-b ${border}`}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
+        />
+        <div
+          className={`relative ml-auto w-[750px] max-w-full h-full ${bg} ${border} border-l flex flex-col shadow-2xl`}
         >
+          {/* Header */}
+          <div
+            className={`shrink-0 flex items-center justify-between px-6 py-4 border-b ${border}`}
+          >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
               <CurrencyDollar size={20} className="text-green-400" />
@@ -369,6 +371,7 @@ export function CostCalculator({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

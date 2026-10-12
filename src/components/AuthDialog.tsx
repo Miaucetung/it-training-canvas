@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { X } from "@phosphor-icons/react";
 import { useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -63,24 +64,26 @@ export function AuthDialog({ dark, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className={`w-full max-w-sm rounded-2xl border shadow-2xl ${base}`}>
-        {/* Header */}
-        <div className={`flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
-          <h2 className="text-base font-semibold">
-            {view === "reset" ? "Passwort zurücksetzen" : tab === "signin" ? "Anmelden" : "Registrieren"}
-          </h2>
-          <button
-            onClick={onClose}
-            className={`rounded-lg p-1.5 transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className={`w-full max-w-sm max-h-[calc(100dvh-1.5rem)] flex flex-col rounded-2xl border shadow-2xl overflow-hidden ${base}`}>
+          {/* Header */}
+          <div className={`shrink-0 flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
+            <h2 className="text-base font-semibold">
+              {view === "reset" ? "Passwort zurücksetzen" : tab === "signin" ? "Anmelden" : "Registrieren"}
+            </h2>
+            <button
+              onClick={onClose}
+              className={`rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
+              aria-label="Schließen"
+            >
+              <X size={16} />
+            </button>
+          </div>
 
-        {/* Tabs — hidden in reset view */}
-        {view === "form" && (
-          <div className={`flex border-b ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
+          {/* Tabs — hidden in reset view */}
+          {view === "form" && (
+            <div className={`shrink-0 flex border-b ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
             {(["signin", "signup"] as Tab[]).map((t) => (
               <button
                 key={t}
@@ -102,7 +105,7 @@ export function AuthDialog({ dark, onClose }: Props) {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto flex flex-col gap-4 p-5">
           <div className="flex flex-col gap-1.5">
             <label className={`text-xs font-medium ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
               E-Mail
@@ -182,6 +185,7 @@ export function AuthDialog({ dark, onClose }: Props) {
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

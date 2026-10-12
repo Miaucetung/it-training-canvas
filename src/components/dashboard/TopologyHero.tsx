@@ -196,7 +196,7 @@ export function TopologyHero({
               <button
                 type="button"
                 onClick={() => onSelectTopic(lastActiveTopicId)}
-                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-sm transition-all shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-all shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
                 <span>Weiterlernen: {lastActiveTopicTitle || "Aktuelle Lektion"}</span>
                 <ArrowRight weight="bold" className="h-4 w-4" />
@@ -205,7 +205,7 @@ export function TopologyHero({
               <button
                 type="button"
                 onClick={() => onSelectTopic("networking-fundamentals")}
-                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-sm transition-all shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-all shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
                 <span>Jetzt starten: Network Fundamentals</span>
                 <ArrowRight weight="bold" className="h-4 w-4" />

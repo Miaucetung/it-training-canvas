@@ -28,6 +28,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EXAM_DIAGRAMS } from "@/lib/exam-diagrams";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { getExamPrepQuestions, type PrepQuestion } from "@/lib/ccna-exam-pool";
 import { hasExhibit, getExhibitList } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
@@ -570,9 +571,10 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const isQuizScreen = (mode === "learn" || mode === "exam" || mode === "drill") && !!currentQ;
 
   return (
-    <div className={`fixed inset-0 z-50 flex flex-col ${bg}`}>
-      {/* Header — shrink-0, immer sichtbar, kein Scrollen nötig um Titel/Timer/Schließen zu erreichen */}
-      <div className={`shrink-0 flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4 ${headerBg}`}>
+    <ModalPortal>
+      <div className={`fixed inset-0 z-dialog flex flex-col ${bg}`}>
+        {/* Header — shrink-0, immer sichtbar, kein Scrollen nötig um Titel/Timer/Schließen zu erreichen */}
+        <div className={`shrink-0 flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4 ${headerBg}`}>
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <Target size={22} className="text-sky-500 shrink-0" />
           <div className="min-w-0">
@@ -838,6 +840,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

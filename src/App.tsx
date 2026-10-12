@@ -16,7 +16,7 @@ import { ShapeConfigDialog } from "@/components/ShapeConfigDialog";
 import { ShapePicker } from "@/components/ShapePicker";
 import { ShapePropertiesPanel } from "@/components/ShapePropertiesPanel";
 import { ShareExportDialog } from "@/components/ShareExportDialog";
-import { Sidebar } from "@/components/Sidebar";
+import type { StorageTab } from "@/components/canvas-v2/TopologyStorageDialog";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { AppHeader } from "@/components/navigation/AppHeader";
@@ -284,7 +284,7 @@ function App() {
     ...DEFAULT_SUBJECTS,
     ...CATALOG_SUBJECTS,
   ]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [v2StorageTab, setV2StorageTab] = useState<StorageTab | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
   // Phase 6c-3: selected topic for detail panel
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -503,7 +503,7 @@ function App() {
     );
   }, [appData, currentSubject]);
 
-  // Stabile Handler für memoized Children (Canvas, Sidebar, FloatingToolbar)
+  // Stabile Handler für memoized Children (Canvas, FloatingToolbar)
   const viewportInfoRef = useRef(viewportInfo);
   viewportInfoRef.current = viewportInfo;
 
@@ -511,13 +511,7 @@ function App() {
     setCurrentSubject(s);
     setSelectedTopic(null);
     setSelectedTopicModule(null);
-    setSidebarCollapsed(true);
   }, []);
-
-  const handleToggleSidebar = useCallback(
-    () => setSidebarCollapsed((v) => !v),
-    [],
-  );
 
   const handleSelectionChange = useCallback(
     (selectedObjs: DrawingObject[]) => {
@@ -1202,39 +1196,6 @@ function App() {
     );
   }, []);
 
-  const handleAddSubject = useCallback(
-    (name: string) => {
-      if (subjects.includes(name)) {
-        toast.error("Thema existiert bereits", { duration: 2000 });
-        return;
-      }
-
-      setAppData((prev) => {
-        const prevData = prev || {};
-        return {
-          ...prevData,
-          [name]: {
-            name,
-            canvasState: {
-              objects: [],
-              connections: [],
-              history: [[]],
-              historyIndex: 0,
-            },
-            lastModified: Date.now(),
-          },
-        };
-      });
-      setSubjects((prev) => [...prev, name]);
-      setCurrentSubject(name);
-      toast.success(
-        `Thema hinzugefügt: ${SUBJECT_CONFIGS[name]?.name || name}`,
-        { duration: 2000 },
-      );
-    },
-    [subjects, setAppData],
-  );
-
   const handleRemoveSubject = useCallback(
     (subject: string) => {
       if (subjects.length === 1) {
@@ -1389,18 +1350,7 @@ function App() {
   );
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-900 text-white flex">
-      {/* Sidebar */}
-      <Sidebar
-        subjects={subjects}
-        currentSubject={currentSubject}
-        onSubjectChange={handleSubjectChange}
-        onAddSubject={handleAddSubject}
-        onRemoveSubject={handleRemoveSubject}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={handleToggleSidebar}
-      />
-
+    <div className="h-screen w-screen overflow-hidden bg-slate-900 text-white flex flex-col">
       {/* Main Content Area */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Header Bar */}
@@ -1469,7 +1419,11 @@ function App() {
           }}
           onOpenTopologyValidator={() => {
             if (!canvasView) setCanvasView(true);
-            setShowTopologyValidator(true);
+            if (canvasEngine === "v2") {
+              setV2StorageTab("diagnostics");
+            } else {
+              setShowTopologyValidator(true);
+            }
           }}
           isMetricsActive={showMetrics}
           onToggleMetrics={() => {
@@ -1483,9 +1437,20 @@ function App() {
           }}
           onOpenTemplates={() => {
             if (!canvasView) setCanvasView(true);
-            setShowTemplateGallery(true);
+            if (canvasEngine === "v2") {
+              setV2StorageTab("templates");
+            } else {
+              setShowTemplateGallery(true);
+            }
           }}
-          onOpenShareExport={() => setShowShareExport(true)}
+          onOpenShareExport={() => {
+            if (canvasEngine === "v2") {
+              if (!canvasView) setCanvasView(true);
+              setV2StorageTab("export");
+            } else {
+              setShowShareExport(true);
+            }
+          }}
           isCostCalculatorActive={showCostCalculator}
           onToggleCostCalculator={() => setShowCostCalculator((v) => !v)}
         />
@@ -1543,6 +1508,7 @@ function App() {
                           onToggleCanvasView={handleToggleCanvasView}
                           onOpenExamPrep={() => setShowExamPrep(true)}
                           onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
+                          onOpenLabs={() => setShowLabScenarios(true)}
                         />
                       ) : (
                         <TopicListPanel
@@ -1626,6 +1592,8 @@ function App() {
                 <CanvasV2Container
                   theme={theme}
                   onSwitchToV1={() => setCanvasEngine("v1")}
+                  externalStorageTab={v2StorageTab}
+                  onCloseStorageDialog={() => setV2StorageTab(null)}
                 />
               ) : (
                 <>
@@ -1729,7 +1697,9 @@ function App() {
                     </p>
                     <div className="flex flex-col gap-2">
                       <button
-                        onClick={() => setShowTemplateGallery(true)}
+                        onClick={() => {
+                          setShowTemplateGallery(true);
+                        }}
                         className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                           theme === "dark"
                             ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30"
@@ -1749,7 +1719,7 @@ function App() {
                         Shape platzieren
                       </button>
                       <button
-                        onClick={() => setSidebarCollapsed(false)}
+                        onClick={() => setCanvasView(false)}
                         className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                           theme === "dark"
                             ? "bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700"
@@ -2410,7 +2380,11 @@ function App() {
         }}
         onOpenTopologyValidator={() => {
           if (!canvasView) setCanvasView(true);
-          setShowTopologyValidator(true);
+          if (canvasEngine === "v2") {
+            setV2StorageTab("diagnostics");
+          } else {
+            setShowTopologyValidator(true);
+          }
         }}
         isMetricsActive={showMetrics}
         onToggleMetrics={() => {
@@ -2424,9 +2398,20 @@ function App() {
         }}
         onOpenTemplates={() => {
           if (!canvasView) setCanvasView(true);
-          setShowTemplateGallery(true);
+          if (canvasEngine === "v2") {
+            setV2StorageTab("templates");
+          } else {
+            setShowTemplateGallery(true);
+          }
         }}
-        onOpenShareExport={() => setShowShareExport(true)}
+        onOpenShareExport={() => {
+          if (canvasEngine === "v2") {
+            if (!canvasView) setCanvasView(true);
+            setV2StorageTab("export");
+          } else {
+            setShowShareExport(true);
+          }
+        }}
         isCostCalculatorActive={showCostCalculator}
         onToggleCostCalculator={() => setShowCostCalculator((v) => !v)}
       />
@@ -2441,6 +2426,7 @@ function App() {
 
       <Toaster
         position="bottom-right"
+        className="z-toast"
         theme={theme}
         toastOptions={{
           style: {

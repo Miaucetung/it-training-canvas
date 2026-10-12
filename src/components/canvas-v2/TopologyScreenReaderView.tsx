@@ -2,6 +2,7 @@ import React from "react";
 import { NetworkTopology, TopologyDevice } from "@/types/topology";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { X, Table, ShieldCheck, Warning } from "@phosphor-icons/react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface TopologyScreenReaderViewProps {
   topology: NetworkTopology;
@@ -252,10 +253,12 @@ export const TopologyScreenReaderView: React.FC<TopologyScreenReaderViewProps> =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs overflow-y-auto">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        {content}
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
+        <div className="w-full max-w-4xl max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] overflow-y-auto">
+          {content}
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };

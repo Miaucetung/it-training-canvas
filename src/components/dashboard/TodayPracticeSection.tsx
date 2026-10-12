@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  BookOpen,
   Calculator,
   ListChecks,
   Target,
@@ -10,12 +11,14 @@ interface TodayPracticeSectionProps {
   onOpenWeaknessDrill: () => void;
   onOpenDragDropTrainer: () => void;
   onOpenSubnetDrill: () => void;
+  onOpenLabs?: () => void;
 }
 
 export function TodayPracticeSection({
   onOpenWeaknessDrill,
   onOpenDragDropTrainer,
   onOpenSubnetDrill,
+  onOpenLabs,
 }: TodayPracticeSectionProps) {
   return (
     <section aria-label="Heute üben" className="space-y-4">
@@ -84,15 +87,27 @@ export function TodayPracticeSection({
             </button>
           </div>
 
-          {/* Subnetting-Drill Speedtraining Link */}
-          <button
-            type="button"
-            onClick={onOpenSubnetDrill}
-            className="w-full inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded border border-border/80 bg-surface/80 hover:bg-surface-elevated text-muted-foreground hover:text-foreground text-xs font-mono transition-colors"
-          >
-            <Calculator className="h-3.5 w-3.5 text-primary" />
-            <span>Subnetting-Speed-Drill öffnen</span>
-          </button>
+          {/* Subnetting-Drill Speedtraining & Packet Tracer Labs Links */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={onOpenSubnetDrill}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded border border-border/80 bg-surface/80 hover:bg-surface-elevated text-muted-foreground hover:text-foreground text-xs font-mono transition-colors"
+            >
+              <Calculator className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>Subnetting-Drill</span>
+            </button>
+            {onOpenLabs && (
+              <button
+                type="button"
+                onClick={onOpenLabs}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded border border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 hover:text-white text-xs font-medium transition-colors"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-violet-400 shrink-0" />
+                <span>Packet Tracer Labs (55)</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </section>

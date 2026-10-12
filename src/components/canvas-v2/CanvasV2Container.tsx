@@ -43,7 +43,7 @@ import { CanvasToolMode, DevicePalette } from "./DevicePalette";
 import { ConnectDialog } from "./ConnectDialog";
 import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
-import { TopologyStorageDialog } from "./TopologyStorageDialog";
+import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
 import { saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
@@ -65,6 +65,8 @@ interface CanvasV2ContainerProps {
   initialTopology?: NetworkTopology;
   onSwitchToV1?: () => void;
   theme?: "dark" | "light";
+  externalStorageTab?: StorageTab | null;
+  onCloseStorageDialog?: () => void;
 }
 
 const MIN_SCALE = 0.25;
@@ -74,6 +76,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   initialTopology = TOPOLOGY_ROUTER_ON_A_STICK,
   onSwitchToV1,
   theme = "dark",
+  externalStorageTab = null,
+  onCloseStorageDialog,
 }) => {
   const isDark = theme === "dark";
 
@@ -169,7 +173,15 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   // Schritt 2d-3 Dialoge & Storage
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState<boolean>(false);
+  const [storageDialogTab, setStorageDialogTab] = useState<StorageTab>("templates");
   const [showScreenReaderView, setShowScreenReaderView] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (externalStorageTab) {
+      setStorageDialogTab(externalStorageTab);
+      setIsStorageDialogOpen(true);
+    }
+  }, [externalStorageTab]);
 
   // Performance-Tracking
   const [renderDurationMs, setRenderDurationMs] = useState<number>(0);
@@ -1256,7 +1268,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
           {/* Speichern & Export Dialog */}
           <button
-            onClick={() => setIsStorageDialogOpen(true)}
+            onClick={() => {
+              setStorageDialogTab("saved");
+              setIsStorageDialogOpen(true);
+            }}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               isDark
                 ? "border-slate-700 text-slate-200 hover:bg-slate-800 bg-slate-800/50"
@@ -1270,7 +1285,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
           {/* Netzwerk-Diagnose Button mit Badge */}
           <button
-            onClick={() => setIsStorageDialogOpen(true)}
+            onClick={() => {
+              setStorageDialogTab("diagnostics");
+              setIsStorageDialogOpen(true);
+            }}
             className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               diagnostics.warningsCount > 0
                 ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
@@ -1798,7 +1816,11 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           currentTopology={activeTopology}
           theme={theme}
           isOpen={isStorageDialogOpen}
-          onClose={() => setIsStorageDialogOpen(false)}
+          initialTab={storageDialogTab}
+          onClose={() => {
+            setIsStorageDialogOpen(false);
+            onCloseStorageDialog?.();
+          }}
           onLoadTopology={(loadedTopo) => {
             setTopology(() => loadedTopo, true);
             setSelectedTopologyId(loadedTopo.id);

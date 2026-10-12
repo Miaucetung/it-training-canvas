@@ -14,6 +14,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 export interface CommandItem {
   id: string;
@@ -349,13 +350,14 @@ export function CommandPalette({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-24 px-4 animate-in fade-in duration-150"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="CCNA Befehlspalette"
-    >
+    <ModalPortal>
+      <div
+        className="fixed inset-0 z-dialog bg-black/60 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-24 px-4 animate-in fade-in duration-150"
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label="CCNA Befehlspalette"
+      >
       <div
         className="w-full max-w-xl rounded-xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -472,6 +474,7 @@ export function CommandPalette({
           <span>CCNA 200-301</span>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

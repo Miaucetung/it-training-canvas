@@ -25,6 +25,7 @@ import {
   TreeStructure,
 } from "@phosphor-icons/react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface DeviceConfigDialogProps {
   device: TopologyDevice;
@@ -171,50 +172,52 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div
-        ref={dialogRef}
-        tabIndex={-1}
-        className={`w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
-          isDark
-            ? "bg-slate-900 border-slate-700 text-white"
-            : "bg-white border-slate-200 text-slate-900"
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="device-dialog-title"
-      >
-        {/* Header */}
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
         <div
-          className={`flex items-center justify-between px-5 py-4 border-b ${
-            isDark ? "border-slate-800 bg-slate-900/60" : "border-slate-100 bg-slate-50"
+          ref={dialogRef}
+          tabIndex={-1}
+          className={`w-full max-w-3xl max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
+            isDark
+              ? "bg-slate-900 border-slate-700 text-white"
+              : "bg-white border-slate-200 text-slate-900"
           }`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="device-dialog-title"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400">
-              <Gear size={22} weight="bold" />
-            </div>
-            <div>
-              <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
-                Geräte-Konfiguration · {device.type.toUpperCase()}
-              </div>
-              <h2 id="device-dialog-title" className="text-base font-bold truncate">
-                {hostname}
-              </h2>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-xl transition-colors ${
-              isDark
-                ? "text-slate-400 hover:text-white hover:bg-slate-800"
-                : "text-slate-500 hover:text-black hover:bg-slate-100"
+          {/* Header */}
+          <div
+            className={`flex items-center justify-between px-4 sm:px-6 py-3.5 border-b shrink-0 ${
+              isDark ? "border-slate-800 bg-slate-900/60" : "border-slate-100 bg-slate-50"
             }`}
-            title="Schließen"
           >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400 shrink-0">
+                <Gear size={22} weight="bold" />
+              </div>
+              <div className="min-w-0">
+                <div className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
+                  Geräte-Konfiguration · {device.type.toUpperCase()}
+                </div>
+                <h2 id="device-dialog-title" className="text-sm sm:text-base font-bold truncate">
+                  {hostname}
+                </h2>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl transition-colors ${
+                isDark
+                  ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                  : "text-slate-500 hover:text-black hover:bg-slate-100"
+              }`}
+              aria-label="Konfigurationsdialog schließen"
+              title="Schließen (Esc)"
+            >
+              <X size={18} weight="bold" />
+            </button>
+          </div>
 
         {/* Tab Navigation */}
         <div
@@ -858,6 +861,7 @@ export const DeviceConfigDialog: React.FC<DeviceConfigDialogProps> = ({
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 };

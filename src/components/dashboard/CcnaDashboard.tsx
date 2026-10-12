@@ -21,6 +21,7 @@ interface CcnaDashboardProps {
   onToggleCanvasView?: () => void;
   onOpenExamPrep?: () => void;
   onOpenPrioritizedLearning?: () => void;
+  onOpenLabs?: () => void;
 }
 
 const STORAGE_KEY_RECENT = "ccna-recent-history";
@@ -35,6 +36,7 @@ export function CcnaDashboard({
   onToggleCanvasView,
   onOpenExamPrep,
   onOpenPrioritizedLearning,
+  onOpenLabs,
 }: CcnaDashboardProps) {
   const [module, setModule] = useState<CertificationModule | null>(null);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
@@ -234,11 +236,12 @@ export function CcnaDashboard({
           onSelectTopic={handleSelectTopicById}
         />
 
-        {/* 3. Today Practice Section (Inline Subnet Calculator, Weakness Drill, D&D) */}
+        {/* 3. Today Practice Section (Inline Subnet Calculator, Weakness Drill, D&D, Labs) */}
         <TodayPracticeSection
           onOpenWeaknessDrill={() => onOpenPrioritizedLearning?.()}
           onOpenDragDropTrainer={() => onLaunchTool?.("dragdrop-trainer")}
           onOpenSubnetDrill={() => onLaunchTool?.("subnetting-drill")}
+          onOpenLabs={onOpenLabs}
         />
 
         {/* 4. Simulatoren Kacheln */}

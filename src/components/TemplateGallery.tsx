@@ -9,6 +9,7 @@ import type {
   TemplateCategory,
 } from "@/lib/types";
 import { TEMPLATE_CATEGORY_LABELS } from "@/lib/types";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { normalizeTemplate } from "@/lib/template-normalizer";
 import {
   Clock,
@@ -17,7 +18,6 @@ import {
   FolderOpen,
   MagnifyingGlass,
   Plus,
-  Star,
   Tag,
   X,
 } from "@phosphor-icons/react";
@@ -44,6 +44,13 @@ interface TemplateGalleryProps {
   ) => void;
   onClose: () => void;
 }
+
+const CCNA_TEMPLATE_CATEGORIES: { id: TemplateCategory; label: string }[] = [
+  { id: "network", label: "Netzwerk (LAN/VLAN/Routing)" },
+  { id: "security", label: "Netzwerksicherheit & Firewalls" },
+  { id: "education", label: "Didaktik & Konzepte" },
+  { id: "general", label: "Allgemein" },
+];
 
 const DIFFICULTY_LABELS: Record<
   CanvasTemplate["difficulty"],
@@ -293,49 +300,71 @@ export function TemplateGallery({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div
-        className={`w-[800px] max-h-[85vh] rounded-2xl shadow-2xl border overflow-hidden flex flex-col ${
-          isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-        }`}
-      >
-        {/* Header */}
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
         <div
-          className={`px-5 py-4 border-b flex items-center justify-between ${isDark ? "border-slate-800" : "border-slate-100"}`}
+          className={`w-full max-w-4xl max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] rounded-2xl shadow-2xl border overflow-hidden flex flex-col ${
+            isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-white border-slate-200 text-slate-900"
+          }`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="template-gallery-title"
         >
-          <div className="flex items-center gap-3">
-            <FolderOpen size={20} className="text-amber-500" weight="bold" />
-            <h2
-              className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}
-            >
-              Vorlagen-Galerie
-            </h2>
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${isDark ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500"}`}
-            >
-              {allTemplates.length} Vorlagen
-            </span>
+          {/* Header */}
+          <div
+            className={`px-4 sm:px-6 py-3.5 border-b flex items-center justify-between shrink-0 ${
+              isDark ? "border-slate-800 bg-slate-950/60" : "border-slate-100 bg-slate-50/80"
+            }`}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <FolderOpen size={20} className="text-amber-500 shrink-0" weight="bold" />
+              <h2
+                id="template-gallery-title"
+                className={`text-sm sm:text-base font-bold truncate ${
+                  isDark ? "text-white" : "text-slate-900"
+                }`}
+              >
+                CCNA Vorlagen-Galerie
+              </h2>
+              <span
+                className={`text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold shrink-0 ${
+                  isDark ? "bg-slate-800 text-slate-300" : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {allTemplates.length} Vorlagen
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                onClick={() => setShowSaveForm(!showSaveForm)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  showSaveForm
+                    ? "bg-amber-500/20 text-amber-400"
+                    : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                }`}
+              >
+                <Plus size={14} weight="bold" />
+                <span className="hidden sm:inline">
+                  {showSaveForm ? "Abbrechen" : "Als Vorlage speichern"}
+                </span>
+                <span className="sm:hidden">
+                  {showSaveForm ? "Abbruch" : "Speichern"}
+                </span>
+              </button>
+              <button
+                onClick={onClose}
+                className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${
+                  isDark
+                    ? "hover:bg-slate-800 text-slate-400 hover:text-white"
+                    : "hover:bg-slate-100 text-slate-500 hover:text-black"
+                }`}
+                aria-label="Vorlagen-Galerie schließen"
+                title="Schließen (Esc)"
+              >
+                <X size={18} weight="bold" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowSaveForm(!showSaveForm)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showSaveForm
-                  ? "bg-amber-500/20 text-amber-400"
-                  : "bg-emerald-500 hover:bg-emerald-600 text-white"
-              }`}
-            >
-              <Plus size={14} />
-              {showSaveForm ? "Abbrechen" : "Als Vorlage speichern"}
-            </button>
-            <button
-              onClick={onClose}
-              className={`p-1.5 rounded-lg ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
-            >
-              <X size={18} />
-            </button>
-          </div>
-        </div>
 
         {/* Save form */}
         {showSaveForm && (
@@ -377,13 +406,11 @@ export function TemplateGallery({
                       : "bg-white border-slate-300 text-slate-700"
                   }`}
                 >
-                  {Object.entries(TEMPLATE_CATEGORY_LABELS).map(
-                    ([key, label]) => (
-                      <option key={key} value={key}>
-                        {label}
-                      </option>
-                    ),
-                  )}
+                  {CCNA_TEMPLATE_CATEGORIES.map(({ id, label }) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -473,8 +500,8 @@ export function TemplateGallery({
             }`}
           >
             <option value="all">Alle Kategorien</option>
-            {Object.entries(TEMPLATE_CATEGORY_LABELS).map(([key, label]) => (
-              <option key={key} value={key}>
+            {CCNA_TEMPLATE_CATEGORIES.map(({ id, label }) => (
+              <option key={id} value={id}>
                 {label}
               </option>
             ))}
@@ -513,7 +540,7 @@ export function TemplateGallery({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {filteredTemplates.map((template) => {
                 const diff = DIFFICULTY_LABELS[template.difficulty];
                 const isCustom = !template.id.startsWith("tpl-");
@@ -523,10 +550,10 @@ export function TemplateGallery({
                     key={template.id}
                     className={`group rounded-xl border overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
                       previewTemplate?.id === template.id
-                        ? "ring-2 ring-blue-500"
+                        ? "ring-2 ring-sky-500 shadow-md"
                         : isDark
-                          ? "border-slate-800 hover:border-slate-600"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-slate-800 hover:border-slate-600 bg-slate-900/60"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
                     }`}
                     onClick={() =>
                       setPreviewTemplate(
@@ -543,31 +570,19 @@ export function TemplateGallery({
 
                     {/* Info */}
                     <div
-                      className={`p-3 ${isDark ? "bg-slate-900" : "bg-white"}`}
+                      className={`p-3.5 ${isDark ? "bg-slate-900" : "bg-white"}`}
                     >
-                      <div className="flex items-start justify-between mb-1">
+                      <div className="flex items-start justify-between mb-1 gap-2">
                         <h4
-                          className={`text-sm font-semibold ${isDark ? "text-slate-200" : "text-slate-700"}`}
+                          className={`text-sm font-semibold truncate ${isDark ? "text-slate-200" : "text-slate-800"}`}
                         >
                           {template.name}
-                          {isCustom && (
-                            <span className="ml-1 text-[9px] text-amber-500 font-normal">
-                              Eigene
-                            </span>
-                          )}
                         </h4>
-                        <div className="flex items-center gap-1">
-                          <Star
-                            size={10}
-                            weight="fill"
-                            className="text-amber-400"
-                          />
-                          <span
-                            className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}
-                          >
-                            {template.rating.toFixed(1)}
+                        {isCustom && (
+                          <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-semibold border border-amber-500/30">
+                            Eigene
                           </span>
-                        </div>
+                        )}
                       </div>
 
                       <p
@@ -650,6 +665,7 @@ export function TemplateGallery({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

@@ -12,6 +12,8 @@ import { AUTOMATION_LABS } from "./automation";
 import { OPERATIONS_LABS } from "./operations";
 import { CAMPUS_LABS } from "./campus";
 
+import { CURATED_TOPOLOGIES } from "./curated-topologies";
+
 export const LABS: LabScenario[] = [
   ...DRILL_LABS,
   ...LAYER2_LABS,
@@ -22,7 +24,15 @@ export const LABS: LabScenario[] = [
   ...AUTOMATION_LABS,
   ...OPERATIONS_LABS,
   ...CAMPUS_LABS,
-];
+].map((lab) => {
+  if (CURATED_TOPOLOGIES[lab.id]) {
+    return {
+      ...lab,
+      structuredTopology: CURATED_TOPOLOGIES[lab.id],
+    };
+  }
+  return lab;
+});
 
 // ── Didaktisch-kognitive Lernreihenfolge ─────────────────────
 // Prinzip (Sweller / Bloom): Fundament → Werkzeug → L2 → L3 → Dienste → Security → Wireless → Automation → Betrieb

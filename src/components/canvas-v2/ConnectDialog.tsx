@@ -7,6 +7,7 @@ import {
 } from "@/lib/topology/topology-operations";
 import { X, PlugsConnected, Warning, Check } from "@phosphor-icons/react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface ConnectDialogProps {
   sourceDevice: TopologyDevice;
@@ -85,42 +86,47 @@ export const ConnectDialog: React.FC<ConnectDialogProps> = ({
   const dialogRef = useFocusTrap<HTMLDivElement>(true, onClose);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div
-        ref={dialogRef}
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="connect-dialog-title"
-        className={`w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
-          isDark
-            ? "bg-slate-900 border-slate-700 text-white"
-            : "bg-white border-slate-200 text-slate-900"
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/50">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400">
-              <PlugsConnected size={20} weight="bold" />
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
+        <div
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="connect-dialog-title"
+          className={`w-full max-w-md max-h-[calc(100dvh-1.5rem)] flex flex-col rounded-2xl border shadow-2xl overflow-hidden focus:outline-none ${
+            isDark
+              ? "bg-slate-900 border-slate-700 text-white"
+              : "bg-white border-slate-200 text-slate-900"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-slate-700/50 shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="p-2 rounded-xl bg-sky-500/20 text-sky-400 shrink-0">
+                <PlugsConnected size={20} weight="bold" />
+              </div>
+              <div className="min-w-0">
+                <h3 id="connect-dialog-title" className="text-sm font-bold truncate">Geräte verbinden</h3>
+                <p className="text-[11px] text-slate-400 truncate">
+                  {sourceDevice.name} ↔ {targetDevice.name}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 id="connect-dialog-title" className="text-sm font-bold">Geräte verbinden</h3>
-              <p className="text-[11px] text-slate-400">
-                {sourceDevice.name} ↔ {targetDevice.name}
-              </p>
-            </div>
+            <button
+              onClick={onClose}
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${
+                isDark ? "text-slate-400 hover:text-white hover:bg-slate-800" : "text-slate-500 hover:text-black hover:bg-slate-100"
+              }`}
+              aria-label="Verbindungsdialog schließen"
+              title="Schließen (Esc)"
+            >
+              <X size={18} weight="bold" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
+          {/* Form Body */}
+          <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4 text-xs flex-1 min-h-0 overflow-y-auto">
           {/* Quell-Interface */}
           <div>
             <label className="block font-semibold text-slate-300 mb-1.5">
@@ -252,5 +258,6 @@ export const ConnectDialog: React.FC<ConnectDialogProps> = ({
         </form>
       </div>
     </div>
-  );
+  </ModalPortal>
+);
 };

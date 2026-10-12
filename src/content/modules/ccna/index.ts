@@ -545,7 +545,7 @@ const CCNA_EXERCISES: Record<string, Exercise> = {
     description:
       "Skizziere ein SD-WAN-Overlay mit zwei cEdge-Routern (Hauptsitz + Filiale), MPLS- und Internet-Underlay, vManage/vSmart/vBond. Zeichne die App-Aware-Path-Auswahl für Voice-Traffic.",
     learningPathId: "ccna-full-path",
-    canvasTemplateId: "tpl-aws-3tier",
+    canvasTemplateId: "tpl-basic-lan",
     estimatedMinutes: 60,
     difficulty: "advanced",
     conceptIds: ["wan-technologies", "sd-wan"],
