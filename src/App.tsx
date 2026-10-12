@@ -19,6 +19,9 @@ import { ShareExportDialog } from "@/components/ShareExportDialog";
 import { Sidebar } from "@/components/Sidebar";
 import { PingScenarioDialog } from "@/components/PingScenarioDialog";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { AppHeader } from "@/components/navigation/AppHeader";
+import { AppBreadcrumbs } from "@/components/navigation/AppBreadcrumbs";
+import { MobileNavDrawer } from "@/components/navigation/MobileNavDrawer";
 import {
   SimulationControls,
   useSimulation,
@@ -60,39 +63,15 @@ import {
   TEXT_SIZES,
   TextSize,
   Tool,
+  ToolId,
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/use-local-storage";
-import {
-  ArrowClockwise,
-  BookOpen,
-  CaretDown,
-  ChartLine,
-  CurrencyDollar,
-  Desktop,
-  Export,
-  FolderOpen,
-  GraduationCap,
-  Keyboard,
-  Lightning,
-  List,
-  Notepad,
-  Plus,
-  Pulse,
-  Stethoscope,
-  Sun,
-  Moon,
-  Target,
-  Terminal,
-  Wrench,
-  X,
-} from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
-import { AuthMenu } from "@/components/AuthMenu";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
 
 export type ThemePreference = "system" | "light" | "dark";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { toast, Toaster } from "sonner";
 
 const AccountDialog = lazy(() =>
@@ -166,62 +145,6 @@ const TopologieExplorerDialog = lazy(() =>
 const CliGlossaryDialog = lazy(() =>
   import("@/components/CliGlossaryDialog").then((m) => ({ default: m.CliGlossaryDialog })),
 );
-
-// ── Tools-Menü: alle Simulatoren & Trainer zentral startbar ──
-type ToolId =
-  | "subnetting-drill"
-  | "routing-drill"
-  | "ospf-wildcard-drill"
-  | "acl-drill"
-  | "subnetting-quiz"
-  | "subnetting-cheatsheet"
-  | "ipv4-subnet-table"
-  | "ipv6-calculator"
-  | "vlan-simulator"
-  | "stp-simulator"
-  | "osi-simulator"
-  | "routing-simulator"
-  | "verkabelung-trainer"
-  | "dragdrop-trainer"
-  | "topologie-explorer"
-  | "cli-glossary";
-
-const TOOL_GROUPS: Array<{
-  group: string;
-  tools: Array<{ id: ToolId; name: string; hint: string }>;
-}> = [
-  {
-    group: "Simulatoren",
-    tools: [
-      { id: "vlan-simulator", name: "VLAN-Simulator", hint: "Frames, Trunks & 802.1Q live" },
-      { id: "stp-simulator", name: "STP-Simulator", hint: "Spanning Tree Schritt für Schritt" },
-      { id: "osi-simulator", name: "OSI-Simulator", hint: "Kapselung durch alle 7 Schichten" },
-      { id: "routing-simulator", name: "Routing-Simulator", hint: "Routingtabellen & Pfadwahl" },
-    ],
-  },
-  {
-    group: "Trainer & Rechner",
-    tools: [
-      { id: "subnetting-drill", name: "Subnetting-Drill", hint: "Subnetze rechnen gegen die Uhr" },
-      { id: "routing-drill", name: "Routing-Endlos-Lab", hint: "ip route schreiben & Longest-Match gegen die Uhr" },
-      { id: "ospf-wildcard-drill", name: "OSPF- & Wildcard-Drill", hint: "Wildcard, network-Befehl & DR/BDR-Wahl gegen die Uhr" },
-      { id: "acl-drill", name: "ACL-Drill", hint: "Wildcard, Lesen, Schreiben, IP-Bereiche, Named & Advanced gegen die Uhr" },
-      { id: "subnetting-quiz", name: "Subnetting-Quiz", hint: "Usable Range & Subnetz im Multiple-Choice" },
-      { id: "subnetting-cheatsheet", name: "Subnetting-Cheatsheet", hint: "Blockgrößen, Grenzen, VLSM + Rechner" },
-      { id: "ipv4-subnet-table", name: "IPv4-Subnetting-Referenz", hint: "CIDR, Maske, Binär, Blockgröße, Hosts" },
-      { id: "ipv6-calculator", name: "IPv6-Rechner", hint: "Adressen kürzen, EUI-64, Präfixe" },
-      { id: "verkabelung-trainer", name: "Verkabelungs-Trainer", hint: "Kabeltypen richtig zuordnen" },
-      { id: "dragdrop-trainer", name: "Drag-&-Drop-Trainer", hint: "Zuordnungsfragen wie in der Prüfung" },
-    ],
-  },
-  {
-    group: "Referenz",
-    tools: [
-      { id: "topologie-explorer", name: "Topologie-Explorer", hint: "Referenz-Topologien erkunden" },
-      { id: "cli-glossary", name: "CLI-Glossar", hint: "IOS-Befehle nachschlagen" },
-    ],
-  },
-];
 
 function getObjectBounds(obj: DrawingObject): {
   x: number;
@@ -416,7 +339,6 @@ function App() {
   /** UI density: "simple" hides connection labels for clean overview, "detail" shows everything. */
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
   const [showTopologyValidator, setShowTopologyValidator] = useState(false);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [canvasView, setCanvasView] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -435,21 +357,7 @@ function App() {
     "v1",
   );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [moreMenuPos, setMoreMenuPos] = useState<{ top: number; right: number } | null>(null);
-  const moreButtonRef = useRef<HTMLButtonElement>(null);
-  const moreMenuContentRef = useRef<HTMLDivElement>(null);
-
-  // Lernpfade-Dropdown
-  const [showLearningPathMenu, setShowLearningPathMenu] = useState(false);
-  const [learningPathMenuPos, setLearningPathMenuPos] = useState<{ top: number; right: number } | null>(null);
-  const learningPathButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Tools-Menü (Simulatoren & Trainer)
-  const [showToolsMenu, setShowToolsMenu] = useState(false);
-  const [toolsMenuPos, setToolsMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
-  const toolsButtonRef = useRef<HTMLButtonElement>(null);
-  const toolsMenuContentRef = useRef<HTMLDivElement>(null);
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);
@@ -509,7 +417,6 @@ function App() {
 
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const emptyCanvasState = () => ({
@@ -1386,28 +1293,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!showMoreMenu) return;
-    const handler = (e: MouseEvent) => {
-      const inButton = moreMenuRef.current?.contains(e.target as Node);
-      const inContent = moreMenuContentRef.current?.contains(e.target as Node);
-      if (!inButton && !inContent) setShowMoreMenu(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showMoreMenu]);
-
-  useEffect(() => {
-    if (!showToolsMenu) return;
-    const handler = (e: MouseEvent) => {
-      const inButton = toolsButtonRef.current?.contains(e.target as Node);
-      const inContent = toolsMenuContentRef.current?.contains(e.target as Node);
-      if (!inButton && !inContent) setShowToolsMenu(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showToolsMenu]);
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignoriere Tastenkürzel wenn ein Input-Feld oder Textarea fokussiert ist
       const activeElement = document.activeElement;
@@ -1489,7 +1374,6 @@ function App() {
   const canvasState = getCurrentCanvasState();
   const canUndo = canvasState.historyIndex > 0;
   const canRedo = canvasState.historyIndex < canvasState.history.length - 1;
-  const currentConfig = SUBJECT_CONFIGS[currentSubject];
   // Phase 6c-2: resolve catalog module ID for current subject (null = legacy)
   const catalogModuleId = SUBJECT_TO_MODULE_ID[currentSubject] ?? null;
 
@@ -1519,603 +1403,105 @@ function App() {
       {/* Main Content Area */}
       <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Header Bar */}
-        <div
-          className={`flex items-center justify-between px-3 md:px-6 py-3 border-b ${
-            theme === "dark"
-              ? "bg-slate-900/50 border-slate-700/50"
-              : "bg-white/80 border-slate-200"
-          } backdrop-blur-sm`}
-        >
-          <div className="flex items-center gap-4">
-            <div
-              className="w-3 h-3 rounded-full animate-pulse"
-              style={{ backgroundColor: currentConfig?.color || "#6366F1" }}
-            />
-            <div>
-              <h2
-                className={`text-base md:text-lg font-semibold truncate max-w-[120px] sm:max-w-none ${theme === "dark" ? "text-white" : "text-slate-900"}`}
-              >
-                {currentConfig?.name || currentSubject}
-              </h2>
-              <p
-                className={`text-xs hidden sm:block ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}
-              >
-                {currentConfig?.description || "Training Canvas"}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="hidden md:block">
-              <button
-                ref={learningPathButtonRef}
-                onClick={() => {
-                  const paths = Object.values(learningPaths);
-                  if (paths.length === 0) {
-                    setEditingPath(null);
-                    setShowLearningPathEditor(true);
-                  } else {
-                    if (!showLearningPathMenu && learningPathButtonRef.current) {
-                      const rect = learningPathButtonRef.current.getBoundingClientRect();
-                      setLearningPathMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
-                    }
-                    setShowLearningPathMenu((v) => !v);
-                  }
-                }}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  setEditingPath(null);
-                  setShowLearningPathEditor(true);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  activeLearningPath
-                    ? "bg-indigo-500/20 text-indigo-300"
-                    : theme === "dark"
-                      ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                      : "text-slate-700 hover:text-indigo-600 hover:bg-indigo-50"
-                }`}
-                title="Lernpfade starten (Rechtsklick: neuen Pfad anlegen)"
-              >
-                <GraduationCap size={16} />
-                <span className="hidden xl:inline">Lernpfade</span>
-                {Object.keys(learningPaths).length > 0 && (
-                  <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                      theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-800"
-                    }`}
-                  >
-                    {Object.keys(learningPaths).length}
-                  </span>
-                )}
-              </button>
-              {showLearningPathMenu && learningPathMenuPos && createPortal((() => {
-                const allPaths = Object.values(learningPaths);
-                const subjectPaths = allPaths.filter(
-                  (p) => p.subject === currentSubject || p.tags?.includes(currentSubject)
-                );
-                const otherPaths = allPaths.filter(
-                  (p) => p.subject !== currentSubject && !p.tags?.includes(currentSubject)
-                );
-                return (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[199]"
-                      onClick={() => setShowLearningPathMenu(false)}
-                    />
-                    <div
-                      style={{ top: learningPathMenuPos.top, right: learningPathMenuPos.right }}
-                      className={`fixed z-[200] w-64 rounded-xl shadow-xl border overflow-hidden ${
-                        theme === "dark"
-                          ? "bg-slate-800 border-slate-700"
-                          : "bg-white border-slate-200"
-                      }`}
-                    >
-                    {[{ label: currentSubject, items: subjectPaths }, { label: "Andere", items: otherPaths }]
-                      .filter((g) => g.items.length > 0)
-                      .map((group) => (
-                        <div key={group.label}>
-                          <div
-                            className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide ${
-                              theme === "dark" ? "text-slate-500" : "text-slate-400"
-                            }`}
-                          >
-                            {group.label}
-                          </div>
-                          {group.items.map((p) => {
-                            const pathProg = userProgress[p.id];
-                            const done = pathProg
-                              ? p.steps.filter((s) =>
-                                  pathProg.completedSteps.includes(s.id)
-                                ).length
-                              : 0;
-                            const pct = p.steps.length
-                              ? Math.round((done / p.steps.length) * 100)
-                              : 0;
-                            return (
-                              <button
-                                key={p.id}
-                                onClick={() => {
-                                  setShowLearningPathMenu(false);
-                                  handleStartLearningPath(p);
-                                }}
-                                className={`w-full text-left px-3 py-2 text-xs hover:bg-indigo-500/10 transition-colors ${
-                                  theme === "dark" ? "text-slate-200" : "text-slate-700"
-                                }`}
-                              >
-                                <div className="font-medium truncate">{p.title}</div>
-                                <div
-                                  className={`text-[10px] mt-0.5 ${
-                                    theme === "dark" ? "text-slate-400" : "text-slate-500"
-                                  }`}
-                                >
-                                  {p.estimatedMinutes} min · {p.steps.length} Schritte · {pct}%
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    <div
-                      className={`border-t ${
-                        theme === "dark" ? "border-slate-700" : "border-slate-100"
-                      }`}
-                    >
-                      <button
-                        onClick={() => {
-                          setShowLearningPathMenu(false);
-                          setEditingPath(null);
-                          setShowLearningPathEditor(true);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${
-                          theme === "dark"
-                            ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                            : "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
-                        }`}
-                      >
-                        + Neuen Lernpfad erstellen
-                      </button>
-                    </div>
-                    </div>
-                  </>
-                );
-              })(), document.body)}
-            </div>
+        <AppHeader
+          currentSubject={currentSubject}
+          subjects={subjects}
+          onSelectSubject={handleSubjectChange}
+          canvasView={canvasView}
+          onToggleCanvasView={handleToggleCanvasView}
+          canvasEngine={canvasEngine}
+          theme={theme}
+          themePreference={themePreference}
+          onSelectTheme={handleSelectTheme}
+          onCycleTheme={handleCycleTheme}
+          user={user}
+          onLogin={() => setShowAuthDialog(true)}
+          onAccount={() => setShowAccount(true)}
+          onOpenKeyboardShortcuts={() => setShowKeyboardShortcuts(true)}
+          onOpenMobileMenu={() => setShowMobileMenu(true)}
+          onNavigateOverview={() => {
+            setSelectedTopic(null);
+            if (canvasView) setCanvasView(false);
+          }}
+          learningPaths={learningPaths}
+          userProgress={userProgress}
+          onStartLearningPath={handleStartLearningPath}
+          onNewLearningPath={() => {
+            setEditingPath(null);
+            setShowLearningPathEditor(true);
+          }}
+          onOpenExamPrep={() => setShowExamPrep(true)}
+          onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
+          onSelectTool={setActiveTool}
+          activeTool={activeTool}
+          onOpenPing={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowPingScenario(true);
+          }}
+          isPacketFlowActive={showPacketFlow}
+          onTogglePacketFlow={() => setShowPacketFlow((v) => !v)}
+          isSimulationHUDActive={showSimulationHUD}
+          onToggleSimulationHUD={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowSimulationHUD((v) => !v);
+          }}
+          hasSelectedShape={Boolean(
+            canvasState.objects.find((o) => o.selected && o.type === "shape"),
+          )}
+          onOpenTerminal={() => {
+            if (!canvasView) setCanvasView(true);
+            const sel = canvasState.objects.find(
+              (o) => o.selected && o.type === "shape",
+            );
+            if (sel) {
+              handleOpenTerminal(sel);
+            } else {
+              toast.info("Wähle zuerst ein Netzwerkgerät auf dem Canvas aus", {
+                duration: 2500,
+              });
+            }
+          }}
+          onOpenLabs={() => setShowLabScenarios(true)}
+          onAddDevice={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowShapePicker(true);
+          }}
+          onOpenTopologyValidator={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowTopologyValidator(true);
+          }}
+          isMetricsActive={showMetrics}
+          onToggleMetrics={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowMetrics((v) => !v);
+          }}
+          isAnnotationsActive={showAnnotations}
+          onToggleAnnotations={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowAnnotations((v) => !v);
+          }}
+          onOpenTemplates={() => {
+            if (!canvasView) setCanvasView(true);
+            setShowTemplateGallery(true);
+          }}
+          onOpenShareExport={() => setShowShareExport(true)}
+          isCostCalculatorActive={showCostCalculator}
+          onToggleCostCalculator={() => setShowCostCalculator((v) => !v)}
+        />
 
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
+        {/* Sticky Breadcrumbs Bar */}
+        <AppBreadcrumbs
+          currentSubject={currentSubject}
+          canvasView={canvasView}
+          canvasEngine={canvasEngine}
+          selectedTopic={selectedTopic}
+          activeLearningPathTitle={activeLearningPath?.title}
+          onNavigateHome={() => {
+            setSelectedTopic(null);
+            if (canvasView) setCanvasView(false);
+          }}
+        />
 
-            <button
-              onClick={() => setShowShapePicker(true)}
-              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                theme === "dark"
-                  ? "text-slate-400 hover:text-sky-300 hover:bg-sky-500/10"
-                  : "text-slate-700 hover:text-sky-600 hover:bg-sky-50"
-              }`}
-              title="Netzwerkgerät hinzufügen (Router, Switch, PC, Server …)"
-            >
-              <Plus size={16} />
-              <span className="hidden xl:inline">Gerät</span>
-            </button>
-            <button
-              onClick={() => {
-                const sel = canvasState.objects.find(
-                  (o) => o.selected && o.type === "shape",
-                );
-                if (sel) {
-                  handleOpenTerminal(sel);
-                } else {
-                  toast.info(
-                    "Wähle zuerst ein Netzwerkgerät auf dem Canvas aus",
-                    { duration: 2500 },
-                  );
-                }
-              }}
-              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showTerminal
-                  ? "bg-green-500/20 text-green-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-green-300 hover:bg-green-500/10"
-                    : "text-slate-700 hover:text-green-600 hover:bg-green-50"
-              }`}
-              title="IOS-CLI für selektiertes Gerät öffnen"
-            >
-              <Terminal size={16} />
-              <span className="hidden xl:inline">CLI</span>
-            </button>
-            <button
-              onClick={() => setShowLabScenarios(true)}
-              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showLabScenarios
-                  ? "bg-violet-500/20 text-violet-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-violet-300 hover:bg-violet-500/10"
-                    : "text-slate-700 hover:text-violet-600 hover:bg-violet-50"
-              }`}
-              title="Lab-Szenarien — Schritt-für-Schritt Cisco IOS Übungen"
-            >
-              <BookOpen size={16} />
-              <span className="hidden xl:inline">Labs</span>
-            </button>
-            <button
-              ref={toolsButtonRef}
-              onClick={() => {
-                if (!showToolsMenu && toolsButtonRef.current) {
-                  const rect = toolsButtonRef.current.getBoundingClientRect();
-                  setToolsMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
-                }
-                setShowToolsMenu((prev) => !prev);
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                showToolsMenu || activeTool
-                  ? "bg-amber-500/20 text-amber-300"
-                  : theme === "dark"
-                    ? "text-slate-400 hover:text-amber-300 hover:bg-amber-500/10"
-                    : "text-slate-700 hover:text-amber-600 hover:bg-amber-50"
-              }`}
-              title="Alle Simulatoren, Trainer & Rechner"
-            >
-              <Wrench size={16} />
-              <span className="hidden xl:inline">Tools</span>
-              <CaretDown
-                size={11}
-                className={`transition-transform duration-150 ${showToolsMenu ? "rotate-180" : ""}`}
-              />
-            </button>
-            {showToolsMenu && toolsMenuPos && createPortal(
-              <div
-                ref={toolsMenuContentRef}
-                style={{
-                  top: toolsMenuPos.top,
-                  right: toolsMenuPos.right,
-                  maxHeight: `calc(100vh - ${toolsMenuPos.top}px - 12px)`,
-                }}
-                className={`fixed z-200 min-w-[250px] overflow-y-auto overscroll-contain rounded-xl border shadow-2xl py-1.5 ${
-                  theme === "dark"
-                    ? "bg-slate-900 border-slate-700"
-                    : "bg-white border-slate-200"
-                }`}
-              >
-                {TOOL_GROUPS.map((group, gi) => (
-                  <div key={group.group}>
-                    {gi > 0 && (
-                      <div className={`my-1 h-px ${theme === "dark" ? "bg-slate-700/60" : "bg-slate-100"}`} />
-                    )}
-                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                      {group.group}
-                    </p>
-                    {group.tools.map((tool) => (
-                      <button
-                        key={tool.id}
-                        onClick={() => {
-                          setActiveTool(tool.id);
-                          setShowToolsMenu(false);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 transition-colors ${
-                          theme === "dark"
-                            ? "hover:bg-slate-800"
-                            : "hover:bg-slate-50"
-                        }`}
-                      >
-                        <span className={`block text-xs font-medium ${
-                          theme === "dark" ? "text-slate-200" : "text-slate-700"
-                        }`}>
-                          {tool.name}
-                        </span>
-                        <span className="block text-[10px] text-slate-500">
-                          {tool.hint}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>,
-              document.body
-            )}
-            {/* Mobile/Tablet-Menü Button (auf allen Viewports < lg sichtbar): Macht Prüfung, Labs & Werkzeuge erreichbar */}
-            <button
-              onClick={() => setShowMobileMenu(true)}
-              className={`lg:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                showMobileMenu
-                  ? "bg-sky-500/20 text-sky-300"
-                  : theme === "dark"
-                    ? "text-slate-300 hover:text-white hover:bg-slate-800"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              }`}
-              title="Menü & Werkzeuge (Prüfung, Labs, Simulatoren)"
-              aria-label="Menü & Werkzeuge öffnen"
-            >
-              <List size={16} weight="bold" />
-              <span>Menü</span>
-            </button>
-            <button
-              onClick={() => setShowExamPrep(true)}
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                theme === "dark"
-                  ? "bg-sky-500/15 text-sky-300 hover:bg-sky-500/25"
-                  : "bg-sky-50 text-sky-700 hover:bg-sky-100"
-              }`}
-              title="CCNA Prüfungsvorbereitung — 1200+ echte Prüfungsfragen"
-            >
-              <Target size={16} weight="fill" />
-              <span className="hidden min-[1360px]:inline">Prüfung</span>
-            </button>
-            <button
-              onClick={() => setShowPrioritizedLearning(true)}
-              className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                theme === "dark"
-                  ? "bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/25"
-                  : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-              }`}
-              title="Priorisierte Lern-Queue — Fragen nach CCNA-Blueprint-Prüfungsgewichtung sortiert"
-            >
-              <ChartLine size={16} weight="fill" />
-              <span className="hidden min-[1360px]:inline">Priorisiert lernen</span>
-            </button>
-            <button
-              onClick={() => setShowPingScenario(true)}
-              className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                theme === "dark"
-                  ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
-                  : "bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-              }`}
-              title="Ping testen – geführte Schritt-für-Schritt-Analyse"
-            >
-              <Lightning size={16} weight="fill" />
-              <span className="hidden min-[1360px]:inline">Ping testen</span>
-            </button>
-
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
-
-            {/* Mehr-Dropdown */}
-            <div ref={moreMenuRef} className="relative hidden sm:block">
-              <button
-                ref={moreButtonRef}
-                onClick={() => {
-                  if (!showMoreMenu && moreButtonRef.current) {
-                    const rect = moreButtonRef.current.getBoundingClientRect();
-                    setMoreMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
-                  }
-                  setShowMoreMenu((prev) => !prev);
-                }}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  showMoreMenu ||
-                  showPacketFlow ||
-                  showSimulationHUD ||
-                  showMetrics ||
-                  showAnnotations ||
-                  showTemplateGallery ||
-                  showShareExport ||
-                  showCostCalculator
-                    ? theme === "dark"
-                      ? "bg-slate-700 text-slate-200"
-                      : "bg-slate-100 text-slate-700"
-                    : theme === "dark"
-                      ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
-                }`}
-                title="Weitere Werkzeuge"
-              >
-                Mehr
-                <CaretDown
-                  size={12}
-                  className={`transition-transform duration-150 ${showMoreMenu ? "rotate-180" : ""}`}
-                />
-              </button>
-              {showMoreMenu && moreMenuPos && createPortal(
-                <div
-                  ref={moreMenuContentRef}
-                  style={{ top: moreMenuPos.top, right: moreMenuPos.right }}
-                  className={`fixed z-200 min-w-[210px] rounded-xl border shadow-2xl py-1.5 ${
-                    theme === "dark"
-                      ? "bg-slate-900 border-slate-700/80"
-                      : "bg-white border-slate-200"
-                  }`}
-                >
-                  <p className={`px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                    Simulation
-                  </p>
-                  <button
-                    onClick={() => { setShowPacketFlow(!showPacketFlow); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showPacketFlow ? theme === "dark" ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <Lightning size={15} />
-                    Paketfluss
-                    {showPacketFlow && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-                  </button>
-                  <button
-                    onClick={() => { setShowSimulationHUD(!showSimulationHUD); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showSimulationHUD ? theme === "dark" ? "bg-teal-500/10 text-teal-300" : "bg-teal-50 text-teal-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <Pulse size={15} />
-                    Simulation
-                    {simulationState.isRunning && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />}
-                  </button>
-                  <button
-                    onClick={() => { setShowTopologyValidator(true); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <Stethoscope size={15} />
-                    Topologie prüfen
-                  </button>
-                  <button
-                    onClick={() => { setShowMetrics(!showMetrics); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showMetrics ? theme === "dark" ? "bg-blue-500/10 text-blue-300" : "bg-blue-50 text-blue-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <ChartLine size={15} />
-                    Metriken
-                    {showMetrics && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
-                  </button>
-
-                  <div className={`my-1.5 mx-2 border-t ${theme === "dark" ? "border-slate-800" : "border-slate-100"}`} />
-
-                  <p className={`px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-                    Kollaboration
-                  </p>
-                  <button
-                    onClick={() => { setShowAnnotations(!showAnnotations); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showAnnotations ? theme === "dark" ? "bg-pink-500/10 text-pink-300" : "bg-pink-50 text-pink-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <Notepad size={15} />
-                    Notizen
-                    {(annotations[currentSubject]?.length ?? 0) > 0 && (
-                      <span className={`ml-auto px-1.5 rounded-full text-[10px] ${theme === "dark" ? "bg-slate-700 text-slate-100" : "bg-slate-100 text-slate-700"}`}>
-                        {annotations[currentSubject]?.length}
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => { setShowTemplateGallery(!showTemplateGallery); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showTemplateGallery ? theme === "dark" ? "bg-violet-500/10 text-violet-300" : "bg-violet-50 text-violet-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <FolderOpen size={15} />
-                    Vorlagen
-                  </button>
-                  <button
-                    onClick={() => { setShowShareExport(!showShareExport); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showShareExport ? theme === "dark" ? "bg-cyan-500/10 text-cyan-300" : "bg-cyan-50 text-cyan-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <Export size={15} />
-                    Teilen & Export
-                  </button>
-
-                  <div className={`my-1.5 mx-2 border-t ${theme === "dark" ? "border-slate-800" : "border-slate-100"}`} />
-
-                  <button
-                    onClick={() => { setShowCostCalculator(!showCostCalculator); setShowMoreMenu(false); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${showCostCalculator ? theme === "dark" ? "bg-amber-500/10 text-amber-300" : "bg-amber-50 text-amber-700" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <CurrencyDollar size={15} />
-                    Kosten-Rechner
-                    {showCostCalculator && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />}
-                  </button>
-                </div>,
-                document.body
-              )}
-            </div>
-
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
-
-            <button
-              onClick={() => setShowKeyboardShortcuts(true)}
-              className={`hidden md:flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
-                theme === "dark"
-                  ? "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-              }`}
-              title="Tastenkürzel & Hilfe (?)"
-            >
-              <Keyboard size={16} />
-            </button>
-
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
-
-            {/* Globaler Theme-Schalter (Header) */}
-            {/* Desktop: 3-Segment-Control (System / Hell / Dunkel) */}
-            <div
-              className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border-default bg-surface text-xs"
-              role="group"
-              aria-label="Theme-Auswahl"
-            >
-              <button
-                type="button"
-                onClick={() => handleSelectTheme("system")}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-                  themePreference === "system"
-                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
-                    : "text-text-muted hover:text-text-primary"
-                }`}
-                title="System-Einstellung folgen"
-                aria-pressed={themePreference === "system"}
-              >
-                <Desktop size={14} weight={themePreference === "system" ? "bold" : "regular"} />
-                <span>System</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSelectTheme("light")}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-                  themePreference === "light"
-                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
-                    : "text-text-muted hover:text-text-primary"
-                }`}
-                title="Heller Modus"
-                aria-pressed={themePreference === "light"}
-              >
-                <Sun size={14} weight={themePreference === "light" ? "bold" : "regular"} />
-                <span>Hell</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSelectTheme("dark")}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-                  themePreference === "dark"
-                    ? "bg-surface-elevated font-semibold text-text-primary shadow-xs"
-                    : "text-text-muted hover:text-text-primary"
-                }`}
-                title="Dunkler Modus"
-                aria-pressed={themePreference === "dark"}
-              >
-                <Moon size={14} weight={themePreference === "dark" ? "bold" : "regular"} />
-                <span>Dunkel</span>
-              </button>
-            </div>
-
-            {/* Mobile (< sm): Zyklischer Einzel-Button */}
-            <button
-              type="button"
-              onClick={handleCycleTheme}
-              className="sm:hidden flex items-center justify-center w-8 h-8 rounded-lg transition-colors border border-border-default text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
-              title={`Theme: ${
-                themePreference === "system"
-                  ? "System (folgt Gerät)"
-                  : themePreference === "light"
-                    ? "Hell"
-                    : "Dunkel"
-              } – Tippen zum Umschalten`}
-              aria-label={`Aktuell ${themePreference}. Nächster Modus: ${
-                themePreference === "system"
-                  ? "Hell"
-                  : themePreference === "light"
-                    ? "Dunkel"
-                    : "System"
-              }`}
-            >
-              {themePreference === "system" ? (
-                <Desktop size={16} weight="bold" />
-              ) : themePreference === "light" ? (
-                <Sun size={16} weight="bold" />
-              ) : (
-                <Moon size={16} weight="bold" />
-              )}
-            </button>
-
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
-
-            <AuthMenu
-              user={user}
-              dark={theme === "dark"}
-              onLogin={() => setShowAuthDialog(true)}
-              onAccount={() => setShowAccount(true)}
-            />
-
-            <div className={`w-px h-5 hidden md:block ${theme === "dark" ? "bg-slate-700" : "bg-slate-300"}`} />
-
-            <button
-              onClick={handleToggleCanvasView}
-              className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-                canvasView
-                  ? theme === "dark"
-                    ? "border-indigo-600/50 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
-                    : "border-indigo-400/50 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                  : theme === "dark"
-                    ? "border-slate-700/60 text-slate-400 hover:border-slate-600 hover:text-slate-200 hover:bg-slate-800"
-                    : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 hover:bg-slate-50"
-              }`}
-              title={canvasView ? "Zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
-            >
-              <ArrowClockwise size={14} />
-              <span>{canvasView ? "Lernen" : "Canvas"}</span>
-            </button>
-          </div>
-        </div>
 
         {/* Canvas / Topic — 3D Flip */}
         <div className="flex-1 relative overflow-hidden" style={{ perspective: "1400px" }}>
@@ -2952,242 +2338,82 @@ function App() {
         </Suspense>
       )}
 
-      {/* Mobile-Menü Drawer: Alle Werkzeuge, Prüfungs-Dialoge & Labs für < sm Viewports */}
-      {showMobileMenu && createPortal(
-        <div className="fixed inset-0 z-[250] flex justify-end">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-            onClick={() => setShowMobileMenu(false)}
-            aria-hidden="true"
-          />
-          {/* Drawer Panel */}
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Hauptmenü und Werkzeuge"
-            className={`relative z-[251] w-[320px] max-w-[85vw] h-full flex flex-col shadow-2xl border-l overflow-hidden ${
-              theme === "dark"
-                ? "bg-slate-900 border-slate-700/80 text-white"
-                : "bg-white border-slate-200 text-slate-900"
-            }`}
-          >
-            {/* Header */}
-            <div className={`flex items-center justify-between px-4 py-3 border-b shrink-0 ${
-              theme === "dark" ? "border-slate-800 bg-slate-900/90" : "border-slate-100 bg-slate-50/90"
-            }`}>
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
-                <span className="text-sm font-bold tracking-wide">Menü & Werkzeuge</span>
-              </div>
-              <button
-                onClick={() => setShowMobileMenu(false)}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  theme === "dark" ? "text-slate-400 hover:bg-slate-800 hover:text-white" : "text-slate-500 hover:bg-slate-200"
-                }`}
-                aria-label="Menü schließen"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Scrollable Items */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-              {/* Gruppe 1: Prüfung & Lernen */}
-              <div>
-                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-sky-400">
-                  Prüfung & Lernen
-                </p>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowExamPrep(true); }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
-                      theme === "dark" ? "bg-sky-500/10 text-sky-200 hover:bg-sky-500/20" : "bg-sky-50 text-sky-700 hover:bg-sky-100"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Target size={16} weight="fill" className="text-sky-400 shrink-0" />
-                      <span>Prüfungsvorbereitung</span>
-                    </div>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">1200+</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowPrioritizedLearning(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <ChartLine size={16} weight="fill" className="text-indigo-400 shrink-0" />
-                    <span>Priorisiert lernen (Blueprint)</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowLearningPathEditor(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <GraduationCap size={16} className="text-indigo-400 shrink-0" />
-                    <span>Lernpfade bearbeiten / starten</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Gruppe 2: Geräte & Cisco Labs */}
-              <div>
-                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-                  Geräte & Cisco Labs
-                </p>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowShapePicker(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Plus size={16} className="text-emerald-400 shrink-0" />
-                    <span>Netzwerkgerät hinzufügen</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      const sel = canvasState.objects.find((o) => o.selected && o.type === "shape");
-                      if (sel) {
-                        handleOpenTerminal(sel);
-                      } else {
-                        toast.info("Wähle zuerst ein Netzwerkgerät auf dem Canvas aus", { duration: 2500 });
-                      }
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Terminal size={16} className="text-green-400 shrink-0" />
-                    <span>IOS-CLI Terminal öffnen</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowLabScenarios(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <BookOpen size={16} className="text-violet-400 shrink-0" />
-                    <span>Lab-Szenarien (IOS-Übungen)</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowPingScenario(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
-                      theme === "dark" ? "text-slate-200 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Lightning size={16} weight="fill" className="text-cyan-400 shrink-0" />
-                    <span>Ping testen (Schritt-für-Schritt)</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Gruppe 3: Simulatoren & Trainer */}
-              <div>
-                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                  Simulatoren & Trainer
-                </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {TOOL_GROUPS.flatMap((g) => g.tools).map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        setActiveTool(t.id);
-                      }}
-                      className={`text-left p-2 rounded-lg transition-colors border ${
-                        theme === "dark"
-                          ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-800 text-slate-200"
-                          : "bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      <div className="font-semibold text-[11px] truncate">{t.name}</div>
-                      <div className="text-[9px] text-slate-400 truncate">{t.hint}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gruppe 4: Weitere Werkzeuge */}
-              <div>
-                <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Weitere Werkzeuge
-                </p>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowPacketFlow(!showPacketFlow); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      showPacketFlow ? "bg-emerald-500/20 text-emerald-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Lightning size={15} />
-                    <span>Paketfluss</span>
-                    {showPacketFlow && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowMetrics(!showMetrics); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      showMetrics ? "bg-blue-500/20 text-blue-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <ChartLine size={15} />
-                    <span>Metriken</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowAnnotations(!showAnnotations); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      showAnnotations ? "bg-pink-500/20 text-pink-300" : theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Notepad size={15} />
-                    <span>Notizen</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowTemplateGallery(!showTemplateGallery); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <FolderOpen size={15} />
-                    <span>Vorlagen</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowShareExport(!showShareExport); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Export size={15} />
-                    <span>Teilen & Export</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowCostCalculator(!showCostCalculator); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <CurrencyDollar size={15} />
-                    <span>Kosten-Rechner</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowMobileMenu(false); setShowKeyboardShortcuts(true); }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
-                      theme === "dark" ? "text-slate-300 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Keyboard size={15} />
-                    <span>Tastenkürzel & Hilfe</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Mobile Navigation Drawer */}
+      <MobileNavDrawer
+        open={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        currentSubject={currentSubject}
+        subjects={subjects}
+        onSelectSubject={handleSubjectChange}
+        canvasView={canvasView}
+        onToggleCanvasView={handleToggleCanvasView}
+        canvasEngine={canvasEngine}
+        onNavigateOverview={() => {
+          setSelectedTopic(null);
+          if (canvasView) setCanvasView(false);
+        }}
+        onAccount={() => setShowAccount(true)}
+        learningPaths={learningPaths}
+        userProgress={userProgress}
+        onStartLearningPath={handleStartLearningPath}
+        onNewLearningPath={() => {
+          setEditingPath(null);
+          setShowLearningPathEditor(true);
+        }}
+        onOpenExamPrep={() => setShowExamPrep(true)}
+        onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
+        onSelectTool={setActiveTool}
+        onOpenPing={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowPingScenario(true);
+        }}
+        isPacketFlowActive={showPacketFlow}
+        onTogglePacketFlow={() => setShowPacketFlow((v) => !v)}
+        isSimulationHUDActive={showSimulationHUD}
+        onToggleSimulationHUD={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowSimulationHUD((v) => !v);
+        }}
+        onOpenTerminal={() => {
+          if (!canvasView) setCanvasView(true);
+          const sel = canvasState.objects.find(
+            (o) => o.selected && o.type === "shape",
+          );
+          if (sel) {
+            handleOpenTerminal(sel);
+          } else {
+            toast.info("Wähle zuerst ein Netzwerkgerät auf dem Canvas aus", {
+              duration: 2500,
+            });
+          }
+        }}
+        onOpenLabs={() => setShowLabScenarios(true)}
+        onAddDevice={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowShapePicker(true);
+        }}
+        onOpenTopologyValidator={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowTopologyValidator(true);
+        }}
+        isMetricsActive={showMetrics}
+        onToggleMetrics={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowMetrics((v) => !v);
+        }}
+        isAnnotationsActive={showAnnotations}
+        onToggleAnnotations={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowAnnotations((v) => !v);
+        }}
+        onOpenTemplates={() => {
+          if (!canvasView) setCanvasView(true);
+          setShowTemplateGallery(true);
+        }}
+        onOpenShareExport={() => setShowShareExport(true)}
+        isCostCalculatorActive={showCostCalculator}
+        onToggleCostCalculator={() => setShowCostCalculator((v) => !v)}
+      />
 
       <input
         ref={fileInputRef}
