@@ -361,7 +361,28 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           />
         </button>
 
-        {/* Gruppe 4: Werkzeuge */}
+        {/* Gruppe 4: Labs (Packet Tracer) */}
+        <button
+          id="nav-btn-labs"
+          onClick={() => {
+            closeMenu();
+            onOpenLabs();
+          }}
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border",
+            "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
+          )}
+          title="Packet Tracer Labs — 55 geführte Cisco IOS Praxisübungen"
+          aria-label="Packet Tracer Labs öffnen"
+        >
+          <BookOpen size={16} weight="regular" className="text-violet-400" />
+          <span>Labs</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 font-mono font-semibold">
+            55
+          </span>
+        </button>
+
+        {/* Gruppe 5: Werkzeuge */}
         <button
           id="nav-btn-tools"
           ref={toolsBtnRef}

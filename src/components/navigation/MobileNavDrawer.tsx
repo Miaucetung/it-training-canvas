@@ -465,10 +465,44 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
             </div>
           </div>
 
-          {/* Sektion 5: Werkzeuge & Labs */}
+          {/* Sektion: Packet Tracer Labs */}
+          <div>
+            <div className="flex items-center justify-between px-1 pb-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-violet-400">
+                Praxis-Labs
+              </p>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-mono font-semibold">
+                55 Labs
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                onClose();
+                onOpenLabs();
+              }}
+              className="w-full flex items-center justify-between p-3 min-h-[48px] rounded-xl border border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20 text-left transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <BookOpen size={20} className="text-violet-400 shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-text-primary block">
+                    Packet Tracer Labs
+                  </span>
+                  <span className="text-[10px] text-text-muted block">
+                    Schritt-für-Schritt Topologien & CLI-Befehle
+                  </span>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-violet-400">
+                Öffnen →
+              </span>
+            </button>
+          </div>
+
+          {/* Sektion 5: Werkzeuge */}
           <div>
             <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
-              Werkzeuge & Labs
+              Werkzeuge & Rechner
             </p>
             <div className="grid grid-cols-2 gap-1.5">
               {isToolSupportedForSubject("subnetting-drill", currentSubject) && (

@@ -1543,6 +1543,7 @@ function App() {
                           onToggleCanvasView={handleToggleCanvasView}
                           onOpenExamPrep={() => setShowExamPrep(true)}
                           onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
+                          onOpenLabs={() => setShowLabScenarios(true)}
                         />
                       ) : (
                         <TopicListPanel
