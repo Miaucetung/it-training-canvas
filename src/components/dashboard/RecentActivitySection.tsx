@@ -108,7 +108,7 @@ export function RecentActivitySection({
           <button
             type="button"
             onClick={onStartFirstTopic}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs transition-colors shrink-0 shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors shrink-0 shadow-sm"
           >
             <span>Erste Lektion starten</span>
             <ArrowRight className="h-3.5 w-3.5" />

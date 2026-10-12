@@ -273,10 +273,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           title="Zur CCNA-Startseite"
           aria-label="CCNA 200-301 Startseite"
         >
-          <div
-            className="w-3 h-3 rounded-full shrink-0 shadow-xs"
-            style={{ backgroundColor: "#0284C7" }}
-          />
+          <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-primary shadow-xs" />
           <div className="min-w-0">
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold text-text-primary tracking-tight">

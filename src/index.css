@@ -8,36 +8,36 @@
 }
 
 :root {
-  /* ── Core Surface & Background Tokens (Light Mode) ────────── */
-  --app-bg: #F8FAFC;
-  --surface: #FFFFFF;
-  --surface-elevated: #F1F5F9;
-  --surface-sunken: #E2E8F0;
-  --border-subtle: #E2E8F0;
-  --border-default: #CBD5E1;
-  --border-accent: #0284C7;
+  /* ── Core Surface & Background Tokens (Light Mode - Eye-Friendly Warm Neutral) ────────── */
+  --app-bg: #F3F4F6;            /* Soft warm paper-gray (cuts screen glare) */
+  --surface: #FFFFFF;           /* Clean card surface resting on warm neutral background */
+  --surface-elevated: #E9EDF2;  /* Subtle tinted inner containers & tool wells */
+  --surface-sunken: #DEE3E9;
+  --border-subtle: #E2E7ED;
+  --border-default: #CBD5E1;    /* Balanced slate border */
+  --border-accent: #2563EB;     /* Cisco Royal Blue */
 
-  /* ── Typography Text Tokens (Light Mode - WCAG AA >= 4.5:1) ─ */
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
-  --text-muted: #64748B;
+  /* ── Typography Text Tokens (Light Mode - WCAG AAA >= 11:1, Soft Charcoal) ─ */
+  --text-primary: #1E293B;       /* Deep slate charcoal (softer on retina than harsh ink black #0F172A) */
+  --text-secondary: #475569;     /* Balanced medium slate */
+  --text-muted: #64748B;         /* Restrained secondary label */
 
-  /* ── Interactive & Accent Tokens (Light Mode) ─────────────── */
-  --accent-primary-fg: #0369A1;
-  --accent-primary: #0284C7;
+  /* ── Interactive & Accent Tokens (Light Mode - Cisco Professional Navy/Steel Blue) ─────────────── */
+  --accent-primary-fg: #1D4ED8;  /* Deep blue for links/text (WCAG AA 5.9:1) */
+  --accent-primary: #2563EB;     /* Cisco Blue for buttons & active states */
 
   /* ── Solid Surface & Action Tokens (Light Mode - WCAG AA >= 4.5:1) ─ */
-  --accent-solid: #0369A1;
+  --accent-solid: #1D4ED8;
   --on-accent-solid: #FFFFFF;
-  --status-success-solid: #047857;
+  --status-success-solid: #059669;
   --on-status-success-solid: #FFFFFF;
-  --status-warning-solid: #F59E0B;
-  --on-status-warning-solid: #090D16;
+  --status-warning-solid: #D97706;
+  --on-status-warning-solid: #FFFFFF;
   --status-error-solid: #DC2626;
   --on-status-error-solid: #FFFFFF;
   --status-trunk-solid: #4F46E5;
   --on-status-trunk-solid: #FFFFFF;
-  --status-blocking-solid: #C2410C;
+  --status-blocking-solid: #EA580C;
   --on-status-blocking-solid: #FFFFFF;
 
   /* ── Status Tokens (Light Mode - WCAG AA Verified) ───────── */
@@ -64,7 +64,7 @@
   /* ── Terminal Tokens (Console - Identical in both themes) ─── */
   --terminal-bg: #0B0F19;
   --terminal-fg: #E2E8F0;
-  --terminal-prompt: #38BDF8;
+  --terminal-prompt: #60A5FA;
   --terminal-cmd: #FFFFFF;
   --terminal-muted: #94A3B8;
   --terminal-selection: #1E293B;
@@ -84,11 +84,11 @@
   --card-foreground: var(--text-primary);
   --popover: var(--surface);
   --popover-foreground: var(--text-primary);
-  --primary: var(--accent-primary-fg);
+  --primary: var(--accent-primary);
   --primary-foreground: #FFFFFF;
   --secondary: var(--surface-elevated);
   --secondary-foreground: var(--text-secondary);
-  --muted: var(--surface-sunken);
+  --muted: var(--surface-elevated);
   --muted-foreground: var(--text-muted);
   --accent: var(--surface-elevated);
   --accent-foreground: var(--text-primary);
@@ -103,63 +103,63 @@
 }
 
 .dark {
-  /* ── Core Surface & Background Tokens (Dark Mode) ─────────── */
-  --app-bg: #090D16;
-  --surface: #0F172A;
-  --surface-elevated: #1E293B;
-  --surface-sunken: #060911;
+  /* ── Core Surface & Background Tokens (Dark Mode - Deep Slate Eye Comfort) ─────────── */
+  --app-bg: #0B111E;            /* Balanced deep midnight slate (replaces OLED ink pitch-black #090D16) */
+  --surface: #151D2D;           /* Resting dark surface (slate-850) */
+  --surface-elevated: #1E293B;  /* Slate-800 elevated panels */
+  --surface-sunken: #070B13;
   --border-subtle: #1E293B;
-  --border-default: #334155;
-  --border-accent: #38BDF8;
+  --border-default: #2A3649;    /* Restrained, non-glaring slate border */
+  --border-accent: #60A5FA;
 
-  /* ── Typography Text Tokens (Dark Mode) ──────────────────── */
-  --text-primary: #F8FAFC;
+  /* ── Typography Text Tokens (Dark Mode - Soft Off-White) ──────────────────── */
+  --text-primary: #F1F5F9;       /* Soft off-white (prevents neon contrast glare against dark background) */
   --text-secondary: #CBD5E1;
   --text-muted: #94A3B8;
 
-  /* ── Interactive & Accent Tokens (Dark Mode) ──────────────── */
-  --accent-primary-fg: #38BDF8;
-  --accent-primary: #0284C7;
+  /* ── Interactive & Accent Tokens (Dark Mode - Cisco Soft Blue) ──────────────── */
+  --accent-primary-fg: #60A5FA;  /* Soft cornflower blue (replaces neon electric cyan #38BDF8) */
+  --accent-primary: #3B82F6;     /* Balanced Cisco Blue */
 
   /* ── Solid Surface & Action Tokens (Dark Mode - WCAG AA >= 4.5:1) ── */
-  --accent-solid: #38BDF8;
-  --on-accent-solid: #090D16;
+  --accent-solid: #3B82F6;
+  --on-accent-solid: #0B111E;
   --status-success-solid: #34D399;
-  --on-status-success-solid: #090D16;
+  --on-status-success-solid: #0B111E;
   --status-warning-solid: #FBBF24;
-  --on-status-warning-solid: #090D16;
-  --status-error-solid: #DC2626;
+  --on-status-warning-solid: #0B111E;
+  --status-error-solid: #EF4444;
   --on-status-error-solid: #FFFFFF;
   --status-trunk-solid: #818CF8;
-  --on-status-trunk-solid: #090D16;
+  --on-status-trunk-solid: #0B111E;
   --status-blocking-solid: #FB923C;
-  --on-status-blocking-solid: #090D16;
+  --on-status-blocking-solid: #0B111E;
 
   /* ── Status Tokens (Dark Mode) ───────────────────────────── */
   --status-success-fg: #34D399;
-  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-success-bg: rgba(16, 185, 129, 0.12);
   --status-success-border: #059669;
 
   --status-warning-fg: #FBBF24;
-  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-warning-bg: rgba(245, 158, 11, 0.12);
   --status-warning-border: #D97706;
 
   --status-error-fg: #F87171;
-  --status-error-bg: rgba(239, 68, 68, 0.15);
+  --status-error-bg: rgba(239, 68, 68, 0.12);
   --status-error-border: #DC2626;
 
   --status-trunk-fg: #818CF8;
-  --status-trunk-bg: rgba(99, 102, 241, 0.15);
+  --status-trunk-bg: rgba(99, 102, 241, 0.12);
   --status-trunk-border: #6366F1;
 
   --status-blocking-fg: #FB923C;
-  --status-blocking-bg: rgba(249, 115, 22, 0.15);
+  --status-blocking-bg: rgba(249, 115, 22, 0.12);
   --status-blocking-border: #EA580C;
 
   /* ── Terminal Tokens (Dark Mode) ─────────────────────────── */
   --terminal-bg: #0B0F19;
   --terminal-fg: #E2E8F0;
-  --terminal-prompt: #38BDF8;
+  --terminal-prompt: #60A5FA;
   --terminal-cmd: #FFFFFF;
   --terminal-muted: #94A3B8;
   --terminal-selection: #1E293B;
@@ -173,7 +173,7 @@
   --popover: var(--surface);
   --popover-foreground: var(--text-primary);
   --primary: var(--accent-primary-fg);
-  --primary-foreground: #090D16;
+  --primary-foreground: #0B111E;
   --secondary: var(--surface-elevated);
   --secondary-foreground: var(--text-secondary);
   --muted: var(--surface-elevated);

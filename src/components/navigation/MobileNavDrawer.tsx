@@ -155,10 +155,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         {/* Drawer Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-default bg-surface-elevated shrink-0">
           <div className="flex items-center gap-2.5">
-            <div
-              className="w-3 h-3 rounded-full shrink-0 shadow-xs"
-              style={{ backgroundColor: "#0284C7" }}
-            />
+            <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-primary shadow-xs" />
             <div className="min-w-0">
               <span className="text-sm font-bold text-text-primary block truncate">
                 CCNA 200-301
