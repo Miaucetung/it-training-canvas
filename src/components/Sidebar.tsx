@@ -120,7 +120,7 @@ function SidebarInner({
       {/* Mobile: Backdrop hinter ausgeklappter Sidebar */}
       {!collapsed && (
         <div
-          className="fixed inset-0 z-[140] bg-black/50 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-drawer bg-black/60 backdrop-blur-xs md:hidden"
           onClick={onToggleCollapse}
           aria-hidden
         />
@@ -129,8 +129,8 @@ function SidebarInner({
         className={cn(
           "h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-700/50 flex flex-col transition-all duration-300 ease-in-out",
           collapsed
-            ? "w-14 md:w-20"
-            : "w-72 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-[150] max-md:shadow-2xl",
+            ? "hidden md:flex md:w-20"
+            : "w-72 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-drawer max-md:shadow-2xl flex",
         )}
       >
         {/* Header */}

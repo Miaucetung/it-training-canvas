@@ -12,6 +12,24 @@ export type Tool =
   | "shape"
   | "connection";
 
+export type ToolId =
+  | "subnetting-drill"
+  | "routing-drill"
+  | "ospf-wildcard-drill"
+  | "acl-drill"
+  | "subnetting-quiz"
+  | "subnetting-cheatsheet"
+  | "ipv4-subnet-table"
+  | "ipv6-calculator"
+  | "vlan-simulator"
+  | "stp-simulator"
+  | "osi-simulator"
+  | "routing-simulator"
+  | "verkabelung-trainer"
+  | "dragdrop-trainer"
+  | "topologie-explorer"
+  | "cli-glossary";
+
 export type PenWidth = "thin" | "normal" | "thick";
 
 export type TextSize = "small" | "medium" | "large" | "xlarge";
