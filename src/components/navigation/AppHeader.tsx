@@ -6,7 +6,6 @@ import {
 } from "@/lib/navigation-config";
 import {
   LearningPath,
-  SUBJECT_CONFIGS,
   ToolId,
   UserProgress,
 } from "@/lib/types";
@@ -17,7 +16,6 @@ import {
   Calculator,
   CaretDown,
   ChartLine,
-  Check,
   Compass,
   CurrencyDollar,
   Desktop,
@@ -51,7 +49,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
-export type NavMenuId = "learn" | "practice" | "simulators" | "tools" | "subject";
+export type NavMenuId = "learn" | "practice" | "simulators" | "tools";
 
 export interface AppHeaderProps {
   currentSubject: string;
@@ -108,8 +106,8 @@ export interface AppHeaderProps {
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   currentSubject,
-  subjects,
-  onSelectSubject,
+  subjects: _subjects,
+  onSelectSubject: _onSelectSubject,
   canvasView,
   onToggleCanvasView,
   canvasEngine = "v2",
@@ -150,12 +148,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   isCostCalculatorActive,
   onToggleCostCalculator,
 }) => {
-  const currentConfig = SUBJECT_CONFIGS[currentSubject];
   const [openMenu, setOpenMenu] = useState<NavMenuId | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left?: number; right?: number } | null>(null);
 
   // Button refs for anchoring
-  const subjectBtnRef = useRef<HTMLButtonElement | null>(null);
   const learnBtnRef = useRef<HTMLButtonElement | null>(null);
   const practiceBtnRef = useRef<HTMLButtonElement | null>(null);
   const simulatorsBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -218,36 +214,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <header className="flex items-center justify-between px-3 md:px-6 py-2.5 border-b border-border-default bg-surface/90 backdrop-blur-md select-none shrink-0 z-sticky">
-      {/* Linke Seite: Logo / Fach-Selector */}
+      {/* Linke Seite: Logo / Brand (CCNA 200-301) */}
       <div className="flex items-center gap-2 sm:gap-3">
         <button
-          ref={subjectBtnRef}
-          onClick={() => toggleMenu("subject", subjectBtnRef)}
+          onClick={onNavigateOverview}
           className="flex items-center gap-2.5 px-2 py-1.5 -ml-1 rounded-lg text-left hover:bg-surface-elevated transition-colors border border-transparent hover:border-border-default group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
-          title="Fach oder Zertifizierung wechseln"
-          aria-haspopup="true"
-          aria-expanded={openMenu === "subject"}
+          title="Zur CCNA-Startseite"
+          aria-label="CCNA 200-301 Startseite"
         >
           <div
-            className="w-3 h-3 rounded-full shrink-0 animate-pulse shadow-xs"
-            style={{ backgroundColor: currentConfig?.color || "#6366F1" }}
+            className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+            style={{ backgroundColor: "#0284C7" }}
           />
           <div className="min-w-0">
             <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-text-primary truncate max-w-[140px] sm:max-w-[200px]">
-                {currentConfig?.name || currentSubject}
+              <span className="text-sm font-bold text-text-primary tracking-tight">
+                CCNA 200-301
               </span>
-              <CaretDown
-                size={12}
-                weight="bold"
-                className={cn(
-                  "text-text-muted transition-transform duration-150 shrink-0",
-                  openMenu === "subject" && "rotate-180"
-                )}
-              />
             </div>
-            <p className="text-[11px] text-text-muted hidden sm:block truncate max-w-[200px]">
-              {currentConfig?.description || "Training Canvas"}
+            <p className="text-[11px] text-text-muted hidden sm:block truncate">
+              Lern- & Trainingsplattform
             </p>
           </div>
         </button>
@@ -257,6 +243,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       <nav className="hidden xl:flex items-center gap-1" aria-label="Hauptnavigation">
         {/* Gruppe 1: Lernen */}
         <button
+          id="nav-btn-learn"
           ref={learnBtnRef}
           onClick={() => toggleMenu("learn", learnBtnRef)}
           className={cn(
@@ -265,8 +252,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               ? "bg-surface-elevated text-text-primary border-border-default shadow-xs"
               : "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
-          aria-haspopup="true"
+          aria-haspopup="menu"
           aria-expanded={openMenu === "learn"}
+          aria-controls="nav-menu-learn"
         >
           <GraduationCap size={16} weight={openMenu === "learn" ? "fill" : "regular"} className="text-accent-primary-fg" />
           <span>Lernen</span>
@@ -278,6 +266,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* Gruppe 2: Üben & Prüfen */}
         <button
+          id="nav-btn-practice"
           ref={practiceBtnRef}
           onClick={() => toggleMenu("practice", practiceBtnRef)}
           className={cn(
@@ -286,8 +275,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               ? "bg-surface-elevated text-text-primary border-border-default shadow-xs"
               : "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
-          aria-haspopup="true"
+          aria-haspopup="menu"
           aria-expanded={openMenu === "practice"}
+          aria-controls="nav-menu-practice"
         >
           <Target size={16} weight={openMenu === "practice" ? "fill" : "regular"} className="text-sky-500" />
           <span>Üben & Prüfen</span>
@@ -299,6 +289,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* Gruppe 3: Simulatoren */}
         <button
+          id="nav-btn-simulators"
           ref={simulatorsBtnRef}
           onClick={() => toggleMenu("simulators", simulatorsBtnRef)}
           className={cn(
@@ -307,8 +298,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               ? "bg-surface-elevated text-text-primary border-border-default shadow-xs"
               : "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
-          aria-haspopup="true"
+          aria-haspopup="menu"
           aria-expanded={openMenu === "simulators"}
+          aria-controls="nav-menu-simulators"
         >
           <Pulse size={16} weight={openMenu === "simulators" ? "fill" : "regular"} className="text-teal-500" />
           <span>Simulatoren</span>
@@ -320,6 +312,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* Gruppe 4: Werkzeuge */}
         <button
+          id="nav-btn-tools"
           ref={toolsBtnRef}
           onClick={() => toggleMenu("tools", toolsBtnRef)}
           className={cn(
@@ -328,8 +321,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               ? "bg-surface-elevated text-text-primary border-border-default shadow-xs"
               : "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
-          aria-haspopup="true"
+          aria-haspopup="menu"
           aria-expanded={openMenu === "tools"}
+          aria-controls="nav-menu-tools"
         >
           <Wrench size={16} weight={openMenu === "tools" ? "fill" : "regular"} className="text-amber-500" />
           <span>Werkzeuge</span>
@@ -481,7 +475,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
       {/* PORTAL-DROPDOWNS (--z-dropdown) */}
       {openMenu && menuPos && createPortal(
-        <>
+        <nav aria-label="Ausgeklapptes Navigationsmenü">
           {/* Transparent Backdrop */}
           <div
             className="fixed inset-0 z-dropdown"
@@ -489,64 +483,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             aria-hidden="true"
           />
 
-          {/* Menü: FACHAUSWAHL */}
-          {openMenu === "subject" && (
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Fachauswahl"
-              style={{ top: menuPos.top, left: menuPos.left }}
-              className="fixed z-dropdown w-72 rounded-xl border border-border-default bg-surface shadow-2xl overflow-hidden py-1.5 text-text-primary animate-in fade-in-0 zoom-in-95 duration-100"
-            >
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
-                Fach / Lehrgang wählen
-              </div>
-              <div className="max-h-72 overflow-y-auto">
-                {subjects.map((s) => {
-                  const cfg = SUBJECT_CONFIGS[s];
-                  const isActive = s === currentSubject;
-                  return (
-                    <button
-                      key={s}
-                      onClick={() => {
-                        onSelectSubject(s);
-                        closeMenu();
-                      }}
-                      className={cn(
-                        "w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors",
-                        isActive
-                          ? "bg-accent-primary/15 text-text-primary font-semibold"
-                          : "hover:bg-surface-elevated text-text-secondary hover:text-text-primary"
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <div
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: cfg?.color || "#6366F1" }}
-                        />
-                        <span className="truncate">{cfg?.name || s}</span>
-                      </div>
-                      {isActive && <Check size={14} weight="bold" className="text-accent-primary-fg shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* Menü: LERNEN */}
           {openMenu === "learn" && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Lernen und Lernpfade"
+              id="nav-menu-learn"
+              role="menu"
+              aria-labelledby="nav-btn-learn"
               style={{ top: menuPos.top, left: menuPos.left }}
               className="fixed z-dropdown w-80 rounded-xl border border-border-default bg-surface shadow-2xl overflow-hidden py-1.5 text-text-primary animate-in fade-in-0 zoom-in-95 duration-100"
             >
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              <div role="presentation" className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                 Themen & Wissen
               </div>
               <button
+                role="menuitem"
                 onClick={() => {
                   onNavigateOverview();
                   closeMenu();
@@ -556,17 +506,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <BookOpen size={16} className="text-accent-primary-fg shrink-0 mt-0.5" />
                 <div>
                   <div className="text-xs font-medium text-text-primary">Themenübersicht & Module</div>
-                  <div className="text-[10px] text-text-muted">Alle Lerneinheiten & Lektionen für {currentConfig?.name || currentSubject}</div>
+                  <div className="text-[10px] text-text-muted">Alle Lerneinheiten & Lektionen für CCNA 200-301</div>
                 </div>
               </button>
 
-              <div className="my-1.5 mx-2 border-t border-border-default" />
+              <div role="separator" className="my-1.5 mx-2 border-t border-border-default" />
 
-              <div className="px-3 py-1 flex items-center justify-between">
+              <div role="presentation" className="px-3 py-1 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
                   Lernpfade ({currentSubjectPaths.length})
                 </span>
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onNewLearningPath();
@@ -578,11 +529,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </div>
 
               {currentSubjectPaths.length === 0 ? (
-                <div className="px-3 py-2 text-[11px] text-text-muted italic">
+                <div role="presentation" className="px-3 py-2 text-[11px] text-text-muted italic">
                   Keine Pfade für dieses Fach. Erstelle den ersten!
                 </div>
               ) : (
-                <div className="max-h-48 overflow-y-auto">
+                <div role="group" aria-label="Lernpfade" className="max-h-48 overflow-y-auto">
                   {currentSubjectPaths.map((p) => {
                     const prog = userProgress[p.id];
                     const done = prog
@@ -591,6 +542,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     const pct = p.steps.length ? Math.round((done / p.steps.length) * 100) : 0;
                     return (
                       <button
+                        role="menuitem"
                         key={p.id}
                         onClick={() => {
                           closeMenu();
@@ -608,9 +560,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 </div>
               )}
 
-              <div className="my-1.5 mx-2 border-t border-border-default" />
+              <div role="separator" className="my-1.5 mx-2 border-t border-border-default" />
 
               <button
+                role="menuitem"
                 onClick={() => {
                   closeMenu();
                   onAccount();
@@ -629,17 +582,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {/* Menü: ÜBEN & PRÜFEN */}
           {openMenu === "practice" && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Üben und Prüfungsvorbereitung"
+              id="nav-menu-practice"
+              role="menu"
+              aria-labelledby="nav-btn-practice"
               style={{ top: menuPos.top, left: menuPos.left }}
               className="fixed z-dropdown w-80 rounded-xl border border-border-default bg-surface shadow-2xl overflow-hidden py-1.5 text-text-primary animate-in fade-in-0 zoom-in-95 duration-100"
             >
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              <div role="presentation" className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                 Prüfungsvorbereitung
               </div>
 
               <button
+                role="menuitem"
                 onClick={() => {
                   closeMenu();
                   onOpenExamPrep();
@@ -654,12 +608,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   </div>
                 </div>
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-bold shrink-0">
-                  1.081 Fragen
+                  1.055 Fragen
                 </span>
               </button>
 
               {isToolSupportedForSubject("dragdrop-trainer", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onSelectTool("dragdrop-trainer");
@@ -679,13 +634,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 </button>
               )}
 
-              <div className="my-1.5 mx-2 border-t border-border-default" />
+              <div role="separator" className="my-1.5 mx-2 border-t border-border-default" />
 
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              <div role="presentation" className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                 Gezieltes Training
               </div>
 
               <button
+                role="menuitem"
                 onClick={() => {
                   closeMenu();
                   onOpenPrioritizedLearning();
@@ -700,6 +656,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </button>
 
               <button
+                role="menuitem"
                 onClick={() => {
                   closeMenu();
                   onOpenExamPrep();
@@ -718,18 +675,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {/* Menü: SIMULATOREN */}
           {openMenu === "simulators" && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Netzwerk-Simulatoren"
+              id="nav-menu-simulators"
+              role="menu"
+              aria-labelledby="nav-btn-simulators"
               style={{ top: menuPos.top, left: menuPos.left }}
               className="fixed z-dropdown w-84 rounded-xl border border-border-default bg-surface shadow-2xl overflow-hidden py-1.5 text-text-primary animate-in fade-in-0 zoom-in-95 duration-100"
             >
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              <div role="presentation" className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                 Interaktive Netzwerk-Simulatoren
               </div>
 
               {isToolSupportedForSubject("vlan-simulator", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onSelectTool("vlan-simulator");
@@ -746,6 +704,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
               {isToolSupportedForSubject("stp-simulator", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onSelectTool("stp-simulator");
@@ -762,6 +721,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
               {isToolSupportedForSubject("osi-simulator", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onSelectTool("osi-simulator");
@@ -778,6 +738,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
               {isToolSupportedForSubject("routing-simulator", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onSelectTool("routing-simulator");
@@ -796,6 +757,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 const pingStatus = getToolEngineStatus("ping-test", canvasEngine);
                 return (
                   <button
+                    role="menuitem"
                     onClick={() => {
                       closeMenu();
                       handleEngineGatedAction("ping-test", onOpenPing);
@@ -821,14 +783,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 );
               })()}
 
-              <div className="my-1.5 mx-2 border-t border-border-default" />
+              <div role="separator" className="my-1.5 mx-2 border-t border-border-default" />
 
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              <div role="presentation" className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                 Topologie-Simulation
               </div>
 
               {isToolSupportedForSubject("packet-flow", currentSubject) && (
                 <button
+                  role="menuitem"
                   onClick={() => {
                     closeMenu();
                     onTogglePacketFlow();
@@ -855,6 +818,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 const hudStatus = getToolEngineStatus("simulation-hud", canvasEngine);
                 return (
                   <button
+                    role="menuitem"
                     onClick={() => {
                       closeMenu();
                       handleEngineGatedAction("simulation-hud", onToggleSimulationHUD);
@@ -888,21 +852,22 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {/* Menü: WERKZEUGE */}
           {openMenu === "tools" && (
             <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Werkzeuge und Drills"
+              id="nav-menu-tools"
+              role="menu"
+              aria-labelledby="nav-btn-tools"
               style={{ top: menuPos.top, right: menuPos.right }}
               className="fixed z-dropdown w-[340px] sm:w-[480px] max-h-[85vh] overflow-y-auto rounded-xl border border-border-default bg-surface shadow-2xl py-2 text-text-primary animate-in fade-in-0 zoom-in-95 duration-100"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-3 px-2">
+              <div role="presentation" className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-3 px-2">
                 {/* Spalte 1: Subnetting & Rechner */}
-                <div>
-                  <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <div role="presentation">
+                  <div role="presentation" className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     Subnetting & Rechner
                   </div>
-                  <div className="space-y-0.5">
+                  <div role="presentation" className="space-y-0.5">
                     {isToolSupportedForSubject("subnetting-drill", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("subnetting-drill"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -915,6 +880,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("subnetting-quiz", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("subnetting-quiz"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -927,6 +893,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("subnetting-cheatsheet", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("subnetting-cheatsheet"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -939,6 +906,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("ipv4-subnet-table", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("ipv4-subnet-table"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -951,6 +919,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("ipv6-calculator", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("ipv6-calculator"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -963,12 +932,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                   </div>
 
-                  <div className="mt-3 px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  <div role="presentation" className="mt-3 px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     Drills & Labs
                   </div>
-                  <div className="space-y-0.5">
+                  <div role="presentation" className="space-y-0.5">
                     {isToolSupportedForSubject("routing-drill", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("routing-drill"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -981,6 +951,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("ospf-wildcard-drill", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("ospf-wildcard-drill"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -993,6 +964,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("acl-drill", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("acl-drill"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1007,13 +979,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 </div>
 
                 {/* Spalte 2: Cisco IOS, Cloud & Canvas */}
-                <div>
-                  <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                <div role="presentation">
+                  <div role="presentation" className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     Praxis & Terminal
                   </div>
-                  <div className="space-y-0.5">
+                  <div role="presentation" className="space-y-0.5">
                     {isToolSupportedForSubject("cli-glossary", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("cli-glossary"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1026,6 +999,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("terminal", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onOpenTerminal(); }}
                         className="w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1045,6 +1019,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("labs", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onOpenLabs(); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1057,6 +1032,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("verkabelung-trainer", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("verkabelung-trainer"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1069,6 +1045,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                     {isToolSupportedForSubject("cost-calculator", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onToggleCostCalculator(); }}
                         className="w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1081,14 +1058,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     )}
                   </div>
 
-                  <div className="mt-3 px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  <div role="presentation" className="mt-3 px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     Canvas & Zusammenarbeit
                   </div>
-                  <div className="space-y-0.5">
+                  <div role="presentation" className="space-y-0.5">
                     {(() => {
                       const addDevStatus = getToolEngineStatus("add-device", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("add-device", onAddDevice);
@@ -1118,6 +1096,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                       const valStatus = getToolEngineStatus("topology-validator", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("topology-validator", onOpenTopologyValidator);
@@ -1145,6 +1124,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
                     {isToolSupportedForSubject("topologie-explorer", currentSubject) && (
                       <button
+                        role="menuitem"
                         onClick={() => { closeMenu(); onSelectTool("topologie-explorer"); }}
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-elevated text-left transition-colors"
                       >
@@ -1160,6 +1140,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                       const metStatus = getToolEngineStatus("metrics", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("metrics", onToggleMetrics);
@@ -1189,6 +1170,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                       const notStatus = getToolEngineStatus("annotations", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("annotations", onToggleAnnotations);
@@ -1218,6 +1200,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                       const tplStatus = getToolEngineStatus("templates", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("templates", onOpenTemplates);
@@ -1244,6 +1227,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                       const expStatus = getToolEngineStatus("share-export", canvasEngine);
                       return (
                         <button
+                          role="menuitem"
                           onClick={() => {
                             closeMenu();
                             handleEngineGatedAction("share-export", onOpenShareExport);
@@ -1270,7 +1254,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </div>
             </div>
           )}
-        </>,
+        </nav>,
         document.body
       )}
     </header>

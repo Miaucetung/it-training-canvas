@@ -4,7 +4,6 @@ import {
 } from "@/lib/navigation-config";
 import {
   LearningPath,
-  SUBJECT_CONFIGS,
   ToolId,
   UserProgress,
 } from "@/lib/types";
@@ -14,7 +13,6 @@ import {
   BookOpen,
   Calculator,
   ChartLine,
-  Check,
   Compass,
   CurrencyDollar,
   Export,
@@ -88,8 +86,8 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
   open,
   onClose,
   currentSubject,
-  subjects,
-  onSelectSubject,
+  subjects: _subjects,
+  onSelectSubject: _onSelectSubject,
   canvasView,
   onToggleCanvasView,
   canvasEngine = "v2",
@@ -122,7 +120,6 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 }) => {
   if (!open) return null;
 
-  const currentConfig = SUBJECT_CONFIGS[currentSubject];
   const allPaths = Object.values(learningPaths);
   const currentSubjectPaths = allPaths.filter(
     (p) => p.subject === currentSubject || p.tags?.includes(currentSubject)
@@ -159,12 +156,17 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-default bg-surface-elevated shrink-0">
           <div className="flex items-center gap-2.5">
             <div
-              className="w-3 h-3 rounded-full animate-pulse shrink-0"
-              style={{ backgroundColor: currentConfig?.color || "#6366F1" }}
+              className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+              style={{ backgroundColor: "#0284C7" }}
             />
-            <span className="text-sm font-bold text-text-primary truncate">
-              {currentConfig?.name || currentSubject}
-            </span>
+            <div className="min-w-0">
+              <span className="text-sm font-bold text-text-primary block truncate">
+                CCNA 200-301
+              </span>
+              <span className="text-[10px] text-text-muted block truncate">
+                Lern- & Trainingsplattform
+              </span>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -198,43 +200,6 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               {canvasView ? "Lernen" : "Canvas"}
             </span>
           </button>
-
-          {/* Sektion 1: Fachauswahl */}
-          <div>
-            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
-              Fach / Lehrgang
-            </p>
-            <div className="space-y-1">
-              {subjects.map((s) => {
-                const cfg = SUBJECT_CONFIGS[s];
-                const isActive = s === currentSubject;
-                return (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      onSelectSubject(s);
-                      onClose();
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs transition-colors",
-                      isActive
-                        ? "bg-accent-primary/15 text-text-primary font-semibold border border-accent-primary/30"
-                        : "hover:bg-surface-elevated text-text-secondary hover:text-text-primary"
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5 truncate">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: cfg?.color || "#6366F1" }}
-                      />
-                      <span className="truncate">{cfg?.name || s}</span>
-                    </div>
-                    {isActive && <Check size={14} weight="bold" className="text-accent-primary-fg shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Sektion 2: Lernen */}
           <div>

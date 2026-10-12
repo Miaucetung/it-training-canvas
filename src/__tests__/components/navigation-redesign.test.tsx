@@ -181,12 +181,13 @@ describe("Phase R3 Schritt 1: Navigation & Layout-Gerüst", () => {
       expect(container.firstChild).toBeNull();
     });
 
-    it("rendert Fachauswahl und schließt bei Klick auf Schließen", () => {
+    it("rendert permanentes CCNA 200-301 Branding und schließt bei Klick auf Schließen", () => {
       const props = makeDrawerProps(true);
       render(<MobileNavDrawer {...props} />);
 
-      expect(screen.getByText("Fach / Lehrgang")).toBeDefined();
-      expect(screen.getByRole("button", { name: /CCNA 200-301/i })).toBeDefined();
+      expect(screen.getByText("CCNA 200-301")).toBeDefined();
+      expect(screen.getByText("Lern- & Trainingsplattform")).toBeDefined();
+      expect(screen.queryByText("Fach / Lehrgang")).toBeNull();
 
       const closeBtn = screen.getByRole("button", { name: "Menü schließen" });
       fireEvent.click(closeBtn);
