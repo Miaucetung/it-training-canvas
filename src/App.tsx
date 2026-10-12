@@ -28,6 +28,7 @@ import {
 } from "@/components/SimulationControls";
 import { TopicDetailPanel } from "@/components/TopicDetailPanel";
 import { TopicListPanel } from "@/components/TopicListPanel";
+import { CcnaDashboard } from "@/components/dashboard/CcnaDashboard";
 import { TopologyValidator } from "@/components/TopologyValidator";
 import { useLearningState } from "@/hooks/useLearningState";
 import {
@@ -1530,15 +1531,30 @@ function App() {
                   {/* Topic list — kollabiert komplett bei Themen-Auswahl */}
                   {!selectedTopic && (
                     <div className="flex-1 overflow-y-auto">
-                      <TopicListPanel
-                        moduleId={catalogModuleId}
-                        theme={theme}
-                        onTopicClick={(topic, mod) => {
-                          setSelectedTopic(topic);
-                          setSelectedTopicModule(mod);
-                        }}
-                        onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
-                      />
+                      {catalogModuleId === "ccna" ? (
+                        <CcnaDashboard
+                          theme={theme}
+                          userProgress={userProgress}
+                          onTopicClick={(topic, mod) => {
+                            setSelectedTopic(topic);
+                            setSelectedTopicModule(mod);
+                          }}
+                          onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
+                          onToggleCanvasView={handleToggleCanvasView}
+                          onOpenExamPrep={() => setShowExamPrep(true)}
+                          onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
+                        />
+                      ) : (
+                        <TopicListPanel
+                          moduleId={catalogModuleId}
+                          theme={theme}
+                          onTopicClick={(topic, mod) => {
+                            setSelectedTopic(topic);
+                            setSelectedTopicModule(mod);
+                          }}
+                          onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
+                        />
+                      )}
                     </div>
                   )}
 
