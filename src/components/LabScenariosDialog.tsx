@@ -8,19 +8,29 @@ import {
   Check,
   CheckCircle,
   Copy,
+  DownloadSimple,
+  Eye,
   FilePdf,
   FileText,
   Info,
   MagnifyingGlass,
   Package,
+  Slideshow,
   Terminal,
   X,
 } from "@phosphor-icons/react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { exportLabForPacketTracer } from "@/lib/packet-tracer-export";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
 import { LABS, LABS_ORDERED } from "./labs";
 import type { CommandBlock, LabScenario } from "./labs";
+import { ProfessionalTopologyDiagram } from "./labs/ProfessionalTopologyDiagram";
+import { LabAddressingTable } from "./labs/LabAddressingTable";
+import {
+  exportTopologyAsPng,
+  exportTopologyAsSvg,
+  printLabHandoutPdf,
+} from "./labs/LabDiagramExport";
 
 import { DRILL_LABS } from "./labs/drills";
 import { LAYER2_LABS } from "./labs/layer2";
@@ -527,18 +537,42 @@ export function LabScenariosDialog({
     }
   });
   const [copiedAll, setCopiedAll] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+  const [detailMode, setDetailMode] = useState<boolean>(true);
+  const [presentationMode, setPresentationMode] = useState<boolean>(false);
+  const [printWithoutSolution, setPrintWithoutSolution] = useState<boolean>(false);
+  const diagramContainerRef = useRef<HTMLDivElement>(null);
 
-  // Esc key listener
+  // Keyboard shortcuts (Escape for exit/close, P for Presentation / Beamer)
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        if (presentationMode) {
+          setPresentationMode(false);
+        } else {
+          onClose();
+        }
+      } else if (e.key === "p" || e.key === "P") {
+        const target = e.target as HTMLElement;
+        const isInput =
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable;
+        if (!isInput) {
+          e.preventDefault();
+          setPresentationMode((prev) => !prev);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, presentationMode]);
+
+  // Reset selected device when switching labs
+  useEffect(() => {
+    setSelectedDevice(null);
+  }, [selectedId]);
 
   // Update selection if initialLabId changes
   useEffect(() => {
@@ -680,6 +714,26 @@ export function LabScenariosDialog({
     setTimeout(() => setCopiedAll(false), 2000);
   }, [currentLab]);
 
+  // Export callbacks for professional topology diagram
+  const handleExportPng = useCallback(() => {
+    const svgEl = diagramContainerRef.current?.querySelector("svg");
+    if (svgEl) {
+      exportTopologyAsPng(svgEl, `lab_${currentLab.id}_topology.png`);
+    }
+  }, [currentLab.id]);
+
+  const handleExportSvg = useCallback(() => {
+    const svgEl = diagramContainerRef.current?.querySelector("svg");
+    if (svgEl) {
+      exportTopologyAsSvg(svgEl, `lab_${currentLab.id}_topology.svg`);
+    }
+  }, [currentLab.id]);
+
+  const handlePrintHandout = useCallback(() => {
+    const svgEl = diagramContainerRef.current?.querySelector("svg");
+    printLabHandoutPdf(currentLab, svgEl, { withoutSolution: printWithoutSolution });
+  }, [currentLab, printWithoutSolution]);
+
   if (!open) return null;
 
   return (
@@ -688,16 +742,21 @@ export function LabScenariosDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="lab-scenarios-title"
-        className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
+        className={cn(
+          "fixed inset-0 z-dialog flex items-center justify-center bg-black/75 backdrop-blur-md animate-in fade-in duration-150",
+          presentationMode ? "p-0" : "p-2 sm:p-4 md:p-6",
+        )}
       >
         <div
           className={cn(
-            "flex flex-col w-full max-w-7xl max-h-[calc(100dvh-1.5rem)] md:max-h-[92dvh] h-full rounded-2xl border shadow-2xl overflow-hidden",
-            "bg-slate-900 border-slate-700/80 text-slate-100",
+            "flex flex-col w-full h-full rounded-2xl border shadow-2xl overflow-hidden transition-all",
+            presentationMode
+              ? "max-w-none max-h-none rounded-none border-0 bg-slate-950 text-slate-100"
+              : "max-w-7xl max-h-[calc(100dvh-1.5rem)] md:max-h-[92dvh] bg-slate-900 border-slate-700/80 text-slate-100",
           )}
         >
         {/* ── Top Header ── */}
-        <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-800 bg-slate-950/90 shrink-0">
+        <header className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-950/90 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0 shadow-xs">
               <BookOpen size={20} weight="bold" />
@@ -710,15 +769,23 @@ export function LabScenariosDialog({
                 >
                   Packet Tracer Labs
                 </h2>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-mono font-bold border border-violet-500/30">
-                  {LABS_ORDERED.length} Labs
-                </span>
-                <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">
-                  PT 9.0 ready
-                </span>
-                <span className="hidden md:inline-block text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 font-mono border border-sky-800/50">
-                  CCNA 200-301
-                </span>
+                {presentationMode ? (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-500/30 animate-pulse">
+                    Beamer-Modus aktiv (Taste P / Esc zum Beenden)
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-mono font-bold border border-violet-500/30">
+                      {LABS_ORDERED.length} Labs
+                    </span>
+                    <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">
+                      PT 9.0 ready
+                    </span>
+                    <span className="hidden md:inline-block text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 font-mono border border-sky-800/50">
+                      CCNA 200-301
+                    </span>
+                  </>
+                )}
               </div>
               <p className="text-xs text-slate-400 hidden sm:block truncate mt-0.5">
                 Schritt-für-Schritt Topologien aufbauen, Cisco IOS konfigurieren & verifizieren
@@ -727,7 +794,89 @@ export function LabScenariosDialog({
           </div>
 
           {/* Action Toolbar */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+            {/* Structured Topology Actions (wenn Cisco Press Topologie vorhanden) */}
+            {currentLab.structuredTopology && (
+              <>
+                {/* Detail Mode Toggle */}
+                <button
+                  onClick={() => setDetailMode((d) => !d)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors",
+                    detailMode
+                      ? "bg-cyan-950/70 text-cyan-300 border-cyan-800/70"
+                      : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200",
+                  )}
+                  title="Schaltet Interface-IPs und Subnetzangaben im Diagramm ein/aus"
+                  aria-label="Detail-Modus umschalten"
+                >
+                  <Eye size={14} className={detailMode ? "text-cyan-400" : "text-slate-500"} />
+                  <span className="hidden md:inline">{detailMode ? "IPs an" : "Kompakt"}</span>
+                </button>
+
+                {/* Presentation Mode Toggle */}
+                <button
+                  onClick={() => setPresentationMode((p) => !p)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors",
+                    presentationMode
+                      ? "bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-xs"
+                      : "bg-slate-800 text-slate-300 hover:text-white border-slate-700",
+                  )}
+                  title="Präsentationsmodus für Beamer (Taste P)"
+                  aria-label="Präsentationsmodus umschalten"
+                >
+                  <Slideshow size={14} className={presentationMode ? "text-amber-400" : "text-slate-400"} />
+                  <span className="hidden sm:inline">Beamer (P)</span>
+                </button>
+
+                {/* PNG 2x Export */}
+                <button
+                  onClick={handleExportPng}
+                  className="hidden xl:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+                  title="Topologie in 2x Retina-Auflösung als PNG herunterladen"
+                >
+                  <DownloadSimple size={13} />
+                  <span>PNG 2×</span>
+                </button>
+
+                {/* SVG Export */}
+                <button
+                  onClick={handleExportSvg}
+                  className="hidden xl:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+                  title="Skalierbare Vektorgrafik (SVG) herunterladen"
+                >
+                  <span>SVG</span>
+                </button>
+
+                {/* Handout PDF */}
+                <button
+                  onClick={handlePrintHandout}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-300 hover:text-white bg-rose-950/60 hover:bg-rose-900/60 border border-rose-800/60 transition-colors"
+                  title="A4 Querformat Handout drucken oder als PDF speichern"
+                >
+                  <FilePdf size={14} />
+                  <span className="hidden sm:inline">Handout</span>
+                </button>
+
+                {/* Toggle Ohne Lösung */}
+                <label
+                  className="hidden 2xl:flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 cursor-pointer select-none px-1"
+                  title="Handout ohne CLI-Lösungsbefehle als Übungsblatt drucken"
+                >
+                  <input
+                    type="checkbox"
+                    checked={printWithoutSolution}
+                    onChange={(e) => setPrintWithoutSolution(e.target.checked)}
+                    className="rounded bg-slate-800 border-slate-700 text-violet-500 w-3 h-3"
+                  />
+                  <span>ohne Lösung</span>
+                </label>
+
+                <div className="w-px h-5 bg-slate-800 mx-1 hidden sm:block" />
+              </>
+            )}
+
             {/* Completed Count Pill */}
             <div
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 font-mono"
@@ -772,20 +921,22 @@ export function LabScenariosDialog({
               <span className="hidden sm:inline">PT-Export</span>
             </button>
 
-            {/* PDF Print */}
-            <button
-              onClick={() => printLabAsPdf(currentLab)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-300 hover:text-white bg-rose-950/40 hover:bg-rose-900/40 border border-rose-800/40 transition-colors"
-              title="Druckoptimiertes Lab-Sheet als PDF öffnen / drucken"
-            >
-              <FilePdf size={15} />
-              <span className="hidden md:inline">PDF</span>
-            </button>
+            {/* Standard PDF Print (falls kein structuredTopology) */}
+            {!currentLab.structuredTopology && (
+              <button
+                onClick={() => printLabAsPdf(currentLab)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-300 hover:text-white bg-rose-950/40 hover:bg-rose-900/40 border border-rose-800/40 transition-colors"
+                title="Druckoptimiertes Lab-Sheet als PDF öffnen / drucken"
+              >
+                <FilePdf size={15} />
+                <span className="hidden md:inline">PDF</span>
+              </button>
+            )}
 
             {/* TXT Download */}
             <button
               onClick={() => downloadText(currentLab)}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               title="Als Textdatei (.txt) herunterladen"
             >
               <FileText size={15} />
@@ -901,6 +1052,7 @@ export function LabScenariosDialog({
                     return (
                       <button
                         key={l.id}
+                        data-lab-id={l.id}
                         onClick={() => setSelectedId(l.id)}
                         className={cn(
                           "w-full text-left p-2.5 rounded-lg transition-all group relative mb-0.5",
@@ -971,7 +1123,12 @@ export function LabScenariosDialog({
           {/* ── Rechte Hauptspalte: Detail-Ansicht des ausgewählten Labs ── */}
           <main className="flex-1 min-w-0 flex flex-col bg-slate-900/60 overflow-hidden">
             <ScrollArea className="flex-1">
-              <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-5xl mx-auto">
+              <div
+                className={cn(
+                  "p-3 sm:p-6 md:p-8 space-y-6 mx-auto",
+                  currentLab.structuredTopology ? "max-w-7xl" : "max-w-5xl",
+                )}
+              >
                 {/* ── Lab Hero / Header ── */}
                 <div className="space-y-3 pb-4 border-b border-slate-800">
                   <div className="flex items-center gap-2 text-xs text-slate-400 flex-wrap">
@@ -1038,220 +1195,427 @@ export function LabScenariosDialog({
                   </div>
                 </div>
 
-                {/* ── Kontext: Warum dieses Lab? ── */}
-                {currentLab.context && (
-                  <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900 p-4 sm:p-5 shadow-sm">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2 h-2 rounded-full bg-indigo-400" />
-                      <h3 className="text-sm font-bold text-indigo-300 font-sans tracking-wide uppercase">
-                        Didaktischer Kontext: Worum geht es in diesem Lab?
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
-                      <div className="space-y-1 bg-slate-900/60 p-3 rounded-xl border border-indigo-500/20">
-                        <span className="text-indigo-400 font-bold block text-xs uppercase tracking-wider">
-                          Ausgangslage & Problem:
-                        </span>
-                        <p className="text-slate-300 leading-relaxed font-sans">
-                          {currentLab.context.problem}
-                        </p>
-                      </div>
-                      <div className="space-y-1 bg-slate-900/60 p-3 rounded-xl border border-indigo-500/20">
-                        <span className="text-emerald-400 font-bold block text-xs uppercase tracking-wider">
-                          Praxis-Zweck & Lernziel:
-                        </span>
-                        <p className="text-slate-300 leading-relaxed font-sans">
-                          {currentLab.context.purpose}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Schritt 1: Topologie-Aufbau (Packet Tracer) ── */}
-                <section className="rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-4 sm:p-5 space-y-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold flex items-center justify-center text-xs border border-cyan-500/30">
-                        ①
-                      </span>
-                      <h3 className="text-sm sm:text-base font-bold text-white font-sans">
-                        Topologie im Packet Tracer aufbauen
-                      </h3>
-                    </div>
-                    <span className="text-[11px] text-cyan-300/80 font-mono hidden sm:inline">
-                      Drag & Drop
-                    </span>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    {currentLab.topology.description}
-                  </p>
-
-                  {/* Geräte-Übersicht */}
-                  <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                      Benötigte Netzwerkgeräte:
-                    </h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                      {currentLab.topology.devices.map((d, i) => (
-                        <div
-                          key={i}
-                          className="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center gap-2.5 shadow-xs"
-                        >
-                          <span className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 font-bold text-xs flex items-center justify-center shrink-0 border border-cyan-500/30 font-mono">
-                            {d.count}×
-                          </span>
-                          <div className="min-w-0">
-                            <span className="text-xs font-bold text-white block truncate">
-                              {d.type}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono truncate block">
-                              {d.label}
-                            </span>
+                {/* ── Hauptbereich: Topologie, Aufgaben & CLI ── */}
+                {currentLab.structuredTopology ? (
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                    {/* Linke Spalte: Professionelle Topologie & Adressierungstabelle (Desktop) */}
+                    <div className="xl:col-span-7 space-y-5">
+                      {/* Cisco Press Topologie Diagramm */}
+                      <section className="space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-sans">
+                              Netzwerk-Topologie (Cisco Press Standard)
+                            </h3>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <button
+                              onClick={() => setDetailMode((d) => !d)}
+                              className={cn(
+                                "px-2.5 py-1 rounded-lg border text-xs font-mono font-semibold transition-colors flex items-center gap-1.5",
+                                detailMode
+                                  ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
+                                  : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200",
+                              )}
+                              title="Interface-IPs im Diagramm ein- oder ausblenden"
+                            >
+                              <Eye size={13} />
+                              <span>{detailMode ? "Detail: IPs aktiv" : "Kompakt"}</span>
+                            </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Verbindungen */}
-                  <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                      Kabel & Port-Zuordnungen:
-                    </h4>
-                    <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 space-y-1.5 font-mono text-xs">
-                      {currentLab.topology.connections.map((c, i) => (
-                        <div key={i} className="flex items-center gap-2 text-slate-300">
-                          <span className="text-cyan-500 font-bold">↳</span>
-                          <span>{c}</span>
+                        <div ref={diagramContainerRef}>
+                          <ProfessionalTopologyDiagram
+                            topology={currentLab.structuredTopology}
+                            detailMode={detailMode}
+                            selectedDevice={selectedDevice}
+                            onSelectDevice={setSelectedDevice}
+                          />
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </section>
 
-                  {/* Wichtiger Aufbau-Tipp */}
-                  <div className="flex items-start gap-2.5 bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200">
-                    <Info size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                    <div className="leading-relaxed">
-                      <span className="font-bold text-amber-300 mr-1.5">Praxis-Tipp:</span>
-                      {currentLab.topology.hint}
-                    </div>
-                  </div>
+                      {/* Adressierungstabelle mit bidirektionalem Highlighting */}
+                      <LabAddressingTable
+                        entries={currentLab.structuredTopology.addressingTable}
+                        selectedDevice={selectedDevice}
+                        onSelectDevice={setSelectedDevice}
+                      />
 
-                  {/* Optionales visuelles Topologie-Diagramm */}
-                  {currentLab.topology.topologyDiagram && (
-                    <div className="mt-3 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
-                      {currentLab.topology.topologyDiagram}
-                    </div>
-                  )}
-
-                  {/* Strukturierte Exhibits */}
-                  {currentLab.exhibits && currentLab.exhibits.length > 0 && (
-                    <div className="mt-3 space-y-3">
-                      {currentLab.exhibits.map((ex, i) => (
-                        <div key={i} className="rounded-xl overflow-hidden border border-slate-800">
-                          <ExhibitRenderer exhibit={ex} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                {/* ── Schritt 2: CLI-Konfiguration ── */}
-                <section className="space-y-4">
-                  <div className="flex items-center justify-between pb-1">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
-                        ②
-                      </span>
-                      <h3 className="text-sm sm:text-base font-bold text-white font-sans">
-                        Schritt-für-Schritt CLI-Konfiguration
-                      </h3>
-                    </div>
-                    <span className="text-xs text-slate-400 font-mono">
-                      {currentLab.steps.length} Einzelschritte
-                    </span>
-                  </div>
-
-                  {currentLab.steps.map((step, si) => (
-                    <div key={si} className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs font-mono font-bold border border-slate-700">
-                          Schritt {si + 1}
-                        </span>
-                        <h4 className="text-sm font-bold text-white font-sans">
-                          {step.title}
+                      {/* Aufbau-Hinweise & Kabel-Zuordnungen */}
+                      <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                          Kabel- & Port-Zuordnungen:
                         </h4>
-                      </div>
-
-                      {step.blocks.map((block, bi) => (
-                        <CommandBlockView key={bi} block={block} />
-                      ))}
-                    </div>
-                  ))}
-                </section>
-
-                {/* ── Schritt 3: Verifikation ── */}
-                <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 sm:p-5 space-y-3 shadow-sm">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
-                      ③
-                    </span>
-                    <h3 className="text-sm sm:text-base font-bold text-white font-sans">
-                      Verifikation — Lab erfolgreich, wenn:
-                    </h3>
-                  </div>
-
-                  <div className="space-y-2 pt-1 font-mono text-xs">
-                    {currentLab.verifyCommands.map((v, i) => (
-                      <div
-                        key={i}
-                        className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <CopyButton text={v.cmd} label="" />
-                          <code className="text-emerald-300 font-bold truncate">
-                            {v.cmd}
-                          </code>
+                        <div className="space-y-1.5 font-mono text-xs">
+                          {currentLab.topology.connections.map((c, i) => (
+                            <div key={i} className="flex items-center gap-2 text-slate-300">
+                              <span className="text-cyan-500 font-bold">↳</span>
+                              <span>{c}</span>
+                            </div>
+                          ))}
                         </div>
-                        <div className="text-slate-300 font-sans text-xs md:text-right pl-7 md:pl-0">
-                          <span className="text-slate-500 font-mono mr-1">Erwartung:</span>
-                          <span className="text-emerald-400 font-medium">{v.expected}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* ── Schritt 4: Glossar ── */}
-                {currentLab.glossary && currentLab.glossary.length > 0 && (
-                  <section className="rounded-2xl border border-slate-800 bg-slate-950/50 p-4 sm:p-5 space-y-3 shadow-sm">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs border border-slate-700">
-                        ④
-                      </span>
-                      <h3 className="text-sm sm:text-base font-bold text-white font-sans">
-                        Glossar: Fachbegriffe in diesem Lab
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1 text-xs">
-                      {currentLab.glossary.map((g, i) => (
-                        <div
-                          key={i}
-                          className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 space-y-0.5"
-                        >
-                          <span className="font-mono font-bold text-cyan-300 block text-xs">
-                            {g.term}
+                        <div className="flex items-start gap-2 bg-amber-950/30 border border-amber-500/20 rounded-xl p-2.5 text-xs text-amber-200/90 mt-2">
+                          <Info size={15} className="text-amber-400 shrink-0 mt-0.5" />
+                          <span>
+                            <strong className="text-amber-300 mr-1">Praxis-Tipp:</strong>
+                            {currentLab.topology.hint}
                           </span>
-                          <p className="text-slate-400 text-xs leading-relaxed font-sans">
-                            {g.def}
-                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rechte Spalte: Aufgabenstellung & Konfiguration */}
+                    <div className="xl:col-span-5 space-y-5">
+                      {/* Didaktischer Kontext */}
+                      {currentLab.context && (
+                        <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900 p-4 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2.5">
+                            <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                            <h3 className="text-xs font-bold text-indigo-300 font-sans tracking-wide uppercase">
+                              Didaktischer Kontext
+                            </h3>
+                          </div>
+                          <div className="space-y-2 text-xs">
+                            <div className="bg-slate-900/60 p-2.5 rounded-xl border border-indigo-500/20">
+                              <span className="text-indigo-400 font-bold block text-[11px] uppercase tracking-wider mb-0.5">
+                                Ausgangslage & Problem:
+                              </span>
+                              <p className="text-slate-300 leading-relaxed font-sans">
+                                {currentLab.context.problem}
+                              </p>
+                            </div>
+                            <div className="bg-slate-900/60 p-2.5 rounded-xl border border-indigo-500/20">
+                              <span className="text-emerald-400 font-bold block text-[11px] uppercase tracking-wider mb-0.5">
+                                Praxis-Zweck & Lernziel:
+                              </span>
+                              <p className="text-slate-300 leading-relaxed font-sans">
+                                {currentLab.context.purpose}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Schritt 2: CLI-Konfiguration */}
+                      <section className="space-y-3">
+                        <div className="flex items-center justify-between pb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
+                              ②
+                            </span>
+                            <h3 className="text-sm font-bold text-white font-sans">
+                              Schritt-für-Schritt CLI-Konfiguration
+                            </h3>
+                          </div>
+                          <span className="text-xs text-slate-400 font-mono">
+                            {currentLab.steps.length} Schritte
+                          </span>
+                        </div>
+
+                        {currentLab.steps.map((step, si) => (
+                          <div key={si} className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs font-mono font-bold border border-slate-700">
+                                Schritt {si + 1}
+                              </span>
+                              <h4 className="text-xs font-bold text-white font-sans">
+                                {step.title}
+                              </h4>
+                            </div>
+
+                            {step.blocks.map((block, bi) => (
+                              <CommandBlockView key={bi} block={block} />
+                            ))}
+                          </div>
+                        ))}
+                      </section>
+
+                      {/* Schritt 3: Verifikation */}
+                      <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 space-y-3 shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
+                            ③
+                          </span>
+                          <h3 className="text-xs sm:text-sm font-bold text-white font-sans">
+                            Verifikation — Lab erfolgreich wenn:
+                          </h3>
+                        </div>
+
+                        <div className="space-y-2 font-mono text-xs">
+                          {currentLab.verifyCommands.map((v, i) => (
+                            <div
+                              key={i}
+                              className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 space-y-1"
+                            >
+                              <div className="flex items-center gap-2">
+                                <CopyButton text={v.cmd} label="" />
+                                <code className="text-emerald-300 font-bold truncate">
+                                  {v.cmd}
+                                </code>
+                              </div>
+                              <div className="text-slate-300 font-sans text-xs pl-7">
+                                <span className="text-slate-500 font-mono mr-1">Erwartet:</span>
+                                <span className="text-emerald-400 font-medium">
+                                  {v.expected}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Schritt 4: Glossar */}
+                      {currentLab.glossary && currentLab.glossary.length > 0 && (
+                        <section className="rounded-2xl border border-slate-800 bg-slate-950/50 p-4 space-y-3 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs border border-slate-700">
+                              ④
+                            </span>
+                            <h3 className="text-xs sm:text-sm font-bold text-white font-sans">
+                              Glossar: Fachbegriffe
+                            </h3>
+                          </div>
+
+                          <div className="space-y-2 text-xs">
+                            {currentLab.glossary.map((g, i) => (
+                              <div
+                                key={i}
+                                className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 space-y-0.5"
+                              >
+                                <span className="font-mono font-bold text-cyan-300 block text-xs">
+                                  {g.term}
+                                </span>
+                                <p className="text-slate-400 text-xs leading-relaxed font-sans">
+                                  {g.def}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* ── Standard-Ansicht für Labs ohne structuredTopology ── */}
+                    {/* ── Kontext: Warum dieses Lab? ── */}
+                    {currentLab.context && (
+                      <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900 p-4 sm:p-5 shadow-sm">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                          <h3 className="text-sm font-bold text-indigo-300 font-sans tracking-wide uppercase">
+                            Didaktischer Kontext: Worum geht es in diesem Lab?
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                          <div className="space-y-1 bg-slate-900/60 p-3 rounded-xl border border-indigo-500/20">
+                            <span className="text-indigo-400 font-bold block text-xs uppercase tracking-wider">
+                              Ausgangslage & Problem:
+                            </span>
+                            <p className="text-slate-300 leading-relaxed font-sans">
+                              {currentLab.context.problem}
+                            </p>
+                          </div>
+                          <div className="space-y-1 bg-slate-900/60 p-3 rounded-xl border border-indigo-500/20">
+                            <span className="text-emerald-400 font-bold block text-xs uppercase tracking-wider">
+                              Praxis-Zweck & Lernziel:
+                            </span>
+                            <p className="text-slate-300 leading-relaxed font-sans">
+                              {currentLab.context.purpose}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Schritt 1: Topologie-Aufbau (Packet Tracer) ── */}
+                    <section className="rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-4 sm:p-5 space-y-4 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold flex items-center justify-center text-xs border border-cyan-500/30">
+                            ①
+                          </span>
+                          <h3 className="text-sm sm:text-base font-bold text-white font-sans">
+                            Topologie im Packet Tracer aufbauen
+                          </h3>
+                        </div>
+                        <span className="text-[11px] text-cyan-300/80 font-mono hidden sm:inline">
+                          Drag & Drop
+                        </span>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        {currentLab.topology.description}
+                      </p>
+
+                      {/* Geräte-Übersicht */}
+                      <div>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Benötigte Netzwerkgeräte:
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                          {currentLab.topology.devices.map((d, i) => (
+                            <div
+                              key={i}
+                              className="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center gap-2.5 shadow-xs"
+                            >
+                              <span className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 font-bold text-xs flex items-center justify-center shrink-0 border border-cyan-500/30 font-mono">
+                                {d.count}×
+                              </span>
+                              <div className="min-w-0">
+                                <span className="text-xs font-bold text-white block truncate">
+                                  {d.type}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono truncate block">
+                                  {d.label}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Verbindungen */}
+                      <div>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Kabel & Port-Zuordnungen:
+                        </h4>
+                        <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 space-y-1.5 font-mono text-xs">
+                          {currentLab.topology.connections.map((c, i) => (
+                            <div key={i} className="flex items-center gap-2 text-slate-300">
+                              <span className="text-cyan-500 font-bold">↳</span>
+                              <span>{c}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Wichtiger Aufbau-Tipp */}
+                      <div className="flex items-start gap-2.5 bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200">
+                        <Info size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                        <div className="leading-relaxed">
+                          <span className="font-bold text-amber-300 mr-1.5">Praxis-Tipp:</span>
+                          {currentLab.topology.hint}
+                        </div>
+                      </div>
+
+                      {/* Optionales visuelles Topologie-Diagramm */}
+                      {currentLab.topology.topologyDiagram && (
+                        <div className="mt-3 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
+                          {currentLab.topology.topologyDiagram}
+                        </div>
+                      )}
+
+                      {/* Strukturierte Exhibits */}
+                      {currentLab.exhibits && currentLab.exhibits.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          {currentLab.exhibits.map((ex, i) => (
+                            <div key={i} className="rounded-xl overflow-hidden border border-slate-800">
+                              <ExhibitRenderer exhibit={ex} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+
+                    {/* ── Schritt 2: CLI-Konfiguration ── */}
+                    <section className="space-y-4">
+                      <div className="flex items-center justify-between pb-1">
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
+                            ②
+                          </span>
+                          <h3 className="text-sm sm:text-base font-bold text-white font-sans">
+                            Schritt-für-Schritt CLI-Konfiguration
+                          </h3>
+                        </div>
+                        <span className="text-xs text-slate-400 font-mono">
+                          {currentLab.steps.length} Einzelschritte
+                        </span>
+                      </div>
+
+                      {currentLab.steps.map((step, si) => (
+                        <div key={si} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs font-mono font-bold border border-slate-700">
+                              Schritt {si + 1}
+                            </span>
+                            <h4 className="text-sm font-bold text-white font-sans">
+                              {step.title}
+                            </h4>
+                          </div>
+
+                          {step.blocks.map((block, bi) => (
+                            <CommandBlockView key={bi} block={block} />
+                          ))}
                         </div>
                       ))}
-                    </div>
-                  </section>
+                    </section>
+
+                    {/* ── Schritt 3: Verifikation ── */}
+                    <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 sm:p-5 space-y-3 shadow-sm">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs border border-emerald-500/30">
+                          ③
+                        </span>
+                        <h3 className="text-sm sm:text-base font-bold text-white font-sans">
+                          Verifikation — Lab erfolgreich, wenn:
+                        </h3>
+                      </div>
+
+                      <div className="space-y-2 pt-1 font-mono text-xs">
+                        {currentLab.verifyCommands.map((v, i) => (
+                          <div
+                            key={i}
+                            className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <CopyButton text={v.cmd} label="" />
+                              <code className="text-emerald-300 font-bold truncate">
+                                {v.cmd}
+                              </code>
+                            </div>
+                            <div className="text-slate-300 font-sans text-xs md:text-right pl-7 md:pl-0">
+                              <span className="text-slate-500 font-mono mr-1">Erwartung:</span>
+                              <span className="text-emerald-400 font-medium">{v.expected}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* ── Schritt 4: Glossar ── */}
+                    {currentLab.glossary && currentLab.glossary.length > 0 && (
+                      <section className="rounded-2xl border border-slate-800 bg-slate-950/50 p-4 sm:p-5 space-y-3 shadow-sm">
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs border border-slate-700">
+                            ④
+                          </span>
+                          <h3 className="text-sm sm:text-base font-bold text-white font-sans">
+                            Glossar: Fachbegriffe in diesem Lab
+                          </h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1 text-xs">
+                          {currentLab.glossary.map((g, i) => (
+                            <div
+                              key={i}
+                              className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 space-y-0.5"
+                            >
+                              <span className="font-mono font-bold text-cyan-300 block text-xs">
+                                {g.term}
+                              </span>
+                              <p className="text-slate-400 text-xs leading-relaxed font-sans">
+                                {g.def}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+                  </>
                 )}
 
                 {/* ── Footer Navigation: Vorheriges / Nächstes Lab ── */}
