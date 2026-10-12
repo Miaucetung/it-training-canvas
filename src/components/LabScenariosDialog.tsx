@@ -1,4 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -682,18 +683,19 @@ export function LabScenariosDialog({
   if (!open) return null;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="lab-scenarios-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
-    >
+    <ModalPortal>
       <div
-        className={cn(
-          "flex flex-col w-full max-w-7xl h-[94vh] rounded-2xl border shadow-2xl overflow-hidden",
-          "bg-slate-900 border-slate-700/80 text-slate-100",
-        )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="lab-scenarios-title"
+        className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
       >
+        <div
+          className={cn(
+            "flex flex-col w-full max-w-7xl max-h-[calc(100dvh-1.5rem)] md:max-h-[92dvh] h-full rounded-2xl border shadow-2xl overflow-hidden",
+            "bg-slate-900 border-slate-700/80 text-slate-100",
+          )}
+        >
         {/* ── Top Header ── */}
         <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-800 bg-slate-950/90 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -1287,6 +1289,7 @@ export function LabScenariosDialog({
           </main>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

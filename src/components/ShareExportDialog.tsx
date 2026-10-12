@@ -26,6 +26,8 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { ModalPortal } from "@/components/ui/modal-portal";
+import { cn } from "@/lib/utils";
 
 interface ShareExportDialogProps {
   theme: "light" | "dark";
@@ -159,36 +161,39 @@ export function ShareExportDialog({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div
-        className={`w-[560px] max-h-[85vh] rounded-2xl shadow-2xl border overflow-hidden flex flex-col ${
-          isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-        }`}
-      >
-        {/* Header */}
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
         <div
-          className={`px-5 py-4 border-b flex items-center justify-between ${isDark ? "border-slate-800" : "border-slate-100"}`}
+          className={cn(
+            "w-full max-w-[560px] max-h-[calc(100dvh-1.5rem)] md:max-h-[85dvh] rounded-2xl shadow-2xl border overflow-hidden flex flex-col",
+            isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+          )}
         >
-          <div className="flex items-center gap-3">
-            <Share size={20} className="text-blue-500" weight="bold" />
-            <h2
-              className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}
-            >
-              Teilen & Exportieren
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 rounded-lg ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
+          {/* Header */}
+          <div
+            className={`shrink-0 px-5 py-4 border-b flex items-center justify-between ${isDark ? "border-slate-800" : "border-slate-100"}`}
           >
-            <X size={18} />
-          </button>
-        </div>
+            <div className="flex items-center gap-3">
+              <Share size={20} className="text-blue-500" weight="bold" />
+              <h2
+                className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}
+              >
+                Teilen & Exportieren
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className={`p-1.5 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
+              aria-label="Schließen"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-        {/* Tabs */}
-        <div
-          className={`flex border-b ${isDark ? "border-slate-800" : "border-slate-100"}`}
-        >
+          {/* Tabs */}
+          <div
+            className={`shrink-0 flex border-b ${isDark ? "border-slate-800" : "border-slate-100"}`}
+          >
           {[
             { id: "export" as const, label: "Exportieren", icon: FileText },
             { id: "share" as const, label: "Freigeben", icon: Link },
@@ -590,6 +595,7 @@ export function ShareExportDialog({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

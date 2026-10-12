@@ -24,6 +24,8 @@ import {
 } from "@/lib/ccna-classified-pool";
 import { ccnaQuestionsClassified, type CCNAQuestionClassified } from "@/data/ccnaQuestionsClassified";
 import { QuizDialog } from "./QuizDialog";
+import { ModalPortal } from "@/components/ui/modal-portal";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "ccna-classified-weak-questions";
 
@@ -194,28 +196,36 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className={`relative w-[620px] max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl ${bg} ${border} border shadow-2xl`}
-      >
-        {/* Header */}
-        <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
-          <div className="flex items-center gap-3">
-            <ChartLine size={22} className="text-indigo-500" />
-            <div>
-              <h2 className={`font-bold ${text}`}>Priorisierte Lern-Queue</h2>
-              <p className={`text-xs ${textMuted}`}>
-                {totalQuestions} klassifizierte Fragen, sortiert nach Blueprint-Gewichtung
-              </p>
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+        <div
+          className={cn(
+            "relative w-full max-w-[620px] max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden",
+            bg,
+            border
+          )}
+        >
+          {/* Header */}
+          <div className={`shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b ${border}`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <ChartLine size={22} className="text-indigo-500 shrink-0" />
+              <div className="min-w-0">
+                <h2 className={`font-bold truncate ${text}`}>Priorisierte Lern-Queue</h2>
+                <p className={`text-xs truncate ${textMuted}`}>
+                  {totalQuestions} klassifizierte Fragen, sortiert nach Blueprint-Gewichtung
+                </p>
+              </div>
             </div>
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-slate-700/50 ${textMuted}`}
+              aria-label="Schließen"
+            >
+              <X size={20} />
+            </button>
           </div>
-          <button onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
-            <X size={20} />
-          </button>
-        </div>
 
-        <div className="p-6 flex flex-col gap-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6">
           {/* Stats */}
           <div className={`grid grid-cols-2 gap-3 rounded-xl p-4 ${cardBg}`}>
             <div className="flex flex-col items-center gap-1 text-center">
@@ -340,6 +350,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

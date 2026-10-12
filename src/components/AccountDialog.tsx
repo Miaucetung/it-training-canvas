@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { SignOut, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   user: User;
@@ -107,20 +108,22 @@ export function AccountDialog({
   const dirty = displayName.trim() !== initialName.trim();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className={`flex max-h-[90vh] w-full max-w-sm flex-col rounded-2xl border shadow-2xl ${base}`}>
-        {/* Header */}
-        <div className={`flex shrink-0 items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
-          <h2 className="text-base font-semibold">Mein Konto</h2>
-          <button
-            onClick={onClose}
-            className={`rounded-lg p-1.5 transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className={`flex max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] w-full max-w-sm flex-col rounded-2xl border shadow-2xl overflow-hidden ${base}`}>
+          {/* Header */}
+          <div className={`flex shrink-0 items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
+            <h2 className="text-base font-semibold">Mein Konto</h2>
+            <button
+              onClick={onClose}
+              className={`rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
+              aria-label="Schließen"
+            >
+              <X size={16} />
+            </button>
+          </div>
 
-        <div className="flex flex-col gap-4 overflow-y-auto p-5">
+          <div className="flex flex-col gap-4 overflow-y-auto p-5">
           {/* Profil */}
           <form onSubmit={handleSave} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
@@ -219,5 +222,6 @@ export function AccountDialog({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }
