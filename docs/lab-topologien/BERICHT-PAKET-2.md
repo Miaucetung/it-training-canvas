@@ -34,7 +34,7 @@ Lint 0 Fehler (48 Warnungen wie vorher), **902 Tests in 54 Dateien grün** (vorh
 
 | Lab | Punkt |
 |---|---|
-| ospf-dr-bdr-election | **Nachbartabelle bleibt leer.** `computeOspfNeighbors` kennt nur direkte Links; das gemeinsame Segment läuft über Sw1. Priorities und Router-IDs (höchste Loopback, Lab setzt keinen `router-id`-Befehl) sind im Modell korrekt, `show ip ospf neighbor` zeigt aber nichts. Eine Wahl über ein L2-Segment hinweg wäre eine eigene Funktion; Entscheidung bei dir |
+| ospf-dr-bdr-election | Nachbartabelle und DR/BDR-Wahl über das Switch-Segment sind nachgerüstet (siehe Nachtrag). Router-ID = höchste Loopback (das Lab setzt keinen `router-id`-Befehl) |
 | ospf-dr-bdr-election | Server-IPs stehen im Lab nur in der Zeile `Server0: 192.168.2.11 / …`; der Konverter liest diese Zeile |
 | ospf-dr-bdr-election, rip-v2-passive | Switch-Ports sind im Lab nicht angegeben. Konvention wie in Paket 1: Endgeräte/Router an Fa0/1.. in Gerätereihenfolge, Uplink Gi0/1. Das ist eine Annahme, nicht Lab-Inhalt |
 | rip-v2-passive | Verbindungstext „R3 Fa/Gi“ ist mehrdeutig; die Konfiguration gilt (Gi0/1) |
@@ -54,7 +54,7 @@ Die Beurteilung unten stützt sich auf Layout-Audit und Tests. Die Screenshots l
 
 **ospf-rid-wildcard, ospf-multiarea.** Gut: Router-Kette mit Subnetz-Labels über der Linie. Schwach: Area-Zugehörigkeit steht nur in Modelltext/Tabelle und bei multiarea in den Link-Labels, nicht als eigene Zone.
 
-**ospf-dr-bdr-election.** Gut: Sw1 oben, vier Router, LAN-Zonen darunter, keine Kreuzungen. Schwach: DR/BDR sind im Diagramm nicht markiert (Priorities nur in der Tabelle/Inspektor), Nachbartabelle leer (siehe Abschnitt 3).
+**ospf-dr-bdr-election.** Gut: Sw1 oben, vier Router, LAN-Zonen darunter, keine Kreuzungen. Schwach: DR/BDR sind im Diagramm nicht markiert (Rollen stehen nur in `show ip ospf neighbor` und im Inspektor).
 
 **eigrp.** Gut: Dreieck mit R2 unten, drei Subnetz-Labels. Schwach: die Diagonal-Links nutzen große Port-Offsets, dadurch stehen die Labels weit von R2.
 
@@ -66,3 +66,9 @@ Die Beurteilung unten stützt sich auf Layout-Audit und Tests. Die Screenshots l
 
 - `lab-topologies-network.test.ts`: Verbindungsparser erweitert (siehe oben), CLI-Test unterscheidet „im Lab konfiguriert“ / „nicht konfiguriert → Export muss leer sein“.
 - `lab-topology-matches-lab-text.test.ts`: Loopback, deutsche Desktop-Zeilen, Mehrgeräteblöcke; die Prüfung selbst ist nicht entfernt worden.
+
+## 6. Nachtrag (nach Freigabe-Rückmeldung)
+
+- **OSPF über Switch-Segmente** (`ospf-neighbors.ts`): Router am selben L2-Segment (Access-Ports und Trunks mit erlaubtem VLAN bzw. nativem VLAN, Links und Ports up, keine STP-geblockten Pfade) bilden ein Broadcast-Segment. Wahl über alle Teilnehmer nach IOS-Regeln (Priority, dann höhere Router-ID, Priority 0 nimmt nicht teil). Zustand FULL, wenn mindestens eine Seite DR/BDR ist, sonst 2WAY. Nicht bestimmbar (L3-Switch oder routed Port im Pfad, unterschiedliche Area/Subnetz/Netztyp, passive, doppelte Router-ID) → keine Nachbarn, nichts erfunden. Tests: `ospf-segments.test.ts` (15 positive/negative Fälle), Referenz `ospf-dr-bdr-election`: aus Sicht von R4 `R1 FULL/DR`, `R2 FULL/BDR`, `R3 2WAY/DROTHER`.
+- **Angenommene Switch-Ports** sind in der Adressierungstabelle (Fußzeile) und im Canvas-Inspector („angenommen“) gekennzeichnet und in `KORREKTURVORSCHLAEGE-LABTEXT.md`, Abschnitt 8, gelistet.
+- **Lab-Dialog:** Diagramm mit Zoom (100–300 %, scrollbar; auf 390 px mindestens 560 px breit) und Schalter „Breit“ (volle Breite ab 1280 px, standardmäßig an).

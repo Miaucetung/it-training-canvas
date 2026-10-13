@@ -1856,7 +1856,17 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                     }`}
                   >
                     <div>
-                      <div className={`font-bold ${isDark ? "text-sky-400" : "text-sky-700"}`}>{iface.name}</div>
+                      <div className={`font-bold ${isDark ? "text-sky-400" : "text-sky-700"}`}>
+                        {iface.name}
+                        {iface.assumed && (
+                          <span
+                            className={`ml-1.5 px-1 py-0.5 rounded text-[9px] font-semibold ${isDark ? "bg-amber-500/20 text-amber-300" : "bg-amber-100 text-amber-800"}`}
+                            title="Port im Lab nicht angegeben, nach Konvention angenommen"
+                          >
+                            angenommen
+                          </span>
+                        )}
+                      </div>
                       {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
                       {iface.description && (
                         <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>

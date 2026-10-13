@@ -35,7 +35,7 @@ export interface LabNetworkResult {
 }
 
 export type LabForNetwork = Pick<LabScenario, "id" | "title" | "steps"> & {
-  topology: Pick<LabScenario["topology"], "description">;
+  topology: Pick<LabScenario["topology"], "description" | "connections">;
 };
 
 const THEME_COLORS: Record<string, string> = {
@@ -89,6 +89,22 @@ export interface ParsedDeviceConfig {
 }
 
 /** Blockname -> Gerätenamen: "PC1–PC5" -> PC1..PC5, "R1 / R2" -> R1, R2, sonst der Name selbst. */
+/** Nennt das Lab diesen Port des Geräts (Konfiguration `interface ...` oder Verbindungsliste)? */
+export function labMentionsPort(lab: LabForNetwork, deviceName: string, port: string): boolean {
+  const short = normalizeInterfaceName(port);
+  if (parseLabDeviceConfig(lab, deviceName).ifaces.has(short)) return true;
+  const esc = deviceName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${esc}\\s+([A-Za-z]+\\d+(?:/\\d+)+)(?:\\s*[–-]\\s*[A-Za-z]*(\\d+(?:/\\d+)*))?`, "gi");
+  for (const line of lab.topology.connections) {
+    for (const m of line.matchAll(re)) {
+      const last = m[2]?.split("/").pop();
+      const names = last ? expandInterfaceRange(`${m[1]}-${last}`) : [normalizeInterfaceName(m[1])];
+      if (names.includes(short)) return true;
+    }
+  }
+  return false;
+}
+
 export function expandDeviceNames(blockDevice: string): string[] {
   const d = blockDevice.trim();
   if (d.includes("/")) return d.split("/").map((x) => x.trim()).filter(Boolean);
@@ -469,6 +485,9 @@ export function buildNetworkTopologyFromLab(
     };
     const ia = find(a, l.fromPort);
     const ib = find(b, l.toPort);
+    for (const [dev, it, port] of [[a, ia, l.fromPort], [b, ib, l.toPort]] as const) {
+      if (dev.type.startsWith("switch") && !dev.assumed && !labMentionsPort(lab, dev.name, port)) it.assumed = true;
+    }
     const bundled = state === "target" && ia.channelGroup && ib.channelGroup;
     links.push({
       id: l.id,

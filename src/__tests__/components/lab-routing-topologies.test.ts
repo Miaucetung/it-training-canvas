@@ -69,7 +69,7 @@ describe("Paket 2 Routing – labspezifische Prüfungen", () => {
     expect(rid("R3")).toBe("3.3.3.3");
   });
 
-  it("ospf-dr-bdr-election: Priorities 255/100/0/Default stehen auf Gi0/1, Router-ID = Loopback; Nachbartabelle über Sw1 wird nicht erfunden", () => {
+  it("ospf-dr-bdr-election: Priorities 255/100/0/Default, Router-ID = Loopback, Wahl über Sw1: R1 DR, R2 BDR", () => {
     const { topology } = build("ospf-dr-bdr-election");
     const r = (n: string) => topology.devices.find((d) => d.name === n)!;
     const prio = (n: string) => r(n).interfaces.find((i) => i.name === "Gi0/1")!.ospf;
@@ -79,8 +79,9 @@ describe("Paket 2 Routing – labspezifische Prüfungen", () => {
     expect(prio("R4")?.priority).toBeUndefined();
     expect(getOspfRouterId(r("R1"))).toBe("192.168.254.1");
     expect(getOspfRouterId(r("R4"))).toBe("192.168.254.4");
-    // Die Nachbarschaftsberechnung kennt nur direkte Links; das gemeinsame Segment läuft über Sw1.
-    expect(computeOspfNeighbors(r("R4"), topology)).toEqual([]);
+    const seen = (n: string) => Object.fromEntries(computeOspfNeighbors(r(n), topology).map((a) => [a.neighbor.name, `${a.state}/${a.neighborRole}`]));
+    expect(seen("R1")).toEqual({ R2: "FULL/BDR", R3: "FULL/DROTHER", R4: "FULL/DROTHER" });
+    expect(seen("R4")).toEqual({ R1: "FULL/DR", R2: "FULL/BDR", R3: "2WAY/DROTHER" });
   });
 
   it("ospf-dr-bdr-election: Server-IPs stammen aus der Server-Zeile des Labs", () => {
@@ -111,5 +112,14 @@ describe("Paket 2 Routing – labspezifische Prüfungen", () => {
       expect(pc.config?.defaultGateway, pc.name).toBe("192.168.50.1");
     }
     expect(getLabDeviceCli(lab, "SW1")).toBe("");
+  });
+
+  it("angenommene Switch-Ports werden gekennzeichnet, im Lab genannte nicht", () => {
+    const assumed = (id: string) =>
+      build(id).topology.devices.flatMap((d) => d.interfaces.filter((i) => i.assumed).map((i) => `${d.name} ${i.name}`));
+    expect(assumed("ospf-dr-bdr-election")).toEqual(["Sw1 Fa0/1", "Sw1 Fa0/2", "Sw1 Fa0/3", "Sw1 Fa0/4"]);
+    expect(assumed("rip-v2-passive")).toEqual(expect.arrayContaining(["SW1 Gi0/1", "SW1 Fa0/1", "SW1 Fa0/2"]));
+    expect(assumed("drill-pc-ips")).toEqual([]); // „SW1 Fa0/1–Fa0/6“ steht im Lab
+    expect(assumed("ospf-multiarea")).toEqual([]); // keine Switches
   });
 });

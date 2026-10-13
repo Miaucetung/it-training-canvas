@@ -77,6 +77,8 @@ export interface TopologyInterface {
   subinterfaces?: TopologySubinterface[];
   isShutdown?: boolean;
   ospf?: InterfaceOspfConfig;
+  /** Port im Lab nicht angegeben, nach Konvention angenommen */
+  assumed?: boolean;
 }
 
 export interface DeviceSvi {
@@ -287,6 +289,7 @@ export const topologyInterfaceSchema = z.object({
   subinterfaces: z.array(topologySubinterfaceSchema).optional(),
   isShutdown: z.boolean().optional(),
   ospf: interfaceOspfSchema.optional(),
+  assumed: z.boolean().optional(),
 });
 
 export const deviceSviSchema = z.object({

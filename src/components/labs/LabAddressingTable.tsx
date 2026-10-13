@@ -8,6 +8,8 @@ interface LabAddressingTableProps {
   onSelectDevice?: (deviceName: string | null) => void;
   className?: string;
   theme?: "dark" | "light";
+  /** Switch-Ports, die im Lab nicht angegeben sind (nach Konvention angenommen) */
+  assumedPorts?: Array<{ device: string; port: string }>;
 }
 
 export const LabAddressingTable: React.FC<LabAddressingTableProps> = ({
@@ -16,6 +18,7 @@ export const LabAddressingTable: React.FC<LabAddressingTableProps> = ({
   onSelectDevice,
   className,
   theme = "dark",
+  assumedPorts = [],
 }) => {
   const isLight = theme === "light";
 
@@ -133,6 +136,22 @@ export const LabAddressingTable: React.FC<LabAddressingTableProps> = ({
           </tbody>
         </table>
       </div>
+      {assumedPorts.length > 0 && (
+        <div
+          className={cn(
+            "px-4 py-2.5 border-t text-[11px] font-sans",
+            isLight ? "bg-amber-50 border-amber-200 text-amber-900" : "bg-amber-950/20 border-slate-800 text-amber-200",
+          )}
+        >
+          <span className="font-semibold">Ports angenommen (im Lab nicht angegeben):</span>{" "}
+          {assumedPorts.map((p, i) => (
+            <span key={`${p.device}-${p.port}`} className="font-mono">
+              {i > 0 ? ", " : ""}
+              {p.device} {p.port}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
