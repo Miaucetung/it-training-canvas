@@ -2,7 +2,7 @@
 
 Branch `feature/lab-topologies-operations` (von `main` @ `75fbd5a`). Nicht gemergt.
 Neue Topologien (5): **ios-backup-upgrade, dhcp-troubleshoot-lab, netflow, restconf, netconf-yang**.
-Keine Netz-Topologie (laut Bestandsaufnahme, bewusst nicht angelegt): password-recovery, layer1-issues, troubleshooting-cheat, drill-grundkkonfig und drill-access-ports.
+Keine Netz-Topologie (laut Bestandsaufnahme, bewusst nicht angelegt): password-recovery, layer1-issues, troubleshooting-cheat, drill-grundkonfig und drill-access-ports.
 Lint 0 Fehler (48 Warnungen wie vorher), **1525 Tests in 61 Dateien grün**, Build grün, Layout-Audit 0 Überlappungen / Zonen-Konflikte / Raster-Abweichungen, Screenshots 100/100 und 60/60 Prüfungen.
 
 ## 1. Neu im Fundament
