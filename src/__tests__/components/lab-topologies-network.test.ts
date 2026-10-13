@@ -206,6 +206,8 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
       }
       if (d.config?.defaultGateway) allowed.add(d.config.defaultGateway);
       if (d.config?.ospf?.routerId) allowed.add(d.config.ospf.routerId); // im Lab konfigurierte Router-ID
+      if (d.config?.ospfv3?.routerId) allowed.add(d.config.ospfv3.routerId); // OSPFv3-Router-ID aus dem Lab
+      if (d.config?.eigrpv6?.routerId) allowed.add(d.config.eigrpv6.routerId); // EIGRPv6-Router-ID aus dem Lab
     }
     for (const d of target.topology.devices) {
       const outputs = CiscoCliGenerator.getDynamicShowOutputs(d, target.topology);

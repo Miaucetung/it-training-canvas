@@ -38,6 +38,7 @@ import {
 import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import { computeOspfNeighbors } from "@/lib/topology/ospf-neighbors";
+import { ipv6Hints } from "@/lib/topology/ipv6-routing";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -216,6 +217,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     if (!selectedDevice) return {};
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
   }, [selectedDevice, activeTopology]);
+
+  const ipv6HintList = useMemo(() => (selectedDevice ? ipv6Hints(selectedDevice) : []), [selectedDevice]);
 
   // Broadcast-Segment mit DR/BDR-Wahl: Hinweis zur Nicht-Präemption
   const hasOspfBroadcastSegment = useMemo(() => {
@@ -1904,6 +1907,15 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                   <Terminal size={14} className="text-green-400" />
                   <span>Simulierte CLI show-Ausgaben (Dynamisch)</span>
                 </h4>
+                {ipv6HintList.length > 0 && (
+                  <ul className="mb-2 space-y-1" aria-label="IPv6-Hinweise">
+                    {ipv6HintList.map((h) => (
+                      <li key={h} className="px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[10px] leading-snug">
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <div className="space-y-2">
                   {Object.entries(dynamicShowOutputs).map(([cmd, out]) => (
                     <div key={cmd} className="rounded-lg overflow-hidden border border-slate-800">

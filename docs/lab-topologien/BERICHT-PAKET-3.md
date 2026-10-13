@@ -45,3 +45,13 @@ Lint 0 Fehler (48 Warnungen wie vorher), **999 Tests in 56 Dateien grün** (vorh
 
 - Inspector (`show ip ospf neighbor`, Broadcast-Segment): Hinweis „DR-Wahl ist nicht präemptiv. Angezeigt ist das Ergebnis bei gleichzeitigem Start; in Packet Tracer kann der DR abweichen (clear ip ospf process).“
 - Screenshots aller 23 Labs (Paket 1–3) mit dem neuen Dialog-Layout neu erzeugt.
+
+## 6. Nachtrag: IPv6-Ausgaben (Branch `feature/ipv6-outputs`, nicht gemergt)
+
+- `show ipv6 interface brief`: globale Adressen aus dem Lab; Link-Local nur, wenn konfiguriert (`ipv6 address … link-local`), sonst „nicht bestimmbar (Link-Local, EUI-64, MAC unbekannt)“; Status up/up nur mit Kabel und aktivem Link.
+- `show ipv6 route`: C/L (LC für /128), S (rekursive Next-Hop-Prüfung, Interface-Form, Floating-AD), O (SPF je Area, Kosten Ethernet 1 / Serial 64, gleichwertige Pfade) und D (EIGRP-Standardmetrik, z. B. `[90/3072]`); je Präfix gewinnt die niedrigste AD. Link-Local-Next-Hops sind gekennzeichnet, wenn nicht bestimmbar. Ohne `ipv6 unicast-routing`: `% IPv6 routing not enabled`.
+- `show ipv6 ospf neighbor` / `show ipv6 eigrp neighbors`: dieselben Regeln wie bei IPv4 (Switch-Segmente, VLANs, Trunks, STP-geblockte Pfade, DR/BDR-Wahl). Laufzeitwerte (Dead Time, Interface ID, Hold, Uptime, SRTT, RTO, Seq) stehen als „-“ mit Hinweis.
+- Bedingungen: ohne `ipv6 unicast-routing` keine Routen und keine Nachbarn; ohne IPv4 am Gerät und ohne manuelle Router-ID (OSPFv3: `router-id`, EIGRPv6: `eigrp router-id`) keine Nachbarschaft; EIGRPv6-Prozess ohne `no shutdown` bildet keine Nachbarschaft. Im Inspector erscheinen dazu Hinweise.
+- Canvas Detail-Modus: alle IPv6-Adressen eines Geräts (nicht nur zwei Interfaces).
+- Tests: `ipv6-routing.test.ts` (24 Fälle, positiv und negativ).
+- Beobachtung (kein Fehler im Code): Im Lab ipv6-static hat der Internet-Router keine Interface-Adressen; seine statischen Routen werden deshalb nicht installiert (Next-Hop nicht erreichbar) und `show ipv6 route` ist dort leer. Das entspricht dem Lab-Text (siehe Korrekturvorschläge, Abschnitt 9).

@@ -31,7 +31,7 @@ export interface OspfAdjacency {
   state: "FULL" | "2WAY";
 }
 
-const DEFAULT_PRIORITY = 1;
+export const DEFAULT_PRIORITY = 1;
 
 function isL3Capable(device: TopologyDevice): boolean {
   if (device.type === "router") return true;
@@ -47,7 +47,7 @@ export function deviceRunsOspf(device: TopologyDevice): boolean {
   return ospfProtocolEntry(device) !== undefined || device.config?.ospf !== undefined;
 }
 
-function isInterfaceActive(iface: TopologyInterface): boolean {
+export function isInterfaceActive(iface: TopologyInterface): boolean {
   return iface.status === "up" && !iface.isShutdown;
 }
 
@@ -120,7 +120,7 @@ interface LinkEnd {
   remoteDevice: TopologyDevice;
 }
 
-function findLinkEnd(topology: NetworkTopology, link: TopologyLink, deviceId: string): LinkEnd | null {
+export function findLinkEnd(topology: NetworkTopology, link: TopologyLink, deviceId: string): LinkEnd | null {
   const sourceSide = link.sourceDeviceId === deviceId;
   if (!sourceSide && link.targetDeviceId !== deviceId) return null;
   const remoteDevice = topology.devices.find((d) => d.id === (sourceSide ? link.targetDeviceId : link.sourceDeviceId));
@@ -154,7 +154,7 @@ function isBlockedByStp(link: TopologyLink, ...ifaces: TopologyInterface[]): boo
  * mit dem Router-Interface verbunden sind. `null` = nicht bestimmbar (z. B. L3-Switch oder routed Port im Pfad).
  * Direkt verbundene Router bilden ein Segment aus genau diesen beiden.
  */
-function collectSegmentPeers(
+export function collectSegmentPeers(
   topology: NetworkTopology,
   device: TopologyDevice,
   local: TopologyInterface,
@@ -215,10 +215,28 @@ function collectSegmentPeers(
  * DR/BDR-Wahl über alle Teilnehmer (Priority, dann Router-ID, Priority 0 nimmt nicht teil).
  * FULL besteht, wenn mindestens eine Seite DR oder BDR ist, sonst 2WAY.
  */
-export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTopology): OspfAdjacency[] {
+/** Protokoll-Variante (OSPFv2 / OSPFv3) für die gemeinsame Nachbar- und DR/BDR-Berechnung. */
+export interface OspfFlavor {
+  runs(device: TopologyDevice): boolean;
+  routerId(device: TopologyDevice): string | null;
+  resolve(device: TopologyDevice, iface: TopologyInterface): OspfInterfaceState | null;
+  /** Passt das Nachbar-Interface zum lokalen? (v2: gleiches Subnetz) */
+  compatible(local: TopologyInterface, remote: TopologyInterface): boolean;
+  address(iface: TopologyInterface): string;
+}
+
+const OSPFV2: OspfFlavor = {
+  runs: (d) => deviceRunsOspf(d),
+  routerId: (d) => getOspfRouterId(d),
+  resolve: (d, i) => resolveInterfaceOspf(d, i),
+  compatible: (l, r) => !!l.ip && !!r.ip && sameSubnet(l.ip, r.ip),
+  address: (i) => (i.ip ?? "").split("/")[0],
+};
+
+export function computeAdjacencies(device: TopologyDevice, topology: NetworkTopology, flavor: OspfFlavor): OspfAdjacency[] {
   const result: OspfAdjacency[] = [];
-  if (!deviceRunsOspf(device)) return result;
-  const myRid = getOspfRouterId(device);
+  if (!flavor.runs(device)) return result;
+  const myRid = flavor.routerId(device);
   if (!myRid) return result;
 
   for (const link of topology.links) {
@@ -227,7 +245,7 @@ export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTo
     const { local } = first;
     if (!isLinkUsable(link)) continue;
     if (!isInterfaceActive(local)) continue;
-    const mine = resolveInterfaceOspf(device, local);
+    const mine = flavor.resolve(device, local);
     if (!mine || mine.passive) continue;
 
     const candidates = collectSegmentPeers(topology, device, local, first, link);
@@ -237,13 +255,13 @@ export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTo
     const group: Array<{ peer: SegmentPeer; rid: string; priority: number }> = [];
     const seenRids = new Set<string>([myRid]);
     for (const peer of candidates) {
-      if (peer.device.id === device.id || !deviceRunsOspf(peer.device)) continue;
-      if (!isInterfaceActive(peer.iface) || !peer.iface.ip || !local.ip) continue;
-      const theirs = resolveInterfaceOspf(peer.device, peer.iface);
+      if (peer.device.id === device.id || !flavor.runs(peer.device)) continue;
+      if (!isInterfaceActive(peer.iface)) continue;
+      const theirs = flavor.resolve(peer.device, peer.iface);
       if (!theirs || theirs.passive) continue;
       if (mine.area !== theirs.area || mine.networkType !== theirs.networkType) continue;
-      if (!sameSubnet(local.ip, peer.iface.ip)) continue;
-      const rid = getOspfRouterId(peer.device);
+      if (!flavor.compatible(local, peer.iface)) continue;
+      const rid = flavor.routerId(peer.device);
       if (!rid || seenRids.has(rid)) continue;
       seenRids.add(rid);
       group.push({ peer, rid, priority: theirs.priority });
@@ -260,7 +278,7 @@ export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTo
         neighbor: g.peer.device,
         neighborInterface: g.peer.iface,
         neighborRouterId: g.rid,
-        neighborAddress: g.peer.iface.ip!.split("/")[0],
+        neighborAddress: flavor.address(g.peer.iface),
         neighborPriority: 0,
         networkType: mine.networkType,
         neighborRole: "-",
@@ -287,7 +305,7 @@ export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTo
         neighbor: g.peer.device,
         neighborInterface: g.peer.iface,
         neighborRouterId: g.rid,
-        neighborAddress: g.peer.iface.ip!.split("/")[0],
+        neighborAddress: flavor.address(g.peer.iface),
         neighborPriority: g.priority,
         networkType: mine.networkType,
         neighborRole: role,
@@ -296,6 +314,10 @@ export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTo
     }
   }
   return result;
+}
+
+export function computeOspfNeighbors(device: TopologyDevice, topology: NetworkTopology): OspfAdjacency[] {
+  return computeAdjacencies(device, topology, OSPFV2);
 }
 
 export const OSPF_NEIGHBOR_HEADER =

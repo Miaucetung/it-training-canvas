@@ -66,6 +66,10 @@ export interface TopologyInterface {
   name: string; // e.g. "Gi0/0", "Fa0/1"
   ip?: string; // e.g. "192.168.1.1/24"
   ipv6?: string; // e.g. "2001:db8:1::1/64"
+  /** Nur wenn im Lab konfiguriert (`ipv6 address ... link-local`); sonst nicht bestimmbar (EUI-64, MAC unbekannt) */
+  ipv6LinkLocal?: string;
+  ospfv3?: InterfaceOspfv3Config;
+  eigrpv6?: { asn: number };
   mac?: string; // e.g. "00:50:79:66:68:01"
   vlan?: number; // Access VLAN, e.g. 10
   allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
@@ -80,6 +84,21 @@ export interface TopologyInterface {
   ospf?: InterfaceOspfConfig;
   /** Port im Lab nicht angegeben, nach Konvention angenommen */
   assumed?: boolean;
+}
+
+export interface InterfaceOspfv3Config {
+  processId: number;
+  area: number;
+  passive?: boolean;
+  priority?: number;
+  networkType?: OspfNetworkType;
+}
+
+export interface DeviceIpv6Route {
+  prefix: string; // z. B. "2001:db8:2::/64" oder "::/0"
+  nextHop?: string;
+  outInterface?: string;
+  distance?: number;
 }
 
 export interface DeviceSvi {
@@ -120,6 +139,10 @@ export interface DeviceConfig {
   portChannels?: DevicePortChannel[];
   routingProtocols?: string[]; // e.g. ["OSPF 1", "Static"]
   defaultGatewayV6?: string; // Host-IPv6-Gateway
+  ipv6RoutingEnabled?: boolean; // ipv6 unicast-routing
+  ipv6Routes?: DeviceIpv6Route[];
+  ospfv3?: { processId: number; routerId?: string };
+  eigrpv6?: { asn: number; routerId?: string; shutdown?: boolean };
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"
@@ -280,6 +303,17 @@ export const topologyInterfaceSchema = z.object({
   name: z.string(),
   ip: z.string().optional(),
   ipv6: z.string().optional(),
+  ipv6LinkLocal: z.string().optional(),
+  ospfv3: z
+    .object({
+      processId: z.number().int(),
+      area: z.number().int(),
+      passive: z.boolean().optional(),
+      priority: z.number().int().min(0).max(255).optional(),
+      networkType: z.enum(["broadcast", "point-to-point"]).optional(),
+    })
+    .optional(),
+  eigrpv6: z.object({ asn: z.number().int() }).optional(),
   mac: z.string().optional(),
   vlan: z.number().int().min(1).max(4094).optional(),
   allowedVlans: z.array(z.number().int().min(1).max(4094)).optional(),
@@ -332,6 +366,12 @@ export const deviceConfigSchema = z.object({
   portChannels: z.array(devicePortChannelSchema).optional(),
   routingProtocols: z.array(z.string()).optional(),
   defaultGatewayV6: z.string().optional(),
+  ipv6RoutingEnabled: z.boolean().optional(),
+  ipv6Routes: z
+    .array(z.object({ prefix: z.string(), nextHop: z.string().optional(), outInterface: z.string().optional(), distance: z.number().int().optional() }))
+    .optional(),
+  ospfv3: z.object({ processId: z.number().int(), routerId: z.string().optional() }).optional(),
+  eigrpv6: z.object({ asn: z.number().int(), routerId: z.string().optional(), shutdown: z.boolean().optional() }).optional(),
   routingTable: z
     .array(
       z.object({
