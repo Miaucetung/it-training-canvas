@@ -396,7 +396,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="R1 192.168.10.1 – Router (Gateway)"
+                  aria-roledescription="Router (Gateway)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("r1")}
                 >
                   <circle
@@ -431,7 +431,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="SW1 Catalyst 2960 – Switch (Core)"
+                  aria-roledescription="Switch (Core)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("sw1")}
                 >
                   <rect
