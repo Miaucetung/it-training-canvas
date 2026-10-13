@@ -355,9 +355,20 @@ function App() {
     }, 700);
   }, []);
 
-  const [canvasEngine, setCanvasEngine] = useLocalStorage<"v1" | "v2">(
+  const [storedCanvasEngine, setStoredCanvasEngine] = useLocalStorage<"v1" | "v2">(
     "ccna-canvas-version",
     "v1",
+  );
+  // Lab-Vorlage im Canvas v2 öffnen, ohne die gespeicherte Engine-Einstellung zu verändern
+  const [labCanvasRequest, setLabCanvasRequest] = useState<{ labId: string; nonce: number } | null>(null);
+  const [labInitialId, setLabInitialId] = useState<string | undefined>(undefined);
+  const canvasEngine: "v1" | "v2" = labCanvasRequest ? "v2" : storedCanvasEngine;
+  const setCanvasEngine = useCallback(
+    (engine: "v1" | "v2") => {
+      setLabCanvasRequest(null);
+      setStoredCanvasEngine(engine);
+    },
+    [setStoredCanvasEngine],
   );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
@@ -1594,6 +1605,13 @@ function App() {
                 <CanvasV2Container
                   theme={theme}
                   onSwitchToV1={() => setCanvasEngine("v1")}
+                  labRequest={labCanvasRequest}
+                  onBackToLab={(labId) => {
+                    setLabCanvasRequest(null);
+                    setCanvasView(false);
+                    setLabInitialId(labId);
+                    setShowLabScenarios(true);
+                  }}
                   externalStorageTab={v2StorageTab}
                   onCloseStorageDialog={() => setV2StorageTab(null)}
                 />
@@ -1817,6 +1835,12 @@ function App() {
         <LabScenariosDialog
           open={showLabScenarios}
           onClose={() => setShowLabScenarios(false)}
+          initialLabId={labInitialId}
+          onOpenInCanvas={(labId) => {
+            setShowLabScenarios(false);
+            setLabCanvasRequest({ labId, nonce: Date.now() });
+            setCanvasView(true);
+          }}
         />
       </Suspense>
 
