@@ -1,8 +1,9 @@
 name: Build and Push Docker Image
 
+# Manuell ausloesbar. Automatisches Bauen und Deployen nach Push auf main
+# uebernimmt ci.yml (Lint, Build, Tests -> Image -> Deployment).
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
