@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e:canvas": "node scripts/e2e/canvas-e2e.mjs"
+    "test:e2e:canvas": "node scripts/e2e/canvas-e2e.mjs",
+    "test:e2e:browser": "node scripts/e2e/browser-audit.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",
@@ -82,6 +83,7 @@
     "globals": "^16.0.0",
     "jsdom": "^29.0.2",
     "pixelmatch": "^8.0.0",
+    "playwright-core": "^1.64.0",
     "pngjs": "^7.0.0",
     "tailwindcss": "^4.1.11",
     "typescript": "~5.7.2",
