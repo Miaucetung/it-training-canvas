@@ -234,6 +234,8 @@ export function checkAccessVlanMismatches(
     const srcDev = deviceMap.get(link.sourceDeviceId);
     const tgtDev = deviceMap.get(link.targetDeviceId);
     if (!srcDev || !tgtDev) continue;
+    // Gegenstelle im Lab nicht angegeben: VLAN nicht bestimmbar
+    if (srcDev.assumed || tgtDev.assumed) continue;
 
     // Nur zwischen zwei Switchen im Access Mode
     const isSrcSwitch = srcDev.type === "switch-l2" || srcDev.type === "switch-l3";

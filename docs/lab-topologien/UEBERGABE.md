@@ -1,10 +1,11 @@
-# Übergabe: Lab-Topologien (Stand nach Paket 3)
+# Übergabe: Lab-Topologien (Stand nach Paket 4)
 
 ## Stand
-- Paket 1 und 2 sind in `main` (`c6999e7`). Paket 3 (IPv6: ipv6, ipv6-static, ospfv3-ipv6, ipv6-ospfv3-eigrpv6) liegt auf `feature/lab-topologies-ipv6`, nicht gemergt; Bericht `BERICHT-PAKET-3.md`.
-- Paket 2 fertig: static-routing, floating-static, rip-v1, rip-v2, rip-v2-passive, ospf-rid-wildcard, ospf-dr-bdr-election, ospf-multiarea, eigrp, drill-interfaces, drill-pc-ips.
-- Lint 0 Fehler (48 Warnungen), 902 Tests in 54 Dateien grün, Build grün.
-- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md`, `BERICHT-PAKET-2.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
+- In `main` (`64ba462`): Paket 1 (Layer 2), 2 (Routing), 3 (IPv6) mit Fundament, Screenshots aller Labs, OSPF über Switch-Segmente, Diagramm-Zoom.
+- `feature/ipv6-outputs` (nicht gemergt): `show ipv6 interface brief/route`, OSPFv3-/EIGRPv6-Nachbarn, Hinweise, alle IPv6-Adressen im Canvas.
+- `feature/lab-topologies-services` (nicht gemergt, baut auf `feature/ipv6-outputs` auf): Paket 4 Services (10 Labs), siehe `BERICHT-PAKET-4.md`.
+- Lint 0 Fehler (48 Warnungen), 1220 Tests in 58 Dateien grün, Build grün.
+- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md` bis `-4.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
 
 ## Fundament (für alle Pakete)
 - Daten: `src/components/labs/topologies/<kategorie>.ts` plus `builders.ts`, zusammengeführt in `curated-topologies.ts`.
@@ -24,6 +25,6 @@
 6. Branch ist nicht in `main`; vor dem Merge OK abwarten.
 
 ## Nächste Schritte
-- Nach OK zu Paket 3: Merge von `feature/lab-topologies-ipv6`.
-- Danach Paket 4 Services, 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
+- Nach OK: `feature/ipv6-outputs` und `feature/lab-topologies-services` mergen.
+- Danach Paket 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.

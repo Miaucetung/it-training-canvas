@@ -39,6 +39,23 @@ function networkOf(ip: string, prefix: number): string {
   return o.map((x, i) => x & m[i]).join(".");
 }
 
+/** Alle Befehle des Labs als ein Text */
+function allCommandText(lab: (typeof LABS)[number]): string {
+  return lab.steps.flatMap((st) => (st.blocks as Array<{ commands: Array<{ cmd: string }> }>).flatMap((b) => b.commands.map((c) => c.cmd))).join("\n");
+}
+
+/** Netze (Adresse/Präfix), die der Lab-Text selbst nennt: `ip address`, `network ... <maske>` eines DHCP-Pools, Interface-Adressen mit Subnetzmaske */
+function labNetworks(lab: (typeof LABS)[number]): Set<string> {
+  const nets = new Set<string>();
+  const text = allCommandText(lab);
+  const prefixOf = (mask: string) => mask.split(".").reduce((a, o) => a + Number(o).toString(2).replace(/0/g, "").length, 0);
+  for (const m of text.matchAll(/(?:ip address|^\s*network)\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})/gm)) {
+    const p = prefixOf(m[2]);
+    nets.add(`${networkOf(m[1], p)}/${p}`);
+  }
+  return nets;
+}
+
 describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
   const l = lab(id);
   const data = CURATED_TOPOLOGIES[id];
@@ -115,8 +132,11 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
         }
         continue;
       }
-      for (const part of lineRaw.replace(/\(.*?\)/g, "").split(/,|\s[—·]\s/)) {
-        const segs = part.split(/\s*[↔→]\s*/).map((s) => s.replace(/\(.*?\)/g, "").trim());
+      for (const part of lineRaw.replace(/\(.*?\)/g, "").replace(/\s*─{2,}\s*/g, " ↔ ").split(/,|\s[—·]\s/)) {
+        const segs = part
+          .split(/\s*[↔→]\s*/)
+          .map((s) => s.replace(/\(.*?\)/g, "").trim())
+          .filter((s) => !/^\d+(?:\.\d+){3}(?:\/\d+)?$/.test(s));
         const parsed = segs.map((s) => nameRe.exec(s));
         if (segs.length < 2 || parsed.some((p) => !p)) continue;
         for (let i = 0; i + 1 < parsed.length; i++) {
@@ -131,6 +151,19 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
             return (!xp || normalizeInterfaceName(xp) === px) && (!yp || normalizeInterfaceName(yp) === py);
           });
           expect(found, `"${part.trim()}": keine passende Verbindung ${xn}${xp ? " " + xp : ""} ↔ ${yn}${yp ? " " + yp : ""}`).toBeDefined();
+          verified++;
+        }
+      }
+    }
+    if (verified === 0) {
+      // Zeilen ohne Paar ("R1 Gi0/0 — 192.168.1.2/24"): der genannte Port muss an einem Link des Geräts hängen
+      const portRe = new RegExp(`\\b(${names.map(esc).join("|")})\\s+([A-Za-z]+\\d+(?:/\\d+)+)`, "g");
+      for (const lineRaw of l.topology.connections) {
+        for (const m of lineRaw.matchAll(portRe)) {
+          const used = data.links.some(
+            (k) => (k.from === idOf(m[1]) && normalizeInterfaceName(k.fromPort) === normalizeInterfaceName(m[2])) || (k.to === idOf(m[1]) && normalizeInterfaceName(k.toPort) === normalizeInterfaceName(m[2])),
+          );
+          expect(used, `"${lineRaw}": ${m[1]} ${m[2]} hängt an keinem Link`).toBe(true);
           verified++;
         }
       }
@@ -154,7 +187,26 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
         }
         continue;
       }
+      // DHCP-Client: konkrete Adresse entsteht zur Laufzeit; Desktop steht auf DHCP, das Netz nennt der Lab-Text
+      const dhcp = /^DHCP \((\S+)\)$/.exec(row.ip);
+      if (dhcp) {
+        expect(cfg.hostDhcp, `${row.device}: Desktop steht im Lab nicht auf DHCP`).toBe(true);
+        expect(labNetworks(l), `${row.device}: Netz ${dhcp[1]} kommt im Lab nicht vor`).toContain(dhcp[1]);
+        continue;
+      }
+      // Adresse, die das Lab nur in einem anderen Befehl nennt (z. B. `ntp server 10.0.0.10`)
+      const referenced = /Adresse aus `([^`]+)`/.exec(row.description ?? "");
+      if (referenced) {
+        expect(allCommandText(l), `${row.device}: Befehl fehlt`).toContain(referenced[1]);
+        expect(referenced[1], `${row.device}: Adresse nicht im Befehl`).toContain(row.ip);
+        continue;
+      }
       const prefix = row.subnetMask.split(".").reduce((a, o) => a + Number(o).toString(2).replace(/0/g, "").length, 0);
+      if (!ifc?.ip && !cfg.hostIp) {
+        // keine Interface-/Desktop-Konfiguration: Adresse nur im Geräte-Label des Labs ("PC0(1) (192.168.1.11/24)")
+        expect(l.topology.devices.map((x) => x.label).join(" "), `${row.device}: Adresse nur im Geräte-Label erlaubt`).toContain(`(${row.ip}/${prefix})`);
+        continue;
+      }
       if (ifc?.ip) {
         expect(ifc.ip, `${row.device} ${row.interface}`).toBe(`${row.ip}/${prefix}`);
       } else {
@@ -181,7 +233,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
   });
 
   it("CLI-Export enthält Befehle ohne Prompt für jedes Router-/Switch-Gerät", () => {
-    for (const d of data.devices.filter((x) => x.type === "router" || x.type.startsWith("switch"))) {
+    for (const d of data.devices.filter((x) => !x.assumed && (x.type === "router" || x.type.startsWith("switch")))) {
       const cli = getLabDeviceCli(l, d.name);
       const configuredInLab = l.steps.some((st) => (st.blocks as Array<{ device: string }>).some((b) => expandDeviceNames(b.device).includes(d.name)));
       if (configuredInLab) expect(cli.length, d.name).toBeGreaterThan(0);

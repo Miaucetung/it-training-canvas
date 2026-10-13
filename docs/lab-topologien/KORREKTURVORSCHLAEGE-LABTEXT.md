@@ -75,3 +75,21 @@ Die Liste wird mit jedem weiteren Paket um die Labs ergänzt, in denen Switch-Po
 | ipv6-static — ipv6.tsx | Verbindungsliste | Die Internet-Seite der Serial-Links ist nirgends konfiguriert; `…:1::1` ergibt sich nur als Next-Hop der Routen. Der Internet-Router hat daher im Export keine Interface-Adressen. | Ergänzen: `interface se0/0/0` → `ipv6 address 2001:DB8:CCA1:1::1/64` und `interface se0/1/0` → `ipv6 address 2001:DB8:CCA2:2::1/64` im Schritt „Gegenrouten auf dem Internet-Router“ (Serial-Taktgeber `clock rate` ebenfalls nicht genannt). |
 | ipv6-ospfv3-eigrpv6 — ipv6.tsx | Geräteliste | Für die PCs steht nur die Adresse im Label (`FDAA::0101/64`), ein Gateway fehlt. Die Topologie zeigt „im Lab nicht angegeben“. | Pro PC ergänzen: `Default Gateway: FDAA::FFFF` (bzw. `FDBB::FFFF`, `FDCC::FFFF`), falls das gewollt ist. |
 | ipv6-ospfv3-eigrpv6 — ipv6.tsx | PC-Nummerierung | PC2 hängt an R1, PC0 an R3 (gegenläufig). Topologie folgt dem Text. | Nur Hinweis, keine Änderung nötig. |
+
+## 10. Paket 4 (Services): Befunde
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| ntp-syslog-snmp | Schritt 1 (SW1) | `interface loopback0` auf dem Switch: ein Catalyst 2960 unterstützt keine Loopback-Interfaces (Packet Tracer ebenfalls nicht). Die Topologie zeichnet SW1 deshalb als Catalyst 3560-24PS (Layer 3). | In der Geräteliste `SW1 (Layer-3, z. B. 3560)` statt `SW1` nennen. |
+| ntp-syslog-snmp | `connections`, `devices` | Die Serveradressen stehen nur in den Befehlen (`ntp server 10.0.0.10`, `logging host 10.0.0.20`, `snmp-server host 10.0.0.30`); die Server haben keine eigene Konfiguration, ein Gateway fehlt. Die Tabelle nennt sie mit dem Vermerk „Adresse aus …“. | Pro Server eine Zeile `Desktop > IP Configuration` mit Adresse, Maske /24 und ggf. Gateway ergänzen. |
+| ipsec-s2s-vpn | `devices` / Schritt 8 | Der „DHCP-Server“ (192.168.1.11) hat keine DHCP-Pools, beide PCs sind statisch adressiert. | Entweder Pools ergänzen und PCs auf DHCP stellen oder das Gerät „Server“ nennen. |
+| nat-pat, dynamic-nat, nat-pool-overload, static-nat | Schritt 1 | Gateway und Maske nur für PC0; `PC0(1)` und `PC0(2)` stehen nur im Geräte-Label (Adresse), ohne Gateway. | Je PC den Block `Gateway: 192.168.1.1` ergänzen. |
+| dhcp-relay | siehe Abschnitt 1 | „Client Gelb“ (Geräteliste) ist nicht konfiguriert, SW2 hat keine angeschlossenen Geräte: die Topologie zeichnet beides nicht. | wie Abschnitt 1. |
+| hsrp, ntp-syslog-snmp | siehe Abschnitte 3 und 5 | Verteiler fehlt: in der Topologie als „angenommen“ gestrichelt gezeichnet, ohne Export. | wie Abschnitte 3 und 5. |
+
+Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
+
+| Lab | Angenommene Ports | Vorschlag für `connections` (Neu) |
+|---|---|---|
+| dhcp | Switch0 Gi0/1, Fa0/1, Fa0/2 | `"PC0 → Switch0 Fa0/1"`, `"PC1 → Switch0 Fa0/2"`, `"Switch0 Gi0/1 → Router0 Gi0/0"` |
+| dynamic-nat, static-nat | SW Fa0/1, Fa0/2, Fa0/3 | `"PC0 → SW Fa0/1"`, `"PC0(1) → SW Fa0/2"`, `"PC0(2) → SW Fa0/3"` |

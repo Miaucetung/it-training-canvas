@@ -46,7 +46,7 @@ function configuredAddresses(labId: string): Map<string, string> {
       const line = raw.trim();
       const im = /^interface\s+(\S+)(?:\s+(\d+))?/i.exec(line);
       if (im) {
-        current = shortIf(/^(?:vlan|loopback)$/i.test(im[1]) && im[2] ? `${im[1]}${im[2]}` : im[1]);
+        current = shortIf(/^tunnel$/i.test(im[1]) && im[2] ? `tu${im[2]}` : /^(?:vlan|loopback)$/i.test(im[1]) && im[2] ? `${im[1]}${im[2]}` : im[1]);
         continue;
       }
       const am = /^ip address\s+(\S+)\s+(\S+)/i.exec(line);
@@ -108,6 +108,8 @@ describe("Lab-Topologie entspricht dem Lab-Text (B-03)", () => {
       // Quelle: Befehle, Verbindungsliste und Geräte-Labels des Labs
       const text = [...commands(id).map((c) => c.cmd), ...l.topology.connections, ...l.topology.devices.map((x) => x.label)].join("\n");
       for (const row of topo.addressingTable) {
+        // DHCP-Clients haben keine feste Adresse; ihr Netz wird im Netzwerk-Test gegen die Pools geprüft
+        if (row.ip.startsWith("DHCP (")) continue;
         expect(text, `${id}: ${row.device} ${row.interface}`).toContain(row.ip);
       }
     });

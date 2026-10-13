@@ -47,6 +47,8 @@ export interface LabTopologyDevice {
   tier: "wan" | "gateway" | "core" | "distribution" | "access" | "endpoint";
   /** Im Lab nicht angegeben, aber für die Topologie nötig: gestrichelt, ohne Konfiguration, ohne CLI-Export */
   assumed?: boolean;
+  /** DHCP-Client: Netz aus dem Lab (z. B. "192.168.1.0/24"); konkrete Adresse entsteht erst zur Laufzeit */
+  dhcpNetwork?: string;
   x: number;
   y: number;
   model?: string;          // z. B. "Cisco 2901", "WS-C2960-24TT-L"
@@ -62,7 +64,7 @@ export interface LabTopologyLink {
   toPort: string;          // z. B. "Gi0/1"
   fromIp?: string;         // z. B. "192.168.1.1"
   toIp?: string;           // z. B. "192.168.1.2"
-  cableType?: "copper-straight" | "copper-cross" | "serial" | "fiber";
+  cableType?: "copper-straight" | "copper-cross" | "serial" | "fiber" | "tunnel";
   isTrunk?: boolean;       // Hebt 802.1Q-Trunk optisch hervor
   vlan?: number;
   /** Optionale orthogonale Knickpunkte für rechtwinklige Linienführung */
@@ -93,6 +95,8 @@ export interface LabTopologyData {
   links: LabTopologyLink[];
   zones?: LabSubnetZone[];
   vlans?: LabTopologyVlan[];
+  /** Freie Textmarken im Diagramm (z. B. logischer IPSec-Tunnel ohne eigenes Interface) */
+  notes?: Array<{ id: string; text: string; x: number; y: number }>;
   addressingTable: LabAddressingEntry[];
 }
 

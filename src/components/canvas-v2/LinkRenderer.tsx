@@ -25,6 +25,8 @@ export function getLinkAriaLabel(
       ? "802.1Q Trunk-Verbindung"
       : link.linkType === "etherchannel"
       ? "EtherChannel-Bündel"
+      : link.linkType === "tunnel"
+      ? "Tunnel (virtuell)"
       : link.linkType === "wireless"
       ? "WLAN-Verbindung"
       : "Ethernet-Verbindung";
@@ -118,6 +120,10 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   } else if (link.linkType === "etherchannel") {
     baseStrokeColor = isDark ? "#34D399" : "#059669"; // EtherChannel Emerald
     strokeWidth = 3.5;
+  } else if (link.linkType === "tunnel") {
+    baseStrokeColor = isDark ? "#C084FC" : "#9333EA"; // Tunnel Violett
+    strokeDasharray = "6 4";
+    strokeWidth = 2.5;
   } else if (link.linkType === "wireless") {
     baseStrokeColor = "#06B6D4"; // WLAN Cyan
     strokeDasharray = "4 4";
