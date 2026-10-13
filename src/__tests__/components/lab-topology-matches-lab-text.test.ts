@@ -17,6 +17,7 @@ const shortIf = (name: string) =>
     .toLowerCase()
     .replace("gigabitethernet", "gi")
     .replace("fastethernet", "fa")
+    .replace("serial", "se")
     .replace(/\s*\(.*\)$/, "");
 
 interface Cmd {
@@ -50,6 +51,8 @@ function configuredAddresses(labId: string): Map<string, string> {
       }
       const am = /^ip address\s+(\S+)\s+(\S+)/i.exec(line);
       if (am && current) map.set(`${device}|${current}`, `${am[1]} ${am[2]}`);
+      const am6 = /^ipv6 address\s+(\S+)/i.exec(line);
+      if (am6 && current) map.set(`${device}|${current}`, am6[1].toLowerCase());
     }
     if (current) currentByDevice.set(device, current);
   }
@@ -61,7 +64,7 @@ function pcAddresses(labId: string): Map<string, string> {
   const map = new Map<string, string>();
   const perBlock = new Map<string, string[]>();
   for (const { device, cmd } of commands(labId)) {
-    const ips = [...cmd.matchAll(/IP(?: Address|-Adresse):\s*(\S+)/gi)].map((m) => m[1]);
+    const ips = [...cmd.matchAll(/IP(?:v6)?(?: Address|-Adresse):\s*(\S+)/gi)].map((m) => m[1].split("/")[0]);
     if (ips.length) perBlock.set(device, [...(perBlock.get(device) ?? []), ...ips]);
   }
   for (const [device, ips] of perBlock) {
@@ -86,7 +89,8 @@ describe("Lab-Topologie entspricht dem Lab-Text (B-03)", () => {
         const key = `${row.device}|${shortIf(row.interface)}`;
         if (KNOWN_LAB_TEXT_CONTRADICTIONS.has(`${id}|${key}`)) continue;
         expect(cfg.has(key), `${id}: ${key} fehlt im Lab-Text`).toBe(true);
-        expect(`${row.ip} ${row.subnetMask}`, key).toBe(cfg.get(key));
+        const got = row.ip.includes(":") ? `${row.ip}${row.subnetMask}`.toLowerCase() : `${row.ip} ${row.subnetMask}`;
+        expect(got, key).toBe(cfg.get(key));
       }
     });
 
@@ -100,7 +104,9 @@ describe("Lab-Topologie entspricht dem Lab-Text (B-03)", () => {
     });
 
     it(`${id}: jede IP der Tabelle kommt im Lab-Text vor`, () => {
-      const text = commands(id).map((c) => c.cmd).join("\n");
+      const l = LABS.find((x) => x.id === id)!;
+      // Quelle: Befehle, Verbindungsliste und Geräte-Labels des Labs
+      const text = [...commands(id).map((c) => c.cmd), ...l.topology.connections, ...l.topology.devices.map((x) => x.label)].join("\n");
       for (const row of topo.addressingTable) {
         expect(text, `${id}: ${row.device} ${row.interface}`).toContain(row.ip);
       }

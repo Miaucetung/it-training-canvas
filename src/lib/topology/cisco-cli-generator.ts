@@ -528,7 +528,7 @@ export class CiscoCliGenerator {
 
     if (device.type === "router") {
       outputs["show ip route"] = this.generateShowIpRoute(device, topology);
-      if (device.config?.routingProtocols?.some((p) => p.includes("OSPF"))) {
+      if (device.config?.routingProtocols?.some((p) => /^OSPF(?!v3)/i.test(p))) {
         outputs["show ip ospf neighbor"] = this.generateShowIpOspfNeighbor(device, topology);
       }
     } else if (device.type.startsWith("switch")) {

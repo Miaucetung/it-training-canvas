@@ -59,11 +59,11 @@ export function getDeviceAriaLabel(
 
   const parts: string[] = [`${typeLabel} ${device.name}`];
 
-  const ipInterfaces = device.interfaces.filter((i) => i.ip);
+  const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6);
   const upInterfaces = device.interfaces.filter((i) => i.status === "up");
 
   if (ipInterfaces.length > 0) {
-    const ifaceTexts = ipInterfaces.map((i) => `${i.name} ${i.status}: ${i.ip}`).join(", ");
+    const ifaceTexts = ipInterfaces.map((i) => `${i.name} ${i.status}: ${[i.ip, i.ipv6].filter(Boolean).join(" ")}`).join(", ");
     parts.push(ifaceTexts);
   } else if (upInterfaces.length > 0) {
     parts.push(`${upInterfaces.length} aktive Ports`);
@@ -468,7 +468,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           const iconSize = 48;
 
           // Interfaces mit vergebener IP-Adresse herausfiltern
-          const ipInterfaces = device.interfaces.filter((i) => i.ip);
+          const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6);
 
           return (
             <g
@@ -590,12 +590,15 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               {/* Detail-Modus: IP-Adressen und Schnittstellen-Badge */}
               {viewDensity === "detail" && ipInterfaces.length > 0 && (
                 <g transform={`translate(${w / 2}, ${iconSize + 20})`}>
-                  {ipInterfaces.slice(0, 2).map((iface, idx) => (
+                  {ipInterfaces.slice(0, 2).map((iface, idx) => {
+                    const addrText = `${iface.name}: ${(iface.ip ?? iface.ipv6 ?? "").split("/")[0]}`;
+                    const boxW = Math.max(96, Math.round(addrText.length * 4.7 + 10));
+                    return (
                     <g key={iface.id} transform={`translate(0, ${idx * 13})`}>
                       <rect
-                        x="-48"
+                        x={-boxW / 2}
                         y="-1"
-                        width="96"
+                        width={boxW}
                         height="12"
                         rx="2.5"
                         fill={isDark ? "#1E293B" : "#F1F5F9"}
@@ -612,10 +615,11 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                         textAnchor="middle"
                         fontFamily="'IBM Plex Mono', monospace"
                       >
-                        {iface.name}: {iface.ip?.split("/")[0]}
+                        {addrText}
                       </text>
                     </g>
-                  ))}
+                    );
+                  })}
                 </g>
               )}
             </g>

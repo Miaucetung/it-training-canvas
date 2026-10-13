@@ -39,7 +39,7 @@ function isL3Capable(device: TopologyDevice): boolean {
 }
 
 function ospfProtocolEntry(device: TopologyDevice): string | undefined {
-  return device.config?.routingProtocols?.find((p) => /ospf/i.test(p));
+  return device.config?.routingProtocols?.find((p) => /^ospf(?!v3)/i.test(p));
 }
 
 export function deviceRunsOspf(device: TopologyDevice): boolean {

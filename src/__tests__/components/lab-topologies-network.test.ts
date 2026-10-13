@@ -78,7 +78,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
   it("Verbindungsliste des Labs stimmt mit den Links überein (Port-Paare)", () => {
     const names = data.devices.map((d) => d.name).sort((a, b) => b.length - a.length);
     const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const nameRe = new RegExp(`^(${names.map(esc).join("|")})(?:\\s+([A-Za-z]+\\d+(?:/\\d+)+))?(?:\\s+\\d+(?:\\.\\d+){3}(?:/\\d+)?)?\\s*$`);
+    const nameRe = new RegExp(`^(${names.map(esc).join("|")})(?:\\s+([A-Za-z]+\\d+(?:/\\d+)+))?(?:\\s+(?:\\d+(?:\\.\\d+){3}|[0-9A-Fa-f:]*::[0-9A-Fa-f:]*)(?:/\\d+)?)?\\s*$`);
     const idOf = (n: string) => data.devices.find((d) => d.name === n)!.id;
     const portOn = (linkEnd: "from" | "to", link: (typeof data.links)[number]) => normalizeInterfaceName(linkEnd === "from" ? link.fromPort : link.toPort);
     const contradictions = KNOWN_CONNECTION_CONTRADICTIONS[id] ?? [];
@@ -143,6 +143,17 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
       const cfg = parseLabDeviceConfig(l, row.device);
       const key = normalizeInterfaceName(row.interface);
       const ifc = cfg.ifaces.get(key);
+      if (row.ip.includes(":")) {
+        // IPv6: Adresse + Präfix (/64) gegen `ipv6 address`, Desktop-Zeile oder Geräte-Label des Labs
+        const want = `${row.ip}${row.subnetMask}`.toLowerCase();
+        const have = ifc?.ipv6 ?? cfg.hostIpv6?.ip;
+        if (have) expect(have.toLowerCase(), `${row.device} ${row.interface}`).toBe(want);
+        else expect(l.topology.devices.map((x) => x.label).join(" ").toLowerCase(), `${row.device}: IPv6 nur im Geräte-Label erlaubt`).toContain(want);
+        if (row.defaultGateway && row.defaultGateway !== "N/A" && !/^im Lab nicht angegeben/.test(row.defaultGateway)) {
+          expect(cfg.hostIpv6?.gateway?.toLowerCase()).toBe(row.defaultGateway.toLowerCase());
+        }
+        continue;
+      }
       const prefix = row.subnetMask.split(".").reduce((a, o) => a + Number(o).toString(2).replace(/0/g, "").length, 0);
       if (ifc?.ip) {
         expect(ifc.ip, `${row.device} ${row.interface}`).toBe(`${row.ip}/${prefix}`);
@@ -163,6 +174,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
     expect(start.topology.links.length).toBe(target.topology.links.length);
     for (const d of start.topology.devices) {
       expect(d.interfaces.filter((i) => i.ip), `${d.name} hat IP im Startzustand`).toEqual([]);
+      expect(d.interfaces.filter((i) => i.ipv6), `${d.name} hat IPv6 im Startzustand`).toEqual([]);
       expect(d.config?.vlans, d.name).toBeUndefined();
       expect(d.config?.hostname).toBe(d.name);
     }

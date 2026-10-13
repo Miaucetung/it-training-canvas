@@ -65,6 +65,7 @@ export interface TopologyInterface {
   id: string;
   name: string; // e.g. "Gi0/0", "Fa0/1"
   ip?: string; // e.g. "192.168.1.1/24"
+  ipv6?: string; // e.g. "2001:db8:1::1/64"
   mac?: string; // e.g. "00:50:79:66:68:01"
   vlan?: number; // Access VLAN, e.g. 10
   allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
@@ -118,6 +119,7 @@ export interface DeviceConfig {
   svis?: DeviceSvi[]; // Für L3 Switch
   portChannels?: DevicePortChannel[];
   routingProtocols?: string[]; // e.g. ["OSPF 1", "Static"]
+  defaultGatewayV6?: string; // Host-IPv6-Gateway
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"
@@ -277,6 +279,7 @@ export const topologyInterfaceSchema = z.object({
   id: z.string(),
   name: z.string(),
   ip: z.string().optional(),
+  ipv6: z.string().optional(),
   mac: z.string().optional(),
   vlan: z.number().int().min(1).max(4094).optional(),
   allowedVlans: z.array(z.number().int().min(1).max(4094)).optional(),
@@ -328,6 +331,7 @@ export const deviceConfigSchema = z.object({
   svis: z.array(deviceSviSchema).optional(),
   portChannels: z.array(devicePortChannelSchema).optional(),
   routingProtocols: z.array(z.string()).optional(),
+  defaultGatewayV6: z.string().optional(),
   routingTable: z
     .array(
       z.object({
