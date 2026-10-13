@@ -65,8 +65,9 @@ const ipToInt = (ip: string) => ip.split(".").reduce((a, o) => (a << 8) + Number
 interface IfaceCfg {
   ip?: string; // CIDR
   ipv6?: string; // addr/len
-  ospf6?: { processId: number; area: number };
+  ospf6?: { processId: number; area: number; priority?: number; networkType?: "broadcast" | "point-to-point" };
   eigrp6?: number;
+  linkLocal?: string;
   mode?: InterfaceMode;
   accessVlan?: number;
   allowedVlans?: number[];
@@ -90,7 +91,8 @@ export interface ParsedDeviceConfig {
   hostIpv6?: { ip: string; gateway?: string };
   ipv6Routing: boolean;
   ospfv3?: { processId: number; routerId?: string; passive: string[]; passiveDefault: boolean; noPassive: string[] };
-  eigrp6?: { processId: number; routerId?: string };
+  eigrp6?: { processId: number; routerId?: string; shutdown: boolean };
+  ipv6Routes: Array<{ prefix: string; nextHop?: string; outInterface?: string; distance?: number }>;
   /** Alle Befehle für diesen Gerät in Lab-Reihenfolge, ohne Prompt */
   cli: string;
 }
@@ -144,7 +146,7 @@ function parseVlanList(spec: string): number[] {
 const PROMPT_FREE_SKIP = /^(enable|configure terminal|conf t|end|exit|do copy running-config startup-config|copy running-config startup-config|wr|write memory)$/i;
 
 export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName: string): ParsedDeviceConfig {
-  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, cli: "" };
+  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], cli: "" };
   const cliLines: string[] = [];
   let ctxIfaces: string[] = [];
   let ctxVlan: number | null = null;
@@ -214,6 +216,23 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             continue;
           }
           if (/^int(?:erface)?\s/i.test(line)) ctxV6 = null;
+          if ((v6 = /^ipv6 route\s+(\S+\/\d+)\s+(\S+)(?:\s+(\S+))?(?:\s+(\d+))?$/i.exec(line))) {
+            // ipv6 route <prefix> (<next-hop> | <interface> [<next-hop>]) [<distance>]
+            const first = v6[2];
+            const second = v6[3];
+            const route: { prefix: string; nextHop?: string; outInterface?: string; distance?: number } = { prefix: v6[1] };
+            if (first.includes(":")) {
+              route.nextHop = first;
+              if (second && /^\d+$/.test(second)) route.distance = Number(second);
+            } else {
+              route.outInterface = normalizeInterfaceName(first);
+              if (second && second.includes(":")) route.nextHop = second;
+              else if (second && /^\d+$/.test(second)) route.distance = Number(second);
+            }
+            if (v6[4]) route.distance = Number(v6[4]);
+            cfg.ipv6Routes.push(route);
+            continue;
+          }
           if (/^ipv6 unicast-routing$/i.test(line)) {
             cfg.ipv6Routing = true;
             continue;
@@ -227,7 +246,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             continue;
           }
           if ((v6 = /^ipv6 router eigrp\s+(\d+)/i.exec(line))) {
-            cfg.eigrp6 = cfg.eigrp6 ?? { processId: Number(v6[1]) };
+            cfg.eigrp6 = cfg.eigrp6 ?? { processId: Number(v6[1]), shutdown: true };
             ctxV6 = "eigrp";
             ctxIfaces = [];
             ctxVlan = null;
@@ -245,13 +264,19 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
           if (ctxV6 === "eigrp" && cfg.eigrp6) {
             if ((v6 = /^eigrp router-id\s+(\S+)/i.exec(line))) cfg.eigrp6.routerId = v6[1];
+            else if (/^no shutdown$/i.test(line)) cfg.eigrp6.shutdown = false;
+            else if (/^shutdown$/i.test(line)) cfg.eigrp6.shutdown = true;
             continue;
           }
           if (ctxIfaces.length > 0) {
             for (const n of ctxIfaces) {
               const i6 = ifaceOf(n);
-              if ((v6 = /^ipv6 address\s+(\S+\/\d+)(?:\s|$)/i.exec(line))) i6.ipv6 = v6[1];
-              else if ((v6 = /^ipv6 ospf\s+(\d+)\s+area\s+(\d+)/i.exec(line))) i6.ospf6 = { processId: Number(v6[1]), area: Number(v6[2]) };
+              if ((v6 = /^ipv6 address\s+(\S+)\s+link-local$/i.exec(line))) i6.linkLocal = v6[1];
+              else if (/^ipv6 address\s+\S+\s+eui-64$/i.test(line)) continue;
+              else if ((v6 = /^ipv6 address\s+(\S+\/\d+)$/i.exec(line))) i6.ipv6 = v6[1];
+              else if ((v6 = /^ipv6 ospf priority\s+(\d+)/i.exec(line))) i6.ospf6 = { ...(i6.ospf6 ?? { processId: 0, area: 0 }), priority: Number(v6[1]) };
+              else if ((v6 = /^ipv6 ospf network\s+(broadcast|point-to-point)/i.exec(line))) i6.ospf6 = { ...(i6.ospf6 ?? { processId: 0, area: 0 }), networkType: v6[1].toLowerCase() as "broadcast" | "point-to-point" };
+              else if ((v6 = /^ipv6 ospf\s+(\d+)\s+area\s+(\d+)/i.exec(line))) i6.ospf6 = { ...(i6.ospf6 ?? {}), processId: Number(v6[1]), area: Number(v6[2]) };
               else if ((v6 = /^ipv6 eigrp\s+(\d+)/i.exec(line))) i6.eigrp6 = Number(v6[1]);
             }
             if (/^ipv6\s/i.test(line)) continue;
@@ -480,7 +505,23 @@ export function buildNetworkTopologyFromLab(
       }
       // IPv6
       for (const [name, c] of parsed.ifaces) {
-        if (c.ipv6 && !/^Po\d+$/.test(name)) ensure(name).ipv6 = c.ipv6;
+        if (/^Po\d+$/.test(name)) continue;
+        if (!c.ipv6 && !c.linkLocal && !c.ospf6 && c.eigrp6 === undefined) continue;
+        const it6 = ensure(name);
+        if (c.ipv6) it6.ipv6 = c.ipv6;
+        if (c.linkLocal) it6.ipv6LinkLocal = c.linkLocal;
+        if (c.ospf6 && c.ospf6.processId) {
+          const pp = parsed.ospfv3;
+          const passive = pp ? (pp.passiveDefault ? !pp.noPassive.includes(name) : pp.passive.includes(name)) : false;
+          it6.ospfv3 = {
+            processId: c.ospf6.processId,
+            area: c.ospf6.area,
+            passive,
+            ...(c.ospf6.priority !== undefined ? { priority: c.ospf6.priority } : {}),
+            ...(c.ospf6.networkType ? { networkType: c.ospf6.networkType } : {}),
+          };
+        }
+        if (c.eigrp6 !== undefined) it6.eigrpv6 = { asn: c.eigrp6 };
       }
       if (d.type === "pc" || d.type === "server") {
         // Desktop-Konfiguration, sonst die Adresse aus dem Geräte-Label des Labs (z. B. "PC2 (R1 Gig0/0, FDAA::0101/64)")
@@ -494,6 +535,10 @@ export function buildNetworkTopologyFromLab(
         (config.routingProtocols ??= []).push(`OSPFv3 ${parsed.ospfv3.processId}${areas.length ? ` Area ${areas.join(",")}` : ""}`);
       }
       if (parsed.eigrp6) (config.routingProtocols ??= []).push(`EIGRPv6 ${parsed.eigrp6.processId}`);
+      if (parsed.ipv6Routing) config.ipv6RoutingEnabled = true;
+      if (parsed.ipv6Routes.length > 0) config.ipv6Routes = parsed.ipv6Routes;
+      if (parsed.ospfv3) config.ospfv3 = { processId: parsed.ospfv3.processId, routerId: parsed.ospfv3.routerId };
+      if (parsed.eigrp6) config.eigrpv6 = { asn: parsed.eigrp6.processId, routerId: parsed.eigrp6.routerId, shutdown: parsed.eigrp6.shutdown };
       // OSPF
       if (parsed.ospf) {
         config.routingProtocols = [`OSPF ${parsed.ospf.processId}`, ...(config.routingProtocols ?? [])];

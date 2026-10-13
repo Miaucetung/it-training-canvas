@@ -5,6 +5,15 @@ import {
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
 import { formatShowSpanningTree } from "./stp-calc";
 import { computeOspfNeighbors, formatOspfNeighborTable, resolveInterfaceOspf } from "./ospf-neighbors";
+import {
+  computeEigrpv6Neighbors,
+  computeOspfv3Neighbors,
+  formatEigrpv6NeighborTable,
+  formatOspfv3NeighborTable,
+  formatShowIpv6InterfaceBrief,
+  formatShowIpv6Route,
+  hasIpv6Config,
+} from "./ipv6-routing";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -538,6 +547,18 @@ export class CiscoCliGenerator {
       outputs["show etherchannel summary"] = this.generateShowEtherchannelSummary(device);
       if (device.type === "switch-l3") {
         outputs["show ip route"] = this.generateShowIpRoute(device, topology);
+      }
+    }
+
+    // IPv6: nur für Router und L3-Switches mit IPv6-Konfiguration
+    if ((device.type === "router" || device.type === "switch-l3") && hasIpv6Config(device)) {
+      outputs["show ipv6 interface brief"] = formatShowIpv6InterfaceBrief(device, topology);
+      outputs["show ipv6 route"] = formatShowIpv6Route(device, topology);
+      if (device.config?.ospfv3) {
+        outputs["show ipv6 ospf neighbor"] = formatOspfv3NeighborTable(device, computeOspfv3Neighbors(device, topology));
+      }
+      if (device.config?.eigrpv6) {
+        outputs["show ipv6 eigrp neighbors"] = formatEigrpv6NeighborTable(device, computeEigrpv6Neighbors(device, topology));
       }
     }
 
