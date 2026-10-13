@@ -156,7 +156,7 @@ export function CostCalculator({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex">
+      <div role="dialog" aria-modal="true" aria-label="Cloud-Kosten-Rechner" className="fixed inset-0 z-dialog flex">
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onClose}

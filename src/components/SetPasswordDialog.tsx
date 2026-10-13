@@ -45,7 +45,7 @@ export function SetPasswordDialog({ dark, onClose }: Props) {
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div role="dialog" aria-modal="true" aria-label="Passwort festlegen" className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className={`w-full max-w-sm rounded-2xl border shadow-2xl ${base}`}>
         <div className={`flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
           <h2 className="text-base font-semibold">Neues Passwort setzen</h2>

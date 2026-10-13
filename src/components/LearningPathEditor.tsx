@@ -247,7 +247,7 @@ export function LearningPathEditor({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex">
+      <div role="dialog" aria-modal="true" aria-label="Lernpfad-Editor" className="fixed inset-0 z-dialog flex">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"

@@ -572,7 +572,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
   return (
     <ModalPortal>
-      <div className={`fixed inset-0 z-dialog flex flex-col ${bg}`}>
+      <div role="dialog" aria-modal="true" aria-label="Prüfungsvorbereitung" className={`fixed inset-0 z-dialog flex flex-col ${bg}`}>
         {/* Header — shrink-0, immer sichtbar, kein Scrollen nötig um Titel/Timer/Schließen zu erreichen */}
         <div className={`shrink-0 flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4 ${headerBg}`}>
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">

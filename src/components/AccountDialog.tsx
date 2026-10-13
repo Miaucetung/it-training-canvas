@@ -109,7 +109,7 @@ export function AccountDialog({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div role="dialog" aria-modal="true" aria-label="Konto" className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
         <div className={`flex max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] w-full max-w-sm flex-col rounded-2xl border shadow-2xl overflow-hidden ${base}`}>
           {/* Header */}
           <div className={`flex shrink-0 items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>

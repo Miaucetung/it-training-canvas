@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, sep } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { DragDropTrainerDialog } from "@/components/DragDropTrainerDialog";
 import { CliGlossaryDialog } from "@/components/CliGlossaryDialog";
@@ -21,6 +21,17 @@ describe("Dialoge hängen per Portal an document.body (B-09)", () => {
       const src = readFileSync(file, "utf8");
       if (!src.includes("fixed inset-0")) return false;
       return !/ModalPortal|createPortal|DialogPrimitive|SheetPrimitive|AlertDialogPrimitive|\.Portal/.test(src);
+    });
+    expect(offenders.map((f) => f.replace(root, ""))).toEqual([]);
+  });
+
+  it("jede Komponente mit ModalPortal setzt role=dialog (außer Hilfsdateien)", () => {
+    const root = resolve(process.cwd(), "src/components");
+    const allow = ["ui/modal-portal.tsx", "TopologyScreenReaderView.tsx", "OnboardingTour.tsx"];
+    const offenders = walk(root).filter((file) => {
+      if (allow.some((a) => file.split(sep).join("/").endsWith(a))) return false;
+      const src = readFileSync(file, "utf8");
+      return src.includes("<ModalPortal>") && !/role="(alert)?dialog"/.test(src);
     });
     expect(offenders.map((f) => f.replace(root, ""))).toEqual([]);
   });
