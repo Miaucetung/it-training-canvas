@@ -1,76 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
-import type { LabTopologyDevice } from "@/components/labs/types";
 import {
-  deviceModelWidth,
-  deviceNameWidth,
-  getPortLabelPos,
-  ipLabelWidth,
-  portLabelWidth,
-  subnetLabelWidth,
-} from "@/components/labs/topology-layout";
-
-interface BBox {
-  id: string;
-  kind: "device-icon" | "device-label" | "port-label" | "subnet-label";
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-}
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface Segment {
-  linkId: string;
-  p1: Point;
-  p2: Point;
-}
-
-function boxesOverlap(b1: BBox, b2: BBox, padding = 0): boolean {
-  return !(
-    b1.maxX + padding <= b2.minX ||
-    b2.maxX + padding <= b1.minX ||
-    b1.maxY + padding <= b2.minY ||
-    b2.maxY + padding <= b1.minY
-  );
-}
-
-function crossProduct(a: Point, b: Point, c: Point): number {
-  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-}
-
-function segmentsCross(s1: Segment, s2: Segment): boolean {
-  const eps = 0.5;
-  const isSamePoint = (pA: Point, pB: Point) =>
-    Math.hypot(pA.x - pB.x, pA.y - pB.y) < eps;
-
-  // Shared vertex / endpoints don't count as a crossing
-  if (
-    isSamePoint(s1.p1, s2.p1) ||
-    isSamePoint(s1.p1, s2.p2) ||
-    isSamePoint(s1.p2, s2.p1) ||
-    isSamePoint(s1.p2, s2.p2)
-  ) {
-    return false;
-  }
-
-  const cp1 = crossProduct(s2.p1, s2.p2, s1.p1);
-  const cp2 = crossProduct(s2.p1, s2.p2, s1.p2);
-  const cp3 = crossProduct(s1.p1, s1.p2, s2.p1);
-  const cp4 = crossProduct(s1.p1, s1.p2, s2.p2);
-
-  return (
-    ((cp1 > 0 && cp2 < 0) || (cp1 < 0 && cp2 > 0)) &&
-    ((cp3 > 0 && cp4 < 0) || (cp3 < 0 && cp4 > 0))
-  );
-}
+  boxesOverlap,
+  buildBoxes,
+  offGridProblems,
+  segmentsCross,
+  zoneBadgeProblems,
+  type Point,
+  type Segment,
+} from "@/components/labs/topology-geometry";
+import type { LabTopologyDevice } from "@/components/labs/types";
 
 describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
-  const targetLabs = ["basic-ip", "vlan-trunking", "roas", "ospf"];
+  const targetLabs = Object.keys(CURATED_TOPOLOGIES);
 
   targetLabs.forEach((labId) => {
     describe(`Lab '${labId}'`, () => {
@@ -84,92 +26,7 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
       });
 
       it("hat 0 überlappende Bounding-Boxes (Icons, Gerätenamen, Port-Labels & Subnetze)", () => {
-        const devMap = new Map<string, LabTopologyDevice>();
-        topology.devices.forEach((d) => devMap.set(d.id, d));
-
-        const bboxes: BBox[] = [];
-
-        // 1. Device Icons und Labels
-        for (const d of topology.devices) {
-          bboxes.push({
-            id: `${d.id}-icon`,
-            kind: "device-icon",
-            minX: d.x - 24,
-            minY: d.y - 24,
-            maxX: d.x + 24,
-            maxY: d.y + 24,
-          });
-
-          const nameWidth = deviceNameWidth(d.name);
-          const modelWidth = deviceModelWidth(d.model);
-          const labelW = Math.max(nameWidth, modelWidth);
-          const labelH = d.model ? 33 : 18;
-          bboxes.push({
-            id: `${d.id}-label`,
-            kind: "device-label",
-            minX: d.x - labelW / 2,
-            minY: d.y + 25,
-            maxX: d.x + labelW / 2,
-            maxY: d.y + 25 + labelH,
-          });
-        }
-
-        // 2. Links, Port-Labels und Subnetz-Labels
-        for (const link of topology.links) {
-          const fromDev = devMap.get(link.from)!;
-          const toDev = devMap.get(link.to)!;
-
-          const firstTarget = link.bendPoints?.[0] ?? toDev;
-          const lastSource = link.bendPoints?.[link.bendPoints.length - 1] ?? fromDev;
-
-          const fromOffset = link.fromPortOffset ?? 48;
-          const toOffset = link.toPortOffset ?? 48;
-          const fromSide = link.fromPortSide ?? 12;
-          const toSide = link.toPortSide ?? 12;
-
-          const fromPos = getPortLabelPos(fromDev.x, fromDev.y, firstTarget.x, firstTarget.y, fromOffset, fromSide);
-          const toPos = getPortLabelPos(toDev.x, toDev.y, lastSource.x, lastSource.y, toOffset, toSide);
-
-          // Port from label (centered)
-          const fromPortW = portLabelWidth(link.fromPort);
-          const fromIpW = ipLabelWidth(link.fromIp);
-          const fromMaxW = Math.max(fromPortW, fromIpW);
-          bboxes.push({
-            id: `${link.id}-fromPort`,
-            kind: "port-label",
-            minX: fromPos.x - fromMaxW / 2,
-            minY: fromPos.y - 8,
-            maxX: fromPos.x + fromMaxW / 2,
-            maxY: fromPos.y + (link.fromIp ? 23 : 8),
-          });
-
-          // Port to label (centered)
-          const toPortW = portLabelWidth(link.toPort);
-          const toIpW = ipLabelWidth(link.toIp);
-          const toMaxW = Math.max(toPortW, toIpW);
-          bboxes.push({
-            id: `${link.id}-toPort`,
-            kind: "port-label",
-            minX: toPos.x - toMaxW / 2,
-            minY: toPos.y - 8,
-            maxX: toPos.x + toMaxW / 2,
-            maxY: toPos.y + (link.toIp ? 23 : 8),
-          });
-
-          if (link.subnetLabel) {
-            const midX = link.subnetLabelPos?.x ?? (fromDev.x + toDev.x) / 2;
-            const midY = link.subnetLabelPos?.y ?? (fromDev.y + toDev.y) / 2;
-            const subW = subnetLabelWidth(link.subnetLabel);
-            bboxes.push({
-              id: `${link.id}-subnetLabel`,
-              kind: "subnet-label",
-              minX: midX - subW / 2,
-              minY: midY - 9,
-              maxX: midX + subW / 2,
-              maxY: midY + 9,
-            });
-          }
-        }
+        const bboxes = buildBoxes(topology);
 
         const collisions: Array<{ b1: string; b2: string }> = [];
         for (let i = 0; i < bboxes.length; i++) {
@@ -193,6 +50,14 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
         }
 
         expect(collisions).toEqual([]);
+      });
+
+      it("Zonen-Beschriftungen liegen innerhalb der Zone und überdecken keine Geräte, Labels oder Linien", () => {
+        expect(zoneBadgeProblems(topology)).toEqual([]);
+      });
+
+      it("liegt auf dem 10-px-Raster (Geräte, Zwischenpunkte, Zonen)", () => {
+        expect(offGridProblems(topology)).toEqual([]);
       });
 
       it("hat exakt 0 sich kreuzende Liniensegmente (planare Verbindungen)", () => {
