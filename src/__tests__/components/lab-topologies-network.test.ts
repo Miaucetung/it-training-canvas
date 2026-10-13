@@ -52,6 +52,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
     expect(target.topology.metadata?.labId).toBe(id);
     expect(target.topology.metadata?.labState).toBe("target");
     expect(start.topology.metadata?.labState).toBe("start");
+    for (const z of target.topology.subnetZones ?? []) expect(z.labelCorner, z.id).toBeDefined();
   });
 
   it("alle Interfaces existieren im Hardware-Profil", () => {

@@ -16,6 +16,7 @@ import {
   resolveHardwareProfile,
 } from "@/lib/topology/hardware-profiles";
 import type { LabScenario, LabTopologyData, LabTopologyDevice } from "./types";
+import { placeZoneBadge } from "./topology-geometry";
 
 // ============================================================================
 // Lab-Topologie -> Netzwerk-Topologie (Canvas v2).
@@ -455,6 +456,7 @@ export function buildNetworkTopologyFromLab(
       y: z.y,
       width: z.width,
       height: z.height,
+      labelCorner: placeZoneBadge(data, z.id).corner,
     })),
     metadata: {
       createdAt: new Date().toISOString(),

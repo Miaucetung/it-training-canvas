@@ -183,6 +183,8 @@ export interface TopologySubnetZone {
   y: number;
   width: number;
   height: number;
+  /** Ecke der Zone, in der der Titel steht (Standard: oben links) */
+  labelCorner?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
 export type TopologyAnnotationType =
@@ -454,6 +456,7 @@ export const networkTopologySchema = z.object({
         y: z.number(),
         width: z.number(),
         height: z.number(),
+        labelCorner: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]).optional(),
       })
     )
     .optional(),

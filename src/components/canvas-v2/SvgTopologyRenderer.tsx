@@ -399,7 +399,13 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               vectorEffect="non-scaling-stroke"
             />
             {/* Zonen-Titel Pille */}
-            <g transform={`translate(${zone.x + 12}, ${zone.y + 12})`}>
+            <g
+              transform={`translate(${
+                (zone.labelCorner ?? "top-left").endsWith("right")
+                  ? zone.x + zone.width - 12 - Math.max(80, (zone.name.length + zone.cidr.length) * 6.5)
+                  : zone.x + 12
+              }, ${(zone.labelCorner ?? "top-left").startsWith("bottom") ? zone.y + zone.height - 32 : zone.y + 12})`}
+            >
               <rect
                 x="0"
                 y="0"
