@@ -28,8 +28,8 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
         { id: "if-gi0-0", name: "Gi0/0", status: "up", description: "LAN Gateway / RoaS Trunk (Routed)" },
         { id: "if-gi0-1", name: "Gi0/1", status: "up", description: "WAN Transit / P2P (Routed)" },
         { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Zusatz Routed Interface" },
-        { id: "if-se0-1-0", name: "Se0/1/0", status: "up", description: "Serial WAN WIC-2T" },
-        { id: "if-se0-1-1", name: "Se0/1/1", status: "up", description: "Serial WAN WIC-2T" },
+        { id: "if-se0-0-0", name: "Se0/0/0", status: "up", description: "Serial WAN HWIC-2T" },
+        { id: "if-se0-0-1", name: "Se0/0/1", status: "up", description: "Serial WAN HWIC-2T" },
         { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback (Router-ID, IP vergeben)" },
       ];
     case "switch-l2": {

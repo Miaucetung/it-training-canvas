@@ -11,8 +11,8 @@ Dieses Dokument definiert die realistischen Cisco-Hardware-Profile, abgestimmt a
   - `Gi0/0` (GigabitEthernet - LAN Default Gateway / Router-on-a-Stick Trunk)
   - `Gi0/1` (GigabitEthernet - WAN / Point-to-Point Transit / ISP)
   - `Gi0/2` (GigabitEthernet - Zusätzliches Routed LAN/DMZ)
-  - `Se0/1/0` (Serial WAN WIC-2T - HDLC / PPP Punkt-zu-Punkt)
-  - `Se0/1/1` (Serial WAN WIC-2T - Sekundäre serielle Leitung)
+  - `Se0/0/0` (Serial WAN HWIC-2T - HDLC / PPP Punkt-zu-Punkt)
+  - `Se0/0/1` (Serial WAN HWIC-2T - Sekundäre serielle Leitung)
   - `Lo0` (Loopback 0, Management / OSPF Router-ID `1.1.1.1/32`)
 
 ---
@@ -88,3 +88,19 @@ Dieses Dokument definiert die realistischen Cisco-Hardware-Profile, abgestimmt a
   - `Serial1` (Serial WAN Provider Port)
   - `Ethernet0` (ISP Gigabit Handoff)
 
+
+---
+
+## 6. Ergänzte Profile für die Lab-Topologien
+
+Die maschinenlesbare Quelle ist `src/lib/topology/hardware-profiles.ts` (ein Test hält Doku und Code zusammen).
+
+| Profil | Ports |
+|---|---|
+| Cisco 2911 ISR (mit HWIC-2T) | `Gi0/0`–`Gi0/2`, `Se0/0/0`, `Se0/0/1`, `Lo0` |
+| Catalyst 2960-24TT | `Fa0/1`–`Fa0/24`, `Gi0/1`, `Gi0/2`, `Vlan1` |
+| Catalyst 3560-24PS | `Fa0/1`–`Fa0/24`, `Gi0/1`, `Gi0/2`, SVIs |
+| Catalyst 3650-24PS | `Gi1/0/1`–`Gi1/0/24`, `Gi1/1/1`–`Gi1/1/4`, SVIs |
+| PC-PT / Server-PT | `Fa0` |
+
+Die Interface-Namen eines Labs bestimmen das Profil: Das Lab ivr-svi nennt „Layer-3, z. B. 3560“, konfiguriert aber `gi1/0/1` und `gi1/0/2` (3650-Schema). Die Konfiguration gilt, daher 3650-24PS.

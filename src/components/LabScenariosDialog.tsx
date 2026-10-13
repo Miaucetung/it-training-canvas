@@ -2,6 +2,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { escapeHtml } from "@/lib/escape";
 import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
+import { getLabDeviceCli } from "./labs/lab-to-network";
+import { downloadBlob } from "@/lib/topology/storage-manager";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -513,6 +515,8 @@ interface LabScenariosDialogProps {
   open: boolean;
   onClose: () => void;
   initialLabId?: string;
+  /** Öffnet die Topologie des Labs als neue Vorlage im Canvas v2 */
+  onOpenInCanvas?: (labId: string) => void;
 }
 
 const STORAGE_KEY_COMPLETED_LABS = "ccna-completed-labs-v1";
@@ -521,6 +525,7 @@ export function LabScenariosDialog({
   open,
   onClose,
   initialLabId,
+  onOpenInCanvas,
 }: LabScenariosDialogProps) {
   const [selectedId, setSelectedId] = useState(
     initialLabId || LABS_ORDERED[0].id,
@@ -1161,7 +1166,7 @@ export function LabScenariosDialog({
               mobileTab === "detail" ? "flex" : "hidden md:flex"
             )}
           >
-            <ScrollArea className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden">
               <div
                 className={cn(
                   "p-3 sm:p-6 md:p-8 space-y-6 mx-auto",
@@ -1238,7 +1243,7 @@ export function LabScenariosDialog({
                 {currentLab.structuredTopology ? (
                   <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
                     {/* Linke Spalte: Professionelle Topologie & Adressierungstabelle (Desktop) */}
-                    <div className="xl:col-span-7 space-y-5">
+                    <div className="xl:col-span-7 space-y-5 min-w-0">
                       {/* Cisco Press Topologie Diagramm */}
                       <section className="space-y-2">
                         <div className="flex items-center justify-between px-1">
@@ -1249,6 +1254,17 @@ export function LabScenariosDialog({
                             </h3>
                           </div>
                           <div className="flex items-center gap-2 text-xs">
+                            {onOpenInCanvas && (
+                              <button
+                                type="button"
+                                onClick={() => onOpenInCanvas(currentLab.id)}
+                                className="px-2.5 py-1 rounded-lg border text-xs font-semibold transition-colors flex items-center gap-1.5 bg-indigo-500/20 border-indigo-500/40 text-indigo-200 hover:bg-indigo-500/30"
+                                title="Lädt die Topologie als neue Vorlage im Canvas v2 (überschreibt keine gespeicherten Daten)"
+                              >
+                                <Slideshow size={13} />
+                                <span>Topologie im Canvas öffnen</span>
+                              </button>
+                            )}
                             <button
                               onClick={() => setDetailMode((d) => !d)}
                               className={cn(
@@ -1282,6 +1298,42 @@ export function LabScenariosDialog({
                         onSelectDevice={setSelectedDevice}
                       />
 
+                      {/* CLI-Export pro Gerät (nur Befehle, ohne Prompt) */}
+                      <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-terminal-muted">
+                          CLI pro Gerät (Packet Tracer):
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {currentLab.structuredTopology.devices
+                            .filter((d) => d.type === "router" || d.type === "switch-l2" || d.type === "switch-l3" || d.type === "firewall")
+                            .map((d) => {
+                              const cli = getLabDeviceCli(currentLab, d.name);
+                              if (!cli) return null;
+                              return (
+                                <span key={d.id} className="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 text-xs font-mono overflow-hidden">
+                                  <span className="px-2 py-1 text-slate-200">{d.name}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => void navigator.clipboard?.writeText(cli)}
+                                    className="px-2 py-1 border-l border-slate-700 text-emerald-300 hover:bg-slate-800"
+                                    aria-label={`CLI von ${d.name} kopieren`}
+                                  >
+                                    <Copy size={13} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => downloadBlob(new Blob([cli], { type: "text/plain;charset=utf-8" }), `${d.name}-cli.txt`)}
+                                    className="px-2 py-1 border-l border-slate-700 text-emerald-300 hover:bg-slate-800"
+                                    aria-label={`CLI von ${d.name} als Textdatei speichern`}
+                                  >
+                                    <DownloadSimple size={13} />
+                                  </button>
+                                </span>
+                              );
+                            })}
+                        </div>
+                      </div>
+
                       {/* Aufbau-Hinweise & Kabel-Zuordnungen */}
                       <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-terminal-muted">
@@ -1306,7 +1358,7 @@ export function LabScenariosDialog({
                     </div>
 
                     {/* Rechte Spalte: Aufgabenstellung & Konfiguration */}
-                    <div className="xl:col-span-5 space-y-5">
+                    <div className="xl:col-span-5 space-y-5 min-w-0">
                       {/* Didaktischer Kontext */}
                       {currentLab.context && (
                         <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900 p-4 shadow-sm">
@@ -1688,7 +1740,7 @@ export function LabScenariosDialog({
                   )}
                 </div>
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </div>
       </div>

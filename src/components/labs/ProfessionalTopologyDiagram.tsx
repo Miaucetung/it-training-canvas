@@ -2,12 +2,14 @@ import React, { useId, useMemo } from "react";
 import { DeviceIcon } from "@/components/canvas-v2/DeviceIcons";
 import type { DeviceType } from "@/types/topology";
 import { cn } from "@/lib/utils";
+import { placeZoneBadge } from "./topology-geometry";
 import {
   deviceNameWidth,
   getPortLabelPos,
   ipLabelWidth,
   portLabelWidth,
   subnetLabelWidth,
+  zoneBadgeWidth,
 } from "./topology-layout";
 import type {
   LabTopologyData,
@@ -151,6 +153,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
         {/* 2. Subnetz- und Broadcast-Zonen (Hintergrund-Ebene) */}
         {topology.zones?.map((zone) => {
           const c = COLOR_THEMES[zone.colorTheme || "indigo"];
+          const badge = placeZoneBadge(topology, zone.id).box;
           return (
             <g key={zone.id} className="transition-all duration-200">
               {/* Zonen-Rechteck */}
@@ -165,12 +168,12 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                 strokeWidth="1.5"
                 strokeDasharray="4 3"
               />
-              {/* Zonen-Header Badge */}
-              <g transform={`translate(${zone.x + 14}, ${zone.y + 16})`}>
+              {/* Zonen-Header Badge (Ecke mit freier Fläche, siehe placeZoneBadge) */}
+              <g transform={`translate(${badge.minX + 4}, ${badge.minY + 11})`}>
                 <rect
                   x="-4"
                   y="-11"
-                  width={zone.label.length * 7 + 16}
+                  width={zoneBadgeWidth(zone.label)}
                   height="18"
                   rx="6"
                   fill={isLight ? "#ffffff" : "#0f172a"}

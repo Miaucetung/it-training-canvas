@@ -105,6 +105,8 @@ export interface DeviceStpConfig {
 
 export interface DeviceConfig {
   hostname: string;
+  /** Befehle des Labs für dieses Gerät, ohne Prompt (Export für Packet Tracer) */
+  labCli?: string;
   ospf?: DeviceOspfConfig;
   stp?: DeviceStpConfig;
   domain?: string;
@@ -161,6 +163,8 @@ export interface TopologyLink {
   bandwidth?: string; // e.g. "1 Gbps", "100 Mbps"
   vlansAllowed?: number[]; // e.g. [10, 20, 30] for trunks
   animated?: boolean;
+  /** Zwischenpunkte (Gerätemitte-Koordinaten) für Linienführung, z. B. parallele Verbindungen */
+  bendPoints?: Array<{ x: number; y: number }>;
 }
 
 export interface TopologyVlan {
@@ -179,6 +183,8 @@ export interface TopologySubnetZone {
   y: number;
   width: number;
   height: number;
+  /** Ecke der Zone, in der der Titel steht (Standard: oben links) */
+  labelCorner?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
 export type TopologyAnnotationType =
@@ -217,7 +223,7 @@ export interface NetworkTopology {
   name: string;
   description?: string;
   version: "2.0";
-  category?: "fundamentals" | "switching" | "routing" | "security" | "services" | "wireless";
+  category?: "fundamentals" | "switching" | "routing" | "security" | "services" | "wireless" | "teaching-labs";
   devices: TopologyDevice[];
   links: TopologyLink[];
   vlans?: TopologyVlan[];
@@ -230,6 +236,10 @@ export interface NetworkTopology {
     author?: string;
     learningPathId?: string;
     topicId?: string;
+    /** Unterrichts-Lab, aus dem die Vorlage erzeugt wurde (Rücksprung zum Lab) */
+    labId?: string;
+    /** Zielzustand (Musterlösung) oder Startzustand ohne Konfiguration */
+    labState?: "target" | "start";
   };
 }
 
@@ -293,6 +303,7 @@ export const devicePortChannelSchema = z.object({
 
 export const deviceConfigSchema = z.object({
   hostname: z.string(),
+  labCli: z.string().optional(),
   stp: z
     .object({
       priority: z.number().int().min(0).max(61440).optional(),
@@ -390,6 +401,7 @@ export const topologyLinkSchema = z.object({
   bandwidth: z.string().optional(),
   vlansAllowed: z.array(z.number().int()).optional(),
   animated: z.boolean().optional(),
+  bendPoints: z.array(z.object({ x: z.number(), y: z.number() })).optional(),
 });
 
 export const topologyAnnotationSchema = z.object({
@@ -419,7 +431,7 @@ export const networkTopologySchema = z.object({
   description: z.string().optional(),
   version: z.literal("2.0"),
   category: z
-    .enum(["fundamentals", "switching", "routing", "security", "services", "wireless"])
+    .enum(["fundamentals", "switching", "routing", "security", "services", "wireless", "teaching-labs"])
     .optional(),
   devices: z.array(topologyDeviceSchema),
   links: z.array(topologyLinkSchema),
@@ -444,6 +456,7 @@ export const networkTopologySchema = z.object({
         y: z.number(),
         width: z.number(),
         height: z.number(),
+        labelCorner: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]).optional(),
       })
     )
     .optional(),
@@ -456,6 +469,8 @@ export const networkTopologySchema = z.object({
       author: z.string().optional(),
       learningPathId: z.string().optional(),
       topicId: z.string().optional(),
+      labId: z.string().optional(),
+      labState: z.enum(["target", "start"]).optional(),
     })
     .optional(),
 });

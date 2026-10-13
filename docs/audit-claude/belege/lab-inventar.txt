@@ -1,0 +1,592 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+
+### drill-grundkonfig | drills | Drill: Grundkonfiguration ×3 | Drill | steps=4 | structured=nein
+  TOPO.devices: ["1x router:R1","2x switch:SW1 / SW2"]
+  TOPO.connections: ["Keine Verkabelung nötig — jedes Gerät wird einzeln konfiguriert"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=11 if= ip= vlan=
+  [SW1] cmds=3 if= ip= vlan=
+  [SW2] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### drill-interfaces | drills | Drill: Router-Interfaces hochziehen | Drill | steps=3 | structured=nein
+  TOPO.devices: ["2x router:R1 / R2"]
+  TOPO.connections: ["R1 Gi0/1 ↔ R2 Gi0/1 (10.0.0.0/30, für den Schluss-Ping)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=5 if=gi0/0,gi0/1,gi0/2 ip=192.168.10.1 255.255.255.0,10.0.0.1 255.255.255.252,192.168.20.1 255.255.255.0 vlan=
+  [R2] cmds=7 if=gi0/0,gi0/1,gi0/2 ip=192.168.30.1 255.255.255.0,10.0.0.2 255.255.255.252,192.168.40.1 255.255.255.0 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### drill-pc-ips | drills | Drill: 6 PCs durchnummerieren | Drill | steps=3 | structured=nein
+  TOPO.devices: ["1x switch:SW1","6x pc:PC0–PC5"]
+  TOPO.connections: ["PC0–PC5 → SW1 Fa0/1–Fa0/6 (Copper Straight-Through)"]
+  TOPO.diagramJSX: nein
+  [PC0] cmds=3 if= ip=192.168.50.11 vlan=
+  [PC1–PC5] cmds=5 if= ip=192.168.50.12,192.168.50.13,192.168.50.14,192.168.50.15,192.168.50.16 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### drill-access-ports | drills | Drill: Access-Ports im Akkord | Drill | steps=3 | structured=nein
+  TOPO.devices: ["2x switch:SW1 / SW2"]
+  TOPO.connections: ["Keine Verkabelung nötig — reines Konfigurationstraining"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=5 if=fa0/1 - 8,fa0/9 - 16 ip= vlan=10,20
+  [SW2] cmds=3 if=fa0/1 - 8,fa0/9 - 16 ip= vlan=10,20
+  [Merke] cmds=4 if= ip= vlan=
+
+### basic-ip | layer2 | IP-Grundkonfiguration | Anfänger | steps=5 | structured=ja
+  TOPO.devices: ["1x router:Router0","1x switch:Switch0","2x pc:PC0 / PC1"]
+  TOPO.connections: ["PC0 → Switch0  (FastEthernet)","PC1 → Switch0  (FastEthernet)","Switch0 → Router0 GigabitEthernet0/0"]
+  TOPO.diagramJSX: nein
+  [Router0] cmds=10 if=GigabitEthernet0/0 ip=192.168.1.1 255.255.255.0 vlan=
+  [Switch0] cmds=3 if=vlan ip=192.168.1.2 255.255.255.0 vlan=
+  [PC0] cmds=3 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.1.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ssh | security | SSH Remote-Zugriff | Anfänger | steps=4 | structured=nein
+  TOPO.devices: ["1x router:R1","1x pc:Admin-PC"]
+  TOPO.connections: ["Admin-PC → R1 Gi0/0 direkt oder via Switch (192.168.1.0/24)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=11 if=GigabitEthernet0/0 ip=192.168.1.1 255.255.255.0 vlan=
+  [Admin-PC] cmds=2 if= ip=192.168.1.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### vlan-trunking | layer2 | VLANs & Trunking | Anfänger | steps=5 | structured=ja
+  TOPO.devices: ["2x switch:SW1 / SW2","4x pc:PC0–PC3"]
+  TOPO.connections: ["PC0 → SW1 Fa0/1  (VLAN 10, 192.168.10.0/24)","PC1 → SW1 Fa0/2  (VLAN 20, 192.168.20.0/24)","PC2 → SW2 Fa0/1  (VLAN 10, 192.168.10.0/24)","PC3 → SW2 Fa0/2  (VLAN 20, 192.168.20.0/24)","SW1 Gi0/1 ↔ SW2 Gi0/1  (Trunk)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=16 if=FastEthernet0/1,FastEthernet0/2,GigabitEthernet0/1 ip= vlan=10,20
+  [SW2] cmds=5 if=FastEthernet0/1,FastEthernet0/2,GigabitEthernet0/1 ip= vlan=10,20
+  [PC0] cmds=3 if= ip=192.168.10.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.20.10 vlan=
+  [PC2] cmds=1 if= ip=192.168.10.20 vlan=
+  [PC3] cmds=1 if= ip=192.168.20.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### stp | layer2 | STP — PortFast & BPDU Guard | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["2x switch:SW1 (Root) / SW2","2x pc:PC0 / PC1"]
+  TOPO.connections: ["SW1 Gi0/1 ↔ SW2 Gi0/1  (Link 1)","SW1 Gi0/2 ↔ SW2 Gi0/2  (Link 2 — redundant, erzeugt den Loop)","PC0 → SW1 Fa0/1  (192.168.1.0/24)","PC1 → SW2 Fa0/1  (192.168.1.0/24)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=4 if=FastEthernet0/1 ip= vlan=
+  [SW2] cmds=4 if=FastEthernet0/1 ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.1.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### vtp-dtp | layer2 | VTP & DTP | Mittel | steps=8 | structured=nein
+  TOPO.devices: ["3x switch:SW1 (Server) / SW2 / SW3 (Clients)","2x pc:PC0 / PC1"]
+  TOPO.connections: ["SW1 Gi0/1 ↔ SW2 Gi0/1  (Trunk)","SW2 Gi0/2 ↔ SW3 Gi0/1  (Trunk)","PC0 → SW1 Fa0/1 (VLAN 10), PC1 → SW3 Fa0/1 (VLAN 10)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=6 if=fa0/1,gi0/1 ip= vlan=10,20
+  [SW2] cmds=4 if=gi0/1 - 2 ip= vlan=
+  [SW3] cmds=8 if=gi0/1,fa0/1 ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.10.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.10.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### etherchannel | layer2 | EtherChannel (LACP) | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["2x switch:SW1 / SW2","2x pc:PC0 / PC1"]
+  TOPO.connections: ["SW1 Fa0/1 ↔ SW2 Fa0/1  (Link 1, Bundle)","SW1 Fa0/2 ↔ SW2 Fa0/2  (Link 2, Bundle)","PC0 → SW1 Fa0/3, PC1 → SW2 Fa0/3  (192.168.1.0/24)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=8 if=FastEthernet0/1 - 2,Port-channel1,fa0/3 ip= vlan=
+  [SW2] cmds=4 if=FastEthernet0/1 - 2,Port-channel1,fa0/3 ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.1.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### dhcp | services | DHCPv4 auf Router | Anfänger | steps=6 | structured=nein
+  TOPO.devices: ["1x router:Router0","1x switch:Switch0","2x pc:PC0 / PC1 (DHCP)"]
+  TOPO.connections: ["PC0 / PC1 → Switch0","Switch0 → Router0 Gi0/0"]
+  TOPO.diagramJSX: nein
+  [Router0] cmds=8 if=GigabitEthernet0/0 ip=192.168.1.1 255.255.255.0,(DHCP) vlan=
+  [Switch0] cmds=2 if= ip= vlan=
+  [PC0] cmds=3 if= ip= vlan=
+  [PC1] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip=(DHCP) vlan=
+
+### static-routing | routing | Statisches Routing | Mittel | steps=6 | structured=nein
+  TOPO.devices: ["2x router:R1 / R2","2x switch:SW1 / SW2","4x pc:PC0–PC3"]
+  TOPO.connections: ["PC0 / PC1 → SW1 → R1 Gi0/0  (LAN 192.168.1.0/24)","R1 Gi0/1 ↔ R2 Gi0/1  (WAN 10.0.0.0/30)","R2 Gi0/0 → SW2 → PC2 / PC3  (LAN 192.168.2.0/24)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=5 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,10.0.0.1 255.255.255.252 vlan=
+  [R2] cmds=5 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.2.1 255.255.255.0,10.0.0.2 255.255.255.252 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [SW2] cmds=1 if= ip= vlan=
+  [PC0] cmds=3 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.1.20 vlan=
+  [PC2] cmds=1 if= ip=192.168.2.10 vlan=
+  [PC3] cmds=1 if= ip=192.168.2.20 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### floating-static | routing | Floating Static Route | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1 (Branch)"]
+  TOPO.connections: ["R1 Gi0/0 → ISP-MPLS  (R1: 10.1.1.2/30, Next-Hop 10.1.1.1, AD 1)","R1 Gi0/1 → DSL-Modem (R1: 10.2.2.2/30, Next-Hop 10.2.2.1, AD 200 = Floating)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=17 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=10.1.1.2 255.255.255.252,10.2.2.2 255.255.255.252 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### roas | layer2 | Inter-VLAN Routing (RoaS) | Mittel | steps=5 | structured=ja
+  TOPO.devices: ["1x router:Router0","1x switch:Switch0","2x pc:PC0 (VLAN10) / PC1 (VLAN20)"]
+  TOPO.connections: ["PC0 → Switch0 Fa0/1","PC1 → Switch0 Fa0/2","Switch0 Gi0/1 → Router0 GigabitEthernet0/0  (Trunk)"]
+  TOPO.diagramJSX: nein
+  [Switch0] cmds=6 if=Fa0/1,Fa0/2,Gi0/1 ip= vlan=10,20
+  [Router0] cmds=10 if=GigabitEthernet0/0,GigabitEthernet0/0.10,GigabitEthernet0/0.20 ip=192.168.10.1 255.255.255.0,192.168.20.1 255.255.255.0 vlan=
+  [PC0] cmds=2 if= ip=192.168.10.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.20.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ivr-svi | layer2 | Inter-VLAN Routing (L3-Switch / SVI) | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["1x switch:MLS1 (Layer-3, z. B. 3560)","2x pc:PC-Sales / PC-Mrkt"]
+  TOPO.connections: ["PC-Sales → MLS1 Gi1/0/1  (VLAN 10)","PC-Mrkt  → MLS1 Gi1/0/2  (VLAN 20)"]
+  TOPO.diagramJSX: nein
+  [MLS1] cmds=7 if=gi1/0/1,gi1/0/2,vlan ip=192.168.10.254 255.255.255.0,192.168.20.254 255.255.255.0 vlan=10,20
+  [PC-Sales] cmds=2 if= ip=192.168.10.1 vlan=
+  [PC-Mrkt] cmds=1 if= ip=192.168.20.1 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### rip-v1 | routing | RIPv1 — Classful Distance-Vector | Anfänger | steps=8 | structured=nein
+  TOPO.devices: ["3x router:R1 / R2 / R3","3x switch:SW1–SW3","3x pc:PC0–PC2"]
+  TOPO.connections: ["R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/24)","R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/24)","LANs: R1=192.168.1.0/24, R2=192.168.2.0/24, R3=192.168.3.0/24"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=5 if=gi0/0,gi0/1 ip=192.168.1.1 255.255.255.0,10.0.12.1 255.255.255.0 vlan=
+  [R2] cmds=5 if=gi0/0,gi0/1,gi0/2 ip=192.168.2.1 255.255.255.0,10.0.12.2 255.255.255.0,10.0.23.1 255.255.255.0 vlan=
+  [R3] cmds=5 if=gi0/1,gi0/0 ip=10.0.23.2 255.255.255.0,192.168.3.1 255.255.255.0 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [SW2] cmds=1 if= ip= vlan=
+  [SW3] cmds=1 if= ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.2.10 vlan=
+  [PC2] cmds=1 if= ip=192.168.3.10 vlan=
+  [Merke] cmds=6 if= ip= vlan=
+
+### rip-v2 | routing | RIPv2 — Dynamisches Routing | Mittel | steps=6 | structured=nein
+  TOPO.devices: ["3x router:R1 / R2 / R3","3x switch:SW1–SW3","3x pc:PC0–PC2"]
+  TOPO.connections: ["R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)","R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/30)","LANs: R1=192.168.1.0/24, R2=192.168.2.0/24, R3=192.168.3.0/24"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=5 if=gi0/0,gi0/1 ip=192.168.1.1 255.255.255.0,10.0.12.1 255.255.255.252 vlan=
+  [R2] cmds=5 if=gi0/0,gi0/1,gi0/2 ip=192.168.2.1 255.255.255.0,10.0.12.2 255.255.255.252,10.0.23.1 255.255.255.252 vlan=
+  [R3] cmds=5 if=gi0/1,gi0/0 ip=10.0.23.2 255.255.255.252,192.168.3.1 255.255.255.0 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [SW2] cmds=1 if= ip= vlan=
+  [SW3] cmds=1 if= ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.2.10 vlan=
+  [PC2] cmds=1 if= ip=192.168.3.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### rip-v2-passive | routing | RIPv2 + Passive Interface (4 Router) | Mittel | steps=7 | structured=nein
+  TOPO.devices: ["4x router:R1 / R2 / R3 / R4","1x switch:SW1 (2960)","3x pc:PC0 + Server0/1"]
+  TOPO.connections: ["R1 Gi0/0 172.16.0.254/24 (PC0 .101) — R1 Gi0/1 10.1.0.1/30 ↔ R2 Gi0/1 10.1.0.2/30","R2 Gi0/0 10.0.0.9/29 — SW1 — R3 Fa/Gi 10.0.0.10/29 · R4 10.0.0.11/29  (Segment 10.0.0.8/29)","R3 Gi0/0 192.168.0.254/24 (Server0 .11) · R4 Gi0/0 192.168.1.254/24 (Server1 .11)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=5 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=172.16.0.254 255.255.255.0,10.1.0.1 255.255.255.252 vlan=
+  [R2] cmds=5 if=GigabitEthernet0/1,GigabitEthernet0/0 ip=10.1.0.2 255.255.255.252,10.0.0.9 255.255.255.248 vlan=
+  [R3] cmds=5 if=GigabitEthernet0/1,GigabitEthernet0/0 ip=10.0.0.10 255.255.255.248,192.168.0.254 255.255.255.0 vlan=
+  [R4] cmds=5 if=GigabitEthernet0/1,GigabitEthernet0/0 ip=10.0.0.11 255.255.255.248,192.168.1.254 255.255.255.0 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [PC0] cmds=2 if= ip=172.16.0.101 vlan=
+  [Server0] cmds=1 if= ip=192.168.0.11 vlan=
+  [Server1] cmds=1 if= ip=192.168.1.11 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ospf | routing | OSPF — Single Area 0 | Mittel | steps=5 | structured=ja
+  TOPO.devices: ["3x router:R1 / R2 / R3","3x switch:SW1–SW3","3x pc:PC pro Router-LAN"]
+  TOPO.connections: ["R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)","R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/30)","R1 Gi0/2 ↔ R3 Gi0/2  (10.0.13.0/30)","R1 Gi0/0 → SW1 → PC0  (192.168.1.0/24)","R2 Gi0/0 → SW2 → PC1  (192.168.2.0/24)","R3 Gi0/0 → SW3 → PC2  (192.168.3.0/24)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=11 if=Gi0/0,Gi0/1,Gi0/2 ip=192.168.1.1 255.255.255.0,10.0.12.1 255.255.255.252,10.0.13.1 255.255.255.252 vlan=
+  [R2] cmds=4 if=Gi0/0,Gi0/1,Gi0/2 ip=192.168.2.1 255.255.255.0,10.0.12.2 255.255.255.252,10.0.23.1 255.255.255.252 vlan=
+  [R3] cmds=4 if=Gi0/0,Gi0/1,Gi0/2 ip=192.168.3.1 255.255.255.0,10.0.13.2 255.255.255.252,10.0.23.2 255.255.255.252 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [SW2] cmds=1 if= ip= vlan=
+  [SW3] cmds=1 if= ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.2.10 vlan=
+  [PC2] cmds=1 if= ip=192.168.3.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ospf-rid-wildcard | routing | OSPF Single-Area — Loopback-RID & Wildcard | Mittel | steps=6 | structured=nein
+  TOPO.devices: ["3x router:R1 / R2 / R3","2x pc:PC-links / PC-rechts"]
+  TOPO.connections: ["R1 Gi0/0 192.168.1.254/24 (PC-links .11) — R1 Gi0/1 192.168.10.1/30 ↔ R2 Gi0/2 192.168.10.2/30","R2 Gi0/1 192.168.20.1/30 ↔ R3 Gi0/2 192.168.20.2/30","R3 Gi0/0 192.168.4.254/24 (PC-rechts .11) · Loopbacks: R1 1.1.1.1 · R2 2.2.2.2 · R3 3.3.3.3"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=6 if=loopback,gi0/0,gi0/1 ip=1.1.1.1 255.255.255.255,192.168.1.254 255.255.255.0,192.168.10.1 255.255.255.252 vlan=
+  [R2] cmds=6 if=loopback,gi0/2,gi0/1 ip=2.2.2.2 255.255.255.255,192.168.10.2 255.255.255.252,192.168.20.1 255.255.255.252 vlan=
+  [R3] cmds=6 if=loopback,gi0/2,gi0/0 ip=3.3.3.3 255.255.255.255,192.168.20.2 255.255.255.252,192.168.4.254 255.255.255.0 vlan=
+  [PC-links] cmds=2 if= ip=192.168.1.11 vlan=
+  [PC-rechts] cmds=1 if= ip=192.168.4.11 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ospf-dr-bdr-election | routing | OSPF DR/BDR-Wahl (Multi-Access) | Fortgeschritten | steps=11 | structured=nein
+  TOPO.devices: ["4x router:R1 / R2 / R3 / R4","1x switch:Sw1 (Broadcast-Domäne)","4x pc:PC0 + Server0/1/2"]
+  TOPO.connections: ["R1..R4 Gi0/1 → Sw1 → gemeinsames Segment 10.1.0.0/29 (R1 .1 · R2 .2 · R3 .3 · R4 .4)","LANs: R1 192.168.1.0/24 (PC0) · R2 192.168.2.0/24 · R3 192.168.3.0/24 · R4 192.168.4.0/24 (alle .254, Hosts .11)","Loopbacks Lo0: R1 192.168.254.1/32 · R2 .2 · R3 .3 · R4 .4  (= Router-ID)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=10 if=loopback,gi0/1,gi0/0 ip=192.168.254.1 255.255.255.255,10.1.0.1 255.255.255.248,192.168.1.254 255.255.255.0 vlan=
+  [R2] cmds=6 if=loopback,gi0/1,gi0/0 ip=192.168.254.2 255.255.255.255,10.1.0.2 255.255.255.248,192.168.2.254 255.255.255.0 vlan=
+  [R3] cmds=6 if=loopback,gi0/1,gi0/0 ip=192.168.254.3 255.255.255.255,10.1.0.3 255.255.255.248,192.168.3.254 255.255.255.0 vlan=
+  [R4] cmds=6 if=loopback,gi0/1,gi0/0 ip=192.168.254.4 255.255.255.255,10.1.0.4 255.255.255.248,192.168.4.254 255.255.255.0 vlan=
+  [Sw1] cmds=1 if= ip= vlan=
+  [PC0] cmds=2 if= ip=192.168.1.11 vlan=
+  [Server0 / Server1 / Server2] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ospf-multiarea | routing | OSPF Multi-Area | Fortgeschritten | steps=6 | structured=nein
+  TOPO.devices: ["3x router:R1, R2, R3","2x pc:PC0 (R1-LAN) / PC1 (R3-LAN)"]
+  TOPO.connections: ["R1 ↔ R2 Gi0/0 (10.0.0.0/30, Area 0)","R2 ↔ R3 Gi0/1 (10.0.0.4/30, Area 1)","R1 Gi0/2 → PC0  (192.168.1.0/24, Area 0)","R3 Gi0/2 → PC1  (192.168.3.0/24, Area 1)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=9 if=Gi0/0,Gi0/2 ip=10.0.0.1 255.255.255.252,192.168.1.1 255.255.255.0 vlan=
+  [R2] cmds=9 if=Gi0/0,Gi0/1 ip=10.0.0.2 255.255.255.252,10.0.0.5 255.255.255.252 vlan=
+  [R3] cmds=10 if=Gi0/1,Gi0/2 ip=10.0.0.6 255.255.255.252,192.168.3.1 255.255.255.0 vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.3.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### eigrp | routing | EIGRP Grundlagen | Fortgeschritten | steps=8 | structured=nein
+  TOPO.devices: ["3x router:R1 / R2 / R3","2x switch:SW1 / SW3","2x pc:PC0 / PC1"]
+  TOPO.connections: ["R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)","R2 Gi0/2 ↔ R3 Gi0/2  (10.0.23.0/30)","R1 Gi0/2 ↔ R3 Gi0/1  (10.0.13.0/30) — Dreieck!","LANs: R1=192.168.1.0/24, R3=192.168.3.0/24"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=9 if=gi0/0,gi0/1,gi0/2 ip=192.168.1.1 255.255.255.0,10.0.12.1 255.255.255.252,10.0.13.1 255.255.255.252 vlan=
+  [R2] cmds=4 if=gi0/1,gi0/2 ip=10.0.12.2 255.255.255.252,10.0.23.1 255.255.255.252 vlan=
+  [R3] cmds=4 if=gi0/1,gi0/2,gi0/0 ip=10.0.13.2 255.255.255.252,10.0.23.2 255.255.255.252,192.168.3.1 255.255.255.0 vlan=
+  [SW1] cmds=1 if= ip= vlan=
+  [SW3] cmds=1 if= ip= vlan=
+  [PC0] cmds=3 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.3.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ipv6 | ipv6 | IPv6 Grundkonfiguration | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["2x router:R1 / R2","2x pc:PC0 / PC1"]
+  TOPO.connections: ["PC0 → R1 Gi0/0  (2001:db8:1::/64)","R1 Gi0/1 ↔ R2 Gi0/1  (2001:db8:12::/64)","R2 Gi0/0 → PC1  (2001:db8:2::/64)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=6 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=2001:db8:1::1/64,2001:db8:12::1/64 vlan=
+  [R2] cmds=6 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=2001:db8:2::1/64,2001:db8:12::2/64 vlan=
+  [PC0] cmds=2 if= ip=2001:db8:1::10/64 vlan=
+  [PC1] cmds=1 if= ip=2001:db8:2::10/64 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ipv6-static | ipv6 | IPv6 Static Routing | Mittel | steps=7 | structured=nein
+  TOPO.devices: ["1x router:Internet-Router","2x router:R1-1 / R2-1"]
+  TOPO.connections: ["Internet S0/0/0 ↔ R1-1   2001:DB8:CCA1:1::/64","Internet S0/1/0 ↔ R2-1   2001:DB8:CCA2:2::/64","Loopbacks: R1-1 2001:DB8:CCA1:254::1:1/128 · R2-1 2001:DB8:CCA2:254::2:1/128"]
+  TOPO.diagramJSX: nein
+  [R1-1] cmds=9 if=se0/0/0,loopback0 ip=2001:DB8:CCA1:1::2/64,2001:DB8:CCA1:254::1:1/128 vlan=
+  [R2-1] cmds=7 if=se0/1/0,loopback0 ip=2001:DB8:CCA2:2::2/64,2001:DB8:CCA2:254::2:1/128 vlan=
+  [Internet] cmds=3 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ospfv3-ipv6 | ipv6 | OSPFv3 für IPv6 | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["2x router:R1, R2","2x pc:PC0 / PC1"]
+  TOPO.connections: ["R1 Gi0/0 ↔ R2 Gi0/0  (2001:db8::/64)","R1 Gi0/1 → PC0  (2001:db8:1::/64)","R2 Gi0/1 → PC1  (2001:db8:2::/64)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=8 if=Gi0/0,Gi0/1 ip=2001:db8::1/64,2001:db8:1::1/64 vlan=
+  [R2] cmds=6 if=Gi0/0,Gi0/1 ip=2001:db8::2/64,2001:db8:2::1/64 vlan=
+  [PC0] cmds=2 if= ip=2001:db8:1::10/64 vlan=
+  [PC1] cmds=1 if= ip=2001:db8:2::10/64 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ipv6-ospfv3-eigrpv6 | ipv6 | IPv6 Routing — OSPFv3 + EIGRPv6 | Fortgeschritten | steps=10 | structured=nein
+  TOPO.devices: ["1x router:R1 (LAN FDAA::/64)","1x router:R2 (LAN FDBB::/64)","1x router:R3 (LAN FDCC::/64)","1x pc:PC2 (R1 Gig0/0, FDAA::0101/64)","1x pc:PC1 (R2 Gig0/0, FDBB::0101/64)","1x pc:PC0 (R3 Gig0/0, FDCC::0101/64)"]
+  TOPO.connections: ["R1 Gig0/1 (FD00::2/127) ↔ R2 Gig0/2 (FD00::3/127) — Backbone-Link \"x=2\"","R2 Gig0/1 (FD00::4/127) ↔ R3 Gig0/2 (FD00::5/127) — Backbone-Link \"x=4\"","R1 Gig0/2 (FD00::6/127) ↔ R3 Gig0/1 (FD00::7/127) — Backbone-Link \"x=6\"","R1 Gig0/0 (FDAA::FFFF/64) ↔ PC2 Fa0 (FDAA::0101/64)","R2 Gig0/0 (FDBB::FFFF/64) ↔ PC1 Fa0 (FDBB::0101/64)","R3 Gig0/0 (FDCC::FFFF/64) ↔ PC0 Fa0 (FDCC::0101/64)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=18 if=GigabitEthernet0/0,GigabitEthernet0/1,GigabitEthernet0/2 ip=FDAA::FFFF/64,FD00::2/127,FD00::6/127 vlan=
+  [R2] cmds=18 if=GigabitEthernet0/0,GigabitEthernet0/1,GigabitEthernet0/2 ip=FDBB::FFFF/64,FD00::4/127,FD00::3/127 vlan=
+  [R3] cmds=18 if=GigabitEthernet0/0,GigabitEthernet0/1,GigabitEthernet0/2 ip=FDCC::FFFF/64,FD00::7/127,FD00::5/127 vlan=
+  [R1 / R2 / R3] cmds=6 if= ip= vlan=
+  [PC0 / PC1 / PC2] cmds=2 if= ip= vlan=
+  [Merke] cmds=5 if= ip= vlan=
+
+### dhcp-relay | services | DHCP Relay über VLAN-Grenzen | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["1x router:R1 (RoaS, Gi0/0.51/.61/.71)","1x switch:SW1 (VTP-Server)","1x switch:SW2 (VTP-Client, downstream)","1x server:DHCP-Server 192.168.2.11","3x pc:Clients Rot/Blau/Gelb"]
+  TOPO.connections: ["R1 Gi0/0 ↔ SW1 Gi0/1  (Trunk 802.1Q, alle VLANs)","SW1 Gi0/2 ↔ SW2 Gi0/1  (Trunk, downstream)","DHCP-Server → SW1 Fa0/24  (VLAN 71 Gelb)","Client-Rot → SW1 Fa0/1 (VLAN 51) · Client-Blau → SW1 Fa0/11 (VLAN 61)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=8 if=fa0/1-10,fa0/11-20,fa0/21-24,gi0/1,gi0/2 ip= vlan=51,61,71
+  [SW2] cmds=4 if=gi0/1,fa0/1-10 ip= vlan=
+  [R1] cmds=6 if=gi0/0,gi0/0.51,gi0/0.61,gi0/0.71 ip=172.16.51.1 255.255.255.0,172.16.61.1 255.255.255.0,192.168.2.1 255.255.255.0 vlan=
+  [DHCP-Server] cmds=3 if= ip= vlan=
+  [Client Rot] cmds=2 if= ip=(DHCP) vlan=
+  [Client Blau] cmds=1 if= ip=(DHCP) vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### nat-pat | services | NAT / PAT (Overload) | Mittel | steps=7 | structured=nein
+  TOPO.devices: ["1x pc:PC0 (192.168.1.10/24)","1x pc:PC0(1) (192.168.1.11/24)","1x pc:PC0(2) (192.168.1.12/24)","1x switch:SW1 (Fa0/1–3, Gig0/1)","1x router:NAT-Router (Gig0/0 inside, Gig0/1 outside)","1x router:ISP (Gig0/2 ↔ NAT, Gig0/1 ↔ INTERNET)","1x router:INTERNET (Gig0/2 ↔ ISP, Gi0/0 ↔ Webserver)","1x server:Webserver (47.11.8.15/24)"]
+  TOPO.connections: ["PC0/PC0(1)/PC0(2) → SW1 Fa0/1–3 → SW1 Gig0/1 → NAT Gig0/0  (192.168.1.0/24)","NAT Gig0/1 (200.0.0.1) ↔ ISP Gig0/2 (200.0.0.2)  — 200.0.0.0/30","ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30","INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24"]
+  TOPO.diagramJSX: nein
+  [PC0] cmds=2 if= ip= vlan=
+  [NAT-Router] cmds=11 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,200.0.0.1 255.255.255.252 vlan=
+  [ISP] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/1 ip=200.0.0.2 255.255.255.252,1.1.1.1 255.255.255.252 vlan=
+  [INTERNET] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [Webserver] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### dynamic-nat | services | Dynamisches NAT (Pool) | Mittel | steps=8 | structured=nein
+  TOPO.devices: ["1x pc:PC0  (192.168.1.10/24)","1x pc:PC0(1) (192.168.1.11/24)","1x pc:PC0(2) (192.168.1.12/24)","1x switch:SW (Layer-2, kein Config)","1x router:NAT-Router","1x router:ISP","1x router:INTERNET","1x server:Webserver (47.11.8.15/24)"]
+  TOPO.connections: ["PC0 / PC0(1) / PC0(2) → SW  (192.168.1.0/24)","SW Gig0/1 → NAT Gig0/0  (inside, 192.168.1.1/24)","NAT Gig0/1 → ISP Gig0/1  (200.0.0.253 ↔ 200.0.0.254, /24)","ISP Gig0/2 → INTERNET Gig0/2  (1.1.1.1 ↔ 1.1.1.2, /30)","INTERNET Gig0/0 → Webserver Fa0  (47.11.8.1 ↔ 47.11.8.15, /24)","NAT-Pool: 200.0.0.10 – 200.0.0.12 (3 öffentliche IPs, 1 pro PC)"]
+  TOPO.diagramJSX: nein
+  [PC0] cmds=3 if= ip= vlan=
+  [NAT-Router] cmds=12 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,200.0.0.253 255.255.255.0 vlan=
+  [ISP] cmds=4 if=GigabitEthernet0/1,GigabitEthernet0/2 ip=200.0.0.254 255.255.255.0,1.1.1.1 255.255.255.252 vlan=
+  [INTERNET] cmds=4 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [Webserver] cmds=2 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### nat-pool-overload | services | Dynamic NAT — Pool + Overload | Mittel | steps=8 | structured=nein
+  TOPO.devices: ["1x pc:PC0 (192.168.1.10/24)","1x pc:PC0(1) (192.168.1.11/24)","1x pc:PC0(2) (192.168.1.12/24)","1x switch:SW1 (Fa0/1–3, Gig0/1)","1x router:NAT-Router (Gig0/0 inside, Gig0/1=200.0.0.5 outside)","1x router:ISP (Gig0/2=200.0.0.6, Gig0/1=1.1.1.1)","1x router:INTERNET (Gig0/2=1.1.1.2, Gi0/0=47.11.8.1)","1x server:Webserver (47.11.8.15/24)"]
+  TOPO.connections: ["PC0/PC0(1)/PC0(2) → SW1 → NAT Gig0/0  (192.168.1.0/24)","NAT Gig0/1 (200.0.0.5) ↔ ISP Gig0/2 (200.0.0.6)  — 200.0.0.0/29","ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30","INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24","NAT-Pool DYNAMIC-POOL: 200.0.0.1 – 200.0.0.4 /29 (4 IPs aus dem WAN-Subnetz)"]
+  TOPO.diagramJSX: nein
+  [PC0] cmds=2 if= ip= vlan=
+  [NAT-Router] cmds=12 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,200.0.0.5 255.255.255.248 vlan=
+  [ISP] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/1 ip=200.0.0.6 255.255.255.248,1.1.1.1 255.255.255.252 vlan=
+  [INTERNET] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [Webserver] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### static-nat | services | Statisches NAT | Mittel | steps=6 | structured=nein
+  TOPO.devices: ["1x pc:PC0  (192.168.1.10/24)","1x pc:PC0(1) (192.168.1.11/24)","1x pc:PC0(2) (192.168.1.12/24)","1x switch:SW (Layer-2, kein Config)","1x router:NAT-Router","1x router:ISP","1x router:INTERNET","1x server:Webserver (47.11.8.15/24)"]
+  TOPO.connections: ["PC0 / PC0(1) / PC0(2) → SW  (192.168.1.0/24)","SW Gig0/1 → NAT Gig0/0  (inside, 192.168.1.1/24)","NAT Gig0/1 → ISP Gig0/1  (200.0.0.253 ↔ 200.0.0.254, /24)","ISP Gig0/2 → INTERNET Gig0/2  (1.1.1.1 ↔ 1.1.1.2, /30)","INTERNET Gig0/0 → Webserver Fa0  (47.11.8.1 ↔ 47.11.8.15, /24)"]
+  TOPO.diagramJSX: nein
+  [PC0] cmds=2 if= ip= vlan=
+  [NAT-Router] cmds=9 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,200.0.0.253 255.255.255.0 vlan=
+  [ISP] cmds=4 if=GigabitEthernet0/1,GigabitEthernet0/2 ip=200.0.0.254 255.255.255.0,1.1.1.1 255.255.255.252 vlan=
+  [INTERNET] cmds=4 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [Webserver] cmds=2 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### vlan-dhcp-nat-roas | campus | VLAN + DHCP + NAT — Campus mit Internetzugang | Fortgeschritten | steps=11 | structured=nein
+  TOPO.devices: ["1x switch:SW1 — VTP Server, VLAN 10/20/30 anlegen","1x switch:SW2 — VTP Client, Trunk zu SW1 + Router0","1x router:Router0 — RoaS + DHCP-Server + NAT/PAT","1x pc:PC3 (Blau, VLAN 10) — SW1 Fa0/1","1x pc:PC4 (Grün, VLAN 20) — SW1 Fa0/11","1x pc:C5 (Gelb, VLAN 30) — SW1 Fa0/15","1x pc:PC0 (Blau, VLAN 10) — SW2 Fa0/1","1x pc:PC2 (Grün, VLAN 20) — SW2 Fa0/11","1x pc:PC1 (Gelb, VLAN 30) — SW2 Fa0/15","1x router:ISP (Gig0/2=200.0.0.2, Gig0/1=1.1.1.1)","1x router:INTERNET (Gig0/2=1.1.1.2, Gi0/0=47.11.8.1)","1x server:Webserver (47.11.8.15/24)"]
+  TOPO.connections: ["SW1 Gig0/1 ↔ SW2 Gig0/2  — Trunk (DTP: SW1 mode on, SW2 mode desirable)","SW2 Gig0/1 ↔ Router0 Gig0/0  — Trunk (Router-on-a-Stick)","Router0 Gig0/1 (200.0.0.1) ↔ ISP Gig0/2 (200.0.0.2)  — 200.0.0.0/30","ISP Gig0/1 (1.1.1.1) ↔ INTERNET Gig0/2 (1.1.1.2)  — 1.1.1.0/30","INTERNET Gi0/0 (47.11.8.1) ↔ Webserver Fa0 (47.11.8.15)  — 47.11.8.0/24"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=22 if=GigabitEthernet0/1,FastEthernet0/1,FastEthernet0/11,FastEthernet0/15 ip= vlan=10,20,30
+  [SW2] cmds=18 if=GigabitEthernet0/2,FastEthernet0/1,FastEthernet0/11,FastEthernet0/15,GigabitEthernet0/1 ip= vlan=
+  [Router0] cmds=45 if=GigabitEthernet0/0,GigabitEthernet0/0.10,GigabitEthernet0/0.20,GigabitEthernet0/0.30,GigabitEthernet0/1 ip=192.168.10.1 255.255.255.0,192.168.20.1 255.255.255.0,192.168.30.1 255.255.255.0,200.0.0.1 255.255.255.252,(DHCP) vlan=
+  [ISP] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/1 ip=200.0.0.2 255.255.255.252,1.1.1.1 255.255.255.252 vlan=
+  [INTERNET] cmds=5 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [Webserver] cmds=1 if= ip= vlan=
+  [PC0 / PC3] cmds=3 if= ip= vlan=
+  [Merke] cmds=4 if= ip=(DHCP) vlan=
+
+### ntp-syslog-snmp | services | NTP + Syslog + SNMPv2c | Mittel | steps=6 | structured=nein
+  TOPO.devices: ["1x switch:SW1","3x server:NTP, Syslog, SNMP-Manager"]
+  TOPO.connections: ["SW1 Gi0/1 → Server-VLAN 99 (10.0.0.0/24)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=24 if=Gi0/1,vlan,loopback0 ip=10.0.0.2 255.255.255.0,10.0.0.1 255.255.255.255 vlan=99
+  [Merke] cmds=4 if= ip= vlan=
+
+### hsrp | services | HSRP First-Hop Redundancy | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["2x router:R1, R2","1x pc:PC0"]
+  TOPO.connections: ["R1 Gi0/0 — 192.168.1.2/24 (HSRP Active, Priority 110)","R2 Gi0/0 — 192.168.1.3/24 (HSRP Standby, Priority 100)","PC0 → gemeinsames LAN 192.168.1.0/24","Virtuelle IP — 192.168.1.1 (Default Gateway von PC0)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=13 if=Gi0/0 ip=192.168.1.2 255.255.255.0 vlan=
+  [R2] cmds=10 if=Gi0/0 ip=192.168.1.3 255.255.255.0 vlan=
+  [PC0] cmds=3 if= ip=192.168.1.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### gre-tunnel | services | GRE-Tunnel-VPN zwischen Sites | Fortgeschritten | steps=11 | structured=nein
+  TOPO.devices: ["1x router:R1-1 (Site 1)","1x router:R2-1 (Site 2)","1x router:Internet","1x pc:PC0 (Site 1, 192.168.1.0/24)","1x pc:PC1 (Site 2, 192.168.2.0/24)"]
+  TOPO.connections: ["R1-1 Gi0/0 192.168.1.1/24 → PC0","R1-1 Se0/0/0 1.1.1.2 ↔ Internet Se0/0/0 1.1.1.1","R2-1 Gi0/0 192.168.2.1/24 → PC1","R2-1 Se0/0/0 2.2.2.2 ↔ Internet Se0/0/1 2.2.2.1","Tunnel12 (GRE): 216.145.12.1/30 (R1-1) ↔ 216.145.12.2/30 (R2-1)"]
+  TOPO.diagramJSX: nein
+  [R1-1] cmds=9 if=GigabitEthernet0/0,Se0/0/0,tunnel ip=192.168.1.1 255.255.255.0,1.1.1.2 255.255.255.252,216.145.12.1 255.255.255.252 vlan=
+  [R2-1] cmds=6 if=GigabitEthernet0/0,Se0/0/0,tunnel ip=192.168.2.1 255.255.255.0,2.2.2.2 255.255.255.252,216.145.12.2 255.255.255.252 vlan=
+  [Internet] cmds=3 if=Se0/0/0,Se0/0/1 ip=1.1.1.1 255.255.255.252,2.2.2.1 255.255.255.252 vlan=
+  [PC0] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.2.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ipsec-s2s-vpn | services | IPSec Site-to-Site VPN: Hamburg ↔ Bremen | Fortgeschritten | steps=19 | structured=nein
+  TOPO.devices: ["2x PC:PC0/PC1 (LAN Hamburg, an SW1)","1x Server:DHCP .11 (SW1 Fa0/24)","1x Switch:SW1 (Hamburg, Uplink Gig0/1)","1x Router:Hamburg (LAN .254 / WAN 100.0.0.1)","4x Router:Core: ISP1 / Internet1 / Internet2 / ISP2 (statisches Routing)","1x Server:Webserver 47.11.8.15 (an Internet2)","1x Router:Bremen (LAN .254 / WAN 200.0.0.1)","1x Switch:SW2 (Bremen, Uplink Gig0/2)","2x PC:PC2/PC3 (LAN Bremen, an SW2)"]
+  TOPO.connections: ["Hamburg Gig0/0 .254 ──── SW1 ──── PC0/PC1 + DHCP .11 (LAN 192.168.1.0/24)","Hamburg Gig0/1 100.0.0.1 ──── 100.0.0.0/30 ──── ISP1 Gig0/2 100.0.0.2","ISP1 Gig0/1 2.2.2.1 ──── 2.2.2.0/30 ──── Internet1 Gig0/2 2.2.2.2","Internet1 Gig0/1 1.1.1.1 ──── 1.1.1.0/30 ──── Internet2 Gig0/2 1.1.1.2","Internet1 Gig0/0 3.3.3.1 ──── 3.3.3.0/30 ──── ISP2 Gig0/1 3.3.3.2","Internet2 Gig0/0 47.11.8.1 ──── 47.11.8.0/24 ──── Webserver Fa0 47.11.8.15","ISP2 Gig0/2 200.0.0.2 ──── 200.0.0.0/30 ──── Bremen Gig0/1 200.0.0.1","Bremen Gig0/0 .254 ──── SW2 ──── PC2/PC3 (LAN 192.168.2.0/24)","IPSec-Tunnel: Hamburg 100.0.0.1 ↔ Bremen 200.0.0.1 (über das Provider-Internet)"]
+  TOPO.diagramJSX: nein
+  [Hamburg] cmds=44 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.254 255.255.255.0,100.0.0.1 255.255.255.252 vlan=
+  [ISP1] cmds=15 if=GigabitEthernet0/2,GigabitEthernet0/1 ip=100.0.0.2 255.255.255.252,2.2.2.1 255.255.255.252 vlan=
+  [Internet1] cmds=21 if=GigabitEthernet0/2,GigabitEthernet0/1,GigabitEthernet0/0 ip=2.2.2.2 255.255.255.252,1.1.1.1 255.255.255.252,3.3.3.1 255.255.255.252 vlan=
+  [Internet2] cmds=15 if=GigabitEthernet0/2,GigabitEthernet0/0 ip=1.1.1.2 255.255.255.252,47.11.8.1 255.255.255.0 vlan=
+  [ISP2] cmds=15 if=GigabitEthernet0/1,GigabitEthernet0/2 ip=3.3.3.2 255.255.255.252,200.0.0.2 255.255.255.252 vlan=
+  [Bremen] cmds=38 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.2.254 255.255.255.0,200.0.0.1 255.255.255.252 vlan=
+  [SW1] cmds=15 if=FastEthernet0/1-24,vlan ip=192.168.1.2 255.255.255.0 vlan=
+  [SW2] cmds=15 if=FastEthernet0/1-24,vlan ip=192.168.2.2 255.255.255.0 vlan=
+  [PC0] cmds=4 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.1.20 vlan=
+  [DHCP-Server] cmds=1 if= ip=192.168.1.11 vlan=
+  [PC2] cmds=1 if= ip=192.168.2.10 vlan=
+  [PC3] cmds=1 if= ip=192.168.2.20 vlan=
+  [Webserver] cmds=1 if= ip=47.11.8.15 vlan=
+  [Merke] cmds=11 if= ip= vlan=
+
+### device-hardening | security | Device Hardening | Mittel | steps=8 | structured=nein
+  TOPO.devices: ["1x switch:SW1","1x pc:Admin-PC"]
+  TOPO.connections: ["Admin-PC → SW1 (192.168.1.0/24, einziges erlaubtes Management-Subnetz)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=27 if=vlan ip=192.168.1.254 255.255.255.0 vlan=
+  [Admin-PC] cmds=2 if= ip=192.168.1.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### port-security | security | Port Security | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["1x switch:SW1","2x pc:PC1, PC2","1x pc:PC3 (Fremd-Gerät, für die Gegenprobe)"]
+  TOPO.connections: ["PC1 → SW1 Fa0/1","PC2 → SW1 Fa0/2","PC3 → zunächst NICHT angeschlossen"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=17 if=Fa0/1,Fa0/2 ip= vlan=
+  [PC1] cmds=2 if= ip=192.168.1.10 vlan=
+  [PC2] cmds=1 if= ip=192.168.1.20 vlan=
+  [PT-Aktion] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### acl-standard | security | Standard ACL | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1","2x pc:PC0 (erlaubt) / PC1 (geblockt)","1x server:Server"]
+  TOPO.connections: ["PC0 (192.168.1.10) → R1 Gi0/0","PC1 (192.168.2.10) → R1 Gi0/1","R1 Gi0/2 → Server (192.168.3.100)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=10 if=GigabitEthernet0/0,GigabitEthernet0/1,GigabitEthernet0/2 ip=192.168.1.1 255.255.255.0,192.168.2.1 255.255.255.0,192.168.3.1 255.255.255.0 vlan=
+  [PC0] cmds=3 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=2 if= ip=192.168.2.10 vlan=
+  [Server] cmds=1 if= ip=192.168.3.100 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### acl-extended | security | Extended ACL | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1","2x pc:PC0 / PC1","1x server:Web-Server (Port 80)"]
+  TOPO.connections: ["PC0 / PC1 → R1 Gi0/0","R1 Gi0/1 → Web-Server"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=9 if=GigabitEthernet0/0,GigabitEthernet0/1 ip=192.168.1.1 255.255.255.0,192.168.2.1 255.255.255.0 vlan=
+  [PC0] cmds=1 if= ip=192.168.1.10 vlan=
+  [PC1] cmds=4 if= ip=192.168.1.20 vlan=
+  [Web-Server] cmds=1 if= ip=192.168.2.100 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### dhcp-snooping-dai | security | DHCP Snooping + Dynamic ARP Inspection | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["1x switch:SW1 (Access)","1x router:R1 (DHCP-Server)","3x pc:PC1, PC2, Angreifer"]
+  TOPO.connections: ["R1 (DHCP) → SW1 Gi0/1 (UPLINK = TRUSTED)","PC1-3 → SW1 Fa0/1-3 (UNTRUSTED)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=12 if=Gi0/1 ip=(DHCP) vlan=
+  [R1] cmds=3 if=GigabitEthernet0/0 ip=192.168.10.1 255.255.255.0,(DHCP) vlan=
+  [PC1] cmds=2 if= ip= vlan=
+  [PC2] cmds=1 if= ip= vlan=
+  [Angreifer] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### stp-hardening | security | STP Root-Bridge Hardening | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["3x switch:Core, Dist1, Dist2","1x switch:Rogue-Switch (für die Gegenprobe)"]
+  TOPO.connections: ["Core ↔ Dist1 (Gi0/1)","Core ↔ Dist2 (Gi0/2)","Dist1 ↔ Dist2 (Gi0/3) — wird per STP blockiert","Rogue-Switch → zunächst NICHT angeschlossen"]
+  TOPO.diagramJSX: nein
+  [Core] cmds=15 if=Gi0/1 - 2,Gi0/1 ip= vlan=
+  [Dist1] cmds=4 if= ip= vlan=
+  [Dist2] cmds=2 if= ip= vlan=
+  [Rogue-Switch] cmds=1 if= ip= vlan=
+  [PT-Aktion] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### vlan-hopping | security | VLAN-Hopping & Mitigation | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["2x switch:SW1, SW2","3x pc:Angreifer + 2 normale PCs","1x switch:Angreifer-Switch (für die Gegenprobe)"]
+  TOPO.connections: ["SW1 Gi0/1 ↔ SW2 Gi0/1 (Trunk)","Angreifer-PC → SW1 Fa0/1 (VLAN 10, gehärtet)","PC0 → SW1 Fa0/2 (VLAN 10), PC1 → SW2 Fa0/1 (VLAN 10)","Angreifer-Switch → zunächst NICHT angeschlossen"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=19 if=Fa0/1,Fa0/2,Gi0/1 ip= vlan=10,20,999
+  [SW2] cmds=5 if=Fa0/1,Gi0/1 ip= vlan=10,20,999
+  [Angreifer-PC] cmds=1 if= ip=192.168.10.99 vlan=
+  [PC0] cmds=2 if= ip=192.168.10.10 vlan=
+  [PC1] cmds=1 if= ip=192.168.10.20 vlan=
+  [PT-Aktion] cmds=1 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=1
+
+### aaa-radius-tacacs | security | AAA mit RADIUS | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["1x switch:SW1","1x server:RADIUS-Server","1x pc:Admin-PC"]
+  TOPO.connections: ["SW1 Mgmt → RADIUS-Server (10.0.0.50)","Admin-PC → SW1 (192.168.1.0/24)"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=21 if=vlan ip=192.168.1.254 255.255.255.0 vlan=
+  [Admin-PC] cmds=2 if= ip=192.168.1.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### co-acl-nat-isp | security | ACL + Static NAT — Dual-Site mit ISP | Fortgeschritten | steps=14 | structured=nein
+  TOPO.devices: ["1x router:CO-1  (ETH0/0=192.168.10.254, ETH0/1=20.30.10.10)","1x router:CO-2  (ETH0/0=172.16.10.254, ETH0/1=45.35.55.65)","1x router:ISP-MUMBAI  (ETH0/0 trunk, ETH0/1=200.10.20.1)","1x switch:ISP-SW  (VLAN 99 → CO-1, VLAN 199 → CO-2, trunk → ISP)","4x pc:VPC-9 .1 / VPC-10 .2 / VPC-11 .3 / R-PC .100 (CO-1 LAN)","4x pc:VPC-12 .1 / VPC-13 .2 / VPC-14 .3 / INT_SRV .100 (CO-2 LAN)","5x pc:DNS .10 / WEB-1 .20 / WEB-2 .30 / SERVER-1 .40 / USER_PC .50 (Internet)"]
+  TOPO.connections: ["CO-1 ETH0/1 ──── ISP-SW (Fa0/1, VLAN 99) ──── trunk ──── ISP-MUMBAI ETH0/0.99","CO-2 ETH0/1 ──── ISP-SW (Fa0/2, VLAN 199) ─── trunk ──── ISP-MUMBAI ETH0/0.199","ISP-MUMBAI ETH0/1 ──────────────────────────────────────── Internet-Segment 200.10.20.0/24","CO-1 ETH0/0 ──── SW1 ──── VPC-9/10/11/R-PC (192.168.10.x/24)","CO-2 ETH0/0 ──── SW2 ──── VPC-12/13/14/INT_SRV (172.16.10.x/24)"]
+  TOPO.diagramJSX: ja
+  [CO-1] cmds=44 if=ethernet ip=192.168.10.254 255.255.255.0,20.30.10.10 255.255.255.0 vlan=
+  [CO-2] cmds=33 if=ethernet ip=172.16.10.254 255.255.255.0,45.35.55.65 255.255.255.0 vlan=
+  [ISP-SW] cmds=12 if=ethernet ip= vlan=99,199
+  [ISP-MUMBAI] cmds=23 if=ethernet ip=20.30.10.20 255.255.255.0,45.35.55.75 255.255.255.0,200.10.20.1 255.255.255.0 vlan=
+  [VPC-9 / VPC-10 / VPC-11] cmds=1 if= ip= vlan=
+  [R-PC] cmds=2 if= ip=192.168.10.100 vlan=
+  [VPC-12 / VPC-13 / VPC-14] cmds=1 if= ip= vlan=
+  [INT_SRV] cmds=1 if= ip=172.16.10.100 vlan=
+  [DNS_SERVER / WEB-1 / WEB-2 / SERVER-1 / USER_PC] cmds=1 if= ip= vlan=
+  [VPC-9] cmds=1 if= ip= vlan=
+  [USER_PC] cmds=1 if= ip= vlan=
+  [CO-1 / CO-2] cmds=4 if= ip= vlan=
+  [── Kernkonzept: Reihenfolge NAT ↔ ACL ──] cmds=5 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### netflow | automation | NetFlow / Flexible NetFlow | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1","1x server:Flow-Collector"]
+  TOPO.connections: ["R1 Gi0/0 (LAN) — wird beobachtet","R1 Mgmt → Collector 10.0.0.60:9996"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=27 if=GigabitEthernet0/0,Loopback0,Gi0/0 ip=10.0.0.1 255.255.255.0,10.0.0.254 255.255.255.255 vlan=
+  [Flow-Collector] cmds=1 if= ip=10.0.0.60 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### restconf | automation | REST API mit RESTCONF | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1 (IOS-XE)","1x pc:Admin-PC mit curl"]
+  TOPO.connections: ["Admin-PC → R1 Mgmt 10.0.0.1:443"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=7 if=GigabitEthernet0/0 ip=10.0.0.1 255.255.255.0 vlan=
+  [Admin-PC] cmds=4 if= ip=10.0.0.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### netconf-yang | automation | NETCONF + YANG | Fortgeschritten | steps=5 | structured=nein
+  TOPO.devices: ["1x router:R1 (IOS-XE)","1x pc:Admin-PC mit Python"]
+  TOPO.connections: ["Admin-PC → R1 Mgmt 10.0.0.1:830 (SSH/NETCONF)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=8 if=GigabitEthernet0/0 ip=10.0.0.1 255.255.255.0 vlan=
+  [Admin-PC] cmds=4 if= ip=10.0.0.10 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### password-recovery | operations | Password Recovery | Mittel | steps=4 | structured=nein
+  TOPO.devices: ["1x router:R1 (Passwort unbekannt)","1x switch:SW1 (Passwort unbekannt)"]
+  TOPO.connections: ["Konsolenkabel (Rollover) → PC mit Terminalprogramm"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=6 if= ip= vlan=
+  [Hinweis] cmds=2 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### ios-backup-upgrade | operations | IOS-Backup & Upgrade (TFTP) | Mittel | steps=4 | structured=nein
+  TOPO.devices: ["1x router:R1","1x server:TFTP-Server"]
+  TOPO.connections: ["R1 Gi0/0 → TFTP-Server  (gleiches Subnetz, z. B. 10.1.1.0/24)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=8 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### layer1-issues | operations | Cable & Layer-1-Issues | Mittel | steps=5 | structured=nein
+  TOPO.devices: ["1x switch:SW1"]
+  TOPO.connections: ["Port Fa0/5 zeigt Performance-Probleme"]
+  TOPO.diagramJSX: nein
+  [SW1] cmds=21 if=Fa0/5 ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### troubleshooting-cheat | operations | Show-Cheat-Lab (Troubleshooting) | Mittel | steps=4 | structured=nein
+  TOPO.devices: ["1x any:Bestehendes Netz"]
+  TOPO.connections: ["PC → SW1 → R1 → Internet → Webserver"]
+  TOPO.diagramJSX: nein
+  [Router/Switch] cmds=6 if= ip= vlan=
+  [Switch] cmds=4 if= ip= vlan=
+  [Router] cmds=10 if= ip= vlan=
+
+### dhcp-troubleshoot-lab | operations | DHCP Troubleshooting: 3 Fehler finden | Fortgeschritten | steps=4 | structured=nein
+  TOPO.devices: ["1x router:R1 (DHCP-Relay + SVI VLAN1)","1x switch:SW1","1x server:DHCP-Server 192.168.2.11","2x pc:Clients VLAN 51 / 61"]
+  TOPO.connections: ["R1 Gi0/0 ↔ SW1 (Trunk) · DHCP-Server in VLAN 71","Clients in VLAN 51 (Rot) und VLAN 61 (Blau)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=3 if=gi0/0.51 ip= vlan=
+  [Client Rot] cmds=1 if= ip= vlan=
+  [DHCP-Server] cmds=2 if= ip= vlan=
+  [Client Blau] cmds=1 if= ip= vlan=
+  [SW1] cmds=4 if=vlan ip=192.168.2.50 255.255.255.0 vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+### vlan-vtp-dhcp-campus | campus | Campus: VTP + RoaS + zentrales DHCP (3 Switches) | Fortgeschritten | steps=7 | structured=nein
+  TOPO.devices: ["1x router:R1 (RoaS + DHCP-Server)","2x switch:SW1 / SW2 (VTP-Server)","1x switch:SW3 (VTP-Client)","9x pc:9 PCs (Rot/Blau/Grün je Switch)"]
+  TOPO.connections: ["R1 Gi0/0 ↔ SW1 Gi0/1  (Trunk, Router-on-a-Stick)","SW1 Gi0/2 ↔ SW2 Gi0/1  (Trunk)","SW2 Gi0/2 ↔ SW3 Gi0/1  (Trunk)","Je Switch: PC Rot → Fa0/1 (VLAN 100), PC Blau → Fa0/2 (VLAN 110), PC Grün → Fa0/3 (VLAN 120)"]
+  TOPO.diagramJSX: nein
+  [R1] cmds=10 if=gi0/0,gi0/0.1,gi0/0.100,gi0/0.110,gi0/0.120 ip=192.168.1.1 255.255.255.0,10.10.100.1 255.255.255.0,10.10.110.1 255.255.255.0,10.10.120.1 255.255.255.0,(DHCP) vlan=
+  [SW1] cmds=8 if=fa0/1,fa0/2,fa0/3,gi0/1,gi0/2,vlan ip=192.168.1.2 255.255.255.0 vlan=100,110,120
+  [SW2] cmds=6 if=fa0/1,fa0/2,fa0/3,gi0/1,gi0/2,vlan ip=192.168.1.3 255.255.255.0 vlan=
+  [SW3] cmds=7 if=gi0/1,fa0/1,fa0/2,fa0/3,vlan ip=192.168.1.4 255.255.255.0 vlan=
+  [Alle PCs] cmds=1 if= ip= vlan=
+  [PC Rot (an SW1)] cmds=3 if= ip= vlan=
+  [Merke] cmds=4 if= ip= vlan=
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:17:34
+   Duration  3.30s (transform 388ms, setup 0ms, import 3.13s, tests 19ms, environment 0ms)
+

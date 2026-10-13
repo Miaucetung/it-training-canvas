@@ -1,15 +1,15 @@
 import { describe, it } from "vitest";
 import { LABS } from "@/components/labs";
 
-// Gibt Topologie-Beschreibung (connections/devices/hint) und ALLE CLI-Blöcke der vier Labs aus.
+// Gibt Topologie-Beschreibung und ALLE CLI-Blöcke der Labs aus (IDs per Umgebungsvariable AUDIT_LABS, kommagetrennt).
 describe("AUDIT lab-text", () => {
   it("dump", () => {
-    for (const id of ["basic-ip", "vlan-trunking", "roas", "ospf"]) {
+    const ids = (process.env.AUDIT_LABS ?? "basic-ip,vlan-trunking,roas,ospf").split(",");
+    for (const id of ids) {
       const lab = LABS.find((l) => l.id === id)!;
-      console.log(`\n===== ${id}`);
+      console.log(`\n===== ${id} :: ${lab.title}`);
       console.log("DEVICES:", JSON.stringify(lab.topology.devices));
       console.log("CONNECTIONS:", JSON.stringify(lab.topology.connections));
-      console.log("DESC:", lab.topology.description);
       for (const s of lab.steps) {
         console.log(`-- STEP ${s.title}`);
         for (const b of s.blocks as any[]) {

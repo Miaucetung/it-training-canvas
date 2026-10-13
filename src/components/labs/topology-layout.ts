@@ -30,4 +30,13 @@ export const portLabelWidth = (port: string) => Math.max(34, port.length * 6.5 +
 export const ipLabelWidth = (ip?: string) => (ip ? ip.length * 6.2 + 8 : 0);
 export const subnetLabelWidth = (label: string) => label.length * 6.8 + 12;
 export const deviceNameWidth = (name: string) => name.length * 8.4 + 16;
+export const zoneBadgeWidth = (label: string) => label.length * 7 + 16;
+/** Bounding-Box des Zonen-Badges (Kopfzeile der Subnetz-/VLAN-Zone) in Diagramm-Koordinaten. */
+export const zoneBadgeBox = (zone: { x: number; y: number; label: string }) => ({
+  minX: zone.x + 10,
+  maxX: zone.x + 10 + zoneBadgeWidth(zone.label),
+  minY: zone.y + 5,
+  maxY: zone.y + 23,
+});
+
 export const deviceModelWidth = (model?: string) => (model ? model.length * 6 : 0);

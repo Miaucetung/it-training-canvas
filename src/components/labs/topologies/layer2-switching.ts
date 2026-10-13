@@ -1,0 +1,316 @@
+import type { LabTopologyData } from "../types";
+import { device, endpoint, tableRow, zone } from "./builders";
+
+/**
+ * Paket 1 (Layer 2): stp, vtp-dtp, etherchannel, ivr-svi.
+ * Geräte, Ports, Adressen und VLANs stammen aus dem Lab-Text (Befehle + Verbindungsliste).
+ */
+export const LAYER2_SWITCHING_TOPOLOGIES: Record<string, LabTopologyData> = {
+  // ─────────────────────────────────────────────────────────────
+  // STP — PortFast & BPDU Guard (stp)
+  // ─────────────────────────────────────────────────────────────
+  stp: {
+    viewBox: { width: 760, height: 430 },
+    devices: [
+      device("sw1", "SW1", "Catalyst 2960 · Root", "switch-l2", "distribution", 220, 140),
+      device("sw2", "SW2", "Catalyst 2960", "switch-l2", "distribution", 540, 140),
+      endpoint("pc0", "PC0", "PC-PT", "pc", 220, 330),
+      endpoint("pc1", "PC1", "PC-PT", "pc", 540, 330),
+    ],
+    zones: [zone("zone-lan", "LAN 192.168.1.0/24", "blue", 20, 260, 720, 150)],
+    vlans: [{ id: 1, name: "Default LAN", colorTheme: "blue", subnet: "192.168.1.0/24" }],
+    links: [
+      {
+        id: "link-sw1-sw2-1",
+        from: "sw1",
+        to: "sw2",
+        fromPort: "Gi0/1",
+        toPort: "Gi0/1",
+        cableType: "copper-cross",
+        bendPoints: [
+          { x: 320, y: 90 },
+          { x: 440, y: 90 },
+        ],
+        subnetLabel: "Link 1",
+        subnetLabelPos: { x: 380, y: 90 },
+        fromPortOffset: 100,
+        fromPortSide: 14,
+        toPortOffset: 100,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw1-sw2-2",
+        from: "sw1",
+        to: "sw2",
+        fromPort: "Gi0/2",
+        toPort: "Gi0/2",
+        cableType: "copper-cross",
+        bendPoints: [
+          { x: 320, y: 190 },
+          { x: 440, y: 190 },
+        ],
+        subnetLabel: "Link 2 · redundant (Loop)",
+        subnetLabelPos: { x: 380, y: 190 },
+        fromPortOffset: 100,
+        fromPortSide: -14,
+        toPortOffset: 100,
+        toPortSide: 14,
+      },
+      {
+        id: "link-sw1-pc0",
+        from: "sw1",
+        to: "pc0",
+        fromPort: "Fa0/1",
+        toPort: "Fa0",
+        toIp: "192.168.1.10",
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw2-pc1",
+        from: "sw2",
+        to: "pc1",
+        fromPort: "Fa0/1",
+        toPort: "Fa0",
+        toIp: "192.168.1.20",
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+    ],
+    addressingTable: [
+      tableRow("PC0", "FastEthernet0", "192.168.1.10", "255.255.255.0", "192.168.1.1", 1, "Arbeitsplatz an SW1 Fa0/1 (PortFast, BPDU Guard)"),
+      tableRow("PC1", "FastEthernet0", "192.168.1.20", "255.255.255.0", "192.168.1.1", 1, "Arbeitsplatz an SW2 Fa0/1 (PortFast, BPDU Guard)"),
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // VTP & DTP (vtp-dtp)
+  // ─────────────────────────────────────────────────────────────
+  "vtp-dtp": {
+    viewBox: { width: 800, height: 430 },
+    devices: [
+      device("sw1", "SW1", "Catalyst 2960 · VTP-Server", "switch-l2", "distribution", 140, 130),
+      device("sw2", "SW2", "Catalyst 2960 · VTP-Client", "switch-l2", "distribution", 400, 130),
+      device("sw3", "SW3", "Catalyst 2960 · VTP-Client", "switch-l2", "distribution", 660, 130),
+      endpoint("pc0", "PC0", "PC-PT", "pc", 140, 330),
+      endpoint("pc1", "PC1", "PC-PT", "pc", 660, 330),
+    ],
+    zones: [
+      zone("zone-vlan10-sw1", "VLAN 10 · VERWALTUNG · 192.168.10.0/24", "blue", 20, 260, 360, 160, 10),
+      zone("zone-vlan10-sw3", "VLAN 10 · VERWALTUNG · 192.168.10.0/24", "blue", 420, 260, 360, 160, 10),
+    ],
+    vlans: [
+      { id: 10, name: "VERWALTUNG", colorTheme: "blue", subnet: "192.168.10.0/24" },
+      { id: 20, name: "TECHNIK", colorTheme: "amber", subnet: "192.168.20.0/24" },
+    ],
+    links: [
+      {
+        id: "link-sw1-sw2",
+        from: "sw1",
+        to: "sw2",
+        fromPort: "Gi0/1",
+        toPort: "Gi0/1",
+        isTrunk: true,
+        cableType: "copper-cross",
+        subnetLabel: "Trunk",
+        subnetLabelPos: { x: 270, y: 130 },
+        fromPortOffset: 62,
+        fromPortSide: -14,
+        toPortOffset: 62,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw2-sw3",
+        from: "sw2",
+        to: "sw3",
+        fromPort: "Gi0/2",
+        toPort: "Gi0/1",
+        isTrunk: true,
+        cableType: "copper-cross",
+        subnetLabel: "Trunk",
+        subnetLabelPos: { x: 530, y: 130 },
+        fromPortOffset: 62,
+        fromPortSide: -14,
+        toPortOffset: 62,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw1-pc0",
+        from: "sw1",
+        to: "pc0",
+        fromPort: "Fa0/1",
+        toPort: "Fa0",
+        toIp: "192.168.10.10",
+        vlan: 10,
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw3-pc1",
+        from: "sw3",
+        to: "pc1",
+        fromPort: "Fa0/1",
+        toPort: "Fa0",
+        toIp: "192.168.10.20",
+        vlan: 10,
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+    ],
+    addressingTable: [
+      tableRow("PC0", "FastEthernet0", "192.168.10.10", "255.255.255.0", "192.168.10.1", 10, "Arbeitsplatz an SW1 Fa0/1 (VLAN 10)"),
+      tableRow("PC1", "FastEthernet0", "192.168.10.20", "255.255.255.0", "192.168.10.1", 10, "Arbeitsplatz an SW3 Fa0/1 (VLAN 10)"),
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // EtherChannel (etherchannel)
+  // ─────────────────────────────────────────────────────────────
+  etherchannel: {
+    viewBox: { width: 760, height: 430 },
+    devices: [
+      device("sw1", "SW1", "Catalyst 2960", "switch-l2", "distribution", 220, 140),
+      device("sw2", "SW2", "Catalyst 2960", "switch-l2", "distribution", 540, 140),
+      endpoint("pc0", "PC0", "PC-PT", "pc", 220, 330),
+      endpoint("pc1", "PC1", "PC-PT", "pc", 540, 330),
+    ],
+    zones: [zone("zone-lan", "LAN 192.168.1.0/24", "blue", 20, 260, 720, 150)],
+    vlans: [{ id: 1, name: "Default LAN", colorTheme: "blue", subnet: "192.168.1.0/24" }],
+    links: [
+      {
+        id: "link-bundle-1",
+        from: "sw1",
+        to: "sw2",
+        fromPort: "Fa0/1",
+        toPort: "Fa0/1",
+        isTrunk: true,
+        cableType: "copper-cross",
+        bendPoints: [
+          { x: 320, y: 90 },
+          { x: 440, y: 90 },
+        ],
+        fromPortOffset: 100,
+        fromPortSide: 14,
+        toPortOffset: 100,
+        toPortSide: -14,
+      },
+      {
+        id: "link-bundle-2",
+        from: "sw1",
+        to: "sw2",
+        fromPort: "Fa0/2",
+        toPort: "Fa0/2",
+        isTrunk: true,
+        cableType: "copper-cross",
+        bendPoints: [
+          { x: 320, y: 190 },
+          { x: 440, y: 190 },
+        ],
+        subnetLabel: "Port-channel 1 · LACP active",
+        subnetLabelPos: { x: 380, y: 140 },
+        fromPortOffset: 100,
+        fromPortSide: -14,
+        toPortOffset: 100,
+        toPortSide: 14,
+      },
+      {
+        id: "link-sw1-pc0",
+        from: "sw1",
+        to: "pc0",
+        fromPort: "Fa0/3",
+        toPort: "Fa0",
+        toIp: "192.168.1.10",
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+      {
+        id: "link-sw2-pc1",
+        from: "sw2",
+        to: "pc1",
+        fromPort: "Fa0/3",
+        toPort: "Fa0",
+        toIp: "192.168.1.20",
+        cableType: "copper-straight",
+        fromPortOffset: 72,
+        fromPortSide: 16,
+        toPortOffset: 52,
+        toPortSide: -14,
+      },
+    ],
+    addressingTable: [
+      tableRow("PC0", "FastEthernet0", "192.168.1.10", "255.255.255.0", "192.168.1.1", 1, "Arbeitsplatz an SW1 Fa0/3"),
+      tableRow("PC1", "FastEthernet0", "192.168.1.20", "255.255.255.0", "192.168.1.1", 1, "Arbeitsplatz an SW2 Fa0/3"),
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // Inter-VLAN-Routing über L3-Switch (ivr-svi)
+  // ─────────────────────────────────────────────────────────────
+  "ivr-svi": {
+    viewBox: { width: 760, height: 430 },
+    devices: [
+      device("mls1", "MLS1", "Catalyst 3650", "switch-l3", "core", 380, 100),
+      endpoint("pc-sales", "PC-Sales", "PC-PT", "pc", 230, 310),
+      endpoint("pc-mrkt", "PC-Mrkt", "PC-PT", "pc", 530, 310),
+    ],
+    zones: [
+      zone("zone-vlan10", "VLAN 10 · SALES · 192.168.10.0/24", "blue", 20, 240, 340, 170, 10),
+      zone("zone-vlan20", "VLAN 20 · MRKT · 192.168.20.0/24", "amber", 400, 240, 340, 170, 20),
+    ],
+    vlans: [
+      { id: 10, name: "SALES", colorTheme: "blue", subnet: "192.168.10.0/24" },
+      { id: 20, name: "MRKT", colorTheme: "amber", subnet: "192.168.20.0/24" },
+    ],
+    links: [
+      {
+        id: "link-mls1-pc-sales",
+        from: "mls1",
+        to: "pc-sales",
+        fromPort: "Gi1/0/1",
+        toPort: "Fa0",
+        toIp: "192.168.10.1",
+        vlan: 10,
+        cableType: "copper-straight",
+        fromPortOffset: 110,
+        fromPortSide: 16,
+        toPortOffset: 64,
+        toPortSide: -14,
+      },
+      {
+        id: "link-mls1-pc-mrkt",
+        from: "mls1",
+        to: "pc-mrkt",
+        fromPort: "Gi1/0/2",
+        toPort: "Fa0",
+        toIp: "192.168.20.1",
+        vlan: 20,
+        cableType: "copper-straight",
+        fromPortOffset: 110,
+        fromPortSide: -16,
+        toPortOffset: 64,
+        toPortSide: 14,
+      },
+    ],
+    addressingTable: [
+      tableRow("MLS1", "Vlan10 (SVI)", "192.168.10.254", "255.255.255.0", "N/A", 10, "Gateway für VLAN 10 (ip routing aktiv)"),
+      tableRow("MLS1", "Vlan20 (SVI)", "192.168.20.254", "255.255.255.0", "N/A", 20, "Gateway für VLAN 20 (ip routing aktiv)"),
+      tableRow("PC-Sales", "FastEthernet0", "192.168.10.1", "255.255.255.0", "192.168.10.254", 10, "Sales-PC an MLS1 Gi1/0/1"),
+      tableRow("PC-Mrkt", "FastEthernet0", "192.168.20.1", "255.255.255.0", "192.168.20.254", 20, "Marketing-PC an MLS1 Gi1/0/2"),
+    ],
+  },
+};

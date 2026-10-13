@@ -301,7 +301,8 @@ async function newPage(width, height, theme = "light") {
       res.embW > 0 && Math.abs(res.embW - res.refW) <= 2,
       `Textbreite: Plex-Referenz ${res.refW}px, mit Einbettung ${res.embW}px`
     );
-    const external = [...hosts].filter((h) => !/^localhost(:\d+)?$/.test(h));
+    const ownHost = new URL(baseUrl).host;
+    const external = [...hosts].filter((h) => h !== ownHost && !/^localhost(:\d+)?$/.test(h));
     record("fonts", "Dashboard-Start ohne externe Hosts", external.length === 0, external.join(", "));
   } finally {
     await ctx.close();

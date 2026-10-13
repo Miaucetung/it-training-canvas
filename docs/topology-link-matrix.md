@@ -8,7 +8,7 @@ Dieses Dokument definiert die vollständige Regelmatrix für physikalische und l
 
 | Gerätetyp (`type`) | Cisco Referenz-Hardware | Schnittstellen-Charakteristik |
 | :--- | :--- | :--- |
-| **`router`** | Cisco 2911 (Packet Tracer ISR) | Gi0/0, Gi0/1, Gi0/2, Se0/1/0, Se0/1/1, Lo0 |
+| **`router`** | Cisco 2911 (Packet Tracer ISR) | Gi0/0, Gi0/1, Gi0/2, Se0/0/0, Se0/0/1, Lo0 |
 | **`switch-l2`** | Cisco Catalyst 2960-24TT | Fa0/1–Fa0/24 (FastEthernet Access/Trunk), Gi0/1, Gi0/2, Vlan1 |
 | **`switch-l3`** | Cisco Catalyst 3650-24PS Multilayer | Gi1/0/1–Gi1/0/24 (Gigabit Routed/Switchports), SVI Vlan10/20, Lo0 |
 | **`firewall`** | Cisco ASA 5506-X Security Appliance | Gi1/1 (Inside), Gi1/2 (Outside), Gi1/3 (DMZ), mgmt0 |

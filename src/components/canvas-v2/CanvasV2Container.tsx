@@ -45,7 +45,7 @@ import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
-import { saveNamedTopology } from "@/lib/topology/storage-manager";
+import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
 import {
@@ -67,6 +67,10 @@ interface CanvasV2ContainerProps {
   theme?: "dark" | "light";
   externalStorageTab?: StorageTab | null;
   onCloseStorageDialog?: () => void;
+  /** Aufforderung aus dem Lab-Dialog: Lab-Topologie als neue Vorlage laden (nonce erzwingt erneutes Laden) */
+  labRequest?: { labId: string; nonce: number } | null;
+  /** Rücksprung zum Lab, aus dem die aktive Vorlage stammt */
+  onBackToLab?: (labId: string) => void;
 }
 
 const MIN_SCALE = 0.25;
@@ -78,6 +82,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   theme = "dark",
   externalStorageTab = null,
   onCloseStorageDialog,
+  labRequest = null,
+  onBackToLab,
 }) => {
   const isDark = theme === "dark";
 
@@ -260,12 +266,14 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       ...topo.devices.map((d) => d.x + (d.width || 80)),
       ...(topo.annotations || []).map((a) => a.x),
       ...(topo.annotations || []).map((a) => a.x + (a.width || 80)),
+      ...(topo.subnetZones || []).flatMap((z) => [z.x, z.x + z.width]),
     ];
     const allY: number[] = [
       ...topo.devices.map((d) => d.y),
       ...topo.devices.map((d) => d.y + (d.height || 60)),
       ...(topo.annotations || []).map((a) => a.y),
       ...(topo.annotations || []).map((a) => a.y + (a.height || 60)),
+      ...(topo.subnetZones || []).flatMap((z) => [z.y, z.y + z.height]),
     ];
 
     const minX = Math.min(...allX);
@@ -288,8 +296,79 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     setTranslateY((targetH - height * optimalScale) / 2 - minY * optimalScale + 60 * optimalScale);
   }, [activeTopology, containerSize]);
 
+  // Unterrichts-Labs (Vorlagen aus den Labs, lazy geladen)
+  const pendingFitRef = useRef(false);
+  const [labOptions, setLabOptions] = useState<Array<{ id: string; title: string }>>([]);
+  const [labState, setLabState] = useState<"target" | "start">("target");
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([import("@/components/labs"), import("@/components/labs/curated-topologies")])
+      .then(([labs, curated]) => {
+        if (!alive) return;
+        setLabOptions(
+          labs.LABS_ORDERED.filter((l) => curated.CURATED_TOPOLOGIES[l.id]).map((l) => ({ id: l.id, title: l.title })),
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const openLabTopology = useCallback(
+    async (labId: string, state: "target" | "start" = "target") => {
+      try {
+        const [labs, curated, converter] = await Promise.all([
+          import("@/components/labs"),
+          import("@/components/labs/curated-topologies"),
+          import("@/components/labs/lab-to-network"),
+        ]);
+        const lab = labs.LABS.find((l) => l.id === labId);
+        const data = curated.CURATED_TOPOLOGIES[labId];
+        if (!lab || !data) {
+          toast.error("Für dieses Lab gibt es noch keine Topologie-Vorlage.");
+          return;
+        }
+        const { topology } = converter.buildNetworkTopologyFromLab(lab, data, state);
+        setSelectedTopologyId(`lab:${labId}`);
+        setLabState(state);
+        setSelectedDevice(null);
+        setSelectedLink(null);
+        setSelectedAnnotation(null);
+        setConnectSourceDevice(null);
+        pendingFitRef.current = true;
+        resetTopology(topology);
+      } catch {
+        toast.error("Die Lab-Topologie konnte nicht geladen werden.");
+      }
+    },
+    [resetTopology],
+  );
+
+  // Nach dem Laden einer Vorlage mit der aktuellen Container-Größe einpassen
+  useEffect(() => {
+    if (pendingFitRef.current) {
+      pendingFitRef.current = false;
+      fitView(activeTopology);
+    }
+  }, [activeTopology, fitView]);
+
+  // Die Anfrage (nicht die Callback-Identität) löst das Laden aus
+  const openLabRef = useRef(openLabTopology);
+  useEffect(() => {
+    openLabRef.current = openLabTopology;
+  });
+  useEffect(() => {
+    if (labRequest) void openLabRef.current(labRequest.labId, "target");
+  }, [labRequest]);
+
   // Topologie-Wechsel
   const handleSelectTopology = (id: string) => {
+    if (id.startsWith("lab:")) {
+      void openLabTopology(id.slice(4), labState);
+      return;
+    }
     const startTime = performance.now();
     setSelectedTopologyId(id);
     setSelectedDevice(null);
@@ -1169,7 +1248,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         } backdrop-blur-md`}
       >
         {/* Linke Seite: Topologie-Auswahl */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="topology-selector" className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
             Topologie:
           </label>
@@ -1197,6 +1276,19 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                 <option value="benchmark-50-80">Benchmark Lasttest (50 Geräte, 80 Links)</option>
               </optgroup>
             )}
+            {(labOptions.length > 0 || selectedTopologyId.startsWith("lab:")) && (
+              <optgroup label="Unterrichts-Labs">
+                {selectedTopologyId.startsWith("lab:") &&
+                  !labOptions.some((o) => `lab:${o.id}` === selectedTopologyId) && (
+                    <option value={selectedTopologyId}>{activeTopology.name}</option>
+                  )}
+                {labOptions.map((o) => (
+                  <option key={o.id} value={`lab:${o.id}`}>
+                    {o.title}
+                  </option>
+                ))}
+              </optgroup>
+            )}
             {migratedTopologies && Object.keys(migratedTopologies).length > 0 && (
               <optgroup label="Aus bestehendem Canvas migriert">
                 {Object.keys(migratedTopologies).map((k) => (
@@ -1207,6 +1299,46 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               </optgroup>
             )}
           </select>
+          {activeTopology.metadata?.labId && (
+            <div className="flex items-center gap-1.5" role="group" aria-label="Lab-Vorlage">
+              <div
+                className={`flex items-center p-0.5 rounded-lg border text-xs font-medium ${
+                  isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-200"
+                }`}
+              >
+                {(["target", "start"] as const).map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    aria-pressed={labState === st}
+                    onClick={() => void openLabTopology(activeTopology.metadata!.labId!, st)}
+                    className={`px-2 py-1 rounded-md transition-colors ${
+                      labState === st
+                        ? "bg-sky-700 text-white font-bold"
+                        : isDark
+                          ? "text-slate-400 hover:text-white"
+                          : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    {st === "target" ? "Zielzustand" : "Startzustand"}
+                  </button>
+                ))}
+              </div>
+              {onBackToLab && (
+                <button
+                  type="button"
+                  onClick={() => onBackToLab(activeTopology.metadata!.labId!)}
+                  className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
+                    isDark
+                      ? "bg-slate-800 border-slate-700 text-sky-300 hover:border-sky-500"
+                      : "bg-white border-slate-300 text-sky-800 hover:border-sky-500"
+                  }`}
+                >
+                  Zurück zum Lab
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mitte: Ansichts-Optionen */}
@@ -1661,6 +1793,36 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               <h3 className="text-sm font-bold truncate">{selectedDevice.name}</h3>
             </div>
             <div className="flex items-center gap-1">
+              {selectedDevice.config?.labCli && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void navigator.clipboard
+                        ?.writeText(selectedDevice.config!.labCli!)
+                        .then(() => toast.success(`CLI von ${selectedDevice.name} kopiert`))
+                        .catch(() => toast.error("Kopieren nicht möglich"));
+                    }}
+                    className="px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-colors"
+                    title="Befehle dieses Geräts (ohne Prompt) für die Packet-Tracer-CLI kopieren"
+                  >
+                    CLI kopieren
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadBlob(
+                        new Blob([selectedDevice.config!.labCli!], { type: "text/plain;charset=utf-8" }),
+                        `${selectedDevice.name}-cli.txt`,
+                      )
+                    }
+                    className="px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-colors"
+                    title="CLI-Befehle als Textdatei speichern"
+                  >
+                    .txt
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setIsConfigDialogOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 transition-colors"

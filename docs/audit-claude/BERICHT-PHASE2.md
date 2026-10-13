@@ -121,3 +121,27 @@ Geräte heißen in den Topologien wie die Gerätelabels im Lab (`Router0`, `Swit
 | B-40 | mittel | 10 modale Dialoge ohne `role="dialog"` | behoben |
 | B-41, B-42 | mittel | label-in-name, `nested-interactive`, Violett-Kontrast 1,26 : 1 | behoben |
 | B-43 | mittel | Restliche Kontrast- und Landmark-Verstöße (Abschnitt 4) | offen |
+
+## 8. Nachtrag: Freigaben, Merge und Rollback
+
+- B-02 ist umgesetzt: `build.yaml` läuft nur noch manuell; `ci.yml` pusht `:main` und zusätzlich den unveränderlichen Tag `:sha-<7 Zeichen>` (metadata-action, `type=sha,prefix=sha-,format=short`).
+- Merge: `fix/claude-audit` per `--no-ff` nach `main` (Merge-Commit `53875eb`). CI auf `main`: `ci`, `docker`, `deploy` erfolgreich; `build.yaml` startete nicht mehr. Tags dieses Builds: `:main` und `:sha-53875eb`.
+
+### Zurückrollen auf ein früheres Image
+
+Das Deployment verwendet `ghcr.io/miaucetung/it-training-canvas:main` mit `imagePullPolicy: Always`. Für ein Rollback zeigt man das Deployment einmalig auf ein SHA-Tag:
+
+```
+# 1. Gewünschtes Tag finden (GitHub -> Packages -> it-training-canvas, oder: git log --oneline -10 -> die ersten 7 Zeichen)
+# 2. Deployment auf das alte Image setzen
+kubectl set image deployment/it-training-canvas -n apps *=ghcr.io/miaucetung/it-training-canvas:sha-<kurzer-hash>
+kubectl rollout status deployment/it-training-canvas -n apps
+```
+
+Danach ist `:main` im Deployment ersetzt. Der nächste Lauf von `ci.yml` führt `kubectl apply -k k8s/base` aus und setzt das Image wieder auf `:main`. Soll das alte Image bleiben, `git revert` des fehlerhaften Merge-Commits nach `main` pushen (CI baut dann einen neuen `:main` und einen neuen `sha-`Tag). Schnellster Notfall ohne Tag-Suche: `kubectl rollout undo deployment/it-training-canvas -n apps` geht zur vorherigen ReplicaSet-Revision zurück, funktioniert aber bei `:main` nur, solange das alte Image noch im Knoten-Cache liegt oder `:main` nicht überschrieben wurde. Verlassen kann man sich nur auf die SHA-Tags.
+
+### Live-Prüfung (https://ccna.ajti.online, nach dem Deployment)
+
+- HTTP 200; Pod `it-training-canvas-…` 1/1 Running, Rollout erfolgreich.
+- `npm run test:e2e:browser` gegen die Live-Seite: 30 von 31 bestanden. Einziger Fehlschlag: Anfrage an `static.cloudflareinsights.com`. Das ist der Cloudflare-Web-Analytics-Beacon, den Cloudflare ins HTML einfügt (nicht aus dem Repo). In Cloudflare unter „Web Analytics“ deaktivieren, falls keine externen Anfragen gewünscht sind (DSGVO).
+- axe inkl. Farbkontrast: 0 Verstöße in Hell und Dunkel für Dashboard, Menü, Labs-Dialog, D&D und Lektion. Canvas v1 (3 `region`, 1 Kontrast, 1 Label) bewusst nicht angefasst.

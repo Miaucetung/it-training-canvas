@@ -56,18 +56,47 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   const x2 = targetDevice.x + (targetDevice.width || 80) / 2;
   const y2 = targetDevice.y + (targetDevice.height || 60) / 2;
 
+  const bends = link.bendPoints ?? [];
+  const hasBends = bends.length > 0;
+  const pts = [{ x: x1, y: y1 }, ...bends, { x: x2, y: y2 }];
+
+  // Richtung des ersten und letzten Segments (bei Linien ohne Zwischenpunkte identisch)
+  const segInfo = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    return { ux: (b.x - a.x) / len, uy: (b.y - a.y) / len, len };
+  };
+  const firstSeg = segInfo(pts[0], pts[1]);
+  const lastSeg = segInfo(pts[pts.length - 2], pts[pts.length - 1]);
+
   const dx = x2 - x1;
   const dy = y2 - y1;
   const length = Math.hypot(dx, dy) || 1;
-  const ux = dx / length;
-  const uy = dy / length;
-  // Normalenvektor senkrecht zur Verbindung
+  const ux = hasBends ? firstSeg.ux : dx / length;
+  const uy = hasBends ? firstSeg.uy : dy / length;
+  // Normalenvektor senkrecht zur Verbindung (bzw. zum ersten Segment)
   const nx = -uy;
   const ny = ux;
+  // Normalenvektor am Zielende
+  const tnx = hasBends ? lastSeg.uy : nx;
+  const tny = hasBends ? -lastSeg.ux : ny;
 
-  // Mittelpunkt des Links
-  const midX = (x1 + x2) / 2;
-  const midY = (y1 + y2) / 2;
+  // Mittelpunkt des Links (bei Zwischenpunkten: Mitte der Gesamtlänge entlang des Linienzugs)
+  let midX = (x1 + x2) / 2;
+  let midY = (y1 + y2) / 2;
+  if (hasBends) {
+    const lens = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i].x, p.y - pts[i].y));
+    let remaining = lens.reduce((a, b) => a + b, 0) / 2;
+    for (let i = 0; i < lens.length; i++) {
+      if (remaining <= lens[i] || i === lens.length - 1) {
+        const t = lens[i] === 0 ? 0 : remaining / lens[i];
+        midX = pts[i].x + (pts[i + 1].x - pts[i].x) * t;
+        midY = pts[i].y + (pts[i + 1].y - pts[i].y) * t;
+        break;
+      }
+      remaining -= lens[i];
+    }
+  }
+  const polylinePoints = pts.map((p) => `${p.x},${p.y}`).join(" ");
 
   // Farbdefinitionen basierend auf Link-Typ und Status
   const isDark = theme === "dark";
@@ -120,14 +149,21 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   const tgtLabel = targetIf ? targetIf.name : link.targetInterfaceId;
 
   // Berechne versetzte Positionen für Labels an beiden Enden (Kollisionsschutz!)
-  const labelDistFromCenter = Math.min(68, length * 0.32);
+  // Mit Zwischenpunkten: Labels hinter dem Geräte-Symbol und auf der oberen Seite der Linie,
+  // damit sie nicht über der Beschriftung unter dem Gerät liegen.
+  const labelDistFromCenter = hasBends ? Math.min(firstSeg.len * 0.55, 62) : Math.min(68, length * 0.32);
+  const tgtLabelDist = hasBends ? Math.min(lastSeg.len * 0.55, 62) : Math.min(68, length * 0.32);
   const labelOffsetNormal = 14;
+  const srcSide = hasBends && ny > 0 ? -1 : 1;
+  const tgtSide = hasBends ? (tny > 0 ? 1 : -1) : 1;
 
-  const srcLabelX = x1 + ux * labelDistFromCenter + nx * labelOffsetNormal;
-  const srcLabelY = y1 + uy * labelDistFromCenter + ny * labelOffsetNormal;
+  const srcLabelX = x1 + ux * labelDistFromCenter + srcSide * nx * labelOffsetNormal;
+  const srcLabelY = y1 + uy * labelDistFromCenter + srcSide * ny * labelOffsetNormal;
 
-  const tgtLabelX = x2 - ux * labelDistFromCenter - nx * labelOffsetNormal;
-  const tgtLabelY = y2 - uy * labelDistFromCenter - ny * labelOffsetNormal;
+  const tgtDirX = hasBends ? lastSeg.ux : ux;
+  const tgtDirY = hasBends ? lastSeg.uy : uy;
+  const tgtLabelX = x2 - tgtDirX * tgtLabelDist - tgtSide * tnx * labelOffsetNormal;
+  const tgtLabelY = y2 - tgtDirY * tgtLabelDist - tgtSide * tny * labelOffsetNormal;
 
   // Serieller Zickzack-Pfad (Cisco Lightning Blitz)
   const renderSerialPath = () => {
@@ -273,18 +309,33 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
       )}
 
       {/* Breiter unsichtbarer Trefferbereich für Klick / Hover */}
-      <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke="transparent"
-        strokeWidth="16"
-        className="pointer-events-auto"
-      />
+      {hasBends ? (
+        <polyline points={polylinePoints} fill="none" stroke="transparent" strokeWidth="16" className="pointer-events-auto" />
+      ) : (
+        <line
+          x1={x1}
+          y1={y1}
+          x2={x2}
+          y2={y2}
+          stroke="transparent"
+          strokeWidth="16"
+          className="pointer-events-auto"
+        />
+      )}
 
       {/* Eigentlicher Link-Pfad */}
-      {link.linkType === "serial" && !isDown ? (
+      {hasBends ? (
+        <polyline
+          points={polylinePoints}
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : link.linkType === "serial" && !isDown ? (
         <path
           d={renderSerialPath()}
           stroke={strokeColor}
@@ -370,7 +421,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
 
       {/* 3. STP-Blocking: Querbalken-Marker am Zielport */}
       {isStpBlocking && (
-        <g transform={`translate(${x2 - ux * 28}, ${y2 - uy * 28})`}>
+        <g transform={`translate(${x2 - tgtDirX * (hasBends ? 56 : 28)}, ${y2 - tgtDirY * (hasBends ? 56 : 28)})`}>
           {/* Blocking Querbalken || */}
           <circle cx="0" cy="0" r="9" fill="#7C2D12" stroke="#F97316" strokeWidth="1.5" />
           <line x1="-2.5" y1="-4" x2="-2.5" y2="4" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />

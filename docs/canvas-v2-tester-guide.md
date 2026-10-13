@@ -20,7 +20,7 @@ Dieses Dokument dient als Leitfaden und Referenz für Tester von **CCNA Canvas N
 - **Netzwerk-Icons im Cisco-Stil:**
   - Vektorbasierte, scharfe SVG-Icons für alle 9 Schema-Gerätetypen (Router, L2-Switch, L3-Switch, Server, Endgerät/PC, Firewall, WLC, Access Point, Cloud).
 - **Reale Hardware-Profile (Packet Tracer Standard):**
-  - **Router:** Cisco 2911 ISR mit 2-Ebenen-Interfaces (`Gi0/0`, `Gi0/1`, `Gi0/2`), Serial WIC-2T (`Se0/1/0`, `Se0/1/1`) und Loopback (`Lo0`).
+  - **Router:** Cisco 2911 ISR mit 2-Ebenen-Interfaces (`Gi0/0`, `Gi0/1`, `Gi0/2`), Serial HWIC-2T (`Se0/0/0`, `Se0/0/1`) und Loopback (`Lo0`).
   - **L2-Switch:** Cisco Catalyst 2960-24TT (`Fa0/1`–`Fa0/4`, Uplinks `Gi0/1`, `Gi0/2`, Management `Vlan1`).
   - **L3-Switch:** Cisco Catalyst 3650-24PS (24× Downlinks `Gi1/0/1`–`Gi1/0/24`, 4× 1G SFP Uplinks `Gi1/1/1`–`Gi1/1/4`, SVIs und Routing).
 - **Gerätekonfiguration & Didaktische Validierung:**

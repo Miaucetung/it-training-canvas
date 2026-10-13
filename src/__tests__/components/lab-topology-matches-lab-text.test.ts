@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { LABS } from "@/components/labs";
+import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
 
 /**
  * Der Lab-Text (CLI-Befehle) ist die Quelle der Wahrheit. Die strukturierte Topologie
  * (Adressierungstabelle, Links, VLANs) muss dazu passen.
  */
-const LAB_IDS = ["basic-ip", "vlan-trunking", "roas", "ospf"] as const;
+const LAB_IDS = Object.keys(CURATED_TOPOLOGIES);
 
 // Widersprüche im Lab-Text (z. B. ospf: Verbindungsliste vs. Konfiguration): die Konfiguration gilt.
 const KNOWN_LAB_TEXT_CONTRADICTIONS = new Set<string>();
