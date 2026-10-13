@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
+import { expandDeviceNames } from "@/components/labs/lab-to-network";
 
 /**
  * Der Lab-Text (CLI-Befehle) ist die Quelle der Wahrheit. Die strukturierte Topologie
@@ -44,7 +45,7 @@ function configuredAddresses(labId: string): Map<string, string> {
       const line = raw.trim();
       const im = /^interface\s+(\S+)(?:\s+(\d+))?/i.exec(line);
       if (im) {
-        current = shortIf(/^vlan$/i.test(im[1]) && im[2] ? `vlan${im[2]}` : im[1]);
+        current = shortIf(/^(?:vlan|loopback)$/i.test(im[1]) && im[2] ? `${im[1]}${im[2]}` : im[1]);
         continue;
       }
       const am = /^ip address\s+(\S+)\s+(\S+)/i.exec(line);
@@ -55,12 +56,20 @@ function configuredAddresses(labId: string): Map<string, string> {
   return map;
 }
 
-/** device -> IP aus 'IP Address: x' (Packet-Tracer-Desktop) */
+/** device -> IP aus 'IP Address: x' bzw. 'IP-Adresse: x' (Packet-Tracer-Desktop); Mehrgeräteblöcke (PC1–PC5) der Reihe nach */
 function pcAddresses(labId: string): Map<string, string> {
   const map = new Map<string, string>();
+  const perBlock = new Map<string, string[]>();
   for (const { device, cmd } of commands(labId)) {
-    const m = /IP Address:\s*(\S+)/i.exec(cmd);
-    if (m) map.set(device, m[1]);
+    const ips = [...cmd.matchAll(/IP(?: Address|-Adresse):\s*(\S+)/gi)].map((m) => m[1]);
+    if (ips.length) perBlock.set(device, [...(perBlock.get(device) ?? []), ...ips]);
+  }
+  for (const [device, ips] of perBlock) {
+    const names = expandDeviceNames(device);
+    ips.forEach((ip, i) => {
+      const name = names.length > 1 ? names[i] : names[0];
+      if (name) map.set(name, ip);
+    });
   }
   return map;
 }

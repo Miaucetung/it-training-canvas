@@ -523,6 +523,21 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 />
               )}
 
+              {device.assumed && (
+                <rect
+                  x={-6 - Math.max(0, 104 - w) / 2}
+                  y="-6"
+                  width={Math.max(w, 104) + 12}
+                  height={iconSize + (viewDensity === "detail" ? 44 : 32)}
+                  rx="8"
+                  fill="none"
+                  stroke={isDark ? "#94A3B8" : "#64748B"}
+                  strokeWidth="1.2"
+                  strokeDasharray="5 4"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
+
               {/* Handgezeichnetes Cisco Device Icon */}
               <g transform={`translate(${(w - iconSize) / 2}, 0)`}>
                 <DeviceIcon
@@ -557,6 +572,20 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   {device.name}
                 </text>
               </g>
+
+              {device.assumed && (
+                <text
+                  x={w / 2}
+                  y={iconSize + 28}
+                  textAnchor="middle"
+                  fontSize="7.5"
+                  fontStyle="italic"
+                  fill={isDark ? "#94A3B8" : "#475569"}
+                  fontFamily="'IBM Plex Sans', sans-serif"
+                >
+                  im Lab nicht angegeben
+                </text>
+              )}
 
               {/* Detail-Modus: IP-Adressen und Schnittstellen-Badge */}
               {viewDensity === "detail" && ipInterfaces.length > 0 && (

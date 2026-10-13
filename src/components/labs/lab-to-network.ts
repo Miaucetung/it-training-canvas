@@ -88,6 +88,17 @@ export interface ParsedDeviceConfig {
   cli: string;
 }
 
+/** Blockname -> Gerätenamen: "PC1–PC5" -> PC1..PC5, "R1 / R2" -> R1, R2, sonst der Name selbst. */
+export function expandDeviceNames(blockDevice: string): string[] {
+  const d = blockDevice.trim();
+  if (d.includes("/")) return d.split("/").map((x) => x.trim()).filter(Boolean);
+  const r = /^(\D*?)(\d+)\s*[–-]\s*\D*?(\d+)$/.exec(d);
+  if (r && Number(r[3]) > Number(r[2])) {
+    return Array.from({ length: Number(r[3]) - Number(r[2]) + 1 }, (_, i) => `${r[1]}${Number(r[2]) + i}`);
+  }
+  return [d];
+}
+
 function expandInterfaceRange(spec: string): string[] {
   // "FastEthernet0/1 - 2" | "fa0/1 - 8" | "gi0/1 - 2" | "fa0/1-10"
   const m = /^(\S+?)(\d+)\/(\d+)\s*-\s*(?:\S*?\/)?(\d+)$/.exec(spec.trim()) ?? /^(\D+?)(\d+)\/(\d+)\s*-\s*(\d+)$/.exec(spec.trim());
@@ -124,7 +135,11 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
 
   for (const step of lab.steps) {
     for (const block of step.blocks as Array<{ device: string; commands: Array<{ cmd: string }> }>) {
-      if (block.device !== deviceName) continue;
+      const names = expandDeviceNames(block.device);
+      const blockIndex = names.indexOf(deviceName);
+      if (blockIndex < 0) continue;
+      const multi = names.length > 1;
+      const blockHosts: Array<{ ip: string; mask: string; gateway?: string }> = [];
       for (const c of block.commands) {
         for (const raw of String(c.cmd).split("\n")) {
           const line = raw.trim();
@@ -140,19 +155,27 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
 
           // PC-/Server-Desktop-Zeilen
-          let m = /^IP Address:\s*(\S+)/i.exec(line);
-          if (m) {
-            cfg.hostIp = { ...(cfg.hostIp ?? { mask: "255.255.255.0" }), ip: m[1], mask: cfg.hostIp?.mask ?? "255.255.255.0" };
+          const inlineHost = /^(\S+?):\s+(\d+(?:\.\d+){3})\s*\/\s*(\d+(?:\.\d+){3})\s*\/\s*GW\s+(\d+(?:\.\d+){3})$/i.exec(line);
+          if (inlineHost) {
+            if (inlineHost[1] === deviceName) cfg.hostIp = { ip: inlineHost[2], mask: inlineHost[3], gateway: inlineHost[4] };
             continue;
           }
-          m = /^Subnet Mask:\s*(\S+)/i.exec(line);
+          let m = /^IP(?: Address|-Adresse):\s*(\S+)/i.exec(line);
           if (m) {
-            if (cfg.hostIp) cfg.hostIp.mask = m[1];
+            if (multi) blockHosts.push({ ip: m[1], mask: "255.255.255.0" });
+            else cfg.hostIp = { ...(cfg.hostIp ?? { mask: "255.255.255.0" }), ip: m[1], mask: cfg.hostIp?.mask ?? "255.255.255.0" };
             continue;
           }
-          m = /^Default Gateway:\s*(\S+)/i.exec(line);
+          m = /^(?:Subnet Mask|Subnetzmaske):\s*(\S+)/i.exec(line);
           if (m) {
-            if (cfg.hostIp) cfg.hostIp.gateway = m[1];
+            const target = multi ? blockHosts[blockHosts.length - 1] : cfg.hostIp;
+            if (target) target.mask = m[1];
+            continue;
+          }
+          m = /^(?:Default Gateway|Gateway):\s*(\S+)/i.exec(line);
+          if (m) {
+            const target = multi ? blockHosts[blockHosts.length - 1] : cfg.hostIp;
+            if (target) target.gateway = m[1];
             continue;
           }
 
@@ -166,6 +189,13 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxVlan = null;
             ctxOspf = false;
             ctxIfaces.forEach(ifaceOf);
+            continue;
+          }
+          if ((m = /^int(?:erface)?\s+(?:loopback|lo)\s*(\d+)$/i.exec(line))) {
+            ctxIfaces = [`Lo${m[1]}`];
+            ctxVlan = null;
+            ctxOspf = false;
+            ifaceOf(ctxIfaces[0]);
             continue;
           }
           if ((m = /^interface\s+vlan\s*(\d+)$/i.exec(line)) || (m = /^int(?:erface)?\s+(vlan\d+)$/i.exec(line))) {
@@ -247,6 +277,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
         }
       }
+      if (multi && blockHosts[blockIndex]) cfg.hostIp = blockHosts[blockIndex];
     }
   }
   cfg.cli = cliLines.join("\n");
@@ -273,6 +304,20 @@ export function buildNetworkTopologyFromLab(
   const devices: TopologyDevice[] = [];
 
   for (const d of data.devices) {
+    if (d.assumed) {
+      devices.push({
+        id: d.id,
+        name: d.name,
+        type: d.type as TopologyDevice["type"],
+        x: d.x - 40,
+        y: d.y - 30,
+        interfaces: [],
+        config: { hostname: d.name },
+        label: d.model,
+        assumed: true,
+      });
+      continue;
+    }
     const profile = resolveHardwareProfile(d.model, d.type as TopologyDevice["type"]);
     if (!profile) {
       problems.push(`${d.name}: kein Hardware-Profil für Typ ${d.type}`);
@@ -416,7 +461,7 @@ export function buildNetworkTopologyFromLab(
       const short = normalizeInterfaceName(port);
       let it = dev.interfaces.find((i) => i.name === short);
       if (!it) {
-        problems.push(`${dev.name}: Link-Port ${short} nicht im Profil`);
+        if (!dev.assumed) problems.push(`${dev.name}: Link-Port ${short} nicht im Profil`);
         it = { id: interfaceIdFor(dev.id, short), name: short, status: "up" };
         dev.interfaces.push(it);
       }

@@ -1,4 +1,4 @@
-import type { LabAddressingEntry, LabSubnetZone, LabTopologyDevice } from "../types";
+import type { LabAddressingEntry, LabSubnetZone, LabTopologyDevice, LabTopologyLink } from "../types";
 
 export const device = (
   id: string,
@@ -47,3 +47,44 @@ export const tableRow = (
   vlan,
   description,
 });
+
+export const link = (
+  id: string,
+  from: string,
+  fromPort: string,
+  to: string,
+  toPort: string,
+  extra: Partial<LabTopologyLink> = {},
+): LabTopologyLink => ({
+  id,
+  from,
+  to,
+  fromPort,
+  toPort,
+  cableType: "copper-straight",
+  fromPortOffset: 60,
+  fromPortSide: -14,
+  toPortOffset: 60,
+  toPortSide: -14,
+  ...extra,
+});
+
+/** Zeile der Adressierungstabelle mit Kurzform für Interface-Namen (Gi0/0 -> GigabitEthernet0/0). */
+export const ifRow = (
+  deviceName: string,
+  iface: string,
+  ip: string,
+  mask: string,
+  zoneOrVlan: string | number,
+  description: string,
+  gateway = "N/A",
+): LabAddressingEntry =>
+  tableRow(
+    deviceName,
+    iface.replace(/^Gi/, "GigabitEthernet").replace(/^Fa/, "FastEthernet").replace(/^Lo/, "Loopback"),
+    ip,
+    mask,
+    gateway,
+    zoneOrVlan,
+    description,
+  );

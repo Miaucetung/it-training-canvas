@@ -149,6 +149,8 @@ export interface TopologyDevice {
   config?: DeviceConfig;
   status?: "active" | "inactive" | "warning" | "error";
   label?: string;
+  /** Im Lab nicht angegeben, aber für die Topologie nötig (gestrichelt dargestellt) */
+  assumed?: boolean;
 }
 
 export interface TopologyLink {
@@ -379,6 +381,7 @@ export const topologyDeviceSchema = z.object({
   config: deviceConfigSchema.optional(),
   status: z.enum(["active", "inactive", "warning", "error"]).optional(),
   label: z.string().optional(),
+  assumed: z.boolean().optional(),
 });
 
 export const topologyLinkSchema = z.object({
