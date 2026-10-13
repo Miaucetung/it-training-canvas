@@ -221,6 +221,12 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             cfg.hostDhcp = true;
             continue;
           }
+          const stat = /^Statische IP:\s*(\d+(?:\.\d+){3})\s*\/(\d+)/i.exec(line);
+          if (stat) {
+            const bits = "1".repeat(Number(stat[2])).padEnd(32, "0");
+            cfg.hostIp = { ip: stat[1], mask: [0, 8, 16, 24].map((i) => parseInt(bits.slice(i, i + 8), 2)).join(".") };
+            continue;
+          }
           const nic = /^Server-NIC:\s*statisch\s+(\d+(?:\.\d+){3})\/(\d+),\s*Gateway\s+(\d+(?:\.\d+){3})/i.exec(line);
           if (nic) {
             const bits = "1".repeat(Number(nic[2])).padEnd(32, "0");
@@ -318,6 +324,13 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxIfaces.forEach(ifaceOf);
             continue;
           }
+          if ((m = /^int(?:erface)?\s+(?:ethernet|eth|et)\s*(\d+\/\d+(?:\.\d+)?)$/i.exec(line))) {
+            ctxIfaces = [`Et${m[1]}`];
+            ctxVlan = null;
+            ctxOspf = false;
+            ifaceOf(ctxIfaces[0]);
+            continue;
+          }
           if ((m = /^int(?:erface)?\s+tunnel\s*(\d+)$/i.exec(line))) {
             ctxIfaces = [`Tu${m[1]}`];
             ctxVlan = null;
@@ -364,6 +377,11 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
           if ((m = /^spanning-tree vlan\s+(\S+)\s+priority\s+(\d+)/i.exec(line))) {
             if (parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) cfg.stpPriority = Number(m[2]);
+            continue;
+          }
+          if ((m = /^spanning-tree vlan\s+(\S+)\s+root\s+(primary|secondary)/i.exec(line))) {
+            // Makro: nur wirksam, wenn keine explizite Priority gesetzt ist (primary 24576, secondary 28672)
+            if ((parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) && cfg.stpPriority === undefined) cfg.stpPriority = m[2].toLowerCase() === "primary" ? 24576 : 28672;
             continue;
           }
           if ((m = /^router ospf\s+(\d+)/i.exec(line))) {
@@ -449,6 +467,7 @@ export function buildNetworkTopologyFromLab(
         config: { hostname: d.name },
         label: d.model,
         assumed: true,
+        ...(d.assumedReason ? { assumedReason: d.assumedReason } : {}),
       });
       continue;
     }

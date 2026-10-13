@@ -211,7 +211,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
         expect(ifc.ip, `${row.device} ${row.interface}`).toBe(`${row.ip}/${prefix}`);
       } else {
         expect(cfg.hostIp?.ip, `${row.device} ${row.interface}: weder Interface- noch Desktop-Konfiguration`).toBe(row.ip);
-        if (row.defaultGateway && row.defaultGateway !== "N/A") expect(cfg.hostIp?.gateway).toBe(row.defaultGateway);
+        if (row.defaultGateway && row.defaultGateway !== "N/A" && !/^im Lab nicht angegeben/.test(row.defaultGateway)) expect(cfg.hostIp?.gateway).toBe(row.defaultGateway);
       }
     }
   });

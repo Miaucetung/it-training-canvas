@@ -181,6 +181,7 @@ export interface TopologyDevice {
   label?: string;
   /** Im Lab nicht angegeben, aber für die Topologie nötig (gestrichelt dargestellt) */
   assumed?: boolean;
+  assumedReason?: "not-specified" | "not-configured";
 }
 
 export interface TopologyLink {
@@ -433,6 +434,7 @@ export const topologyDeviceSchema = z.object({
   status: z.enum(["active", "inactive", "warning", "error"]).optional(),
   label: z.string().optional(),
   assumed: z.boolean().optional(),
+  assumedReason: z.enum(["not-specified", "not-configured"]).optional(),
 });
 
 export const topologyLinkSchema = z.object({

@@ -47,6 +47,8 @@ export interface LabTopologyDevice {
   tier: "wan" | "gateway" | "core" | "distribution" | "access" | "endpoint";
   /** Im Lab nicht angegeben, aber für die Topologie nötig: gestrichelt, ohne Konfiguration, ohne CLI-Export */
   assumed?: boolean;
+  /** nicht angegeben (fehlt im Lab, Standard) oder nicht konfiguriert (im Lab genannt, aber ohne Konfiguration) */
+  assumedReason?: "not-specified" | "not-configured";
   /** DHCP-Client: Netz aus dem Lab (z. B. "192.168.1.0/24"); konkrete Adresse entsteht erst zur Laufzeit */
   dhcpNetwork?: string;
   x: number;

@@ -4,7 +4,7 @@ import type { DeviceType } from "@/types/topology";
 import { cn } from "@/lib/utils";
 import { placeZoneBadge } from "./topology-geometry";
 import {
-  ASSUMED_CAPTION,
+  assumedCaption,
   deviceNameWidth,
   getPortLabelPos,
   ipLabelWidth,
@@ -554,7 +554,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                     fontStyle="italic"
                     fill={isLight ? "#64748b" : "#94a3b8"}
                   >
-                    {ASSUMED_CAPTION}
+                    {assumedCaption(device.assumedReason)}
                   </text>
                 )}
               </g>
