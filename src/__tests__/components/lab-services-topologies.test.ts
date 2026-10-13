@@ -26,7 +26,7 @@ describe("Paket 4 Services – labspezifische Prüfungen", () => {
     expect(cli).toContain("ip dhcp pool LAN_POOL");
   });
 
-  it("dhcp-relay: Subinterfaces mit helper-address, Server statisch, Clients nur mit Netz; Client Gelb gibt es nicht", () => {
+  it("dhcp-relay: Subinterfaces mit helper-address, Server statisch, Clients nur mit Netz; Client Gelb und SW2-Endgeräte sind „nicht konfiguriert“", () => {
     const t = build("dhcp-relay");
     expect(ip(t, "R1", "Gi0/0.51")).toBe("172.16.51.1/24");
     expect(ip(t, "R1", "Gi0/0.71")).toBe("192.168.2.1/24");
@@ -35,7 +35,15 @@ describe("Paket 4 Services – labspezifische Prüfungen", () => {
     expect(dev(t, "DHCP-Server").config?.defaultGateway).toBe("192.168.2.1");
     expect(dev(t, "Client Rot").interfaces[0].dhcp?.network).toBe("172.16.51.0/24");
     expect(dev(t, "Client Blau").interfaces[0].dhcp?.network).toBe("172.16.61.0/24");
-    expect(t.topology.devices.some((d) => /gelb/i.test(d.name))).toBe(false);
+    // im Lab genannt, aber nicht konfiguriert: gestrichelt, ohne Port, ohne Export
+    for (const n of ["Client Gelb", "Endgeräte SW2"]) {
+      const d = dev(t, n);
+      expect(d.assumed, n).toBe(true);
+      expect(d.assumedReason, n).toBe("not-configured");
+      expect(d.interfaces, n).toEqual([]);
+      expect(d.config?.labCli, n).toBeUndefined();
+    }
+    expect(t.topology.links.some((l) => [l.sourceDeviceId, l.targetDeviceId].some((id) => id === "gelb" || id === "sw2-hosts"))).toBe(false);
     expect(t.topology.links.filter((l) => l.linkType === "trunk")).toHaveLength(2);
   });
 

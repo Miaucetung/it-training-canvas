@@ -449,6 +449,7 @@ export function buildNetworkTopologyFromLab(
         config: { hostname: d.name },
         label: d.model,
         assumed: true,
+        ...(d.assumedReason ? { assumedReason: d.assumedReason } : {}),
       });
       continue;
     }

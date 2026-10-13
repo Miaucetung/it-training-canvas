@@ -25,6 +25,7 @@
 6. Branch ist nicht in `main`; vor dem Merge OK abwarten.
 
 ## Nächste Schritte
+- **Eigener Schritt nach Paket 7: show-Ausgaben für NAT, HSRP, GRE und IPsec.** Was sich aus der Konfiguration ergibt, vollständig erzeugen: `show standby brief` (Active/Standby nach Priority, Preempt-Hinweis analog zur DR-Wahl), `show interfaces tunnel`, statische Einträge in `show ip nat translations`, `show crypto map`. Was erst durch Verkehr entsteht (dynamische NAT-Übersetzungen, `show crypto isakmp sa`, `show crypto ipsec sa`): leer mit Hinweis „entsteht erst nach Verkehr“. Gleiche Regeln wie bei IPv4/IPv6: nichts erfinden, positive und negative Tests.
 - Nach OK: `feature/ipv6-outputs` und `feature/lab-topologies-services` mergen.
 - Danach Paket 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.

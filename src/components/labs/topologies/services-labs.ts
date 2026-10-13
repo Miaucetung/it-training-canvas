@@ -123,19 +123,22 @@ export const SERVICES_LABS_TOPOLOGIES: Record<string, LabTopologyData> = {
 
   // ───────────────────────────── DHCP Relay über VLAN-Grenzen
   "dhcp-relay": {
-    viewBox: { width: 960, height: 640 },
+    viewBox: { width: 1160, height: 640 },
     devices: [
-      device("r1", "R1", R, "router", "gateway", 400, 100),
-      device("sw1", "SW1", `${SW} · VTP-Server`, "switch-l2", "access", 400, 270),
-      device("sw2", "SW2", `${SW} · VTP-Client`, "switch-l2", "access", 760, 270),
-      endpoint("srv", "DHCP-Server", SRV, "server", 140, 480),
-      dhcpClient("rot", "Client Rot", 400, 480, "172.16.51.0/24"),
-      dhcpClient("blau", "Client Blau", 660, 480, "172.16.61.0/24"),
+      device("r1", "R1", R, "router", "gateway", 560, 100),
+      device("sw1", "SW1", `${SW} · VTP-Server`, "switch-l2", "access", 560, 270),
+      device("sw2", "SW2", `${SW} · VTP-Client`, "switch-l2", "access", 1040, 270),
+      endpoint("srv", "DHCP-Server", SRV, "server", 110, 480),
+      // im Lab genannt, aber ohne Konfiguration und ohne Port: gestrichelt, ohne Export
+      { ...endpoint("gelb", "Client Gelb", PC, "pc", 280, 480), assumed: true, assumedReason: "not-configured" },
+      dhcpClient("rot", "Client Rot", 560, 480, "172.16.51.0/24"),
+      dhcpClient("blau", "Client Blau", 830, 480, "172.16.61.0/24"),
+      { ...endpoint("sw2-hosts", "Endgeräte SW2", PC, "pc", 1040, 480), assumed: true, assumedReason: "not-configured" },
     ],
     zones: [
-      zone("zone-71", "VLAN 71 Gelb · 192.168.2.0/24", "amber", 20, 410, 240, 210, 71),
-      zone("zone-51", "VLAN 51 Rot · 172.16.51.0/24", "rose", 290, 410, 240, 210, 51),
-      zone("zone-61", "VLAN 61 Blau · 172.16.61.0/24", "blue", 560, 410, 240, 210, 61),
+      zone("zone-71", "VLAN 71 Gelb · 192.168.2.0/24", "amber", 10, 410, 340, 210, 71),
+      zone("zone-51", "VLAN 51 Rot · 172.16.51.0/24", "rose", 430, 410, 260, 210, 51),
+      zone("zone-61", "VLAN 61 Blau · 172.16.61.0/24", "blue", 710, 410, 250, 210, 61),
     ],
     vlans: [
       { id: 51, name: "Rot", colorTheme: "rose", subnet: "172.16.51.0/24" },
@@ -143,8 +146,8 @@ export const SERVICES_LABS_TOPOLOGIES: Record<string, LabTopologyData> = {
       { id: 71, name: "Gelb", colorTheme: "amber", subnet: "192.168.2.0/24" },
     ],
     links: [
-      link("link-r1-sw1", "r1", "Gi0/0", "sw1", "Gi0/1", { isTrunk: true, fromPortOffset: 70, toPortOffset: 56, subnetLabel: "Trunk 802.1Q", subnetLabelPos: { x: 480, y: 190 } }),
-      link("link-sw1-sw2", "sw1", "Gi0/2", "sw2", "Gi0/1", { isTrunk: true, fromPortOffset: 70, toPortOffset: 70, toPortSide: 14, subnetLabel: "Trunk 802.1Q", subnetLabelPos: { x: 580, y: 230 } }),
+      link("link-r1-sw1", "r1", "Gi0/0", "sw1", "Gi0/1", { isTrunk: true, fromPortOffset: 70, toPortOffset: 56, subnetLabel: "Trunk 802.1Q", subnetLabelPos: { x: 640, y: 190 } }),
+      link("link-sw1-sw2", "sw1", "Gi0/2", "sw2", "Gi0/1", { isTrunk: true, fromPortOffset: 70, toPortOffset: 70, toPortSide: 14, subnetLabel: "Trunk 802.1Q", subnetLabelPos: { x: 820, y: 230 } }),
       link("link-sw1-srv", "sw1", "Fa0/24", "srv", "Fa0", { toIp: "192.168.2.11", fromPortOffset: 140, toPortOffset: 90, toPortSide: 14 }),
       link("link-sw1-rot", "sw1", "Fa0/1", "rot", "Fa0", { toIp: "DHCP", fromPortOffset: 70, toPortOffset: 80, toPortSide: 14 }),
       link("link-sw1-blau", "sw1", "Fa0/11", "blau", "Fa0", { toIp: "DHCP", fromPortOffset: 140, toPortOffset: 90, toPortSide: 14 }),

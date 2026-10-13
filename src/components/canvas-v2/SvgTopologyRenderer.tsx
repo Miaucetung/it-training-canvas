@@ -583,7 +583,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   fill={isDark ? "#94A3B8" : "#475569"}
                   fontFamily="'IBM Plex Sans', sans-serif"
                 >
-                  im Lab nicht angegeben
+                  {device.assumedReason === "not-configured" ? "im Lab nicht konfiguriert" : "im Lab nicht angegeben"}
                 </text>
               )}
 

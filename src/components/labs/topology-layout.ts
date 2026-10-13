@@ -40,6 +40,9 @@ export const zoneBadgeBox = (zone: { x: number; y: number; label: string }) => (
 });
 
 export const ASSUMED_CAPTION = "im Lab nicht angegeben";
-export const assumedCaptionWidth = () => ASSUMED_CAPTION.length * 5 + 8;
+export const NOT_CONFIGURED_CAPTION = "im Lab nicht konfiguriert";
+/** Beschriftung gestrichelter Geräte: nicht angegeben (fehlt im Lab) oder nicht konfiguriert (genannt, aber ohne Konfiguration) */
+export const assumedCaption = (reason?: "not-specified" | "not-configured") => (reason === "not-configured" ? NOT_CONFIGURED_CAPTION : ASSUMED_CAPTION);
+export const assumedCaptionWidth = (reason?: "not-specified" | "not-configured") => assumedCaption(reason).length * 5 + 8;
 
 export const deviceModelWidth = (model?: string) => (model ? model.length * 6 : 0);
