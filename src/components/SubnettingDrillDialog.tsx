@@ -18,6 +18,7 @@ import {
   XCircle,
 } from "@phosphor-icons/react";
 import { useMemo, useState, type ReactNode } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 // ── Domain-Logik ────────────────────────────────────────────
 
@@ -913,249 +914,251 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Subnetting-Drill"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] ${
-          dark
-            ? "bg-slate-900 border border-slate-700"
-            : "bg-white border border-slate-200"
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Subnetting-Drill"
+        onClick={onClose}
       >
-        {/* Header */}
         <div
-          className={`flex items-center gap-3 px-5 py-3 border-b ${
-            dark ? "border-slate-700" : "border-slate-200"
+          className={`w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] ${
+            dark
+              ? "bg-slate-900 border border-slate-700"
+              : "bg-white border border-slate-200"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
+          {/* Header */}
           <div
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-              dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"
+            className={`flex items-center gap-3 px-5 py-3 border-b ${
+              dark ? "border-slate-700" : "border-slate-200"
             }`}
           >
-            <Calculator size={16} weight="bold" />
-          </div>
-          <div className="flex-1">
             <div
-              className={`font-semibold text-sm ${dark ? "text-white" : "text-slate-900"}`}
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"
+              }`}
             >
-              Subnetting-Drill
+              <Calculator size={16} weight="bold" />
             </div>
-            <div className={`text-[11px] ${dark ? "text-slate-400" : "text-slate-500"}`}>
-              Üben mit Rechenweg — Magic Number & Binär
+            <div className="flex-1">
+              <div
+                className={`font-semibold text-sm ${dark ? "text-white" : "text-slate-900"}`}
+              >
+                Subnetting-Drill
+              </div>
+              <div className={`text-[11px] ${dark ? "text-slate-400" : "text-slate-500"}`}>
+                Üben mit Rechenweg — Magic Number & Binär
+              </div>
             </div>
+            {/* Mode toggle */}
+            <div className={`flex gap-1 p-1 rounded-lg ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+              {tabBtn("single", "Einzelsubnetz", <Calculator size={13} />)}
+              {tabBtn("segmentation", "Segmentierung", <GridFour size={13} />)}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className={`p-1.5 rounded-md transition-colors ${
+                dark
+                  ? "text-slate-400 hover:text-white hover:bg-slate-700"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+              aria-label="Schließen"
+            >
+              <X size={16} />
+            </button>
           </div>
-          {/* Mode toggle */}
-          <div className={`flex gap-1 p-1 rounded-lg ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
-            {tabBtn("single", "Einzelsubnetz", <Calculator size={13} />)}
-            {tabBtn("segmentation", "Segmentierung", <GridFour size={13} />)}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={`p-1.5 rounded-md transition-colors ${
-              dark
-                ? "text-slate-400 hover:text-white hover:bg-slate-700"
-                : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-            aria-label="Schließen"
-          >
-            <X size={16} />
-          </button>
-        </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {mode === "segmentation" ? (
-            <SegmentationDrill dark={dark} inputCls={inputCls} />
-          ) : (
-            <>
-              {/* Progress */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">
-                  Aufgabe {idx + 1} / {TOTAL_TASKS} · Score: {score} ✓
-                </span>
-                <button
-                  type="button"
-                  onClick={handleRestart}
-                  title="Neu generieren"
-                  className={`p-1 rounded transition-colors ${
-                    dark
-                      ? "text-slate-400 hover:text-white"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                  aria-label="Aufgaben neu generieren"
-                >
-                  <ArrowClockwise size={14} />
-                </button>
-              </div>
-
-              <div className={`h-1 rounded-full ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
-                <div
-                  className="h-full bg-indigo-500 rounded-full transition-all"
-                  style={{
-                    width: `${((idx + (checked ? 1 : 0)) / TOTAL_TASKS) * 100}%`,
-                  }}
-                />
-              </div>
-
-              {task && (
-                <>
-                  <div
-                    className={`rounded-xl px-4 py-3 font-mono text-sm ${
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {mode === "segmentation" ? (
+              <SegmentationDrill dark={dark} inputCls={inputCls} />
+            ) : (
+              <>
+                {/* Progress */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">
+                    Aufgabe {idx + 1} / {TOTAL_TASKS} · Score: {score} ✓
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRestart}
+                    title="Neu generieren"
+                    className={`p-1 rounded transition-colors ${
                       dark
-                        ? "bg-slate-800 text-indigo-300"
-                        : "bg-indigo-50 text-indigo-900"
+                        ? "text-slate-400 hover:text-white"
+                        : "text-slate-500 hover:text-slate-900"
                     }`}
+                    aria-label="Aufgaben neu generieren"
                   >
-                    <div>
-                      <span className="opacity-70">IP-Adresse:&nbsp;&nbsp;</span>
-                      <span className="font-bold">{ipStr}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-70">Subnetzmaske:</span>{" "}
-                      <span className="font-bold">{maskStr}</span>{" "}
-                      <span className="opacity-70">(/{task.cidr})</span>
-                    </div>
-                  </div>
+                    <ArrowClockwise size={14} />
+                  </button>
+                </div>
 
-                  <p
-                    className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}
-                  >
-                    Bestimme Subnetz-ID, Broadcast, ersten und letzten nutzbaren
-                    Host sowie die Magic Number.
-                  </p>
+                <div className={`h-1 rounded-full ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+                  <div
+                    className="h-full bg-indigo-500 rounded-full transition-all"
+                    style={{
+                      width: `${((idx + (checked ? 1 : 0)) / TOTAL_TASKS) * 100}%`,
+                    }}
+                  />
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {fieldRow(
-                      "Subnetz-ID",
-                      subnetIn,
-                      setSubnetIn,
-                      task.subnet,
-                      undefined,
-                      result?.subnetOk,
-                    )}
-                    {fieldRow(
-                      "Broadcast",
-                      broadcastIn,
-                      setBroadcastIn,
-                      task.broadcast,
-                      undefined,
-                      result?.broadcastOk,
-                    )}
-                    {fieldRow(
-                      "Erste Host-IP",
-                      firstIn,
-                      setFirstIn,
-                      task.firstHost,
-                      undefined,
-                      result?.firstOk,
-                    )}
-                    {fieldRow(
-                      "Letzte Host-IP",
-                      lastIn,
-                      setLastIn,
-                      task.lastHost,
-                      undefined,
-                      result?.lastOk,
-                    )}
-                    <div className="sm:col-span-2">
-                      {fieldRow(
-                        "Magic Number",
-                        magicIn,
-                        setMagicIn,
-                        undefined,
-                        task.magic,
-                        result?.magicOk,
-                      )}
-                    </div>
-                  </div>
-
-                  {checked && result && (
+                {task && (
+                  <>
                     <div
-                      className={`text-xs rounded-md px-3 py-2 ${
-                        result.subnetOk &&
+                      className={`rounded-xl px-4 py-3 font-mono text-sm ${
+                        dark
+                          ? "bg-slate-800 text-indigo-300"
+                          : "bg-indigo-50 text-indigo-900"
+                      }`}
+                    >
+                      <div>
+                        <span className="opacity-70">IP-Adresse:&nbsp;&nbsp;</span>
+                        <span className="font-bold">{ipStr}</span>
+                      </div>
+                      <div>
+                        <span className="opacity-70">Subnetzmaske:</span>{" "}
+                        <span className="font-bold">{maskStr}</span>{" "}
+                        <span className="opacity-70">(/{task.cidr})</span>
+                      </div>
+                    </div>
+
+                    <p
+                      className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}
+                    >
+                      Bestimme Subnetz-ID, Broadcast, ersten und letzten nutzbaren
+                      Host sowie die Magic Number.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {fieldRow(
+                        "Subnetz-ID",
+                        subnetIn,
+                        setSubnetIn,
+                        task.subnet,
+                        undefined,
+                        result?.subnetOk,
+                      )}
+                      {fieldRow(
+                        "Broadcast",
+                        broadcastIn,
+                        setBroadcastIn,
+                        task.broadcast,
+                        undefined,
+                        result?.broadcastOk,
+                      )}
+                      {fieldRow(
+                        "Erste Host-IP",
+                        firstIn,
+                        setFirstIn,
+                        task.firstHost,
+                        undefined,
+                        result?.firstOk,
+                      )}
+                      {fieldRow(
+                        "Letzte Host-IP",
+                        lastIn,
+                        setLastIn,
+                        task.lastHost,
+                        undefined,
+                        result?.lastOk,
+                      )}
+                      <div className="sm:col-span-2">
+                        {fieldRow(
+                          "Magic Number",
+                          magicIn,
+                          setMagicIn,
+                          undefined,
+                          task.magic,
+                          result?.magicOk,
+                        )}
+                      </div>
+                    </div>
+
+                    {checked && result && (
+                      <div
+                        className={`text-xs rounded-md px-3 py-2 ${
+                          result.subnetOk &&
+                          result.broadcastOk &&
+                          result.firstOk &&
+                          result.lastOk &&
+                          result.magicOk
+                            ? dark
+                              ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
+                              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : dark
+                              ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
+                              : "bg-rose-50 text-rose-700 border border-rose-200"
+                        }`}
+                      >
+                        {result.subnetOk &&
                         result.broadcastOk &&
                         result.firstOk &&
                         result.lastOk &&
                         result.magicOk
-                          ? dark
-                            ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
-                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : dark
-                            ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
-                            : "bg-rose-50 text-rose-700 border border-rose-200"
-                      }`}
-                    >
-                      {result.subnetOk &&
-                      result.broadcastOk &&
-                      result.firstOk &&
-                      result.lastOk &&
-                      result.magicOk
-                        ? "Alles korrekt — gut gemacht!"
-                        : "Nicht alles richtig — der Rechenweg zeigt jeden Schritt."}
-                    </div>
-                  )}
+                          ? "Alles korrekt — gut gemacht!"
+                          : "Nicht alles richtig — der Rechenweg zeigt jeden Schritt."}
+                      </div>
+                    )}
 
-                  {checked && <SingleCalcPath task={task} dark={dark} />}
-                </>
-              )}
-
-              {finished && (
-                <div
-                  className={`rounded-xl p-4 text-sm ${
-                    dark
-                      ? "bg-indigo-500/10 border border-indigo-500/30 text-indigo-200"
-                      : "bg-indigo-50 border border-indigo-200 text-indigo-800"
-                  }`}
-                >
-                  <strong>Drill beendet.</strong> Du hast {score} von {TOTAL_TASKS}{" "}
-                  Aufgaben beim ersten Versuch korrekt gelöst. Klicke auf das
-                  Refresh-Symbol oben, um einen neuen Satz zu generieren.
-                </div>
-              )}
-
-              {/* Footer for single mode */}
-              <div className="flex justify-end gap-2 pt-1">
-                {!checked && (
-                  <button
-                    type="button"
-                    onClick={handleCheck}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-                  >
-                    Prüfen
-                  </button>
+                    {checked && <SingleCalcPath task={task} dark={dark} />}
+                  </>
                 )}
-                {checked && idx + 1 < TOTAL_TASKS && (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
-                  >
-                    Nächste Aufgabe <ArrowRight size={14} />
-                  </button>
-                )}
+
                 {finished && (
-                  <button
-                    type="button"
-                    onClick={handleRestart}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
+                  <div
+                    className={`rounded-xl p-4 text-sm ${
+                      dark
+                        ? "bg-indigo-500/10 border border-indigo-500/30 text-indigo-200"
+                        : "bg-indigo-50 border border-indigo-200 text-indigo-800"
+                    }`}
                   >
-                    Neuen Drill starten <ArrowClockwise size={14} />
-                  </button>
+                    <strong>Drill beendet.</strong> Du hast {score} von {TOTAL_TASKS}{" "}
+                    Aufgaben beim ersten Versuch korrekt gelöst. Klicke auf das
+                    Refresh-Symbol oben, um einen neuen Satz zu generieren.
+                  </div>
                 )}
-              </div>
-            </>
-          )}
+
+                {/* Footer for single mode */}
+                <div className="flex justify-end gap-2 pt-1">
+                  {!checked && (
+                    <button
+                      type="button"
+                      onClick={handleCheck}
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                    >
+                      Prüfen
+                    </button>
+                  )}
+                  {checked && idx + 1 < TOTAL_TASKS && (
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
+                    >
+                      Nächste Aufgabe <ArrowRight size={14} />
+                    </button>
+                  )}
+                  {finished && (
+                    <button
+                      type="button"
+                      onClick={handleRestart}
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
+                    >
+                      Neuen Drill starten <ArrowClockwise size={14} />
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

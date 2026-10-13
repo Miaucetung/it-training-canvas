@@ -22,6 +22,7 @@ import {
   type IpRouteTask,
   type MatchTask,
 } from "@/lib/routing-drill";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   open: boolean;
@@ -140,172 +141,174 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Routing-Endlos-Lab"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl border shadow-2xl ${panel}`}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Routing-Endlos-Lab"
+        onClick={onClose}
       >
-        {/* Header */}
-        <div className={`flex shrink-0 items-center gap-3 border-b px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"}`}>
-            <Path size={16} weight="bold" />
-          </div>
-          <div className="flex-1">
-            <div className={`text-sm font-semibold ${text}`}>Routing-Endlos-Lab</div>
-            <div className={`text-[11px] ${muted}`}>ip route schreiben & Longest-Prefix-Match — gegen die Uhr</div>
-          </div>
-          <div className={`flex gap-1 rounded-lg p-1 ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
-            {tabBtn("ip-route", "ip route", <Terminal size={13} />)}
-            {tabBtn("match", "Route wählen", <Path size={13} />)}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={`rounded-md p-1.5 transition-colors ${dark ? "text-slate-400 hover:bg-slate-700" : "text-slate-500 hover:bg-slate-100"}`}
-            aria-label="Schließen"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* Stats */}
-        <div className={`flex shrink-0 items-center gap-4 px-5 py-2 text-xs ${muted}`}>
-          <span className="flex items-center gap-1"><Timer size={13} /> {fmt(elapsed)}</span>
-          <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
-          <span>Richtig: <span className="font-semibold text-emerald-500">{stats.correct}</span></span>
-          {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
-          {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
-          {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
-        </div>
-
-        {/* Body */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {mode === "ip-route" ? (
-            <>
-              <div className={`rounded-xl p-4 ${cardBg}`}>
-                <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Aufgabe</div>
-                <p className={`text-sm ${text}`}>{ipTask.prompt}</p>
-              </div>
-
-              <div>
-                <label className={`mb-1 block text-xs ${muted}`}>Befehl im global-config-Modus:</label>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>
-                  <input
-                    autoFocus
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { if (checked) handleNext(); else handleCheck(); } }}
-                    placeholder="ip route ..."
-                    className={inputCls}
-                    spellCheck={false}
-                    disabled={checked}
-                  />
-                </div>
-              </div>
-
-              {checked && (
-                <div
-                  className={`rounded-lg border p-3 text-sm ${
-                    isCorrect
-                      ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 font-semibold">
-                    {isCorrect ? <CheckCircle size={16} weight="fill" /> : <XCircle size={16} weight="fill" />}
-                    {isCorrect ? "Richtig!" : "Nicht korrekt"}
-                  </div>
-                  {!isCorrect && ipCheck?.reason && <p className="mt-1 text-xs opacity-90">{ipCheck.reason}</p>}
-                  <p className="mt-2 font-mono text-xs">
-                    <span className={muted}>Lösung: </span>
-                    <span className={dark ? "text-emerald-300" : "text-emerald-700"}>{ipTask.expected}</span>
-                  </p>
-                  <p className={`mt-1 text-xs ${muted}`}>💡 {ipTask.hint}</p>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className={`rounded-xl p-3 ${cardBg}`}>
-                <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-2`}>R1# show ip route</div>
-                <div className="space-y-1">
-                  {matchTask.table.map((r, i) => {
-                    const isAns = i === matchTask.correctIndex;
-                    const isSel = i === selected;
-                    let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
-                    if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
-                    else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
-                    else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        disabled={checked}
-                        onClick={() => setSelected(i)}
-                        className={`w-full rounded-md border px-2.5 py-1.5 text-left font-mono text-[12px] tabular-nums transition-colors ${cls} ${text}`}
-                      >
-                        <span className="text-indigo-400 font-semibold">{r.proto}</span>{"  "}
-                        {r.net}/{r.cidr}
-                        {r.cidr > 0 && <span className={muted}> [{r.ad}/{r.metric}]</span>} via {r.nextHop}
-                        <span className={muted}>, {r.iface}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <p className={`text-sm ${text}`}>
-                Welche Route nutzt R1 für ein Paket an <span className="font-mono font-semibold">{matchTask.dest}</span>?
-                <span className={`block text-xs ${muted}`}>Tippe die Zeile an, dann „Prüfen“.</span>
-              </p>
-              {checked && (
-                <div
-                  className={`rounded-lg border p-3 text-sm ${
-                    isCorrect
-                      ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 font-semibold">
-                    {isCorrect ? <CheckCircle size={16} weight="fill" /> : <XCircle size={16} weight="fill" />}
-                    {isCorrect ? "Richtig!" : "Nicht korrekt"}
-                  </div>
-                  <p className="mt-1 text-xs opacity-90">{matchTask.explanation}</p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className={`flex shrink-0 items-center justify-between border-t px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          <span className={`text-[11px] ${muted}`}>{mode === "ip-route" ? `/${ipTask.cidr} → ${ipTask.scenario === "default" ? "0.0.0.0" : maskString(ipTask.cidr)}` : "Longest Prefix Match"}</span>
-          {!checked ? (
+        <div
+          className={`flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl border shadow-2xl ${panel}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className={`flex shrink-0 items-center gap-3 border-b px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"}`}>
+              <Path size={16} weight="bold" />
+            </div>
+            <div className="flex-1">
+              <div className={`text-sm font-semibold ${text}`}>Routing-Endlos-Lab</div>
+              <div className={`text-[11px] ${muted}`}>ip route schreiben & Longest-Prefix-Match — gegen die Uhr</div>
+            </div>
+            <div className={`flex gap-1 rounded-lg p-1 ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+              {tabBtn("ip-route", "ip route", <Terminal size={13} />)}
+              {tabBtn("match", "Route wählen", <Path size={13} />)}
+            </div>
             <button
               type="button"
-              onClick={handleCheck}
-              disabled={mode === "match" && selected === null}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40"
+              onClick={onClose}
+              className={`rounded-md p-1.5 transition-colors ${dark ? "text-slate-400 hover:bg-slate-700" : "text-slate-500 hover:bg-slate-100"}`}
+              aria-label="Schließen"
             >
-              Prüfen
+              <X size={16} />
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleNext}
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
-            >
-              Nächste <ArrowRight size={14} />
-            </button>
-          )}
+          </div>
+
+          {/* Stats */}
+          <div className={`flex shrink-0 items-center gap-4 px-5 py-2 text-xs ${muted}`}>
+            <span className="flex items-center gap-1"><Timer size={13} /> {fmt(elapsed)}</span>
+            <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
+            <span>Richtig: <span className="font-semibold text-emerald-500">{stats.correct}</span></span>
+            {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
+            {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
+            {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
+          </div>
+
+          {/* Body */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {mode === "ip-route" ? (
+              <>
+                <div className={`rounded-xl p-4 ${cardBg}`}>
+                  <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Aufgabe</div>
+                  <p className={`text-sm ${text}`}>{ipTask.prompt}</p>
+                </div>
+
+                <div>
+                  <label className={`mb-1 block text-xs ${muted}`}>Befehl im global-config-Modus:</label>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>
+                    <input
+                      autoFocus
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { if (checked) handleNext(); else handleCheck(); } }}
+                      placeholder="ip route ..."
+                      className={inputCls}
+                      spellCheck={false}
+                      disabled={checked}
+                    />
+                  </div>
+                </div>
+
+                {checked && (
+                  <div
+                    className={`rounded-lg border p-3 text-sm ${
+                      isCorrect
+                        ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-semibold">
+                      {isCorrect ? <CheckCircle size={16} weight="fill" /> : <XCircle size={16} weight="fill" />}
+                      {isCorrect ? "Richtig!" : "Nicht korrekt"}
+                    </div>
+                    {!isCorrect && ipCheck?.reason && <p className="mt-1 text-xs opacity-90">{ipCheck.reason}</p>}
+                    <p className="mt-2 font-mono text-xs">
+                      <span className={muted}>Lösung: </span>
+                      <span className={dark ? "text-emerald-300" : "text-emerald-700"}>{ipTask.expected}</span>
+                    </p>
+                    <p className={`mt-1 text-xs ${muted}`}>💡 {ipTask.hint}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className={`rounded-xl p-3 ${cardBg}`}>
+                  <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-2`}>R1# show ip route</div>
+                  <div className="space-y-1">
+                    {matchTask.table.map((r, i) => {
+                      const isAns = i === matchTask.correctIndex;
+                      const isSel = i === selected;
+                      let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
+                      if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
+                      else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
+                      else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          disabled={checked}
+                          onClick={() => setSelected(i)}
+                          className={`w-full rounded-md border px-2.5 py-1.5 text-left font-mono text-[12px] tabular-nums transition-colors ${cls} ${text}`}
+                        >
+                          <span className="text-indigo-400 font-semibold">{r.proto}</span>{"  "}
+                          {r.net}/{r.cidr}
+                          {r.cidr > 0 && <span className={muted}> [{r.ad}/{r.metric}]</span>} via {r.nextHop}
+                          <span className={muted}>, {r.iface}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <p className={`text-sm ${text}`}>
+                  Welche Route nutzt R1 für ein Paket an <span className="font-mono font-semibold">{matchTask.dest}</span>?
+                  <span className={`block text-xs ${muted}`}>Tippe die Zeile an, dann „Prüfen“.</span>
+                </p>
+                {checked && (
+                  <div
+                    className={`rounded-lg border p-3 text-sm ${
+                      isCorrect
+                        ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-semibold">
+                      {isCorrect ? <CheckCircle size={16} weight="fill" /> : <XCircle size={16} weight="fill" />}
+                      {isCorrect ? "Richtig!" : "Nicht korrekt"}
+                    </div>
+                    <p className="mt-1 text-xs opacity-90">{matchTask.explanation}</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className={`flex shrink-0 items-center justify-between border-t px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            <span className={`text-[11px] ${muted}`}>{mode === "ip-route" ? `/${ipTask.cidr} → ${ipTask.scenario === "default" ? "0.0.0.0" : maskString(ipTask.cidr)}` : "Longest Prefix Match"}</span>
+            {!checked ? (
+              <button
+                type="button"
+                onClick={handleCheck}
+                disabled={mode === "match" && selected === null}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40"
+              >
+                Prüfen
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                Nächste <ArrowRight size={14} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

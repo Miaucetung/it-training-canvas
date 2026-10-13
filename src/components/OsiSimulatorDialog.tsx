@@ -15,6 +15,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -457,287 +458,259 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
   }, [direction, step]);
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-3"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-[1200px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-          dark
-            ? "bg-slate-900 border-slate-700 text-slate-100"
-            : "bg-white border-slate-200 text-slate-900"
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="OSI-Simulator"
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-3"
+        onClick={onClose}
       >
-        {/* Header */}
         <div
-          className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-                dark
-                  ? "bg-purple-500/20 text-purple-300"
-                  : "bg-purple-100 text-purple-700"
-              }`}
-            >
-              📦
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">
-                OSI Encapsulation Simulator
-              </h2>
-              <p className="text-xs opacity-70">
-                Beispiel: Browser ruft <code>http://example.com/index.html</code> ab
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Schließen"
-            className="p-2 rounded-lg hover:bg-slate-500/20"
-          >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        {/* Toolbar */}
-        <div
-          className={`sticky top-[73px] z-10 flex flex-wrap items-center gap-3 px-6 py-3 border-b ${
+          className={`relative w-full max-w-[1200px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
             dark
-              ? "bg-slate-900/95 border-slate-700"
-              : "bg-white/95 border-slate-200"
+              ? "bg-slate-900 border-slate-700 text-slate-100"
+              : "bg-white border-slate-200 text-slate-900"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
+          {/* Header */}
           <div
-            className={`inline-flex rounded-lg overflow-hidden border ${
-              dark ? "border-slate-700" : "border-slate-300"
+            className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
+              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
             }`}
           >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
+                  dark
+                    ? "bg-purple-500/20 text-purple-300"
+                    : "bg-purple-100 text-purple-700"
+                }`}
+              >
+                📦
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">
+                  OSI Encapsulation Simulator
+                </h2>
+                <p className="text-xs opacity-70">
+                  Beispiel: Browser ruft <code>http://example.com/index.html</code> ab
+                </p>
+              </div>
+            </div>
             <button
-              onClick={() => setDirection("send")}
-              className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
-                direction === "send"
-                  ? "bg-purple-500 text-white"
-                  : dark
-                    ? "hover:bg-slate-800"
-                    : "hover:bg-slate-100"
-              }`}
+              onClick={onClose}
+              aria-label="Schließen"
+              className="p-2 rounded-lg hover:bg-slate-500/20"
             >
-              <ArrowDown size={14} weight="bold" /> Encapsulation (Send)
-            </button>
-            <button
-              onClick={() => setDirection("receive")}
-              className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
-                direction === "receive"
-                  ? "bg-emerald-500 text-white"
-                  : dark
-                    ? "hover:bg-slate-800"
-                    : "hover:bg-slate-100"
-              }`}
-            >
-              <ArrowUp size={14} weight="bold" /> Decapsulation (Receive)
+              <X size={18} weight="bold" />
             </button>
           </div>
 
-          <div className="h-6 w-px bg-slate-500/30" />
-
-          <button
-            onClick={playPause}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold ${
-              dark
-                ? "bg-cyan-500/30 hover:bg-cyan-500/50 text-cyan-100"
-                : "bg-cyan-100 hover:bg-cyan-200 text-cyan-900"
-            }`}
-          >
-            {running ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
-            {running ? "Pause" : step >= 6 ? "Neu starten" : "Play"}
-          </button>
-
-          <button
-            onClick={reset}
-            className={`px-3 py-1.5 rounded-lg text-sm border ${
-              dark
-                ? "border-slate-600 hover:bg-slate-700"
-                : "border-slate-300 hover:bg-slate-100"
-            }`}
-          >
-            ↺ Reset
-          </button>
-
-          <div className="flex items-center gap-2 text-xs ml-auto">
-            <span className="opacity-70">Schritt:</span>
-            <input
-              type="range"
-              min={0}
-              max={6}
-              value={step}
-              onChange={(e) => {
-                setStep(Number(e.target.value));
-                setRunning(false);
-              }}
-              className="w-32"
-            />
-            <span className="font-mono w-12">
-              {step + 1}/7
-            </span>
-            <span className="opacity-70 ml-3">Speed:</span>
-            <select
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className={`text-xs rounded px-2 py-1 border ${
-                dark
-                  ? "bg-slate-900 border-slate-600 text-slate-100"
-                  : "bg-white border-slate-300 text-slate-900"
-              }`}
-            >
-              <option value={3000}>0.3×</option>
-              <option value={1500}>1×</option>
-              <option value={750}>2×</option>
-              <option value={300}>4×</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="grid lg:grid-cols-[420px_1fr] gap-5 p-6">
-          {/* Layer-Stack */}
+          {/* Toolbar */}
           <div
-            className={`rounded-xl border p-4 ${
-              dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
+            className={`sticky top-[73px] z-10 flex flex-wrap items-center gap-3 px-6 py-3 border-b ${
+              dark
+                ? "bg-slate-900/95 border-slate-700"
+                : "bg-white/95 border-slate-200"
             }`}
           >
-            <div className="text-xs opacity-70 mb-2">
-              {direction === "send"
-                ? "Daten gehen DOWN durch den Stack — jede Schicht hängt einen Header an."
-                : "Daten kommen vom Kabel UP durch den Stack — jede Schicht streift ihren Header ab."}
-            </div>
-            <div className="space-y-1.5">
-              {LAYERS.map((l, i) => {
-                const active = i === activeLayerIdx;
-                const wrapped = wrappedLayerIdxs.has(i);
-                return (
-                  <button
-                    key={l.num}
-                    onClick={() => {
-                      setStep(direction === "send" ? i : 6 - i);
-                      setRunning(false);
-                    }}
-                    className={`w-full text-left rounded-lg p-2.5 transition-all border ${
-                      active
-                        ? "ring-2 scale-[1.02]"
-                        : wrapped
-                          ? "opacity-100"
-                          : "opacity-50"
-                    } ${
-                      dark
-                        ? "bg-slate-900 border-slate-700"
-                        : "bg-white border-slate-200"
-                    }`}
-                    style={{
-                      borderLeftWidth: 5,
-                      borderLeftColor: l.color,
-                      ...(active ? { boxShadow: `0 0 0 2px ${l.color}` } : {}),
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-xs font-bold font-mono w-5 text-center"
-                          style={{ color: l.color }}
-                        >
-                          L{l.num}
-                        </span>
-                        <span className="text-sm font-semibold">{l.name}</span>
-                      </div>
-                      <span
-                        className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-                        style={{
-                          background: `${l.color}30`,
-                          color: l.color,
-                        }}
-                      >
-                        {l.pdu}
-                      </span>
-                    </div>
-                    <div className="text-[10px] opacity-70 mt-1 font-mono">
-                      {l.protocols.slice(0, 3).join(" · ")}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* PDU-Größe */}
             <div
-              className={`mt-4 rounded-lg p-3 text-xs ${
-                dark
-                  ? "bg-cyan-500/10 border border-cyan-500/30"
-                  : "bg-cyan-50 border border-cyan-200"
+              className={`inline-flex rounded-lg overflow-hidden border ${
+                dark ? "border-slate-700" : "border-slate-300"
               }`}
             >
-              <div className="font-semibold mb-1">Aktuelle PDU-Größe</div>
-              <div className="font-mono">
-                {direction === "send"
-                  ? `${cumulativeBytes(activeLayerIdx)} Bytes nach L${activeLayer.num}`
-                  : `${cumulativeBytes(activeLayerIdx)} Bytes vor L${activeLayer.num}-Decap`}
-              </div>
-              <div className="opacity-70 mt-1">
-                Annahme: 50 B HTTP-Payload + Header pro Schicht
-              </div>
+              <button
+                onClick={() => setDirection("send")}
+                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
+                  direction === "send"
+                    ? "bg-purple-500 text-white"
+                    : dark
+                      ? "hover:bg-slate-800"
+                      : "hover:bg-slate-100"
+                }`}
+              >
+                <ArrowDown size={14} weight="bold" /> Encapsulation (Send)
+              </button>
+              <button
+                onClick={() => setDirection("receive")}
+                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
+                  direction === "receive"
+                    ? "bg-emerald-500 text-white"
+                    : dark
+                      ? "hover:bg-slate-800"
+                      : "hover:bg-slate-100"
+                }`}
+              >
+                <ArrowUp size={14} weight="bold" /> Decapsulation (Receive)
+              </button>
+            </div>
+
+            <div className="h-6 w-px bg-slate-500/30" />
+
+            <button
+              onClick={playPause}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                dark
+                  ? "bg-cyan-500/30 hover:bg-cyan-500/50 text-cyan-100"
+                  : "bg-cyan-100 hover:bg-cyan-200 text-cyan-900"
+              }`}
+            >
+              {running ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
+              {running ? "Pause" : step >= 6 ? "Neu starten" : "Play"}
+            </button>
+
+            <button
+              onClick={reset}
+              className={`px-3 py-1.5 rounded-lg text-sm border ${
+                dark
+                  ? "border-slate-600 hover:bg-slate-700"
+                  : "border-slate-300 hover:bg-slate-100"
+              }`}
+            >
+              ↺ Reset
+            </button>
+
+            <div className="flex items-center gap-2 text-xs ml-auto">
+              <span className="opacity-70">Schritt:</span>
+              <input
+                type="range"
+                min={0}
+                max={6}
+                value={step}
+                onChange={(e) => {
+                  setStep(Number(e.target.value));
+                  setRunning(false);
+                }}
+                className="w-32"
+              />
+              <span className="font-mono w-12">
+                {step + 1}/7
+              </span>
+              <span className="opacity-70 ml-3">Speed:</span>
+              <select
+                value={speed}
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                className={`text-xs rounded px-2 py-1 border ${
+                  dark
+                    ? "bg-slate-900 border-slate-600 text-slate-100"
+                    : "bg-white border-slate-300 text-slate-900"
+                }`}
+              >
+                <option value={3000}>0.3×</option>
+                <option value={1500}>1×</option>
+                <option value={750}>2×</option>
+                <option value={300}>4×</option>
+              </select>
             </div>
           </div>
 
-          {/* Detail */}
-          <div className="space-y-4">
-            {/* Animierte Frame-Darstellung */}
+          {/* Body */}
+          <div className="grid lg:grid-cols-[420px_1fr] gap-5 p-6">
+            {/* Layer-Stack */}
             <div
               className={`rounded-xl border p-4 ${
                 dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
               }`}
             >
               <div className="text-xs opacity-70 mb-2">
-                Aktuelle PDU-Struktur (visuell)
+                {direction === "send"
+                  ? "Daten gehen DOWN durch den Stack — jede Schicht hängt einen Header an."
+                  : "Daten kommen vom Kabel UP durch den Stack — jede Schicht streift ihren Header ab."}
               </div>
-              <div className="flex items-stretch gap-1 overflow-x-auto py-2">
-                {/* Header der gewrappten Layers (von außen nach innen) */}
-                {LAYERS.filter((_, i) => wrappedLayerIdxs.has(i) && LAYERS[i].headerBytes > 0).map((l) => (
-                  <div
-                    key={`h-${l.num}`}
-                    className="flex flex-col items-center justify-center px-2 py-3 rounded text-xs font-mono whitespace-nowrap"
-                    style={{
-                      background: `${l.color}30`,
-                      color: l.color,
-                      border: `1.5px solid ${l.color}`,
-                      minWidth: 70,
-                    }}
-                  >
-                    <div className="font-bold">L{l.num}-HDR</div>
-                    <div className="text-[10px] opacity-80">{l.headerBytes} B</div>
-                  </div>
-                ))}
-                {/* Payload */}
-                <div
-                  className={`flex flex-col items-center justify-center px-4 py-3 rounded text-xs font-mono ${
-                    dark ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-900"
-                  }`}
-                  style={{ minWidth: 100 }}
-                >
-                  <div className="font-bold">PAYLOAD</div>
-                  <div className="text-[10px] opacity-80">~50 B</div>
-                  <div className="text-[10px] opacity-60 mt-0.5">
-                    GET /index.html
-                  </div>
+              <div className="space-y-1.5">
+                {LAYERS.map((l, i) => {
+                  const active = i === activeLayerIdx;
+                  const wrapped = wrappedLayerIdxs.has(i);
+                  return (
+                    <button
+                      key={l.num}
+                      onClick={() => {
+                        setStep(direction === "send" ? i : 6 - i);
+                        setRunning(false);
+                      }}
+                      className={`w-full text-left rounded-lg p-2.5 transition-all border ${
+                        active
+                          ? "ring-2 scale-[1.02]"
+                          : wrapped
+                            ? "opacity-100"
+                            : "opacity-50"
+                      } ${
+                        dark
+                          ? "bg-slate-900 border-slate-700"
+                          : "bg-white border-slate-200"
+                      }`}
+                      style={{
+                        borderLeftWidth: 5,
+                        borderLeftColor: l.color,
+                        ...(active ? { boxShadow: `0 0 0 2px ${l.color}` } : {}),
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="text-xs font-bold font-mono w-5 text-center"
+                            style={{ color: l.color }}
+                          >
+                            L{l.num}
+                          </span>
+                          <span className="text-sm font-semibold">{l.name}</span>
+                        </div>
+                        <span
+                          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                          style={{
+                            background: `${l.color}30`,
+                            color: l.color,
+                          }}
+                        >
+                          {l.pdu}
+                        </span>
+                      </div>
+                      <div className="text-[10px] opacity-70 mt-1 font-mono">
+                        {l.protocols.slice(0, 3).join(" · ")}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* PDU-Größe */}
+              <div
+                className={`mt-4 rounded-lg p-3 text-xs ${
+                  dark
+                    ? "bg-cyan-500/10 border border-cyan-500/30"
+                    : "bg-cyan-50 border border-cyan-200"
+                }`}
+              >
+                <div className="font-semibold mb-1">Aktuelle PDU-Größe</div>
+                <div className="font-mono">
+                  {direction === "send"
+                    ? `${cumulativeBytes(activeLayerIdx)} Bytes nach L${activeLayer.num}`
+                    : `${cumulativeBytes(activeLayerIdx)} Bytes vor L${activeLayer.num}-Decap`}
                 </div>
-                {/* Trailer der gewrappten Layers (umgekehrt: innerster zuerst → äußerster letzter) */}
-                {LAYERS.filter((_, i) => wrappedLayerIdxs.has(i) && (LAYERS[i].trailerBytes ?? 0) > 0)
-                  .slice()
-                  .reverse()
-                  .map((l) => (
+                <div className="opacity-70 mt-1">
+                  Annahme: 50 B HTTP-Payload + Header pro Schicht
+                </div>
+              </div>
+            </div>
+
+            {/* Detail */}
+            <div className="space-y-4">
+              {/* Animierte Frame-Darstellung */}
+              <div
+                className={`rounded-xl border p-4 ${
+                  dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <div className="text-xs opacity-70 mb-2">
+                  Aktuelle PDU-Struktur (visuell)
+                </div>
+                <div className="flex items-stretch gap-1 overflow-x-auto py-2">
+                  {/* Header der gewrappten Layers (von außen nach innen) */}
+                  {LAYERS.filter((_, i) => wrappedLayerIdxs.has(i) && LAYERS[i].headerBytes > 0).map((l) => (
                     <div
-                      key={`t-${l.num}`}
+                      key={`h-${l.num}`}
                       className="flex flex-col items-center justify-center px-2 py-3 rounded text-xs font-mono whitespace-nowrap"
                       style={{
                         background: `${l.color}30`,
@@ -746,247 +719,280 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                         minWidth: 70,
                       }}
                     >
-                      <div className="font-bold">L{l.num}-FCS</div>
-                      <div className="text-[10px] opacity-80">{l.trailerBytes} B</div>
+                      <div className="font-bold">L{l.num}-HDR</div>
+                      <div className="text-[10px] opacity-80">{l.headerBytes} B</div>
                     </div>
                   ))}
-              </div>
-            </div>
-
-            {/* Aktuelle Schicht — Detail */}
-            <div
-              className="rounded-xl border-2 p-5 space-y-4"
-              style={{ borderColor: activeLayer.color }}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-2xl font-bold font-mono"
-                      style={{ color: activeLayer.color }}
-                    >
-                      L{activeLayer.num}
-                    </span>
-                    <h3 className="text-xl font-semibold">
-                      {activeLayer.name}
-                    </h3>
+                  {/* Payload */}
+                  <div
+                    className={`flex flex-col items-center justify-center px-4 py-3 rounded text-xs font-mono ${
+                      dark ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-900"
+                    }`}
+                    style={{ minWidth: 100 }}
+                  >
+                    <div className="font-bold">PAYLOAD</div>
+                    <div className="text-[10px] opacity-80">~50 B</div>
+                    <div className="text-[10px] opacity-60 mt-0.5">
+                      GET /index.html
+                    </div>
                   </div>
-                  <div className="text-xs opacity-70 mt-1 font-mono">
-                    PDU: <strong>{activeLayer.pdu}</strong> · Header: {activeLayer.headerBytes} B
-                    {activeLayer.trailerBytes ? ` + Trailer: ${activeLayer.trailerBytes} B` : ""}
+                  {/* Trailer der gewrappten Layers (umgekehrt: innerster zuerst → äußerster letzter) */}
+                  {LAYERS.filter((_, i) => wrappedLayerIdxs.has(i) && (LAYERS[i].trailerBytes ?? 0) > 0)
+                    .slice()
+                    .reverse()
+                    .map((l) => (
+                      <div
+                        key={`t-${l.num}`}
+                        className="flex flex-col items-center justify-center px-2 py-3 rounded text-xs font-mono whitespace-nowrap"
+                        style={{
+                          background: `${l.color}30`,
+                          color: l.color,
+                          border: `1.5px solid ${l.color}`,
+                          minWidth: 70,
+                        }}
+                      >
+                        <div className="font-bold">L{l.num}-FCS</div>
+                        <div className="text-[10px] opacity-80">{l.trailerBytes} B</div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Aktuelle Schicht — Detail */}
+              <div
+                className="rounded-xl border-2 p-5 space-y-4"
+                style={{ borderColor: activeLayer.color }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-2xl font-bold font-mono"
+                        style={{ color: activeLayer.color }}
+                      >
+                        L{activeLayer.num}
+                      </span>
+                      <h3 className="text-xl font-semibold">
+                        {activeLayer.name}
+                      </h3>
+                    </div>
+                    <div className="text-xs opacity-70 mt-1 font-mono">
+                      PDU: <strong>{activeLayer.pdu}</strong> · Header: {activeLayer.headerBytes} B
+                      {activeLayer.trailerBytes ? ` + Trailer: ${activeLayer.trailerBytes} B` : ""}
+                    </div>
+                  </div>
+                  <div
+                    className="text-xs px-2 py-1 rounded font-mono"
+                    style={{
+                      background: `${activeLayer.color}25`,
+                      color: activeLayer.color,
+                    }}
+                  >
+                    {direction === "send" ? "→ Encapsulation" : "← Decapsulation"}
                   </div>
                 </div>
+
+                {/* Aktion */}
                 <div
-                  className="text-xs px-2 py-1 rounded font-mono"
+                  className="rounded-lg p-3"
                   style={{
-                    background: `${activeLayer.color}25`,
-                    color: activeLayer.color,
+                    background:
+                      direction === "send"
+                        ? `${activeLayer.color}15`
+                        : `${activeLayer.color}10`,
+                    borderLeft: `3px solid ${activeLayer.color}`,
                   }}
                 >
-                  {direction === "send" ? "→ Encapsulation" : "← Decapsulation"}
-                </div>
-              </div>
-
-              {/* Aktion */}
-              <div
-                className="rounded-lg p-3"
-                style={{
-                  background:
-                    direction === "send"
-                      ? `${activeLayer.color}15`
-                      : `${activeLayer.color}10`,
-                  borderLeft: `3px solid ${activeLayer.color}`,
-                }}
-              >
-                <div className="text-xs font-semibold mb-1 uppercase tracking-wide opacity-80">
-                  Was passiert genau?
-                </div>
-                <p className="text-sm">
-                  {direction === "send"
-                    ? activeLayer.encapAction
-                    : activeLayer.decapAction}
-                </p>
-              </div>
-
-              {/* Logical / Physical */}
-              <div className="grid sm:grid-cols-2 gap-3">
-                <div
-                  className={`rounded-lg p-3 border ${
-                    dark
-                      ? "bg-blue-500/5 border-blue-500/30"
-                      : "bg-blue-50 border-blue-200"
-                  }`}
-                >
-                  <div
-                    className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
-                      dark ? "text-blue-300" : "text-blue-700"
-                    }`}
-                  >
-                    🧠 Logischer Ablauf
+                  <div className="text-xs font-semibold mb-1 uppercase tracking-wide opacity-80">
+                    Was passiert genau?
                   </div>
-                  <p className="text-sm leading-snug">
-                    {activeLayer.logicalRole}
+                  <p className="text-sm">
+                    {direction === "send"
+                      ? activeLayer.encapAction
+                      : activeLayer.decapAction}
                   </p>
                 </div>
-                <div
-                  className={`rounded-lg p-3 border ${
-                    dark
-                      ? "bg-orange-500/5 border-orange-500/30"
-                      : "bg-orange-50 border-orange-200"
-                  }`}
-                >
+
+                {/* Logical / Physical */}
+                <div className="grid sm:grid-cols-2 gap-3">
                   <div
-                    className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
-                      dark ? "text-orange-300" : "text-orange-700"
+                    className={`rounded-lg p-3 border ${
+                      dark
+                        ? "bg-blue-500/5 border-blue-500/30"
+                        : "bg-blue-50 border-blue-200"
                     }`}
                   >
-                    ⚙ Physischer Ablauf
-                  </div>
-                  <p className="text-sm leading-snug">
-                    {activeLayer.physicalRole}
-                  </p>
-                </div>
-              </div>
-
-              {/* Header-Felder */}
-              <div>
-                <div className="text-sm font-semibold mb-2">
-                  Header-Felder ({activeLayer.headerBytes} Byte
-                  {activeLayer.trailerBytes ? ` + ${activeLayer.trailerBytes} B Trailer` : ""})
-                </div>
-                <div
-                  className={`rounded-lg border overflow-hidden ${
-                    dark ? "border-slate-700" : "border-slate-200"
-                  }`}
-                >
-                  <table className="w-full text-xs">
-                    <thead
-                      className={`text-left ${
-                        dark
-                          ? "bg-slate-800 text-slate-300"
-                          : "bg-slate-100 text-slate-700"
+                    <div
+                      className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
+                        dark ? "text-blue-300" : "text-blue-700"
                       }`}
                     >
-                      <tr>
-                        <th className="py-1.5 px-2">Feld</th>
-                        <th className="py-1.5 px-2">Bytes</th>
-                        <th className="py-1.5 px-2">Beispielwert</th>
-                        <th className="py-1.5 px-2">Erklärung</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeLayer.headerFields.map((f, i) => (
-                        <tr
-                          key={i}
-                          className={`border-t ${
-                            dark ? "border-slate-700" : "border-slate-200"
-                          }`}
-                        >
-                          <td className="py-1.5 px-2 font-mono font-semibold">
-                            {f.name}
-                          </td>
-                          <td className="py-1.5 px-2 font-mono opacity-70">
-                            {f.bytes}
-                          </td>
-                          <td
-                            className="py-1.5 px-2 font-mono"
-                            style={{ color: activeLayer.color }}
-                          >
-                            {f.value}
-                          </td>
-                          <td className="py-1.5 px-2 opacity-80">
-                            {f.explain}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Protokolle & Geräte */}
-              <div className="grid sm:grid-cols-2 gap-3 text-xs">
-                <div>
-                  <div className="font-semibold mb-1 opacity-80">Protokolle</div>
-                  <div className="flex flex-wrap gap-1">
-                    {activeLayer.protocols.map((p) => (
-                      <span
-                        key={p}
-                        className={`px-2 py-0.5 rounded font-mono ${
-                          dark ? "bg-slate-800" : "bg-slate-100"
-                        }`}
-                      >
-                        {p}
-                      </span>
-                    ))}
+                      🧠 Logischer Ablauf
+                    </div>
+                    <p className="text-sm leading-snug">
+                      {activeLayer.logicalRole}
+                    </p>
                   </div>
-                </div>
-                <div>
-                  <div className="font-semibold mb-1 opacity-80">Cisco-Geräte / Komponenten</div>
-                  <div className="flex flex-wrap gap-1">
-                    {activeLayer.devices.map((d) => (
-                      <span
-                        key={d}
-                        className={`px-2 py-0.5 rounded ${
-                          dark ? "bg-slate-800" : "bg-slate-100"
-                        }`}
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Hex Example */}
-              {activeLayer.hexExample && (
-                <div>
-                  <div className="text-sm font-semibold mb-2">
-                    Hex-Beispiel (auf dem Draht)
-                  </div>
-                  <pre
-                    className={`rounded-lg p-3 text-[11px] font-mono leading-relaxed overflow-x-auto ${
+                  <div
+                    className={`rounded-lg p-3 border ${
                       dark
-                        ? "bg-slate-950 text-green-400 border border-slate-700"
-                        : "bg-slate-900 text-green-400"
+                        ? "bg-orange-500/5 border-orange-500/30"
+                        : "bg-orange-50 border-orange-200"
                     }`}
                   >
-                    {activeLayer.hexExample}
-                  </pre>
+                    <div
+                      className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
+                        dark ? "text-orange-300" : "text-orange-700"
+                      }`}
+                    >
+                      ⚙ Physischer Ablauf
+                    </div>
+                    <p className="text-sm leading-snug">
+                      {activeLayer.physicalRole}
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* Lernzusammenfassung */}
-            <div
-              className={`rounded-xl border p-4 text-xs ${
-                dark
-                  ? "border-violet-500/30 bg-violet-500/5 text-violet-100"
-                  : "border-violet-200 bg-violet-50 text-violet-900"
-              }`}
-            >
-              <div className="font-semibold mb-2">💡 Merke</div>
-              <ul className="space-y-1 list-disc ml-5">
-                <li>
-                  <strong>Encapsulation</strong> = Sender hängt Header von oben (L7) nach unten (L1) an
-                </li>
-                <li>
-                  <strong>Decapsulation</strong> = Empfänger streift Header von unten (L1) nach oben (L7) ab
-                </li>
-                <li>
-                  <strong>MAC ändert sich</strong> bei jedem Hop (Router schreibt L2 neu) — <strong>IP bleibt gleich</strong>
-                </li>
-                <li>
-                  <strong>TTL</strong> wird bei jedem Hop um 1 verringert
-                </li>
-                <li>
-                  Eselsbrücke L7→L1: <em>All People Seem To Need Data Processing</em>
-                </li>
-              </ul>
+                {/* Header-Felder */}
+                <div>
+                  <div className="text-sm font-semibold mb-2">
+                    Header-Felder ({activeLayer.headerBytes} Byte
+                    {activeLayer.trailerBytes ? ` + ${activeLayer.trailerBytes} B Trailer` : ""})
+                  </div>
+                  <div
+                    className={`rounded-lg border overflow-hidden ${
+                      dark ? "border-slate-700" : "border-slate-200"
+                    }`}
+                  >
+                    <table className="w-full text-xs">
+                      <thead
+                        className={`text-left ${
+                          dark
+                            ? "bg-slate-800 text-slate-300"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        <tr>
+                          <th className="py-1.5 px-2">Feld</th>
+                          <th className="py-1.5 px-2">Bytes</th>
+                          <th className="py-1.5 px-2">Beispielwert</th>
+                          <th className="py-1.5 px-2">Erklärung</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeLayer.headerFields.map((f, i) => (
+                          <tr
+                            key={i}
+                            className={`border-t ${
+                              dark ? "border-slate-700" : "border-slate-200"
+                            }`}
+                          >
+                            <td className="py-1.5 px-2 font-mono font-semibold">
+                              {f.name}
+                            </td>
+                            <td className="py-1.5 px-2 font-mono opacity-70">
+                              {f.bytes}
+                            </td>
+                            <td
+                              className="py-1.5 px-2 font-mono"
+                              style={{ color: activeLayer.color }}
+                            >
+                              {f.value}
+                            </td>
+                            <td className="py-1.5 px-2 opacity-80">
+                              {f.explain}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Protokolle & Geräte */}
+                <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div className="font-semibold mb-1 opacity-80">Protokolle</div>
+                    <div className="flex flex-wrap gap-1">
+                      {activeLayer.protocols.map((p) => (
+                        <span
+                          key={p}
+                          className={`px-2 py-0.5 rounded font-mono ${
+                            dark ? "bg-slate-800" : "bg-slate-100"
+                          }`}
+                        >
+                          {p}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-semibold mb-1 opacity-80">Cisco-Geräte / Komponenten</div>
+                    <div className="flex flex-wrap gap-1">
+                      {activeLayer.devices.map((d) => (
+                        <span
+                          key={d}
+                          className={`px-2 py-0.5 rounded ${
+                            dark ? "bg-slate-800" : "bg-slate-100"
+                          }`}
+                        >
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hex Example */}
+                {activeLayer.hexExample && (
+                  <div>
+                    <div className="text-sm font-semibold mb-2">
+                      Hex-Beispiel (auf dem Draht)
+                    </div>
+                    <pre
+                      className={`rounded-lg p-3 text-[11px] font-mono leading-relaxed overflow-x-auto ${
+                        dark
+                          ? "bg-slate-950 text-green-400 border border-slate-700"
+                          : "bg-slate-900 text-green-400"
+                      }`}
+                    >
+                      {activeLayer.hexExample}
+                    </pre>
+                  </div>
+                )}
+              </div>
+
+              {/* Lernzusammenfassung */}
+              <div
+                className={`rounded-xl border p-4 text-xs ${
+                  dark
+                    ? "border-violet-500/30 bg-violet-500/5 text-violet-100"
+                    : "border-violet-200 bg-violet-50 text-violet-900"
+                }`}
+              >
+                <div className="font-semibold mb-2">💡 Merke</div>
+                <ul className="space-y-1 list-disc ml-5">
+                  <li>
+                    <strong>Encapsulation</strong> = Sender hängt Header von oben (L7) nach unten (L1) an
+                  </li>
+                  <li>
+                    <strong>Decapsulation</strong> = Empfänger streift Header von unten (L1) nach oben (L7) ab
+                  </li>
+                  <li>
+                    <strong>MAC ändert sich</strong> bei jedem Hop (Router schreibt L2 neu) — <strong>IP bleibt gleich</strong>
+                  </li>
+                  <li>
+                    <strong>TTL</strong> wird bei jedem Hop um 1 verringert
+                  </li>
+                  <li>
+                    Eselsbrücke L7→L1: <em>All People Seem To Need Data Processing</em>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
