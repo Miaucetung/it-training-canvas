@@ -1,6 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { escapeHtml } from "@/lib/escape";
+import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -556,12 +557,7 @@ export function LabScenariosDialog({
           onClose();
         }
       } else if (e.key === "p" || e.key === "P") {
-        const target = e.target as HTMLElement;
-        const isInput =
-          target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable;
-        if (!isInput) {
+        if (!shouldIgnoreSingleKeyShortcut(e, { allowInModal: true })) {
           e.preventDefault();
           setPresentationMode((prev) => !prev);
         }

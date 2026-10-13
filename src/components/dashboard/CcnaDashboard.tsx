@@ -1,3 +1,4 @@
+import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { loadModule } from "@/lib/content/content-loader";
 import type { CertificationModule, Topic } from "@/lib/content/types";
@@ -150,17 +151,10 @@ export function CcnaDashboard({
   // Keyboard shortcut listener (Cmd+K / Ctrl+K and Presentation Mode 'P')
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isInput =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable);
-
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
-      } else if (!isInput && (e.key === "p" || e.key === "P")) {
+      } else if (!shouldIgnoreSingleKeyShortcut(e) && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         setIsPresentationMode((prev) => !prev);
       } else if (e.key === "Escape") {

@@ -1,3 +1,4 @@
+import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import { AnnotationLayer } from "@/components/AnnotationLayer";
 import { Canvas } from "@/components/Canvas";
 import { CanvasV2Container } from "@/components/canvas-v2/CanvasV2Container";
@@ -1288,8 +1289,8 @@ function App() {
             updateCanvasState(newObjects);
           }
         }
-      } else if (!e.ctrlKey && !e.metaKey && !isInputActive) {
-        // Tool-Shortcuts nur wenn kein Input aktiv
+      } else if (!shouldIgnoreSingleKeyShortcut(e) && !isInputActive) {
+        // Tool-Shortcuts nur wenn kein Eingabeelement/Dialog aktiv und keine Strg/Cmd/Alt-Kombination
         const toolMap: Record<string, Tool> = {
           v: "select",
           p: "pen",
