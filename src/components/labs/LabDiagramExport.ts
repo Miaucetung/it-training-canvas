@@ -1,4 +1,5 @@
 import { escapeHtml } from "@/lib/escape";
+import { embedFontsInSvg } from "@/lib/svg-font-embed";
 import type { LabScenario } from "./types";
 
 /**
@@ -18,6 +19,8 @@ export async function exportTopologyAsPng(
       '<svg xmlns="http://www.w3.org/2000/svg"',
     );
   }
+
+  svgString = await embedFontsInSvg(svgString);
 
   const svgBlob = new Blob([svgString], {
     type: "image/svg+xml;charset=utf-8",

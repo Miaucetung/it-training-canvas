@@ -1,4 +1,5 @@
 import { NetworkTopology, networkTopologySchema } from "@/types/topology";
+import { embedFontsInSvg } from "@/lib/svg-font-embed";
 
 // ============================================================================
 // CCNA 200-301 Storage & Export Manager (2d-3)
@@ -329,7 +330,7 @@ export async function exportTopologyAsPng(
     }
   }
 
-  const svgString = generateCleanSvgString(svgElement, theme);
+  const svgString = await embedFontsInSvg(generateCleanSvgString(svgElement, theme));
   const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
