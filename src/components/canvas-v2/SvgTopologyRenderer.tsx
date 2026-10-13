@@ -425,7 +425,8 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 fontWeight="bold"
                 fontFamily="'IBM Plex Sans', sans-serif"
               >
-                {zone.name} <tspan fill={zone.color}>({zone.cidr})</tspan>
+                {zone.name}
+                {zone.cidr && <tspan fill={zone.color}> ({zone.cidr})</tspan>}
               </text>
             </g>
           </g>

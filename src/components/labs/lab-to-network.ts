@@ -17,6 +17,7 @@ import {
 } from "@/lib/topology/hardware-profiles";
 import type { LabScenario, LabTopologyData, LabTopologyDevice } from "./types";
 import { placeZoneBadge } from "./topology-geometry";
+import { computeStp } from "@/lib/topology/stp-calc";
 
 // ============================================================================
 // Lab-Topologie -> Netzwerk-Topologie (Canvas v2).
@@ -466,6 +467,25 @@ export function buildNetworkTopologyFromLab(
       labState: state,
     },
   };
+  // Spanning-Tree-Rollen anzeigen, wenn das Lab spanning-tree konfiguriert (Root-Wahl, Alternate-Port)
+  if (state === "target" && devices.some((d) => /^\s*spanning-tree/m.test(d.config?.labCli ?? ""))) {
+    const stp = computeStp(topology);
+    const roleOf = { Root: "RP", Desg: "DP", Altn: "BLK" } as const;
+    for (const bridge of stp.values()) {
+      for (const p of bridge.ports) {
+        const linked = links.some((l) => l.sourceInterfaceId === p.iface.id || l.targetInterfaceId === p.iface.id);
+        if (linked && links.some((l) => (l.sourceInterfaceId === p.iface.id || l.targetInterfaceId === p.iface.id) && stp.has(l.sourceDeviceId) && stp.has(l.targetDeviceId))) {
+          p.iface.portRole = roleOf[p.role];
+        }
+      }
+    }
+    for (const l of links) {
+      const ends = [l.sourceInterfaceId, l.targetInterfaceId];
+      const blocked = devices.some((d) => d.interfaces.some((i) => ends.includes(i.id) && i.portRole === "BLK"));
+      if (blocked) l.status = "stp-blocking";
+    }
+  }
+
   return { topology, problems };
 }
 

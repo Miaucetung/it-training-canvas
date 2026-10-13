@@ -421,7 +421,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
 
       {/* 3. STP-Blocking: Querbalken-Marker am Zielport */}
       {isStpBlocking && (
-        <g transform={`translate(${x2 - ux * 28}, ${y2 - uy * 28})`}>
+        <g transform={`translate(${x2 - tgtDirX * (hasBends ? 56 : 28)}, ${y2 - tgtDirY * (hasBends ? 56 : 28)})`}>
           {/* Blocking Querbalken || */}
           <circle cx="0" cy="0" r="9" fill="#7C2D12" stroke="#F97316" strokeWidth="1.5" />
           <line x1="-2.5" y1="-4" x2="-2.5" y2="4" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />

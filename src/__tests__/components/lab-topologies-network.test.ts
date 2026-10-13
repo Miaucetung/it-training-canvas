@@ -195,6 +195,19 @@ describe("Lab stp: Spanning-Tree-Ergebnis folgt aus dem Lab (priority 4096 auf S
     expect(sw1.ports.every((p) => p.role === "Desg" && p.state === "FWD")).toBe(true);
   });
 
+  it("Rollen werden im Canvas angezeigt: SW2 Gi0/1 RP, Gi0/2 BLK, blockierter Link markiert", () => {
+    const sw2 = topology.devices.find((d) => d.id === "sw2")!;
+    expect(sw2.interfaces.find((i) => i.name === "Gi0/1")!.portRole).toBe("RP");
+    expect(sw2.interfaces.find((i) => i.name === "Gi0/2")!.portRole).toBe("BLK");
+    expect(topology.links.find((l) => l.id === "link-sw1-sw2-2")!.status).toBe("stp-blocking");
+    expect(topology.links.find((l) => l.id === "link-sw1-sw2-1")!.status).toBe("up");
+  });
+
+  it("andere Labs ohne spanning-tree-Konfiguration zeigen keine Rollen", () => {
+    const t = buildNetworkTopologyFromLab(lab("vtp-dtp"), CURATED_TOPOLOGIES["vtp-dtp"], "target").topology;
+    expect(t.devices.flatMap((d) => d.interfaces).some((i) => i.portRole)).toBe(false);
+  });
+
   it("SW2: Gi0/1 Root-Port, Gi0/2 Alternate/Blocking (Loop aufgelöst)", () => {
     const sw2 = stp.get("sw2")!;
     const byName = Object.fromEntries(sw2.ports.map((p) => [p.iface.name, `${p.role}/${p.state}`]));
