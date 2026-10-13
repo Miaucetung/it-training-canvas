@@ -911,7 +911,7 @@ export function LabScenariosDialog({
             {/* Packet Tracer Export ZIP */}
             <button
               onClick={() => exportLabForPacketTracer(currentLab)}
-              aria-label="Packet-Tracer-Export herunterladen"
+              aria-label="PT-Export: Packet-Tracer-Export herunterladen"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-cyan-300 bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-800/60 transition-colors shadow-xs"
               title="Packet-Tracer-Export: ZIP mit IOS-Konfigurationen pro Gerät + README-Aufbauanleitung"
             >

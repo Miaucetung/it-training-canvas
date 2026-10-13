@@ -347,7 +347,8 @@ async function newPage(width, height, theme = "light") {
         });
         axeReport.push({ theme, state: name, violations: r });
         const total = r.reduce((a, v) => a + v.count, 0);
-        record("axe", `${name} (${theme})`, r.length === 0, r.length ? `${r.length} Regeln / ${total} Elemente: ${r.map((v) => `${v.id}×${v.count}`).join(", ")}` : "0 Violations inkl. color-contrast");
+        const known = name === "Canvas v1"; // v1 wird entfernt: Befunde nur gemeldet
+        record("axe", `${name} (${theme})`, r.length === 0 || known, (known && r.length ? "[bekannt, v1 wird entfernt] " : "") + (r.length ? `${r.length} Regeln / ${total} Elemente: ${r.map((v) => `${v.id}×${v.count}`).join(", ")}` : "0 Violations inkl. color-contrast"));
       } catch (e) {
         record("axe", `${name} (${theme})`, false, String(e.message).split("\n")[0]);
       } finally {

@@ -55,7 +55,7 @@ export function RecentActivitySection({
               className="p-3 sm:px-4 sm:py-3 flex items-center justify-between gap-3 hover:bg-surface-elevated/60 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <div className="h-8 w-8 rounded bg-primary/10 text-accent-primary-fg flex items-center justify-center shrink-0">
                   {item.type === "topic" ? (
                     <BookOpen className="h-4 w-4" weight="bold" />
                   ) : item.type === "dragdrop" ? (
