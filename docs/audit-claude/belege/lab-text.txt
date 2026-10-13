@@ -1,0 +1,324 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+
+===== basic-ip
+DEVICES: [{"type":"router","label":"Router0","count":1},{"type":"switch","label":"Switch0","count":1},{"type":"pc","label":"PC0 / PC1","count":2}]
+CONNECTIONS: ["PC0 → Switch0  (FastEthernet)","PC1 → Switch0  (FastEthernet)","Switch0 → Router0 GigabitEthernet0/0"]
+DESC: Die einfachste Netzwerktopologie: ein Router verbindet zwei PCs über einen Switch.
+-- STEP Router konfigurieren
+  [Router0] Router>
+     enable
+  [Router0] Router#
+     configure terminal
+     hostname R1
+     no ip domain-lookup
+  [Router0] R1(config)#
+     interface GigabitEthernet0/0
+     ip address 192.168.1.1 255.255.255.0
+     no shutdown
+     end
+  [Router0] R1#
+     show ip interface brief
+     copy running-config startup-config
+-- STEP Switch konfigurieren
+  [Switch0] Switch>
+     enable
+     configure terminal
+     hostname SW1
+     no ip domain-lookup
+  [Switch0] SW1(config)#
+     interface vlan 1
+     ip address 192.168.1.2 255.255.255.0
+     no shutdown
+     exit
+     ip default-gateway 192.168.1.1
+  [Switch0] SW1(config)#
+     do copy running-config startup-config
+-- STEP PCs konfigurieren
+  [PC0] Desktop > IP Configuration
+     IP Address:  192.168.1.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.1.1
+  [PC1] Desktop > IP Configuration
+     IP Address:  192.168.1.20
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.1.1
+-- STEP Abschlusstest
+  [PC0] Desktop > Command Prompt
+     ping 192.168.1.20
+     ping 192.168.1.1
+-- STEP Typische Fehler bei der IP-Grundkonfiguration
+  [Merke] Häufige Fehler
+     no shutdown auf dem Router-Interface vergessen
+     Falsches Gateway auf dem PC
+     PC und Router in unterschiedlichen Subnetzen
+     Switch-Kabel am falschen Port
+
+===== vlan-trunking
+DEVICES: [{"type":"switch","label":"SW1 / SW2","count":2},{"type":"pc","label":"PC0–PC3","count":4}]
+CONNECTIONS: ["PC0 → SW1 Fa0/1  (VLAN 10, 192.168.10.0/24)","PC1 → SW1 Fa0/2  (VLAN 20, 192.168.20.0/24)","PC2 → SW2 Fa0/1  (VLAN 10, 192.168.10.0/24)","PC3 → SW2 Fa0/2  (VLAN 20, 192.168.20.0/24)","SW1 Gi0/1 ↔ SW2 Gi0/1  (Trunk)"]
+DESC: Zwei Switches teilen ein Netz in zwei VLANs auf. Trunk-Link verbindet die Switches. Ohne Router bleiben die beiden VLANs bewusst voneinander isoliert — genau das zeigt der Abschlusstest.
+-- STEP SW1: Grundkonfiguration + VLANs erstellen
+  [SW1] Switch>
+     enable
+     configure terminal
+     hostname SW1
+     no ip domain-lookup
+  [SW1] SW1(config)#
+     vlan 10
+     name SALES
+     vlan 20
+     name HR
+     exit
+  [SW1] SW1(config)#
+     interface FastEthernet0/1
+     switchport mode access
+     switchport access vlan 10
+     interface FastEthernet0/2
+     switchport mode access
+     switchport access vlan 20
+  [SW1] SW1(config)#
+     interface GigabitEthernet0/1
+     switchport mode trunk
+     switchport trunk allowed vlan 10,20
+     end
+     copy running-config startup-config
+-- STEP SW2 identisch konfigurieren
+  [SW2] Switch>
+     enable
+     configure terminal
+     hostname SW2
+     no ip domain-lookup
+  [SW2] SW2(config)#
+     vlan 10
+     name SALES
+     vlan 20
+     name HR
+     exit
+     interface FastEthernet0/1
+     switchport mode access
+     switchport access vlan 10
+     interface FastEthernet0/2
+     switchport mode access
+     switchport access vlan 20
+     interface GigabitEthernet0/1
+     switchport mode trunk
+     switchport trunk allowed vlan 10,20
+  [SW2] SW2(config)#
+     do copy running-config startup-config
+-- STEP PCs adressieren
+  [PC0] Desktop > IP Configuration
+     IP Address: 192.168.10.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.10.1
+  [PC1] Desktop > IP Configuration
+     IP Address: 192.168.20.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.20.1
+  [PC2] Desktop > IP Configuration
+     IP Address: 192.168.10.20
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.10.1
+  [PC3] Desktop > IP Configuration
+     IP Address: 192.168.20.20
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.20.1
+-- STEP Abschlusstest — Trunk trägt, VLANs trennen
+  [PC0] Desktop > Command Prompt
+     ping 192.168.10.20
+     ping 192.168.20.10
+-- STEP Typische Fehler bei VLAN & Trunking
+  [Merke] Häufige Fehler
+     VLANs nur auf einem Switch angelegt
+     Trunk vergessen oder als Access belassen
+     switchport trunk allowed vlan vergisst ein VLAN
+     Erwarteter Fehlschlag als Bug missverstanden
+
+===== roas
+DEVICES: [{"type":"router","label":"Router0","count":1},{"type":"switch","label":"Switch0","count":1},{"type":"pc","label":"PC0 (VLAN10) / PC1 (VLAN20)","count":2}]
+CONNECTIONS: ["PC0 → Switch0 Fa0/1","PC1 → Switch0 Fa0/2","Switch0 Gi0/1 → Router0 GigabitEthernet0/0  (Trunk)"]
+DESC: Ein Router mit einem einzigen Trunk-Port routet zwischen VLAN 10 und VLAN 20.
+-- STEP Switch konfigurieren
+  [Switch0] Switch>
+     enable
+     configure terminal
+     hostname SW1
+     no ip domain-lookup
+  [Switch0] SW1(config)#
+     vlan 10
+     name VLAN10
+     vlan 20
+     name VLAN20
+     exit
+     interface Fa0/1
+     switchport mode access
+     switchport access vlan 10
+     interface Fa0/2
+     switchport mode access
+     switchport access vlan 20
+     interface Gi0/1
+     switchport mode trunk
+  [Switch0] SW1(config)#
+     do copy running-config startup-config
+-- STEP Router Subinterfaces konfigurieren
+  [Router0] Router>
+     enable
+     configure terminal
+     hostname R1
+     no ip domain-lookup
+  [Router0] R1(config)#
+     interface GigabitEthernet0/0
+     no shutdown
+     interface GigabitEthernet0/0.10
+     encapsulation dot1Q 10
+     ip address 192.168.10.1 255.255.255.0
+     interface GigabitEthernet0/0.20
+     encapsulation dot1Q 20
+     ip address 192.168.20.1 255.255.255.0
+  [Router0] R1(config-subif)#
+     end
+     copy running-config startup-config
+-- STEP PCs konfigurieren
+  [PC0] Desktop > IP Configuration
+     IP Address: 192.168.10.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.10.1
+  [PC1] Desktop > IP Configuration
+     IP Address: 192.168.20.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.20.1
+-- STEP Abschlusstest
+  [PC0] Desktop > Command Prompt
+     ping 192.168.20.10
+-- STEP Typische Fehler bei Router-on-a-Stick
+  [Merke] Häufige Fehler
+     no shutdown auf dem Parent-Interface vergessen
+     encapsulation dot1Q vergessen
+     Trunk auf dem Switch vergessen
+     Gateway-IP auf dem PC falsch
+
+===== ospf
+DEVICES: [{"type":"router","label":"R1 / R2 / R3","count":3},{"type":"switch","label":"SW1–SW3","count":3},{"type":"pc","label":"PC pro Router-LAN","count":3}]
+CONNECTIONS: ["R1 Gi0/1 ↔ R2 Gi0/1  (10.0.12.0/30)","R2 Gi0/2 ↔ R3 Gi0/1  (10.0.23.0/30)","R1 Gi0/2 ↔ R3 Gi0/2  (10.0.13.0/30)","R1 Gi0/0 → SW1 → PC0  (192.168.1.0/24)","R2 Gi0/0 → SW2 → PC1  (192.168.2.0/24)","R3 Gi0/0 → SW3 → PC2  (192.168.3.0/24)"]
+DESC: Drei Router in Dreieck-Topologie, alle in OSPF Area 0. Kein manuelles Routing nötig.
+-- STEP R1: Grundkonfiguration + Interfaces + OSPF
+  [R1] Router>
+     enable
+     configure terminal
+     hostname R1
+     no ip domain-lookup
+  [R1] R1(config)#
+     interface Gi0/0
+     ip address 192.168.1.1 255.255.255.0
+     no shutdown
+     interface Gi0/1
+     ip address 10.0.12.1 255.255.255.252
+     no shutdown
+     interface Gi0/2
+     ip address 10.0.13.1 255.255.255.252
+     no shutdown
+  [R1] R1(config)#
+     router ospf 1
+     router-id 1.1.1.1
+     network 192.168.1.0 0.0.0.255 area 0
+     network 10.0.12.0 0.0.0.3 area 0
+     network 10.0.13.0 0.0.0.3 area 0
+     passive-interface GigabitEthernet0/0
+  [R1] R1(config-router)#
+     end
+     copy running-config startup-config
+-- STEP R2 und R3 vollständig konfigurieren
+  [R2] Router>
+     enable
+     configure terminal
+     hostname R2
+     no ip domain-lookup
+  [R2] R2(config)#
+     interface Gi0/0
+     ip address 192.168.2.1 255.255.255.0
+     no shutdown
+     interface Gi0/1
+     ip address 10.0.12.2 255.255.255.252
+     no shutdown
+     interface Gi0/2
+     ip address 10.0.23.1 255.255.255.252
+     no shutdown
+     router ospf 1
+     router-id 2.2.2.2
+     network 192.168.2.0 0.0.0.255 area 0
+     network 10.0.12.0 0.0.0.3 area 0
+     network 10.0.23.0 0.0.0.3 area 0
+     passive-interface Gi0/0
+     end
+     copy running-config startup-config
+  [R3] Router>
+     enable
+     configure terminal
+     hostname R3
+     no ip domain-lookup
+  [R3] R3(config)#
+     interface Gi0/0
+     ip address 192.168.3.1 255.255.255.0
+     no shutdown
+     interface Gi0/1
+     ip address 10.0.13.2 255.255.255.252
+     no shutdown
+     interface Gi0/2
+     ip address 10.0.23.2 255.255.255.252
+     no shutdown
+     router ospf 1
+     router-id 3.3.3.3
+     network 192.168.3.0 0.0.0.255 area 0
+     network 10.0.13.0 0.0.0.3 area 0
+     network 10.0.23.0 0.0.0.3 area 0
+     passive-interface Gi0/0
+     end
+     copy running-config startup-config
+-- STEP Switches + Endgeräte
+  [SW1] SW1(config)#
+     enable
+     configure terminal
+     hostname SW1
+     end
+     copy running-config startup-config
+  [SW2] SW2(config)#
+     enable
+     configure terminal
+     hostname SW2
+     end
+     copy running-config startup-config
+  [SW3] SW3(config)#
+     enable
+     configure terminal
+     hostname SW3
+     end
+     copy running-config startup-config
+  [PC0] Desktop > IP Configuration
+     IP Address: 192.168.1.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.1.1
+  [PC1] Desktop > IP Configuration
+     IP Address: 192.168.2.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.2.1
+  [PC2] Desktop > IP Configuration
+     IP Address: 192.168.3.10
+     Subnet Mask: 255.255.255.0
+     Default Gateway: 192.168.3.1
+-- STEP Abschlusstest
+  [PC0] Desktop > Command Prompt
+     ping 192.168.3.10
+     tracert 192.168.3.10
+-- STEP Typische Fehler bei OSPF Single-Area
+  [Merke] Häufige Fehler
+     Subnetzmaske statt Wildcard-Maske verwendet
+     area-Nummer auf einer Seite vergessen
+     passive-interface auf einem Router-Link gesetzt
+     Router-ID-Kollision
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:47:37
+   Duration  2.91s (transform 307ms, setup 0ms, import 2.77s, tests 3ms, environment 0ms)
+
