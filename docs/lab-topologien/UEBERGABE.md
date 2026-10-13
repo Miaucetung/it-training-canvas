@@ -25,6 +25,8 @@
 
 ## Nächste Schritte
 - **Eigener Schritt nach Paket 7: show-Ausgaben für NAT, HSRP, GRE und IPsec.** Was sich aus der Konfiguration ergibt, vollständig erzeugen: `show standby brief` (Active/Standby nach Priority, Preempt-Hinweis analog zur DR-Wahl), `show interfaces tunnel`, statische Einträge in `show ip nat translations`, `show crypto map`. Was erst durch Verkehr entsteht (dynamische NAT-Übersetzungen, `show crypto isakmp sa`, `show crypto ipsec sa`): leer mit Hinweis „entsteht erst nach Verkehr“. Gleiche Regeln wie bei IPv4/IPv6: nichts erfinden, positive und negative Tests.
+- **Im selben Schritt: EIGRP für IPv4.** `show ip eigrp neighbors` (gleiches AS, gleiches Subnetz, passende K-Werte, nicht passive; Switch-Segmente wie bei OSPF), gelernte Routen als `D` in `show ip route`. Betrifft `eigrp` (Paket 2) und `co-acl-nat-isp` (Paket 5). Die Metrik-Berechnung aus EIGRPv6 (`ipv6-routing.ts`) lässt sich wiederverwenden.
+- **Im selben Schritt: Redistribution.** Externe Routen als `D EX` bzw. `O E2` mit den im Lab konfigurierten Parametern (z. B. `redistribute ospf 100 metric 10000 1 255 1 1500`, `redistribute eigrp 199 subnets`). Wo ein Parameter im Lab fehlt, als „nicht bestimmbar“ kennzeichnen.
 - Nach OK: `feature/lab-topologies-security` mergen.
 - Danach Paket 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.

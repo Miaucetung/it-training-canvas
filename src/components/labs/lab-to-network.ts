@@ -86,6 +86,8 @@ export interface ParsedDeviceConfig {
   ifaces: Map<string, IfaceCfg>;
   ipRouting: boolean;
   stpPriority?: number;
+  /** letzter STP-Befehl war `root primary` */
+  stpMacro?: "primary";
   ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean };
   hostIp?: { ip: string; mask: string; gateway?: string };
   hostIpv6?: { ip: string; gateway?: string };
@@ -376,12 +378,20 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             continue;
           }
           if ((m = /^spanning-tree vlan\s+(\S+)\s+priority\s+(\d+)/i.exec(line))) {
-            if (parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) cfg.stpPriority = Number(m[2]);
+            // priority und root primary/secondary setzen dieselbe Zeile: der letzte Befehl gilt
+            if (parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) {
+              cfg.stpPriority = Number(m[2]);
+              cfg.stpMacro = undefined;
+            }
             continue;
           }
           if ((m = /^spanning-tree vlan\s+(\S+)\s+root\s+(primary|secondary)/i.exec(line))) {
-            // Makro: nur wirksam, wenn keine explizite Priority gesetzt ist (primary 24576, secondary 28672)
-            if ((parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) && cfg.stpPriority === undefined) cfg.stpPriority = m[2].toLowerCase() === "primary" ? 24576 : 28672;
+            // Makro, der letzte Befehl gilt: secondary = 28672, primary = 24576 bzw. 4096 unter der aktuellen Root (wird nach dem Aufbau aufgelöst)
+            if (parseVlanList(m[1]).includes(1) || /^1$/.test(m[1])) {
+              const primary = m[2].toLowerCase() === "primary";
+              cfg.stpPriority = primary ? 24576 : 28672;
+              cfg.stpMacro = primary ? "primary" : undefined;
+            }
             continue;
           }
           if ((m = /^router ospf\s+(\d+)/i.exec(line))) {
@@ -496,7 +506,7 @@ export function buildNetworkTopologyFromLab(
       config.hostname = parsed.hostname ?? d.name;
       if (parsed.vlans.size > 0) config.vlans = [...parsed.vlans].map(([id, name]) => ({ id, name: name || `VLAN${String(id).padStart(4, "0")}` }));
       if (parsed.ipRouting) config.ipRoutingEnabled = true;
-      if (parsed.stpPriority !== undefined) config.stp = { priority: parsed.stpPriority };
+      if (parsed.stpPriority !== undefined) config.stp = { priority: parsed.stpPriority, ...(parsed.stpMacro ? { macro: parsed.stpMacro } : {}) };
 
       // Interfaces
       for (const [name, c] of parsed.ifaces) {
@@ -686,6 +696,39 @@ export function buildNetworkTopologyFromLab(
       label: l.subnetLabel,
       ...(l.bendPoints?.length ? { bendPoints: l.bendPoints } : {}),
     });
+  }
+
+  // `root primary`: 24576, oder 4096 unter der niedrigsten Priority der anderen Switches, wenn diese niedriger ist.
+  // Das Ergebnis hängt vom Netzzustand beim Ausführen ab und wird in diesem Fall als uneindeutig gekennzeichnet.
+  if (state === "target") {
+    const switches = devices.filter((x) => x.type === "switch-l2" || x.type === "switch-l3");
+    // nur Switches, die über Switch-Links mit diesem verbunden sind (nicht angeschlossene Geräte, z. B. ein später angesteckter Rogue-Switch, zählen nicht)
+    const reachable = (start: TopologyDevice): Set<string> => {
+      const seen = new Set<string>([start.id]);
+      const queue = [start.id];
+      while (queue.length > 0) {
+        const id = queue.shift()!;
+        for (const l of links) {
+          const other = l.sourceDeviceId === id ? l.targetDeviceId : l.targetDeviceId === id ? l.sourceDeviceId : null;
+          if (other && !seen.has(other) && switches.some((x) => x.id === other)) {
+            seen.add(other);
+            queue.push(other);
+          }
+        }
+      }
+      return seen;
+    };
+    for (const sw of switches) {
+      if (sw.config?.stp?.macro !== "primary") continue;
+      const domain = reachable(sw);
+      const others = switches.filter((x) => x !== sw && domain.has(x.id)).map((x) => x.config?.stp?.priority ?? 32768);
+      const lowest = others.length > 0 ? Math.min(...others) : 32768;
+      if (lowest > 24576) sw.config.stp.priority = 24576;
+      else {
+        sw.config.stp.priority = Math.max(0, lowest - 4096);
+        sw.config.stp.ambiguous = true;
+      }
+    }
   }
 
   const topology: NetworkTopology = {

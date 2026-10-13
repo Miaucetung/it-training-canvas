@@ -45,10 +45,11 @@ describe("Paket 5 Security – labspezifische Prüfungen", () => {
     expect(ps).toContain("switchport port-security violation restrict");
   });
 
-  it("stp-hardening: Core ist Root, Dist1 (root secondary) gewinnt gegen Dist2, genau ein Port blockiert Dist1–Dist2", () => {
+  it("stp-hardening: Core (root primary) ist Root, Dist1 (root secondary) gewinnt gegen Dist2, genau ein Port blockiert Dist1–Dist2", () => {
     const t = build("stp-hardening");
     expect(t.problems).toEqual([]);
-    expect(dev(t, "Core").config?.stp?.priority).toBe(4096); // explizite Priority vor `root primary`
+    expect(dev(t, "Core").config?.stp?.priority).toBe(24576); // letzter Befehl gilt: `root primary` nach `priority 4096`; die anderen Switches haben mehr, also eindeutig
+    expect(dev(t, "Core").config?.stp?.ambiguous).toBeUndefined();
     expect(dev(t, "Dist1").config?.stp?.priority).toBe(28672); // root secondary
     const stp = computeStp(t.topology);
     const roles = (name: string) => Object.fromEntries(stp.get(dev(t, name).id)!.ports.map((p) => [p.iface.name, p.role]));

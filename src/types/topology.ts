@@ -126,6 +126,10 @@ export interface DeviceOspfConfig {
 export interface DeviceStpConfig {
   priority?: number; // spanning-tree vlan 1 priority, Vielfaches von 4096 (default 32768)
   mac?: string; // Bridge-MAC im Format 0050.7966.0001
+  /** Priority stammt aus `root primary` (hängt vom Netzzustand ab) */
+  macro?: "primary";
+  /** Ergebnis von `root primary` hängt davon ab, welche Root zum Zeitpunkt des Befehls galt */
+  ambiguous?: boolean;
 }
 
 export interface DeviceConfig {
@@ -355,6 +359,8 @@ export const deviceConfigSchema = z.object({
     .object({
       priority: z.number().int().min(0).max(61440).optional(),
       mac: z.string().optional(),
+      macro: z.literal("primary").optional(),
+      ambiguous: z.boolean().optional(),
     })
     .optional(),
   ospf: z
