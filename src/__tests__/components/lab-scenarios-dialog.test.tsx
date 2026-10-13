@@ -150,7 +150,7 @@ describe("LabScenariosDialog & Header Navigation Button", () => {
       const props = makeHeaderProps();
       render(<AppHeader {...props} />);
 
-      const labsBtn = screen.getByRole("button", { name: "Packet Tracer Labs öffnen" });
+      const labsBtn = screen.getByRole("button", { name: /Packet Tracer Labs öffnen/ });
       expect(labsBtn).toBeDefined();
       expect(labsBtn.textContent).toContain("Labs");
       expect(labsBtn.textContent).toContain("55");

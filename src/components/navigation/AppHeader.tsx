@@ -271,7 +271,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           onClick={onNavigateOverview}
           className="flex items-center gap-2.5 px-2 py-1.5 -ml-1 rounded-lg text-left hover:bg-surface-elevated transition-colors border border-transparent hover:border-border-default group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
           title="Zur CCNA-Startseite"
-          aria-label="CCNA 200-301 Startseite"
+          aria-label="CCNA 200-301 Lern- & Trainingsplattform – Startseite"
         >
           <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-primary shadow-xs" />
           <div className="min-w-0">
@@ -370,11 +370,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             "border-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
           title="Packet Tracer Labs — 55 geführte Cisco IOS Praxisübungen"
-          aria-label="Packet Tracer Labs öffnen"
+          aria-label="Labs 55 – Packet Tracer Labs öffnen"
         >
           <BookOpen size={16} weight="regular" className="text-violet-400" />
           <span>Labs</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 font-mono font-semibold">
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-300 font-mono font-semibold">
             55
           </span>
         </button>

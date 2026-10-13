@@ -468,7 +468,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <p className="text-[10px] font-bold uppercase tracking-wider text-violet-400">
                 Praxis-Labs
               </p>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 font-mono font-semibold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-700 dark:text-violet-300 font-mono font-semibold">
                 55 Labs
               </span>
             </div>

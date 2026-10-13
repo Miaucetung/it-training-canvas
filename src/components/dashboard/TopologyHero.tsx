@@ -294,7 +294,7 @@ export function TopologyHero({
               <svg
                 viewBox="0 0 460 235"
                 className="w-full h-full select-none"
-                role="img"
+                role="group"
                 aria-label="Cisco CCNA Topologie: R1-Gateway, SW1-Core, PC1-Client und SRV1-Server"
               >
                 <defs>
@@ -396,7 +396,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Router R1 Gateway"
+                  aria-label="R1 192.168.10.1 – Router (Gateway)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("r1")}
                 >
                   <circle
@@ -431,7 +431,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Switch SW1 Core"
+                  aria-label="SW1 Catalyst 2960 – Switch (Core)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("sw1")}
                 >
                   <rect
@@ -471,7 +471,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Workstation PC1 Client"
+                  aria-label="PC1 .50 (VLAN 10) – Workstation"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("pc1")}
                 >
                   <rect
@@ -518,7 +518,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Server SRV1 Infra"
+                  aria-label="SRV1 .10 (VLAN 20) – Server"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("srv1")}
                 >
                   <rect
