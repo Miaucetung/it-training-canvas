@@ -69,7 +69,7 @@ export const LabAddressingTable: React.FC<LabAddressingTableProps> = ({
               <th className="py-2.5 px-3">Gerät</th>
               <th className="py-2.5 px-3">Interface</th>
               <th className="py-2.5 px-3">IP-Adresse</th>
-              <th className="py-2.5 px-3">Subnetzmaske</th>
+              <th className="py-2.5 px-3">Subnetzmaske / Präfix</th>
               <th className="py-2.5 px-3">Default Gateway</th>
               <th className="py-2.5 px-3">VLAN / Zweck</th>
             </tr>

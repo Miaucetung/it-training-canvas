@@ -81,7 +81,7 @@ export const ifRow = (
 ): LabAddressingEntry =>
   tableRow(
     deviceName,
-    iface.replace(/^Gi/, "GigabitEthernet").replace(/^Fa/, "FastEthernet").replace(/^Lo/, "Loopback"),
+    iface.replace(/^Gi/, "GigabitEthernet").replace(/^Fa/, "FastEthernet").replace(/^Lo/, "Loopback").replace(/^Se/, "Serial"),
     ip,
     mask,
     gateway,

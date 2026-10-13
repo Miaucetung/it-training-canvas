@@ -37,6 +37,7 @@ import {
 } from "@/lib/topology/topology-operations";
 import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
+import { computeOspfNeighbors } from "@/lib/topology/ospf-neighbors";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -214,6 +215,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const dynamicShowOutputs = useMemo(() => {
     if (!selectedDevice) return {};
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
+  }, [selectedDevice, activeTopology]);
+
+  // Broadcast-Segment mit DR/BDR-Wahl: Hinweis zur Nicht-Präemption
+  const hasOspfBroadcastSegment = useMemo(() => {
+    if (!selectedDevice) return false;
+    return computeOspfNeighbors(selectedDevice, activeTopology).some((a) => a.networkType === "broadcast");
   }, [selectedDevice, activeTopology]);
 
   // Gespeicherte V2-Topologien beim Start laden (Migration läuft ausschließlich bei aktivem Umschalten in App.tsx)
@@ -1868,6 +1875,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                         )}
                       </div>
                       {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
+                      {iface.ipv6 && <div className={isDark ? "text-slate-300 break-all" : "text-slate-800 font-semibold break-all"}>{iface.ipv6}</div>}
                       {iface.description && (
                         <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>
                       )}
@@ -1910,6 +1918,11 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                       >
                         {out}
                       </pre>
+                      {cmd === "show ip ospf neighbor" && hasOspfBroadcastSegment && (
+                        <p className="px-2.5 py-1.5 bg-slate-900 text-amber-300 text-[10px] leading-snug border-t border-slate-800">
+                          DR-Wahl ist nicht präemptiv. Angezeigt ist das Ergebnis bei gleichzeitigem Start; in Packet Tracer kann der DR abweichen (clear ip ospf process).
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>

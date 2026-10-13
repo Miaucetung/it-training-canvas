@@ -12,6 +12,7 @@ export type HardwareProfileId =
   | "catalyst3650-24ps"
   | "pc-pt"
   | "server-pt"
+  | "isr2911-2hwic"
   | "extern";
 
 export interface HardwareProfile {
@@ -37,6 +38,15 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     ports: ["Gi0/0", "Gi0/1", "Gi0/2", "Se0/0/0", "Se0/0/1"],
     virtual: ["Lo0"],
     description: "3x Gigabit Ethernet onboard, 2x Serial (HWIC-2T)",
+  },
+  "isr2911-2hwic": {
+    id: "isr2911-2hwic",
+    model: "Cisco 2911 ISR (2x HWIC-2T)",
+    deviceType: "router",
+    // zweite HWIC-2T in Slot 1: Serial0/1/0 und Serial0/1/1
+    ports: ["Gi0/0", "Gi0/1", "Gi0/2", "Se0/0/0", "Se0/0/1", "Se0/1/0", "Se0/1/1"],
+    virtual: ["Lo0"],
+    description: "3x Gigabit Ethernet onboard, 4x Serial (2x HWIC-2T)",
   },
   "catalyst2960-24tt": {
     id: "catalyst2960-24tt",
@@ -88,6 +98,7 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
 /** Wählt das Profil anhand von Modellname und Gerätetyp (Modell hat Vorrang). */
 export function resolveHardwareProfile(model: string | undefined, type: DeviceType): HardwareProfile | undefined {
   const m = (model ?? "").toLowerCase();
+  if (/2hwic|2x hwic|2×hwic/.test(m) && type === "router") return HARDWARE_PROFILES["isr2911-2hwic"];
   if (/2911|2901|isr/.test(m) && type === "router") return HARDWARE_PROFILES.isr2911;
   if (/2960/.test(m)) return HARDWARE_PROFILES["catalyst2960-24tt"];
   if (/3650/.test(m)) return HARDWARE_PROFILES["catalyst3650-24ps"];
@@ -115,6 +126,7 @@ const LONG_TO_SHORT: Array<[RegExp, string]> = [
   [/^gigabitethernet/i, "Gi"],
   [/^fastethernet/i, "Fa"],
   [/^serial/i, "Se"],
+  [/^s(?=\d+\/\d+\/\d+)/i, "Se"],
   [/^loopback/i, "Lo"],
   [/^gig(?=\d)/i, "Gi"],
   [/^gi(?=\d)/i, "Gi"],

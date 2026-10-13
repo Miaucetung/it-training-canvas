@@ -66,3 +66,12 @@ In diesen Labs nennt der Lab-Text einen Switch-Port weder in der Verbindungslist
 | eigrp | SW1/SW3 Fa0/1, Gi0/1 | `"R1 Gi0/0 → SW1 Gi0/1, SW1 Fa0/1 → PC0"` (entsprechend R3/SW3/PC1) |
 
 Die Liste wird mit jedem weiteren Paket um die Labs ergänzt, in denen Switch-Ports angenommen werden. Welche Ports angenommen sind, kann man jederzeit im Lab-Dialog unter der Adressierungstabelle nachlesen.
+
+## 9. Paket 3 (IPv6): Befunde
+
+| Lab | Stelle | Befund | Vorschlag (Neu) |
+|---|---|---|---|
+| ipv6-static — ipv6.tsx | Schritt 2 (R1-1) und Schritt 3 (R2-1): `ipv6 route 2001:DB8:CCAF:254::1/128 …` | Die Zieladresse `2001:DB8:CCAF:254::1/128` gehört zu keinem Gerät im Lab; auf dem Internet-Router gibt es dazu keine Route. Beide Standorte verweisen auf dieselbe Adresse. Die Topologie zeichnet sie nicht. | Entweder die Zeile streichen oder als Ziel die Loopback des jeweils anderen Standorts nennen (`2001:DB8:CCA2:254::2:1/128` auf R1-1, `2001:DB8:CCA1:254::1:1/128` auf R2-1). Bitte selbst entscheiden. |
+| ipv6-static — ipv6.tsx | Verbindungsliste | Die Internet-Seite der Serial-Links ist nirgends konfiguriert; `…:1::1` ergibt sich nur als Next-Hop der Routen. Der Internet-Router hat daher im Export keine Interface-Adressen. | Ergänzen: `interface se0/0/0` → `ipv6 address 2001:DB8:CCA1:1::1/64` und `interface se0/1/0` → `ipv6 address 2001:DB8:CCA2:2::1/64` im Schritt „Gegenrouten auf dem Internet-Router“ (Serial-Taktgeber `clock rate` ebenfalls nicht genannt). |
+| ipv6-ospfv3-eigrpv6 — ipv6.tsx | Geräteliste | Für die PCs steht nur die Adresse im Label (`FDAA::0101/64`), ein Gateway fehlt. Die Topologie zeigt „im Lab nicht angegeben“. | Pro PC ergänzen: `Default Gateway: FDAA::FFFF` (bzw. `FDBB::FFFF`, `FDCC::FFFF`), falls das gewollt ist. |
+| ipv6-ospfv3-eigrpv6 — ipv6.tsx | PC-Nummerierung | PC2 hängt an R1, PC0 an R3 (gegenläufig). Topologie folgt dem Text. | Nur Hinweis, keine Änderung nötig. |

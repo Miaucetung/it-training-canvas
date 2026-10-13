@@ -1,7 +1,7 @@
-# Übergabe: Lab-Topologien (Stand nach Paket 2)
+# Übergabe: Lab-Topologien (Stand nach Paket 3)
 
 ## Stand
-- Paket 1 (Layer 2) ist in `main` (`18c8fd3`). Paket 2 (Routing) liegt auf Branch `feature/lab-topologies-routing`, nicht gemergt.
+- Paket 1 und 2 sind in `main` (`c6999e7`). Paket 3 (IPv6: ipv6, ipv6-static, ospfv3-ipv6, ipv6-ospfv3-eigrpv6) liegt auf `feature/lab-topologies-ipv6`, nicht gemergt; Bericht `BERICHT-PAKET-3.md`.
 - Paket 2 fertig: static-routing, floating-static, rip-v1, rip-v2, rip-v2-passive, ospf-rid-wildcard, ospf-dr-bdr-election, ospf-multiarea, eigrp, drill-interfaces, drill-pc-ips.
 - Lint 0 Fehler (48 Warnungen), 902 Tests in 54 Dateien grün, Build grün.
 - Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md`, `BERICHT-PAKET-2.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
@@ -19,11 +19,11 @@
 2. Diagramm im Lab-Dialog bei 1440 px klein (Port-Labels ca. 6 px); Vorschlag: breitere Spalte oder Zoom/Vollbild.
 3. Canvas zeigt keine Modelltexte (VTP-Rolle, Root); Vorschlag: zweite Zeile unter dem Gerätenamen.
 4. Fehlende Geräte: gestrichelt, „im Lab nicht angegeben“, ohne CLI-Export (`assumed`) — umgesetzt in Paket 2 (floating-static); für hsrp, acl-extended, ntp-syslog-snmp in Paket 4 anwenden.
-5a. ospf-dr-bdr-election: `computeOspfNeighbors` kennt nur direkte Links; DR/BDR-Wahl über ein Switch-Segment fehlt (Nachbartabelle leer). Entscheidung offen.
+5a. OSPFv3/EIGRPv6-Nachbarschaften und `show ipv6`-Ausgaben gibt es nicht (nur Adressen und Protokollname). Entscheidung offen.
 5. Entschieden, noch nicht umgesetzt: DHCP-Clients als „DHCP (Netz/Präfix)“, Profil mit `Ethernet0/0`-Namen für co-acl-nat-isp, 2911 mit zweitem HWIC für ipv6-static (`Se0/1/0`).
 6. Branch ist nicht in `main`; vor dem Merge OK abwarten.
 
 ## Nächste Schritte
-- Nach OK zu Paket 2: Merge von `feature/lab-topologies-routing`.
-- Danach Paket 3 IPv6, 4 Services, 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
+- Nach OK zu Paket 3: Merge von `feature/lab-topologies-ipv6`.
+- Danach Paket 4 Services, 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.
