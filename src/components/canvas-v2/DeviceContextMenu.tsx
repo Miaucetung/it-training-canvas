@@ -54,7 +54,7 @@ export const DeviceContextMenu: React.FC<DeviceContextMenuProps> = ({
         <div className="font-bold truncate text-[11px] text-sky-400">
           {device.name}
         </div>
-        <button onClick={onClose} className="p-0.5 rounded text-slate-400 hover:text-white">
+        <button aria-label="Schließen" onClick={onClose} className="p-0.5 rounded text-slate-400 hover:text-white">
           <X size={13} />
         </button>
       </div>

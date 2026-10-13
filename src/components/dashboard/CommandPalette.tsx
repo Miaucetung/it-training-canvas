@@ -378,7 +378,7 @@ export function CommandPalette({
             aria-label="Suchbegriff eingeben"
             className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none font-sans"
           />
-          <button
+          <button aria-label="Schließen"
             type="button"
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface-elevated"

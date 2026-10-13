@@ -237,7 +237,7 @@ export function ProgressTracker({
               <Medal size={20} className="text-indigo-400" weight="fill" />
               <h3 className={`font-bold ${text}`}>Lernpfad</h3>
             </div>
-            <button
+            <button aria-label="Schließen"
               onClick={onClose}
               className={`p-1.5 rounded-lg ${textMuted} hover:bg-slate-700/30`}
             >

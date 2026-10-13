@@ -102,7 +102,7 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
                 Frage {qIndex + 1} / {ccnaDragDropQuestions.length} · {solved.size} gelöst
               </p>
             </div>
-            <button onClick={onClose} className={`p-1 rounded ${muted} hover:opacity-70`}>
+            <button aria-label="Schließen" onClick={onClose} className={`p-1 rounded ${muted} hover:opacity-70`}>
               <X size={18} />
             </button>
           </div>

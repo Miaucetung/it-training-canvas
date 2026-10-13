@@ -608,7 +608,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
               {formatTime(timeLeft)}
             </div>
           )}
-          <button
+          <button aria-label="Schließen"
             onClick={onClose}
             className={`rounded-lg p-1.5 transition-colors ${
               dark ? "hover:bg-zinc-700" : "hover:bg-zinc-200"

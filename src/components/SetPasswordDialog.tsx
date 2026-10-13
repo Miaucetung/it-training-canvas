@@ -49,7 +49,7 @@ export function SetPasswordDialog({ dark, onClose }: Props) {
       <div className={`w-full max-w-sm rounded-2xl border shadow-2xl ${base}`}>
         <div className={`flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
           <h2 className="text-base font-semibold">Neues Passwort setzen</h2>
-          <button
+          <button aria-label="Schließen"
             onClick={onClose}
             className={`rounded-lg p-1.5 transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
           >

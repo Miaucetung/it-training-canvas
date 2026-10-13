@@ -491,7 +491,7 @@ export function QuizDialog({
                 {formatTime(state.timeRemaining)}
               </div>
             )}
-            <button onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
+            <button aria-label="Schließen" onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
               <X size={20} />
             </button>
           </div>

@@ -189,7 +189,7 @@ export function CostCalculator({
             >
               <ArrowsClockwise size={14} /> Neu erkennen
             </button>
-            <button
+            <button aria-label="Schließen"
               onClick={onClose}
               className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}
             >

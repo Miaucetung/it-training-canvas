@@ -64,7 +64,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
                 Subnetzmaske · CIDR · Binär · Blockgröße · Hosts
               </p>
             </div>
-            <button
+            <button aria-label="Schließen"
               onClick={onClose}
               className={`rounded-lg p-1.5 transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
             >
