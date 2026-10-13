@@ -49,7 +49,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className={`flex max-h-[92vh] w-full max-w-3xl flex-col rounded-2xl border shadow-2xl ${panel}`}>
         {/* Header */}
         <div className={`flex shrink-0 items-center justify-between border-b px-5 py-4 ${border}`}>

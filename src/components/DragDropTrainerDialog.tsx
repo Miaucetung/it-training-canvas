@@ -87,7 +87,7 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className={`flex flex-col w-full max-w-4xl max-h-[92vh] rounded-2xl border shadow-2xl overflow-hidden ${panel}`}>
         {/* Header */}
         <div className={`flex items-center justify-between px-5 py-3 border-b shrink-0 ${dark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50"}`}>

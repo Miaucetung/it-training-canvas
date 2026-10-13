@@ -70,6 +70,7 @@ import { useLocalStorage } from "@/lib/use-local-storage";
 import { X } from "@phosphor-icons/react";
 import { AuthDialog } from "@/components/AuthDialog";
 import { SetPasswordDialog } from "@/components/SetPasswordDialog";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 export type ThemePreference = "system" | "light" | "dark";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -2004,98 +2005,126 @@ function App() {
 
       {/* Tools-Menü: aktiver Simulator/Trainer */}
       {activeTool && (
-        <Suspense fallback={null}>
-          {activeTool === "subnetting-drill" && (
-            <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
-          )}
-          {activeTool === "routing-drill" && (
-            <RoutingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
-          )}
-          {activeTool === "ospf-wildcard-drill" && (
-            <OspfWildcardDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
-          )}
-          {activeTool === "acl-drill" && (
-            <AclDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
-          )}
-          {activeTool === "subnetting-quiz" && (
-            <div
-              className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Subnetting-Quiz"
-              onClick={() => setActiveTool(null)}
-            >
+        <ModalPortal>
+          <Suspense fallback={null}>
+            {activeTool === "subnetting-drill" && (
+              <SubnettingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+            )}
+            {activeTool === "routing-drill" && (
+              <RoutingDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+            )}
+            {activeTool === "ospf-wildcard-drill" && (
+              <OspfWildcardDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+            )}
+            {activeTool === "acl-drill" && (
+              <AclDrillDialog open onClose={() => setActiveTool(null)} theme={theme} />
+            )}
+            {activeTool === "subnetting-quiz" && (
               <div
-                className="relative my-4 w-full max-w-2xl rounded-2xl border border-border bg-background shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="subnetting-quiz-title"
+                onClick={() => setActiveTool(null)}
               >
-                <button
-                  type="button"
-                  onClick={() => setActiveTool(null)}
-                  className="absolute right-3 top-3 z-20 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted"
-                  aria-label="Schließen"
+                <div
+                  className="w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] rounded-2xl border border-border-default bg-surface shadow-2xl flex flex-col overflow-hidden text-text-primary"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <X size={18} />
-                </button>
-                <SubnettingDrillQuiz />
+                  <div className="px-4 sm:px-6 py-3 border-b border-border-default flex items-center justify-between shrink-0 bg-surface">
+                    <div>
+                      <h3 id="subnetting-quiz-title" className="text-sm sm:text-base font-bold text-text-primary">
+                        Subnetting-Quiz
+                      </h3>
+                      <p className="text-xs text-text-muted hidden sm:block">
+                        Usable Ranges & Subnetz-Zugehörigkeit im interaktiven Drill
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTool(null)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors"
+                      aria-label="Schließen"
+                      title="Schließen (Esc)"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+                    <SubnettingDrillQuiz />
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-          {activeTool === "subnetting-cheatsheet" && (
-            <div
-              className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Subnetting-Cheatsheet"
-              onClick={() => setActiveTool(null)}
-            >
+            )}
+            {activeTool === "subnetting-cheatsheet" && (
               <div
-                className="relative my-4 w-full max-w-4xl rounded-2xl border border-border bg-background shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="subnetting-cheatsheet-title"
+                onClick={() => setActiveTool(null)}
               >
-                <button
-                  type="button"
-                  onClick={() => setActiveTool(null)}
-                  className="absolute right-3 top-3 z-20 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted"
-                  aria-label="Schließen"
+                <div
+                  className="w-full max-w-4xl max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] rounded-2xl border border-border-default bg-surface shadow-2xl flex flex-col overflow-hidden text-text-primary"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <X size={18} />
-                </button>
-                <SubnettingCheatsheet />
+                  <div className="px-4 sm:px-6 py-3 border-b border-border-default flex items-center justify-between shrink-0 bg-surface">
+                    <div>
+                      <h3 id="subnetting-cheatsheet-title" className="text-sm sm:text-base font-bold text-text-primary">
+                        Subnetting-Cheatsheet
+                      </h3>
+                      <p className="text-xs text-text-muted hidden sm:block">
+                        CIDR-Referenz, Präfixlängen, Masken und Blockgrößen
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTool(null)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors"
+                      aria-label="Schließen"
+                      title="Schließen (Esc)"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+                    <SubnettingCheatsheet />
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-          {activeTool === "ipv4-subnet-table" && (
-            <IPv4SubnetTableDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "ipv6-calculator" && (
-            <IPv6CalculatorDialog open onClose={() => setActiveTool(null)} theme={theme} />
-          )}
-          {activeTool === "vlan-simulator" && (
-            <VlanSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "stp-simulator" && (
-            <StpSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "osi-simulator" && (
-            <OsiSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "routing-simulator" && (
-            <RoutingSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "dragdrop-trainer" && (
-            <DragDropTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "verkabelung-trainer" && (
-            <VerkabelungTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "topologie-explorer" && (
-            <TopologieExplorerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-          {activeTool === "cli-glossary" && (
-            <CliGlossaryDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
-          )}
-        </Suspense>
+            )}
+            {activeTool === "ipv4-subnet-table" && (
+              <IPv4SubnetTableDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "ipv6-calculator" && (
+              <IPv6CalculatorDialog open onClose={() => setActiveTool(null)} theme={theme} />
+            )}
+            {activeTool === "vlan-simulator" && (
+              <VlanSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "stp-simulator" && (
+              <StpSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "osi-simulator" && (
+              <OsiSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "routing-simulator" && (
+              <RoutingSimulatorDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "dragdrop-trainer" && (
+              <DragDropTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "verkabelung-trainer" && (
+              <VerkabelungTrainerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "topologie-explorer" && (
+              <TopologieExplorerDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+            {activeTool === "cli-glossary" && (
+              <CliGlossaryDialog dark={theme === "dark"} onClose={() => setActiveTool(null)} />
+            )}
+          </Suspense>
+        </ModalPortal>
       )}
 
       {/* Simulation HUD (Packet-Tracer-style controls) */}

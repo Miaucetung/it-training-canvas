@@ -12,7 +12,7 @@ const EMBED_SRC = `${import.meta.env.BASE_URL}embeds/router-on-a-stick.html`;
 export function RouterOnAStickDialog({ dark, onClose }: Props) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/70 p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Router-on-a-Stick — Animation"

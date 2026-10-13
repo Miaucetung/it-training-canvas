@@ -12,6 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface LearningPathEditorProps {
   path: LearningPath | null;
@@ -245,7 +246,8 @@ export function LearningPathEditor({
   }, [editPath, onSave]);
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -400,7 +402,8 @@ export function LearningPathEditor({
         </div>
       </div>
     </div>
-  );
+  </ModalPortal>
+);
 }
 
 // Sub-component: Path Meta Editor

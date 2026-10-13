@@ -7,6 +7,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 const STORAGE_KEY = "it-canvas:onboarding:v1:dismissed";
 
@@ -138,7 +139,8 @@ export function OnboardingTour({ forceOpen, onClose }: OnboardingTourProps) {
   const isLast = idx === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-6">
         <button
           onClick={() => close(true)}
@@ -219,5 +221,6 @@ export function OnboardingTour({ forceOpen, onClose }: OnboardingTourProps) {
         </div>
       </div>
     </div>
-  );
+  </ModalPortal>
+);
 }

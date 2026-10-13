@@ -10,6 +10,7 @@ import {
   XCircle,
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface QuizDialogProps {
   quiz: Quiz;
@@ -264,7 +265,8 @@ export function QuizDialog({
 
   if (showResult && result) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <ModalPortal>
+        <div className="fixed inset-0 z-dialog flex items-center justify-center">
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
@@ -448,8 +450,9 @@ export function QuizDialog({
           </div>
         </div>
       </div>
-    );
-  }
+    </ModalPortal>
+  );
+}
 
   const isCurrentConfirmed = currentQuestion
     ? !!state.confirmedQuestions[currentQuestion.id]
@@ -464,7 +467,8 @@ export function QuizDialog({
   const isLastQuestion = state.currentIndex === questions.length - 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
@@ -603,7 +607,8 @@ export function QuizDialog({
         </div>
       </div>
     </div>
-  );
+  </ModalPortal>
+);
 }
 
 function QuestionCard({

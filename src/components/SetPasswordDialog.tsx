@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { X } from "@phosphor-icons/react";
 import { useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -43,7 +44,8 @@ export function SetPasswordDialog({ dark, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className={`w-full max-w-sm rounded-2xl border shadow-2xl ${base}`}>
         <div className={`flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
           <h2 className="text-base font-semibold">Neues Passwort setzen</h2>
@@ -111,5 +113,6 @@ export function SetPasswordDialog({ dark, onClose }: Props) {
         </form>
       </div>
     </div>
-  );
+  </ModalPortal>
+);
 }

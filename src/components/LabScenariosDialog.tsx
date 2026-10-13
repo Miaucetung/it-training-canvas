@@ -161,21 +161,21 @@ function CommandBlockView({ block }: { block: CommandBlock }) {
           {block.commands.map((c, i) => (
             <div
               key={i}
-              className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 px-3.5 py-2 hover:bg-slate-900/60 transition-colors group"
+              className="flex flex-col md:flex-row items-start md:items-start justify-between gap-3 px-3.5 py-2.5 hover:bg-slate-900/60 transition-colors group"
             >
               <div className="flex items-start gap-2 min-w-0 flex-1">
                 <span className="text-slate-600 select-none text-[11px] pt-0.5 shrink-0 font-mono">
                   {i + 1}.
                 </span>
-                <code className="text-emerald-300 font-bold whitespace-pre-wrap break-all selection:bg-emerald-800 selection:text-white">
+                <code className="text-emerald-300 font-bold whitespace-pre-wrap break-words selection:bg-emerald-800 selection:text-white">
                   {c.cmd}
                 </code>
               </div>
-              <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0 pl-5 md:pl-0">
-                <span className="text-[11px] text-slate-400 font-sans italic">
+              <div className="flex items-start gap-3 w-full md:w-auto justify-between md:justify-end min-w-0 md:max-w-[50%] shrink-0 pl-5 md:pl-0 pt-0.5">
+                <span className="text-[11px] text-slate-400 font-sans italic text-left md:text-right leading-relaxed">
                   → {c.explanation}
                 </span>
-                <div className="opacity-80 group-hover:opacity-100 transition-opacity">
+                <div className="opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
                   <CopyButton text={c.cmd} label="" />
                 </div>
               </div>
@@ -539,6 +539,7 @@ export function LabScenariosDialog({
   const [copiedAll, setCopiedAll] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [detailMode, setDetailMode] = useState<boolean>(true);
+  const [mobileTab, setMobileTab] = useState<"list" | "detail">("detail");
   const [presentationMode, setPresentationMode] = useState<boolean>(false);
   const [printWithoutSolution, setPrintWithoutSolution] = useState<boolean>(false);
   const diagramContainerRef = useRef<HTMLDivElement>(null);
@@ -957,10 +958,43 @@ export function LabScenariosDialog({
           </div>
         </header>
 
+        {/* Mobile Tab-Switcher (< md / 768px) */}
+        <div className="md:hidden flex items-center border-b border-slate-800 bg-slate-950 px-2 py-1.5 gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setMobileTab("list")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-colors",
+              mobileTab === "list"
+                ? "bg-violet-600 text-white shadow-xs"
+                : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+            )}
+          >
+            <span>Lab-Katalog ({filteredLabs.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("detail")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-colors min-w-0",
+              mobileTab === "detail"
+                ? "bg-violet-600 text-white shadow-xs"
+                : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+            )}
+          >
+            <span className="truncate">Details: {currentLab.title}</span>
+          </button>
+        </div>
+
         {/* ── Main Container: Sidebar + Details ── */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* ── Linke Sidebar: Katalog & Filter ── */}
-          <aside className="w-72 sm:w-80 md:w-88 shrink-0 border-r border-slate-800 flex flex-col bg-slate-950/50">
+          <aside
+            className={cn(
+              "w-full md:w-80 lg:w-88 md:shrink-0 border-r border-slate-800 flex-col bg-slate-950/50",
+              mobileTab === "list" ? "flex" : "hidden md:flex"
+            )}
+          >
             {/* Filter-Header */}
             <div className="p-3 border-b border-slate-800 space-y-2.5 shrink-0 bg-slate-900/40">
               {/* Suchleiste */}
@@ -1037,7 +1071,7 @@ export function LabScenariosDialog({
             </div>
 
             {/* Scrollbare Liste der gefilterten Labs */}
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 min-h-0">
               <div className="divide-y divide-slate-800/60 p-1">
                 {filteredLabs.length === 0 ? (
                   <div className="p-6 text-center text-slate-500 text-xs">
@@ -1053,7 +1087,10 @@ export function LabScenariosDialog({
                       <button
                         key={l.id}
                         data-lab-id={l.id}
-                        onClick={() => setSelectedId(l.id)}
+                        onClick={() => {
+                          setSelectedId(l.id);
+                          setMobileTab("detail");
+                        }}
                         className={cn(
                           "w-full text-left p-2.5 rounded-lg transition-all group relative mb-0.5",
                           isSelected
@@ -1121,8 +1158,13 @@ export function LabScenariosDialog({
           </aside>
 
           {/* ── Rechte Hauptspalte: Detail-Ansicht des ausgewählten Labs ── */}
-          <main className="flex-1 min-w-0 flex flex-col bg-slate-900/60 overflow-hidden">
-            <ScrollArea className="flex-1">
+          <main
+            className={cn(
+              "flex-1 min-w-0 flex-col bg-slate-900/60 overflow-hidden",
+              mobileTab === "detail" ? "flex" : "hidden md:flex"
+            )}
+          >
+            <ScrollArea className="flex-1 min-h-0">
               <div
                 className={cn(
                   "p-3 sm:p-6 md:p-8 space-y-6 mx-auto",
