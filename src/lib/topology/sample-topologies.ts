@@ -355,8 +355,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       x: 320,
       y: 120,
       interfaces: [
-        { id: "r1-transit", name: "Gi0/0", ip: "10.0.12.1/30", status: "up", description: "ip ospf network point-to-point" },
-        { id: "r1-lan", name: "Gi0/1", ip: "192.168.1.1/24", status: "up", description: "LAN 1 Gateway" },
+        { id: "r1-transit", name: "Gi0/0", ip: "10.0.12.1/30", status: "up", description: "ip ospf network point-to-point", ospf: { area: 0, networkType: "point-to-point" } },
+        { id: "r1-lan", name: "Gi0/1", ip: "192.168.1.1/24", status: "up", description: "LAN 1 Gateway", ospf: { area: 0, passive: true } },
         { id: "r1-loopback", name: "Lo0", ip: "1.1.1.1/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {
@@ -396,8 +396,8 @@ export const TOPOLOGY_OSPF: NetworkTopology = {
       x: 560,
       y: 120,
       interfaces: [
-        { id: "r2-transit", name: "Gi0/0", ip: "10.0.12.2/30", status: "up", description: "ip ospf network point-to-point" },
-        { id: "r2-lan", name: "Gi0/1", ip: "192.168.2.1/24", status: "up", description: "LAN 2 Gateway" },
+        { id: "r2-transit", name: "Gi0/0", ip: "10.0.12.2/30", status: "up", description: "ip ospf network point-to-point", ospf: { area: 0, networkType: "point-to-point" } },
+        { id: "r2-lan", name: "Gi0/1", ip: "192.168.2.1/24", status: "up", description: "LAN 2 Gateway", ospf: { area: 0, passive: true } },
         { id: "r2-loopback", name: "Lo0", ip: "2.2.2.2/32", status: "up", description: "OSPF Router-ID" },
       ],
       config: {

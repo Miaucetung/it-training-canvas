@@ -50,6 +50,17 @@ export interface InterfaceChannelGroup {
   mode: ChannelGroupMode;
 }
 
+export type OspfNetworkType = "broadcast" | "point-to-point";
+
+/** Interface-spezifische OSPF-Konfiguration (ip ospf ..., passive-interface) */
+export interface InterfaceOspfConfig {
+  enabled?: boolean; // default: true (Interface nimmt an OSPF teil)
+  area?: number; // default: 0
+  networkType?: OspfNetworkType; // default: broadcast (Ethernet)
+  passive?: boolean; // passive-interface
+  priority?: number; // ip ospf priority, 0-255, default 1
+}
+
 export interface TopologyInterface {
   id: string;
   name: string; // e.g. "Gi0/0", "Fa0/1"
@@ -65,6 +76,7 @@ export interface TopologyInterface {
   channelGroup?: InterfaceChannelGroup;
   subinterfaces?: TopologySubinterface[];
   isShutdown?: boolean;
+  ospf?: InterfaceOspfConfig;
 }
 
 export interface DeviceSvi {
@@ -81,8 +93,14 @@ export interface DevicePortChannel {
   members: string[];
 }
 
+export interface DeviceOspfConfig {
+  processId?: number;
+  routerId?: string; // manuell konfigurierte router-id
+}
+
 export interface DeviceConfig {
   hostname: string;
+  ospf?: DeviceOspfConfig;
   domain?: string;
   defaultGateway?: string;
   dnsServers?: string[];
@@ -227,6 +245,14 @@ export const interfaceChannelGroupSchema = z.object({
   mode: z.enum(["on", "active", "passive", "desirable", "auto"]),
 });
 
+export const interfaceOspfSchema = z.object({
+  enabled: z.boolean().optional(),
+  area: z.number().int().min(0).optional(),
+  networkType: z.enum(["broadcast", "point-to-point"]).optional(),
+  passive: z.boolean().optional(),
+  priority: z.number().int().min(0).max(255).optional(),
+});
+
 export const topologyInterfaceSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -242,6 +268,7 @@ export const topologyInterfaceSchema = z.object({
   channelGroup: interfaceChannelGroupSchema.optional(),
   subinterfaces: z.array(topologySubinterfaceSchema).optional(),
   isShutdown: z.boolean().optional(),
+  ospf: interfaceOspfSchema.optional(),
 });
 
 export const deviceSviSchema = z.object({
@@ -260,6 +287,12 @@ export const devicePortChannelSchema = z.object({
 
 export const deviceConfigSchema = z.object({
   hostname: z.string(),
+  ospf: z
+    .object({
+      processId: z.number().int().min(1).optional(),
+      routerId: z.string().optional(),
+    })
+    .optional(),
   domain: z.string().optional(),
   defaultGateway: z.string().optional(),
   dnsServers: z.array(z.string()).optional(),

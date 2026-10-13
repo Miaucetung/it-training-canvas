@@ -3,6 +3,7 @@ import {
   TopologyDevice,
 } from "@/types/topology";
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
+import { computeOspfNeighbors, formatOspfNeighborTable, resolveInterfaceOspf } from "./ospf-neighbors";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -88,53 +89,24 @@ export class CiscoCliGenerator {
       }
     }
 
-    // 2. OSPF Routen ermitteln, falls OSPF aktiv ist
-    const isOspfActive = device.config?.routingProtocols?.some((p) => p.toLowerCase().includes("ospf"));
-    if (isOspfActive) {
-      // Finde Nachbar-Router über gemeinsame Links
-      for (const link of topology.links) {
-        let neighborDeviceId: string | null = null;
-        let localInterfaceId: string | null = null;
+    // 2. OSPF-Routen nur über echte Nachbarschaften (siehe ospf-neighbors.ts)
+    for (const adj of computeOspfNeighbors(device, topology)) {
+      for (const nIface of adj.neighbor.interfaces) {
+        if (!nIface.ip || !resolveInterfaceOspf(adj.neighbor, nIface)) continue;
+        if (nIface.status !== "up" || nIface.isShutdown) continue;
+        const nNet = getNetworkAddress(nIface.ip);
+        if (!nNet) continue;
 
-        if (link.sourceDeviceId === device.id) {
-          neighborDeviceId = link.targetDeviceId;
-          localInterfaceId = link.sourceInterfaceId;
-        } else if (link.targetDeviceId === device.id) {
-          neighborDeviceId = link.sourceDeviceId;
-          localInterfaceId = link.targetInterfaceId;
-        }
-
-        if (!neighborDeviceId) continue;
-        const neighbor = topology.devices.find((d) => d.id === neighborDeviceId);
-        if (!neighbor || !neighbor.config?.routingProtocols?.some((p) => p.toLowerCase().includes("ospf"))) {
-          continue;
-        }
-
-        const localIface = device.interfaces.find((i) => i.id === localInterfaceId);
-        const neighborTransitIface = neighbor.interfaces.find((i) => {
-          if (!i.ip) return false;
-          return link.sourceInterfaceId === i.id || link.targetInterfaceId === i.id;
+        // Ist dieses Netz schon lokal vorhanden?
+        const isLocal = device.interfaces.some((i) => {
+          const myNet = i.ip ? getNetworkAddress(i.ip) : null;
+          return myNet?.network === nNet.network;
         });
 
-        const nextHopIp = neighborTransitIface?.ip?.split("/")[0] || "10.0.12.2";
-
-        // Alle Netze des Nachbarn (inkl. Loopbacks und LANs), die nicht auf diesem Router existieren
-        for (const nIface of neighbor.interfaces) {
-          if (!nIface.ip) continue;
-          const nNet = getNetworkAddress(nIface.ip);
-          if (!nNet) continue;
-
-          // Ist dieses Netz schon lokal vorhanden?
-          const isLocal = device.interfaces.some((i) => {
-            const myNet = i.ip ? getNetworkAddress(i.ip) : null;
-            return myNet?.network === nNet.network;
-          });
-
-          if (!isLocal) {
-            routes.push(
-              `O    ${nNet.network} [110/2] via ${nextHopIp}, 00:14:22, ${localIface?.name || "GigabitEthernet0/0/0"}`
-            );
-          }
+        if (!isLocal) {
+          routes.push(
+            `O    ${nNet.network} [110/2] via ${adj.neighborAddress}, 00:14:22, ${adj.localInterface.name}`
+          );
         }
       }
     }
@@ -279,37 +251,7 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show ip ospf neighbor'
    */
   static generateShowIpOspfNeighbor(device: TopologyDevice, topology: NetworkTopology): string {
-    const header = "Neighbor ID     Pri   State           Dead Time   Address         Interface\n";
-    const lines: string[] = [];
-
-    for (const link of topology.links) {
-      let neighborId: string | null = null;
-      let localIfaceId: string | null = null;
-
-      if (link.sourceDeviceId === device.id) {
-        neighborId = link.targetDeviceId;
-        localIfaceId = link.sourceInterfaceId;
-      } else if (link.targetDeviceId === device.id) {
-        neighborId = link.sourceDeviceId;
-        localIfaceId = link.targetInterfaceId;
-      }
-
-      if (!neighborId) continue;
-      const neighbor = topology.devices.find((d) => d.id === neighborId);
-      if (!neighbor) continue;
-
-      const localIface = device.interfaces.find((i) => i.id === localIfaceId);
-      const neighborTransit = neighbor.interfaces.find((i) => link.sourceInterfaceId === i.id || link.targetInterfaceId === i.id);
-
-      const nId = neighbor.interfaces.find((i) => i.name.startsWith("Lo"))?.ip?.split("/")[0] || "2.2.2.2";
-      const nAddr = neighborTransit?.ip?.split("/")[0] || "10.0.12.2";
-
-      lines.push(
-        `${nId.padEnd(16, " ")}0   FULL/  -        00:00:35    ${nAddr.padEnd(16, " ")}${localIface?.name || "Gi0/0/0"}`
-      );
-    }
-
-    return lines.length > 0 ? header + lines.join("\n") : header + "% Kein OSPF-Nachbar auf den konfigurierten Interfaces";
+    return formatOspfNeighborTable(computeOspfNeighbors(device, topology));
   }
 
   /**
