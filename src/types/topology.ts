@@ -98,9 +98,15 @@ export interface DeviceOspfConfig {
   routerId?: string; // manuell konfigurierte router-id
 }
 
+export interface DeviceStpConfig {
+  priority?: number; // spanning-tree vlan 1 priority, Vielfaches von 4096 (default 32768)
+  mac?: string; // Bridge-MAC im Format 0050.7966.0001
+}
+
 export interface DeviceConfig {
   hostname: string;
   ospf?: DeviceOspfConfig;
+  stp?: DeviceStpConfig;
   domain?: string;
   defaultGateway?: string;
   dnsServers?: string[];
@@ -287,6 +293,12 @@ export const devicePortChannelSchema = z.object({
 
 export const deviceConfigSchema = z.object({
   hostname: z.string(),
+  stp: z
+    .object({
+      priority: z.number().int().min(0).max(61440).optional(),
+      mac: z.string().optional(),
+    })
+    .optional(),
   ospf: z
     .object({
       processId: z.number().int().min(1).optional(),

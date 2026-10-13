@@ -3,6 +3,7 @@ import {
   TopologyDevice,
 } from "@/types/topology";
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
+import { formatShowSpanningTree } from "./stp-calc";
 import { computeOspfNeighbors, formatOspfNeighborTable, resolveInterfaceOspf } from "./ospf-neighbors";
 
 /**
@@ -199,52 +200,7 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show spanning-tree' für 802.1D Switches
    */
   static generateShowSpanningTree(device: TopologyDevice, topology: NetworkTopology): string {
-    const rootCandidate = topology.devices.find((d) => d.name.includes("Root") || d.id.includes("swa"));
-    const isRoot = device.name.includes("Root") || device.id.includes("swa") || (rootCandidate?.id === device.id);
-    const bridgePriority = isRoot ? 24576 : device.id.includes("swb") ? 28672 : 32768;
-    const rootAddress = "0050.7966.0001";
-    const myAddress = isRoot
-      ? "0050.7966.0001"
-      : device.id.includes("swb")
-        ? "0050.7966.0002"
-        : "0050.7966.0003";
-
-    const lines = [
-      "VLAN0001",
-      `  Spanning tree enabled protocol ieee`,
-      `  Root ID    Priority    24576`,
-      `             Address     ${rootAddress}`,
-      isRoot
-        ? "             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec"
-        : `             Cost        4\n             Port        1 (GigabitEthernet0/1)`,
-      `  Bridge ID  Priority    ${bridgePriority}`,
-      `             Address     ${myAddress}`,
-      `             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec`,
-      "",
-      "Interface           Role Sts Cost      Prio.Nbr Type",
-      "------------------- ---- --- --------- -------- --------------------------------",
-    ];
-
-    for (let i = 0; i < device.interfaces.length; i++) {
-      const iface = device.interfaces[i];
-      let role = "Desg";
-      let sts = "FWD";
-
-      if (iface.portRole === "RP" || iface.description?.includes("Root")) {
-        role = "Root";
-        sts = "FWD";
-      } else if (iface.portRole === "BLK" || iface.description?.includes("Blocking") || iface.description?.includes("BLK")) {
-        role = "Blk ";
-        sts = "BLK";
-      } else if (iface.portRole === "DP") {
-        role = "Desg";
-        sts = "FWD";
-      }
-
-      lines.push(`${iface.name.padEnd(20, " ")}${role} ${sts} 4         128.${i + 1}    Shr`);
-    }
-
-    return lines.join("\n");
+    return formatShowSpanningTree(device, topology);
   }
 
   /**
@@ -264,20 +220,22 @@ export class CiscoCliGenerator {
     ];
 
     // Standard-VLANs und benutzerdefinierte VLANs
-    const vlans = device.config?.vlans && device.config.vlans.length > 0
-      ? device.config.vlans
-      : [
-          { id: 1, name: "default" },
-          { id: 10, name: "SALES" },
-          { id: 20, name: "DEV" },
-        ];
+    // VLAN 1 existiert immer; weitere VLANs nur, wenn sie konfiguriert sind (keine erfundenen Beispiel-VLANs)
+    const configured = (device.config?.vlans ?? []).filter((v) => v.id !== 1);
+    const vlans = [{ id: 1, name: "default" }, ...configured].sort((x, y) => x.id - y.id);
 
     const lines: string[] = [];
 
     // Finde Interfaces im Access-Modus für jedes VLAN (Trunk-Ports tauchen nicht auf!)
     for (const v of vlans) {
       const accessPorts = device.interfaces
-        .filter((i) => i.mode !== "trunk" && i.mode !== "routed" && (i.vlan === v.id || (v.id === 1 && !i.vlan)))
+        .filter(
+          (i) =>
+            !/^(vlan|lo|loopback|po|port-channel)\d*/i.test(i.name) &&
+            i.mode !== "trunk" &&
+            i.mode !== "routed" &&
+            (i.vlan === v.id || (v.id === 1 && !i.vlan))
+        )
         .map((i) => i.name);
 
       const portsStr = accessPorts.length > 0 ? accessPorts.join(", ") : "";

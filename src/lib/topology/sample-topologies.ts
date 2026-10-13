@@ -275,6 +275,7 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       ],
       config: {
         hostname: "SW-A",
+        stp: { priority: 24576 },
       },
     },
     {
@@ -289,6 +290,7 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       ],
       config: {
         hostname: "SW-B",
+        stp: { priority: 28672 },
       },
     },
     {
@@ -303,6 +305,7 @@ export const TOPOLOGY_STP_TRIANGLE: NetworkTopology = {
       ],
       config: {
         hostname: "SW-C",
+        stp: { priority: 32768 },
       },
     },
   ],
