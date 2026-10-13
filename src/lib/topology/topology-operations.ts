@@ -30,7 +30,7 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
         { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Zusatz Routed Interface" },
         { id: "if-se0-1-0", name: "Se0/1/0", status: "up", description: "Serial WAN WIC-2T" },
         { id: "if-se0-1-1", name: "Se0/1/1", status: "up", description: "Serial WAN WIC-2T" },
-        { id: "if-lo0", name: "Lo0", status: "up", ip: "1.1.1.1/32", description: "OSPF Router ID" },
+        { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback (Router-ID, IP vergeben)" },
       ];
     case "switch-l2":
       return [
