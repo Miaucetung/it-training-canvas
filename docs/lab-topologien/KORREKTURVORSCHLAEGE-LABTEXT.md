@@ -93,3 +93,25 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 |---|---|---|
 | dhcp | Switch0 Gi0/1, Fa0/1, Fa0/2 | `"PC0 → Switch0 Fa0/1"`, `"PC1 → Switch0 Fa0/2"`, `"Switch0 Gi0/1 → Router0 Gi0/0"` |
 | dynamic-nat, static-nat | SW Fa0/1, Fa0/2, Fa0/3 | `"PC0 → SW Fa0/1"`, `"PC0(1) → SW Fa0/2"`, `"PC0(2) → SW Fa0/3"` |
+
+
+## 11. Paket 5 (Security): Befunde
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| co-acl-nat-isp | `connections` (ISP-SW) | Verbindungstext nennt `ISP-SW (Fa0/1, VLAN 99)` und `(Fa0/2, VLAN 199)`, die Konfiguration `ethernet 0/0` (VLAN 99), `ethernet 0/1` (VLAN 199) und `ethernet 0/2` (Trunk). Die Topologie folgt der Konfiguration. | Verbindungstext auf `ISP-SW Ethernet0/0` / `Ethernet0/1` / `Ethernet0/2 (Trunk)` ändern. |
+| co-acl-nat-isp | Geräteliste | SW1/SW2 (Standort-LANs) und der Switch des Internet-Segments fehlen bzw. sind nicht konfiguriert; die Topologie zeichnet SW1/SW2 als „im Lab nicht konfiguriert“ und das Internet-Segment als „im Lab nicht angegeben“. EIGRP (CO-1, ISP-MUMBAI) ist nicht modelliert, daher zeigt CO-1 keine Nachbarn; OSPF CO-2 ↔ ISP-MUMBAI wird berechnet. | Switches mit Ports in Geräteliste und Verbindungsliste ergänzen. |
+| dhcp-snooping-dai | Schritt „DHCP Snooping aktivieren“ | `ip dhcp snooping vlan 10`, aber kein VLAN 10 und keine Access-Ports in VLAN 10: die Ports Fa0/1–3 liegen im VLAN 1, Snooping würde nicht greifen. | `vlan 10` und `switchport access vlan 10` für Fa0/1–3 sowie Trunk/Access für Gi0/1 ergänzen (oder `snooping vlan 1`). |
+| stp-hardening | Verbindungsliste | `Dist1 ↔ Dist2 (Gi0/3)`: Catalyst 2960 hat nur Gi0/1–2. Die Topologie nutzt ein Profil „2960 mit 4 Gigabit-Uplinks“. Dist-Ports zum Core sind nicht genannt (angenommen Gi0/1). | Dist-Ports nennen (`Core Gi0/1 ↔ Dist1 Gi0/1`, `Core Gi0/2 ↔ Dist2 Gi0/1`) und `Gi0/3` durch einen vorhandenen Port ersetzen. |
+| stp-hardening | Schritt 1 (Core) | `spanning-tree vlan 1-100 priority 4096` gefolgt von `… root primary`: die Wirkung des Makros nach expliziter Priority ist uneindeutig. Die Topologie nimmt 4096 an. | Nur einen der beiden Befehle verwenden. |
+| vlan-hopping, port-security | Hosts | Gateway (192.168.10.1 bzw. 192.168.1.1) ohne Gerät im Lab; VLAN 20 VOICE ohne Port. | Router ergänzen oder Gateway streichen. |
+| ssh | `connections` | „direkt oder via Switch“: die Topologie zeichnet direkt. | Eine Variante festlegen. |
+| device-hardening, aaa-radius-tacacs | `connections` | Admin-PC-Port am SW1 (und SW1-Port zum RADIUS-Server) nicht genannt: angenommen Fa0/1 bzw. Gi0/1. RADIUS-Maske und Weg dorthin fehlen. | Ports nennen; Maske/Gateway des Servers ergänzen. |
+
+Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
+
+| Lab | Angenommene Ports |
+|---|---|
+| device-hardening | SW1 Fa0/1 |
+| stp-hardening | Dist1 Gi0/1, Gi0/3; Dist2 Gi0/1, Gi0/3 |
+| aaa-radius-tacacs | SW1 Fa0/1, Gi0/1 |

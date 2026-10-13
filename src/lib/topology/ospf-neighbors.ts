@@ -197,9 +197,14 @@ export function collectSegmentPeers(
           undeterminable = true;
           continue;
         }
-        // Router hängt ungetaggt am Switch-Port: der Port muss das VLAN ungetaggt führen
-        if (untaggedVlan(end.local) !== vlan) continue;
-        peers.push({ device: end.remoteDevice, iface: end.remote });
+        // Router hängt ungetaggt am Switch-Port: der Port muss das VLAN ungetaggt führen;
+        // alternativ bedient der Router das VLAN über ein dot1q-Subinterface (Router-on-a-Stick)
+        if (untaggedVlan(end.local) === vlan) {
+          peers.push({ device: end.remoteDevice, iface: end.remote });
+        } else if (end.local.mode === "trunk") {
+          const sub = end.remoteDevice.interfaces.find((i) => i.name.startsWith(`${end.remote.name}.`) && i.vlan === vlan);
+          if (sub) peers.push({ device: end.remoteDevice, iface: sub });
+        }
       }
     }
   }

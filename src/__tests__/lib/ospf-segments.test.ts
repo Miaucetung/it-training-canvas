@@ -210,4 +210,32 @@ describe("OSPF über L2-Switch-Segmente", () => {
       expect(view(star([RS[0], { ...RS[1], networkType: "point-to-point" }]), "R1")).toEqual({});
     });
   });
+
+  describe("Router-on-a-Stick am Trunk (dot1q-Subinterface)", () => {
+    const mk = (opts: { subVlan?: number; allowed?: number[]; subName?: string } = {}) => {
+      const r1 = router({ id: "R1", ip: "10.1.0.1/29", priority: 1, rid: "1.1.1.1" });
+      const r2: TopologyDevice = {
+        id: "R2",
+        name: "R2",
+        type: "router",
+        x: 0,
+        y: 0,
+        interfaces: [
+          { id: "R2-i0", name: "Gi0/0", status: "up", mode: "routed" },
+          { id: "R2-i0s", name: opts.subName ?? "Gi0/0.10", ip: "10.1.0.2/29", vlan: opts.subVlan ?? 10, mode: "routed", status: "up", ospf: { area: 0 } },
+        ],
+        config: { hostname: "R2", routingProtocols: ["OSPF 1"], ospf: { routerId: "2.2.2.2" } },
+      };
+      const s = sw("sw1", [{ mode: "access", vlan: 10 }, { mode: "trunk", allowedVlans: opts.allowed ?? [10, 20] }]);
+      return topo([r1, r2, s], [lnk("l1", "R1", "R1-i0", "sw1", "sw1-p0"), lnk("l2", "R2", "R2-i0", "sw1", "sw1-p1")]);
+    };
+    it("positiv: Subinterface des passenden VLANs bildet die Nachbarschaft", () => {
+      expect(view(mk(), "R1")).toEqual({ R2: "FULL/DR" }); // höhere Router-ID 2.2.2.2
+    });
+    it("negativ: falsches VLAN am Subinterface, VLAN nicht erlaubt, Subinterface zu anderem Port", () => {
+      expect(view(mk({ subVlan: 20 }), "R1")).toEqual({});
+      expect(view(mk({ allowed: [20] }), "R1")).toEqual({});
+      expect(view(mk({ subName: "Gi0/1.10" }), "R1")).toEqual({});
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
 import {
   boxesOverlap,
@@ -22,7 +23,11 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
         expect(topology).toBeDefined();
         expect(topology.devices.length).toBeGreaterThan(0);
         expect(topology.links.length).toBeGreaterThan(0);
-        expect(topology.addressingTable.length).toBeGreaterThan(0);
+        // Labs ganz ohne IP-Adressen (z. B. STP-Hardening) haben keine Adressierungstabelle
+        const lab = LABS.find((l) => l.id === labId)!;
+        const commandText = lab.steps.flatMap((st) => (st.blocks as Array<{ commands: Array<{ cmd: string }> }>).flatMap((b) => b.commands.map((c) => c.cmd))).join("\n");
+        if (/\d+\.\d+\.\d+\.\d+|[0-9a-fA-F]*::[0-9a-fA-F:]*/.test(commandText)) expect(topology.addressingTable.length).toBeGreaterThan(0);
+        else expect(topology.addressingTable, `${labId}: Lab-Text nennt keine IP-Adresse`).toEqual([]);
       });
 
       it("hat 0 überlappende Bounding-Boxes (Icons, Gerätenamen, Port-Labels & Subnetze)", () => {

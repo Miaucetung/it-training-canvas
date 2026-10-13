@@ -13,6 +13,9 @@ export type HardwareProfileId =
   | "pc-pt"
   | "server-pt"
   | "isr2911-2hwic"
+  | "iol-router"
+  | "iol-switch"
+  | "catalyst2960-4gi"
   | "extern";
 
 export interface HardwareProfile {
@@ -47,6 +50,32 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     ports: ["Gi0/0", "Gi0/1", "Gi0/2", "Se0/0/0", "Se0/0/1", "Se0/1/0", "Se0/1/1"],
     virtual: ["Lo0"],
     description: "3x Gigabit Ethernet onboard, 4x Serial (2x HWIC-2T)",
+  },
+  // Profile für IOL/GNS3-Labs mit Ethernet0/0-Namen (co-acl-nat-isp)
+  "iol-router": {
+    id: "iol-router",
+    model: "Cisco IOL Router (Ethernet)",
+    deviceType: "router",
+    ports: ["Et0/0", "Et0/1", "Et0/2", "Et0/3"],
+    virtual: ["Lo0"],
+    description: "IOL-Router mit Ethernet0/0–0/3",
+  },
+  "iol-switch": {
+    id: "iol-switch",
+    model: "Cisco IOL Switch (Ethernet)",
+    deviceType: "switch-l2",
+    ports: ["Et0/0", "Et0/1", "Et0/2", "Et0/3"],
+    virtual: ["Vlan1"],
+    description: "IOL-Layer-2-Switch mit Ethernet0/0–0/3",
+  },
+  // Das Lab stp-hardening nennt den Port Gi0/3 (Dist1 ↔ Dist2)
+  "catalyst2960-4gi": {
+    id: "catalyst2960-4gi",
+    model: "Catalyst 2960 (4x Gigabit-Uplink)",
+    deviceType: "switch-l2",
+    ports: [...range("Fa0/", 1, 24), "Gi0/1", "Gi0/2", "Gi0/3", "Gi0/4"],
+    virtual: ["Vlan1"],
+    description: "24x FastEthernet, 4x GigabitEthernet Uplink (laut Lab-Text Gi0/3)",
   },
   "catalyst2960-24tt": {
     id: "catalyst2960-24tt",
@@ -98,6 +127,8 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
 /** Wählt das Profil anhand von Modellname und Gerätetyp (Modell hat Vorrang). */
 export function resolveHardwareProfile(model: string | undefined, type: DeviceType): HardwareProfile | undefined {
   const m = (model ?? "").toLowerCase();
+  if (/\biol\b/.test(m)) return type === "router" ? HARDWARE_PROFILES["iol-router"] : type === "switch-l2" ? HARDWARE_PROFILES["iol-switch"] : undefined;
+  if (/4\s*[x×]\s*gi/.test(m) && type === "switch-l2") return HARDWARE_PROFILES["catalyst2960-4gi"];
   if (/2hwic|2x hwic|2×hwic/.test(m) && type === "router") return HARDWARE_PROFILES["isr2911-2hwic"];
   if (/2911|2901|isr/.test(m) && type === "router") return HARDWARE_PROFILES.isr2911;
   if (/2960/.test(m)) return HARDWARE_PROFILES["catalyst2960-24tt"];
@@ -126,6 +157,9 @@ const LONG_TO_SHORT: Array<[RegExp, string]> = [
   [/^gigabitethernet/i, "Gi"],
   [/^fastethernet/i, "Fa"],
   [/^serial/i, "Se"],
+  [/^ethernet/i, "Et"],
+  [/^eth(?=\d)/i, "Et"],
+  [/^et(?=\d)/i, "Et"],
   [/^s(?=\d+\/\d+\/\d+)/i, "Se"],
   [/^loopback/i, "Lo"],
   [/^gig(?=\d)/i, "Gi"],

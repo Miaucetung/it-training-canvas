@@ -18,6 +18,7 @@ const shortIf = (name: string) =>
     .replace("gigabitethernet", "gi")
     .replace("fastethernet", "fa")
     .replace("serial", "se")
+    .replace("ethernet", "et")
     .replace(/\s*\(.*\)$/, "");
 
 interface Cmd {
@@ -44,6 +45,11 @@ function configuredAddresses(labId: string): Map<string, string> {
     let current: string | null = currentByDevice.get(device) ?? null;
     for (const raw of cmd.split("\n")) {
       const line = raw.trim();
+      const eth = /^interface\s+ethernet\s+(\S+)/i.exec(line);
+      if (eth) {
+        current = `et${eth[1].toLowerCase()}`;
+        continue;
+      }
       const im = /^interface\s+(\S+)(?:\s+(\d+))?/i.exec(line);
       if (im) {
         current = shortIf(/^tunnel$/i.test(im[1]) && im[2] ? `tu${im[2]}` : /^(?:vlan|loopback)$/i.test(im[1]) && im[2] ? `${im[1]}${im[2]}` : im[1]);

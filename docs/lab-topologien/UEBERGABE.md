@@ -1,11 +1,10 @@
-# Übergabe: Lab-Topologien (Stand nach Paket 4)
+# Übergabe: Lab-Topologien (Stand nach Paket 5)
 
 ## Stand
-- In `main` (`64ba462`): Paket 1 (Layer 2), 2 (Routing), 3 (IPv6) mit Fundament, Screenshots aller Labs, OSPF über Switch-Segmente, Diagramm-Zoom.
-- `feature/ipv6-outputs` (nicht gemergt): `show ipv6 interface brief/route`, OSPFv3-/EIGRPv6-Nachbarn, Hinweise, alle IPv6-Adressen im Canvas.
-- `feature/lab-topologies-services` (nicht gemergt, baut auf `feature/ipv6-outputs` auf): Paket 4 Services (10 Labs), siehe `BERICHT-PAKET-4.md`.
-- Lint 0 Fehler (48 Warnungen), 1220 Tests in 58 Dateien grün, Build grün.
-- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md` bis `-4.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
+- In `main` (`826a0f9`): Paket 1 (Layer 2), 2 (Routing), 3 (IPv6), 4 (Services), IPv6-Ausgaben, OSPF über Switch-Segmente, Diagramm-Zoom.
+- `feature/lab-topologies-security` (nicht gemergt): Paket 5 Security (10 Labs) und dhcp-relay mit „im Lab nicht konfiguriert“, siehe `BERICHT-PAKET-5.md`.
+- Lint 0 Fehler (48 Warnungen), 1420 Tests in 59 Dateien grün, Build grün.
+- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md` bis `-5.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
 
 ## Fundament (für alle Pakete)
 - Daten: `src/components/labs/topologies/<kategorie>.ts` plus `builders.ts`, zusammengeführt in `curated-topologies.ts`.
@@ -26,6 +25,6 @@
 
 ## Nächste Schritte
 - **Eigener Schritt nach Paket 7: show-Ausgaben für NAT, HSRP, GRE und IPsec.** Was sich aus der Konfiguration ergibt, vollständig erzeugen: `show standby brief` (Active/Standby nach Priority, Preempt-Hinweis analog zur DR-Wahl), `show interfaces tunnel`, statische Einträge in `show ip nat translations`, `show crypto map`. Was erst durch Verkehr entsteht (dynamische NAT-Übersetzungen, `show crypto isakmp sa`, `show crypto ipsec sa`): leer mit Hinweis „entsteht erst nach Verkehr“. Gleiche Regeln wie bei IPv4/IPv6: nichts erfinden, positive und negative Tests.
-- Nach OK: `feature/ipv6-outputs` und `feature/lab-topologies-services` mergen.
-- Danach Paket 5 Security, 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
+- Nach OK: `feature/lab-topologies-security` mergen.
+- Danach Paket 6 Operations/Automation, 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.
