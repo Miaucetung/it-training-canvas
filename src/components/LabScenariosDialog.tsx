@@ -1,5 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { escapeHtml } from "@/lib/escape";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -271,7 +272,7 @@ function printLabAsPdf(lab: LabScenario) {
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>${lab.title} — Cisco IOS Lab (Packet Tracer)</title>
+  <title>${escapeHtml(lab.title)} — Cisco IOS Lab (Packet Tracer)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -393,7 +394,7 @@ function printLabAsPdf(lab: LabScenario) {
   </style>
 </head>
 <body>
-  <h1>${lab.title}</h1>
+  <h1>${escapeHtml(lab.title)}</h1>
   <div class="meta">
     <span class="badge ${
       lab.difficulty === "Anfänger" || lab.difficulty === "Drill"
@@ -401,8 +402,8 @@ function printLabAsPdf(lab: LabScenario) {
         : lab.difficulty === "Mittel"
           ? "badge-medium"
           : "badge-hard"
-    }">${lab.difficulty}</span>
-    ${lab.subtitle} &nbsp;|&nbsp; ⏱ ${lab.duration} &nbsp;|&nbsp; Cisco CCNA 200-301
+    }">${escapeHtml(lab.difficulty)}</span>
+    ${escapeHtml(lab.subtitle)} &nbsp;|&nbsp; ⏱ ${escapeHtml(lab.duration)} &nbsp;|&nbsp; Cisco CCNA 200-301
   </div>
 
   ${
@@ -410,48 +411,48 @@ function printLabAsPdf(lab: LabScenario) {
       ? `
   <div class="section topology-box" style="border-color:#818cf8;background:#eef2ff">
     <strong style="color:#3730a3">Worum geht es in diesem Lab?</strong><br/>
-    <span style="font-size:10px;color:#1e1b4b"><strong>Problem:</strong> ${lab.context.problem}</span><br/>
-    <span style="font-size:10px;color:#1e1b4b"><strong>Zweck:</strong> ${lab.context.purpose}</span>
+    <span style="font-size:10px;color:#1e1b4b"><strong>Problem:</strong> ${escapeHtml(lab.context.problem)}</span><br/>
+    <span style="font-size:10px;color:#1e1b4b"><strong>Zweck:</strong> ${escapeHtml(lab.context.purpose)}</span>
   </div>`
       : ""
   }
 
   <div class="section topology-box">
     <strong>① Topologie aufbauen (Drag &amp; Drop in Packet Tracer)</strong><br/>
-    <span style="font-size:10px;color:#0f172a">${lab.topology.description}</span>
+    <span style="font-size:10px;color:#0f172a">${escapeHtml(lab.topology.description)}</span>
     <div class="device-list">
       ${lab.topology.devices
         .map(
           (d) =>
-            `<span class="device-badge"><strong>${d.count}×</strong> ${d.type} (${d.label})</span>`,
+            `<span class="device-badge"><strong>${d.count}×</strong> ${escapeHtml(d.type)} (${escapeHtml(d.label)})</span>`,
         )
         .join("")}
     </div>
     ${lab.topology.connections
-      .map((c) => `<div class="conn-line">↳ ${c}</div>`)
+      .map((c) => `<div class="conn-line">↳ ${escapeHtml(c)}</div>`)
       .join("")}
-    <div class="hint-box">💡 ${lab.topology.hint}</div>
+    <div class="hint-box">💡 ${escapeHtml(lab.topology.hint)}</div>
   </div>
 
   <h2>② CLI-Konfiguration</h2>
   ${lab.steps
     .map(
       (step, si) => `
-    <div class="step-header">Schritt ${si + 1}: ${step.title}</div>
+    <div class="step-header">Schritt ${si + 1}: ${escapeHtml(step.title)}</div>
     ${step.blocks
       .map(
         (block) => `
       <div class="block">
         <div class="block-header">
-          <span>${block.device}</span>
-          <span style="color:#64748b;font-family:monospace">${block.modeLabel}</span>
+          <span>${escapeHtml(block.device)}</span>
+          <span style="color:#64748b;font-family:monospace">${escapeHtml(block.modeLabel)}</span>
         </div>
         ${block.commands
           .map(
             (c) => `
           <div class="cmd-row">
             <div class="cmd-cell">${c.cmd.replace(/\n/g, "<br/>")}</div>
-            <div class="exp-cell">${c.explanation}</div>
+            <div class="exp-cell">${escapeHtml(c.explanation)}</div>
           </div>
         `,
           )
@@ -470,8 +471,8 @@ function printLabAsPdf(lab: LabScenario) {
       .map(
         (v) => `
       <div class="verify-row">
-        <span class="verify-cmd">${v.cmd}</span>
-        <span class="verify-exp">→ ${v.expected}</span>
+        <span class="verify-cmd">${escapeHtml(v.cmd)}</span>
+        <span class="verify-exp">→ ${escapeHtml(v.expected)}</span>
       </div>
     `,
       )
@@ -486,7 +487,7 @@ function printLabAsPdf(lab: LabScenario) {
     ${lab.glossary
       .map(
         (g) =>
-          `<div style="font-size:10px;margin-top:3px"><strong style="font-family:monospace">${g.term}</strong> — ${g.def}</div>`,
+          `<div style="font-size:10px;margin-top:3px"><strong style="font-family:monospace">${escapeHtml(g.term)}</strong> — ${escapeHtml(g.def)}</div>`,
       )
       .join("")}
   </div>`
@@ -495,7 +496,7 @@ function printLabAsPdf(lab: LabScenario) {
 
   <div class="footer">ccna.ajti.online &mdash; ${new Date().toLocaleDateString(
     "de-DE",
-  )} &mdash; ${lab.title}</div>
+  )} &mdash; ${escapeHtml(lab.title)}</div>
 
   <script>
     window.onload = function() { window.print(); };

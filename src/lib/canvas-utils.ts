@@ -1,4 +1,5 @@
 import { CanonicalFontFamily, DrawingObject, Point, ShapeDefinition } from "./types";
+import { escapeXml, safeColor, safeNumber, sanitizeSvgFragment } from "./escape";
 
 /**
  * Mappt legacy / gespeicherte v1-Schriftnamen (z. B. "Arial", "Helvetica", "sans-serif")
@@ -667,6 +668,60 @@ export async function exportCanvasAsPNG(
   }
 }
 
+// Build SVG markup for canvas objects (all user-controlled values are escaped)
+export function buildCanvasSvg(
+  objects: DrawingObject[],
+  width: number,
+  height: number,
+  backgroundColor?: string,
+): string {
+  const w = safeNumber(width);
+  const h = safeNumber(height);
+  const n = (v: unknown) => safeNumber(v);
+  let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <rect width="100%" height="100%" fill="${safeColor(backgroundColor, "#ffffff")}"/>
+  <g>`;
+
+  objects.forEach((obj) => {
+    const color = safeColor(obj.color);
+    const strokeW = n(obj.width);
+    if (obj.type === "pen" && obj.points && obj.points.length > 1) {
+      const pathData = obj.points
+        .map((p, i) => `${i === 0 ? "M" : "L"} ${n(p.x)} ${n(p.y)}`)
+        .join(" ");
+      svgContent += `
+    <path d="${pathData}" stroke="${color}" stroke-width="${strokeW}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    } else if (obj.type === "line" && obj.startPoint && obj.endPoint) {
+      svgContent += `
+    <line x1="${n(obj.startPoint.x)}" y1="${n(obj.startPoint.y)}" x2="${n(obj.endPoint.x)}" y2="${n(obj.endPoint.y)}" stroke="${color}" stroke-width="${strokeW}"/>`;
+    } else if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
+      const x = Math.min(n(obj.startPoint.x), n(obj.endPoint.x));
+      const y = Math.min(n(obj.startPoint.y), n(obj.endPoint.y));
+      const rw = Math.abs(n(obj.endPoint.x) - n(obj.startPoint.x));
+      const rh = Math.abs(n(obj.endPoint.y) - n(obj.startPoint.y));
+      svgContent += `
+    <rect x="${x}" y="${y}" width="${rw}" height="${rh}" stroke="${color}" stroke-width="${strokeW}" fill="none"/>`;
+    } else if (obj.type === "circle" && obj.startPoint && obj.endPoint) {
+      const r = distance(obj.startPoint, obj.endPoint);
+      svgContent += `
+    <circle cx="${n(obj.startPoint.x)}" cy="${n(obj.startPoint.y)}" r="${n(r)}" stroke="${color}" stroke-width="${strokeW}" fill="none"/>`;
+    } else if (obj.type === "text" && obj.startPoint && obj.text) {
+      const fontStack = getFontStack(obj.fontFamily);
+      svgContent += `
+    <text x="${n(obj.startPoint.x)}" y="${n(obj.startPoint.y)}" fill="${color}" font-size="${n(obj.fontSize) || 20}px" font-family="${escapeXml(fontStack)}">${escapeXml(obj.text)}</text>`;
+    } else if (obj.type === "shape" && obj.startPoint && obj.svgPath) {
+      svgContent += `
+    <g transform="translate(${n(obj.startPoint.x)}, ${n(obj.startPoint.y)})" style="color: ${color}">${sanitizeSvgFragment(obj.svgPath)}</g>`;
+    }
+  });
+
+  svgContent += `
+  </g>
+</svg>`;
+  return svgContent;
+}
+
 // Export canvas as SVG
 export function exportCanvasAsSVG(
   objects: DrawingObject[],
@@ -675,37 +730,7 @@ export function exportCanvasAsSVG(
   filename: string,
   backgroundColor?: string,
 ): void {
-  let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <rect width="100%" height="100%" fill="${backgroundColor || "#ffffff"}"/>
-  <g>`;
-
-  objects.forEach((obj) => {
-    if (obj.type === "pen" && obj.points && obj.points.length > 1) {
-      const pathData = obj.points
-        .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
-        .join(" ");
-      svgContent += `\n    <path d="${pathData}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
-    } else if (obj.type === "line" && obj.startPoint && obj.endPoint) {
-      svgContent += `\n    <line x1="${obj.startPoint.x}" y1="${obj.startPoint.y}" x2="${obj.endPoint.x}" y2="${obj.endPoint.y}" stroke="${obj.color}" stroke-width="${obj.width}"/>`;
-    } else if (obj.type === "rectangle" && obj.startPoint && obj.endPoint) {
-      const x = Math.min(obj.startPoint.x, obj.endPoint.x);
-      const y = Math.min(obj.startPoint.y, obj.endPoint.y);
-      const w = Math.abs(obj.endPoint.x - obj.startPoint.x);
-      const h = Math.abs(obj.endPoint.y - obj.startPoint.y);
-      svgContent += `\n    <rect x="${x}" y="${y}" width="${w}" height="${h}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none"/>`;
-    } else if (obj.type === "circle" && obj.startPoint && obj.endPoint) {
-      const r = distance(obj.startPoint, obj.endPoint);
-      svgContent += `\n    <circle cx="${obj.startPoint.x}" cy="${obj.startPoint.y}" r="${r}" stroke="${obj.color}" stroke-width="${obj.width}" fill="none"/>`;
-    } else if (obj.type === "text" && obj.startPoint && obj.text) {
-      const fontStack = getFontStack(obj.fontFamily);
-      svgContent += `\n    <text x="${obj.startPoint.x}" y="${obj.startPoint.y}" fill="${obj.color}" font-size="${obj.fontSize || 20}px" font-family="${fontStack}">${obj.text}</text>`;
-    } else if (obj.type === "shape" && obj.startPoint && obj.svgPath) {
-      svgContent += `\n    <g transform="translate(${obj.startPoint.x}, ${obj.startPoint.y})" style="color: ${obj.color}">${obj.svgPath}</g>`;
-    }
-  });
-
-  svgContent += `\n  </g>\n</svg>`;
+  const svgContent = buildCanvasSvg(objects, width, height, backgroundColor);
 
   const blob = new Blob([svgContent], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
