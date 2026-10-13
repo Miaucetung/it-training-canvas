@@ -95,10 +95,26 @@ export function saveNamedTopology(
     let library: Record<string, NetworkTopology> = {};
     const raw = storage.getItem(TOPOLOGY_LIBRARY_KEY);
     if (raw) {
+      let parsedLibrary: unknown = null;
       try {
-        library = JSON.parse(raw);
+        parsedLibrary = JSON.parse(raw);
       } catch {
-        library = {};
+        parsedLibrary = null;
+      }
+      if (parsedLibrary && typeof parsedLibrary === "object" && !Array.isArray(parsedLibrary)) {
+        library = parsedLibrary as Record<string, NetworkTopology>;
+      } else {
+        // Defekte Bibliothek niemals stillschweigend überschreiben: erst Rohdaten sichern.
+        const backupKey = `${TOPOLOGY_LIBRARY_KEY}-corrupt-${Date.now()}`;
+        try {
+          storage.setItem(backupKey, raw);
+        } catch {
+          return {
+            success: false,
+            error:
+              "Die gespeicherte Topologie-Bibliothek ist beschädigt und konnte nicht gesichert werden. Es wurde nichts überschrieben.",
+          };
+        }
       }
     }
 
