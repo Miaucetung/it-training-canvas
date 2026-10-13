@@ -33,3 +33,5 @@ search("light warning-solid (weiß darauf)", "#D97706", ["#FFFFFF"]);
 search("light blocking-solid (weiß darauf)", "#EA580C", ["#FFFFFF"]);
 search("light text-muted auf app-bg + surface-elevated", "#64748B", ["#F3F4F6", "#E9EDF2"]);
 search("light text-muted nur app-bg", "#64748B", ["#F3F4F6"]);
+
+search("light text-muted (inkl. Kopfzeile #E7E8EA, sunken #DEE3E9)", "#64748B", ["#F3F4F6", "#E9EDF2", "#E7E8EA", "#DEE3E9"]);

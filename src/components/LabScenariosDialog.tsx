@@ -754,7 +754,7 @@ export function LabScenariosDialog({
           )}
         >
         {/* ── Top Header ── */}
-        <header className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-950/90 shrink-0">
+        <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-950/90 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0 shadow-xs">
               <BookOpen size={20} weight="bold" />
@@ -808,7 +808,7 @@ export function LabScenariosDialog({
                   title="Schaltet Interface-IPs und Subnetzangaben im Diagramm ein/aus"
                   aria-label="Detail-Modus umschalten"
                 >
-                  <Eye size={14} className={detailMode ? "text-cyan-400" : "text-slate-500"} />
+                  <Eye size={14} className={detailMode ? "text-cyan-400" : "text-terminal-muted"} />
                   <span className="hidden md:inline">{detailMode ? "IPs an" : "Kompakt"}</span>
                 </button>
 
@@ -953,7 +953,7 @@ export function LabScenariosDialog({
               <X size={18} weight="bold" />
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Mobile Tab-Switcher (< md / 768px) */}
         <div className="md:hidden flex items-center border-b border-slate-800 bg-slate-950 px-2 py-1.5 gap-1.5 shrink-0">
@@ -1061,7 +1061,7 @@ export function LabScenariosDialog({
                   <span>Nur offene</span>
                 </label>
 
-                <span className="text-slate-500 font-mono text-[10px]">
+                <span className="text-terminal-muted font-mono text-[10px]">
                   {filteredLabs.length} Treffer
                 </span>
               </div>
@@ -1071,7 +1071,7 @@ export function LabScenariosDialog({
             <ScrollArea className="flex-1 min-h-0">
               <div className="divide-y divide-slate-800/60 p-1">
                 {filteredLabs.length === 0 ? (
-                  <div className="p-6 text-center text-slate-500 text-xs">
+                  <div className="p-6 text-center text-terminal-muted text-xs">
                     Keine Labs für diese Filterkombination gefunden.
                   </div>
                 ) : (
@@ -1097,7 +1097,7 @@ export function LabScenariosDialog({
                       >
                         <div className="flex items-start justify-between gap-1.5 mb-1">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="font-mono text-[10px] text-slate-500 shrink-0">
+                            <span className="font-mono text-[10px] text-terminal-muted shrink-0">
                               #{String(idx + 1).padStart(2, "0")}
                             </span>
                             <span
@@ -1115,7 +1115,7 @@ export function LabScenariosDialog({
                               e.stopPropagation();
                               toggleLabCompleted(l.id);
                             }}
-                            className="shrink-0 text-slate-500 hover:text-emerald-400 transition-colors p-0.5"
+                            className="shrink-0 text-terminal-muted hover:text-emerald-400 transition-colors p-0.5"
                             title={isDone ? "Als nicht erledigt markieren" : "Als erledigt markieren"}
                           >
                             <CheckCircle
@@ -1155,7 +1155,7 @@ export function LabScenariosDialog({
           </aside>
 
           {/* ── Rechte Hauptspalte: Detail-Ansicht des ausgewählten Labs ── */}
-          <main
+          <div
             className={cn(
               "flex-1 min-w-0 flex-col bg-slate-900/60 overflow-hidden",
               mobileTab === "detail" ? "flex" : "hidden md:flex"
@@ -1180,9 +1180,9 @@ export function LabScenariosDialog({
 
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="space-y-1 min-w-0">
-                      <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight font-sans">
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight font-sans">
                         {currentLab.title}
-                      </h1>
+                      </h3>
                       <p className="text-sm text-slate-300 leading-relaxed">
                         {currentLab.subtitle}
                       </p>
@@ -1284,7 +1284,7 @@ export function LabScenariosDialog({
 
                       {/* Aufbau-Hinweise & Kabel-Zuordnungen */}
                       <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-terminal-muted">
                           Kabel- & Port-Zuordnungen:
                         </h4>
                         <div className="space-y-1.5 font-mono text-xs">
@@ -1395,7 +1395,7 @@ export function LabScenariosDialog({
                                 </code>
                               </div>
                               <div className="text-slate-300 font-sans text-xs pl-7">
-                                <span className="text-slate-500 font-mono mr-1">Erwartet:</span>
+                                <span className="text-terminal-muted font-mono mr-1">Erwartet:</span>
                                 <span className="text-emerald-400 font-medium">
                                   {v.expected}
                                 </span>
@@ -1491,7 +1491,7 @@ export function LabScenariosDialog({
 
                       {/* Geräte-Übersicht */}
                       <div>
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-terminal-muted mb-2">
                           Benötigte Netzwerkgeräte:
                         </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1518,7 +1518,7 @@ export function LabScenariosDialog({
 
                       {/* Verbindungen */}
                       <div>
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-terminal-muted mb-2">
                           Kabel & Port-Zuordnungen:
                         </h4>
                         <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3 space-y-1.5 font-mono text-xs">
@@ -1617,7 +1617,7 @@ export function LabScenariosDialog({
                               </code>
                             </div>
                             <div className="text-slate-300 font-sans text-xs md:text-right pl-7 md:pl-0">
-                              <span className="text-slate-500 font-mono mr-1">Erwartung:</span>
+                              <span className="text-terminal-muted font-mono mr-1">Erwartung:</span>
                               <span className="text-emerald-400 font-medium">{v.expected}</span>
                             </div>
                           </div>
@@ -1689,7 +1689,7 @@ export function LabScenariosDialog({
                 </div>
               </div>
             </ScrollArea>
-          </main>
+          </div>
         </div>
       </div>
       </div>

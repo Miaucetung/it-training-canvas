@@ -103,7 +103,7 @@ Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindest
 │                          │                          │                                  │
 │ --text-primary           │ #F1F5F9 (Soft White)     │ #1E293B (Dunkelschiefer)         │
 │ --text-secondary         │ #CBD5E1 (Slate 300)      │ #475569 (Schiefergrau)           │
-│ --text-muted             │ #94A3B8 (Slate 400)      │ #5D6C81 (Slate 500, abgedunkelt) │
+│ --text-muted             │ #94A3B8 (Slate 400)      │ #58667A (Slate 500, abgedunkelt) │
 │                          │                          │                                  │
 │ --accent-primary-fg      │ #60A5FA (Blue 400)       │ #1D4ED8 (Blue 700 - Cisco Navy)  │
 │ --accent-primary         │ #3B82F6 (Blue 500)       │ #2563EB (Blue 600 - Fokus/Rahmen)│
@@ -160,8 +160,8 @@ Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 
 | **Light `--text-primary`** | `#1E293B` | `--app-bg` (`#F3F4F6`) | **13,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
 | **Light `--text-secondary`** | `#475569` | `--surface` (`#FFFFFF`) | **7,58 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
 | **Light `--text-secondary`** | `#475569` | `--app-bg` (`#F3F4F6`) | **6,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
-| **Light `--text-muted`** | `#5D6C81` | `--surface` (`#FFFFFF`) | **5,35 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
-| **Light `--text-muted`** | `#5D6C81` | `--app-bg` (`#F3F4F6`) | **4,86 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--text-muted`** | `#58667A` | `--surface` (`#FFFFFF`) | **5,84 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--text-muted`** | `#58667A` | `--app-bg` (`#F3F4F6`) | **5,31 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
 | **Light `--accent-primary-fg`** | `#1D4ED8` | `--surface` (`#FFFFFF`) | **6,70 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
 | **Light `--accent-primary-fg`** | `#1D4ED8` | `--app-bg` (`#F3F4F6`) | **6,09 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
 | **Light `--accent-primary`** | `#2563EB` | `--surface` (`#FFFFFF`) | **5,17 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden (AA) |

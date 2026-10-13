@@ -173,7 +173,7 @@ export function TopologyHero({
         {/* Left Column: Heading, Primary CTA, Navigation shortcuts */}
         <div className="lg:col-span-6 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-accent-primary-fg border border-primary/20">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Cisco CCNA 200-301 v1.1
             </span>
@@ -276,8 +276,8 @@ export function TopologyHero({
                 className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all",
                   pingState === "request" || pingState === "reply"
-                    ? "bg-primary/20 text-primary cursor-not-allowed"
-                    : "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
+                    ? "bg-primary/20 text-accent-primary-fg cursor-not-allowed"
+                    : "bg-primary/10 hover:bg-primary/20 text-accent-primary-fg border border-primary/20"
                 )}
               >
                 <Pulse className="h-3.5 w-3.5" weight="bold" />

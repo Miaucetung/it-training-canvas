@@ -234,7 +234,7 @@ export function TopicDetailPanel({
           >
             {topic.title}
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-text-muted mt-0.5">
             {topic.estimatedMinutes} Min. · {concepts.length} Konzepte
             {topicQuizzes.length > 0 &&
               ` · ${topicQuizzes.reduce((s, q) => s + q.questions.length, 0)} Fragen`}
@@ -774,7 +774,7 @@ export function TopicDetailPanel({
             />
             <h3
               className={`text-xs font-semibold uppercase tracking-wider ${
-                dark ? "text-slate-500" : "text-slate-400"
+                "text-text-muted"
               }`}
             >
               Konzepte ({concepts.length})
@@ -782,7 +782,7 @@ export function TopicDetailPanel({
           </div>
 
           {concepts.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">
+            <p className="text-xs text-text-muted italic">
               Keine Konzepte verknüpft.
             </p>
           ) : (
@@ -849,8 +849,8 @@ export function TopicDetailPanel({
                       title="XP-System wird in Phase 6c-4 angebunden"
                       className={`text-xs px-3 py-1 rounded-lg border transition-colors opacity-50 cursor-not-allowed ${
                         dark
-                          ? "border-slate-600 text-slate-500"
-                          : "border-slate-300 text-slate-400"
+                          ? "border-slate-600 text-text-muted"
+                          : "border-slate-300 text-text-muted"
                       }`}
                     >
                       Verstanden
@@ -872,7 +872,7 @@ export function TopicDetailPanel({
               />
               <h3
                 className={`text-xs font-semibold uppercase tracking-wider ${
-                  dark ? "text-slate-500" : "text-slate-400"
+                  "text-text-muted"
                 }`}
               >
                 Quiz ({topicQuizzes.reduce((s, q) => s + q.questions.length, 0)}{" "}
@@ -918,7 +918,7 @@ export function TopicDetailPanel({
                       </div>
                     ))}
                     {quiz.questions.length > 3 && (
-                      <p className="text-xs text-slate-500 text-center py-1">
+                      <p className="text-xs text-text-muted text-center py-1">
                         + {quiz.questions.length - 3} weitere Fragen
                       </p>
                     )}
@@ -962,7 +962,7 @@ export function TopicDetailPanel({
               />
               <h3
                 className={`text-xs font-semibold uppercase tracking-wider ${
-                  dark ? "text-slate-500" : "text-slate-400"
+                  "text-text-muted"
                 }`}
               >
                 Cross-References ({crossRefs.length})
@@ -995,7 +995,7 @@ export function TopicDetailPanel({
                   >
                     {ref.bridgeNote}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1 opacity-70">
+                  <p className="text-xs text-text-muted mt-1 opacity-70">
                     Konzept: {ref.conceptId}
                     {ref.direction === "inbound" && " (von anderem Modul)"}
                   </p>

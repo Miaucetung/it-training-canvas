@@ -52,9 +52,11 @@ describe("Design-Token-Kontraste (B-07)", () => {
   }
 
   it("light: text-muted erreicht 4,5 : 1 auf surface, app-bg und surface-elevated", () => {
-    for (const bg of ["surface", "app-bg", "surface-elevated"]) {
+    for (const bg of ["surface", "app-bg", "surface-elevated", "surface-sunken"]) {
       expect(ratio(light["text-muted"], light[bg]), bg).toBeGreaterThanOrEqual(4.5);
     }
+    // gemessener Hintergrund der durchscheinenden Kopfzeile (axe, Hell-Modus)
+    expect(ratio(light["text-muted"], "#E7E8EA")).toBeGreaterThanOrEqual(4.5);
   });
 
   it("dark: text-muted erreicht 4,5 : 1 auf surface und app-bg", () => {

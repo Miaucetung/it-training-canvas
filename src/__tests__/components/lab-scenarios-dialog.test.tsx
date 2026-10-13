@@ -88,8 +88,8 @@ describe("LabScenariosDialog & Header Navigation Button", () => {
       const nextBtn = screen.getByRole("button", { name: new RegExp(`Weiter: ${nextLab.title}`, "i") });
       fireEvent.click(nextBtn);
 
-      // Titel des nächsten Labs sollte nun die Hauptüberschrift sein
-      expect(screen.getByRole("heading", { name: nextLab.title, level: 1 })).toBeDefined();
+      // Titel des nächsten Labs sollte nun die Lab-Überschrift (h3 unter dem Dialogtitel h2) sein
+      expect(screen.getByRole("heading", { name: nextLab.title, level: 3 })).toBeDefined();
     });
 
     it("schließt den Dialog bei Escape-Taste", () => {
