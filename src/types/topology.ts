@@ -25,7 +25,8 @@ export type LinkType =
   | "serial"
   | "trunk"
   | "etherchannel"
-  | "wireless";
+  | "wireless"
+  | "tunnel";
 
 export type LinkStatus =
   | "up"
@@ -68,6 +69,8 @@ export interface TopologyInterface {
   ipv6?: string; // e.g. "2001:db8:1::1/64"
   /** Nur wenn im Lab konfiguriert (`ipv6 address ... link-local`); sonst nicht bestimmbar (EUI-64, MAC unbekannt) */
   ipv6LinkLocal?: string;
+  /** Adresse wird per DHCP bezogen; konkreter Wert zur Laufzeit, nur das Netz ist aus dem Lab bekannt */
+  dhcp?: { network: string };
   ospfv3?: InterfaceOspfv3Config;
   eigrpv6?: { asn: number };
   mac?: string; // e.g. "00:50:79:66:68:01"
@@ -304,6 +307,7 @@ export const topologyInterfaceSchema = z.object({
   ip: z.string().optional(),
   ipv6: z.string().optional(),
   ipv6LinkLocal: z.string().optional(),
+  dhcp: z.object({ network: z.string() }).optional(),
   ospfv3: z
     .object({
       processId: z.number().int(),
@@ -437,7 +441,7 @@ export const topologyLinkSchema = z.object({
   sourceInterfaceId: z.string(),
   targetDeviceId: z.string(),
   targetInterfaceId: z.string(),
-  linkType: z.enum(["ethernet", "serial", "trunk", "etherchannel", "wireless"]),
+  linkType: z.enum(["ethernet", "serial", "trunk", "etherchannel", "wireless", "tunnel"]),
   status: z.enum([
     "up",
     "down",

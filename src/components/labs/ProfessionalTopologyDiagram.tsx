@@ -249,8 +249,14 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
           const midX = link.subnetLabelPos?.x ?? (fromDev.x + toDev.x) / 2;
           const midY = link.subnetLabelPos?.y ?? (fromDev.y + toDev.y) / 2;
 
+          const isTunnel = link.cableType === "tunnel";
+          const dashedLink = isTunnel || fromDev.assumed === true || toDev.assumed === true;
           const linkColor = isConnectedToSelected
             ? "#38bdf8"
+            : isTunnel
+              ? isLight
+                ? "#9333ea"
+                : "#c084fc"
             : link.isTrunk
               ? isLight
                 ? "#2563eb"
@@ -271,6 +277,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                 d={pathD}
                 stroke={linkColor}
                 strokeWidth={link.isTrunk ? 3 : 2}
+                strokeDasharray={dashedLink ? "6 4" : undefined}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -554,6 +561,26 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
             </g>
           );
         })}
+
+        {/* Textmarken (z. B. logischer Tunnel ohne eigenes Interface) */}
+        {(topology.notes ?? []).map((note) => (
+          <g key={note.id} transform={`translate(${note.x}, ${note.y})`}>
+            <rect
+              x={-subnetLabelWidth(note.text) / 2}
+              y="-9"
+              width={subnetLabelWidth(note.text)}
+              height="18"
+              rx="6"
+              fill={isLight ? "#faf5ff" : "#1e1b4b"}
+              stroke={isLight ? "#9333ea" : "#c084fc"}
+              strokeWidth="1"
+              strokeDasharray="4 3"
+            />
+            <text textAnchor="middle" dy="3.5" fontSize="9" fontWeight="600" fill={isLight ? "#6b21a8" : "#e9d5ff"}>
+              {note.text}
+            </text>
+          </g>
+        ))}
       </svg>
 
       {/* 5. Legende für VLANs & Farbcodes */}

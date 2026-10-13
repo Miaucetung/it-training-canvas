@@ -59,11 +59,11 @@ export function getDeviceAriaLabel(
 
   const parts: string[] = [`${typeLabel} ${device.name}`];
 
-  const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6);
+  const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6 || i.dhcp);
   const upInterfaces = device.interfaces.filter((i) => i.status === "up");
 
   if (ipInterfaces.length > 0) {
-    const ifaceTexts = ipInterfaces.map((i) => `${i.name} ${i.status}: ${[i.ip, i.ipv6].filter(Boolean).join(" ")}`).join(", ");
+    const ifaceTexts = ipInterfaces.map((i) => `${i.name} ${i.status}: ${[i.ip, i.ipv6, i.dhcp ? `DHCP (${i.dhcp.network})` : undefined].filter(Boolean).join(" ")}`).join(", ");
     parts.push(ifaceTexts);
   } else if (upInterfaces.length > 0) {
     parts.push(`${upInterfaces.length} aktive Ports`);
@@ -468,7 +468,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           const iconSize = 48;
 
           // Interfaces mit vergebener IP-Adresse herausfiltern
-          const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6);
+          const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6 || i.dhcp);
 
           return (
             <g
@@ -590,8 +590,8 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               {/* Detail-Modus: IP-Adressen und Schnittstellen-Badge */}
               {viewDensity === "detail" && ipInterfaces.length > 0 && (
                 <g transform={`translate(${w / 2}, ${iconSize + 20})`}>
-                  {[...ipInterfaces.filter((i) => i.ip).slice(0, 2).map((i) => ({ iface: i, addr: i.ip as string })), ...ipInterfaces.filter((i) => i.ipv6).map((i) => ({ iface: i, addr: i.ipv6 as string }))].map(({ iface, addr }, idx) => {
-                    const addrText = `${iface.name}: ${addr.split("/")[0]}`;
+                  {[...ipInterfaces.filter((i) => i.ip).slice(0, 2).map((i) => ({ iface: i, addr: i.ip as string })), ...ipInterfaces.filter((i) => i.ipv6).map((i) => ({ iface: i, addr: i.ipv6 as string })), ...ipInterfaces.filter((i) => i.dhcp && !i.ip).map((i) => ({ iface: i, addr: `DHCP (${i.dhcp!.network})` }))].map(({ iface, addr }, idx) => {
+                    const addrText = `${iface.name}: ${addr.startsWith("DHCP") ? addr : addr.split("/")[0]}`;
                     const boxW = Math.max(96, Math.round(addrText.length * 4.7 + 10));
                     return (
                     <g key={`${iface.id}-${addr}`} transform={`translate(0, ${idx * 13})`}>

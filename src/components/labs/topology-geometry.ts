@@ -185,6 +185,10 @@ export function buildBoxes(topology: LabTopologyData): BBox[] {
         });
       }
     }
+  for (const note of topology.notes ?? []) {
+    const w = subnetLabelWidth(note.text);
+    bboxes.push({ id: `${note.id}-note`, kind: "subnet-label", minX: note.x - w / 2, minY: note.y - 9, maxX: note.x + w / 2, maxY: note.y + 9 });
+  }
   return bboxes;
 }
 

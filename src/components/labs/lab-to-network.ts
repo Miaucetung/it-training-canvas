@@ -89,6 +89,8 @@ export interface ParsedDeviceConfig {
   ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean };
   hostIp?: { ip: string; mask: string; gateway?: string };
   hostIpv6?: { ip: string; gateway?: string };
+  /** Desktop steht auf DHCP */
+  hostDhcp?: boolean;
   ipv6Routing: boolean;
   ospfv3?: { processId: number; routerId?: string; passive: string[]; passiveDefault: boolean; noPassive: string[] };
   eigrp6?: { processId: number; routerId?: string; shutdown: boolean };
@@ -106,6 +108,15 @@ export function labMentionsPort(lab: LabForNetwork, deviceName: string, port: st
   const re = new RegExp(`\\b${esc}\\s+([A-Za-z]+\\d+(?:/\\d+)+)(?:\\s*[–-]\\s*[A-Za-z]*(\\d+(?:/\\d+)*))?`, "gi");
   for (const line of lab.topology.connections) {
     for (const m of line.matchAll(re)) {
+      const last = m[2]?.split("/").pop();
+      const names = last ? expandInterfaceRange(`${m[1]}-${last}`) : [normalizeInterfaceName(m[1])];
+      if (names.includes(short)) return true;
+    }
+  }
+  // Ports im Geräte-Label des Geräts ("SW1 (Fa0/1–3, Gig0/1)")
+  for (const dl of lab.topology.devices) {
+    if (!new RegExp(`^${esc}(?:\\s|\\()`, "i").test(dl.label)) continue;
+    for (const m of dl.label.matchAll(/([A-Za-z]+\d+(?:\/\d+)+)(?:\s*[–-]\s*[A-Za-z]*(\d+(?:\/\d+)*))?/g)) {
       const last = m[2]?.split("/").pop();
       const names = last ? expandInterfaceRange(`${m[1]}-${last}`) : [normalizeInterfaceName(m[1])];
       if (names.includes(short)) return true;
@@ -186,13 +197,13 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             if (inlineHost[1] === deviceName) cfg.hostIp = { ip: inlineHost[2], mask: inlineHost[3], gateway: inlineHost[4] };
             continue;
           }
-          let m = /^IP(?: Address|-Adresse):\s*(\S+)/i.exec(line);
+          let m = /^IP(?: Address|-Adresse)?:\s*(\S+)/i.exec(line);
           if (m) {
             if (multi) blockHosts.push({ ip: m[1], mask: "255.255.255.0" });
             else cfg.hostIp = { ...(cfg.hostIp ?? { mask: "255.255.255.0" }), ip: m[1], mask: cfg.hostIp?.mask ?? "255.255.255.0" };
             continue;
           }
-          m = /^(?:Subnet Mask|Subnetzmaske):\s*(\S+)/i.exec(line);
+          m = /^(?:Subnet Mask|Subnetzmaske|Maske):\s*(\S+)/i.exec(line);
           if (m) {
             const target = multi ? blockHosts[blockHosts.length - 1] : cfg.hostIp;
             if (target) target.mask = m[1];
@@ -202,6 +213,19 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           if (m) {
             const target = multi ? blockHosts[blockHosts.length - 1] : cfg.hostIp;
             if (target) target.gateway = m[1];
+            continue;
+          }
+
+          // DHCP-Clients und statische Server-NIC-Zeile ("Server-NIC: statisch 192.168.2.11/24, Gateway 192.168.2.1")
+          if (/^(?:◉\s*DHCP\b|IP-Konfiguration:\s*DHCP\b)/i.test(line)) {
+            cfg.hostDhcp = true;
+            continue;
+          }
+          const nic = /^Server-NIC:\s*statisch\s+(\d+(?:\.\d+){3})\/(\d+),\s*Gateway\s+(\d+(?:\.\d+){3})/i.exec(line);
+          if (nic) {
+            const bits = "1".repeat(Number(nic[2])).padEnd(32, "0");
+            const mask = [0, 8, 16, 24].map((i) => parseInt(bits.slice(i, i + 8), 2)).join(".");
+            cfg.hostIp = { ip: nic[1], mask, gateway: nic[3] };
             continue;
           }
 
@@ -292,6 +316,13 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxVlan = null;
             ctxOspf = false;
             ctxIfaces.forEach(ifaceOf);
+            continue;
+          }
+          if ((m = /^int(?:erface)?\s+tunnel\s*(\d+)$/i.exec(line))) {
+            ctxIfaces = [`Tu${m[1]}`];
+            ctxVlan = null;
+            ctxOspf = false;
+            ifaceOf(ctxIfaces[0]);
             continue;
           }
           if ((m = /^int(?:erface)?\s+(?:loopback|lo)\s*(\d+)$/i.exec(line))) {
@@ -496,6 +527,13 @@ export function buildNetworkTopologyFromLab(
         const v = /^Vlan(\d+)$/.exec(name);
         if (v && c.ip) (config.svis ??= []).push({ vlan: Number(v[1]), ip: c.ip });
       }
+      // Hosts: DHCP (nur das Netz ist bekannt) oder Adresse aus dem Geräte-Label des Labs
+      if (parsed.hostDhcp && d.dhcpNetwork && (d.type === "pc" || d.type === "server")) ifaces[0].dhcp = { network: d.dhcpNetwork };
+      if (!parsed.hostIp && !parsed.hostDhcp && (d.type === "pc" || d.type === "server")) {
+        const nameRe = d.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const m4 = lab.topology.devices.map((x) => new RegExp(`${nameRe}\\s*\\((\\d+(?:\\.\\d+){3})/(\\d+)\\)`).exec(x.label)).find(Boolean);
+        if (m4) ifaces[0].ip = `${m4[1]}/${m4[2]}`;
+      }
       // Hosts
       if (parsed.hostIp && (d.type === "pc" || d.type === "server")) {
         const p = maskToPrefix(parsed.hostIp.mask);
@@ -554,7 +592,7 @@ export function buildNetworkTopologyFromLab(
           }
           it.ospf = {
             area: net.area,
-            networkType: c?.ospfNetworkType ?? "broadcast",
+            networkType: c?.ospfNetworkType ?? (it.name.startsWith("Tu") ? "point-to-point" : "broadcast"),
             passive: parsed.ospf.passive.includes(it.name) || parsed.ospf.passiveDefault,
             ...(c?.ospfPriority !== undefined ? { priority: c.ospfPriority } : {}),
           };
@@ -598,9 +636,15 @@ export function buildNetworkTopologyFromLab(
     }
     const find = (dev: TopologyDevice, port: string) => {
       const short = normalizeInterfaceName(port);
+      // Im Lab nicht angegebenes Gerät: je Link ein eigener, namenloser Port („–“)
+      if (dev.assumed) {
+        const it: TopologyInterface = { id: `${interfaceIdFor(dev.id, short)}-${l.id}`, name: short, status: "up" };
+        dev.interfaces.push(it);
+        return it;
+      }
       let it = dev.interfaces.find((i) => i.name === short);
       if (!it) {
-        if (!dev.assumed) problems.push(`${dev.name}: Link-Port ${short} nicht im Profil`);
+        if (!/^Tu\d+$/.test(short)) problems.push(`${dev.name}: Link-Port ${short} nicht im Profil`);
         it = { id: interfaceIdFor(dev.id, short), name: short, status: "up" };
         dev.interfaces.push(it);
       }
@@ -618,7 +662,7 @@ export function buildNetworkTopologyFromLab(
       sourceInterfaceId: ia.id,
       targetDeviceId: b.id,
       targetInterfaceId: ib.id,
-      linkType: l.cableType === "serial" ? "serial" : bundled ? "etherchannel" : l.isTrunk ? "trunk" : "ethernet",
+      linkType: l.cableType === "serial" ? "serial" : l.cableType === "tunnel" ? "tunnel" : bundled ? "etherchannel" : l.isTrunk ? "trunk" : "ethernet",
       status: "up",
       label: l.subnetLabel,
       ...(l.bendPoints?.length ? { bendPoints: l.bendPoints } : {}),

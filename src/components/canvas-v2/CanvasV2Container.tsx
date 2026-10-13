@@ -1878,6 +1878,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                         )}
                       </div>
                       {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
+                      {iface.dhcp && !iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>DHCP ({iface.dhcp.network})</div>}
                       {iface.ipv6 && <div className={isDark ? "text-slate-300 break-all" : "text-slate-800 font-semibold break-all"}>{iface.ipv6}</div>}
                       {iface.description && (
                         <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>

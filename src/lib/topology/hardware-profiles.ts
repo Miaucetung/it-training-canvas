@@ -61,7 +61,7 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     model: "Catalyst 3560-24PS",
     deviceType: "switch-l3",
     ports: [...range("Fa0/", 1, 24), "Gi0/1", "Gi0/2"],
-    virtual: ["Vlan1"],
+    virtual: ["Vlan1", "Lo0"],
     description: "Layer-3-Switch: 24x FastEthernet (PoE), 2x GigabitEthernet",
   },
   "catalyst3650-24ps": {
@@ -69,7 +69,7 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     model: "Catalyst 3650-24PS",
     deviceType: "switch-l3",
     ports: [...range("Gi1/0/", 1, 24), ...range("Gi1/1/", 1, 4)],
-    virtual: ["Vlan1"],
+    virtual: ["Vlan1", "Lo0"],
     description: "Layer-3-Switch: 24x GigabitEthernet (PoE+), 4x SFP-Uplink",
   },
   "pc-pt": {
@@ -155,6 +155,7 @@ export function baseInterfaceName(name: string): string {
 export function profileHasInterface(profile: HardwareProfile, name: string): boolean {
   const n = baseInterfaceName(name);
   if (profile.ports.includes(n)) return true;
+  if (profile.deviceType === "router" && /^Tu\d+$/.test(n)) return true;
   return (profile.virtual ?? []).some((v) => (v === "Vlan1" ? /^Vlan\d+$/.test(n) : v === "Lo0" ? /^Lo\d+$/.test(n) : v === n)) || /^Po\d+$/.test(n);
 }
 
