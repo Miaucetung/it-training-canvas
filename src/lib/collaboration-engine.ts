@@ -403,7 +403,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 4.5,
+    rating: 0,
   },
   {
     id: "tpl-dmz",
@@ -486,7 +486,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "15 min",
     downloads: 0,
-    rating: 4.6,
+    rating: 0,
   },
 
   // ============================================================
@@ -552,7 +552,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 5.0,
+    rating: 0,
   },
 
   {
@@ -591,7 +591,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 5.0,
+    rating: 0,
   },
 
   {
@@ -639,7 +639,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 4.9,
+    rating: 0,
   },
 
   {
@@ -684,7 +684,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     connections: [],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 5.0,
+    rating: 0,
   },
 
   {
@@ -726,7 +726,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 5.0,
+    rating: 0,
   },
 
   {
@@ -771,7 +771,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "10 min",
     downloads: 0,
-    rating: 5.0,
+    rating: 0,
   },
 
   // ── QW-5a: VLAN + Trunk + Router-on-a-Stick ────────────────
@@ -849,7 +849,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "20 min",
     downloads: 0,
-    rating: 4.9,
+    rating: 0,
   },
 
   // ── tpl-edu-vlan-hopping: VLAN-Hopping Double-Tagging Attack ──
@@ -935,7 +935,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "15 min",
     downloads: 0,
-    rating: 4.9,
+    rating: 0,
   },
 
   // ── QW-5b: STP Root Bridge Election ────────────────────────
@@ -996,7 +996,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "25 min",
     downloads: 0,
-    rating: 4.9,
+    rating: 0,
   },
 
   // -- tpl-edu-ivr-svi: Inter-VLAN Routing per SVI (L3-Switch) --
@@ -1049,7 +1049,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     ],
     estimatedTime: "18 min",
     downloads: 0,
-    rating: 4.8,
+    rating: 0,
   },
 
   // -- tpl-edu-l2-security: Angriff -> Abwehr Mapping --
@@ -1116,7 +1116,7 @@ export const BUILT_IN_TEMPLATES: CanvasTemplate[] = [
     connections: [],
     estimatedTime: "15 min",
     downloads: 0,
-    rating: 4.9,
+    rating: 0,
   },
 ];
 

@@ -225,8 +225,8 @@ export function TopologyHero({
           {/* Progress / Status Hint */}
           <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/60">
             <span className="tabular-nums font-mono">
-              <strong className="text-foreground font-semibold">{completedTopicCount}</strong> von{" "}
-              {totalTopicCount} Lektionen abgeschlossen
+              <strong className="text-foreground font-semibold">{completedTopicCount}</strong>
+              {totalTopicCount > 0 ? ` von ${totalTopicCount}` : ""} Lektionen abgeschlossen
             </span>
 
             <div className="flex items-center gap-2 ml-auto">
@@ -576,7 +576,7 @@ export function TopologyHero({
               >
                 <div className="flex items-center gap-1.5 font-mono">
                   <CheckCircle className="h-4 w-4" weight="bold" />
-                  <span>Ping erfolgreich: 4 Pakete empfangen, RTT 1.2ms (ICMP Echo Reply)</span>
+                  <span>Lehrbeispiel: Echo Request und Echo Reply zwischen PC1 und SRV1 (Animation, keine Messung)</span>
                 </div>
                 <button
                   type="button"

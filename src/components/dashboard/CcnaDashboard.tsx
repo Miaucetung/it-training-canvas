@@ -97,18 +97,6 @@ export function CcnaDashboard({
       // Fallback
     }
 
-    // Default seed if user has progress
-    const fullPath = userProgress["ccna-full-path"];
-    if (fullPath && fullPath.completedSteps && fullPath.completedSteps.length > 0) {
-      return [
-        {
-          id: fullPath.completedSteps[0],
-          type: "topic",
-          title: "Netzwerkgrundlagen & OSI-Modell",
-          timestamp: fullPath.lastActivityAt || Date.now() - 3600000 * 2,
-        },
-      ];
-    }
     return [];
   });
 
@@ -185,7 +173,7 @@ export function CcnaDashboard({
   }, [isPresentationMode]);
 
   // Last active topic calculation
-  const totalTopicCount = module?.topics.length || 26;
+  const totalTopicCount = module?.topics.length ?? 0;
   const lastActiveItem = recentItems[0];
   const hasProgress = completedTopicIds.length > 0 || recentItems.length > 0;
 
