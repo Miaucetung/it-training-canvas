@@ -7,8 +7,8 @@ import { LABS } from "@/components/labs";
  */
 const LAB_IDS = ["basic-ip", "vlan-trunking", "roas", "ospf"] as const;
 
-// Im Lab-Text selbst widersprüchlich (Verbindungsliste vs. Konfiguration) — bewusst nicht korrigiert.
-const KNOWN_LAB_TEXT_CONTRADICTIONS = new Set(["ospf|R3|gi0/1", "ospf|R3|gi0/2"]);
+// Widersprüche im Lab-Text (z. B. ospf: Verbindungsliste vs. Konfiguration): die Konfiguration gilt.
+const KNOWN_LAB_TEXT_CONTRADICTIONS = new Set<string>();
 
 const shortIf = (name: string) =>
   name
