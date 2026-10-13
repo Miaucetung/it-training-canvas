@@ -50,3 +50,19 @@ Offen bleibt nur, **wie SW1 den Server erreicht** (kein Gateway, keine Route, ke
 | vtp-dtp — layer2.tsx | Zeile 648 (SW2) | `interface range gi0/1 - 2\nswitchport mode trunk\nswitchport nonegotiate` | `interface gi0/1\nswitchport mode trunk\ninterface gi0/2\nswitchport mode trunk\nswitchport nonegotiate` (Erklärung zu Zeile 648 entsprechend anpassen) | SW1 steht auf `switchport mode dynamic desirable` (Zeile 604), SW2 auf `trunk` **mit** `nonegotiate`. Ein `nonegotiate`-Port sendet keine DTP-Frames, `desirable` bekommt keine Antwort und bleibt Access: der Trunk SW1–SW2 kommt nach Cisco-DTP-Verhalten nicht zustande, VTP synchronisiert dann nicht. Bitte in Packet Tracer gegenprüfen. Gi0/2 (zu SW3) bleibt statisch mit `nonegotiate`. |
 
 Die Topologie zeichnet beide Verbindungen als Trunk (wie die Verbindungsliste des Labs sagt). Im Zielzustand zeigt `show interfaces trunk` auf SW1 daher **keinen** Trunk für Gi0/1 — das spiegelt die Lab-Konfiguration ehrlich wider.
+
+## 8. Angenommene Switch-Ports (Paket 1 und 2)
+
+In diesen Labs nennt der Lab-Text einen Switch-Port weder in der Verbindungsliste noch in einem `interface`-Befehl. Die Topologie folgt der Konvention **Uplink = Gi0/1, Endgeräte = Fa0/1.. in Gerätereihenfolge** und kennzeichnet die Ports in der Adressierungstabelle (Fußzeile „Ports angenommen“) und im Canvas-Inspector (Marke „angenommen“). „Neu“ ist ein Vorschlag, den du prüfen musst; Änderungen am Lab-Text mache ich nicht.
+
+| Lab | Angenommene Ports | Vorschlag für `connections` (Neu) |
+|---|---|---|
+| basic-ip | Switch0 Fa0/1, Fa0/2, Gi0/1 | `"PC0 → Switch0 Fa0/1"`, `"PC1 → Switch0 Fa0/2"`, `"Switch0 Gi0/1 → Router0 GigabitEthernet0/0"` |
+| ospf | SW1/SW2/SW3 Fa0/1, Gi0/1 | `"R1 Gi0/0 → SW1 Gi0/1, SW1 Fa0/1 → PC0"` (entsprechend SW2/PC1, SW3/PC2) |
+| static-routing | SW1/SW2 Fa0/1, Fa0/2, Gi0/1 | `"PC0 → SW1 Fa0/1, PC1 → SW1 Fa0/2, SW1 Gi0/1 → R1 Gi0/0"`, `"R2 Gi0/0 → SW2 Gi0/1, SW2 Fa0/1 → PC2, SW2 Fa0/2 → PC3"` |
+| rip-v1, rip-v2 | SW1/SW2/SW3 Fa0/1, Gi0/1 | Zeile `"LANs: …"` ergänzen um `"SWn Gi0/1 → Rn Gi0/0, PCx → SWn Fa0/1"` |
+| rip-v2-passive | SW1 Gi0/1, Fa0/1, Fa0/2 | `"R2 Gi0/0 → SW1 Gi0/1"`, `"SW1 Fa0/1 → R3 Gi0/1"`, `"SW1 Fa0/2 → R4 Gi0/1"` (die Konfiguration nennt R3/R4 `Gi0/1`; „Fa/Gi“ im alten Text streichen) |
+| ospf-dr-bdr-election | Sw1 Fa0/1–Fa0/4 | `"R1 Gi0/1 → Sw1 Fa0/1"`, `"R2 Gi0/1 → Sw1 Fa0/2"`, `"R3 Gi0/1 → Sw1 Fa0/3"`, `"R4 Gi0/1 → Sw1 Fa0/4"` |
+| eigrp | SW1/SW3 Fa0/1, Gi0/1 | `"R1 Gi0/0 → SW1 Gi0/1, SW1 Fa0/1 → PC0"` (entsprechend R3/SW3/PC1) |
+
+Die Liste wird mit jedem weiteren Paket um die Labs ergänzt, in denen Switch-Ports angenommen werden. Welche Ports angenommen sind, kann man jederzeit im Lab-Dialog unter der Adressierungstabelle nachlesen.

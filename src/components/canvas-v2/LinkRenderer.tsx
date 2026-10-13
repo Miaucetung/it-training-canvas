@@ -128,6 +128,11 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   const sourceIf = sourceDevice.interfaces.find((i) => i.id === link.sourceInterfaceId);
   const targetIf = targetDevice.interfaces.find((i) => i.id === link.targetInterfaceId);
 
+  // Endgerät im Lab nicht angegeben: Verbindung gestrichelt, Port unbekannt
+  const sourceAssumed = sourceDevice.assumed === true;
+  const targetAssumed = targetDevice.assumed === true;
+  if (sourceAssumed || targetAssumed) strokeDasharray = "6 4";
+
   let strokeColor = baseStrokeColor;
   // Status-Übersteuerungen
   if (isDown) {
@@ -145,8 +150,8 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
     strokeWidth = 3.5;
   }
 
-  const srcLabel = sourceIf ? sourceIf.name : link.sourceInterfaceId;
-  const tgtLabel = targetIf ? targetIf.name : link.targetInterfaceId;
+  const srcLabel = sourceAssumed ? "" : sourceIf ? sourceIf.name : link.sourceInterfaceId;
+  const tgtLabel = targetAssumed ? "" : targetIf ? targetIf.name : link.targetInterfaceId;
 
   // Berechne versetzte Positionen für Labels an beiden Enden (Kollisionsschutz!)
   // Mit Zwischenpunkten: Labels hinter dem Geräte-Symbol und auf der oberen Seite der Linie,

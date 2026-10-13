@@ -7,6 +7,7 @@ import {
   portLabelWidth,
   subnetLabelWidth,
   zoneBadgeWidth,
+  assumedCaptionWidth,
 } from "./topology-layout";
 
 // Geometrische Analyse der Lab-Topologien (Überlappungen, Kreuzungen, Zonen, Raster).
@@ -116,8 +117,8 @@ export function buildBoxes(topology: LabTopologyData): BBox[] {
 
       const nameWidth = deviceNameWidth(d.name);
       const modelWidth = deviceModelWidth(d.model);
-      const labelW = Math.max(nameWidth, modelWidth);
-      const labelH = d.model ? 33 : 18;
+      const labelW = Math.max(nameWidth, modelWidth, d.assumed ? assumedCaptionWidth() : 0);
+      const labelH = (d.model ? 33 : 18) + (d.assumed ? 12 : 0);
       bboxes.push({
         id: `${d.id}-label`,
         kind: "device-label",

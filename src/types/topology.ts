@@ -77,6 +77,8 @@ export interface TopologyInterface {
   subinterfaces?: TopologySubinterface[];
   isShutdown?: boolean;
   ospf?: InterfaceOspfConfig;
+  /** Port im Lab nicht angegeben, nach Konvention angenommen */
+  assumed?: boolean;
 }
 
 export interface DeviceSvi {
@@ -149,6 +151,8 @@ export interface TopologyDevice {
   config?: DeviceConfig;
   status?: "active" | "inactive" | "warning" | "error";
   label?: string;
+  /** Im Lab nicht angegeben, aber für die Topologie nötig (gestrichelt dargestellt) */
+  assumed?: boolean;
 }
 
 export interface TopologyLink {
@@ -285,6 +289,7 @@ export const topologyInterfaceSchema = z.object({
   subinterfaces: z.array(topologySubinterfaceSchema).optional(),
   isShutdown: z.boolean().optional(),
   ospf: interfaceOspfSchema.optional(),
+  assumed: z.boolean().optional(),
 });
 
 export const deviceSviSchema = z.object({
@@ -379,6 +384,7 @@ export const topologyDeviceSchema = z.object({
   config: deviceConfigSchema.optional(),
   status: z.enum(["active", "inactive", "warning", "error"]).optional(),
   label: z.string().optional(),
+  assumed: z.boolean().optional(),
 });
 
 export const topologyLinkSchema = z.object({

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
-import { buildNetworkTopologyFromLab, getLabDeviceCli, parseLabDeviceConfig } from "@/components/labs/lab-to-network";
+import { buildNetworkTopologyFromLab, expandDeviceNames, getLabDeviceCli, parseLabDeviceConfig } from "@/components/labs/lab-to-network";
 import { networkTopologySchema } from "@/types/topology";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
@@ -78,7 +78,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
   it("Verbindungsliste des Labs stimmt mit den Links überein (Port-Paare)", () => {
     const names = data.devices.map((d) => d.name).sort((a, b) => b.length - a.length);
     const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const nameRe = new RegExp(`^(${names.map(esc).join("|")})(?:\\s+([A-Za-z]+\\d+(?:/\\d+)+))?\\s*$`);
+    const nameRe = new RegExp(`^(${names.map(esc).join("|")})(?:\\s+([A-Za-z]+\\d+(?:/\\d+)+))?(?:\\s+\\d+(?:\\.\\d+){3}(?:/\\d+)?)?\\s*$`);
     const idOf = (n: string) => data.devices.find((d) => d.name === n)!.id;
     const portOn = (linkEnd: "from" | "to", link: (typeof data.links)[number]) => normalizeInterfaceName(linkEnd === "from" ? link.fromPort : link.toPort);
     const contradictions = KNOWN_CONNECTION_CONTRADICTIONS[id] ?? [];
@@ -86,7 +86,36 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
 
     for (const lineRaw of l.topology.connections) {
       if (contradictions.includes(lineRaw)) continue;
-      for (const part of lineRaw.split(",")) {
+      const range = /^(\D+?)(\d+)[–-]\D+?(\d+)\s*→\s*(\S+)\s+([A-Za-z]+\d+\/)(\d+)[–-][A-Za-z]+\d+\/(\d+)/.exec(lineRaw);
+      if (range) {
+        const [, base, from, to, sw, ifPrefix, portFrom] = range;
+        for (let k = 0; k <= Number(to) - Number(from); k++) {
+          const hostId = idOf(`${base}${Number(from) + k}`);
+          const swId = idOf(sw);
+          const swPort = normalizeInterfaceName(`${ifPrefix}${Number(portFrom) + k}`);
+          const found = data.links.find(
+            (x) => (x.from === hostId && x.to === swId && normalizeInterfaceName(x.toPort) === swPort) || (x.to === hostId && x.from === swId && normalizeInterfaceName(x.fromPort) === swPort),
+          );
+          expect(found, `"${lineRaw}": ${base}${Number(from) + k} ↔ ${sw} ${swPort} fehlt`).toBeDefined();
+          verified++;
+        }
+        continue;
+      }
+      const fan = /^(\D+?)(\d+)\.\.\D+?(\d+)\s+([A-Za-z]+\d+(?:\/\d+)+)\s*→\s*(\w+)/.exec(lineRaw);
+      if (fan) {
+        const [, base, from, to, port, hub] = fan;
+        for (let k = Number(from); k <= Number(to); k++) {
+          const found = data.links.find((x) => {
+            const direct = x.from === idOf(`${base}${k}`) && x.to === idOf(hub) && normalizeInterfaceName(x.fromPort) === normalizeInterfaceName(port);
+            const reverse = x.to === idOf(`${base}${k}`) && x.from === idOf(hub) && normalizeInterfaceName(x.toPort) === normalizeInterfaceName(port);
+            return direct || reverse;
+          });
+          expect(found, `"${lineRaw}": ${base}${k} ${port} ↔ ${hub} fehlt`).toBeDefined();
+          verified++;
+        }
+        continue;
+      }
+      for (const part of lineRaw.replace(/\(.*?\)/g, "").split(/,|\s[—·]\s/)) {
         const segs = part.split(/\s*[↔→]\s*/).map((s) => s.replace(/\(.*?\)/g, "").trim());
         const parsed = segs.map((s) => nameRe.exec(s));
         if (segs.length < 2 || parsed.some((p) => !p)) continue;
@@ -142,7 +171,9 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
   it("CLI-Export enthält Befehle ohne Prompt für jedes Router-/Switch-Gerät", () => {
     for (const d of data.devices.filter((x) => x.type === "router" || x.type.startsWith("switch"))) {
       const cli = getLabDeviceCli(l, d.name);
-      expect(cli.length, d.name).toBeGreaterThan(0);
+      const configuredInLab = l.steps.some((st) => (st.blocks as Array<{ device: string }>).some((b) => expandDeviceNames(b.device).includes(d.name)));
+      if (configuredInLab) expect(cli.length, d.name).toBeGreaterThan(0);
+      else expect(cli, `${d.name}: im Lab nicht konfiguriert, kein erfundener Export`).toBe("");
       for (const line of cli.split("\n")) {
         expect(line, `${d.name}: Prompt in "${line}"`).not.toMatch(/^[\w.-]+(\([\w-]+\))?[#>]/);
       }

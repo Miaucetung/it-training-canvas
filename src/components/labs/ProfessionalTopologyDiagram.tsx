@@ -4,6 +4,7 @@ import type { DeviceType } from "@/types/topology";
 import { cn } from "@/lib/utils";
 import { placeZoneBadge } from "./topology-geometry";
 import {
+  ASSUMED_CAPTION,
   deviceNameWidth,
   getPortLabelPos,
   ipLabelWidth,
@@ -452,6 +453,20 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                 />
               )}
 
+              {device.assumed && (
+                <rect
+                  x="-30"
+                  y="-30"
+                  width="60"
+                  height="60"
+                  rx="10"
+                  fill="none"
+                  stroke={isLight ? "#64748b" : "#94a3b8"}
+                  strokeWidth="1.2"
+                  strokeDasharray="4 3"
+                />
+              )}
+
               {/* Gerätesymbol zentriert */}
               <g
                 transform="translate(-24, -24)"
@@ -522,6 +537,17 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                     fill={isLight ? "#64748b" : "#94a3b8"}
                   >
                     {device.model}
+                  </text>
+                )}
+                {device.assumed && (
+                  <text
+                    textAnchor="middle"
+                    y={device.model ? 30 : 18}
+                    fontSize="7.5"
+                    fontStyle="italic"
+                    fill={isLight ? "#64748b" : "#94a3b8"}
+                  >
+                    {ASSUMED_CAPTION}
                   </text>
                 )}
               </g>

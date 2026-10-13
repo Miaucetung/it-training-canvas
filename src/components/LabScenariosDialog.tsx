@@ -2,7 +2,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { escapeHtml } from "@/lib/escape";
 import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
-import { getLabDeviceCli } from "./labs/lab-to-network";
+import { buildNetworkTopologyFromLab, getLabDeviceCli } from "./labs/lab-to-network";
 import { downloadBlob } from "@/lib/topology/storage-manager";
 import { cn } from "@/lib/utils";
 import {
@@ -546,6 +546,8 @@ export function LabScenariosDialog({
   const [copiedAll, setCopiedAll] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [detailMode, setDetailMode] = useState<boolean>(true);
+  const [diagramZoom, setDiagramZoom] = useState<number>(1);
+  const [diagramWide, setDiagramWide] = useState<boolean>(true);
   const [mobileTab, setMobileTab] = useState<"list" | "detail">("detail");
   const [presentationMode, setPresentationMode] = useState<boolean>(false);
   const [printWithoutSolution, setPrintWithoutSolution] = useState<boolean>(false);
@@ -685,6 +687,12 @@ export function LabScenariosDialog({
     LABS_ORDERED[0];
 
   const currentCategory = getLabCategory(currentLab.id);
+
+  const assumedPorts = useMemo(() => {
+    if (!currentLab.structuredTopology) return [];
+    const { topology } = buildNetworkTopologyFromLab(currentLab, currentLab.structuredTopology, "target");
+    return topology.devices.flatMap((d) => d.interfaces.filter((i) => i.assumed).map((i) => ({ device: d.name, port: i.name })));
+  }, [currentLab]);
 
   // Prev / Next Lab navigation
   const currentIndex = LABS_ORDERED.findIndex((l) => l.id === currentLab.id);
@@ -1243,17 +1251,17 @@ export function LabScenariosDialog({
                 {currentLab.structuredTopology ? (
                   <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
                     {/* Linke Spalte: Professionelle Topologie & Adressierungstabelle (Desktop) */}
-                    <div className="xl:col-span-7 space-y-5 min-w-0">
+                    <div className={cn("space-y-5 min-w-0", diagramWide ? "xl:col-span-12" : "xl:col-span-7")}>
                       {/* Cisco Press Topologie Diagramm */}
                       <section className="space-y-2">
-                        <div className="flex items-center justify-between px-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
                           <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
                             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-sans">
                               Netzwerk-Topologie (Cisco Press Standard)
                             </h3>
                           </div>
-                          <div className="flex items-center gap-2 text-xs">
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
                             {onOpenInCanvas && (
                               <button
                                 type="button"
@@ -1265,6 +1273,39 @@ export function LabScenariosDialog({
                                 <span>Topologie im Canvas öffnen</span>
                               </button>
                             )}
+                            <span className="inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 overflow-hidden font-mono">
+                              <button
+                                type="button"
+                                onClick={() => setDiagramZoom((z) => Math.max(1, z - 0.5))}
+                                disabled={diagramZoom <= 1}
+                                className="px-2 py-1 text-slate-300 hover:bg-slate-800 disabled:text-slate-600"
+                                aria-label="Diagramm verkleinern"
+                              >
+                                −
+                              </button>
+                              <span className="px-1.5 text-slate-300" aria-live="polite">{Math.round(diagramZoom * 100)}%</span>
+                              <button
+                                type="button"
+                                onClick={() => setDiagramZoom((z) => Math.min(3, z + 0.5))}
+                                disabled={diagramZoom >= 3}
+                                className="px-2 py-1 text-slate-300 hover:bg-slate-800 disabled:text-slate-600"
+                                aria-label="Diagramm vergrößern"
+                              >
+                                +
+                              </button>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setDiagramWide((w) => !w)}
+                              aria-pressed={diagramWide}
+                              className={cn(
+                                "hidden xl:inline-flex px-2.5 py-1 rounded-lg border text-xs font-semibold transition-colors",
+                                diagramWide ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300" : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200",
+                              )}
+                              title="Diagramm über die volle Breite anzeigen"
+                            >
+                              Breit
+                            </button>
                             <button
                               onClick={() => setDetailMode((d) => !d)}
                               className={cn(
@@ -1281,19 +1322,25 @@ export function LabScenariosDialog({
                           </div>
                         </div>
 
-                        <div ref={diagramContainerRef}>
-                          <ProfessionalTopologyDiagram
-                            topology={currentLab.structuredTopology}
-                            detailMode={detailMode}
-                            selectedDevice={selectedDevice}
-                            onSelectDevice={setSelectedDevice}
-                          />
+                        <div ref={diagramContainerRef} className="max-w-full overflow-auto rounded-xl">
+                          <div
+                            className="min-w-[var(--diagram-min)] sm:min-w-0"
+                            style={{ width: `${diagramZoom * 100}%`, "--diagram-min": `${Math.round(560 * diagramZoom)}px` } as React.CSSProperties}
+                          >
+                            <ProfessionalTopologyDiagram
+                              topology={currentLab.structuredTopology}
+                              detailMode={detailMode}
+                              selectedDevice={selectedDevice}
+                              onSelectDevice={setSelectedDevice}
+                            />
+                          </div>
                         </div>
                       </section>
 
                       {/* Adressierungstabelle mit bidirektionalem Highlighting */}
                       <LabAddressingTable
                         entries={currentLab.structuredTopology.addressingTable}
+                        assumedPorts={assumedPorts}
                         selectedDevice={selectedDevice}
                         onSelectDevice={setSelectedDevice}
                       />
@@ -1358,7 +1405,7 @@ export function LabScenariosDialog({
                     </div>
 
                     {/* Rechte Spalte: Aufgabenstellung & Konfiguration */}
-                    <div className="xl:col-span-5 space-y-5 min-w-0">
+                    <div className={cn("space-y-5 min-w-0", diagramWide ? "xl:col-span-12" : "xl:col-span-5")}>
                       {/* Didaktischer Kontext */}
                       {currentLab.context && (
                         <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-slate-900 p-4 shadow-sm">

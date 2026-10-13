@@ -45,6 +45,8 @@ export interface LabTopologyDevice {
   name: string;            // Anzeigename, z. B. "R1"
   type: "router" | "switch-l2" | "switch-l3" | "firewall" | "server" | "pc" | "cloud" | "access-point";
   tier: "wan" | "gateway" | "core" | "distribution" | "access" | "endpoint";
+  /** Im Lab nicht angegeben, aber für die Topologie nötig: gestrichelt, ohne Konfiguration, ohne CLI-Export */
+  assumed?: boolean;
   x: number;
   y: number;
   model?: string;          // z. B. "Cisco 2901", "WS-C2960-24TT-L"

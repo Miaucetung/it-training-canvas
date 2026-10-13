@@ -39,4 +39,7 @@ export const zoneBadgeBox = (zone: { x: number; y: number; label: string }) => (
   maxY: zone.y + 23,
 });
 
+export const ASSUMED_CAPTION = "im Lab nicht angegeben";
+export const assumedCaptionWidth = () => ASSUMED_CAPTION.length * 5 + 8;
+
 export const deviceModelWidth = (model?: string) => (model ? model.length * 6 : 0);

@@ -11,7 +11,8 @@ export type HardwareProfileId =
   | "catalyst3560-24ps"
   | "catalyst3650-24ps"
   | "pc-pt"
-  | "server-pt";
+  | "server-pt"
+  | "extern";
 
 export interface HardwareProfile {
   id: HardwareProfileId;
@@ -68,6 +69,13 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     ports: ["Fa0"],
     description: "Endgerät mit FastEthernet0",
   },
+  extern: {
+    id: "extern",
+    model: "Gegenstelle (im Lab nicht angegeben)",
+    deviceType: "cloud",
+    ports: [],
+    description: "Gerät, das das Lab nur über Adresse/Next-Hop erwähnt",
+  },
   "server-pt": {
     id: "server-pt",
     model: "Server-PT",
@@ -96,6 +104,8 @@ export function resolveHardwareProfile(model: string | undefined, type: DeviceTy
       return HARDWARE_PROFILES["pc-pt"];
     case "server":
       return HARDWARE_PROFILES["server-pt"];
+    case "cloud":
+      return HARDWARE_PROFILES.extern;
     default:
       return undefined;
   }
