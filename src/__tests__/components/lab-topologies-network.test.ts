@@ -168,6 +168,20 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
         }
       }
     }
+    if (verified === 0) {
+      // Zeilen ganz ohne Port ("Admin-PC → R1 Mgmt …"): die genannten Geräte müssen über einen Link verbunden sein
+      const namesRe = new RegExp(`(${names.map(esc).join("|")})`, "g");
+      for (const lineRaw of l.topology.connections) {
+        const found = [...lineRaw.matchAll(namesRe)].map((m) => m[1]);
+        for (let i = 0; i + 1 < found.length; i++) {
+          if (found[i] === found[i + 1]) continue;
+          const a = idOf(found[i]);
+          const b = idOf(found[i + 1]);
+          expect(data.links.some((k) => (k.from === a && k.to === b) || (k.from === b && k.to === a)), `"${lineRaw}": ${found[i]} ↔ ${found[i + 1]} fehlt`).toBe(true);
+          verified++;
+        }
+      }
+    }
     expect(verified, "mindestens eine Verbindungszeile wurde automatisch abgeglichen").toBeGreaterThan(0);
   });
 
@@ -188,6 +202,12 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
         continue;
       }
       // DHCP-Client: konkrete Adresse entsteht zur Laufzeit; Desktop steht auf DHCP, das Netz nennt der Lab-Text
+      // DHCP-Client ohne Netzangabe im Lab: der Lab-Text lässt ihn die Adresse per ipconfig /renew beziehen
+      if (row.ip === "DHCP (Netz im Lab nicht angegeben)") {
+        const own = l.steps.flatMap((st) => (st.blocks as Array<{ device: string; commands: Array<{ cmd: string }> }>).filter((b) => expandDeviceNames(b.device).includes(row.device)).flatMap((b) => b.commands.map((c) => c.cmd))).join("\n");
+        expect(own, `${row.device}: kein ipconfig /renew im Lab`).toContain("ipconfig /renew");
+        continue;
+      }
       const dhcp = /^DHCP \((\S+)\)$/.exec(row.ip);
       if (dhcp) {
         expect(cfg.hostDhcp, `${row.device}: Desktop steht im Lab nicht auf DHCP`).toBe(true);

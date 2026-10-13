@@ -115,3 +115,19 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 | device-hardening | SW1 Fa0/1 |
 | stp-hardening | Dist1 Gi0/1, Gi0/3; Dist2 Gi0/1, Gi0/3 |
 | aaa-radius-tacacs | SW1 Fa0/1, Gi0/1 |
+
+
+## 12. Paket 6 (Operations/Automation): Befunde
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| netflow | `connections` | „R1 Mgmt → Collector 10.0.0.60:9996“: Port nicht genannt; der Collector liegt im Netz von Gi0/0 (10.0.0.0/24), das als „LAN — wird beobachtet“ beschrieben ist. Die Topologie zeichnet die Verbindung über Gi0/0. | Port nennen (z. B. `R1 Gi0/0 ↔ Collector`) und klären, ob das beobachtete LAN und das Management-Netz dasselbe sind. |
+| restconf, netconf-yang | `connections` | „Admin-PC → R1 Mgmt 10.0.0.1:443/830“: Port nicht genannt; Modell „IOS-XE“ ohne Typ, Interface heißt `GigabitEthernet0/0`. Die Topologie nutzt ein generisches IOS-XE-Profil mit Gi0/0–0/2. | Modell nennen (z. B. Catalyst 8000V/ISR 4000, dort heißen die Ports `GigabitEthernet0/0/0` bzw. `GigabitEthernet1`). |
+| ios-backup-upgrade | `connections` | Subnetz nur als „z. B. 10.1.1.0/24“; R1-Adresse und Maske des TFTP-Servers fehlen (nur `ping 10.1.1.10`). | R1 `ip address 10.1.1.1 255.255.255.0` und die TFTP-Server-Adresse mit Maske ergänzen. |
+| dhcp-troubleshoot-lab | Schritte 1–3 | Nur die Korrekturen stehen im Lab, die Ausgangskonfiguration (Pools, Subinterfaces, Switch-Ports, Server-Netze) fehlt; Netz von Client Rot unbekannt. VLAN-1-SVI 192.168.2.50/24 liegt im Server-Netz VLAN 71 (192.168.2.0/24). SW1-Ports nicht genannt. | Basiskonfiguration vor den Fehlern ergänzen; SW1-Ports nennen; prüfen, ob die SVI-Adresse im Server-VLAN gewollt ist. |
+
+Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
+
+| Lab | Angenommene Ports |
+|---|---|
+| dhcp-troubleshoot-lab | SW1 Gi0/1, Fa0/1, Fa0/2, Fa0/3 |

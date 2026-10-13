@@ -739,6 +739,22 @@ export function buildNetworkTopologyFromLab(
     category: "teaching-labs",
     devices,
     links,
+    annotations: (data.notes ?? [])
+      .filter((n) => !n.onlyIn || n.onlyIn === state)
+      .map((n) => {
+        const w = Math.min(320, Math.round(n.text.length * 6.4 + 24));
+        return {
+          id: `lab-note-${n.id}`,
+          type: "note" as const,
+          x: n.x - 40 - w / 2,
+          y: n.y - 30 - 22,
+          width: w,
+          height: 44,
+          text: n.text,
+          author: n.kind === "fault" ? "Beabsichtigter Fehler" : "Lab-Hinweis",
+          ...(n.kind === "fault" ? { color: "#DC2626" } : {}),
+        };
+      }),
     vlans: data.vlans?.map((v) => ({ id: v.id, name: v.name, color: THEME_COLORS[v.colorTheme] ?? "#64748B", subnet: v.subnet })),
     subnetZones: data.zones?.map((z) => ({
       id: z.id,

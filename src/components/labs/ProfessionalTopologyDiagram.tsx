@@ -571,12 +571,12 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
               width={subnetLabelWidth(note.text)}
               height="18"
               rx="6"
-              fill={isLight ? "#faf5ff" : "#1e1b4b"}
-              stroke={isLight ? "#9333ea" : "#c084fc"}
+              fill={note.kind === "fault" ? (isLight ? "#fef2f2" : "#450a0a") : isLight ? "#faf5ff" : "#1e1b4b"}
+              stroke={note.kind === "fault" ? (isLight ? "#dc2626" : "#f87171") : isLight ? "#9333ea" : "#c084fc"}
               strokeWidth="1"
               strokeDasharray="4 3"
             />
-            <text textAnchor="middle" dy="3.5" fontSize="9" fontWeight="600" fill={isLight ? "#6b21a8" : "#e9d5ff"}>
+            <text textAnchor="middle" dy="3.5" fontSize="9" fontWeight="600" fill={note.kind === "fault" ? (isLight ? "#991b1b" : "#fecaca") : isLight ? "#6b21a8" : "#e9d5ff"}>
               {note.text}
             </text>
           </g>

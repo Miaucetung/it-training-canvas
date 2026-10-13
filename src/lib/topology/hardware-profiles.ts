@@ -14,6 +14,7 @@ export type HardwareProfileId =
   | "server-pt"
   | "isr2911-2hwic"
   | "iol-router"
+  | "iosxe-router"
   | "iol-switch"
   | "catalyst2960-4gi"
   | "extern";
@@ -59,6 +60,15 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
     ports: ["Et0/0", "Et0/1", "Et0/2", "Et0/3"],
     virtual: ["Lo0"],
     description: "IOL-Router mit Ethernet0/0–0/3",
+  },
+  // Lab restconf/netconf-yang: „R1 (IOS-XE)“ mit GigabitEthernet0/0 (kein ISR 2911)
+  "iosxe-router": {
+    id: "iosxe-router",
+    model: "Cisco IOS-XE Router",
+    deviceType: "router",
+    ports: ["Gi0/0", "Gi0/1", "Gi0/2"],
+    virtual: ["Lo0"],
+    description: "Router mit IOS-XE (RESTCONF/NETCONF), GigabitEthernet0/0–0/2",
   },
   "iol-switch": {
     id: "iol-switch",
@@ -127,6 +137,7 @@ export const HARDWARE_PROFILES: Record<HardwareProfileId, HardwareProfile> = {
 /** Wählt das Profil anhand von Modellname und Gerätetyp (Modell hat Vorrang). */
 export function resolveHardwareProfile(model: string | undefined, type: DeviceType): HardwareProfile | undefined {
   const m = (model ?? "").toLowerCase();
+  if (/ios-?xe/.test(m) && type === "router") return HARDWARE_PROFILES["iosxe-router"];
   if (/\biol\b/.test(m)) return type === "router" ? HARDWARE_PROFILES["iol-router"] : type === "switch-l2" ? HARDWARE_PROFILES["iol-switch"] : undefined;
   if (/4\s*[x×]\s*gi/.test(m) && type === "switch-l2") return HARDWARE_PROFILES["catalyst2960-4gi"];
   if (/2hwic|2x hwic|2×hwic/.test(m) && type === "router") return HARDWARE_PROFILES["isr2911-2hwic"];

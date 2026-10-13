@@ -98,7 +98,7 @@ export interface LabTopologyData {
   zones?: LabSubnetZone[];
   vlans?: LabTopologyVlan[];
   /** Freie Textmarken im Diagramm (z. B. logischer IPSec-Tunnel ohne eigenes Interface) */
-  notes?: Array<{ id: string; text: string; x: number; y: number }>;
+  notes?: Array<{ id: string; text: string; x: number; y: number; kind?: "fault"; onlyIn?: "start" }>;
   addressingTable: LabAddressingEntry[];
 }
 
