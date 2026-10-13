@@ -20,7 +20,7 @@
   /* ── Typography Text Tokens (Light Mode - WCAG AAA >= 11:1, Soft Charcoal) ─ */
   --text-primary: #1E293B;       /* Deep slate charcoal (softer on retina than harsh ink black #0F172A) */
   --text-secondary: #475569;     /* Balanced medium slate */
-  --text-muted: #64748B;         /* Restrained secondary label */
+  --text-muted: #5D6C81;         /* Restrained secondary label (>= 4.5:1 on app-bg and surface-elevated) */
 
   /* ── Interactive & Accent Tokens (Light Mode - Cisco Professional Navy/Steel Blue) ─────────────── */
   --accent-primary-fg: #1D4ED8;  /* Deep blue for links/text (WCAG AA 5.9:1) */
@@ -29,15 +29,15 @@
   /* ── Solid Surface & Action Tokens (Light Mode - WCAG AA >= 4.5:1) ─ */
   --accent-solid: #1D4ED8;
   --on-accent-solid: #FFFFFF;
-  --status-success-solid: #059669;
+  --status-success-solid: #05875F;
   --on-status-success-solid: #FFFFFF;
-  --status-warning-solid: #D97706;
+  --status-warning-solid: #B26205;
   --on-status-warning-solid: #FFFFFF;
   --status-error-solid: #DC2626;
   --on-status-error-solid: #FFFFFF;
   --status-trunk-solid: #4F46E5;
   --on-status-trunk-solid: #FFFFFF;
-  --status-blocking-solid: #EA580C;
+  --status-blocking-solid: #CC4D0A;
   --on-status-blocking-solid: #FFFFFF;
 
   /* ── Status Tokens (Light Mode - WCAG AA Verified) ───────── */
@@ -129,7 +129,7 @@
   --status-warning-solid: #FBBF24;
   --on-status-warning-solid: #0B111E;
   --status-error-solid: #EF4444;
-  --on-status-error-solid: #FFFFFF;
+  --on-status-error-solid: #0B111E;
   --status-trunk-solid: #818CF8;
   --on-status-trunk-solid: #0B111E;
   --status-blocking-solid: #FB923C;
