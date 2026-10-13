@@ -5,6 +5,7 @@
 
 import { X } from "@phosphor-icons/react";
 import { useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -369,56 +370,61 @@ export function VerkabelungTrainerDialog({ dark, onClose }: Props) {
   ];
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.6)" }}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${
-          dark ? "bg-slate-900 text-white" : "bg-white text-slate-900"
-        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Verkabelungs-Trainer"
+        className="fixed inset-0 z-dialog flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.6)" }}
       >
-        {/* Header */}
-        <div className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          <div className="flex-1">
-            <h2 className="font-bold text-base">🔌 Verkabelungs-Trainer</h2>
-            <p className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}>
-              Interaktive Pinbelegungs-Übungen, Kabeltyp-Wizard & Kategorie-Vergleich
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Schließen"
-            className={`p-1.5 rounded-lg ${dark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          {tabs.map((t) => (
+        <div
+          className={`relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${
+            dark ? "bg-slate-900 text-white" : "bg-white text-slate-900"
+          }`}
+        >
+          {/* Header */}
+          <div className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            <div className="flex-1">
+              <h2 className="font-bold text-base">🔌 Verkabelungs-Trainer</h2>
+              <p className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}>
+                Interaktive Pinbelegungs-Übungen, Kabeltyp-Wizard & Kategorie-Vergleich
+              </p>
+            </div>
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
-                tab === t.id
-                  ? dark ? "border-indigo-400 text-indigo-300" : "border-indigo-600 text-indigo-700"
-                  : dark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-500 hover:text-slate-700"
-              }`}
+              onClick={onClose}
+              aria-label="Schließen"
+              className={`p-1.5 rounded-lg ${dark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
             >
-              {t.label}
+              <X size={18} />
             </button>
-          ))}
-        </div>
+          </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5">
-          {tab === "pin"       && <PinTrainer dark={dark} />}
-          {tab === "wizard"    && <CableWizard dark={dark} />}
-          {tab === "kategorie" && <KategorieTabelle dark={dark} />}
+          {/* Tabs */}
+          <div className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                  tab === t.id
+                    ? dark ? "border-indigo-400 text-indigo-300" : "border-indigo-600 text-indigo-700"
+                    : dark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto p-5">
+            {tab === "pin"       && <PinTrainer dark={dark} />}
+            {tab === "wizard"    && <CableWizard dark={dark} />}
+            {tab === "kategorie" && <KategorieTabelle dark={dark} />}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

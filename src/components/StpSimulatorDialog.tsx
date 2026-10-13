@@ -11,6 +11,7 @@
 
 import { ArrowsClockwise, Lightning, Pause, Play, Shield, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -971,82 +972,87 @@ export function StpSimulatorDialog({ dark, onClose }: Props) {
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-          dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="STP-Simulator"
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
+        onClick={onClose}
       >
-        {/* Header */}
         <div
-          className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+          className={`relative w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-2xl border shadow-2xl ${
+            dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                dark ? "bg-cyan-500/20 text-cyan-300" : "bg-cyan-100 text-cyan-700"
-              }`}
-            >
-              <Lightning size={22} weight="duotone" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">STP & RSTP Simulator</h2>
-              <p className="text-xs opacity-70">
-                Root-Wahl · Port-Rollen · Konvergenz · PortFast/BPDU Guard — interaktiv
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Schließen"
-            className="p-2 rounded-lg hover:bg-slate-500/20"
+          {/* Header */}
+          <div
+            className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
+              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+            }`}
           >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div
-          className={`sticky top-[73px] z-10 flex gap-1 px-6 pt-3 border-b ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-          }`}
-        >
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const active = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
-                  active
-                    ? dark
-                      ? "border-cyan-400 text-cyan-300"
-                      : "border-cyan-600 text-cyan-700"
-                    : "border-transparent opacity-60 hover:opacity-100"
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  dark ? "bg-cyan-500/20 text-cyan-300" : "bg-cyan-100 text-cyan-700"
                 }`}
               >
-                <Icon size={14} weight={active ? "fill" : "regular"} />
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
+                <Lightning size={22} weight="duotone" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">STP & RSTP Simulator</h2>
+                <p className="text-xs opacity-70">
+                  Root-Wahl · Port-Rollen · Konvergenz · PortFast/BPDU Guard — interaktiv
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Schließen"
+              className="p-2 rounded-lg hover:bg-slate-500/20"
+            >
+              <X size={18} weight="bold" />
+            </button>
+          </div>
 
-        {/* Tab Content */}
-        <div className="p-6">
-          {tab === "election" && <ElectionTab dark={dark} />}
-          {tab === "states" && <PortStatesTab dark={dark} />}
-          {tab === "convergence" && <ConvergenceTab dark={dark} />}
-          {tab === "guards" && <GuardsTab dark={dark} />}
+          {/* Tabs */}
+          <div
+            className={`sticky top-[73px] z-10 flex gap-1 px-6 pt-3 border-b ${
+              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+            }`}
+          >
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
+                    active
+                      ? dark
+                        ? "border-cyan-400 text-cyan-300"
+                        : "border-cyan-600 text-cyan-700"
+                      : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <Icon size={14} weight={active ? "fill" : "regular"} />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {tab === "election" && <ElectionTab dark={dark} />}
+            {tab === "states" && <PortStatesTab dark={dark} />}
+            {tab === "convergence" && <ConvergenceTab dark={dark} />}
+            {tab === "guards" && <GuardsTab dark={dark} />}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

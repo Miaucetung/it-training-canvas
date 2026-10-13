@@ -2,6 +2,13 @@ import React, { useId, useMemo } from "react";
 import { DeviceIcon } from "@/components/canvas-v2/DeviceIcons";
 import type { DeviceType } from "@/types/topology";
 import { cn } from "@/lib/utils";
+import {
+  deviceNameWidth,
+  getPortLabelPos,
+  ipLabelWidth,
+  portLabelWidth,
+  subnetLabelWidth,
+} from "./topology-layout";
 import type {
   LabTopologyData,
   LabTopologyDevice,
@@ -84,31 +91,6 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
     topology.devices.forEach((d) => map.set(d.id, d));
     return map;
   }, [topology.devices]);
-
-  // Berechne Port-Label-Positionen relativ zu den Geräte-Knoten
-  const getPortLabelPos = (
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
-    offset = 48,
-    sideOffset = 12,
-  ) => {
-    const dx = toX - fromX;
-    const dy = toY - fromY;
-    const dist = Math.hypot(dx, dy) || 1;
-    const ux = dx / dist;
-    const uy = dy / dist;
-
-    // Normalenvektor für seitlichen Offset (verhindert Überlagerung mit der Linie)
-    const nx = -uy;
-    const ny = ux;
-
-    return {
-      x: fromX + ux * offset + nx * sideOffset,
-      y: fromY + uy * offset + ny * sideOffset,
-    };
-  };
 
   return (
     <div
@@ -273,10 +255,10 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                 ? "#475569"
                 : "#94a3b8";
 
-          const fromPortWidth = Math.max(34, link.fromPort.length * 6.5 + 10);
-          const toPortWidth = Math.max(34, link.toPort.length * 6.5 + 10);
-          const fromIpWidth = link.fromIp ? link.fromIp.length * 6.2 + 8 : 0;
-          const toIpWidth = link.toIp ? link.toIp.length * 6.2 + 8 : 0;
+          const fromPortWidth = portLabelWidth(link.fromPort);
+          const toPortWidth = portLabelWidth(link.toPort);
+          const fromIpWidth = ipLabelWidth(link.fromIp);
+          const toIpWidth = ipLabelWidth(link.toIp);
 
           return (
             <g key={link.id} className="transition-all duration-200">
@@ -309,9 +291,9 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
               {link.subnetLabel && (
                 <g transform={`translate(${midX}, ${midY})`}>
                   <rect
-                    x={-link.subnetLabel.length * 3.4 - 6}
+                    x={-subnetLabelWidth(link.subnetLabel) / 2}
                     y="-9"
-                    width={link.subnetLabel.length * 6.8 + 12}
+                    width={subnetLabelWidth(link.subnetLabel)}
                     height="18"
                     rx="6"
                     fill={isLight ? "#ffffff" : "#0f172a"}
@@ -489,9 +471,9 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
               >
                 {/* Hintergrundpill für maximale Lesbarkeit */}
                 <rect
-                  x={-device.name.length * 4.2 - 8}
+                  x={-deviceNameWidth(device.name) / 2}
                   y="-11"
-                  width={device.name.length * 8.4 + 16}
+                  width={deviceNameWidth(device.name)}
                   height="18"
                   rx="5"
                   fill={

@@ -99,7 +99,7 @@ export function HintPanel({
           {totalDeduction > 0 && (
             <span className="text-xs text-red-400">-{totalDeduction} Pkt</span>
           )}
-          <button
+          <button aria-label="Schließen"
             onClick={onClose}
             className={`p-1 rounded ${textMuted} hover:bg-slate-700/30`}
           >

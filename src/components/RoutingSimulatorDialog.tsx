@@ -15,6 +15,7 @@
 
 import { ArrowRight, Pause, Play, SkipForward, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -316,85 +317,90 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-3"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-[1280px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-          dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Routing-Simulator"
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-3"
+        onClick={onClose}
       >
-        {/* Header */}
         <div
-          className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+          className={`relative w-full max-w-[1280px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
+            dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-                dark ? "bg-sky-500/20 text-sky-300" : "bg-sky-100 text-sky-700"
-              }`}
-            >
-              🛣️
+          {/* Header */}
+          <div
+            className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
+              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
+                  dark ? "bg-sky-500/20 text-sky-300" : "bg-sky-100 text-sky-700"
+                }`}
+              >
+                🛣️
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Routing &amp; OSPF Simulator</h2>
+                <p className="text-xs opacity-70">
+                  Pakete folgen, Routing-Tabelle lesen, OSPF-Adjacency &amp; SPF interaktiv verstehen
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">Routing &amp; OSPF Simulator</h2>
-              <p className="text-xs opacity-70">
-                Pakete folgen, Routing-Tabelle lesen, OSPF-Adjacency &amp; SPF interaktiv verstehen
-              </p>
-            </div>
-          </div>
-          <button onClick={onClose} aria-label="Schließen" className="p-2 rounded-lg hover:bg-slate-500/20">
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        {/* Tab-Bar */}
-        <div
-          className={`sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b ${
-            dark ? "bg-slate-900/95 border-slate-700" : "bg-white/95 border-slate-200"
-          }`}
-        >
-          {(
-            [
-              { id: "journey", label: "1 · Paketreise" },
-              { id: "traceroute", label: "2 · Traceroute (TTL)" },
-              { id: "table", label: "3 · Routing-Tabelle & AD" },
-              { id: "neighbor", label: "4 · OSPF Neighbor-States" },
-              { id: "spf", label: "5 · OSPF SPF / Cost" },
-            ] as { id: Tab; label: string }[]
-          ).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                tab === t.id
-                  ? dark
-                    ? "bg-sky-500 text-white"
-                    : "bg-sky-600 text-white"
-                  : dark
-                    ? "hover:bg-slate-800 text-slate-300"
-                    : "hover:bg-slate-100 text-slate-700"
-              }`}
-            >
-              {t.label}
+            <button onClick={onClose} aria-label="Schließen" className="p-2 rounded-lg hover:bg-slate-500/20">
+              <X size={18} weight="bold" />
             </button>
-          ))}
-        </div>
+          </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {tab === "journey" && <JourneyTab dark={dark} />}
-          {tab === "traceroute" && <TracerouteTab dark={dark} />}
-          {tab === "table" && <TableTab dark={dark} />}
-          {tab === "neighbor" && <NeighborTab dark={dark} />}
-          {tab === "spf" && <SpfTab dark={dark} />}
+          {/* Tab-Bar */}
+          <div
+            className={`sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b ${
+              dark ? "bg-slate-900/95 border-slate-700" : "bg-white/95 border-slate-200"
+            }`}
+          >
+            {(
+              [
+                { id: "journey", label: "1 · Paketreise" },
+                { id: "traceroute", label: "2 · Traceroute (TTL)" },
+                { id: "table", label: "3 · Routing-Tabelle & AD" },
+                { id: "neighbor", label: "4 · OSPF Neighbor-States" },
+                { id: "spf", label: "5 · OSPF SPF / Cost" },
+              ] as { id: Tab; label: string }[]
+            ).map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  tab === t.id
+                    ? dark
+                      ? "bg-sky-500 text-white"
+                      : "bg-sky-600 text-white"
+                    : dark
+                      ? "hover:bg-slate-800 text-slate-300"
+                      : "hover:bg-slate-100 text-slate-700"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            {tab === "journey" && <JourneyTab dark={dark} />}
+            {tab === "traceroute" && <TracerouteTab dark={dark} />}
+            {tab === "table" && <TableTab dark={dark} />}
+            {tab === "neighbor" && <NeighborTab dark={dark} />}
+            {tab === "spf" && <SpfTab dark={dark} />}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

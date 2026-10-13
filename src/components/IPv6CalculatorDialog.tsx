@@ -16,6 +16,7 @@ import {
   XCircle,
 } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -2233,67 +2234,72 @@ export function IPv6CalculatorDialog({
   ];
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-200"}`}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="IPv6-Rechner"
+        className="fixed inset-0 z-dialog flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
       >
-        {/* Header */}
         <div
-          className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50"}`}
+          className={`relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-200"}`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center flex-shrink-0">
-            <Calculator size={18} weight="duotone" className="text-white" />
-          </div>
-          <div>
-            <h2
-              className={`font-bold text-sm ${dark ? "text-white" : "text-slate-900"}`}
-            >
-              IPv6 Rechner & Drill
-            </h2>
-            <p
-              className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}
-            >
-              Adress-Analyse · EUI-64 · Segmentierung · Binär · Drill
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Schließen"
-            className={`ml-auto p-1.5 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-white hover:bg-slate-700" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"}`}
+          {/* Header */}
+          <div
+            className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50"}`}
           >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* Tab Bar */}
-        <div
-          className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}
-        >
-          {tabs.map((t) => (
+            <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center flex-shrink-0">
+              <Calculator size={18} weight="duotone" className="text-white" />
+            </div>
+            <div>
+              <h2
+                className={`font-bold text-sm ${dark ? "text-white" : "text-slate-900"}`}
+              >
+                IPv6 Rechner & Drill
+              </h2>
+              <p
+                className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}
+              >
+                Adress-Analyse · EUI-64 · Segmentierung · Binär · Drill
+              </p>
+            </div>
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent ${dark ? "text-slate-500 hover:text-slate-300" : "text-slate-500 hover:text-slate-700"}`}`}
+              onClick={onClose}
+              aria-label="Schließen"
+              className={`ml-auto p-1.5 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-white hover:bg-slate-700" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"}`}
             >
-              {t.label}
+              <X size={16} />
             </button>
-          ))}
-        </div>
+          </div>
 
-        {/* Tab content */}
-        <div className="flex-1 overflow-y-auto">
-          {tab === "analyse" && <AnalyseTab dark={dark} />}
-          {tab === "eui64" && <EUI64Tab dark={dark} />}
-          {tab === "segmentation" && <SegmentationTab dark={dark} />}
-          {tab === "drill" && <DrillTab dark={dark} />}
-          {tab === "binaer" && <BinaryTab dark={dark} />}
+          {/* Tab Bar */}
+          <div
+            className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}
+          >
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent ${dark ? "text-slate-500 hover:text-slate-300" : "text-slate-500 hover:text-slate-700"}`}`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-y-auto">
+            {tab === "analyse" && <AnalyseTab dark={dark} />}
+            {tab === "eui64" && <EUI64Tab dark={dark} />}
+            {tab === "segmentation" && <SegmentationTab dark={dark} />}
+            {tab === "drill" && <DrillTab dark={dark} />}
+            {tab === "binaer" && <BinaryTab dark={dark} />}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }
 

@@ -1436,14 +1436,14 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                   restoreBackupSnapshot(conflict.backupKey);
                   const stored = localStorage.getItem(V2_STORAGE_KEY);
                   if (stored) setMigratedTopologies(JSON.parse(stored));
-                  toast.success("Alten Stand geladen. Du kannst jederzeit über den v2-Snapshot zurückwechseln.");
+                  toast.success("Gesicherter v2-Stand wiederhergestellt. Die Daten des alten Canvas (v1) bleiben unverändert erhalten.");
                 }
                 setMigrationConflicts([]);
               }}
               className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-[11px] transition-colors"
-              title="Lädt die Version aus dem alten Canvas (v1)"
+              title="Stellt die gesicherte Version aus dem neuen Canvas (v2) wieder her. Der alte Canvas (v1) bleibt unverändert."
             >
-              Alten Stand (v1) laden
+              Gesicherten v2-Stand wiederherstellen
             </button>
           </div>
         </div>

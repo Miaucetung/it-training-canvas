@@ -6,6 +6,7 @@
 
 import { X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   dark: boolean;
@@ -336,148 +337,153 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
   const numEdges = edges(selected).length;
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-          dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
-        }`}
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Topologie-Explorer"
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
+        onClick={onClose}
       >
-        {/* Header */}
-        <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-          dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-        }`}>
-          <div>
-            <h2 className="text-lg font-semibold">Topologie-Explorer</h2>
-            <p className="text-xs opacity-70">
-              Stern · Bus · Ring · Mesh · Baum · Linie · Hybrid — mit animiertem Paketfluss & Ausfallsimulation.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Schließen"
-            className={`p-2 rounded-lg hover:bg-slate-500/20`}
-          >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        <div className="grid lg:grid-cols-[260px_1fr] gap-6 p-6">
-          {/* Sidebar — topology list */}
-          <div className="flex lg:flex-col flex-wrap gap-2">
-            {TOPOLOGIES.map((t) => {
-              const active = t.id === selected;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    setSelected(t.id);
-                    setFailedEdge(null);
-                  }}
-                  className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
-                    active
-                      ? dark
-                        ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-100"
-                        : "bg-cyan-50 border-cyan-300 text-cyan-900"
-                      : dark
-                        ? "border-slate-700 hover:bg-slate-800"
-                        : "border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="font-semibold">{t.label}</div>
-                  <div className="text-xs opacity-70 mt-0.5">{t.short}</div>
-                </button>
-              );
-            })}
+        <div
+          className={`relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl ${
+            dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
+            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
+          }`}>
+            <div>
+              <h2 className="text-lg font-semibold">Topologie-Explorer</h2>
+              <p className="text-xs opacity-70">
+                Stern · Bus · Ring · Mesh · Baum · Linie · Hybrid — mit animiertem Paketfluss & Ausfallsimulation.
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Schließen"
+              className={`p-2 rounded-lg hover:bg-slate-500/20`}
+            >
+              <X size={18} weight="bold" />
+            </button>
           </div>
 
-          {/* Main area */}
-          <div className="space-y-4">
-            {/* Diagram */}
-            <div className={`rounded-xl border p-4 ${
-              dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-            }`}>
-              <TopologyDiagram id={selected} dark={dark} failedEdge={failedEdge} />
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                <span className="opacity-70">Ausfallsimulation:</span>
-                <button
-                  onClick={() => setFailedEdge(null)}
-                  className={`px-2 py-1 rounded border ${
-                    failedEdge === null
-                      ? dark ? "bg-emerald-500/30 border-emerald-500/50" : "bg-emerald-100 border-emerald-300"
-                      : dark ? "border-slate-700 hover:bg-slate-700" : "border-slate-300 hover:bg-slate-100"
-                  }`}
-                >
-                  Alle Links OK
-                </button>
-                {Array.from({ length: numEdges }, (_, i) => (
+          <div className="grid lg:grid-cols-[260px_1fr] gap-6 p-6">
+            {/* Sidebar — topology list */}
+            <div className="flex lg:flex-col flex-wrap gap-2">
+              {TOPOLOGIES.map((t) => {
+                const active = t.id === selected;
+                return (
                   <button
-                    key={i}
-                    onClick={() => setFailedEdge(i)}
+                    key={t.id}
+                    onClick={() => {
+                      setSelected(t.id);
+                      setFailedEdge(null);
+                    }}
+                    className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
+                      active
+                        ? dark
+                          ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-100"
+                          : "bg-cyan-50 border-cyan-300 text-cyan-900"
+                        : dark
+                          ? "border-slate-700 hover:bg-slate-800"
+                          : "border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="font-semibold">{t.label}</div>
+                    <div className="text-xs opacity-70 mt-0.5">{t.short}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Main area */}
+            <div className="space-y-4">
+              {/* Diagram */}
+              <div className={`rounded-xl border p-4 ${
+                dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
+              }`}>
+                <TopologyDiagram id={selected} dark={dark} failedEdge={failedEdge} />
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="opacity-70">Ausfallsimulation:</span>
+                  <button
+                    onClick={() => setFailedEdge(null)}
                     className={`px-2 py-1 rounded border ${
-                      failedEdge === i
-                        ? "bg-red-500/30 border-red-500/50 text-red-100"
+                      failedEdge === null
+                        ? dark ? "bg-emerald-500/30 border-emerald-500/50" : "bg-emerald-100 border-emerald-300"
                         : dark ? "border-slate-700 hover:bg-slate-700" : "border-slate-300 hover:bg-slate-100"
                     }`}
                   >
-                    Link {i + 1} ⚠
+                    Alle Links OK
                   </button>
-                ))}
-              </div>
-              {failedEdge !== null && (
-                <p className={`mt-2 text-xs ${dark ? "text-red-300" : "text-red-600"}`}>
-                  {def.failureBehavior}
-                </p>
-              )}
-            </div>
-
-            {/* Vor-/Nachteile */}
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className={`rounded-xl border p-4 ${
-                dark ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50"
-              }`}>
-                <div className={`text-sm font-semibold mb-2 ${dark ? "text-emerald-200" : "text-emerald-800"}`}>
-                  Vorteile
-                </div>
-                <ul className="text-sm space-y-1">
-                  {def.pros.map((p, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className={dark ? "text-emerald-400" : "text-emerald-600"}>+</span>
-                      <span>{p}</span>
-                    </li>
+                  {Array.from({ length: numEdges }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setFailedEdge(i)}
+                      className={`px-2 py-1 rounded border ${
+                        failedEdge === i
+                          ? "bg-red-500/30 border-red-500/50 text-red-100"
+                          : dark ? "border-slate-700 hover:bg-slate-700" : "border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      Link {i + 1} ⚠
+                    </button>
                   ))}
-                </ul>
-              </div>
-              <div className={`rounded-xl border p-4 ${
-                dark ? "border-amber-500/30 bg-amber-500/5" : "border-amber-200 bg-amber-50"
-              }`}>
-                <div className={`text-sm font-semibold mb-2 ${dark ? "text-amber-200" : "text-amber-800"}`}>
-                  Nachteile
                 </div>
-                <ul className="text-sm space-y-1">
-                  {def.cons.map((c, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className={dark ? "text-amber-400" : "text-amber-600"}>−</span>
-                      <span>{c}</span>
-                    </li>
-                  ))}
-                </ul>
+                {failedEdge !== null && (
+                  <p className={`mt-2 text-xs ${dark ? "text-red-300" : "text-red-600"}`}>
+                    {def.failureBehavior}
+                  </p>
+                )}
               </div>
-            </div>
 
-            {/* Einsatz */}
-            <div className={`rounded-xl border p-4 ${
-              dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-            }`}>
-              <div className="text-sm font-semibold mb-1">Typischer Einsatz</div>
-              <div className="text-sm opacity-80">{def.examples.join(" · ")}</div>
+              {/* Vor-/Nachteile */}
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className={`rounded-xl border p-4 ${
+                  dark ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50"
+                }`}>
+                  <div className={`text-sm font-semibold mb-2 ${dark ? "text-emerald-200" : "text-emerald-800"}`}>
+                    Vorteile
+                  </div>
+                  <ul className="text-sm space-y-1">
+                    {def.pros.map((p, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className={dark ? "text-emerald-400" : "text-emerald-600"}>+</span>
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={`rounded-xl border p-4 ${
+                  dark ? "border-amber-500/30 bg-amber-500/5" : "border-amber-200 bg-amber-50"
+                }`}>
+                  <div className={`text-sm font-semibold mb-2 ${dark ? "text-amber-200" : "text-amber-800"}`}>
+                    Nachteile
+                  </div>
+                  <ul className="text-sm space-y-1">
+                    {def.cons.map((c, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className={dark ? "text-amber-400" : "text-amber-600"}>−</span>
+                        <span>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Einsatz */}
+              <div className={`rounded-xl border p-4 ${
+                dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
+              }`}>
+                <div className="text-sm font-semibold mb-1">Typischer Einsatz</div>
+                <div className="text-sm opacity-80">{def.examples.join(" · ")}</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

@@ -1,0 +1,188 @@
+[
+  {
+    "area": "close-390",
+    "name": "Packet Tracer Labs",
+    "ok": true,
+    "detail": "Button 32x32"
+  },
+  {
+    "area": "close-390",
+    "name": "D&D-Trainer",
+    "ok": true,
+    "detail": "Button 26x26"
+  },
+  {
+    "area": "close-390",
+    "name": "Subnetting-Drill",
+    "ok": true,
+    "detail": "Button 28x28"
+  },
+  {
+    "area": "close-390",
+    "name": "VLAN-Simulator",
+    "ok": true,
+    "detail": "Button 30x30"
+  },
+  {
+    "area": "close-390",
+    "name": "Schwächen-Drill",
+    "ok": true,
+    "detail": "Button 44x44"
+  },
+  {
+    "area": "back-nav",
+    "name": "Lektion → Startseite (Logo) @1280px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Lektion → Startseite (Logo) @390px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Lektion → Startseite (Breadcrumb) @1280px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Lektion → Startseite (Breadcrumb) @390px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Canvas → Startseite (Breadcrumb) @1280px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Canvas → Startseite (Breadcrumb) @390px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Schwächen-Drill → Dialog schließen → Dashboard @1280px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "Schwächen-Drill → Dialog schließen → Dashboard @390px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "D&D-Trainer → Escape → Dashboard @1280px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "back-nav",
+    "name": "D&D-Trainer → Escape → Dashboard @390px",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "fonts",
+    "name": "IBM Plex Sans/Mono im Dokument geladen",
+    "ok": true,
+    "detail": "{\"sans\":true,\"mono\":true}"
+  },
+  {
+    "area": "fonts",
+    "name": "Diagnose: SVG ohne Einbettung fällt als <img> auf die Fallback-Schrift zurück (Grund für die Einbettung)",
+    "ok": true,
+    "detail": "Textbreite: Plex-Referenz 351px, Fallback 317px, SVG-Image ohne Einbettung 317px"
+  },
+  {
+    "area": "fonts",
+    "name": "SVG mit eingebetteter Schrift (App-Verfahren) rendert mit IBM Plex",
+    "ok": true,
+    "detail": "Textbreite: Plex-Referenz 351px, mit Einbettung 351px"
+  },
+  {
+    "area": "fonts",
+    "name": "Dashboard-Start ohne externe Hosts",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "area": "axe",
+    "name": "Dashboard (light)",
+    "ok": false,
+    "detail": "1 Regeln / 6 Elemente: color-contrast×6"
+  },
+  {
+    "area": "axe",
+    "name": "Dashboard + Lernen-Menü (light)",
+    "ok": false,
+    "detail": "1 Regeln / 6 Elemente: color-contrast×6"
+  },
+  {
+    "area": "axe",
+    "name": "Packet-Tracer-Labs-Dialog (light)",
+    "ok": false,
+    "detail": "6 Regeln / 21 Elemente: color-contrast×15, heading-order×1, label-content-name-mismatch×1, landmark-no-duplicate-banner×1, landmark-no-duplicate-main×1, landmark-unique×2"
+  },
+  {
+    "area": "axe",
+    "name": "D&D-Trainer (light)",
+    "ok": false,
+    "detail": "1 Regeln / 1 Elemente: color-contrast×1"
+  },
+  {
+    "area": "axe",
+    "name": "Lektion (light)",
+    "ok": false,
+    "detail": "1 Regeln / 2 Elemente: color-contrast×2"
+  },
+  {
+    "area": "axe",
+    "name": "Canvas v1 (light)",
+    "ok": false,
+    "detail": "3 Regeln / 6 Elemente: color-contrast×2, label-content-name-mismatch×1, region×3"
+  },
+  {
+    "area": "axe",
+    "name": "Dashboard (dark)",
+    "ok": true,
+    "detail": "0 Violations inkl. color-contrast"
+  },
+  {
+    "area": "axe",
+    "name": "Dashboard + Lernen-Menü (dark)",
+    "ok": true,
+    "detail": "0 Violations inkl. color-contrast"
+  },
+  {
+    "area": "axe",
+    "name": "Packet-Tracer-Labs-Dialog (dark)",
+    "ok": false,
+    "detail": "6 Regeln / 15 Elemente: color-contrast×9, heading-order×1, label-content-name-mismatch×1, landmark-no-duplicate-banner×1, landmark-no-duplicate-main×1, landmark-unique×2"
+  },
+  {
+    "area": "axe",
+    "name": "D&D-Trainer (dark)",
+    "ok": true,
+    "detail": "0 Violations inkl. color-contrast"
+  },
+  {
+    "area": "axe",
+    "name": "Lektion (dark)",
+    "ok": false,
+    "detail": "1 Regeln / 2 Elemente: color-contrast×2"
+  },
+  {
+    "area": "axe",
+    "name": "Canvas v1 (dark)",
+    "ok": false,
+    "detail": "2 Regeln / 4 Elemente: label-content-name-mismatch×1, region×3"
+  }
+]

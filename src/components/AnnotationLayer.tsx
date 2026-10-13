@@ -246,7 +246,7 @@ export function AnnotationLayer({
           className={`w-px h-6 mx-2 ${isDark ? "bg-slate-700" : "bg-slate-300"}`}
         />
 
-        <button
+        <button aria-label="Schließen"
           onClick={onClose}
           className={`p-1.5 rounded-lg ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
           title="Annotationen schließen"

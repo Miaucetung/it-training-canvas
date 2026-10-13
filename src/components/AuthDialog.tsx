@@ -65,7 +65,7 @@ export function AuthDialog({ dark, onClose }: Props) {
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div role="dialog" aria-modal="true" aria-label="Anmeldung" className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
         <div className={`w-full max-w-sm max-h-[calc(100dvh-1.5rem)] flex flex-col rounded-2xl border shadow-2xl overflow-hidden ${base}`}>
           {/* Header */}
           <div className={`shrink-0 flex items-center justify-between border-b px-5 py-4 ${dark ? "border-zinc-700" : "border-zinc-100"}`}>

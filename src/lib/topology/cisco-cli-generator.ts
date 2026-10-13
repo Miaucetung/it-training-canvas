@@ -3,6 +3,8 @@ import {
   TopologyDevice,
 } from "@/types/topology";
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
+import { formatShowSpanningTree } from "./stp-calc";
+import { computeOspfNeighbors, formatOspfNeighborTable, resolveInterfaceOspf } from "./ospf-neighbors";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -88,53 +90,24 @@ export class CiscoCliGenerator {
       }
     }
 
-    // 2. OSPF Routen ermitteln, falls OSPF aktiv ist
-    const isOspfActive = device.config?.routingProtocols?.some((p) => p.toLowerCase().includes("ospf"));
-    if (isOspfActive) {
-      // Finde Nachbar-Router über gemeinsame Links
-      for (const link of topology.links) {
-        let neighborDeviceId: string | null = null;
-        let localInterfaceId: string | null = null;
+    // 2. OSPF-Routen nur über echte Nachbarschaften (siehe ospf-neighbors.ts)
+    for (const adj of computeOspfNeighbors(device, topology)) {
+      for (const nIface of adj.neighbor.interfaces) {
+        if (!nIface.ip || !resolveInterfaceOspf(adj.neighbor, nIface)) continue;
+        if (nIface.status !== "up" || nIface.isShutdown) continue;
+        const nNet = getNetworkAddress(nIface.ip);
+        if (!nNet) continue;
 
-        if (link.sourceDeviceId === device.id) {
-          neighborDeviceId = link.targetDeviceId;
-          localInterfaceId = link.sourceInterfaceId;
-        } else if (link.targetDeviceId === device.id) {
-          neighborDeviceId = link.sourceDeviceId;
-          localInterfaceId = link.targetInterfaceId;
-        }
-
-        if (!neighborDeviceId) continue;
-        const neighbor = topology.devices.find((d) => d.id === neighborDeviceId);
-        if (!neighbor || !neighbor.config?.routingProtocols?.some((p) => p.toLowerCase().includes("ospf"))) {
-          continue;
-        }
-
-        const localIface = device.interfaces.find((i) => i.id === localInterfaceId);
-        const neighborTransitIface = neighbor.interfaces.find((i) => {
-          if (!i.ip) return false;
-          return link.sourceInterfaceId === i.id || link.targetInterfaceId === i.id;
+        // Ist dieses Netz schon lokal vorhanden?
+        const isLocal = device.interfaces.some((i) => {
+          const myNet = i.ip ? getNetworkAddress(i.ip) : null;
+          return myNet?.network === nNet.network;
         });
 
-        const nextHopIp = neighborTransitIface?.ip?.split("/")[0] || "10.0.12.2";
-
-        // Alle Netze des Nachbarn (inkl. Loopbacks und LANs), die nicht auf diesem Router existieren
-        for (const nIface of neighbor.interfaces) {
-          if (!nIface.ip) continue;
-          const nNet = getNetworkAddress(nIface.ip);
-          if (!nNet) continue;
-
-          // Ist dieses Netz schon lokal vorhanden?
-          const isLocal = device.interfaces.some((i) => {
-            const myNet = i.ip ? getNetworkAddress(i.ip) : null;
-            return myNet?.network === nNet.network;
-          });
-
-          if (!isLocal) {
-            routes.push(
-              `O    ${nNet.network} [110/2] via ${nextHopIp}, 00:14:22, ${localIface?.name || "GigabitEthernet0/0/0"}`
-            );
-          }
+        if (!isLocal) {
+          routes.push(
+            `O    ${nNet.network} [110/2] via ${adj.neighborAddress}, 00:14:22, ${adj.localInterface.name}`
+          );
         }
       }
     }
@@ -227,89 +200,14 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show spanning-tree' für 802.1D Switches
    */
   static generateShowSpanningTree(device: TopologyDevice, topology: NetworkTopology): string {
-    const rootCandidate = topology.devices.find((d) => d.name.includes("Root") || d.id.includes("swa"));
-    const isRoot = device.name.includes("Root") || device.id.includes("swa") || (rootCandidate?.id === device.id);
-    const bridgePriority = isRoot ? 24576 : device.id.includes("swb") ? 28672 : 32768;
-    const rootAddress = "0050.7966.0001";
-    const myAddress = isRoot
-      ? "0050.7966.0001"
-      : device.id.includes("swb")
-        ? "0050.7966.0002"
-        : "0050.7966.0003";
-
-    const lines = [
-      "VLAN0001",
-      `  Spanning tree enabled protocol ieee`,
-      `  Root ID    Priority    24576`,
-      `             Address     ${rootAddress}`,
-      isRoot
-        ? "             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec"
-        : `             Cost        4\n             Port        1 (GigabitEthernet0/1)`,
-      `  Bridge ID  Priority    ${bridgePriority}`,
-      `             Address     ${myAddress}`,
-      `             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec`,
-      "",
-      "Interface           Role Sts Cost      Prio.Nbr Type",
-      "------------------- ---- --- --------- -------- --------------------------------",
-    ];
-
-    for (let i = 0; i < device.interfaces.length; i++) {
-      const iface = device.interfaces[i];
-      let role = "Desg";
-      let sts = "FWD";
-
-      if (iface.portRole === "RP" || iface.description?.includes("Root")) {
-        role = "Root";
-        sts = "FWD";
-      } else if (iface.portRole === "BLK" || iface.description?.includes("Blocking") || iface.description?.includes("BLK")) {
-        role = "Blk ";
-        sts = "BLK";
-      } else if (iface.portRole === "DP") {
-        role = "Desg";
-        sts = "FWD";
-      }
-
-      lines.push(`${iface.name.padEnd(20, " ")}${role} ${sts} 4         128.${i + 1}    Shr`);
-    }
-
-    return lines.join("\n");
+    return formatShowSpanningTree(device, topology);
   }
 
   /**
    * Generiert Cisco IOS 'show ip ospf neighbor'
    */
   static generateShowIpOspfNeighbor(device: TopologyDevice, topology: NetworkTopology): string {
-    const header = "Neighbor ID     Pri   State           Dead Time   Address         Interface\n";
-    const lines: string[] = [];
-
-    for (const link of topology.links) {
-      let neighborId: string | null = null;
-      let localIfaceId: string | null = null;
-
-      if (link.sourceDeviceId === device.id) {
-        neighborId = link.targetDeviceId;
-        localIfaceId = link.sourceInterfaceId;
-      } else if (link.targetDeviceId === device.id) {
-        neighborId = link.sourceDeviceId;
-        localIfaceId = link.targetInterfaceId;
-      }
-
-      if (!neighborId) continue;
-      const neighbor = topology.devices.find((d) => d.id === neighborId);
-      if (!neighbor) continue;
-
-      const localIface = device.interfaces.find((i) => i.id === localIfaceId);
-      const neighborTransit = neighbor.interfaces.find((i) => link.sourceInterfaceId === i.id || link.targetInterfaceId === i.id);
-
-      const nId = neighbor.interfaces.find((i) => i.name.startsWith("Lo"))?.ip?.split("/")[0] || "2.2.2.2";
-      const nAddr = neighborTransit?.ip?.split("/")[0] || "10.0.12.2";
-
-      lines.push(
-        `${nId.padEnd(16, " ")}0   FULL/  -        00:00:35    ${nAddr.padEnd(16, " ")}${localIface?.name || "Gi0/0/0"}`
-      );
-    }
-
-    return lines.length > 0 ? header + lines.join("\n") : header + "% Kein OSPF-Nachbar auf den konfigurierten Interfaces";
+    return formatOspfNeighborTable(computeOspfNeighbors(device, topology));
   }
 
   /**
@@ -322,20 +220,22 @@ export class CiscoCliGenerator {
     ];
 
     // Standard-VLANs und benutzerdefinierte VLANs
-    const vlans = device.config?.vlans && device.config.vlans.length > 0
-      ? device.config.vlans
-      : [
-          { id: 1, name: "default" },
-          { id: 10, name: "SALES" },
-          { id: 20, name: "DEV" },
-        ];
+    // VLAN 1 existiert immer; weitere VLANs nur, wenn sie konfiguriert sind (keine erfundenen Beispiel-VLANs)
+    const configured = (device.config?.vlans ?? []).filter((v) => v.id !== 1);
+    const vlans = [{ id: 1, name: "default" }, ...configured].sort((x, y) => x.id - y.id);
 
     const lines: string[] = [];
 
     // Finde Interfaces im Access-Modus für jedes VLAN (Trunk-Ports tauchen nicht auf!)
     for (const v of vlans) {
       const accessPorts = device.interfaces
-        .filter((i) => i.mode !== "trunk" && i.mode !== "routed" && (i.vlan === v.id || (v.id === 1 && !i.vlan)))
+        .filter(
+          (i) =>
+            !/^(vlan|lo|loopback|po|port-channel)\d*/i.test(i.name) &&
+            i.mode !== "trunk" &&
+            i.mode !== "routed" &&
+            (i.vlan === v.id || (v.id === 1 && !i.vlan))
+        )
         .map((i) => i.name);
 
       const portsStr = accessPorts.length > 0 ? accessPorts.join(", ") : "";

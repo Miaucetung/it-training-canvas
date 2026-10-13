@@ -85,7 +85,7 @@ export function SimulatorCards({
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="h-8 w-8 rounded bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="h-8 w-8 rounded bg-primary/10 text-accent-primary-fg flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Icon className="h-4 w-4" weight="bold" />
                   </div>
                   <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-surface-elevated">

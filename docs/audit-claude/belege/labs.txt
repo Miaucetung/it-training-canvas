@@ -1,0 +1,72 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+LABS.length = 55
+Duplikate: []
+kuratierte Topologien: basic-ip, vlan-trunking, roas, ospf
+kuratiert ohne Lab: []
+Lab-IDs:
+drill-grundkonfig
+drill-pc-ips
+drill-interfaces
+drill-access-ports
+basic-ip
+vlan-trunking
+vtp-dtp
+etherchannel
+stp
+roas
+ivr-svi
+static-routing
+floating-static
+rip-v1
+rip-v2
+rip-v2-passive
+ospf
+ospf-rid-wildcard
+ospf-dr-bdr-election
+ospf-multiarea
+eigrp
+ipv6
+ipv6-static
+ospfv3-ipv6
+ipv6-ospfv3-eigrpv6
+dhcp
+dhcp-relay
+nat-pat
+dynamic-nat
+nat-pool-overload
+static-nat
+ntp-syslog-snmp
+hsrp
+gre-tunnel
+ipsec-s2s-vpn
+ssh
+device-hardening
+port-security
+acl-standard
+acl-extended
+dhcp-snooping-dai
+stp-hardening
+vlan-hopping
+aaa-radius-tacacs
+co-acl-nat-isp
+netflow
+restconf
+netconf-yang
+password-recovery
+ios-backup-upgrade
+layer1-issues
+troubleshooting-cheat
+dhcp-troubleshoot-lab
+vlan-dhcp-nat-roas
+vlan-vtp-dhcp-campus
+LABS_ORDERED.length = 55
+Summe Kategorie-Arrays = 55 4+7+10+4+10+10+3+5+2
+Labs ohne Kategorie: []
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:10:35
+   Duration  2.58s (transform 255ms, setup 0ms, import 2.44s, tests 3ms, environment 0ms)
+

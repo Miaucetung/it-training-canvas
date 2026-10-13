@@ -21,7 +21,7 @@ Dieses Dokument definiert die realistischen Cisco-Hardware-Profile, abgestimmt a
 
 - **Modell-Referenz:** Cisco Catalyst 2960-24TT Enterprise L2 Switch (24x FastEthernet + 2x GigabitEthernet Uplinks)
 - **Standard-Schnittstellen:**
-  - `Fa0/1` bis `Fa0/4` (FastEthernet Access/Trunk Ports für Endgeräte und Server)
+  - `Fa0/1` bis `Fa0/24` (FastEthernet Access/Trunk Ports für Endgeräte und Server)
   - `Gi0/1`, `Gi0/2` (GigabitEthernet Uplink/Trunk Ports zu Core-Switches / Routern)
   - `Vlan1` (Switched Virtual Interface - SVI Management IP)
 

@@ -266,7 +266,7 @@ export function QuizDialog({
   if (showResult && result) {
     return (
       <ModalPortal>
-        <div className="fixed inset-0 z-dialog flex items-center justify-center">
+        <div role="dialog" aria-modal="true" aria-label="Quiz" className="fixed inset-0 z-dialog flex items-center justify-center">
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
@@ -491,7 +491,7 @@ export function QuizDialog({
                 {formatTime(state.timeRemaining)}
               </div>
             )}
-            <button onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
+            <button aria-label="Schließen" onClick={onClose} className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}>
               <X size={20} />
             </button>
           </div>

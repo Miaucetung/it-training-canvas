@@ -64,7 +64,7 @@ export function BlueprintDomainsGrid({
               <div>
                 {/* Header: Domain number & Official Weight Badge */}
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="font-mono text-xs font-bold text-primary px-1.5 py-0.5 rounded bg-primary/10">
+                  <span className="font-mono text-xs font-bold text-accent-primary-fg px-1.5 py-0.5 rounded bg-primary/10">
                     {domain.number}
                   </span>
                   <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-surface-elevated border border-border text-foreground">

@@ -162,7 +162,7 @@ export function ShareExportDialog({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div role="dialog" aria-modal="true" aria-label="Teilen und Exportieren" className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
         <div
           className={cn(
             "w-full max-w-[560px] max-h-[calc(100dvh-1.5rem)] md:max-h-[85dvh] rounded-2xl shadow-2xl border overflow-hidden flex flex-col",

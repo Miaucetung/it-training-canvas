@@ -103,7 +103,7 @@ Um die Vorgaben von **WCAG 2.1 AA** (mindestens 4,5 : 1 für Fließtext, mindest
 │                          │                          │                                  │
 │ --text-primary           │ #F1F5F9 (Soft White)     │ #1E293B (Dunkelschiefer)         │
 │ --text-secondary         │ #CBD5E1 (Slate 300)      │ #475569 (Schiefergrau)           │
-│ --text-muted             │ #94A3B8 (Slate 400)      │ #64748B (Slate 500)              │
+│ --text-muted             │ #94A3B8 (Slate 400)      │ #58667A (Slate 500, abgedunkelt) │
 │                          │                          │                                  │
 │ --accent-primary-fg      │ #60A5FA (Blue 400)       │ #1D4ED8 (Blue 700 - Cisco Navy)  │
 │ --accent-primary         │ #3B82F6 (Blue 500)       │ #2563EB (Blue 600 - Fokus/Rahmen)│
@@ -160,8 +160,8 @@ Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 
 | **Light `--text-primary`** | `#1E293B` | `--app-bg` (`#F3F4F6`) | **13,29 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
 | **Light `--text-secondary`** | `#475569` | `--surface` (`#FFFFFF`) | **7,58 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
 | **Light `--text-secondary`** | `#475569` | `--app-bg` (`#F3F4F6`) | **6,89 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
-| **Light `--text-muted`** | `#64748B` | `--surface` (`#FFFFFF`) | **4,76 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
-| **Light `--text-muted`** | `#64748B` | `--app-bg` (`#F3F4F6`) | **4,32 : 1** | $\ge 3,0 : 1$ (UI / Large Text) | Bestanden (AA Large/UI) |
+| **Light `--text-muted`** | `#58667A` | `--surface` (`#FFFFFF`) | **5,84 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
+| **Light `--text-muted`** | `#58667A` | `--app-bg` (`#F3F4F6`) | **5,31 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AA) |
 | **Light `--accent-primary-fg`** | `#1D4ED8` | `--surface` (`#FFFFFF`) | **6,70 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
 | **Light `--accent-primary-fg`** | `#1D4ED8` | `--app-bg` (`#F3F4F6`) | **6,09 : 1** | $\ge 4,5 : 1$ (Text/Link) | Bestanden (AA) |
 | **Light `--accent-primary`** | `#2563EB` | `--surface` (`#FFFFFF`) | **5,17 : 1** | $\ge 3,0 : 1$ (Fokus/Linie) | Bestanden (AA) |
@@ -206,15 +206,15 @@ Alle Kontrastverhältnisse wurden exakt nach W3C-Formel (relative Luminanz $L = 
 | **Dark `--status-blocking-fg`** | `#FB923C` | `--app-bg` (`#0B111E`) | **8,34 : 1** | $\ge 4,5 : 1$ (Text) | Bestanden (AAA) |
 | **Light `--accent-solid`** | `#1D4ED8` | `--on-accent-solid` (`#FFFFFF`) | **6,70 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden (AA) |
 | **Dark `--accent-solid`** | `#3B82F6` | `--on-accent-solid` (`#0B111E`) | **5,13 : 1** | $\ge 4,5 : 1$ (Solid Button) | Bestanden (AA) |
-| **Light `--status-success-solid`** | `#059669` | `--on-status-success-solid` (`#FFFFFF`) | **3,77 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Light `--status-success-solid`** | `#05875F` | `--on-status-success-solid` (`#FFFFFF`) | **4,53 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
 | **Dark `--status-success-solid`** | `#34D399` | `--on-status-success-solid` (`#0B111E`) | **9,81 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
-| **Light `--status-warning-solid`** | `#D97706` | `--on-status-warning-solid` (`#FFFFFF`) | **3,19 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Light `--status-warning-solid`** | `#B26205` | `--on-status-warning-solid` (`#FFFFFF`) | **4,52 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
 | **Dark `--status-warning-solid`** | `#FBBF24` | `--on-status-warning-solid` (`#0B111E`) | **11,30 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
 | **Light `--status-error-solid`** | `#DC2626` | `--on-status-error-solid` (`#FFFFFF`) | **4,83 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden (AA) |
 | **Dark `--status-error-solid`** | `#EF4444` | `--on-status-error-solid` (`#0B111E`) | **5,01 : 1** | $\ge 4,5 : 1$ (Destructive Btn) | Bestanden (AA) |
 | **Light `--status-trunk-solid`** | `#4F46E5` | `--on-status-trunk-solid` (`#FFFFFF`) | **6,29 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
 | **Dark `--status-trunk-solid`** | `#818CF8` | `--on-status-trunk-solid` (`#0B111E`) | **6,32 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
-| **Light `--status-blocking-solid`** | `#EA580C` | `--on-status-blocking-solid` (`#FFFFFF`) | **3,56 : 1** | $\ge 3,0 : 1$ (Solid Action) | Bestanden (AA Large/UI) |
+| **Light `--status-blocking-solid`** | `#CC4D0A` | `--on-status-blocking-solid` (`#FFFFFF`) | **4,53 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AA) |
 | **Dark `--status-blocking-solid`** | `#FB923C` | `--on-status-blocking-solid` (`#0B111E`) | **8,34 : 1** | $\ge 4,5 : 1$ (Solid Action) | Bestanden (AAA) |
 
 ### 4.2 Typografie-Architektur & Skala

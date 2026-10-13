@@ -69,7 +69,7 @@ export function TodayPracticeSection({
               <div className="flex items-center gap-2 mb-1.5">
                 <ListChecks className="h-4 w-4 text-primary" weight="bold" />
                 <h3 className="font-bold text-sm text-foreground font-sans">
-                  Drag-and-Drop Trainer (81 Labs)
+                  Drag-and-Drop Trainer
                 </h3>
               </div>
               <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
@@ -101,10 +101,10 @@ export function TodayPracticeSection({
               <button
                 type="button"
                 onClick={onOpenLabs}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded border border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 hover:text-white text-xs font-medium transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded border border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 hover:text-violet-900 dark:text-violet-300 dark:hover:text-white text-xs font-medium transition-colors"
               >
-                <BookOpen className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-                <span>Packet Tracer Labs (55)</span>
+                <BookOpen className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+                <span>Packet Tracer Labs</span>
               </button>
             )}
           </div>

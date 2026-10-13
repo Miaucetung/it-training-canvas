@@ -30,18 +30,21 @@ export function getDefaultInterfacesForType(type: TopologyDevice["type"]): Topol
         { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Zusatz Routed Interface" },
         { id: "if-se0-1-0", name: "Se0/1/0", status: "up", description: "Serial WAN WIC-2T" },
         { id: "if-se0-1-1", name: "Se0/1/1", status: "up", description: "Serial WAN WIC-2T" },
-        { id: "if-lo0", name: "Lo0", status: "up", ip: "1.1.1.1/32", description: "OSPF Router ID" },
+        { id: "if-lo0", name: "Lo0", status: "up", description: "Loopback (Router-ID, IP vergeben)" },
       ];
-    case "switch-l2":
-      return [
-        { id: "if-fa0-1", name: "Fa0/1", status: "up", description: "FastEthernet Access / Trunk" },
-        { id: "if-fa0-2", name: "Fa0/2", status: "up", description: "FastEthernet Access / Trunk" },
-        { id: "if-fa0-3", name: "Fa0/3", status: "up", description: "FastEthernet Access / Trunk" },
-        { id: "if-fa0-4", name: "Fa0/4", status: "up", description: "FastEthernet Access / Trunk" },
+    case "switch-l2": {
+      // Catalyst 2960-24TT: 24x FastEthernet + 2x GigabitEthernet Uplink
+      const ports: TopologyInterface[] = [];
+      for (let i = 1; i <= 24; i++) {
+        ports.push({ id: `if-fa0-${i}`, name: `Fa0/${i}`, status: "up", description: "FastEthernet Access / Trunk" });
+      }
+      ports.push(
         { id: "if-gi0-1", name: "Gi0/1", status: "up", description: "Gigabit Uplink / Trunk Port" },
         { id: "if-gi0-2", name: "Gi0/2", status: "up", description: "Gigabit Uplink / Trunk Port" },
-        { id: "if-vlan1", name: "Vlan1", status: "up", description: "Management SVI" },
-      ];
+        { id: "if-vlan1", name: "Vlan1", status: "up", description: "Management SVI" }
+      );
+      return ports;
+    }
     case "switch-l3": {
       const ports: TopologyInterface[] = [];
       // 24x GigabitEthernet Downlink Switchports (Catalyst 3650-24PS)

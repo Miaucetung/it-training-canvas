@@ -1,0 +1,385 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+"0.0.0.0/0"            -> net=0.0.0.0 bc=255.255.255.255 first=0.0.0.1 last=255.255.255.254 hosts=4294967294 mask=0.0.0.0 wc=255.255.255.255 class=C priv=false
+"10.1.2.3/8"           -> net=10.0.0.0 bc=10.255.255.255 first=10.0.0.1 last=10.255.255.254 hosts=16777214 mask=255.0.0.0 wc=0.255.255.255 class=A priv=true
+"192.168.1.77/24"      -> net=192.168.1.0 bc=192.168.1.255 first=192.168.1.1 last=192.168.1.254 hosts=254 mask=255.255.255.0 wc=0.0.0.255 class=C priv=true
+"192.168.1.5/30"       -> net=192.168.1.4 bc=192.168.1.7 first=192.168.1.5 last=192.168.1.6 hosts=2 mask=255.255.255.252 wc=0.0.0.3 class=C priv=true
+"192.168.1.4/31"       -> net=192.168.1.4 bc=192.168.1.5 first=192.168.1.4 last=192.168.1.5 hosts=2 mask=255.255.255.254 wc=0.0.0.1 class=C priv=true
+"192.168.1.9/32"       -> net=192.168.1.9 bc=192.168.1.9 first=192.168.1.9 last=192.168.1.9 hosts=1 mask=255.255.255.255 wc=0.0.0.0 class=C priv=true
+"1.2.3.4/33"           -> ERR CIDR-Präfix /33 außerhalb des gültigen Bereichs (0 bis 32).
+"1.2.3.4/-1"           -> ERR Ungültige CIDR-Präfixlänge: "/-1". Erlaubt sind /0 bis /32.
+"256.1.1.1/24"         -> ERR Ungültige IPv4-Adresse: "256.1.1.1". Erwartet: 4 Oktette zwischen 0 und 255.
+"1.2.3/24"             -> ERR Ungültige IPv4-Adresse: "1.2.3". Erwartet: 4 Oktette zwischen 0 und 255.
+"abc"                  -> ERR Ungültige IPv4-Adresse: "abc". Erwartet: 4 Oktette zwischen 0 und 255.
+""                     -> ERR Bitte eine IPv4-Adresse mit CIDR-Maske eingeben (z. B. 192.168.10.77/27).
+"1.2.3.4/"             -> ERR Ungültige CIDR-Präfixlänge: "/". Erlaubt sind /0 bis /32.
+"1.2.3.4/024"          -> ERR Ungültige CIDR-Präfixlänge: "/024". Erlaubt sind /0 bis /32.
+"1.2.3.4/ 8"           -> net=1.0.0.0 bc=1.255.255.255 first=1.0.0.1 last=1.255.255.254 hosts=16777214 mask=255.0.0.0 wc=0.255.255.255 class=A priv=false
+"01.2.3.4/24"          -> net=1.2.3.0 bc=1.2.3.255 first=1.2.3.1 last=1.2.3.254 hosts=254 mask=255.255.255.0 wc=0.0.0.255 class=A priv=false
+"1.2.3.4"              -> net=1.2.3.0 bc=1.2.3.255 first=1.2.3.1 last=1.2.3.254 hosts=254 mask=255.255.255.0 wc=0.0.0.255 class=A priv=false
+"224.0.0.1/4"          -> net=224.0.0.0 bc=239.255.255.255 first=224.0.0.1 last=239.255.255.254 hosts=268435454 mask=240.0.0.0 wc=15.255.255.255 class=D (Multicast) priv=false
+"127.0.0.1/8"          -> net=127.0.0.0 bc=127.255.255.255 first=127.0.0.1 last=127.255.255.254 hosts=16777214 mask=255.0.0.0 wc=0.255.255.255 class=A priv=false
+"172.32.0.1/12"        -> net=172.32.0.0 bc=172.47.255.255 first=172.32.0.1 last=172.47.255.254 hosts=1048574 mask=255.240.0.0 wc=0.15.255.255 class=B priv=false
+"10.0.0.1/1e1"         -> ERR Ungültige CIDR-Präfixlänge: "/1e1". Erlaubt sind /0 bis /32.
+
+######## ccna-basic-lan
+--- R1 (Gateway) :: show ip route
+C    192.168.1.0/24 is directly connected, Gi0/0
+C    203.0.113.0/30 is directly connected, Gi0/1
+L    192.168.1.1/32 is directly connected, Gi0/0
+L    203.0.113.2/32 is directly connected, Gi0/1
+--- R1 (Gateway) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/0
+--- SW1 (Access) :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW1 (Access) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    192.168.1.1     Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    192.168.1.10    Fa0/1
+2.2.2.2         0   FULL/  -        00:00:35    192.168.1.20    Fa0/2
+2.2.2.2         0   FULL/  -        00:00:35    192.168.1.100   Fa0/3
+--- SW1 (Access) :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Desg FWD 4         128.1    Shr
+Fa0/1               Desg FWD 4         128.2    Shr
+Fa0/2               Desg FWD 4         128.3    Shr
+Fa0/3               Desg FWD 4         128.4    Shr
+--- SW1 (Access) :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Fa0/1, Fa0/2, Fa0/3
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW1 (Access) :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+
+######## ccna-router-on-a-stick
+--- R1 (Inter-VLAN) :: show ip route
+C    192.168.10.0/24 is directly connected, Gi0/0.10
+C    192.168.20.0/24 is directly connected, Gi0/0.20
+L    192.168.10.1/32 is directly connected, Gi0/0.10
+L    192.168.20.1/32 is directly connected, Gi0/0.20
+--- R1 (Inter-VLAN) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/0
+--- SW1 (Trunk Switch) :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW1 (Trunk Switch) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    192.168.10.50   Fa0/10
+2.2.2.2         0   FULL/  -        00:00:35    192.168.20.50   Fa0/20
+--- SW1 (Trunk Switch) :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Desg FWD 4         128.1    Shr
+Fa0/10              Desg FWD 4         128.2    Shr
+Fa0/20              Desg FWD 4         128.3    Shr
+--- SW1 (Trunk Switch) :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+10   SALES                            active     Fa0/10
+20   DEV                              active     Fa0/20
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW1 (Trunk Switch) :: trunk
+Port        Mode             Encapsulation  Status        Native vlan
+Gi0/1       on               802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Gi0/1       1-4094
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Gi0/1       1,10,20
+
+######## ccna-stp-triangle
+--- SW-A (Root Bridge) :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW-A (Root Bridge) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/2
+--- SW-A (Root Bridge) :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             This bridge is the root
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+  Bridge ID  Priority    24576
+             Address     0050.7966.0001
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Desg FWD 4         128.1    Shr
+Gi0/2               Desg FWD 4         128.2    Shr
+--- SW-A (Root Bridge) :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Gi0/2
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW-A (Root Bridge) :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+--- SW-B :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW-B :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/2
+--- SW-B :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    28672
+             Address     0050.7966.0002
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Root FWD 4         128.1    Shr
+Gi0/2               Desg FWD 4         128.2    Shr
+--- SW-B :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Gi0/2
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW-B :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+--- SW-C :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW-C :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/2
+--- SW-C :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Root FWD 4         128.1    Shr
+Gi0/2               Blk  BLK 4         128.2    Shr
+--- SW-C :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Gi0/2
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW-C :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+
+######## ccna-ospf-routing
+--- R1 (Area 0) :: show ip route
+C    1.1.1.1/32 is directly connected, Lo0
+C    10.0.12.0/30 is directly connected, Gi0/0
+C    192.168.1.0/24 is directly connected, Gi0/1
+L    10.0.12.1/32 is directly connected, Gi0/0
+L    192.168.1.1/32 is directly connected, Gi0/1
+O    192.168.2.0/24 [110/2] via 10.0.12.2, 00:14:22, Gi0/0
+O    2.2.2.2/32 [110/2] via 10.0.12.2, 00:14:22, Gi0/0
+--- R1 (Area 0) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/0
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+--- SW1 (LAN 1) :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW1 (LAN 1) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+1.1.1.1         0   FULL/  -        00:00:35    192.168.1.1     Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    192.168.1.10    Fa0/1
+--- SW1 (LAN 1) :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Desg FWD 4         128.1    Shr
+Fa0/1               Desg FWD 4         128.2    Shr
+Fa0/2               Desg FWD 4         128.3    Shr
+Fa0/3               Desg FWD 4         128.4    Shr
+--- SW1 (LAN 1) :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Fa0/1, Fa0/2, Fa0/3
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW1 (LAN 1) :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+--- R2 (Area 0) :: show ip route
+C    10.0.12.0/30 is directly connected, Gi0/0
+C    192.168.2.0/24 is directly connected, Gi0/1
+C    2.2.2.2/32 is directly connected, Lo0
+L    10.0.12.2/32 is directly connected, Gi0/0
+L    192.168.2.1/32 is directly connected, Gi0/1
+O    1.1.1.1/32 [110/2] via 10.0.12.1, 00:14:22, Gi0/0
+O    192.168.1.0/24 [110/2] via 10.0.12.1, 00:14:22, Gi0/0
+--- R2 (Area 0) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+1.1.1.1         0   FULL/  -        00:00:35    10.0.12.1       Gi0/0
+2.2.2.2         0   FULL/  -        00:00:35    10.0.12.2       Gi0/1
+--- SW2 (LAN 2) :: show ip route
+(Keine aktiven IPv4-Routen konfiguriert)
+--- SW2 (LAN 2) :: show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2         0   FULL/  -        00:00:35    192.168.2.1     Gi0/1
+2.2.2.2         0   FULL/  -        00:00:35    192.168.2.10    Fa0/1
+--- SW2 (LAN 2) :: show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/1               Desg FWD 4         128.1    Shr
+Fa0/1               Desg FWD 4         128.2    Shr
+Fa0/2               Desg FWD 4         128.3    Shr
+Fa0/3               Desg FWD 4         128.4    Shr
+--- SW2 (LAN 2) :: show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Gi0/1, Fa0/1, Fa0/2, Fa0/3
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- SW2 (LAN 2) :: trunk
+% Keine aktiven 802.1Q Trunk-Interfaces auf diesem Switch konfiguriert
+neue Switch-Ports: Fa0/1,Fa0/2,Fa0/3,Fa0/4,Gi0/1,Gi0/2,Vlan1
+Loopback R1/R2: 1.1.1.1/32 1.1.1.1/32
+--- show vlan brief leerer Switch
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active     Fa0/1, Fa0/2, Fa0/3, Fa0/4, Gi0/1, Gi0/2, Vlan1
+10   SALES                            active     
+20   DEV                              active     
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+--- show spanning-tree leerer Switch
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24576
+             Address     0050.7966.0001
+             Cost        4
+             Port        1 (GigabitEthernet0/1)
+  Bridge ID  Priority    32768
+             Address     0050.7966.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Fa0/1               Desg FWD 4         128.1    Shr
+Fa0/2               Desg FWD 4         128.2    Shr
+Fa0/3               Desg FWD 4         128.3    Shr
+Fa0/4               Desg FWD 4         128.4    Shr
+Gi0/1               Desg FWD 4         128.5    Shr
+Gi0/2               Desg FWD 4         128.6    Shr
+Vlan1               Desg FWD 4         128.7    Shr
+--- show ip int br Router
+Interface              IP-Address      OK? Method Status                Protocol
+Gi0/0                  unassigned      YES manual up                    up      
+Gi0/1                  unassigned      YES manual up                    up      
+Gi0/2                  unassigned      YES manual up                    up      
+Se0/1/0                unassigned      YES manual up                    up      
+Se0/1/1                unassigned      YES manual up                    up      
+Lo0                    1.1.1.1         YES manual up                    up      
+active/active=UP  active/passive=UP  active/desirable=DOWN  active/auto=DOWN  active/on=DOWN
+passive/active=UP  passive/passive=DOWN  passive/desirable=DOWN  passive/auto=DOWN  passive/on=DOWN
+desirable/active=DOWN  desirable/passive=DOWN  desirable/desirable=UP  desirable/auto=UP  desirable/on=DOWN
+auto/active=DOWN  auto/passive=DOWN  auto/desirable=UP  auto/auto=DOWN  auto/on=DOWN
+on/active=DOWN  on/passive=DOWN  on/desirable=DOWN  on/auto=DOWN  on/on=UP
+wireless AP<->PC                                     ERLAUBT
+wireless AP<->SW                                     ABGELEHNT: Wireless-Links sind nur zwischen einem Access Point und Endgeräten (PC/Laptop) zulässig. Netzwerkgeräte werden per Ethernet verkabelt.
+wireless WLC<->PC                                    ABGELEHNT: Ein Cisco WLC besitzt keine Funkschnittstelle. Er wird per Ethernet/Trunk angebunden und steuert APs über das CAPWAP-Tunnelprotokoll.
+wireless PC<->PC                                     ABGELEHNT: Drahtlose Verbindungen (WLAN) erfordern einen Access Point (AP) als Basisstation.
+wireless AP<->Server                                 ABGELEHNT: Wireless-Links sind nur zwischen einem Access Point und Endgeräten (PC/Laptop) zulässig. Netzwerkgeräte werden per Ethernet verkabelt.
+wireless AP<->AP                                     ABGELEHNT: Zwei Access Points können nicht direkt per Wireless verbunden werden. APs werden per Ethernet an den Switch angebunden.
+serial R<->R (Gi0/0 <-> Gi0/0!)                      ERLAUBT
+serial R<->R (Se<->Se)                               ERLAUBT
+serial R<->Cloud                                     ERLAUBT
+serial R<->SW                                        ABGELEHNT: Serielle WAN-Verbindungen (Cisco Serial) sind nur zwischen zwei Routern zulässig.
+serial L3<->R                                        ABGELEHNT: Serielle WAN-Verbindungen (Cisco Serial) sind nur zwischen zwei Routern zulässig.
+ethernet WLC<->SW                                    ERLAUBT
+ethernet AP Radio0 <->SW                             ABGELEHNT: Ethernet-Kabel können nicht an eine Funkschnittstelle (Radio) angeschlossen werden. Bitte den kabelgebundenen Port 'Gi0' wählen.
+ethernet R Se0/1/0 <-> SW Fa0/1 (Serial-Port an Ethernet) ERLAUBT
+ethernet PC<->PC                                     ERLAUBT
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  07:04:42
+   Duration  287ms (transform 97ms, setup 0ms, import 122ms, tests 14ms, environment 0ms)
+

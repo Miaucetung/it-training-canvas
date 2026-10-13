@@ -1,3 +1,5 @@
+import { escapeHtml } from "@/lib/escape";
+import { embedFontsInSvg } from "@/lib/svg-font-embed";
 import type { LabScenario } from "./types";
 
 /**
@@ -17,6 +19,8 @@ export async function exportTopologyAsPng(
       '<svg xmlns="http://www.w3.org/2000/svg"',
     );
   }
+
+  svgString = await embedFontsInSvg(svgString);
 
   const svgBlob = new Blob([svgString], {
     type: "image/svg+xml;charset=utf-8",
@@ -117,12 +121,12 @@ export function printLabHandoutPdf(
         .map(
           (entry) => `
         <tr>
-          <td><strong>${entry.device}</strong></td>
-          <td class="mono font-bold">${entry.interface}</td>
-          <td class="mono">${entry.ip}</td>
-          <td class="mono">${entry.subnetMask}</td>
-          <td class="mono">${entry.defaultGateway || "N/A"}</td>
-          <td>${entry.vlan ? `<span class="badge">VLAN ${entry.vlan}</span> ` : ""}${entry.description || ""}</td>
+          <td><strong>${escapeHtml(entry.device)}</strong></td>
+          <td class="mono font-bold">${escapeHtml(entry.interface)}</td>
+          <td class="mono">${escapeHtml(entry.ip)}</td>
+          <td class="mono">${escapeHtml(entry.subnetMask)}</td>
+          <td class="mono">${escapeHtml(entry.defaultGateway || "N/A")}</td>
+          <td>${entry.vlan ? `<span class="badge">VLAN ${escapeHtml(entry.vlan)}</span> ` : ""}${escapeHtml(entry.description || "")}</td>
         </tr>`,
         )
         .join("")
@@ -133,7 +137,7 @@ export function printLabHandoutPdf(
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>${lab.title} — Cisco CCNA Lab Handout</title>
+  <title>${escapeHtml(lab.title)} — Cisco CCNA Lab Handout</title>
   <style>
     @page {
       size: A4 landscape;
@@ -261,13 +265,13 @@ export function printLabHandoutPdf(
 <body>
   <div class="header-bar">
     <div>
-      <div class="title">${lab.title}</div>
-      <div class="subtitle">${lab.subtitle}</div>
+      <div class="title">${escapeHtml(lab.title)}</div>
+      <div class="subtitle">${escapeHtml(lab.subtitle)}</div>
     </div>
     <div class="meta-pills">
       <span class="badge">CCNA 200-301</span>
-      <span class="badge">${lab.difficulty}</span>
-      <span class="badge">⏱ ${lab.duration}</span>
+      <span class="badge">${escapeHtml(lab.difficulty)}</span>
+      <span class="badge">⏱ ${escapeHtml(lab.duration)}</span>
       <span class="badge" style="background:#fef3c7;color:#92400e;border-color:#fde68a;">
         ${withoutSolution ? "Aufgabenblatt (ohne Lösung)" : "Musterlösung"}
       </span>
@@ -280,7 +284,7 @@ export function printLabHandoutPdf(
       <div class="card">
         <div class="card-title">① Netzwerk-Topologie (Cisco Press Format)</div>
         <div class="svg-container">
-          ${svgHtml || `<p style="padding:10px;text-align:center;">${lab.topology.description}</p>`}
+          ${svgHtml || `<p style="padding:10px;text-align:center;">${escapeHtml(lab.topology.description)}</p>`}
         </div>
       </div>
 
@@ -316,8 +320,8 @@ export function printLabHandoutPdf(
           ? `
       <div class="card" style="border-left: 3px solid #0284c7;">
         <div class="card-title">Didaktischer Kontext & Ziel</div>
-        <p><strong>Problem:</strong> ${lab.context.problem}</p>
-        <p style="margin-top:3px;"><strong>Lernziel:</strong> ${lab.context.purpose}</p>
+        <p><strong>Problem:</strong> ${escapeHtml(lab.context.problem)}</p>
+        <p style="margin-top:3px;"><strong>Lernziel:</strong> ${escapeHtml(lab.context.purpose)}</p>
       </div>`
           : ""
       }
@@ -336,8 +340,8 @@ export function printLabHandoutPdf(
             .map(
               (v) => `
             <div style="margin-bottom:4px;padding:3px 6px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;">
-              <code style="font-weight:700;color:#166534;">$ ${v.cmd}</code>
-              <div style="color:#15803d;font-size:8.5px;">→ Erwartet: ${v.expected}</div>
+              <code style="font-weight:700;color:#166534;">$ ${escapeHtml(v.cmd)}</code>
+              <div style="color:#15803d;font-size:8.5px;">→ Erwartet: ${escapeHtml(v.expected)}</div>
             </div>`,
             )
             .join("")}
@@ -350,13 +354,13 @@ export function printLabHandoutPdf(
                 .map(
                   (step, idx) => `
           <div class="step-box">
-            <div class="step-title">Schritt ${idx + 1}: ${step.title}</div>
+            <div class="step-title">Schritt ${idx + 1}: ${escapeHtml(step.title)}</div>
             ${step.blocks
               .map(
                 (block) => `
               <div style="margin-top:3px;">
-                <span class="font-bold">${block.device}</span> <span style="color:#64748b;font-size:8px;">(${block.modeLabel})</span>
-                <div class="cmd-box">${block.commands.map((c) => c.cmd).join("\n")}</div>
+                <span class="font-bold">${escapeHtml(block.device)}</span> <span style="color:#64748b;font-size:8px;">(${escapeHtml(block.modeLabel)})</span>
+                <div class="cmd-box">${escapeHtml(block.commands.map((c) => c.cmd).join("\n"))}</div>
               </div>`,
               )
               .join("")}

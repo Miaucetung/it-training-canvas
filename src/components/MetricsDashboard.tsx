@@ -259,7 +259,7 @@ export function MetricsDashboard({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex">
+      <div role="dialog" aria-modal="true" aria-label="Metriken" className="fixed inset-0 z-dialog flex">
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
@@ -297,7 +297,7 @@ export function MetricsDashboard({
               />
               {autoRefresh ? "Live" : "Pausiert"}
             </button>
-            <button
+            <button aria-label="Schließen"
               onClick={onClose}
               className={`p-2 rounded-lg hover:bg-slate-700/50 ${textMuted}`}
             >

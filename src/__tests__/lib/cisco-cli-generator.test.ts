@@ -82,9 +82,9 @@ describe("Cisco IOS CLI Dynamic Show Generator", () => {
     const output = CiscoCliGenerator.generateShowSpanningTree(swc, TOPOLOGY_STP_TRIANGLE);
 
     expect(output).toContain("Spanning tree enabled protocol ieee");
-    expect(output).toContain("Bridge ID  Priority    32768");
+    expect(output).toContain("Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)");
     expect(output).toContain("Gi0/1               Root FWD");
-    expect(output).toContain("Gi0/2               Blk  BLK");
+    expect(output).toContain("Gi0/2               Altn BLK");
   });
 
   it("generates OSPF neighbor with FULL/  - (no DR/BDR) on point-to-point networks", () => {

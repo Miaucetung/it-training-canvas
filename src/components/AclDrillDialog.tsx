@@ -46,6 +46,7 @@ import {
   type AclRangeTask,
   type AclWildcardTask,
 } from "@/lib/acl-drill";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
   open: boolean;
@@ -323,316 +324,318 @@ export function AclDrillDialog({ open, onClose, theme }: Props) {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="ACL-Drill"
-      onClick={onClose}
-    >
+    <ModalPortal>
       <div
-        className={`flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl border shadow-2xl ${panel}`}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-dialog flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="ACL-Drill"
+        onClick={onClose}
       >
-        {/* Header */}
-        <div className={`flex shrink-0 items-center gap-3 border-b px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"}`}>
-            <ListChecks size={16} weight="bold" />
+        <div
+          className={`flex max-h-[92vh] w-full max-w-2xl flex-col rounded-2xl border shadow-2xl ${panel}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className={`flex shrink-0 items-center gap-3 border-b px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"}`}>
+              <ListChecks size={16} weight="bold" />
+            </div>
+            <div className="flex-1">
+              <div className={`text-sm font-semibold ${text}`}>ACL-Drill</div>
+              <div className={`text-[11px] ${muted}`}>Wildcard, Lesen, Schreiben, Bereiche, Named & Advanced — gegen die Uhr</div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className={`rounded-md p-1.5 transition-colors ${dark ? "text-slate-400 hover:bg-slate-700" : "text-slate-500 hover:bg-slate-100"}`}
+              aria-label="Schließen"
+            >
+              <X size={16} />
+            </button>
           </div>
-          <div className="flex-1">
-            <div className={`text-sm font-semibold ${text}`}>ACL-Drill</div>
-            <div className={`text-[11px] ${muted}`}>Wildcard, Lesen, Schreiben, Bereiche, Named & Advanced — gegen die Uhr</div>
+
+          {/* Tabs */}
+          <div className="flex shrink-0 px-5 pt-2">
+            <div className={`flex flex-wrap gap-1 rounded-lg p-1 ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+              {tabBtn("wildcard", "Wildcard", <Crosshair size={13} />)}
+              {tabBtn("match", "ACL lesen", <Eye size={13} />)}
+              {tabBtn("build", "ACE schreiben", <ListChecks size={13} />)}
+              {tabBtn("range", "IP-Bereich", <ArrowsHorizontal size={13} />)}
+              {tabBtn("named", "Named", <Tag size={13} />)}
+              {tabBtn("advanced", "Advanced", <Sliders size={13} />)}
+              {tabBtn("placement", "Platzierung", <MapPin size={13} />)}
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className={`rounded-md p-1.5 transition-colors ${dark ? "text-slate-400 hover:bg-slate-700" : "text-slate-500 hover:bg-slate-100"}`}
-            aria-label="Schließen"
-          >
-            <X size={16} />
-          </button>
-        </div>
 
-        {/* Tabs */}
-        <div className="flex shrink-0 px-5 pt-2">
-          <div className={`flex flex-wrap gap-1 rounded-lg p-1 ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
-            {tabBtn("wildcard", "Wildcard", <Crosshair size={13} />)}
-            {tabBtn("match", "ACL lesen", <Eye size={13} />)}
-            {tabBtn("build", "ACE schreiben", <ListChecks size={13} />)}
-            {tabBtn("range", "IP-Bereich", <ArrowsHorizontal size={13} />)}
-            {tabBtn("named", "Named", <Tag size={13} />)}
-            {tabBtn("advanced", "Advanced", <Sliders size={13} />)}
-            {tabBtn("placement", "Platzierung", <MapPin size={13} />)}
+          {/* Stats */}
+          <div className={`flex shrink-0 items-center gap-4 px-5 py-2 text-xs ${muted}`}>
+            <span className="flex items-center gap-1"><Timer size={13} /> {fmt(elapsed)}</span>
+            <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
+            <span>Richtig: <span className="font-semibold text-emerald-500">{stats.correct}</span></span>
+            {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
+            {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
+            {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
           </div>
-        </div>
 
-        {/* Stats */}
-        <div className={`flex shrink-0 items-center gap-4 px-5 py-2 text-xs ${muted}`}>
-          <span className="flex items-center gap-1"><Timer size={13} /> {fmt(elapsed)}</span>
-          <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
-          <span>Richtig: <span className="font-semibold text-emerald-500">{stats.correct}</span></span>
-          {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
-          {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
-          {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
-        </div>
+          {/* Body */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {(isSingleLine || isMultiLine) && (
+              <>
+                <div className={`rounded-xl p-4 ${cardBg}`}>
+                  <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Aufgabe</div>
+                  <p className={`text-sm ${text}`}>{prompt}</p>
+                </div>
 
-        {/* Body */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {(isSingleLine || isMultiLine) && (
-            <>
-              <div className={`rounded-xl p-4 ${cardBg}`}>
-                <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Aufgabe</div>
-                <p className={`text-sm ${text}`}>{prompt}</p>
-              </div>
-
-              {(mode === "wildcard" || mode === "range") && (
-                <div className={`rounded-lg border px-3 py-2.5 ${dark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
-                  <div className={`mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-indigo-300" : "text-indigo-700"}`}>
-                    <FunctionIcon size={12} weight="bold" /> Spickzettel
-                  </div>
-                  {/* Nachschlagetabelle: kein Rechnen nötig, einfach nachschlagen */}
-                  <table className={`w-full font-mono text-[11px] ${dark ? "text-slate-300" : "text-slate-700"}`}>
-                    <thead>
-                      <tr className={`text-[10px] ${muted}`}>
-                        <th className="text-left font-semibold pb-1">Wildcard</th>
-                        <th className="text-right font-semibold pb-1 pr-2">Anzahl</th>
-                        <th className="text-left font-semibold pb-1 pl-3">Gültige Starts (letztes Oktett)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {([
-                        ["host <ip>",  "1",   "jede Adresse  (→ Kurzform für 0.0.0.0)"],
-                        ["0.0.0.1",   "2",   "0, 2, 4, 6, 8 … (gerade)"],
-                        ["0.0.0.3",   "4",   "0, 4, 8, 12, 16 …"],
-                        ["0.0.0.7",   "8",   "0, 8, 16, 24, 32 …"],
-                        ["0.0.0.15",  "16",  "0, 16, 32, 48, 64 …"],
-                        ["0.0.0.31",  "32",  "0, 32, 64, 96, 128, 160, 192, 224"],
-                        ["0.0.0.63",  "64",  "0, 64, 128, 192"],
-                        ["0.0.0.127", "128", "0, 128"],
-                        ["0.0.0.255", "256", "0  (ganzes /24 = any)"],
-                      ] as [string, string, string][]).map(([wc, n, starts]) => (
-                        <tr key={wc} className="leading-5">
-                          <td className={dark ? "text-indigo-300" : "text-indigo-700"}>{wc}</td>
-                          <td className={`text-right pr-2 ${muted}`}>{n}</td>
-                          <td className={`pl-3 ${muted}`}>{starts}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {mode === "range" && (
-                    <div className={`mt-3 border-t pt-2 ${dark ? "border-slate-700" : "border-indigo-200"}`}>
-                      <div className={`mb-1.5 text-[10px] font-semibold uppercase tracking-wide ${muted}`}>Bereich abdecken — drei Schritte:</div>
-                      <ol className={`space-y-0.5 text-[11px] leading-snug ${dark ? "text-slate-300" : "text-slate-700"}`}>
-                        <li>① Starte am <strong>linken Ende</strong> des Bereichs</li>
-                        <li>② Suche die <strong>größte Wildcard</strong> aus der Tabelle, deren Start dort steht <em>und</em> die nicht über das rechte Ende hinausreicht</li>
-                        <li>③ Schreibe die Zeile, springe um die Blockgröße vor → zurück zu ②</li>
-                      </ol>
+                {(mode === "wildcard" || mode === "range") && (
+                  <div className={`rounded-lg border px-3 py-2.5 ${dark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
+                    <div className={`mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${dark ? "text-indigo-300" : "text-indigo-700"}`}>
+                      <FunctionIcon size={12} weight="bold" /> Spickzettel
                     </div>
-                  )}
-                </div>
-              )}
-
-              {(mode === "wildcard" || mode === "range") && (
-                <div className={`rounded-lg border p-3 ${dark ? "border-slate-700 bg-slate-950/40" : "border-slate-200 bg-white"}`}>
-                  <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wide ${muted}`}>
-                    So „rastet" ein Block ein — Blockgröße 32
-                  </div>
-                  <svg viewBox="0 0 880 150" width="100%" height="120" fontFamily="'IBM Plex Mono',monospace">
-                    {[0, 1, 2, 3].map((i) => {
-                      const x0 = 40 + i * 32 * 6.25;
-                      const w = 32 * 6.25;
-                      const hot = i === 1; // Fach 32–63 enthält .46
-                      return (
-                        <rect key={i} x={x0} y={50} width={w} height={40} rx={4}
-                          fill={hot ? "rgba(245,158,11,0.18)" : i % 2 ? "rgba(100,116,139,0.18)" : "rgba(100,116,139,0.09)"}
-                          stroke={hot ? "#f59e0b" : "#64748b"} strokeWidth={hot ? 2 : 1} />
-                      );
-                    })}
-                    {["0–31", "32–63", "64–95", "96–127"].map((t, i) => (
-                      <text key={t} x={40 + i * 32 * 6.25 + 100} y={75} fontSize="15" textAnchor="middle" fill={i === 1 ? "#f59e0b" : ink}>{t}</text>
-                    ))}
-                    {[0, 32, 64, 96, 128].map((v) => (
-                      <text key={v} x={40 + v * 6.25} y={108} fontSize="13" textAnchor="middle" fill={sub}>{v}</text>
-                    ))}
-                    {/* Zeiger .46 */}
-                    <text x={327.5} y={24} fontSize="14" textAnchor="middle" fill="#f43f5e">du tippst .46</text>
-                    <path d="M327.5 30 L327.5 48" stroke="#f43f5e" strokeWidth="2" markerEnd="url(#dn)" />
-                    <circle cx={327.5} cy={70} r={5} fill="#f43f5e" />
-                    {/* Einrasten auf .32 */}
-                    <path d="M322 80 Q 280 106 247 96" fill="none" stroke="#10b981" strokeWidth="2" markerEnd="url(#sn)" />
-                    <text x={150} y={140} fontSize="14" textAnchor="middle" fill="#10b981">Router nimmt das ganze Fach ab .32</text>
-                    <defs>
-                      <marker id="dn" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto"><path d="M0,0 L8,0 L4,7 z" fill="#f43f5e" /></marker>
-                      <marker id="sn" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#10b981" /></marker>
-                    </defs>
-                  </svg>
-                  <p className={`mt-1 text-[12px] leading-snug ${dark ? "text-slate-300" : "text-slate-600"}`}>
-                    Stell dir .0–.255 als Schrank mit festen Schubladen vor — Schublade 1: .0–.31, Schublade 2: .32–.63 usw. Du kannst <strong>nur ganze Schubladen</strong> auf- oder zusperren, nie einen Teil davon. Start <span className="text-rose-500">.46</span> liegt mitten in Schublade 2 → der Router öffnet automatisch <strong>die ganze Schublade ab .32</strong>. Richtige Starts: <strong>genau da, wo eine Schublade beginnt</strong> (0, 32, 64, 96 …).
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <label className={`mb-1 block text-xs ${muted}`}>
-                  {mode === "wildcard" ? "Adress-/Wildcard-Angabe:"
-                    : mode === "range" ? "ACL-Zeilen (eine pro Zeile, ohne access-list-Präfix möglich):"
-                      : mode === "named" ? "Benannte ACL (Definition + ACE, je eine Zeile):"
-                        : "ACL-Befehl im Global-Config-Modus:"}
-                </label>
-                {isMultiLine ? (
-                  <textarea
-                    autoFocus
-                    rows={mode === "range" ? 5 : 3}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder={mode === "range" ? "permit 192.168.1.0 0.0.0.63\npermit 192.168.1.64 0.0.0.31\n…" : "ip access-list extended BLOCK_TELNET\n deny tcp any host 10.0.0.5 eq 23"}
-                    className={`${fieldCls} resize-y`}
-                    spellCheck={false}
-                    disabled={checked}
-                  />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {(mode === "build" || mode === "advanced") && (
-                      <span className="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>
+                    {/* Nachschlagetabelle: kein Rechnen nötig, einfach nachschlagen */}
+                    <table className={`w-full font-mono text-[11px] ${dark ? "text-slate-300" : "text-slate-700"}`}>
+                      <thead>
+                        <tr className={`text-[10px] ${muted}`}>
+                          <th className="text-left font-semibold pb-1">Wildcard</th>
+                          <th className="text-right font-semibold pb-1 pr-2">Anzahl</th>
+                          <th className="text-left font-semibold pb-1 pl-3">Gültige Starts (letztes Oktett)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {([
+                          ["host <ip>",  "1",   "jede Adresse  (→ Kurzform für 0.0.0.0)"],
+                          ["0.0.0.1",   "2",   "0, 2, 4, 6, 8 … (gerade)"],
+                          ["0.0.0.3",   "4",   "0, 4, 8, 12, 16 …"],
+                          ["0.0.0.7",   "8",   "0, 8, 16, 24, 32 …"],
+                          ["0.0.0.15",  "16",  "0, 16, 32, 48, 64 …"],
+                          ["0.0.0.31",  "32",  "0, 32, 64, 96, 128, 160, 192, 224"],
+                          ["0.0.0.63",  "64",  "0, 64, 128, 192"],
+                          ["0.0.0.127", "128", "0, 128"],
+                          ["0.0.0.255", "256", "0  (ganzes /24 = any)"],
+                        ] as [string, string, string][]).map(([wc, n, starts]) => (
+                          <tr key={wc} className="leading-5">
+                            <td className={dark ? "text-indigo-300" : "text-indigo-700"}>{wc}</td>
+                            <td className={`text-right pr-2 ${muted}`}>{n}</td>
+                            <td className={`pl-3 ${muted}`}>{starts}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {mode === "range" && (
+                      <div className={`mt-3 border-t pt-2 ${dark ? "border-slate-700" : "border-indigo-200"}`}>
+                        <div className={`mb-1.5 text-[10px] font-semibold uppercase tracking-wide ${muted}`}>Bereich abdecken — drei Schritte:</div>
+                        <ol className={`space-y-0.5 text-[11px] leading-snug ${dark ? "text-slate-300" : "text-slate-700"}`}>
+                          <li>① Starte am <strong>linken Ende</strong> des Bereichs</li>
+                          <li>② Suche die <strong>größte Wildcard</strong> aus der Tabelle, deren Start dort steht <em>und</em> die nicht über das rechte Ende hinausreicht</li>
+                          <li>③ Schreibe die Zeile, springe um die Blockgröße vor → zurück zu ②</li>
+                        </ol>
+                      </div>
                     )}
-                    <input
+                  </div>
+                )}
+
+                {(mode === "wildcard" || mode === "range") && (
+                  <div className={`rounded-lg border p-3 ${dark ? "border-slate-700 bg-slate-950/40" : "border-slate-200 bg-white"}`}>
+                    <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wide ${muted}`}>
+                      So „rastet" ein Block ein — Blockgröße 32
+                    </div>
+                    <svg viewBox="0 0 880 150" width="100%" height="120" fontFamily="'IBM Plex Mono',monospace">
+                      {[0, 1, 2, 3].map((i) => {
+                        const x0 = 40 + i * 32 * 6.25;
+                        const w = 32 * 6.25;
+                        const hot = i === 1; // Fach 32–63 enthält .46
+                        return (
+                          <rect key={i} x={x0} y={50} width={w} height={40} rx={4}
+                            fill={hot ? "rgba(245,158,11,0.18)" : i % 2 ? "rgba(100,116,139,0.18)" : "rgba(100,116,139,0.09)"}
+                            stroke={hot ? "#f59e0b" : "#64748b"} strokeWidth={hot ? 2 : 1} />
+                        );
+                      })}
+                      {["0–31", "32–63", "64–95", "96–127"].map((t, i) => (
+                        <text key={t} x={40 + i * 32 * 6.25 + 100} y={75} fontSize="15" textAnchor="middle" fill={i === 1 ? "#f59e0b" : ink}>{t}</text>
+                      ))}
+                      {[0, 32, 64, 96, 128].map((v) => (
+                        <text key={v} x={40 + v * 6.25} y={108} fontSize="13" textAnchor="middle" fill={sub}>{v}</text>
+                      ))}
+                      {/* Zeiger .46 */}
+                      <text x={327.5} y={24} fontSize="14" textAnchor="middle" fill="#f43f5e">du tippst .46</text>
+                      <path d="M327.5 30 L327.5 48" stroke="#f43f5e" strokeWidth="2" markerEnd="url(#dn)" />
+                      <circle cx={327.5} cy={70} r={5} fill="#f43f5e" />
+                      {/* Einrasten auf .32 */}
+                      <path d="M322 80 Q 280 106 247 96" fill="none" stroke="#10b981" strokeWidth="2" markerEnd="url(#sn)" />
+                      <text x={150} y={140} fontSize="14" textAnchor="middle" fill="#10b981">Router nimmt das ganze Fach ab .32</text>
+                      <defs>
+                        <marker id="dn" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto"><path d="M0,0 L8,0 L4,7 z" fill="#f43f5e" /></marker>
+                        <marker id="sn" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#10b981" /></marker>
+                      </defs>
+                    </svg>
+                    <p className={`mt-1 text-[12px] leading-snug ${dark ? "text-slate-300" : "text-slate-600"}`}>
+                      Stell dir .0–.255 als Schrank mit festen Schubladen vor — Schublade 1: .0–.31, Schublade 2: .32–.63 usw. Du kannst <strong>nur ganze Schubladen</strong> auf- oder zusperren, nie einen Teil davon. Start <span className="text-rose-500">.46</span> liegt mitten in Schublade 2 → der Router öffnet automatisch <strong>die ganze Schublade ab .32</strong>. Richtige Starts: <strong>genau da, wo eine Schublade beginnt</strong> (0, 32, 64, 96 …).
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <label className={`mb-1 block text-xs ${muted}`}>
+                    {mode === "wildcard" ? "Adress-/Wildcard-Angabe:"
+                      : mode === "range" ? "ACL-Zeilen (eine pro Zeile, ohne access-list-Präfix möglich):"
+                        : mode === "named" ? "Benannte ACL (Definition + ACE, je eine Zeile):"
+                          : "ACL-Befehl im Global-Config-Modus:"}
+                  </label>
+                  {isMultiLine ? (
+                    <textarea
                       autoFocus
+                      rows={mode === "range" ? 5 : 3}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") { if (checked) handleNext(); else handleCheck(); } }}
-                      placeholder={
-                        mode === "wildcard" ? "host 10.0.0.5  /  any  /  10.0.0.0 0.0.0.255"
-                          : mode === "advanced" ? "access-list 110 permit tcp any host 10.0.0.5 established"
-                            : "access-list 110 deny tcp ... eq 23"
-                      }
-                      className={fieldCls}
+                      placeholder={mode === "range" ? "permit 192.168.1.0 0.0.0.63\npermit 192.168.1.64 0.0.0.31\n…" : "ip access-list extended BLOCK_TELNET\n deny tcp any host 10.0.0.5 eq 23"}
+                      className={`${fieldCls} resize-y`}
                       spellCheck={false}
                       disabled={checked}
                     />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {(mode === "build" || mode === "advanced") && (
+                        <span className="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>
+                      )}
+                      <input
+                        autoFocus
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { if (checked) handleNext(); else handleCheck(); } }}
+                        placeholder={
+                          mode === "wildcard" ? "host 10.0.0.5  /  any  /  10.0.0.0 0.0.0.255"
+                            : mode === "advanced" ? "access-list 110 permit tcp any host 10.0.0.5 established"
+                              : "access-list 110 deny tcp ... eq 23"
+                        }
+                        className={fieldCls}
+                        spellCheck={false}
+                        disabled={checked}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {checked && mode === "range" && rangeCheck &&
+                  verdictBox(
+                    <>
+                      {rangeCheck.ok
+                        ? `Perfekt — deine ${rangeCheck.lineCount} Zeile(n) erlauben exakt ${rangeTask.base}.${rangeTask.lo}–${rangeTask.hi}.`
+                        : rangeCheck.reason}
+                      {rangeCheck.alignmentHint && (
+                        <div className={`mt-2 flex gap-1.5 rounded-md border px-2 py-1.5 text-[12px] ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-amber-300 bg-amber-50 text-amber-700"}`}>
+                          <span aria-hidden>📐</span>
+                          <span><span className="font-semibold">Block-Ausrichtung:</span> {rangeCheck.alignmentHint}</span>
+                        </div>
+                      )}
+                    </>,
+                    rangeSolutions,
+                  )}
+
+                {checked && mode === "named" && namedCheck &&
+                  verdictBox(
+                    namedCheck.ok ? hint : namedCheck.reason,
+                    <pre className={`mt-2 overflow-x-auto rounded font-mono text-[11px] ${dark ? "text-emerald-300" : "text-emerald-700"}`}>
+                      {namedTask.displayLines.join("\n")}
+                    </pre>,
+                  )}
+
+                {checked && isSingleLine &&
+                  verdictBox(
+                    isCorrect ? hint : (singleReason ?? hint),
+                    <>
+                      <p className="mt-2 font-mono text-xs">
+                        <span className={muted}>Lösung: </span>
+                        <span className={dark ? "text-emerald-300" : "text-emerald-700"}>{singleSolution}</span>
+                      </p>
+                      {!isCorrect && <p className={`mt-1 text-xs ${muted}`}>💡 {hint}</p>}
+                    </>,
+                  )}
+              </>
+            )}
+
+            {mode === "match" && (
+              <>
+                <div className={`rounded-xl p-3 ${cardBg}`}>
+                  <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-2`}>
+                    {matchTask.type === "standard" ? "Standard-ACL" : "Extended-ACL"} {matchTask.aclNumber}
                   </div>
-                )}
-              </div>
-
-              {checked && mode === "range" && rangeCheck &&
-                verdictBox(
-                  <>
-                    {rangeCheck.ok
-                      ? `Perfekt — deine ${rangeCheck.lineCount} Zeile(n) erlauben exakt ${rangeTask.base}.${rangeTask.lo}–${rangeTask.hi}.`
-                      : rangeCheck.reason}
-                    {rangeCheck.alignmentHint && (
-                      <div className={`mt-2 flex gap-1.5 rounded-md border px-2 py-1.5 text-[12px] ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-amber-300 bg-amber-50 text-amber-700"}`}>
-                        <span aria-hidden>📐</span>
-                        <span><span className="font-semibold">Block-Ausrichtung:</span> {rangeCheck.alignmentHint}</span>
-                      </div>
-                    )}
-                  </>,
-                  rangeSolutions,
-                )}
-
-              {checked && mode === "named" && namedCheck &&
-                verdictBox(
-                  namedCheck.ok ? hint : namedCheck.reason,
-                  <pre className={`mt-2 overflow-x-auto rounded font-mono text-[11px] ${dark ? "text-emerald-300" : "text-emerald-700"}`}>
-                    {namedTask.displayLines.join("\n")}
-                  </pre>,
-                )}
-
-              {checked && isSingleLine &&
-                verdictBox(
-                  isCorrect ? hint : (singleReason ?? hint),
-                  <>
-                    <p className="mt-2 font-mono text-xs">
-                      <span className={muted}>Lösung: </span>
-                      <span className={dark ? "text-emerald-300" : "text-emerald-700"}>{singleSolution}</span>
-                    </p>
-                    {!isCorrect && <p className={`mt-1 text-xs ${muted}`}>💡 {hint}</p>}
-                  </>,
-                )}
-            </>
-          )}
-
-          {mode === "match" && (
-            <>
-              <div className={`rounded-xl p-3 ${cardBg}`}>
-                <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-2`}>
-                  {matchTask.type === "standard" ? "Standard-ACL" : "Extended-ACL"} {matchTask.aclNumber}
+                  <div className="space-y-1 font-mono text-[12px]">
+                    {matchTask.lines.map((l, i) => (
+                      <div key={i} className={`rounded px-2 py-1 ${dark ? "bg-slate-950/60 text-slate-200" : "bg-white text-slate-800"}`}>{l}</div>
+                    ))}
+                    <div className={`rounded px-2 py-1 italic ${dark ? "text-slate-500" : "text-slate-400"}`}>(implizit) deny any</div>
+                  </div>
                 </div>
-                <div className="space-y-1 font-mono text-[12px]">
-                  {matchTask.lines.map((l, i) => (
-                    <div key={i} className={`rounded px-2 py-1 ${dark ? "bg-slate-950/60 text-slate-200" : "bg-white text-slate-800"}`}>{l}</div>
-                  ))}
-                  <div className={`rounded px-2 py-1 italic ${dark ? "text-slate-500" : "text-slate-400"}`}>(implizit) deny any</div>
+                <div className={`rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "border-slate-700 text-amber-300" : "border-slate-200 text-amber-700"}`}>
+                  📦 {matchTask.packetText}
                 </div>
-              </div>
-              <div className={`rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "border-slate-700 text-amber-300" : "border-slate-200 text-amber-700"}`}>
-                📦 {matchTask.packetText}
-              </div>
-              <p className={`text-sm ${text}`}>
-                Wird das Paket <span className="font-semibold">erlaubt</span> oder <span className="font-semibold">verworfen</span>?
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {["permit", "deny"].map((opt, i) => {
-                  const isAns = i === matchCorrectIndex;
-                  const isSel = i === selected;
-                  let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
-                  if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
-                  else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
-                  else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
-                  return (
-                    <button key={opt} type="button" disabled={checked} onClick={() => setSelected(i)}
-                      className={`rounded-md border px-3 py-2.5 text-center text-sm font-semibold transition-colors ${cls} ${text}`}>
-                      {opt === "permit" ? "✅ permit (erlaubt)" : "⛔ deny (verworfen)"}
-                    </button>
-                  );
-                })}
-              </div>
-              {checked && verdictBox(matchTask.explanation)}
-            </>
-          )}
+                <p className={`text-sm ${text}`}>
+                  Wird das Paket <span className="font-semibold">erlaubt</span> oder <span className="font-semibold">verworfen</span>?
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {["permit", "deny"].map((opt, i) => {
+                    const isAns = i === matchCorrectIndex;
+                    const isSel = i === selected;
+                    let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
+                    if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
+                    else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
+                    else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
+                    return (
+                      <button key={opt} type="button" disabled={checked} onClick={() => setSelected(i)}
+                        className={`rounded-md border px-3 py-2.5 text-center text-sm font-semibold transition-colors ${cls} ${text}`}>
+                        {opt === "permit" ? "✅ permit (erlaubt)" : "⛔ deny (verworfen)"}
+                      </button>
+                    );
+                  })}
+                </div>
+                {checked && verdictBox(matchTask.explanation)}
+              </>
+            )}
 
-          {mode === "placement" && (
-            <>
-              <div className={`rounded-xl p-4 ${cardBg}`}>
-                <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Szenario</div>
-                <p className={`text-sm ${text}`} dangerouslySetInnerHTML={{ __html: placeTask.scenario.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }} />
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {placeTask.options.map((opt, i) => {
-                  const isAns = i === placeTask.correctIndex;
-                  const isSel = i === selected;
-                  let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
-                  if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
-                  else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
-                  else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
-                  return (
-                    <button key={opt} type="button" disabled={checked} onClick={() => setSelected(i)}
-                      className={`rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors ${cls} ${text}`}>
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-              {checked && verdictBox(placeTask.explanation)}
-            </>
-          )}
-        </div>
+            {mode === "placement" && (
+              <>
+                <div className={`rounded-xl p-4 ${cardBg}`}>
+                  <div className={`text-[11px] font-semibold uppercase tracking-wide ${muted} mb-1`}>Szenario</div>
+                  <p className={`text-sm ${text}`} dangerouslySetInnerHTML={{ __html: placeTask.scenario.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }} />
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {placeTask.options.map((opt, i) => {
+                    const isAns = i === placeTask.correctIndex;
+                    const isSel = i === selected;
+                    let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
+                    if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
+                    else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
+                    else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
+                    return (
+                      <button key={opt} type="button" disabled={checked} onClick={() => setSelected(i)}
+                        className={`rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors ${cls} ${text}`}>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                {checked && verdictBox(placeTask.explanation)}
+              </>
+            )}
+          </div>
 
-        {/* Footer */}
-        <div className={`flex shrink-0 items-center justify-between border-t px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-          <span className={`text-[11px] ${muted}`}>{footHint}</span>
-          {!checked ? (
-            <button type="button" onClick={handleCheck} disabled={!canCheck}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40">
-              Prüfen
-            </button>
-          ) : (
-            <button type="button" onClick={handleNext}
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-              Nächste <ArrowRight size={14} />
-            </button>
-          )}
+          {/* Footer */}
+          <div className={`flex shrink-0 items-center justify-between border-t px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+            <span className={`text-[11px] ${muted}`}>{footHint}</span>
+            {!checked ? (
+              <button type="button" onClick={handleCheck} disabled={!canCheck}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40">
+                Prüfen
+              </button>
+            ) : (
+              <button type="button" onClick={handleNext}
+                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
+                Nächste <ArrowRight size={14} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

@@ -197,7 +197,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div role="dialog" aria-modal="true" aria-label="Priorisierte Lern-Queue" className="fixed inset-0 z-dialog flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
         <div
           className={cn(
             "relative w-full max-w-[620px] max-h-[calc(100dvh-1.5rem)] md:max-h-[90dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden",

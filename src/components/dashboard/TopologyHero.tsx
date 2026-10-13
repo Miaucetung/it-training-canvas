@@ -173,7 +173,7 @@ export function TopologyHero({
         {/* Left Column: Heading, Primary CTA, Navigation shortcuts */}
         <div className="lg:col-span-6 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-accent-primary-fg border border-primary/20">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Cisco CCNA 200-301 v1.1
             </span>
@@ -225,8 +225,8 @@ export function TopologyHero({
           {/* Progress / Status Hint */}
           <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/60">
             <span className="tabular-nums font-mono">
-              <strong className="text-foreground font-semibold">{completedTopicCount}</strong> von{" "}
-              {totalTopicCount} Lektionen abgeschlossen
+              <strong className="text-foreground font-semibold">{completedTopicCount}</strong>
+              {totalTopicCount > 0 ? ` von ${totalTopicCount}` : ""} Lektionen abgeschlossen
             </span>
 
             <div className="flex items-center gap-2 ml-auto">
@@ -276,8 +276,8 @@ export function TopologyHero({
                 className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all",
                   pingState === "request" || pingState === "reply"
-                    ? "bg-primary/20 text-primary cursor-not-allowed"
-                    : "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20"
+                    ? "bg-primary/20 text-accent-primary-fg cursor-not-allowed"
+                    : "bg-primary/10 hover:bg-primary/20 text-accent-primary-fg border border-primary/20"
                 )}
               >
                 <Pulse className="h-3.5 w-3.5" weight="bold" />
@@ -294,7 +294,7 @@ export function TopologyHero({
               <svg
                 viewBox="0 0 460 235"
                 className="w-full h-full select-none"
-                role="img"
+                role="group"
                 aria-label="Cisco CCNA Topologie: R1-Gateway, SW1-Core, PC1-Client und SRV1-Server"
               >
                 <defs>
@@ -396,7 +396,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Router R1 Gateway"
+                  aria-roledescription="Router (Gateway)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("r1")}
                 >
                   <circle
@@ -431,7 +431,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Switch SW1 Core"
+                  aria-roledescription="Switch (Core)"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("sw1")}
                 >
                   <rect
@@ -471,7 +471,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Workstation PC1 Client"
+                  aria-label="PC1 .50 (VLAN 10) – Workstation"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("pc1")}
                 >
                   <rect
@@ -518,7 +518,7 @@ export function TopologyHero({
                   className="cursor-pointer focus:outline-none"
                   tabIndex={0}
                   role="button"
-                  aria-label="Server SRV1 Infra"
+                  aria-label="SRV1 .10 (VLAN 20) – Server"
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedNodeId("srv1")}
                 >
                   <rect
@@ -576,7 +576,7 @@ export function TopologyHero({
               >
                 <div className="flex items-center gap-1.5 font-mono">
                   <CheckCircle className="h-4 w-4" weight="bold" />
-                  <span>Ping erfolgreich: 4 Pakete empfangen, RTT 1.2ms (ICMP Echo Reply)</span>
+                  <span>Lehrbeispiel: Echo Request und Echo Reply zwischen PC1 und SRV1 (Animation, keine Messung)</span>
                 </div>
                 <button
                   type="button"

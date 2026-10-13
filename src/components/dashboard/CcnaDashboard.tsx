@@ -1,3 +1,4 @@
+import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { loadModule } from "@/lib/content/content-loader";
 import type { CertificationModule, Topic } from "@/lib/content/types";
@@ -97,18 +98,6 @@ export function CcnaDashboard({
       // Fallback
     }
 
-    // Default seed if user has progress
-    const fullPath = userProgress["ccna-full-path"];
-    if (fullPath && fullPath.completedSteps && fullPath.completedSteps.length > 0) {
-      return [
-        {
-          id: fullPath.completedSteps[0],
-          type: "topic",
-          title: "Netzwerkgrundlagen & OSI-Modell",
-          timestamp: fullPath.lastActivityAt || Date.now() - 3600000 * 2,
-        },
-      ];
-    }
     return [];
   });
 
@@ -162,17 +151,10 @@ export function CcnaDashboard({
   // Keyboard shortcut listener (Cmd+K / Ctrl+K and Presentation Mode 'P')
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isInput =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable);
-
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
-      } else if (!isInput && (e.key === "p" || e.key === "P")) {
+      } else if (!shouldIgnoreSingleKeyShortcut(e) && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         setIsPresentationMode((prev) => !prev);
       } else if (e.key === "Escape") {
@@ -185,7 +167,7 @@ export function CcnaDashboard({
   }, [isPresentationMode]);
 
   // Last active topic calculation
-  const totalTopicCount = module?.topics.length || 26;
+  const totalTopicCount = module?.topics.length ?? 0;
   const lastActiveItem = recentItems[0];
   const hasProgress = completedTopicIds.length > 0 || recentItems.length > 0;
 
