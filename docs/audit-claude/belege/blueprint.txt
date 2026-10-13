@@ -1,0 +1,44 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+Anzahl Lektionen: 26
+
+| Lektion (id) | Titel | Bereich(e) in dashboard-blueprint-config |
+|---|---|---|
+| networking-fundamentals | Netzwerkgrundlagen | 1.0 Network Fundamentals |
+| ios-cli | Cisco IOS CLI | 1.0 Network Fundamentals |
+| ipv4-addressing | IPv4-Adressierung & Subnetting | 1.0 Network Fundamentals |
+| subnet-segmentation | Netzwerk-Segmentierung | 1.0 Network Fundamentals |
+| ipv6 | IPv6 | 1.0 Network Fundamentals |
+| switching-vlans | Switching-Grundlagen & VLANs | 2.0 Network Access |
+| stp | STP — Spanning Tree Protocol | 2.0 Network Access |
+| etherchannel | EtherChannel (Link Aggregation) | 2.0 Network Access |
+| vlan-advanced | VLANs — Tiefenwissen & Sicherheit | 2.0 Network Access |
+| verkabelung | Verkabelung (Kupfer) | 1.0 Network Fundamentals |
+| glasfaser | Glasfaser (Fiber Optic) | 1.0 Network Fundamentals |
+| routing-ospf | Routing & OSPF | 3.0 IP Connectivity |
+| fhrp | First Hop Redundancy (HSRP/VRRP/GLBP) | 3.0 IP Connectivity |
+| dhcp-nat | DHCP | 4.0 IP Services |
+| nat | NAT & PAT | 4.0 IP Services |
+| dns | DNS — Namensauflösung | 4.0 IP Services |
+| device-management | Device Management Protocols | 4.0 IP Services |
+| security | Netzwerksicherheit | 5.0 Security Fundamentals |
+| acl | Access Control Lists (ACL) | 5.0 Security Fundamentals |
+| qos | Quality of Service (QoS) | 4.0 IP Services |
+| wlan | WLAN | 2.0 Network Access |
+| wan | WAN-Architekturen & VPN | 6.0 Automation and Programmability |
+| sdn-controller | Controller-Based Networking & Cloud | 6.0 Automation and Programmability |
+| automation | Programmability & Automation | 6.0 Automation and Programmability |
+| ccna-virtualization | Virtualisierung & Cloud | 1.0 Network Fundamentals |
+| troubleshooting | Troubleshooting & Diagnose | — KEINER — |
+
+IDs in Config ohne existierende Lektion: []
+Lektionen ohne Bereich: ["troubleshooting"]
+Subtopics mit topicId ausserhalb topicIds der Domain / unbekannt:
+Summe Gewichte: 100
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:10:43
+   Duration  626ms (transform 411ms, setup 0ms, import 491ms, tests 3ms, environment 0ms)
+

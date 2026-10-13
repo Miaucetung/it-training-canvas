@@ -1,0 +1,12 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+ccnaQuestions.ccnaQuestions: 1081
+ccnaQuestionsClassified.ccnaQuestionsClassified: 1055
+ccnaDragDrop.ccnaDragDropQuestions: 81
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:10:44
+   Duration  725ms (transform 524ms, setup 0ms, import 593ms, tests 2ms, environment 0ms)
+

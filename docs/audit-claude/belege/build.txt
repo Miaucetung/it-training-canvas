@@ -1,0 +1,109 @@
+
+> ccna-ajti@0.0.0 build
+> tsc -b && vite build
+
+[icon-proxy] Checking for exports in directory: C:\it-training-canvas-new\node_modules\@phosphor-icons\react
+[icon-proxy] Found package file: C:\it-training-canvas-new\node_modules\@phosphor-icons\react\dist\index.d.ts
+[icon-proxy] Loaded 1514 exports from C:\it-training-canvas-new\node_modules\@phosphor-icons\react\dist\index.d.ts
+[icon-proxy] Checking for exports in directory: C:\it-training-canvas-new\node_modules\@phosphor-icons\react
+[icon-proxy] Found package file: C:\it-training-canvas-new\node_modules\@phosphor-icons\react\dist\index.d.ts
+[icon-proxy] Loaded 1514 exports from C:\it-training-canvas-new\node_modules\@phosphor-icons\react\dist\index.d.ts
+vite v7.3.5 building client environment for production...
+transforming...
+Found 3 warnings while optimizing generated CSS:
+
+Issue #1:
+│   .container {
+│     width: 100%;
+│     @media (width >= (display-mode: standalone)) {
+┆                     ^-- Unexpected token ParenthesisBlock
+┆
+│       max-width: (display-mode: standalone);
+│     }
+
+Issue #2:
+│       max-width: (display-mode: standalone);
+│     }
+│     @media (width >= (pointer: coarse)) {
+┆                     ^-- Unexpected token ParenthesisBlock
+┆
+│       max-width: (pointer: coarse);
+│     }
+
+Issue #3:
+│       max-width: (pointer: coarse);
+│     }
+│     @media (width >= (pointer: fine)) {
+┆                     ^-- Unexpected token ParenthesisBlock
+┆
+│       max-width: (pointer: fine);
+│     }
+
+✓ 6758 modules transformed.
+rendering chunks...
+Emitted proxy files to build output
+computing gzip size...
+dist/package.json                                              0.26 kB │ gzip:   0.18 kB
+dist/index.html                                                1.06 kB │ gzip:   0.52 kB
+dist/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff      13.14 kB
+dist/assets/ibm-plex-mono-latin-700-normal-CNHXzs6v.woff      13.21 kB
+dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2     14.71 kB
+dist/assets/ibm-plex-mono-latin-700-normal-7sUh57Bg.woff2     14.91 kB
+dist/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff      22.10 kB
+dist/assets/ibm-plex-sans-latin-700-normal-Bth3BMcD.woff      22.28 kB
+dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2     22.59 kB
+dist/assets/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2     22.83 kB
+dist/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff      23.92 kB
+dist/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2     24.18 kB
+dist/proxy.js                                              1,570.98 kB
+dist/assets/index-BIuLr1fd.css                               719.15 kB │ gzip: 112.75 kB
+dist/assets/subnet-reference-Ce1p2wUk.js                       0.89 kB │ gzip:   0.52 kB
+dist/assets/ccna-question-pool-jeXs0aaS.js                     1.56 kB │ gzip:   0.91 kB
+dist/assets/RouterOnAStickDialog-CcSEhD2o.js                   1.65 kB │ gzip:   0.81 kB
+dist/assets/Path.es-DDDOnc79.js                                1.87 kB │ gzip:   0.67 kB
+dist/assets/Tag.es-BgQkqOTh.js                                 2.46 kB │ gzip:   0.83 kB
+dist/assets/FireSimple.es-S85RSlBQ.js                          2.51 kB │ gzip:   0.94 kB
+dist/assets/Shield.es-Dbi5bJaA.js                              2.68 kB │ gzip:   1.02 kB
+dist/assets/ArrowUp.es-v4TlHryG.js                             3.03 kB │ gzip:   0.87 kB
+dist/assets/Shuffle.es-7ksPYuw2.js                             4.73 kB │ gzip:   1.33 kB
+dist/assets/IPv4SubnetTableDialog-C3Ye4H4T.js                  5.31 kB │ gzip:   1.55 kB
+dist/assets/AccountDialog-006BMFrM.js                          8.13 kB │ gzip:   3.09 kB
+dist/assets/ExhibitRenderer-DCyP7Jdl.js                        9.34 kB │ gzip:   2.84 kB
+dist/assets/TopologieExplorerDialog-B2cki9Hr.js                9.48 kB │ gzip:   3.74 kB
+dist/assets/ospf-wildcard-drill-D-r1z-PQ.js                    9.60 kB │ gzip:   3.31 kB
+dist/assets/SubnettingDrillQuiz-DzL-ACtS.js                   10.78 kB │ gzip:   3.38 kB
+dist/assets/SubnettingCheatsheet-DBChsBt5.js                  11.04 kB │ gzip:   3.57 kB
+dist/assets/RoutingDrillDialog-uh4AytPz.js                    12.15 kB │ gzip:   4.41 kB
+dist/assets/OspfWildcardDrillDialog-RyHobYjB.js               13.28 kB │ gzip:   4.42 kB
+dist/assets/VerkabelungTrainerDialog-BUFjkgPp.js              13.54 kB │ gzip:   4.17 kB
+dist/assets/PacketFlowVisualizer-BpVkm-xt.js                  13.69 kB │ gzip:   4.17 kB
+dist/assets/TemplateGallery-Qs5HRvdy.js                       16.81 kB │ gzip:   5.67 kB
+dist/assets/QuizDialog-0Hqi22yE.js                            18.71 kB │ gzip:   6.13 kB
+dist/assets/ProgressTracker-CMxruI8_.js                       18.74 kB │ gzip:   5.75 kB
+dist/assets/LearningPathEditor-Cyqo7MNo.js                    19.06 kB │ gzip:   5.34 kB
+dist/assets/OsiSimulatorDialog-Ds63noGv.js                    21.75 kB │ gzip:   7.49 kB
+dist/assets/SubnettingDrillDialog-CCtxcDCJ.js                 21.83 kB │ gzip:   6.46 kB
+dist/assets/StpSimulatorDialog-DP6TWo2B.js                    23.33 kB │ gzip:   6.87 kB
+dist/assets/TerminalEmulator-DFUN9Av7.js                      25.33 kB │ gzip:   8.66 kB
+dist/assets/RoutingSimulatorDialog-CL7WhR9B.js                37.25 kB │ gzip:  10.59 kB
+dist/assets/AclDrillDialog-CrPiSWgd.js                        41.30 kB │ gzip:  13.70 kB
+dist/assets/CliGlossaryDialog-Dn9KOshv.js                     41.82 kB │ gzip:  12.53 kB
+dist/assets/VlanSimulatorDialog-B5GpKLt9.js                   43.36 kB │ gzip:  11.80 kB
+dist/assets/IPv6CalculatorDialog-CgRqcRG6.js                  53.11 kB │ gzip:  13.64 kB
+dist/assets/DragDropTrainerDialog-DRLlRj0A.js                 70.94 kB │ gzip:  18.82 kB
+dist/assets/index-cF24nG5z.js                                175.85 kB │ gzip:  56.97 kB
+dist/assets/vendor-supabase-couYVwVI.js                      208.84 kB │ gzip:  54.34 kB
+dist/assets/index-BNqHnLSN.js                                238.82 kB │ gzip:  71.69 kB
+dist/assets/index-PHAECx1m.js                                487.51 kB │ gzip: 171.04 kB
+dist/assets/LabScenariosDialog-BXH6Gnem.js                   571.08 kB │ gzip: 138.76 kB
+dist/assets/ccna-content-eCgPXKaJ.js                         582.37 kB │ gzip: 147.49 kB
+dist/assets/ExamPrepDialog-BJy_Iiv4.js                       699.37 kB │ gzip: 162.16 kB
+dist/assets/PrioritizedLearningDialog-B0LNPFOU.js            736.40 kB │ gzip: 159.45 kB
+dist/assets/index-sUHtI1Oe.js                              1,757.16 kB │ gzip: 456.61 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 13.38s
+EXIT 0

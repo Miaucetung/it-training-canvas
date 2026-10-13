@@ -1,0 +1,18 @@
+
+> ccna-ajti@0.0.0 test
+> vitest run --run
+
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+ Test Files  37 passed (37)
+      Tests  440 passed (440)
+   Start at  07:00:26
+   Duration  36.84s (transform 20.02s, setup 20.55s, import 213.34s, tests 41.98s, environment 33.59s)
+
+EXIT 0

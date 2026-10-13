@@ -1,0 +1,218 @@
+
+ RUN  v4.1.5 C:/it-training-canvas-new
+
+
+===== basic-ip :: IP-Grundkonfiguration
+DEVICES: Router0[router,Cisco 2901 ISR] Switch0[switch-l2,Catalyst 2960] PC0[pc,FastEthernet Client] PC1[pc,FastEthernet Client]
+LINK Router0:Gi0/0(192.168.1.1) <-> Switch0:Gi0/1()  vlan=  copper-straight
+LINK Switch0:Fa0/1() <-> PC0:Fa0(192.168.1.10)  vlan=  copper-straight
+LINK Switch0:Fa0/2() <-> PC1:Fa0(192.168.1.11)  vlan=  copper-straight
+VLANS: [{"id":1,"name":"Default LAN","colorTheme":"blue","subnet":"192.168.1.0/24"}]
+ADDR Router0 GigabitEthernet0/0 192.168.1.1 255.255.255.0 gw=N/A vlan=1
+ADDR Switch0 Vlan1 (SVI) 192.168.1.2 255.255.255.0 gw=192.168.1.1 vlan=1
+ADDR PC0 FastEthernet0 192.168.1.10 255.255.255.0 gw=192.168.1.1 vlan=1
+ADDR PC1 FastEthernet0 192.168.1.11 255.255.255.0 gw=192.168.1.1 vlan=1
+--- CLI-Zeilen im Lab
+  [Router0] hostname R1
+  [Router0] interface GigabitEthernet0/0
+  [Router0] ip address 192.168.1.1 255.255.255.0
+  [Router0] no shutdown
+  [Switch0] interface vlan 1
+ip address 192.168.1.2 255.255.255.0
+no shutdown
+exit
+ip default-gateway 192.168.1.1
+  [PC0] IP Address:  192.168.1.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.1.1
+  [PC1] IP Address:  192.168.1.20
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.1.1
+  [Merke] no shutdown auf dem Router-Interface vergessen
+
+===== vlan-trunking :: VLANs & Trunking
+DEVICES: SW1[switch-l2,Catalyst 2960] SW2[switch-l2,Catalyst 2960] PC1[pc,VLAN 10 Sales] PC2[pc,VLAN 20 Mktg] PC3[pc,VLAN 10 Sales] PC4[pc,VLAN 20 Mktg]
+LINK SW1:Gi0/1() <-> SW2:Gi0/1() TRUNK vlan= 802.1Q Trunk (VLAN 10, 20, 99) copper-cross
+LINK SW1:Fa0/1() <-> PC1:Fa0(192.168.10.10)  vlan=10  copper-straight
+LINK SW1:Fa0/2() <-> PC2:Fa0(192.168.20.10)  vlan=20  copper-straight
+LINK SW2:Fa0/1() <-> PC3:Fa0(192.168.10.11)  vlan=10  copper-straight
+LINK SW2:Fa0/2() <-> PC4:Fa0(192.168.20.11)  vlan=20  copper-straight
+VLANS: [{"id":10,"name":"Sales","colorTheme":"blue","subnet":"192.168.10.0/24"},{"id":20,"name":"Marketing","colorTheme":"amber","subnet":"192.168.20.0/24"},{"id":99,"name":"Management","colorTheme":"emerald","subnet":"192.168.99.0/24"}]
+ADDR SW1 Vlan99 (SVI) 192.168.99.1 255.255.255.0 gw=N/A vlan=99
+ADDR SW2 Vlan99 (SVI) 192.168.99.2 255.255.255.0 gw=N/A vlan=99
+ADDR PC1 FastEthernet0 192.168.10.10 255.255.255.0 gw=192.168.10.1 vlan=10
+ADDR PC2 FastEthernet0 192.168.20.10 255.255.255.0 gw=192.168.20.1 vlan=20
+ADDR PC3 FastEthernet0 192.168.10.11 255.255.255.0 gw=192.168.10.1 vlan=10
+ADDR PC4 FastEthernet0 192.168.20.11 255.255.255.0 gw=192.168.20.1 vlan=20
+--- CLI-Zeilen im Lab
+  [SW1] vlan 10
+  [SW1] name SALES
+  [SW1] vlan 20
+  [SW1] name HR
+  [SW1] interface FastEthernet0/1
+  [SW1] switchport mode access
+  [SW1] switchport access vlan 10
+  [SW1] interface FastEthernet0/2
+  [SW1] switchport mode access
+  [SW1] switchport access vlan 20
+  [SW1] interface GigabitEthernet0/1
+  [SW1] switchport mode trunk
+  [SW1] switchport trunk allowed vlan 10,20
+  [SW2] vlan 10
+name SALES
+vlan 20
+name HR
+exit
+  [SW2] interface FastEthernet0/1
+switchport mode access
+switchport access vlan 10
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 20
+  [SW2] interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk allowed vlan 10,20
+  [PC0] IP Address: 192.168.10.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1
+  [PC1] IP Address: 192.168.20.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.20.1
+  [PC2] IP Address: 192.168.10.20
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1
+  [PC3] IP Address: 192.168.20.20
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.20.1
+  [Merke] VLANs nur auf einem Switch angelegt
+  [Merke] switchport trunk allowed vlan vergisst ein VLAN
+
+===== roas :: Inter-VLAN Routing (RoaS)
+DEVICES: R1[router,Cisco 2901 ISR] SW1[switch-l2,Catalyst 2960] PC1[pc,VLAN 10 Client] PC2[pc,VLAN 20 Client]
+LINK R1:Gi0/0() <-> SW1:Gi0/1() TRUNK vlan= 802.1Q Trunk (Subinterfaces .10 / .20) copper-straight
+LINK SW1:Fa0/10() <-> PC1:Fa0(192.168.10.10)  vlan=10  copper-straight
+LINK SW1:Fa0/20() <-> PC2:Fa0(192.168.20.10)  vlan=20  copper-straight
+VLANS: [{"id":10,"name":"Sales","colorTheme":"blue","subnet":"192.168.10.0/24"},{"id":20,"name":"Marketing","colorTheme":"amber","subnet":"192.168.20.0/24"}]
+ADDR R1 GigabitEthernet0/0.10 192.168.10.1 255.255.255.0 gw=N/A vlan=10
+ADDR R1 GigabitEthernet0/0.20 192.168.20.1 255.255.255.0 gw=N/A vlan=20
+ADDR SW1 Vlan1 (SVI) 192.168.10.2 255.255.255.0 gw=192.168.10.1 vlan=1
+ADDR PC1 FastEthernet0 192.168.10.10 255.255.255.0 gw=192.168.10.1 vlan=10
+ADDR PC2 FastEthernet0 192.168.20.10 255.255.255.0 gw=192.168.20.1 vlan=20
+--- CLI-Zeilen im Lab
+  [Switch0] vlan 10
+name VLAN10
+vlan 20
+name VLAN20
+exit
+  [Switch0] interface Fa0/1
+switchport mode access
+switchport access vlan 10
+  [Switch0] interface Fa0/2
+switchport mode access
+switchport access vlan 20
+  [Switch0] interface Gi0/1
+switchport mode trunk
+  [Router0] interface GigabitEthernet0/0
+  [Router0] no shutdown
+  [Router0] interface GigabitEthernet0/0.10
+  [Router0] encapsulation dot1Q 10
+  [Router0] ip address 192.168.10.1 255.255.255.0
+  [Router0] interface GigabitEthernet0/0.20
+  [Router0] encapsulation dot1Q 20
+  [Router0] ip address 192.168.20.1 255.255.255.0
+  [PC0] IP Address: 192.168.10.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1
+  [PC1] IP Address: 192.168.20.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.20.1
+  [Merke] no shutdown auf dem Parent-Interface vergessen
+  [Merke] encapsulation dot1Q vergessen
+
+===== ospf :: OSPF — Single Area 0
+DEVICES: R1[router,Cisco 2901] R2[router,Cisco 2901] R3[router,Cisco 2901] SW1[switch-l2,Catalyst 2960] SW2[switch-l2,Catalyst 2960] SW3[switch-l2,Catalyst 2960] PC0[pc,R1-LAN Client] PC1[pc,R2-LAN Client] PC2[pc,R3-LAN Client]
+LINK R1:Gi0/1(10.0.12.1) <-> R2:Gi0/1(10.0.12.2)  vlan= 10.0.12.0/30 copper-cross
+LINK R1:Gi0/2(10.0.13.1) <-> R3:Gi0/2(10.0.13.2)  vlan= 10.0.13.0/30 copper-cross
+LINK R2:Gi0/2(10.0.23.1) <-> R3:Gi0/1(10.0.23.2)  vlan= 10.0.23.0/30 copper-cross
+LINK R1:Gi0/0(192.168.1.1) <-> SW1:Gi0/1()  vlan=  copper-straight
+LINK SW1:Fa0/1() <-> PC0:Fa0(192.168.1.10)  vlan=  copper-straight
+LINK R2:Gi0/0(192.168.2.1) <-> SW2:Gi0/1()  vlan=  copper-straight
+LINK SW2:Fa0/1() <-> PC1:Fa0(192.168.2.10)  vlan=  copper-straight
+LINK R3:Gi0/0(192.168.3.1) <-> SW3:Gi0/1()  vlan=  copper-straight
+LINK SW3:Fa0/1() <-> PC2:Fa0(192.168.3.10)  vlan=  copper-straight
+VLANS: [{"id":0,"name":"Area 0 Backbone","colorTheme":"violet","subnet":"10.0.0.0/24"},{"id":1,"name":"R1 LAN","colorTheme":"emerald","subnet":"192.168.1.0/24"},{"id":2,"name":"R2 LAN","colorTheme":"blue","subnet":"192.168.2.0/24"},{"id":3,"name":"R3 LAN","colorTheme":"amber","subnet":"192.168.3.0/24"}]
+ADDR R1 GigabitEthernet0/0 192.168.1.1 255.255.255.0 gw=N/A vlan=LAN 1
+ADDR R1 GigabitEthernet0/1 10.0.12.1 255.255.255.252 gw=N/A vlan=Area 0
+ADDR R1 GigabitEthernet0/2 10.0.13.1 255.255.255.252 gw=N/A vlan=Area 0
+ADDR R2 GigabitEthernet0/0 192.168.2.1 255.255.255.0 gw=N/A vlan=LAN 2
+ADDR R2 GigabitEthernet0/1 10.0.12.2 255.255.255.252 gw=N/A vlan=Area 0
+ADDR R2 GigabitEthernet0/2 10.0.23.1 255.255.255.252 gw=N/A vlan=Area 0
+ADDR R3 GigabitEthernet0/0 192.168.3.1 255.255.255.0 gw=N/A vlan=LAN 3
+ADDR R3 GigabitEthernet0/1 10.0.23.2 255.255.255.252 gw=N/A vlan=Area 0
+ADDR R3 GigabitEthernet0/2 10.0.13.2 255.255.255.252 gw=N/A vlan=Area 0
+ADDR PC0 FastEthernet0 192.168.1.10 255.255.255.0 gw=192.168.1.1 vlan=LAN 1
+ADDR PC1 FastEthernet0 192.168.2.10 255.255.255.0 gw=192.168.2.1 vlan=LAN 2
+ADDR PC2 FastEthernet0 192.168.3.10 255.255.255.0 gw=192.168.3.1 vlan=LAN 3
+--- CLI-Zeilen im Lab
+  [R1] interface Gi0/0
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+  [R1] interface Gi0/1
+ip address 10.0.12.1 255.255.255.252
+no shutdown
+  [R1] interface Gi0/2
+ip address 10.0.13.1 255.255.255.252
+no shutdown
+  [R1] router ospf 1
+  [R1] router-id 1.1.1.1
+  [R1] network 192.168.1.0 0.0.0.255 area 0
+  [R1] network 10.0.12.0 0.0.0.3 area 0
+  [R1] network 10.0.13.0 0.0.0.3 area 0
+  [R1] passive-interface GigabitEthernet0/0
+  [R2] interface Gi0/0
+ip address 192.168.2.1 255.255.255.0
+no shutdown
+interface Gi0/1
+ip address 10.0.12.2 255.255.255.252
+no shutdown
+interface Gi0/2
+ip address 10.0.23.1 255.255.255.252
+no shutdown
+  [R2] router ospf 1
+router-id 2.2.2.2
+network 192.168.2.0 0.0.0.255 area 0
+network 10.0.12.0 0.0.0.3 area 0
+network 10.0.23.0 0.0.0.3 area 0
+passive-interface Gi0/0
+  [R3] interface Gi0/0
+ip address 192.168.3.1 255.255.255.0
+no shutdown
+interface Gi0/1
+ip address 10.0.13.2 255.255.255.252
+no shutdown
+interface Gi0/2
+ip address 10.0.23.2 255.255.255.252
+no shutdown
+  [R3] router ospf 1
+router-id 3.3.3.3
+network 192.168.3.0 0.0.0.255 area 0
+network 10.0.13.0 0.0.0.3 area 0
+network 10.0.23.0 0.0.0.3 area 0
+passive-interface Gi0/0
+  [PC0] IP Address: 192.168.1.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.1.1
+  [PC1] IP Address: 192.168.2.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.2.1
+  [PC2] IP Address: 192.168.3.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.3.1
+  [Merke] passive-interface auf einem Router-Link gesetzt
+  [Merke] Router-ID-Kollision
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:10:39
+   Duration  2.59s (transform 252ms, setup 0ms, import 2.45s, tests 3ms, environment 0ms)
+
