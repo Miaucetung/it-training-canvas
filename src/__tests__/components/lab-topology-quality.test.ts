@@ -1,6 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
 import type { LabTopologyDevice } from "@/components/labs/types";
+import {
+  deviceModelWidth,
+  deviceNameWidth,
+  getPortLabelPos,
+  ipLabelWidth,
+  portLabelWidth,
+  subnetLabelWidth,
+} from "@/components/labs/topology-layout";
 
 interface BBox {
   id: string;
@@ -20,27 +28,6 @@ interface Segment {
   linkId: string;
   p1: Point;
   p2: Point;
-}
-
-function getPortLabelPos(
-  fromX: number,
-  fromY: number,
-  toX: number,
-  toY: number,
-  offset = 48,
-  sideOffset = 12
-) {
-  const dx = toX - fromX;
-  const dy = toY - fromY;
-  const dist = Math.hypot(dx, dy) || 1;
-  const ux = dx / dist;
-  const uy = dy / dist;
-  const nx = -uy;
-  const ny = ux;
-  return {
-    x: fromX + ux * offset + nx * sideOffset,
-    y: fromY + uy * offset + ny * sideOffset,
-  };
 }
 
 function boxesOverlap(b1: BBox, b2: BBox, padding = 0): boolean {
@@ -113,8 +100,8 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
             maxY: d.y + 24,
           });
 
-          const nameWidth = d.name.length * 8.4 + 16;
-          const modelWidth = d.model ? d.model.length * 6 : 0;
+          const nameWidth = deviceNameWidth(d.name);
+          const modelWidth = deviceModelWidth(d.model);
           const labelW = Math.max(nameWidth, modelWidth);
           const labelH = d.model ? 33 : 18;
           bboxes.push({
@@ -144,8 +131,8 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
           const toPos = getPortLabelPos(toDev.x, toDev.y, lastSource.x, lastSource.y, toOffset, toSide);
 
           // Port from label (centered)
-          const fromPortW = Math.max(34, link.fromPort.length * 6.5 + 10);
-          const fromIpW = link.fromIp ? link.fromIp.length * 6.2 + 8 : 0;
+          const fromPortW = portLabelWidth(link.fromPort);
+          const fromIpW = ipLabelWidth(link.fromIp);
           const fromMaxW = Math.max(fromPortW, fromIpW);
           bboxes.push({
             id: `${link.id}-fromPort`,
@@ -157,8 +144,8 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
           });
 
           // Port to label (centered)
-          const toPortW = Math.max(34, link.toPort.length * 6.5 + 10);
-          const toIpW = link.toIp ? link.toIp.length * 6.2 + 8 : 0;
+          const toPortW = portLabelWidth(link.toPort);
+          const toIpW = ipLabelWidth(link.toIp);
           const toMaxW = Math.max(toPortW, toIpW);
           bboxes.push({
             id: `${link.id}-toPort`,
@@ -172,7 +159,7 @@ describe("Cisco-Press Lab-Topologie Qualitätsprüfung", () => {
           if (link.subnetLabel) {
             const midX = link.subnetLabelPos?.x ?? (fromDev.x + toDev.x) / 2;
             const midY = link.subnetLabelPos?.y ?? (fromDev.y + toDev.y) / 2;
-            const subW = link.subnetLabel.length * 6.8 + 12;
+            const subW = subnetLabelWidth(link.subnetLabel);
             bboxes.push({
               id: `${link.id}-subnetLabel`,
               kind: "subnet-label",
