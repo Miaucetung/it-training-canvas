@@ -240,22 +240,26 @@ export interface Ipv6Route {
 }
 
 
-function ifaceKind(i: TopologyInterface): "gi" | "fa" | "se" | "lo" | "other" {
+function ifaceKind(i: TopologyInterface): "gi" | "fa" | "et" | "se" | "lo" | "other" {
   if (isLoopback(i)) return "lo";
   if (/^gi/i.test(i.name)) return "gi";
   if (/^fa/i.test(i.name)) return "fa";
+  if (/^et\d/i.test(i.name)) return "et";
   if (/^se/i.test(i.name)) return "se";
   return "other";
 }
 
 /** OSPF-Kosten bei Referenzbandbreite 100 Mbit/s: Ethernet 1, Serial (1544 kbit/s) 64, Loopback 1. */
-function ospfCost(i: TopologyInterface): number {
-  return ifaceKind(i) === "se" ? 64 : 1;
+export function ospfCost(i: TopologyInterface): number {
+  const kind = ifaceKind(i);
+  return kind === "se" ? 64 : kind === "et" ? 10 : 1;
 }
 
 /** EIGRP-Bandbreite (kbit/s) und Verzögerung (µs) der Standardwerte je Interface-Art. */
-function eigrpVector(i: TopologyInterface): { bw: number; delay: number } | null {
+export function eigrpVector(i: TopologyInterface): { bw: number; delay: number } | null {
   switch (ifaceKind(i)) {
+    case "et":
+      return { bw: 10_000, delay: 1_000 };
     case "gi":
       return { bw: 1_000_000, delay: 10 };
     case "fa":
@@ -269,7 +273,7 @@ function eigrpVector(i: TopologyInterface): { bw: number; delay: number } | null
   }
 }
 
-const eigrpMetric = (bw: number, delay: number) => 256 * (Math.floor(10_000_000 / bw) + Math.floor(delay / 10));
+export const eigrpMetric = (bw: number, delay: number) => 256 * (Math.floor(10_000_000 / bw) + Math.floor(delay / 10));
 
 const LONG: Array<[RegExp, string]> = [
   [/^Gi(?=\d)/, "GigabitEthernet"],

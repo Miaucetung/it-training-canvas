@@ -1,11 +1,25 @@
 import type {
   ChannelGroupMode,
   DeviceConfig,
+  DeviceDhcpExcluded,
+  DeviceDhcpPool,
+  DeviceCryptoConfig,
+  DeviceCryptoMapEntry,
+  DeviceEigrpConfig,
+  DeviceRedistribute,
+  DeviceIsakmpPolicy,
+  DeviceTransformSet,
+  DeviceNatConfig,
+  DeviceStaticRoute,
+  DeviceVtpConfig,
+  InterfaceHsrp,
+  InterfaceHsrpGroup,
   InterfaceMode,
   NetworkTopology,
   TopologyDevice,
   TopologyInterface,
   TopologyLink,
+  VtpMode,
 } from "@/types/topology";
 import {
   baseInterfaceName,
@@ -78,6 +92,17 @@ interface IfaceCfg {
   ospfPassive?: boolean;
   ospfNetworkType?: "broadcast" | "point-to-point";
   ospfPriority?: number;
+  dtp?: "desirable" | "auto";
+  nonegotiate?: boolean;
+  natSide?: "inside" | "outside";
+  hsrpVersion?: 1 | 2;
+  hsrpGroups?: Map<number, InterfaceHsrpGroup>;
+  bandwidthKbps?: number;
+  delayTens?: number;
+  tunnelSource?: string;
+  tunnelDestination?: string;
+  tunnelMode?: string;
+  cryptoMap?: string;
 }
 
 export interface ParsedDeviceConfig {
@@ -88,7 +113,8 @@ export interface ParsedDeviceConfig {
   stpPriority?: number;
   /** letzter STP-Befehl war `root primary` */
   stpMacro?: "primary";
-  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean };
+  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean; redistribute: DeviceRedistribute[] };
+  eigrp?: DeviceEigrpConfig;
   hostIp?: { ip: string; mask: string; gateway?: string };
   hostIpv6?: { ip: string; gateway?: string };
   /** Desktop steht auf DHCP */
@@ -97,6 +123,13 @@ export interface ParsedDeviceConfig {
   ospfv3?: { processId: number; routerId?: string; passive: string[]; passiveDefault: boolean; noPassive: string[] };
   eigrp6?: { processId: number; routerId?: string; shutdown: boolean };
   ipv6Routes: Array<{ prefix: string; nextHop?: string; outInterface?: string; distance?: number }>;
+  dhcpPools: DeviceDhcpPool[];
+  dhcpExcluded: DeviceDhcpExcluded[];
+  vtp?: DeviceVtpConfig;
+  nat?: DeviceNatConfig;
+  ipRoutes: DeviceStaticRoute[];
+  accessLists: Record<string, string[]>;
+  crypto?: DeviceCryptoConfig;
   /** Alle Befehle für diesen Gerät in Lab-Reihenfolge, ohne Prompt */
   cli: string;
 }
@@ -182,15 +215,42 @@ function parseVlanList(spec: string): number[] {
   });
 }
 
+/** `redistribute <Quelle> [<id>] [metric ...] [metric-type n] [subnets] [route-map X]` */
+function parseRedistribute(rest: string): DeviceRedistribute | null {
+  const t = rest.trim().split(/\s+/);
+  const src = t.shift()?.toLowerCase();
+  if (!src || !["ospf", "eigrp", "static", "connected", "rip", "bgp"].includes(src)) return null;
+  const red: DeviceRedistribute = { source: src as DeviceRedistribute["source"], subnets: false };
+  if (t[0] && /^\d+$/.test(t[0])) red.id = Number(t.shift());
+  while (t.length > 0) {
+    const k = t.shift()!.toLowerCase();
+    if (k === "subnets") red.subnets = true;
+    else if (k === "metric-type" && t[0]) red.metricType = Number(t.shift()) === 1 ? 1 : 2;
+    else if (k === "route-map" && t[0]) red.routeMap = t.shift();
+    else if (k === "metric") {
+      const nums: number[] = [];
+      while (t[0] && /^\d+$/.test(t[0])) nums.push(Number(t.shift()));
+      if (nums.length === 5) red.vector = nums;
+      else if (nums.length === 1) red.metric = nums[0];
+    }
+  }
+  return red;
+}
+
 const PROMPT_FREE_SKIP = /^(enable|configure terminal|conf t|end|exit|do copy running-config startup-config|copy running-config startup-config|wr|write memory)$/i;
 
 export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName: string): ParsedDeviceConfig {
-  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], cli: "" };
+  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], dhcpPools: [], dhcpExcluded: [], ipRoutes: [], accessLists: {}, cli: "" };
   const cliLines: string[] = [];
   let ctxIfaces: string[] = [];
   let ctxVlan: number | null = null;
   let ctxOspf = false;
   let ctxV6: "ospf" | "eigrp" | null = null;
+  let ctxPool: DeviceDhcpPool | null = null;
+  let ctxEigrp = false;
+  type CryptoCtx = { kind: "policy"; ref: DeviceIsakmpPolicy } | { kind: "tset"; ref: DeviceTransformSet } | { kind: "map"; ref: DeviceCryptoMapEntry };
+  let ctxCrypto: CryptoCtx | null = null;
+  const cryptoCfg = (): DeviceCryptoConfig => (cfg.crypto ??= { policies: [], keys: [], transformSets: [], maps: [] });
   const ifaceOf = (n: string): IfaceCfg => {
     const k = normalizeInterfaceName(n);
     const cur = cfg.ifaces.get(k) ?? {};
@@ -210,12 +270,140 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           const line = raw.trim();
           if (!line) continue;
           cliLines.push(raw.replace(/\s+$/, ""));
+          if (ctxPool && !/^(network|default-router|dns-server|lease|domain-name|option)\b/i.test(line)) ctxPool = null;
+          if (ctxEigrp && !/^(no\s+)?(network|auto-summary|passive-interface|eigrp|metric|redistribute|variance|maximum-paths|distance|default-metric|traffic-share|timers|bfd)\b/i.test(line)) ctxEigrp = false;
+          if (ctxCrypto) {
+            const subs = ctxCrypto.kind === "policy" ? /^(encryption|encr|hash|authentication|group|lifetime)\b/i : ctxCrypto.kind === "tset" ? /^mode\b/i : /^(set|match)\b/i;
+            if (!subs.test(line)) ctxCrypto = null;
+          }
           if (PROMPT_FREE_SKIP.test(line)) {
             if (/^exit$|^end$/i.test(line)) {
               ctxIfaces = [];
               ctxVlan = null;
               ctxOspf = false;
             }
+            continue;
+          }
+
+          // DHCP-Pool (Router/L3-Switch) und VTP
+          let dh: RegExpExecArray | null;
+          if (ctxPool) {
+            if ((dh = /^network\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})$/i.exec(line))) {
+              const p = maskToPrefix(dh[2]);
+              if (p !== null) ctxPool.network = `${dh[1]}/${p}`;
+            } else if ((dh = /^default-router\s+(\d+(?:\.\d+){3})/i.exec(line))) ctxPool.defaultRouter = dh[1];
+            else if ((dh = /^dns-server\s+(.+)$/i.exec(line))) ctxPool.dnsServers = dh[1].split(/\s+/);
+            else if ((dh = /^lease\s+(.+)$/i.exec(line))) ctxPool.lease = dh[1];
+            continue;
+          }
+          if ((dh = /^ip dhcp pool\s+(\S+)$/i.exec(line))) {
+            const poolName = dh[1];
+            ctxPool = cfg.dhcpPools.find((p) => p.name === poolName) ?? { name: poolName };
+            if (!cfg.dhcpPools.includes(ctxPool)) cfg.dhcpPools.push(ctxPool);
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^ip dhcp excluded-address\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) {
+            cfg.dhcpExcluded.push({ from: dh[1], to: dh[2] ?? dh[1] });
+            continue;
+          }
+          if (ctxCrypto) {
+            const c = ctxCrypto;
+            if (c.kind === "policy") {
+              if ((dh = /^(?:encryption|encr)\s+(.+)$/i.exec(line))) c.ref.encryption = dh[1].trim();
+              else if ((dh = /^hash\s+(\S+)/i.exec(line))) c.ref.hash = dh[1];
+              else if ((dh = /^authentication\s+(\S+)/i.exec(line))) c.ref.authentication = dh[1];
+              else if ((dh = /^group\s+(\S+)/i.exec(line))) c.ref.group = dh[1];
+              else if ((dh = /^lifetime\s+(\d+)/i.exec(line))) c.ref.lifetime = Number(dh[1]);
+            } else if (c.kind === "tset") {
+              if ((dh = /^mode\s+(\S+)/i.exec(line))) c.ref.mode = dh[1];
+            } else if ((dh = /^set peer\s+(\S+)/i.exec(line))) c.ref.peers.push(dh[1]);
+            else if ((dh = /^set transform-set\s+(.+)$/i.exec(line))) c.ref.transformSets.push(...dh[1].trim().split(/\s+/));
+            else if ((dh = /^set pfs\s+(\S+)/i.exec(line))) c.ref.pfs = dh[1];
+            else if ((dh = /^set security-association lifetime seconds\s+(\d+)/i.exec(line))) c.ref.lifetimeSeconds = Number(dh[1]);
+            else if ((dh = /^match address\s+(\S+)/i.exec(line))) c.ref.acl = dh[1];
+            continue;
+          }
+          if ((dh = /^crypto isakmp policy\s+(\d+)$/i.exec(line))) {
+            const policy: DeviceIsakmpPolicy = { priority: Number(dh[1]) };
+            cryptoCfg().policies.push(policy);
+            ctxCrypto = { kind: "policy", ref: policy };
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^crypto isakmp key\s+(\S+)\s+address\s+(\S+)/i.exec(line))) {
+            cryptoCfg().keys.push({ key: dh[1], address: dh[2] });
+            continue;
+          }
+          if ((dh = /^crypto ipsec transform-set\s+(\S+)\s+(.+)$/i.exec(line))) {
+            const tset: DeviceTransformSet = { name: dh[1], transform: dh[2].trim().replace(/\s+/g, " ") };
+            cryptoCfg().transformSets.push(tset);
+            ctxCrypto = { kind: "tset", ref: tset };
+            ctxIfaces = [];
+            continue;
+          }
+          if ((dh = /^crypto map\s+(\S+)\s+(\d+)\s+ipsec-isakmp/i.exec(line))) {
+            const entry: DeviceCryptoMapEntry = { name: dh[1], seq: Number(dh[2]), peers: [], transformSets: [] };
+            cryptoCfg().maps.push(entry);
+            ctxCrypto = { kind: "map", ref: entry };
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^access-list\s+(\d+)\s+(permit|deny)\s+(.+)$/i.exec(line))) {
+            (cfg.accessLists[dh[1]] ??= []).push(`access-list ${dh[1]} ${dh[2].toLowerCase()} ${dh[3].trim().replace(/\s+/g, " ")}`);
+            continue;
+          }
+          if ((dh = /^ip route\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})\s+(.+)$/i.exec(line))) {
+            const prefix = maskToPrefix(dh[2]);
+            const args = dh[3].trim().split(/\s+/);
+            if (prefix !== null) {
+              const route: DeviceStaticRoute = { network: `${dh[1]}/${prefix}` };
+              let k = 0;
+              if (/^\d+(?:\.\d+){3}$/.test(args[0])) route.nextHop = args[k++];
+              else {
+                route.outInterface = normalizeInterfaceName(args[k++]);
+                if (args[k] && /^\d+(?:\.\d+){3}$/.test(args[k])) route.nextHop = args[k++];
+              }
+              if (args[k] && /^\d+$/.test(args[k])) route.distance = Number(args[k]);
+              cfg.ipRoutes.push(route);
+            }
+            continue;
+          }
+          if ((dh = /^ip nat pool\s+(\S+)\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})(?:\s+(?:netmask|prefix-length)\s+(\S+))?/i.exec(line))) {
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).pools.push({ name: dh[1], start: dh[2], end: dh[3], netmask: dh[4] });
+            continue;
+          }
+          if ((dh = /^ip nat inside source static(?:\s+(tcp|udp))?\s+(\d+(?:\.\d+){3})(?:\s+(\d+))?\s+(\d+(?:\.\d+){3})(?:\s+(\d+))?$/i.exec(line))) {
+            const proto = dh[1]?.toLowerCase() as "tcp" | "udp" | undefined;
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).statics.push({
+              local: dh[2],
+              global: dh[4],
+              ...(proto ? { protocol: proto, localPort: Number(dh[3]), globalPort: Number(dh[5]) } : {}),
+            });
+            continue;
+          }
+          if ((dh = /^ip nat inside source list\s+(\S+)\s+(pool|interface)\s+(\S+)(\s+overload)?/i.exec(line))) {
+            const toPool = dh[2].toLowerCase() === "pool";
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).rules.push({
+              acl: dh[1],
+              ...(toPool ? { pool: dh[3] } : { interface: normalizeInterfaceName(dh[3]) }),
+              overload: !!dh[4],
+            });
+            continue;
+          }
+          if ((dh = /^vtp\s+(domain|mode|version|password)\s+(\S+)/i.exec(line))) {
+            const vtp = (cfg.vtp ??= {});
+            const key = dh[1].toLowerCase();
+            if (key === "domain") vtp.domain = dh[2];
+            else if (key === "password") vtp.password = dh[2];
+            else if (key === "version") vtp.version = Number(dh[2]);
+            else if (/^(server|client|transparent|off)$/i.test(dh[2])) vtp.mode = dh[2].toLowerCase() as VtpMode;
             continue;
           }
 
@@ -420,8 +608,32 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             }
             continue;
           }
+          if ((m = /^router eigrp\s+(\d+)$/i.exec(line))) {
+            cfg.eigrp = cfg.eigrp ?? { asn: Number(m[1]), networks: [], passive: [], passiveDefault: false, noPassive: [], redistribute: [] };
+            ctxEigrp = true;
+            ctxOspf = false;
+            ctxIfaces = [];
+            ctxVlan = null;
+            continue;
+          }
+          if (ctxEigrp && cfg.eigrp) {
+            const e = cfg.eigrp;
+            if ((m = /^network\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) e.networks.push({ net: m[1], ...(m[2] ? { wildcard: m[2] } : {}) });
+            else if ((m = /^no passive-interface\s+(\S+)/i.exec(line))) e.noPassive.push(normalizeInterfaceName(m[1]));
+            else if ((m = /^passive-interface\s+(\S+)/i.exec(line))) {
+              if (/^default$/i.test(m[1])) e.passiveDefault = true;
+              else e.passive.push(normalizeInterfaceName(m[1]));
+            } else if ((m = /^eigrp router-id\s+(\S+)/i.exec(line))) e.routerId = m[1];
+            else if ((m = /^metric weights\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/i.exec(line))) e.kValues = [Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])];
+            else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
+              const red = parseRedistribute(m[1]);
+              if (red) e.redistribute.push(red);
+            }
+            continue;
+          }
           if ((m = /^router ospf\s+(\d+)/i.exec(line))) {
-            cfg.ospf = cfg.ospf ?? { processId: Number(m[1]), networks: [], passive: [], passiveDefault: false };
+            cfg.ospf = cfg.ospf ?? { processId: Number(m[1]), networks: [], passive: [], passiveDefault: false, redistribute: [] };
+            ctxEigrp = false;
             ctxOspf = true;
             ctxIfaces = [];
             ctxVlan = null;
@@ -433,6 +645,9 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             else if ((m = /^passive-interface\s+(\S+)/i.exec(line))) {
               if (/^default$/i.test(m[1])) cfg.ospf.passiveDefault = true;
               else cfg.ospf.passive.push(normalizeInterfaceName(m[1]));
+            } else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
+              const red = parseRedistribute(m[1]);
+              if (red) cfg.ospf.redistribute.push(red);
             }
             continue;
           }
@@ -440,6 +655,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxIfaces = [];
             ctxVlan = null;
             ctxOspf = false;
+            ctxEigrp = false;
             continue;
           }
 
@@ -450,7 +666,42 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
               if ((m = /^ip address\s+(\S+)\s+(\S+)/i.exec(line))) {
                 const p = maskToPrefix(m[2]);
                 if (p !== null) i.ip = `${m[1]}/${p}`;
-              } else if ((m = /^switchport mode\s+(access|trunk)$/i.exec(line))) i.mode = m[1].toLowerCase() as InterfaceMode;
+              } else if ((m = /^switchport mode\s+(access|trunk)$/i.exec(line))) {
+                i.mode = m[1].toLowerCase() as InterfaceMode;
+                i.dtp = undefined;
+              } else if ((m = /^switchport mode dynamic\s+(desirable|auto)$/i.exec(line))) {
+                i.dtp = m[1].toLowerCase() as "desirable" | "auto";
+                i.mode = undefined;
+              } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
+              else if ((m = /^ip nat\s+(inside|outside)$/i.exec(line))) i.natSide = m[1].toLowerCase() as "inside" | "outside";
+              else if ((m = /^bandwidth\s+(\d+)$/i.exec(line))) i.bandwidthKbps = Number(m[1]);
+              else if ((m = /^delay\s+(\d+)$/i.exec(line))) i.delayTens = Number(m[1]);
+              else if ((m = /^tunnel source\s+(\S+)$/i.exec(line))) i.tunnelSource = /^\d+(?:\.\d+){3}$/.test(m[1]) ? m[1] : normalizeInterfaceName(m[1]);
+              else if ((m = /^tunnel destination\s+(\S+)$/i.exec(line))) i.tunnelDestination = m[1];
+              else if ((m = /^tunnel mode\s+(.+)$/i.exec(line))) i.tunnelMode = m[1].trim();
+              else if ((m = /^crypto map\s+(\S+)$/i.exec(line))) i.cryptoMap = m[1];
+              else if ((m = /^standby version\s+(1|2)$/i.exec(line))) i.hsrpVersion = Number(m[1]) as 1 | 2;
+              else if ((m = /^standby\s+(?:(\d+)\s+)?(ip|priority|preempt|timers|track|authentication)\b\s*(.*)$/i.exec(line))) {
+                const gid = m[1] ? Number(m[1]) : 0;
+                const groups = (i.hsrpGroups ??= new Map());
+                const g = groups.get(gid) ?? { id: gid };
+                groups.set(gid, g);
+                const key = m[2].toLowerCase();
+                const rest = m[3].trim();
+                if (key === "ip" && /^\d+(?:\.\d+){3}$/.test(rest)) g.ip = rest;
+                else if (key === "priority" && /^\d+$/.test(rest)) g.priority = Number(rest);
+                else if (key === "preempt") g.preempt = true;
+                else if (key === "timers") g.timers = rest.replace(/\s+/g, " ");
+                else if (key === "track") {
+                  const t = /^(\S+)(?:\s+(?:decrement\s+)?(\d+))?/.exec(rest);
+                  if (t && /^\d+$/.test(t[1])) (g.trackObjects ??= []).push(Number(t[1]));
+                  else if (t) (g.track ??= []).push({ interface: normalizeInterfaceName(t[1]), decrement: t[2] ? Number(t[2]) : 10 });
+                } else if (key === "authentication") {
+                  const au = /^(?:(text|md5)\s+)?(?:key-string\s+|key-chain\s+)?(\S+)$/i.exec(rest);
+                  const chain = /key-chain/i.test(rest);
+                  if (au) g.authentication = `${chain ? "md5chain" : (au[1] ?? "text").toLowerCase()}:${au[2]}`;
+                }
+              }
               else if ((m = /^switchport access vlan\s+(\d+)/i.exec(line))) i.accessVlan = Number(m[1]);
               else if ((m = /^switchport trunk allowed vlan\s+(?:add\s+)?(\S+)/i.exec(line))) i.allowedVlans = parseVlanList(m[1]);
               else if ((m = /^switchport trunk native vlan\s+(\d+)/i.exec(line))) i.nativeVlan = Number(m[1]);
@@ -542,6 +793,16 @@ export function buildNetworkTopologyFromLab(
         const it = ensure(name);
         if (c.ip) it.ip = c.ip;
         if (c.mode) it.mode = c.mode;
+        if (c.dtp) it.dtp = c.dtp;
+        if (c.nonegotiate) it.nonegotiate = true;
+        if (c.tunnelSource || c.tunnelDestination || c.tunnelMode) it.tunnel = { source: c.tunnelSource, destination: c.tunnelDestination, mode: c.tunnelMode };
+        if (c.cryptoMap) it.cryptoMap = c.cryptoMap;
+        if (c.bandwidthKbps !== undefined) it.bandwidthKbps = c.bandwidthKbps;
+        if (c.delayTens !== undefined) it.delayTens = c.delayTens;
+        if (c.hsrpGroups && c.hsrpGroups.size > 0) {
+          const hsrp: InterfaceHsrp = { version: c.hsrpVersion ?? 1, groups: [...c.hsrpGroups.values()] };
+          it.hsrp = hsrp;
+        }
         if (c.accessVlan !== undefined) it.vlan = c.accessVlan;
         if (c.allowedVlans) it.allowedVlans = c.allowedVlans;
         if (c.nativeVlan !== undefined) it.nativeVlan = c.nativeVlan;
@@ -629,14 +890,43 @@ export function buildNetworkTopologyFromLab(
         (config.routingProtocols ??= []).push(`OSPFv3 ${parsed.ospfv3.processId}${areas.length ? ` Area ${areas.join(",")}` : ""}`);
       }
       if (parsed.eigrp6) (config.routingProtocols ??= []).push(`EIGRPv6 ${parsed.eigrp6.processId}`);
+      if (parsed.dhcpPools.length > 0) config.dhcpPools = parsed.dhcpPools;
+      if (parsed.dhcpExcluded.length > 0) config.dhcpExcluded = parsed.dhcpExcluded;
+      if (parsed.vtp) config.vtp = parsed.vtp;
+      if (parsed.ipRoutes.length > 0) config.ipRoutes = parsed.ipRoutes;
+      if (Object.keys(parsed.accessLists).length > 0) config.accessLists = parsed.accessLists;
+      if (parsed.crypto) config.crypto = parsed.crypto;
+      if (parsed.nat) {
+        const nat: DeviceNatConfig = { ...parsed.nat };
+        for (const [name, c] of parsed.ifaces) {
+          if (c.natSide === "inside") nat.insideInterfaces.push(name);
+          if (c.natSide === "outside") nat.outsideInterfaces.push(name);
+        }
+        config.nat = nat;
+      } else {
+        const sides = [...parsed.ifaces].filter(([, c]) => c.natSide);
+        if (sides.length > 0) {
+          config.nat = {
+            statics: [],
+            pools: [],
+            rules: [],
+            insideInterfaces: sides.filter(([, c]) => c.natSide === "inside").map(([n]) => n),
+            outsideInterfaces: sides.filter(([, c]) => c.natSide === "outside").map(([n]) => n),
+          };
+        }
+      }
       if (parsed.ipv6Routing) config.ipv6RoutingEnabled = true;
       if (parsed.ipv6Routes.length > 0) config.ipv6Routes = parsed.ipv6Routes;
       if (parsed.ospfv3) config.ospfv3 = { processId: parsed.ospfv3.processId, routerId: parsed.ospfv3.routerId };
       if (parsed.eigrp6) config.eigrpv6 = { asn: parsed.eigrp6.processId, routerId: parsed.eigrp6.routerId, shutdown: parsed.eigrp6.shutdown };
+      if (parsed.eigrp) {
+        config.eigrp = parsed.eigrp;
+        (config.routingProtocols ??= []).push(`EIGRP ${parsed.eigrp.asn}`);
+      }
       // OSPF
       if (parsed.ospf) {
         config.routingProtocols = [`OSPF ${parsed.ospf.processId}`, ...(config.routingProtocols ?? [])];
-        config.ospf = { processId: parsed.ospf.processId, routerId: parsed.ospf.routerId };
+        config.ospf = { processId: parsed.ospf.processId, routerId: parsed.ospf.routerId, ...(parsed.ospf.redistribute.length > 0 ? { redistribute: parsed.ospf.redistribute } : {}) };
         for (const it of ifaces) {
           if (!it.ip) continue;
           const ip = it.ip.split("/")[0];

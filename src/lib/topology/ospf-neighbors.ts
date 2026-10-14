@@ -98,11 +98,11 @@ export function resolveInterfaceOspf(
   };
 }
 
-function isLinkUsable(link: TopologyLink): boolean {
+export function isLinkUsable(link: TopologyLink): boolean {
   return link.status === "up" || link.status === "stp-forwarding";
 }
 
-function sameSubnet(ipA: string, ipB: string): boolean {
+export function sameSubnet(ipA: string, ipB: string): boolean {
   const a = parseIpCidr(ipA);
   const b = parseIpCidr(ipB);
   return !!a && !!b && a.prefix === b.prefix && a.networkIp === b.networkIp && a.ip !== b.ip;
@@ -159,16 +159,19 @@ export function collectSegmentPeers(
   device: TopologyDevice,
   local: TopologyInterface,
   first: LinkEnd,
-  firstLink: TopologyLink
+  firstLink: TopologyLink,
+  /** VLAN eines dot1q-Subinterfaces (Router-on-a-Stick) am lokalen Ende; ohne Angabe gilt das ungetaggte VLAN */
+  vlanOverride?: number
 ): SegmentPeer[] | null {
   const peers: SegmentPeer[] = [];
   const { remoteDevice, remote } = first;
   if (remoteDevice.type !== "switch-l2") {
     return isL3Capable(remoteDevice) ? [{ device: remoteDevice, iface: remote }] : [];
   }
-  const vlan = untaggedVlan(remote);
+  const vlan = vlanOverride ?? untaggedVlan(remote);
   if (vlan === null) return null;
   if (!isInterfaceActive(remote) || isBlockedByStp(firstLink, remote, local)) return [];
+  if (vlanOverride !== undefined && !portCarriesVlan(remote, vlanOverride)) return [];
 
   const visitedSwitches = new Set<string>([remoteDevice.id]);
   const queue: Array<{ sw: TopologyDevice; inPort: TopologyInterface }> = [{ sw: remoteDevice, inPort: remote }];
@@ -211,6 +214,38 @@ export function collectSegmentPeers(
   return undeterminable ? null : peers;
 }
 
+export interface LocalEndpoint {
+  link: TopologyLink;
+  first: LinkEnd;
+  /** lokales Interface: das physische Ende oder ein dot1q-Subinterface (Router-on-a-Stick) */
+  local: TopologyInterface;
+  vlan?: number;
+}
+
+/**
+ * Lokale Enden aller Links eines Geräts. Hängt ein Router mit dot1q-Subinterfaces an einem L2-Switch, ist jedes
+ * Subinterface mit VLAN ein eigenes Ende (mit VLAN-Angabe); das physische Interface zählt, wenn es selbst eine IP hat.
+ */
+export function localEndpoints(topology: NetworkTopology, device: TopologyDevice): LocalEndpoint[] {
+  const out: LocalEndpoint[] = [];
+  for (const link of topology.links) {
+    const first = findLinkEnd(topology, link, device.id);
+    if (!first) continue;
+    const subs =
+      first.remoteDevice.type === "switch-l2"
+        ? device.interfaces.filter((i) => i.name.startsWith(`${first.local.name}.`) && i.mode === "routed" && i.vlan !== undefined)
+        : [];
+    if (subs.length === 0 || first.local.ip) out.push({ link, first, local: first.local });
+    for (const s of subs) out.push({ link, first, local: s, vlan: s.vlan });
+  }
+  return out;
+}
+
+/** Enden eines bestimmten Interfaces (auch eines Subinterfaces) mit VLAN-Angabe für Subinterfaces. */
+export function endpointsForInterface(topology: NetworkTopology, device: TopologyDevice, iface: TopologyInterface): LocalEndpoint[] {
+  return localEndpoints(topology, device).filter((e) => e.local.id === iface.id);
+}
+
 /**
  * Ermittelt die echten OSPF-Nachbarschaften eines Geräts. Eine Nachbarschaft entsteht nur, wenn:
  * beide Enden Router bzw. L3-Switch sind, OSPF auf beiden Interfaces aktiv ist (nicht passive),
@@ -244,16 +279,13 @@ export function computeAdjacencies(device: TopologyDevice, topology: NetworkTopo
   const myRid = flavor.routerId(device);
   if (!myRid) return result;
 
-  for (const link of topology.links) {
-    const first = findLinkEnd(topology, link, device.id);
-    if (!first) continue;
-    const { local } = first;
+  for (const { link, first, local, vlan } of localEndpoints(topology, device)) {
     if (!isLinkUsable(link)) continue;
     if (!isInterfaceActive(local)) continue;
     const mine = flavor.resolve(device, local);
     if (!mine || mine.passive) continue;
 
-    const candidates = collectSegmentPeers(topology, device, local, first, link);
+    const candidates = collectSegmentPeers(topology, device, local, first, link, vlan);
     if (!candidates) continue;
 
     // Teilnehmer, die zu meinem Interface passen (gleiche Area, Netztyp, Subnetz, aktiv, nicht passive)

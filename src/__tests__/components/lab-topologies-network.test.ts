@@ -280,6 +280,46 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
       if (d.config?.ospf?.routerId) allowed.add(d.config.ospf.routerId); // im Lab konfigurierte Router-ID
       if (d.config?.ospfv3?.routerId) allowed.add(d.config.ospfv3.routerId); // OSPFv3-Router-ID aus dem Lab
       if (d.config?.eigrpv6?.routerId) allowed.add(d.config.eigrpv6.routerId); // EIGRPv6-Router-ID aus dem Lab
+      // DHCP-Konfiguration des Geräts (Pool-Gateway, DNS, ausgeschlossene Bereiche) steht im Lab
+      for (const pool of d.config?.dhcpPools ?? []) {
+        if (pool.defaultRouter) allowed.add(pool.defaultRouter);
+        for (const dns of pool.dnsServers ?? []) allowed.add(dns);
+        if (pool.network) {
+          const [net, p] = pool.network.split("/");
+          allowed.add(net);
+          allowed.add(cidrMask(Number(p)));
+        }
+      }
+      // statische Routen aus dem Lab (Zielnetz, Maske, Next Hop)
+      for (const r of d.config?.ipRoutes ?? []) {
+        const [net, p] = r.network.split("/");
+        allowed.add(net);
+        allowed.add(cidrMask(Number(p)));
+        if (r.nextHop) allowed.add(r.nextHop);
+      }
+      // Crypto-ACLs, Peers und Tunnel-Ziele stehen im Lab
+      for (const lines of Object.values(d.config?.accessLists ?? {})) for (const line of lines) for (const ip of ipv4Tokens(line)) allowed.add(ip);
+      for (const m of d.config?.crypto?.maps ?? []) for (const peer of m.peers) allowed.add(peer);
+      for (const k of d.config?.crypto?.keys ?? []) allowed.add(k.address);
+      for (const i of d.interfaces) {
+        if (i.tunnel?.destination) allowed.add(i.tunnel.destination);
+        if (i.tunnel?.source && /^\d/.test(i.tunnel.source)) allowed.add(i.tunnel.source);
+      }
+      // virtuelle HSRP-IPs stehen im Lab
+      for (const i of d.interfaces) for (const g of i.hsrp?.groups ?? []) if (g.ip) allowed.add(g.ip);
+      // NAT-Konfiguration des Geräts (statische Zuordnungen, Pools) steht im Lab
+      for (const st of d.config?.nat?.statics ?? []) {
+        allowed.add(st.local);
+        allowed.add(st.global);
+      }
+      for (const pl of d.config?.nat?.pools ?? []) {
+        allowed.add(pl.start);
+        allowed.add(pl.end);
+      }
+      for (const e of d.config?.dhcpExcluded ?? []) {
+        allowed.add(e.from);
+        allowed.add(e.to);
+      }
     }
     for (const d of target.topology.devices) {
       const outputs = CiscoCliGenerator.getDynamicShowOutputs(d, target.topology);

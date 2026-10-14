@@ -40,6 +40,12 @@ import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import { computeOspfNeighbors } from "@/lib/topology/ospf-neighbors";
 import { ipv6Hints } from "@/lib/topology/ipv6-routing";
 import { stpHints } from "@/lib/topology/stp-hints";
+import { vtpHints } from "@/lib/topology/vtp-status";
+import { natHints } from "@/lib/topology/nat-outputs";
+import { hsrpHints } from "@/lib/topology/hsrp";
+import { greHints } from "@/lib/topology/gre-tunnel";
+import { cryptoHints } from "@/lib/topology/ipsec";
+import { eigrpHints } from "@/lib/topology/eigrp-ipv4";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -219,7 +225,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
   }, [selectedDevice, activeTopology]);
 
-  const ipv6HintList = useMemo(() => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice)] : []), [selectedDevice]);
+  const ipv6HintList = useMemo(
+    () => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice), ...vtpHints(selectedDevice, activeTopology), ...natHints(selectedDevice), ...hsrpHints(selectedDevice, activeTopology), ...greHints(selectedDevice, activeTopology), ...cryptoHints(selectedDevice, activeTopology), ...eigrpHints(selectedDevice, activeTopology)] : []),
+    [selectedDevice, activeTopology]
+  );
 
   // Broadcast-Segment mit DR/BDR-Wahl: Hinweis zur Nicht-Präemption
   const hasOspfBroadcastSegment = useMemo(() => {

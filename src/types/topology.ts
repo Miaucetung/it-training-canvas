@@ -73,6 +73,13 @@ export interface TopologyInterface {
   dhcp?: { network: string };
   ospfv3?: InterfaceOspfv3Config;
   eigrpv6?: { asn: number };
+  hsrp?: InterfaceHsrp;
+  /** `bandwidth <kbit/s>` und `delay <10 µs>` aus dem Lab (EIGRP-Metrik) */
+  bandwidthKbps?: number;
+  delayTens?: number;
+  tunnel?: InterfaceTunnel;
+  /** Name der angewendeten Crypto Map */
+  cryptoMap?: string;
   mac?: string; // e.g. "00:50:79:66:68:01"
   vlan?: number; // Access VLAN, e.g. 10
   allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
@@ -87,6 +94,147 @@ export interface TopologyInterface {
   ospf?: InterfaceOspfConfig;
   /** Port im Lab nicht angegeben, nach Konvention angenommen */
   assumed?: boolean;
+  /** `switchport mode dynamic desirable|auto` (DTP); ohne Angabe gilt für nicht festgelegte Ports der Plattform-Standard */
+  dtp?: "desirable" | "auto";
+  /** `switchport nonegotiate`: der Port sendet keine DTP-Frames */
+  nonegotiate?: boolean;
+}
+
+export interface DeviceDhcpPool {
+  name: string;
+  /** Netz (Adresse/Präfix) aus `network <Adresse> <Maske>`; fehlt, wenn das Lab es nicht setzt */
+  network?: string;
+  defaultRouter?: string;
+  dnsServers?: string[];
+  /** `lease ...` wie im Lab angegeben */
+  lease?: string;
+}
+
+export interface DeviceDhcpExcluded {
+  from: string;
+  to: string;
+}
+
+export interface DeviceStaticRoute {
+  /** Zielnetz als Adresse/Präfix */
+  network: string;
+  nextHop?: string;
+  outInterface?: string;
+  distance?: number;
+}
+
+export interface DeviceIsakmpPolicy {
+  priority: number;
+  encryption?: string;
+  hash?: string;
+  authentication?: string;
+  group?: string;
+  lifetime?: number;
+}
+
+export interface DeviceIsakmpKey {
+  key: string;
+  address: string;
+}
+
+export interface DeviceTransformSet {
+  name: string;
+  /** Parameter wie im Lab, z. B. "esp-aes 256 esp-sha-hmac" */
+  transform: string;
+  mode?: string;
+}
+
+export interface DeviceCryptoMapEntry {
+  name: string;
+  seq: number;
+  peers: string[];
+  transformSets: string[];
+  /** ACL-Nummer oder -Name aus `match address` */
+  acl?: string;
+  /** `set pfs`, z. B. "group5" */
+  pfs?: string;
+  lifetimeSeconds?: number;
+}
+
+export interface DeviceCryptoConfig {
+  policies: DeviceIsakmpPolicy[];
+  keys: DeviceIsakmpKey[];
+  transformSets: DeviceTransformSet[];
+  maps: DeviceCryptoMapEntry[];
+}
+
+export interface InterfaceTunnel {
+  /** Interface-Name oder IP-Adresse aus `tunnel source` */
+  source?: string;
+  destination?: string;
+  /** `tunnel mode ...`; ohne Angabe GRE über IP */
+  mode?: string;
+}
+
+export interface DeviceNatStatic {
+  local: string;
+  global: string;
+  protocol?: "tcp" | "udp";
+  localPort?: number;
+  globalPort?: number;
+}
+
+export interface DeviceNatPool {
+  name: string;
+  start: string;
+  end: string;
+  /** Maske bzw. Präfixlänge wie im Lab angegeben */
+  netmask?: string;
+}
+
+export interface DeviceNatRule {
+  /** ACL-Nummer oder -Name aus `list <acl>` */
+  acl: string;
+  /** Ziel: Pool oder Interface (Overload auf die Interface-Adresse) */
+  pool?: string;
+  interface?: string;
+  overload: boolean;
+}
+
+export interface DeviceNatConfig {
+  statics: DeviceNatStatic[];
+  pools: DeviceNatPool[];
+  rules: DeviceNatRule[];
+  insideInterfaces: string[];
+  outsideInterfaces: string[];
+}
+
+export type VtpMode = "server" | "client" | "transparent" | "off";
+
+export interface DeviceVtpConfig {
+  /** fehlt, wenn das Lab keinen `vtp mode` setzt */
+  mode?: VtpMode;
+  domain?: string;
+  /** `vtp version <n>`; fehlt, wenn das Lab sie nicht setzt */
+  version?: number;
+  password?: string;
+}
+
+export interface InterfaceHsrpGroup {
+  id: number;
+  /** virtuelle IP aus `standby <n> ip`; fehlt, wenn das Lab sie nicht setzt */
+  ip?: string;
+  /** konfigurierte Priority; ohne Angabe gilt der Standard 100 */
+  priority?: number;
+  preempt?: boolean;
+  /** `timers ...` wie im Lab angegeben (normalisiert) */
+  timers?: string;
+  /** `track <Interface> [<Abzug>]` */
+  track?: Array<{ interface: string; decrement: number }>;
+  /** Tracking-Objekte (`track <Nummer> ...`): nicht modelliert */
+  trackObjects?: number[];
+  /** Authentifizierung als "text:<Schlüssel>", "md5:<Schlüssel>" oder "md5chain:<Name>" */
+  authentication?: string;
+}
+
+export interface InterfaceHsrp {
+  version: 1 | 2;
+  groups: InterfaceHsrpGroup[];
 }
 
 export interface InterfaceOspfv3Config {
@@ -118,9 +266,39 @@ export interface DevicePortChannel {
   members: string[];
 }
 
+export type RedistributeSource = "ospf" | "eigrp" | "static" | "connected" | "rip" | "bgp";
+
+export interface DeviceRedistribute {
+  source: RedistributeSource;
+  /** Prozess-ID bzw. AS des Quellprotokolls */
+  id?: number;
+  /** OSPF: `metric <n>` */
+  metric?: number;
+  /** EIGRP: `metric <Bandbreite kbit/s> <Delay in 10 µs> <Reliability> <Load> <MTU>` */
+  vector?: number[];
+  /** OSPF: `metric-type 1|2` */
+  metricType?: 1 | 2;
+  /** OSPF: `subnets` */
+  subnets: boolean;
+  routeMap?: string;
+}
+
+export interface DeviceEigrpConfig {
+  asn: number;
+  routerId?: string;
+  networks: Array<{ net: string; wildcard?: string }>;
+  passive: string[];
+  passiveDefault: boolean;
+  noPassive: string[];
+  /** K-Werte aus `metric weights 0 k1 k2 k3 k4 k5`; ohne Angabe die Standardwerte */
+  kValues?: number[];
+  redistribute: DeviceRedistribute[];
+}
+
 export interface DeviceOspfConfig {
   processId?: number;
   routerId?: string; // manuell konfigurierte router-id
+  redistribute?: DeviceRedistribute[];
 }
 
 export interface DeviceStpConfig {
@@ -150,6 +328,15 @@ export interface DeviceConfig {
   ipv6Routes?: DeviceIpv6Route[];
   ospfv3?: { processId: number; routerId?: string };
   eigrpv6?: { asn: number; routerId?: string; shutdown?: boolean };
+  dhcpPools?: DeviceDhcpPool[];
+  dhcpExcluded?: DeviceDhcpExcluded[];
+  vtp?: DeviceVtpConfig;
+  nat?: DeviceNatConfig;
+  eigrp?: DeviceEigrpConfig;
+  ipRoutes?: DeviceStaticRoute[];
+  /** Nummerierte ACLs wie im Lab (`access-list <n> ...`) */
+  accessLists?: Record<string, string[]>;
+  crypto?: DeviceCryptoConfig;
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"
