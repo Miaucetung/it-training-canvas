@@ -5,7 +5,7 @@
 // ============================================================
 
 import { X, ArrowLeft, ArrowRight, ArrowCounterClockwise, CheckCircle, XCircle } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ccnaDragDropQuestions, type DragDropQuestion } from "@/data/ccnaDragDrop";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
@@ -75,6 +75,22 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
     );
     if (allCorrect) setSolved((s) => new Set(s).add(qIndex));
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__dragDropState = {
+        setIndex: (idx: number) => goto(idx),
+        checkCurrent: () => check(),
+        resetPlaced: () => {
+          setPlaced({});
+          setSelected(null);
+          setChecked(false);
+        },
+        getCurrentQ: () => q,
+        getCount: () => ccnaDragDropQuestions.length,
+      };
+    }
+  }, [q, qIndex]);
 
   const correctCount = q.items.filter((it) =>
     it.target === null ? !(it.id in placed) : placed[it.id] === it.target,

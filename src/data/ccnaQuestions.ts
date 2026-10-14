@@ -1175,7 +1175,7 @@ TenGigabitEthernet1/0/0 is up, line protocol is up
     "Compare the destination IP address to the IP routing table."
     ],
     correct: 3,
-    exhibit: { type: "none" },
+    exhibit: false,
   },
   {
     id: "q0091",
@@ -3638,7 +3638,7 @@ switch(config-if)#spanning-tree bpduguard enable`,
     "Using a non-default native VLAN"
     ],
     correct: 2,
-    exhibit: { type: "none" },
+    exhibit: false,
   },
   {
     id: "q0267",
@@ -4829,7 +4829,7 @@ Vlan   Mac Address      Type      Ports
     "Channel-group mode active."
     ],
     correct: 1,
-    exhibit: { type: "none" },
+    exhibit: false,
   },
   {
     id: "q0327",
@@ -5551,7 +5551,7 @@ Neighbor Count is 3, Adjacent neighbor count is 3
     "115"
     ],
     correct: 1,
-    exhibit: { type: "none" },
+    exhibit: false,
   },
   {
     id: "q0367",

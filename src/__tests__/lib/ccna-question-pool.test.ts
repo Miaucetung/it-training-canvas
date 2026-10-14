@@ -79,7 +79,7 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (366)", () => {
+  it("Anzahl Exhibit-Fragen stimmt (362)", () => {
     // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
     // Konfigurationen stehen vollständig in den Antwortoptionen.
     // 333 -> 340: "Which interface condition is occurring in this output?"
@@ -91,6 +91,8 @@ describe("buildQuestionPoolQuiz", () => {
     // 345 -> 366: Abgleich gegen die Original-Extraktion
     // (notes/ccna-exam/images + questions_full.json) — 21 Fragen fehlte das
     // Exhibit, obwohl im Original vorhanden.
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(366);
+    // 366 -> 362: Die vier leeren { type: "none" } Platzhalter
+    // (q0089, q0265, q0325, q0365) entfernt.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(362);
   });
 });

@@ -12,7 +12,7 @@
 // ("ccna-fragenpool-weak-questions"). Kein Supabase-Sync in dieser Version.
 // ============================================================
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChartLine, FireSimple, ListChecks, SortAscending, X } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import type { Quiz, ScoreResult } from "@/lib/types";
@@ -143,6 +143,24 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
   function startAll() {
     setActiveQuiz(buildQuiz({ domains: activeDomains, showUnsafe, sortMode }));
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__prioritizedLearningState = {
+        startAll: () => {
+          setActiveQuiz(
+            buildQuiz({
+              domains: new Set(BLUEPRINT_DOMAINS),
+              showUnsafe: true,
+              sortMode: "priority",
+              shuffle: false,
+            })
+          );
+        },
+        closeQuiz: () => setActiveQuiz(null),
+      };
+    }
+  }, []);
 
   function startDrill() {
     if (weakIds.size === 0) {

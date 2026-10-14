@@ -154,6 +154,24 @@ export function QuizDialog({
     });
   }, [questions, onAnswerConfirmed]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__quizDialogState = {
+        setIndex: (idx: number) => {
+          setState((prev) => ({ ...prev, currentIndex: idx }));
+        },
+        confirmCurrent: () => {
+          if (currentQuestion) confirmAnswer(currentQuestion.id);
+        },
+        resetConfirmed: () => {
+          setState((prev) => ({ ...prev, confirmedQuestions: {} }));
+        },
+        getCurrentQ: () => currentQuestion,
+        getQuestions: () => questions,
+      };
+    }
+  }, [currentQuestion, questions, confirmAnswer]);
+
   const setTextAnswer = useCallback((questionId: string, text: string) => {
     setState((prev) => {
       if (prev.confirmedQuestions[questionId]) return prev;
@@ -506,7 +524,7 @@ export function QuizDialog({
         </div>
 
         {/* Question */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 pb-16">
           {currentQuestion && (
             <QuestionCard
               question={currentQuestion}
@@ -695,30 +713,26 @@ function QuestionCard({
         </span>
       </div>
 
-      {/* Exhibit: gerendert wenn strukturiert, sonst Platzhalter-Banner */}
-      {hasExhibit(question.exhibit) && !question.imageUrl && (
-        getExhibitList(question.exhibit).length > 0 ? (
-          <div className="space-y-2">
-            {getExhibitList(question.exhibit).map((ex, i) => (
-              <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <ExhibitRenderer exhibit={ex} />
-              </div>
-            ))}
-          </div>
-        ) : (
+      {/* Exhibit: gerendert wenn strukturiert, sonst dezenter Hinweis wenn referenziert */}
+      {hasExhibit(question.exhibit) && !question.imageUrl && getExhibitList(question.exhibit).length > 0 ? (
+        <div className="space-y-2">
+          {getExhibitList(question.exhibit).map((ex, i) => (
+            <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <ExhibitRenderer exhibit={ex} revealed={isConfirmed} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        Boolean(question.text && /refer to (the )?exhibit/i.test(question.text)) && (
           <div
-            className={`rounded-lg border px-3 py-2 text-sm flex items-start gap-2 ${
+            className={`rounded-lg border px-3 py-2 text-xs flex items-center gap-2 ${
               isDark
-                ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                : "border-amber-200 bg-amber-50 text-amber-800"
+                ? "border-slate-700 bg-slate-800/60 text-slate-400"
+                : "border-slate-200 bg-slate-100 text-slate-600"
             }`}
           >
-            <span aria-hidden>⚠️</span>
-            <span>
-              <strong>Topologie/Grafik wird nachgereicht.</strong> Diese Frage bezieht
-              sich auf ein Exhibit, das noch nachgebaut wird — du kannst sie trotzdem
-              anhand des Texts beantworten.
-            </span>
+            <span className="font-semibold text-slate-500">Hinweis:</span>
+            <span>Original-Exhibit nicht verfügbar</span>
           </div>
         )
       )}
