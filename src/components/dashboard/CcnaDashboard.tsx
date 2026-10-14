@@ -1,8 +1,8 @@
 import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { Suspense, lazy, useState, useEffect, useMemo, useCallback } from "react";
 import { loadModule } from "@/lib/content/content-loader";
 import type { CertificationModule, Topic } from "@/lib/content/types";
-import type { UserProgress } from "@/lib/types";
+import type { Quiz, ScoreResult, ToolId, UserProgress } from "@/lib/types";
 import { TopologyHero } from "./TopologyHero";
 import { BlueprintDomainsGrid } from "./BlueprintDomainsGrid";
 import { TodayPracticeSection } from "./TodayPracticeSection";
@@ -10,20 +10,30 @@ import { SimulatorCards } from "./SimulatorCards";
 import { RecentActivitySection, RecentActivityItem } from "./RecentActivitySection";
 import { CommandPalette } from "./CommandPalette";
 import { DashboardFooter } from "./DashboardFooter";
-import { Presentation, X } from "@phosphor-icons/react";
+import { LearningPathSection } from "./LearningPathSection";
+import { NextStepCard, type NextStepLookups } from "./NextStepCard";
+import { MagnifyingGlass, Presentation, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import { useLearningProgress } from "@/lib/learning-progress";
+import { recordQuizResult, useLearningProgress } from "@/lib/learning-progress";
+import { LEARNING_STEPS } from "@/lib/learning-path-config";
+import { computeNextAction } from "@/lib/learning-path-logic";
+import { useCompletedLabs } from "@/lib/completed-labs";
+import { useLabInfos } from "@/lib/lab-infos";
+
+const QuizDialog = lazy(() => import("@/components/QuizDialog").then((m) => ({ default: m.QuizDialog })));
 
 interface CcnaDashboardProps {
   moduleId?: string;
   theme: "light" | "dark";
   userProgress?: Record<string, UserProgress>;
-  onTopicClick?: (topic: Topic, module: CertificationModule) => void;
+  onTopicClick?: (topic: Topic, module: CertificationModule, anchor?: string) => void;
   onLaunchTool?: (toolId: string) => void;
   onToggleCanvasView?: () => void;
   onOpenExamPrep?: () => void;
   onOpenPrioritizedLearning?: () => void;
   onOpenLabs?: () => void;
+  /** Lab direkt öffnen (Lab-Dialog mit diesem Lab) */
+  onOpenLab?: (labId: string) => void;
 }
 
 const STORAGE_KEY_RECENT = "ccna-recent-history";
@@ -38,11 +48,14 @@ export function CcnaDashboard({
   onOpenExamPrep,
   onOpenPrioritizedLearning,
   onOpenLabs,
+  onOpenLab,
 }: CcnaDashboardProps) {
   const [module, setModule] = useState<CertificationModule | null>(null);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const labInfos = useLabInfos();
+  const completedLabs = useCompletedLabs();
   // Load CCNA module topics
   useEffect(() => {
     let isMounted = true;
@@ -96,7 +109,7 @@ export function CcnaDashboard({
 
   // Selection handlers
   const handleSelectTopicById = useCallback(
-    (topicId: string) => {
+    (topicId: string, anchor?: string) => {
       if (!module) return;
       const found = module.topics.find((t) => t.id === topicId);
       if (found && onTopicClick) {
@@ -106,7 +119,7 @@ export function CcnaDashboard({
           title: found.title,
           timestamp: Date.now(),
         });
-        onTopicClick(found, module);
+        onTopicClick(found, module, anchor);
       }
     },
     [module, onTopicClick, recordRecentActivity]
@@ -146,6 +159,28 @@ export function CcnaDashboard({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPresentationMode]);
 
+  // Nächster Schritt und Nachschlage-Funktionen (nur echte Daten, sonst IDs)
+  const nextAction = useMemo(() => computeNextAction(LEARNING_STEPS, learningProgress, completedLabs), [learningProgress, completedLabs]);
+  const lookups: NextStepLookups = useMemo(
+    () => ({
+      topicTitle: (id) => module?.topics.find((t) => t.id === id)?.title ?? id,
+      topicMinutes: (id) => module?.topics.find((t) => t.id === id)?.estimatedMinutes,
+      quizTitle: (id) => module?.quizzes?.[id]?.title ?? id,
+      quizQuestionCount: (id) => module?.quizzes?.[id]?.questions?.length,
+      labTitle: (id) => labInfos[id]?.title ?? id,
+    }),
+    [module, labInfos],
+  );
+  const startQuiz = useCallback(
+    (quizId: string) => {
+      const quiz = module?.quizzes?.[quizId];
+      if (quiz) setActiveQuiz(quiz);
+    },
+    [module],
+  );
+  const openLab = useCallback((labId: string) => (onOpenLab ? onOpenLab(labId) : onOpenLabs?.()), [onOpenLab, onOpenLabs]);
+  const nextStepId = nextAction.kind === "done" ? undefined : nextAction.evaluation.step.id;
+
   // Last active topic calculation
   const totalTopicCount = module?.topics.length ?? 0;
   const lastActiveItem = recentItems[0];
@@ -177,8 +212,77 @@ export function CcnaDashboard({
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-        {/* 1. Hero with Interactive Topology */}
+        {/* Kopf: Titel, Suche und Präsentationsmodus */}
+        <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-sans">CCNA 200-301 Lernplattform</h1>
+            <p className="text-sm text-muted-foreground mt-1">Lernen in der richtigen Reihenfolge: verstehen, üben, anwenden.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border bg-surface-elevated hover:bg-surface text-muted-foreground hover:text-foreground transition-colors font-mono text-[11px]"
+              title="Befehlspalette öffnen (Strg+K)"
+            >
+              <MagnifyingGlass className="h-3.5 w-3.5" />
+              <span>Strg+K</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPresentationMode((prev) => !prev)}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded border transition-colors text-[11px] font-medium",
+                isPresentationMode
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-500 font-semibold"
+                  : "border-border bg-surface-elevated hover:bg-surface text-muted-foreground hover:text-foreground"
+              )}
+              title="Dozenten-Präsentationsmodus umschalten (P)"
+            >
+              <Presentation className="h-3.5 w-3.5" />
+              <span>{isPresentationMode ? "Präsentation an" : "Beamer (P)"}</span>
+            </button>
+          </div>
+        </header>
+
+        {/* A. Nächster Schritt */}
+        <NextStepCard
+          action={nextAction}
+          lookups={lookups}
+          onOpenLesson={handleSelectTopicById}
+          onStartQuiz={startQuiz}
+          onOpenLab={openLab}
+          onOpenExamPrep={onOpenExamPrep}
+        />
+
+        {/* B. Lernpfad mit Verstehen → Üben → Anwenden */}
+        <LearningPathSection
+          steps={LEARNING_STEPS}
+          progress={learningProgress}
+          completedLabs={completedLabs}
+          labs={labInfos}
+          lookups={lookups}
+          initialOpenStepId={nextStepId}
+          onOpenLesson={handleSelectTopicById}
+          onStartQuiz={startQuiz}
+          onOpenLab={openLab}
+          onLaunchTool={(toolId: ToolId) => onLaunchTool?.(toolId)}
+        />
+
+        {/* C. Prüfungsbereiche (zweite Sicht) */}
+        <BlueprintDomainsGrid
+          completedTopicIds={completedTopicIds}
+          onSelectTopic={handleSelectTopicById}
+        />
+
+        {/* D. Werkzeuge und Referenzen */}
+        <div className="space-y-6 pt-2 border-t border-border/60">
+          <div>
+            <h2 className="text-lg font-bold text-foreground font-sans">Werkzeuge und Referenzen</h2>
+            <p className="text-xs text-muted-foreground">Zum Nachschlagen und Ausprobieren, jederzeit auch über die Kopfzeile erreichbar.</p>
+          </div>
         <TopologyHero
+          compact
           onSelectTopic={handleSelectTopicById}
           onOpenSimulator={handleOpenSimulator}
           onOpenCanvasV2={() => onToggleCanvasView?.()}
@@ -192,13 +296,6 @@ export function CcnaDashboard({
           totalTopicCount={totalTopicCount}
         />
 
-        {/* 2. Blueprint Domains Grid (6 Domains with Weightings & Lesson Progress) */}
-        <BlueprintDomainsGrid
-          completedTopicIds={completedTopicIds}
-          onSelectTopic={handleSelectTopicById}
-        />
-
-        {/* 3. Today Practice Section (Inline Subnet Calculator, Weakness Drill, D&D, Labs) */}
         <TodayPracticeSection
           onOpenWeaknessDrill={() => onOpenPrioritizedLearning?.()}
           onOpenDragDropTrainer={() => onLaunchTool?.("dragdrop-trainer")}
@@ -206,13 +303,14 @@ export function CcnaDashboard({
           onOpenLabs={onOpenLabs}
         />
 
-        {/* 4. Simulatoren Kacheln */}
+        {/* Simulatoren */}
         <SimulatorCards
           onOpenSimulator={handleOpenSimulator}
           onOpenCanvasV2={() => onToggleCanvasView?.()}
         />
+        </div>
 
-        {/* 5. Zuletzt bearbeitet */}
+        {/* E. Zuletzt bearbeitet */}
         <RecentActivitySection
           recentItems={recentItems}
           onSelectItem={(item) => handleSelectTopicById(item.id)}
@@ -222,6 +320,20 @@ export function CcnaDashboard({
         {/* 6. Footer mit rechtlichem Disclaimer */}
         <DashboardFooter />
       </div>
+
+      {activeQuiz && (
+        <Suspense fallback={null}>
+          <QuizDialog
+            quiz={activeQuiz}
+            theme={_theme}
+            onComplete={(result: ScoreResult) => {
+              recordQuizResult(activeQuiz.id, result.percentage);
+              setActiveQuiz(null);
+            }}
+            onClose={() => setActiveQuiz(null)}
+          />
+        </Suspense>
+      )}
 
       {/* Global Command Palette Modal (Ctrl+K / Cmd+K) */}
       <CommandPalette

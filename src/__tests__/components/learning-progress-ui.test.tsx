@@ -90,7 +90,7 @@ describe("Lektion: gelesen markieren und Quiz-Ergebnis", () => {
     fireEvent.click(button);
     expect(loadState().lessons.t1.read).toBe(true);
     expect(screen.getByText("Status: gelesen")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /zurücknehmen/ }));
+    fireEvent.click(screen.getAllByRole("button", { name: /zurücknehmen/ })[0]);
     expect(loadState().lessons.t1.read).toBe(false);
     expect(screen.getByText("Status: begonnen")).toBeInTheDocument();
   });

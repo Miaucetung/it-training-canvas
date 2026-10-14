@@ -21,6 +21,8 @@ interface TopologyHeroProps {
   lastActiveTopicId?: string;
   completedTopicCount: number;
   totalTopicCount: number;
+  /** kompakt: nur die interaktive Topologie (im Bereich Werkzeuge), ohne Überschrift und Start-Knöpfe */
+  compact?: boolean;
 }
 
 interface DeviceNode {
@@ -49,6 +51,7 @@ export function TopologyHero({
   lastActiveTopicId,
   completedTopicCount,
   totalTopicCount,
+  compact = false,
 }: TopologyHeroProps) {
   const [selectedNodeId, setSelectedNodeId] = useState<string>("sw1");
   const [pingState, setPingState] = useState<"idle" | "request" | "reply" | "done">("idle");
@@ -166,11 +169,12 @@ export function TopologyHero({
 
   return (
     <section
-      aria-label="CCNA 200-301 Einstiegsbereich"
-      className="relative overflow-hidden rounded-xl border border-border bg-surface p-5 sm:p-7 shadow-sm transition-colors"
+      aria-label={compact ? "Topologie erkunden" : "CCNA 200-301 Einstiegsbereich"}
+      className={cn("relative overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-colors", compact ? "p-3 sm:p-4" : "p-5 sm:p-7")}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
         {/* Left Column: Heading, Primary CTA, Navigation shortcuts */}
+        {!compact && (
         <div className="lg:col-span-6 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-accent-primary-fg border border-primary/20">
@@ -257,9 +261,10 @@ export function TopologyHero({
             </div>
           </div>
         </div>
+        )}
 
         {/* Right Column: Interactive Topology */}
-        <div className="lg:col-span-6 flex flex-col">
+        <div className={cn("flex flex-col", compact ? "lg:col-span-12" : "lg:col-span-6")}>
           <div className="relative rounded-lg border border-border bg-surface-elevated/60 p-3 sm:p-4 overflow-hidden">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">

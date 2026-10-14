@@ -3,6 +3,7 @@ import { ModalPortal } from "@/components/ui/modal-portal";
 import { escapeHtml } from "@/lib/escape";
 import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import { buildNetworkTopologyFromLab, getLabDeviceCli } from "./labs/lab-to-network";
+import { stepForLab } from "@/lib/learning-path-config";
 import { downloadBlob } from "@/lib/topology/storage-manager";
 import { cn } from "@/lib/utils";
 import {
@@ -517,15 +518,48 @@ interface LabScenariosDialogProps {
   initialLabId?: string;
   /** Öffnet die Topologie des Labs als neue Vorlage im Canvas v2 */
   onOpenInCanvas?: (labId: string) => void;
+  /** Lektion zum Lab öffnen (Lernpfad-Verknüpfung), optional an einem Abschnitt (Konzept-ID) */
+  onOpenLesson?: (topicId: string, anchor?: string) => void;
 }
 
 const STORAGE_KEY_COMPLETED_LABS = "ccna-completed-labs-v1";
+
+/** Titel der Lektionen für den Verweis „Lektion dazu“ (Themen-ID → Titel) */
+const LESSON_TITLES: Record<string, string> = {
+  "networking-fundamentals": "Netzwerkgrundlagen",
+  "ios-cli": "Cisco IOS CLI",
+  "ipv4-addressing": "IPv4-Adressierung & Subnetting",
+  "subnet-segmentation": "Netzwerk-Segmentierung",
+  ipv6: "IPv6",
+  "switching-vlans": "Switching-Grundlagen & VLANs",
+  stp: "STP",
+  etherchannel: "EtherChannel",
+  "vlan-advanced": "VLANs: Tiefenwissen & Sicherheit",
+  verkabelung: "Verkabelung",
+  glasfaser: "Glasfaser",
+  "routing-ospf": "Routing & OSPF",
+  fhrp: "First Hop Redundancy",
+  "dhcp-nat": "DHCP",
+  nat: "NAT & PAT",
+  dns: "DNS",
+  "device-management": "Device Management",
+  security: "Netzwerksicherheit",
+  acl: "Access Control Lists",
+  qos: "QoS",
+  wlan: "WLAN",
+  wan: "WAN & VPN",
+  "sdn-controller": "Controller-Based Networking",
+  automation: "Programmability & Automation",
+  "ccna-virtualization": "Virtualisierung & Cloud",
+  troubleshooting: "Troubleshooting",
+};
 
 export function LabScenariosDialog({
   open,
   onClose,
   initialLabId,
   onOpenInCanvas,
+  onOpenLesson,
 }: LabScenariosDialogProps) {
   const [selectedId, setSelectedId] = useState(
     initialLabId || LABS_ORDERED[0].id,
@@ -581,10 +615,10 @@ export function LabScenariosDialog({
 
   // Update selection if initialLabId changes
   useEffect(() => {
-    if (initialLabId && LABS_ORDERED.some((l) => l.id === initialLabId)) {
+    if (open && initialLabId && LABS_ORDERED.some((l) => l.id === initialLabId)) {
       setSelectedId(initialLabId);
     }
-  }, [initialLabId]);
+  }, [initialLabId, open]);
 
   // Toggle completed status
   const toggleLabCompleted = useCallback((id: string) => {
@@ -600,6 +634,7 @@ export function LabScenariosDialog({
           STORAGE_KEY_COMPLETED_LABS,
           JSON.stringify(Array.from(next)),
         );
+        window.dispatchEvent(new CustomEvent("ccna-completed-labs-changed"));
       } catch {
         // ignore
       }
@@ -1189,6 +1224,24 @@ export function LabScenariosDialog({
                     </span>
                     <span>›</span>
                     <span className="font-mono text-slate-400">ID: {currentLab.id}</span>
+                    {onOpenLesson && stepForLab(currentLab.id) && (
+                      <>
+                        <span>›</span>
+                        <span className="inline-flex items-center gap-1.5 flex-wrap">
+                          <span className="text-slate-400">Lektion dazu:</span>
+                          {stepForLab(currentLab.id)!.lessons.map((l) => (
+                            <button
+                              key={`${l.topicId}-${l.anchor ?? ""}`}
+                              type="button"
+                              onClick={() => onOpenLesson(l.topicId, l.anchor)}
+                              className="text-sky-300 hover:text-sky-200 underline underline-offset-2"
+                            >
+                              {LESSON_TITLES[l.topicId] ?? l.topicId}
+                            </button>
+                          ))}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
