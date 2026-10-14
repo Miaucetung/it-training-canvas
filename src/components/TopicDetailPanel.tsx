@@ -9,6 +9,7 @@
 // ============================================================
 
 import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
+import { markLessonOpened, recordQuizResult, setLessonRead, useLearningProgress } from "@/lib/learning-progress";
 import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
 import type { CertificationModule, Topic } from "@/lib/content/types";
 import type { Quiz, ScoreResult } from "@/lib/types";
@@ -148,6 +149,13 @@ export function TopicDetailPanel({
   const [roasAnimOpen, setRoasAnimOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const { progress } = useLearningProgress();
+  const isRead = progress.readTopicIds.has(topic.id);
+
+  // Lektion geöffnet = begonnen
+  useEffect(() => {
+    markLessonOpened(topic.id);
+  }, [topic.id]);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
@@ -304,6 +312,27 @@ export function TopicDetailPanel({
             {topic.description}
           </p>
         )}
+
+        {/* ── Lernfortschritt: Lektion als gelesen markieren (wieder abwählbar) ── */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setLessonRead(topic.id, !isRead)}
+            aria-pressed={isRead}
+            className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+              isRead
+                ? dark
+                  ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
+                  : "border-emerald-300 bg-emerald-50 text-emerald-800"
+                : dark
+                  ? "border-slate-600 text-slate-200 hover:bg-slate-800"
+                  : "border-slate-300 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {isRead ? "✓ Als gelesen markiert (zurücknehmen)" : "Als gelesen markieren"}
+          </button>
+          <span className="text-xs text-text-muted">Status: {isRead ? "gelesen" : progress.openedTopicIds.has(topic.id) ? "begonnen" : "offen"}</span>
+        </div>
 
         {/* ── Subnetting Drill CTA (interaktiv, 30 generierte Aufgaben) ── */}
         {hasSubnettingDrill && (
@@ -901,6 +930,15 @@ export function TopicDetailPanel({
                     {quiz.questions.length} Fragen · Bestehensgrenze{" "}
                     {quiz.passingScore}%
                   </div>
+                  <div className="text-xs mt-1 text-text-muted" data-testid={`quiz-status-${quiz.id}`}>
+                    {progress.quizzes[quiz.id]
+                      ? `Bearbeitet${
+                          progress.quizzes[quiz.id].bestPercent !== undefined
+                            ? ` · bestes Ergebnis ${progress.quizzes[quiz.id].bestPercent} %${progress.quizzes[quiz.id].attempts > 1 ? ` (${progress.quizzes[quiz.id].attempts} Versuche)` : ""}`
+                            : " (Ergebnis nicht gespeichert)"
+                        }`
+                      : "Noch nicht bearbeitet"}
+                  </div>
 
                   {/* Quiz questions preview */}
                   <div className="mt-3 space-y-1.5">
@@ -1097,6 +1135,7 @@ export function TopicDetailPanel({
           quiz={activeQuiz}
           theme={theme}
           onComplete={(result) => {
+            recordQuizResult(activeQuiz.id, result.percentage);
             setLastResult(result);
             setActiveQuiz(null);
           }}

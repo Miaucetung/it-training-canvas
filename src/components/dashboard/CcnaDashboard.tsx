@@ -12,6 +12,7 @@ import { CommandPalette } from "./CommandPalette";
 import { DashboardFooter } from "./DashboardFooter";
 import { Presentation, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { useLearningProgress } from "@/lib/learning-progress";
 
 interface CcnaDashboardProps {
   moduleId?: string;
@@ -26,7 +27,6 @@ interface CcnaDashboardProps {
 }
 
 const STORAGE_KEY_RECENT = "ccna-recent-history";
-const STORAGE_KEY_COMPLETED = "ccna-completed-topics";
 
 export function CcnaDashboard({
   moduleId = "ccna",
@@ -60,31 +60,11 @@ export function CcnaDashboard({
     };
   }, [moduleId]);
 
-  // Read completed topics from UserProgress and local storage
-  const completedTopicIds = useMemo(() => {
-    const list = new Set<string>();
-
-    // From userProgress (learning path completed steps)
-    const fullPathProgress = userProgress["ccna-full-path"];
-    if (fullPathProgress?.completedSteps) {
-      fullPathProgress.completedSteps.forEach((s) => list.add(s));
-    }
-
-    // From dedicated completed topics storage
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_COMPLETED);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((id) => list.add(id));
-        }
-      }
-    } catch {
-      // Ignore storage errors
-    }
-
-    return Array.from(list);
-  }, [userProgress]);
+  // Fortschritt: gelesene Lektionen aus dem Lernfortschritt (inkl. Altdaten des Lernpfads)
+  const { progress: learningProgress } = useLearningProgress({
+    completedStepIds: userProgress["ccna-full-path"]?.completedSteps,
+  });
+  const completedTopicIds = useMemo(() => Array.from(learningProgress.readTopicIds), [learningProgress]);
 
   // Read recent activity history from local storage
   const [recentItems, setRecentItems] = useState<RecentActivityItem[]>(() => {
