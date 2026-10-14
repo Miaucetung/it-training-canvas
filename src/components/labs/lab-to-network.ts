@@ -127,6 +127,32 @@ export function labMentionsPort(lab: LabForNetwork, deviceName: string, port: st
   return false;
 }
 
+/** Netze (Adresse/Präfix), für die das Lab einen DHCP-Pool (`ip dhcp pool` + `network <Adresse> <Maske>`) konfiguriert. */
+export function labDhcpPoolNetworks(lab: Pick<LabScenario, "steps">): Set<string> {
+  const nets = new Set<string>();
+  for (const step of lab.steps) {
+    for (const block of step.blocks as Array<{ commands: Array<{ cmd: string }> }>) {
+      let inPool = false;
+      for (const c of block.commands) {
+        for (const raw of String(c.cmd).split("\n")) {
+          const line = raw.trim();
+          if (/^ip dhcp pool\s+\S+/i.test(line)) {
+            inPool = true;
+            continue;
+          }
+          if (!inPool) continue;
+          const m = /^network\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})$/i.exec(line);
+          if (m) {
+            const p = maskToPrefix(m[2]);
+            if (p !== null) nets.add(`${m[1]}/${p}`);
+          } else if (!/^(default-router|dns-server|lease|domain-name|option|exit)\b/i.test(line)) inPool = false;
+        }
+      }
+    }
+  }
+  return nets;
+}
+
 export function expandDeviceNames(blockDevice: string): string[] {
   const d = blockDevice.trim();
   if (d.includes("/")) return d.split("/").map((x) => x.trim()).filter(Boolean);
@@ -464,6 +490,7 @@ export function buildNetworkTopologyFromLab(
 ): LabNetworkResult {
   const problems: string[] = [];
   const devices: TopologyDevice[] = [];
+  const poolNetworks = labDhcpPoolNetworks(lab);
 
   for (const d of data.devices) {
     if (d.assumed) {
@@ -557,7 +584,7 @@ export function buildNetworkTopologyFromLab(
         if (v && c.ip) (config.svis ??= []).push({ vlan: Number(v[1]), ip: c.ip });
       }
       // Hosts: DHCP (nur das Netz ist bekannt) oder Adresse aus dem Geräte-Label des Labs
-      if (parsed.hostDhcp && d.dhcpNetwork && (d.type === "pc" || d.type === "server")) ifaces[0].dhcp = { network: d.dhcpNetwork };
+      if (d.dhcpNetwork && (parsed.hostDhcp || poolNetworks.has(d.dhcpNetwork)) && (d.type === "pc" || d.type === "server")) ifaces[0].dhcp = { network: d.dhcpNetwork };
       if (!parsed.hostIp && !parsed.hostDhcp && (d.type === "pc" || d.type === "server")) {
         const nameRe = d.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const m4 = lab.topology.devices.map((x) => new RegExp(`${nameRe}\\s*\\((\\d+(?:\\.\\d+){3})/(\\d+)\\)`).exec(x.label)).find(Boolean);

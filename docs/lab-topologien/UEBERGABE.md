@@ -1,10 +1,10 @@
-# Übergabe: Lab-Topologien (Stand nach Paket 6)
+# Übergabe: Lab-Topologien (Stand nach Paket 7)
 
 ## Stand
-- In `main` (`75fbd5a`): Pakete 1 bis 5 (Layer 2, Routing, IPv6, Services, Security) mit Fundament, IPv6-Ausgaben, OSPF über Switch-Segmente, Diagramm-Zoom.
-- `feature/lab-topologies-operations` (nicht gemergt): Paket 6 Operations/Automation (5 Labs), STP-Makros „letzter Befehl gilt“, Canvas-Notizen, siehe `BERICHT-PAKET-6.md`.
-- Lint 0 Fehler (48 Warnungen), 1525 Tests in 61 Dateien grün, Build grün.
-- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md` bis `-6.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
+- In `main` (`03969dd`): Pakete 1 bis 6, IPv6-Ausgaben, OSPF über Switch-Segmente, STP-Makros, Dashboard (Lernpfad, Fortschritt, Einführung).
+- `feature/lab-topologies-campus` (nicht gemergt): Paket 7 Campus (2 Labs), siehe `BERICHT-PAKET-7.md`. Damit haben 50 von 55 Labs eine Vorlage; die fünf ohne Netz sind im Bericht genannt.
+- Lint 0 Fehler (48 Warnungen), 1607 Tests in 67 Dateien grün, Build grün.
+- Berichte: `BESTANDSAUFNAHME.md`, `BERICHT-PAKET-1.md` bis `-7.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots entstehen nur noch unter `.local/screenshots` (nicht im Repo).
 
 ## Fundament (für alle Pakete)
 - Daten: `src/components/labs/topologies/<kategorie>.ts` plus `builders.ts`, zusammengeführt in `curated-topologies.ts`.
@@ -27,6 +27,6 @@
 - **Eigener Schritt nach Paket 7: show-Ausgaben für NAT, HSRP, GRE und IPsec.** Was sich aus der Konfiguration ergibt, vollständig erzeugen: `show standby brief` (Active/Standby nach Priority, Preempt-Hinweis analog zur DR-Wahl), `show interfaces tunnel`, statische Einträge in `show ip nat translations`, `show crypto map`. Was erst durch Verkehr entsteht (dynamische NAT-Übersetzungen, `show crypto isakmp sa`, `show crypto ipsec sa`): leer mit Hinweis „entsteht erst nach Verkehr“. Gleiche Regeln wie bei IPv4/IPv6: nichts erfinden, positive und negative Tests.
 - **Im selben Schritt: EIGRP für IPv4.** `show ip eigrp neighbors` (gleiches AS, gleiches Subnetz, passende K-Werte, nicht passive; Switch-Segmente wie bei OSPF), gelernte Routen als `D` in `show ip route`. Betrifft `eigrp` (Paket 2) und `co-acl-nat-isp` (Paket 5). Die Metrik-Berechnung aus EIGRPv6 (`ipv6-routing.ts`) lässt sich wiederverwenden.
 - **Im selben Schritt: Redistribution.** Externe Routen als `D EX` bzw. `O E2` mit den im Lab konfigurierten Parametern (z. B. `redistribute ospf 100 metric 10000 1 255 1 1500`, `redistribute eigrp 199 subnets`). Wo ein Parameter im Lab fehlt, als „nicht bestimmbar“ kennzeichnen.
-- Nach OK: `feature/lab-topologies-operations` mergen.
-- Danach Paket 7 Campus (Details und Lücken je Lab: `BESTANDSAUFNAHME.md`).
+- Nach OK: `feature/lab-topologies-campus` mergen.
+- Danach der Nachrüst-Schritt (show-Ausgaben für NAT, HSRP, GRE, IPsec; EIGRP für IPv4; Redistribution), siehe oben.
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
-import { buildNetworkTopologyFromLab, expandDeviceNames, getLabDeviceCli, parseLabDeviceConfig } from "@/components/labs/lab-to-network";
+import { buildNetworkTopologyFromLab, expandDeviceNames, labDhcpPoolNetworks, getLabDeviceCli, parseLabDeviceConfig } from "@/components/labs/lab-to-network";
 import { networkTopologySchema } from "@/types/topology";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
@@ -210,7 +210,7 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
       }
       const dhcp = /^DHCP \((\S+)\)$/.exec(row.ip);
       if (dhcp) {
-        expect(cfg.hostDhcp, `${row.device}: Desktop steht im Lab nicht auf DHCP`).toBe(true);
+        expect(cfg.hostDhcp || labDhcpPoolNetworks(l).has(dhcp[1]), `${row.device}: weder Desktop auf DHCP noch DHCP-Pool für ${dhcp[1]} im Lab`).toBe(true);
         expect(labNetworks(l), `${row.device}: Netz ${dhcp[1]} kommt im Lab nicht vor`).toContain(dhcp[1]);
         continue;
       }
