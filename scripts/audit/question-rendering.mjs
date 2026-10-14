@@ -58,7 +58,7 @@ const MEASURE_DOM_FN = ({ state, vpName, themeName }) => {
     scrollContainer.scrollTop = scrollContainer.scrollHeight;
     
     // Check buttons, options, explanations INSIDE the scroll container ONLY
-    const targets = Array.from(scrollContainer.querySelectorAll('button[class*="items-start"], button[class*="rounded-xl border"], button[class*="cursor-pointer"], [class*="leading-relaxed"], [role="img"], pre, .font-mono'));
+    const targets = Array.from(scrollContainer.querySelectorAll('button[class*="items-start"], button[class*="rounded-xl border"], button[class*="cursor-pointer"], [class*="leading-relaxed"], [role="img"], pre, .font-mono, [class*="bg-green-900"], [class*="bg-red-900"], [class*="bg-green-50"], [class*="bg-red-50"]'));
     targets.forEach((t) => {
       const r = t.getBoundingClientRect();
       if (r.bottom > fRect.top + 1 && r.top < fRect.bottom) {
@@ -99,10 +99,29 @@ const MEASURE_DOM_FN = ({ state, vpName, themeName }) => {
       }
     }
     if (vb && vb.width > 0) {
+      const getBBoxInSvg = (txt) => {
+        const b = txt.getBBox();
+        let x = b.x;
+        let y = b.y;
+        let curr = txt.parentElement;
+        while (curr && curr !== svg) {
+          const transform = curr.getAttribute('transform');
+          if (transform) {
+            const match = transform.match(/translate\(\s*([-\d.]+)[,\s]+([-\d.]+)\s*\)/);
+            if (match) {
+              x += parseFloat(match[1]);
+              y += parseFloat(match[2]);
+            }
+          }
+          curr = curr.parentElement;
+        }
+        return { x, y, width: b.width, height: b.height };
+      };
+
       const texts = Array.from(svg.querySelectorAll('text'));
       texts.forEach((txt) => {
         try {
-          const b = txt.getBBox();
+          const b = getBBoxInSvg(txt);
           const tText = txt.textContent.trim();
           if (b.x < vb.x - 1) {
             findings.push({
@@ -136,11 +155,10 @@ const MEASURE_DOM_FN = ({ state, vpName, themeName }) => {
       });
 
       // 4. Überlappungen in Topologie-Grafiken (Check 4)
-      const textNodes = Array.from(svg.querySelectorAll('text'));
       const textBoxes = [];
-      textNodes.forEach((t) => {
+      texts.forEach((t) => {
         try {
-          const b = t.getBBox();
+          const b = getBBoxInSvg(t);
           if (b.width > 0 && b.height > 0) {
             textBoxes.push({ text: t.textContent.trim(), bbox: b });
           }
