@@ -43,6 +43,8 @@ import { stpHints } from "@/lib/topology/stp-hints";
 import { vtpHints } from "@/lib/topology/vtp-status";
 import { natHints } from "@/lib/topology/nat-outputs";
 import { hsrpHints } from "@/lib/topology/hsrp";
+import { greHints } from "@/lib/topology/gre-tunnel";
+import { cryptoHints } from "@/lib/topology/ipsec";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -223,7 +225,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   }, [selectedDevice, activeTopology]);
 
   const ipv6HintList = useMemo(
-    () => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice), ...vtpHints(selectedDevice, activeTopology), ...natHints(selectedDevice), ...hsrpHints(selectedDevice, activeTopology)] : []),
+    () => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice), ...vtpHints(selectedDevice, activeTopology), ...natHints(selectedDevice), ...hsrpHints(selectedDevice, activeTopology), ...greHints(selectedDevice, activeTopology), ...cryptoHints(selectedDevice, activeTopology)] : []),
     [selectedDevice, activeTopology]
   );
 

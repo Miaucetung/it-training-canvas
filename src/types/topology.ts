@@ -74,6 +74,9 @@ export interface TopologyInterface {
   ospfv3?: InterfaceOspfv3Config;
   eigrpv6?: { asn: number };
   hsrp?: InterfaceHsrp;
+  tunnel?: InterfaceTunnel;
+  /** Name der angewendeten Crypto Map */
+  cryptoMap?: string;
   mac?: string; // e.g. "00:50:79:66:68:01"
   vlan?: number; // Access VLAN, e.g. 10
   allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
@@ -107,6 +110,62 @@ export interface DeviceDhcpPool {
 export interface DeviceDhcpExcluded {
   from: string;
   to: string;
+}
+
+export interface DeviceStaticRoute {
+  /** Zielnetz als Adresse/Präfix */
+  network: string;
+  nextHop?: string;
+  outInterface?: string;
+  distance?: number;
+}
+
+export interface DeviceIsakmpPolicy {
+  priority: number;
+  encryption?: string;
+  hash?: string;
+  authentication?: string;
+  group?: string;
+  lifetime?: number;
+}
+
+export interface DeviceIsakmpKey {
+  key: string;
+  address: string;
+}
+
+export interface DeviceTransformSet {
+  name: string;
+  /** Parameter wie im Lab, z. B. "esp-aes 256 esp-sha-hmac" */
+  transform: string;
+  mode?: string;
+}
+
+export interface DeviceCryptoMapEntry {
+  name: string;
+  seq: number;
+  peers: string[];
+  transformSets: string[];
+  /** ACL-Nummer oder -Name aus `match address` */
+  acl?: string;
+  /** `set pfs`, z. B. "group5" */
+  pfs?: string;
+  lifetimeSeconds?: number;
+}
+
+export interface DeviceCryptoConfig {
+  policies: DeviceIsakmpPolicy[];
+  keys: DeviceIsakmpKey[];
+  transformSets: DeviceTransformSet[];
+  maps: DeviceCryptoMapEntry[];
+}
+
+export interface InterfaceTunnel {
+  /** Interface-Name oder IP-Adresse aus `tunnel source` */
+  source?: string;
+  destination?: string;
+  /** `tunnel mode ...`; ohne Angabe GRE über IP */
+  mode?: string;
 }
 
 export interface DeviceNatStatic {
@@ -240,6 +299,10 @@ export interface DeviceConfig {
   dhcpExcluded?: DeviceDhcpExcluded[];
   vtp?: DeviceVtpConfig;
   nat?: DeviceNatConfig;
+  ipRoutes?: DeviceStaticRoute[];
+  /** Nummerierte ACLs wie im Lab (`access-list <n> ...`) */
+  accessLists?: Record<string, string[]>;
+  crypto?: DeviceCryptoConfig;
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"

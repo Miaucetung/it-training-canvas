@@ -290,6 +290,21 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
           allowed.add(cidrMask(Number(p)));
         }
       }
+      // statische Routen aus dem Lab (Zielnetz, Maske, Next Hop)
+      for (const r of d.config?.ipRoutes ?? []) {
+        const [net, p] = r.network.split("/");
+        allowed.add(net);
+        allowed.add(cidrMask(Number(p)));
+        if (r.nextHop) allowed.add(r.nextHop);
+      }
+      // Crypto-ACLs, Peers und Tunnel-Ziele stehen im Lab
+      for (const lines of Object.values(d.config?.accessLists ?? {})) for (const line of lines) for (const ip of ipv4Tokens(line)) allowed.add(ip);
+      for (const m of d.config?.crypto?.maps ?? []) for (const peer of m.peers) allowed.add(peer);
+      for (const k of d.config?.crypto?.keys ?? []) allowed.add(k.address);
+      for (const i of d.interfaces) {
+        if (i.tunnel?.destination) allowed.add(i.tunnel.destination);
+        if (i.tunnel?.source && /^\d/.test(i.tunnel.source)) allowed.add(i.tunnel.source);
+      }
       // virtuelle HSRP-IPs stehen im Lab
       for (const i of d.interfaces) for (const g of i.hsrp?.groups ?? []) if (g.ip) allowed.add(g.ip);
       // NAT-Konfiguration des Geräts (statische Zuordnungen, Pools) steht im Lab

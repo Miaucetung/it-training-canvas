@@ -3,7 +3,12 @@ import type {
   DeviceConfig,
   DeviceDhcpExcluded,
   DeviceDhcpPool,
+  DeviceCryptoConfig,
+  DeviceCryptoMapEntry,
+  DeviceIsakmpPolicy,
+  DeviceTransformSet,
   DeviceNatConfig,
+  DeviceStaticRoute,
   DeviceVtpConfig,
   InterfaceHsrp,
   InterfaceHsrpGroup,
@@ -90,6 +95,10 @@ interface IfaceCfg {
   natSide?: "inside" | "outside";
   hsrpVersion?: 1 | 2;
   hsrpGroups?: Map<number, InterfaceHsrpGroup>;
+  tunnelSource?: string;
+  tunnelDestination?: string;
+  tunnelMode?: string;
+  cryptoMap?: string;
 }
 
 export interface ParsedDeviceConfig {
@@ -113,6 +122,9 @@ export interface ParsedDeviceConfig {
   dhcpExcluded: DeviceDhcpExcluded[];
   vtp?: DeviceVtpConfig;
   nat?: DeviceNatConfig;
+  ipRoutes: DeviceStaticRoute[];
+  accessLists: Record<string, string[]>;
+  crypto?: DeviceCryptoConfig;
   /** Alle Befehle für diesen Gerät in Lab-Reihenfolge, ohne Prompt */
   cli: string;
 }
@@ -201,13 +213,16 @@ function parseVlanList(spec: string): number[] {
 const PROMPT_FREE_SKIP = /^(enable|configure terminal|conf t|end|exit|do copy running-config startup-config|copy running-config startup-config|wr|write memory)$/i;
 
 export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName: string): ParsedDeviceConfig {
-  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], dhcpPools: [], dhcpExcluded: [], cli: "" };
+  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], dhcpPools: [], dhcpExcluded: [], ipRoutes: [], accessLists: {}, cli: "" };
   const cliLines: string[] = [];
   let ctxIfaces: string[] = [];
   let ctxVlan: number | null = null;
   let ctxOspf = false;
   let ctxV6: "ospf" | "eigrp" | null = null;
   let ctxPool: DeviceDhcpPool | null = null;
+  type CryptoCtx = { kind: "policy"; ref: DeviceIsakmpPolicy } | { kind: "tset"; ref: DeviceTransformSet } | { kind: "map"; ref: DeviceCryptoMapEntry };
+  let ctxCrypto: CryptoCtx | null = null;
+  const cryptoCfg = (): DeviceCryptoConfig => (cfg.crypto ??= { policies: [], keys: [], transformSets: [], maps: [] });
   const ifaceOf = (n: string): IfaceCfg => {
     const k = normalizeInterfaceName(n);
     const cur = cfg.ifaces.get(k) ?? {};
@@ -228,6 +243,10 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           if (!line) continue;
           cliLines.push(raw.replace(/\s+$/, ""));
           if (ctxPool && !/^(network|default-router|dns-server|lease|domain-name|option)\b/i.test(line)) ctxPool = null;
+          if (ctxCrypto) {
+            const subs = ctxCrypto.kind === "policy" ? /^(encryption|encr|hash|authentication|group|lifetime)\b/i : ctxCrypto.kind === "tset" ? /^mode\b/i : /^(set|match)\b/i;
+            if (!subs.test(line)) ctxCrypto = null;
+          }
           if (PROMPT_FREE_SKIP.test(line)) {
             if (/^exit$|^end$/i.test(line)) {
               ctxIfaces = [];
@@ -259,6 +278,72 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
           if ((dh = /^ip dhcp excluded-address\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) {
             cfg.dhcpExcluded.push({ from: dh[1], to: dh[2] ?? dh[1] });
+            continue;
+          }
+          if (ctxCrypto) {
+            const c = ctxCrypto;
+            if (c.kind === "policy") {
+              if ((dh = /^(?:encryption|encr)\s+(.+)$/i.exec(line))) c.ref.encryption = dh[1].trim();
+              else if ((dh = /^hash\s+(\S+)/i.exec(line))) c.ref.hash = dh[1];
+              else if ((dh = /^authentication\s+(\S+)/i.exec(line))) c.ref.authentication = dh[1];
+              else if ((dh = /^group\s+(\S+)/i.exec(line))) c.ref.group = dh[1];
+              else if ((dh = /^lifetime\s+(\d+)/i.exec(line))) c.ref.lifetime = Number(dh[1]);
+            } else if (c.kind === "tset") {
+              if ((dh = /^mode\s+(\S+)/i.exec(line))) c.ref.mode = dh[1];
+            } else if ((dh = /^set peer\s+(\S+)/i.exec(line))) c.ref.peers.push(dh[1]);
+            else if ((dh = /^set transform-set\s+(.+)$/i.exec(line))) c.ref.transformSets.push(...dh[1].trim().split(/\s+/));
+            else if ((dh = /^set pfs\s+(\S+)/i.exec(line))) c.ref.pfs = dh[1];
+            else if ((dh = /^set security-association lifetime seconds\s+(\d+)/i.exec(line))) c.ref.lifetimeSeconds = Number(dh[1]);
+            else if ((dh = /^match address\s+(\S+)/i.exec(line))) c.ref.acl = dh[1];
+            continue;
+          }
+          if ((dh = /^crypto isakmp policy\s+(\d+)$/i.exec(line))) {
+            const policy: DeviceIsakmpPolicy = { priority: Number(dh[1]) };
+            cryptoCfg().policies.push(policy);
+            ctxCrypto = { kind: "policy", ref: policy };
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^crypto isakmp key\s+(\S+)\s+address\s+(\S+)/i.exec(line))) {
+            cryptoCfg().keys.push({ key: dh[1], address: dh[2] });
+            continue;
+          }
+          if ((dh = /^crypto ipsec transform-set\s+(\S+)\s+(.+)$/i.exec(line))) {
+            const tset: DeviceTransformSet = { name: dh[1], transform: dh[2].trim().replace(/\s+/g, " ") };
+            cryptoCfg().transformSets.push(tset);
+            ctxCrypto = { kind: "tset", ref: tset };
+            ctxIfaces = [];
+            continue;
+          }
+          if ((dh = /^crypto map\s+(\S+)\s+(\d+)\s+ipsec-isakmp/i.exec(line))) {
+            const entry: DeviceCryptoMapEntry = { name: dh[1], seq: Number(dh[2]), peers: [], transformSets: [] };
+            cryptoCfg().maps.push(entry);
+            ctxCrypto = { kind: "map", ref: entry };
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^access-list\s+(\d+)\s+(permit|deny)\s+(.+)$/i.exec(line))) {
+            (cfg.accessLists[dh[1]] ??= []).push(`access-list ${dh[1]} ${dh[2].toLowerCase()} ${dh[3].trim().replace(/\s+/g, " ")}`);
+            continue;
+          }
+          if ((dh = /^ip route\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})\s+(.+)$/i.exec(line))) {
+            const prefix = maskToPrefix(dh[2]);
+            const args = dh[3].trim().split(/\s+/);
+            if (prefix !== null) {
+              const route: DeviceStaticRoute = { network: `${dh[1]}/${prefix}` };
+              let k = 0;
+              if (/^\d+(?:\.\d+){3}$/.test(args[0])) route.nextHop = args[k++];
+              else {
+                route.outInterface = normalizeInterfaceName(args[k++]);
+                if (args[k] && /^\d+(?:\.\d+){3}$/.test(args[k])) route.nextHop = args[k++];
+              }
+              if (args[k] && /^\d+$/.test(args[k])) route.distance = Number(args[k]);
+              cfg.ipRoutes.push(route);
+            }
             continue;
           }
           if ((dh = /^ip nat pool\s+(\S+)\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})(?:\s+(?:netmask|prefix-length)\s+(\S+))?/i.exec(line))) {
@@ -532,6 +617,10 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
                 i.mode = undefined;
               } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
               else if ((m = /^ip nat\s+(inside|outside)$/i.exec(line))) i.natSide = m[1].toLowerCase() as "inside" | "outside";
+              else if ((m = /^tunnel source\s+(\S+)$/i.exec(line))) i.tunnelSource = /^\d+(?:\.\d+){3}$/.test(m[1]) ? m[1] : normalizeInterfaceName(m[1]);
+              else if ((m = /^tunnel destination\s+(\S+)$/i.exec(line))) i.tunnelDestination = m[1];
+              else if ((m = /^tunnel mode\s+(.+)$/i.exec(line))) i.tunnelMode = m[1].trim();
+              else if ((m = /^crypto map\s+(\S+)$/i.exec(line))) i.cryptoMap = m[1];
               else if ((m = /^standby version\s+(1|2)$/i.exec(line))) i.hsrpVersion = Number(m[1]) as 1 | 2;
               else if ((m = /^standby\s+(?:(\d+)\s+)?(ip|priority|preempt|timers|track|authentication)\b\s*(.*)$/i.exec(line))) {
                 const gid = m[1] ? Number(m[1]) : 0;
@@ -647,6 +736,8 @@ export function buildNetworkTopologyFromLab(
         if (c.mode) it.mode = c.mode;
         if (c.dtp) it.dtp = c.dtp;
         if (c.nonegotiate) it.nonegotiate = true;
+        if (c.tunnelSource || c.tunnelDestination || c.tunnelMode) it.tunnel = { source: c.tunnelSource, destination: c.tunnelDestination, mode: c.tunnelMode };
+        if (c.cryptoMap) it.cryptoMap = c.cryptoMap;
         if (c.hsrpGroups && c.hsrpGroups.size > 0) {
           const hsrp: InterfaceHsrp = { version: c.hsrpVersion ?? 1, groups: [...c.hsrpGroups.values()] };
           it.hsrp = hsrp;
@@ -741,6 +832,9 @@ export function buildNetworkTopologyFromLab(
       if (parsed.dhcpPools.length > 0) config.dhcpPools = parsed.dhcpPools;
       if (parsed.dhcpExcluded.length > 0) config.dhcpExcluded = parsed.dhcpExcluded;
       if (parsed.vtp) config.vtp = parsed.vtp;
+      if (parsed.ipRoutes.length > 0) config.ipRoutes = parsed.ipRoutes;
+      if (Object.keys(parsed.accessLists).length > 0) config.accessLists = parsed.accessLists;
+      if (parsed.crypto) config.crypto = parsed.crypto;
       if (parsed.nat) {
         const nat: DeviceNatConfig = { ...parsed.nat };
         for (const [name, c] of parsed.ifaces) {

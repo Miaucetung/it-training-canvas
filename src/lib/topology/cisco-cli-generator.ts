@@ -18,6 +18,9 @@ import { formatShowIpDhcpBinding, formatShowIpDhcpPool, hasDhcpPools } from "./d
 import { formatShowVtpStatus, hasVtpConfig } from "./vtp-status";
 import { formatShowIpNatTranslations, hasNatConfig } from "./nat-outputs";
 import { formatShowStandbyBrief, hasHsrpConfig } from "./hsrp";
+import { installedStaticRoutes } from "./static-routes";
+import { greOutputs } from "./gre-tunnel";
+import { cryptoOutputs } from "./ipsec";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -71,7 +74,7 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show ip route'
    */
   static generateShowIpRoute(device: TopologyDevice, topology: NetworkTopology): string {
-    const codesHeader = [
+    let codesHeader = [
       "Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP",
       "       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area",
       "       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2",
@@ -125,9 +128,20 @@ export class CiscoCliGenerator {
       }
     }
 
+    // 3. Statische Routen (nur installierbare: Next Hop in einem aktiven verbundenen Netz)
+    let gateway: string | null = null;
+    for (const s of installedStaticRoutes(device)) {
+      const isDefault = s.route.network === "0.0.0.0/0";
+      if (isDefault && s.route.nextHop && !gateway) gateway = s.route.nextHop;
+      const tag = isDefault ? "S*" : "S ";
+      const target = s.route.nextHop ? `via ${s.route.nextHop}` : `is directly connected, ${s.outInterface}`;
+      routes.push(`${tag}   ${s.route.network} [${s.distance}/0] ${target}`);
+    }
+
     if (routes.length === 0) {
       return codesHeader + "(Keine aktiven IPv4-Routen konfiguriert)";
     }
+    if (gateway) codesHeader = codesHeader.replace("Gateway of last resort is not set", `Gateway of last resort is ${gateway} to network 0.0.0.0`);
 
     // Sortierung nach Netzwerk-Präfix
     routes.sort((a, b) => a.localeCompare(b));
@@ -560,6 +574,9 @@ export class CiscoCliGenerator {
     }
     if ((device.type === "router" || device.type === "switch-l3") && hasNatConfig(device)) outputs["show ip nat translations"] = formatShowIpNatTranslations(device);
     if ((device.type === "router" || device.type === "switch-l3") && hasHsrpConfig(device)) outputs["show standby brief"] = formatShowStandbyBrief(device, topology);
+    if (device.type === "router" || device.type === "switch-l3") {
+      Object.assign(outputs, greOutputs(device, topology), cryptoOutputs(device, topology));
+    }
     if (hasVtpConfig(device)) outputs["show vtp status"] = formatShowVtpStatus(device, topology);
 
     // IPv6: nur für Router und L3-Switches mit IPv6-Konfiguration
