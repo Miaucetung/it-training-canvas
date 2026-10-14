@@ -1,3 +1,4 @@
+import { AUDIT_HOOKS_ENABLED, registerAuditHook } from "@/lib/audit-hooks";
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
 import { hasExhibit, getExhibitList, categorizeQuestion } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
@@ -154,23 +155,25 @@ export function QuizDialog({
     });
   }, [questions, onAnswerConfirmed]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).__quizDialogState = {
-        setIndex: (idx: number) => {
-          setState((prev) => ({ ...prev, currentIndex: idx }));
-        },
-        confirmCurrent: () => {
-          if (currentQuestion) confirmAnswer(currentQuestion.id);
-        },
-        resetConfirmed: () => {
-          setState((prev) => ({ ...prev, confirmedQuestions: {} }));
-        },
-        getCurrentQ: () => currentQuestion,
-        getQuestions: () => questions,
-      };
-    }
-  }, [currentQuestion, questions, confirmAnswer]);
+  useEffect(
+    () =>
+      AUDIT_HOOKS_ENABLED
+        ? registerAuditHook("__quizDialogState", {
+            setIndex: (idx: number) => {
+              setState((prev) => ({ ...prev, currentIndex: idx }));
+            },
+            confirmCurrent: () => {
+              if (currentQuestion) confirmAnswer(currentQuestion.id);
+            },
+            resetConfirmed: () => {
+              setState((prev) => ({ ...prev, confirmedQuestions: {} }));
+            },
+            getCurrentQ: () => currentQuestion,
+            getQuestions: () => questions,
+          })
+        : undefined,
+    [currentQuestion, questions, confirmAnswer]
+  );
 
   const setTextAnswer = useCallback((questionId: string, text: string) => {
     setState((prev) => {

@@ -13,3 +13,7 @@ Alle Skripte sind rein lesend. Sie laufen NICHT in `npm test` (eigene Konfigurat
 | blueprint.audit.ts | Lektion → Blueprint-Bereich |
 | data-counts.audit.ts | Anzahl Fragen / Drag-and-Drop |
 | contrast.mjs | Tabelle in docs/redesign-konzept.md gegen src/index.css |
+
+## Browser-Audit (question-rendering.mjs)
+
+Die Skripte steuern die Dialoge über `window.__auditApp`, `__examPrepState`, `__quizDialogState`, `__dragDropState`, `__prioritizedLearningState` und `__AUDIT_NO_SHUFFLE__` (`src/lib/audit-hooks.ts`). Diese Hooks gibt es nur im Dev-Server (`npm run dev -- --port 5000`) oder in einem Build mit `VITE_AUDIT_HOOKS=1`; der Produktionsbuild enthält sie nicht (Test `src/__tests__/build/audit-hooks-bundle.test.ts`).

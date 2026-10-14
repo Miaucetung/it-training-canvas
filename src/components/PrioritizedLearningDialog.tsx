@@ -12,6 +12,8 @@
 // ("ccna-fragenpool-weak-questions"). Kein Supabase-Sync in dieser Version.
 // ============================================================
 
+import { normalizeStoredQuestionIds } from "@/lib/question-id";
+import { AUDIT_HOOKS_ENABLED, registerAuditHook } from "@/lib/audit-hooks";
 import { useEffect, useMemo, useState } from "react";
 import { ChartLine, FireSimple, ListChecks, SortAscending, X } from "@phosphor-icons/react";
 import { toast } from "sonner";
@@ -47,7 +49,7 @@ type SortMode = "priority" | "domain";
 function loadWeakIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return new Set(JSON.parse(raw));
+    if (raw) return normalizeStoredQuestionIds(JSON.parse(raw));
   } catch {
     /* localStorage nicht verfügbar */
   }
@@ -144,23 +146,25 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
     setActiveQuiz(buildQuiz({ domains: activeDomains, showUnsafe, sortMode }));
   }
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).__prioritizedLearningState = {
-        startAll: () => {
-          setActiveQuiz(
-            buildQuiz({
-              domains: new Set(BLUEPRINT_DOMAINS),
-              showUnsafe: true,
-              sortMode: "priority",
-              shuffle: false,
-            })
-          );
-        },
-        closeQuiz: () => setActiveQuiz(null),
-      };
-    }
-  }, []);
+  useEffect(
+    () =>
+      AUDIT_HOOKS_ENABLED
+        ? registerAuditHook("__prioritizedLearningState", {
+            startAll: () => {
+              setActiveQuiz(
+                buildQuiz({
+                  domains: new Set(BLUEPRINT_DOMAINS),
+                  showUnsafe: true,
+                  sortMode: "priority",
+                  shuffle: false,
+                })
+              );
+            },
+            closeQuiz: () => setActiveQuiz(null),
+          })
+        : undefined,
+    []
+  );
 
   function startDrill() {
     if (weakIds.size === 0) {

@@ -4,8 +4,9 @@
 // Item antippen → Ziel antippen. Zugewiesene Items per Klick zurücklegen.
 // ============================================================
 
+import { AUDIT_HOOKS_ENABLED, registerAuditHook } from "@/lib/audit-hooks";
 import { X, ArrowLeft, ArrowRight, ArrowCounterClockwise, CheckCircle, XCircle } from "@phosphor-icons/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ccnaDragDropQuestions, type DragDropQuestion } from "@/data/ccnaDragDrop";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
@@ -76,21 +77,27 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
     if (allCorrect) setSolved((s) => new Set(s).add(qIndex));
   }
 
+  const auditApi = useRef({ goto, check, q });
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).__dragDropState = {
-        setIndex: (idx: number) => goto(idx),
-        checkCurrent: () => check(),
-        resetPlaced: () => {
-          setPlaced({});
-          setSelected(null);
-          setChecked(false);
-        },
-        getCurrentQ: () => q,
-        getCount: () => ccnaDragDropQuestions.length,
-      };
-    }
-  }, [q, qIndex]);
+    auditApi.current = { goto, check, q };
+  });
+  useEffect(
+    () =>
+      AUDIT_HOOKS_ENABLED
+        ? registerAuditHook("__dragDropState", {
+            setIndex: (idx: number) => auditApi.current.goto(idx),
+            checkCurrent: () => auditApi.current.check(),
+            resetPlaced: () => {
+              setPlaced({});
+              setSelected(null);
+              setChecked(false);
+            },
+            getCurrentQ: () => auditApi.current.q,
+            getCount: () => ccnaDragDropQuestions.length,
+          })
+        : undefined,
+    []
+  );
 
   const correctCount = q.items.filter((it) =>
     it.target === null ? !(it.id in placed) : placed[it.id] === it.target,

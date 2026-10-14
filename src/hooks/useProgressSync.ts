@@ -1,3 +1,4 @@
+import { normalizeStoredQuestionIds } from "@/lib/question-id";
 import { supabase } from "@/lib/supabase";
 import type { UserProgress } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
@@ -54,7 +55,7 @@ async function fetchWeakFromSupabase(userId: string): Promise<Set<string>> {
     .select("question_ids")
     .eq("user_id", userId)
     .single();
-  return new Set<string>(data?.question_ids ?? []);
+  return normalizeStoredQuestionIds(data?.question_ids ?? []);
 }
 
 // ─── Hook ─────────────────────────────────────────────────────
@@ -94,11 +95,9 @@ export function useProgressSync(
 
       // Sync exam weak questions.
       const localWeakRaw = localStorage.getItem(EXAM_STORAGE_KEY);
-      const localWeak: Set<string> = localWeakRaw
-        ? new Set(JSON.parse(localWeakRaw))
-        : new Set();
+      const localWeak = localWeakRaw ? normalizeStoredQuestionIds(JSON.parse(localWeakRaw)) : new Set<string>();
       const remoteWeak = await fetchWeakFromSupabase(user.id);
-      const mergedWeak = new Set([...localWeak, ...remoteWeak]);
+      const mergedWeak = normalizeStoredQuestionIds([...localWeak, ...remoteWeak]);
       localStorage.setItem(EXAM_STORAGE_KEY, JSON.stringify([...mergedWeak]));
       if (mergedWeak.size !== remoteWeak.size) {
         await pushWeakToSupabase(user.id, mergedWeak);
