@@ -1,3 +1,4 @@
+import { AUDIT_HOOKS_ENABLED, registerAuditHook } from "@/lib/audit-hooks";
 import { shouldIgnoreSingleKeyShortcut } from "@/lib/keyboard-shortcuts";
 import { AnnotationLayer } from "@/components/AnnotationLayer";
 import { Canvas } from "@/components/Canvas";
@@ -375,23 +376,25 @@ function App() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).__auditApp = {
-        setTheme: (t: "light" | "dark") => setThemePreference(t),
-        openDialog: (target: "exam" | "prioritized" | "dragdrop") => {
-          if (target === "exam") setShowExamPrep(true);
-          if (target === "prioritized") setShowPrioritizedLearning(true);
-          if (target === "dragdrop") setActiveTool("dragdrop-trainer");
-        },
-        closeDialogs: () => {
-          setShowExamPrep(false);
-          setShowPrioritizedLearning(false);
-          setActiveTool(null);
-        },
-      };
-    }
-  }, []);
+  useEffect(
+    () =>
+      AUDIT_HOOKS_ENABLED
+        ? registerAuditHook("__auditApp", {
+            setTheme: (t) => setThemePreference(t),
+            openDialog: (target) => {
+              if (target === "exam") setShowExamPrep(true);
+              if (target === "prioritized") setShowPrioritizedLearning(true);
+              if (target === "dragdrop") setActiveTool("dragdrop-trainer");
+            },
+            closeDialogs: () => {
+              setShowExamPrep(false);
+              setShowPrioritizedLearning(false);
+              setActiveTool(null);
+            },
+          })
+        : undefined,
+    []
+  );
 
   // Phase 5: Collaboration State
   const [showAnnotations, setShowAnnotations] = useState(false);

@@ -12,6 +12,8 @@
 // Tabelle) — kein PNG-Fallback mehr nötig.
 // ============================================================
 
+import { normalizeStoredQuestionIds, toBaseQuestionId } from "@/lib/question-id";
+import { AUDIT_HOOKS_ENABLED, auditNoShuffle, registerAuditHook } from "@/lib/audit-hooks";
 import {
   ArrowLeft,
   ArrowRight,
@@ -84,7 +86,7 @@ function answersEqual(a: string[], b: string[]): boolean {
 function loadWeakIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return new Set(JSON.parse(raw));
+    if (raw) return normalizeStoredQuestionIds(JSON.parse(raw));
   } catch {
     /* localStorage nicht verfügbar */
   }
@@ -92,7 +94,7 @@ function loadWeakIds(): Set<string> {
 }
 
 function saveWeakIds(ids: Set<string>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...normalizeStoredQuestionIds([...ids])]));
 }
 
 // ─── Sub-components ──────────────────────────────────────────
@@ -300,7 +302,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
     const map: Record<string, { c: number; t: number }> = {};
     const qMap = new Map(questions.map((q) => [q.id, q]));
     results.forEach((r) => {
-      const cat = qMap.get(r.questionId.split("#")[0])?.category ?? "Sonstige";
+      const cat = qMap.get(toBaseQuestionId(r.questionId))?.category ?? "Sonstige";
       if (!map[cat]) map[cat] = { c: 0, t: 0 };
       map[cat].t++;
       if (r.correct) map[cat].c++;
@@ -451,9 +453,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   }, [questions, selectedCategory]);
 
   function startLearn() {
-    const pool = typeof window !== "undefined" && (window as any).__AUDIT_NO_SHUFFLE__
-      ? filteredPool
-      : shuffle(filteredPool);
+    const pool = auditNoShuffle() ? filteredPool : shuffle(filteredPool);
     setSessionQ(pool);
     setQIndex(0);
     setUserAnswers(new Map());
@@ -464,20 +464,26 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setMode("learn");
   }
 
+  const auditApi = useRef({ revealAnswer, startLearn, sessionQ, qIndex });
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).__examPrepState = {
-        setQIndex: (idx: number) => {
-          setQIndex(idx);
-        },
-        revealAnswer: () => revealAnswer(),
-        resetRevealed: () => setRevealed(new Set()),
-        getCurrentQ: () => sessionQ[qIndex],
-        getQuestions: () => sessionQ,
-        startLearn: () => startLearn(),
-      };
-    }
-  }, [qIndex, sessionQ]);
+    auditApi.current = { revealAnswer, startLearn, sessionQ, qIndex };
+  });
+  useEffect(
+    () =>
+      AUDIT_HOOKS_ENABLED
+        ? registerAuditHook("__examPrepState", {
+            setQIndex: (idx: number) => {
+              setQIndex(idx);
+            },
+            revealAnswer: () => auditApi.current.revealAnswer(),
+            resetRevealed: () => setRevealed(new Set()),
+            getCurrentQ: () => auditApi.current.sessionQ[auditApi.current.qIndex],
+            getQuestions: () => auditApi.current.sessionQ,
+            startLearn: () => auditApi.current.startLearn(),
+          })
+        : undefined,
+    []
+  );
 
   function startExam() {
     const pool = shuffle(filteredPool).slice(0, EXAM_QUESTIONS_COUNT);
