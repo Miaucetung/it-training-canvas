@@ -300,7 +300,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
     const map: Record<string, { c: number; t: number }> = {};
     const qMap = new Map(questions.map((q) => [q.id, q]));
     results.forEach((r) => {
-      const cat = qMap.get(r.questionId)?.category ?? "Sonstige";
+      const cat = qMap.get(r.questionId.split("#")[0])?.category ?? "Sonstige";
       if (!map[cat]) map[cat] = { c: 0, t: 0 };
       map[cat].t++;
       if (r.correct) map[cat].c++;
