@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { CcnaDashboard } from "@/components/dashboard/CcnaDashboard";
-import { CISCO_EXAM_PAGE, CISCO_EXAM_TOPICS_PDF, INTRO_DISMISSED_KEY } from "@/components/dashboard/IntroCard";
+import { CISCO_EXAM_PAGE, CISCO_EXAM_TOPICS_PDF, INTRO_DISMISSED_KEY } from "@/components/dashboard/intro-facts";
 import { BLUEPRINT_DOMAINS } from "@/lib/dashboard-blueprint-config";
 
 vi.mock("@/lib/content/content-loader", () => ({

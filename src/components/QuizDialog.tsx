@@ -468,7 +468,7 @@ export function QuizDialog({
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-dialog flex items-center justify-center">
+      <div role="dialog" aria-modal="true" aria-label={quiz.title} className="fixed inset-0 z-dialog flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}

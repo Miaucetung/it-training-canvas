@@ -51,7 +51,7 @@ function StepPanel({ ev, lookups, labs, progress, onOpenLesson, onStartQuiz, onO
       )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">1 · Verstehen</h4>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">1 · Verstehen</h3>
           <ul className="space-y-1.5">
             {ev.lessons.map(({ lesson, status }) => (
               <li key={`${lesson.topicId}-${lesson.anchor ?? ""}`} className="flex flex-col">
@@ -68,7 +68,7 @@ function StepPanel({ ev, lookups, labs, progress, onOpenLesson, onStartQuiz, onO
           </ul>
         </div>
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">2 · Üben</h4>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">2 · Üben</h3>
           {ev.quizzes.length === 0 ? (
             <p className="text-xs text-muted-foreground">Keine Übungsfragen vorhanden.</p>
           ) : (
@@ -101,7 +101,7 @@ function StepPanel({ ev, lookups, labs, progress, onOpenLesson, onStartQuiz, onO
           )}
         </div>
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">3 · Anwenden</h4>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">3 · Anwenden</h3>
           {ev.labs.length === 0 && step.toolIds.filter((t) => /simulator|explorer/.test(t)).length === 0 ? (
             <p className="text-xs text-muted-foreground">Für diesen Schritt gibt es kein Lab und keinen Simulator.</p>
           ) : null}
@@ -179,7 +179,7 @@ export function LearningPathSection({
                 className="w-full flex items-center gap-3 px-4 py-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
               >
                 <StatusIcon status={ev.status} />
-                <span className="font-mono text-xs text-muted-foreground w-12 shrink-0">Schritt {ev.step.number}</span>
+                <span className="font-mono text-xs text-muted-foreground w-[4.5rem] shrink-0 whitespace-nowrap">Schritt {ev.step.number}</span>
                 <span className="flex-1 min-w-0 text-sm font-semibold text-foreground">{ev.step.title}</span>
                 <span className="text-xs text-muted-foreground shrink-0 hidden sm:inline">
                   {stepStatusLabel(ev.status)} · {ev.requiredDone}/{ev.requiredTotal}

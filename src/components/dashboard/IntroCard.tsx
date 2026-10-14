@@ -1,34 +1,7 @@
 import { useState } from "react";
 import { X } from "@phosphor-icons/react";
 
-export const INTRO_DISMISSED_KEY = "ccna-dashboard-intro-v1-dismissed";
-
-/**
- * Prüfungsangaben ausschließlich aus offiziellen Cisco-Quellen (abgerufen am 2026-10-14):
- * - Prüfungsseite: https://www.cisco.com/site/us/en/learn/training-certifications/certifications/enterprise/ccna/exams-and-training.html
- *   (120 Minuten, Version v1.1, Bewertung bestanden/nicht bestanden; Fragenzahl und Bestehensgrenze nennt Cisco dort nicht)
- * - Prüfungsthemen v1.1 (PDF): https://learningcontent.cisco.com/documents/marketing/exam-topics/200-301-CCNA-v1.1.pdf
- *   (sechs Bereiche mit 20/20/25/10/15/10 %)
- */
-export const CISCO_EXAM_PAGE = "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/enterprise/ccna/exams-and-training.html";
-export const CISCO_EXAM_TOPICS_PDF = "https://learningcontent.cisco.com/documents/marketing/exam-topics/200-301-CCNA-v1.1.pdf";
-export const CISCO_FACTS_DATE = "14.10.2026";
-
-export function isIntroDismissed(): boolean {
-  try {
-    return window.localStorage.getItem(INTRO_DISMISSED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function persistDismissed(): void {
-  try {
-    window.localStorage.setItem(INTRO_DISMISSED_KEY, "1");
-  } catch {
-    // ignorieren
-  }
-}
+import { CISCO_EXAM_PAGE, CISCO_EXAM_TOPICS_PDF, CISCO_FACTS_DATE, persistDismissed } from "./intro-facts";
 
 interface IntroCardProps {
   /** Karte sichtbar (beim ersten Besuch oder über „?“) */
@@ -74,7 +47,7 @@ export function IntroCard({ open, onClose }: IntroCardProps) {
           type="button"
           aria-expanded={examOpen}
           onClick={() => setExamOpen((v) => !v)}
-          className="text-sm text-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          className="text-sm text-accent-primary-fg underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           Was ist die CCNA und wie ist die Prüfung aufgebaut?
         </button>
@@ -90,11 +63,11 @@ export function IntroCard({ open, onClose }: IntroCardProps) {
             <p>Zur Zahl der Fragen und zur Bestehensgrenze veröffentlicht Cisco keine Angaben.</p>
             <p className="text-xs">
               Quelle: Cisco, abgerufen am {CISCO_FACTS_DATE}:{" "}
-              <a href={CISCO_EXAM_PAGE} target="_blank" rel="noreferrer" className="text-primary underline">
+              <a href={CISCO_EXAM_PAGE} target="_blank" rel="noreferrer" className="text-accent-primary-fg underline">
                 Prüfungsseite
               </a>
               ,{" "}
-              <a href={CISCO_EXAM_TOPICS_PDF} target="_blank" rel="noreferrer" className="text-primary underline">
+              <a href={CISCO_EXAM_TOPICS_PDF} target="_blank" rel="noreferrer" className="text-accent-primary-fg underline">
                 Prüfungsthemen v1.1 (PDF)
               </a>
               .

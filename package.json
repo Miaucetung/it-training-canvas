@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e:canvas": "node scripts/e2e/canvas-e2e.mjs",
-    "test:e2e:browser": "node scripts/e2e/browser-audit.mjs"
+    "test:e2e:browser": "node scripts/e2e/browser-audit.mjs",
+    "test:e2e:dashboard": "node scripts/e2e/dashboard-didaktik.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",

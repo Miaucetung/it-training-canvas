@@ -11,7 +11,8 @@ import { RecentActivitySection, RecentActivityItem } from "./RecentActivitySecti
 import { CommandPalette } from "./CommandPalette";
 import { DashboardFooter } from "./DashboardFooter";
 import { LearningPathSection } from "./LearningPathSection";
-import { IntroCard, isIntroDismissed } from "./IntroCard";
+import { IntroCard } from "./IntroCard";
+import { isIntroDismissed } from "./intro-facts";
 import { NextStepCard, type NextStepLookups } from "./NextStepCard";
 import { MagnifyingGlass, Presentation, Question, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
