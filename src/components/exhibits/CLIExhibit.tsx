@@ -1,9 +1,9 @@
 import type { CLIExhibit as CLIExhibitData } from "@/types/exhibit";
 
 // Zeilenweises Syntax-Highlighting für IOS-CLI-/show-Output.
-function lineClass(line: string, highlight: string[] | undefined): string {
+function lineClass(line: string, highlight: string[] | undefined, revealed: boolean): string {
   const base = "block whitespace-pre";
-  const hot = highlight?.includes(line) ? " bg-green-900/40 rounded px-1 -mx-1" : "";
+  const hot = revealed && highlight?.includes(line) ? " bg-green-900/40 rounded px-1 -mx-1" : "";
   const trimmed = line.trimStart();
 
   let color = "text-gray-200";
@@ -21,13 +21,13 @@ function lineClass(line: string, highlight: string[] | undefined): string {
   return `${base} ${color}${hot}`;
 }
 
-export function CLIExhibit({ exhibit }: { exhibit: CLIExhibitData }) {
+export function CLIExhibit({ exhibit, revealed = false }: { exhibit: CLIExhibitData; revealed?: boolean }) {
   const lines = exhibit.content.replace(/\r\n/g, "\n").split("\n");
   return (
     <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 overflow-x-auto">
       <pre className="font-mono text-sm leading-relaxed">
         {lines.map((line, i) => (
-          <span key={i} className={lineClass(line, exhibit.highlight)}>
+          <span key={i} className={lineClass(line, exhibit.highlight, revealed)}>
             {line === "" ? " " : line}
           </span>
         ))}

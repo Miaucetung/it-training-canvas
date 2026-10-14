@@ -182,31 +182,29 @@ function QuestionCard({
         )}
       </div>
 
-      {/* Exhibit — strukturiert (CLI/Topologie/Tabelle) oder Platzhalter-Banner */}
-      {hasExhibit(question.exhibit) && (
-        exhibitList.length > 0 ? (
-          <div className="mb-4 space-y-2">
-            {exhibitList.map((ex, i) => (
-              <div
-                key={i}
-                className={`overflow-hidden rounded-xl border ${dark ? "border-zinc-700" : "border-zinc-200"}`}
-              >
-                <ExhibitRenderer exhibit={ex} />
-              </div>
-            ))}
-          </div>
-        ) : (
+      {/* Exhibit — strukturiert (CLI/Topologie/Tabelle) oder dezenter Hinweis */}
+      {hasExhibit(question.exhibit) && exhibitList.length > 0 ? (
+        <div className="mb-4 space-y-2">
+          {exhibitList.map((ex, i) => (
+            <div
+              key={i}
+              className={`overflow-hidden rounded-xl border ${dark ? "border-zinc-700" : "border-zinc-200"}`}
+            >
+              <ExhibitRenderer exhibit={ex} revealed={revealed} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        (/refer to (the )?exhibit/i.test(question.text) || hasExhibit(question.exhibit)) && (
           <div
-            className={`mb-4 flex items-start gap-2 rounded-lg border px-3 py-2 text-sm ${
-              dark ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-800"
+            className={`mb-4 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${
+              dark
+                ? "border-zinc-700 bg-zinc-800/60 text-zinc-400"
+                : "border-zinc-200 bg-zinc-100 text-zinc-600"
             }`}
           >
-            <span aria-hidden>⚠️</span>
-            <span>
-              <strong>Topologie/Grafik wird nachgereicht.</strong> Diese Frage bezieht sich auf
-              ein Exhibit, das noch nachgebaut wird — du kannst sie trotzdem anhand des Texts
-              beantworten.
-            </span>
+            <span className="font-semibold text-zinc-500">Hinweis:</span>
+            <span>Original-Exhibit nicht verfügbar</span>
           </div>
         )
       )}
@@ -406,8 +404,8 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const [sessionMode, setSessionMode] = useState<"learn" | "exam" | "drill">("learn");
   const [sessionQ, setSessionQ] = useState<PrepQuestion[]>([]);
   const [qIndex, setQIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Map<string, string[]>>(new Map());
-  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const [userAnswers, setUserAnswers] = useState<Map<number, string[]>>(new Map());
+  const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [results, setResults] = useState<SessionResult[]>([]);
   const [weakIds, setWeakIds] = useState<Set<string>>(loadWeakIds);
   const [timeLeft, setTimeLeft] = useState(EXAM_TIME_SECONDS);
@@ -515,14 +513,14 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     if (!q) return;
     setUserAnswers((prev) => {
       const next = new Map(prev);
-      const cur = next.get(q.id) ?? [];
+      const cur = next.get(qIndex) ?? [];
       if (q.type === "multi-select") {
         next.set(
-          q.id,
+          qIndex,
           cur.includes(letter) ? cur.filter((l) => l !== letter) : [...cur, letter]
         );
       } else {
-        next.set(q.id, [letter]);
+        next.set(qIndex, [letter]);
       }
       return next;
     });
@@ -531,15 +529,15 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   function revealAnswer() {
     const q = sessionQ[qIndex];
     if (!q) return;
-    setRevealed((prev) => new Set([...prev, q.id]));
+    setRevealed((prev) => new Set([...prev, qIndex]));
 
-    const ua = userAnswers.get(q.id) ?? [];
+    const ua = userAnswers.get(qIndex) ?? [];
     const ca = q.correctAnswer;
     const isCorrect = answersEqual(ua, ca);
 
     setResults((prev) => {
-      if (prev.find((r) => r.questionId === q.id)) return prev;
-      return [...prev, { questionId: q.id, correct: isCorrect, userAnswer: ua, correctAnswer: ca }];
+      if (prev.find((r) => r.questionId === `${q.id}#${qIndex}`)) return prev;
+      return [...prev, { questionId: `${q.id}#${qIndex}`, correct: isCorrect, userAnswer: ua, correctAnswer: ca }];
     });
     if (!isCorrect) {
       setWeakIds((prev) => { const next = new Set(prev); next.add(q.id); saveWeakIds(next); return next; });
@@ -562,13 +560,13 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
   function finishExam() {
     if (mode === "exam") {
-      const finalResults: SessionResult[] = sessionQ.map((q) => {
-        const existing = results.find((r) => r.questionId === q.id);
+      const finalResults: SessionResult[] = sessionQ.map((q, idx) => {
+        const existing = results.find((r) => r.questionId === `${q.id}#${idx}`);
         if (existing) return existing;
-        const ua = userAnswers.get(q.id) ?? [];
+        const ua = userAnswers.get(idx) ?? [];
         const ca = q.correctAnswer;
         const isCorrect = answersEqual(ua, ca);
-        return { questionId: q.id, correct: isCorrect, userAnswer: ua, correctAnswer: ca };
+        return { questionId: `${q.id}#${idx}`, correct: isCorrect, userAnswer: ua, correctAnswer: ca };
       });
       setResults(finalResults);
     }
@@ -579,8 +577,8 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   const bg = dark ? "bg-zinc-900 text-zinc-100" : "bg-white text-zinc-900";
   const headerBg = dark ? "bg-zinc-800 border-zinc-700" : "bg-zinc-50 border-zinc-200";
   const currentQ = sessionQ[qIndex];
-  const currentAnswer = currentQ ? (userAnswers.get(currentQ.id) ?? []) : [];
-  const isRevealed = currentQ ? revealed.has(currentQ.id) : false;
+  const currentAnswer = userAnswers.get(qIndex) ?? [];
+  const isRevealed = revealed.has(qIndex);
   const canReveal = !isRevealed && currentAnswer.length > 0;
   const progress = sessionQ.length > 0 ? (qIndex / sessionQ.length) * 100 : 0;
   const answeredCount = results.length;
@@ -648,7 +646,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
       {/* Scrollable content — nutzt die volle Bildschirmhöhe/-breite, Controls bleiben separat erreichbar */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8 pb-16">
           {/* ── MENU ──────────────────────────────────────────── */}
           {mode === "menu" && (
             <div className="flex flex-col gap-6">
