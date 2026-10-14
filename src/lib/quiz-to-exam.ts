@@ -43,21 +43,9 @@ const QUIZ_CATEGORY_MAP: Record<string, string> = {
   "ccna-quiz-cis3-klausur": "Security",
 };
 
-// Returns a diagram key from EXAM_DIAGRAMS if the question text matches a known concept.
-export function inferDiagramId(text: string): string | undefined {
-  const t = text.toLowerCase();
-  if (/\bosi\b/.test(t) && /schicht|layer|tcp\/ip|modell/.test(t)) return "osi-model";
-  if (/administrative\s+distance|admin[\s-]distance|ad[\s-]wert|a\.d\.\s|tabelle.*ad|ad.*tabelle/.test(t)) return "admin-distance";
-  if (/longest[\s-]prefix[\s-]match|longest[\s-]match|spezifischste.*route|spezifischster.*prefix/.test(t)) return "longest-prefix";
-  if (/dhcp.*dora|dora.*dhcp|dhcp[\s-]discover|dhcp[\s-]offer|dhcprequest|dhcpack/.test(t)) return "dhcp-dora";
-  if (/ospf.*\bdr\b|\bdr\b.*ospf|\bdr\b.*\bbdr\b|\bbdr\b.*\bdr\b|designated\s+router|broadcast.*ospf.*wahl/.test(t)) return "ospf-dr-bdr";
-  if (/ospf.*cost|ospf.*kosten|cost.*ospf|referenz[\s-]bandbreite|ospf.*metrik|10\^8/.test(t)) return "ospf-cost";
-  if (/spanning[\s-]tree.*port.*zustand|port[\s-]zustand.*stp|listening.*learning.*forwarding|blocking.*listening/.test(t)) return "stp-states";
-  if (/spanning[\s-]tree|root[\s-]bridge|stp.*topologie|topologie.*stp|designated[\s-]port|blocked[\s-]port/.test(t)) return "stp-topology";
-  if (/nat.*overload|\bpat\b|port\s+address\s+translation|inside[\s-]global|inside[\s-]local/.test(t)) return "nat-pat";
-  if (/\bhsrp\b|\bvrrp\b|\bglbp\b|first[\s-]hop[\s-]redundancy|virtual[\s-]ip.*gateway/.test(t)) return "fhrp";
-  if (/802\.1q|trunk.*vlan|vlan.*trunk|native[\s-]vlan/.test(t)) return "vlan-trunk";
-  if (/etherchannel|port[\s-]channel|\blacp\b|\bpagp\b|link[\s-]aggregation/.test(t)) return "etherchannel";
+// Diagramm-Inferenz per Schlagwort deaktiviert (Phase 2):
+// Fragen ohne eigenes Exhibit zeigen keine spekulative Grafik mehr.
+export function inferDiagramId(_text: string): string | undefined {
   return undefined;
 }
 
