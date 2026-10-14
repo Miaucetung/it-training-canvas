@@ -3,7 +3,7 @@ import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
 import { buildNetworkTopologyFromLab, parseLabDeviceConfig } from "@/components/labs/lab-to-network";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
-import { computeVtpSync, evaluateTrunk, formatShowVtpStatus } from "@/lib/topology/vtp-status";
+import { computeVtpSync, evaluateTrunk, formatShowVtpStatus, vtpHints } from "@/lib/topology/vtp-status";
 import { formatShowIpDhcpPool } from "@/lib/topology/dhcp-outputs";
 import type { DeviceVtpConfig, NetworkTopology, TopologyDevice, TopologyInterface } from "@/types/topology";
 
@@ -202,17 +202,152 @@ describe("VTP-Synchronisation und Trunk-Auswertung (synthetisch)", () => {
     expect(computeVtpSync(auto.c, auto.t).servers).toEqual([]);
   });
 
-  it("negativ: Client ohne Domain im Lab — Synchronisation nicht bestimmbar", () => {
-    const { c, t } = pair(srv, { mode: "client" });
-    expect(computeVtpSync(c, t).servers).toEqual([]);
-    expect(formatShowVtpStatus(c, t)).toContain("nicht bestimmbar");
+  describe("Switch ohne Domain übernimmt die Domain der ersten empfangenen Nachricht", () => {
+    it("Client ohne Domain, Passwort passt: übernimmt Domain und synchronisiert", () => {
+      const { c, t, s1 } = pair(srv, { mode: "client", password: "p" });
+      const r = computeVtpSync(c, t);
+      expect(r.adoptedDomain).toBe("D");
+      expect(r.servers).toEqual([s1]);
+      const text = formatShowVtpStatus(c, t);
+      expect(text).toMatch(/VTP Domain Name\s+: D \(übernommen aus der ersten empfangenen VTP-Nachricht/);
+      expect(text).toMatch(/Number of existing VLANs\s+: 7/);
+      expect(text).toContain("Synchronisiert mit VTP-Server");
+      expect(text).toContain("übernimmt der Switch die Domain aus der ersten empfangenen VTP-Nachricht");
+    });
+
+    it("Server ohne Domain übernimmt ebenfalls", () => {
+      const { c, t } = pair(srv, { mode: "server", password: "p" });
+      expect(computeVtpSync(c, t).adoptedDomain).toBe("D");
+    });
+
+    it("kein Passwort auf beiden Seiten: Übernahme funktioniert", () => {
+      const { c, t } = pair({ domain: "D", mode: "server" }, { mode: "client" });
+      expect(computeVtpSync(c, t).adoptedDomain).toBe("D");
+      expect(computeVtpSync(c, t).servers).toHaveLength(1);
+    });
+
+    it("negativ: Passwort passt nicht — keine Übernahme, keine Synchronisation", () => {
+      const { c, t } = pair(srv, { mode: "client", password: "anders" });
+      const r = computeVtpSync(c, t);
+      expect(r.adoptedDomain).toBeUndefined();
+      expect(r.servers).toEqual([]);
+      expect(formatShowVtpStatus(c, t)).toMatch(/VTP Domain Name\s+: nicht gesetzt/);
+    });
+
+    it("negativ: Passwort nur auf dem Server gesetzt — keine Übernahme", () => {
+      const { c, t } = pair(srv, { mode: "client" });
+      expect(computeVtpSync(c, t).servers).toEqual([]);
+    });
+
+    it("negativ: kein Trunk — nichts wird empfangen", () => {
+      const { c, t } = pair(srv, { mode: "client", password: "p" }, { mode: "access" });
+      const r = computeVtpSync(c, t);
+      expect(r.adoptedDomain).toBeUndefined();
+      expect(r.servers).toEqual([]);
+    });
+
+    it("zwei erreichbare Domains: Ergebnis hängt von der ersten Nachricht ab", () => {
+      const s1 = sw("S1", { domain: "D", mode: "server" }, { mode: "trunk" });
+      const s2 = sw("S2", { domain: "E", mode: "server" }, { mode: "trunk" });
+      const c = sw("C1", { mode: "client" }, { mode: "trunk" }, 2);
+      const t = topo([s1, s2, c], [link(s1, 0, c, 0), link(s2, 0, c, 1)]);
+      const r = computeVtpSync(c, t);
+      expect(r.ambiguousDomains?.sort()).toEqual(["D", "E"]);
+      expect(r.servers).toEqual([]);
+      const text = formatShowVtpStatus(c, t);
+      expect(text).toContain("abhängig vom Verlauf");
+      expect(text).toMatch(/Number of existing VLANs\s+: abhängig vom Verlauf/);
+    });
+
+    it("Inspector-Hinweis nur ohne Domain", () => {
+      const noDomain = pair(srv, { mode: "client", password: "p" });
+      expect(vtpHints(noDomain.c, noDomain.t).join(" ")).toContain("ersten empfangenen VTP-Nachricht");
+      const withDomain = pair(srv, cli);
+      expect(vtpHints(withDomain.c, withDomain.t)).toEqual([]);
+    });
+
+    it("Kette: Switch ohne Domain hinter einem Client übernimmt über die Kette", () => {
+      const s1 = sw("S1", { domain: "D", mode: "server" }, { mode: "trunk" });
+      const c1 = sw("C1", { domain: "D", mode: "client" }, { mode: "trunk" }, 2);
+      const c2 = sw("C2", { mode: "client" }, { mode: "trunk" });
+      const t = topo([s1, c1, c2], [link(s1, 0, c1, 0), link(c1, 1, c2, 0)]);
+      expect(computeVtpSync(c2, t).adoptedDomain).toBe("D");
+    });
   });
 
-  it("negativ: Transparent erhält keine VLANs und meldet das", () => {
-    const { c, t } = pair(srv, { ...cli, mode: "transparent" });
-    const text = formatShowVtpStatus(c, t);
-    expect(text).toMatch(/VTP Operating Mode\s+: Transparent/);
-    expect(text).toContain("keine Synchronisation");
+  describe("Transparent-Switch in der Kette", () => {
+    const chain = (tv: DeviceVtpConfig, clientVtp: DeviceVtpConfig = cli, serverVtp: DeviceVtpConfig = srv) => {
+      const s1 = sw("S1", serverVtp, { mode: "trunk" });
+      const tr = sw("T1", tv, { mode: "trunk" }, 2);
+      const c = sw("C1", clientVtp, { mode: "trunk" });
+      return { s1, tr, c, t: topo([s1, tr, c], [link(s1, 0, tr, 0), link(tr, 1, c, 0)]) };
+    };
+
+    it("v2: leitet unabhängig von der Domain weiter", () => {
+      const { c, t, s1 } = chain({ mode: "transparent", domain: "ANDERS", version: 2 });
+      expect(computeVtpSync(c, t).servers).toEqual([s1]);
+    });
+
+    it("v2 ohne Domain am Transparent-Switch: leitet weiter", () => {
+      const { c, t, s1 } = chain({ mode: "transparent", version: 2 });
+      expect(computeVtpSync(c, t).servers).toEqual([s1]);
+    });
+
+    it("v1: gleiche Domain leitet weiter", () => {
+      const { c, t, s1 } = chain({ mode: "transparent", domain: "D", version: 1 });
+      expect(computeVtpSync(c, t).servers).toEqual([s1]);
+    });
+
+    it("v1: andere Domain unterbricht die Kette", () => {
+      const { c, t } = chain({ mode: "transparent", domain: "ANDERS", version: 1 });
+      const r = computeVtpSync(c, t);
+      expect(r.servers).toEqual([]);
+      expect(r.uncertainServers).toEqual([]);
+      expect(r.blockers.join("\n")).toContain("Transparent mit VTP v1");
+    });
+
+    it("v1: keine Domain am Transparent-Switch unterbricht ebenfalls", () => {
+      const { c, t } = chain({ mode: "transparent", version: 1 });
+      expect(computeVtpSync(c, t).servers).toEqual([]);
+    });
+
+    it("Version im Lab nicht angegeben und andere Domain: nicht bestimmbar, nichts behauptet", () => {
+      const { c, t, s1 } = chain({ mode: "transparent", domain: "ANDERS" });
+      const r = computeVtpSync(c, t);
+      expect(r.servers).toEqual([]);
+      expect(r.uncertainServers).toEqual([s1]);
+      expect(r.versionDependent).toEqual(["T1"]);
+      const text = formatShowVtpStatus(c, t);
+      expect(text).toMatch(/Number of existing VLANs\s+: nicht bestimmbar/);
+      expect(text).toContain("hängt von der VTP-Version ab");
+    });
+
+    it("Version nicht angegeben, aber gleiche Domain: sicher weitergeleitet", () => {
+      const { c, t, s1 } = chain({ mode: "transparent", domain: "D" });
+      expect(computeVtpSync(c, t).servers).toEqual([s1]);
+    });
+
+    it("Transparent übernimmt selbst keine VLANs und synchronisiert nicht", () => {
+      const { tr, t } = chain({ mode: "transparent", domain: "D", version: 2 });
+      expect(computeVtpSync(tr, t).servers).toEqual([]);
+      expect(formatShowVtpStatus(tr, t)).toMatch(/Number of existing VLANs\s+: 5(\s|$)/);
+      expect(vtpHints(tr, t).join(" ")).toContain("Transparent");
+    });
+
+    it("Passwort wird vom Transparent-Switch nicht geprüft, vom Client aber schon", () => {
+      const ok = chain({ mode: "transparent", domain: "D", version: 2, password: "egal" });
+      expect(computeVtpSync(ok.c, ok.t).servers).toHaveLength(1);
+      const bad = chain({ mode: "transparent", domain: "D", version: 2 }, { ...cli, password: "falsch" });
+      expect(computeVtpSync(bad.c, bad.t).servers).toEqual([]);
+    });
+
+    it("Trunk zwischen Server und Transparent-Switch fehlt: Kette unterbrochen", () => {
+      const s1 = sw("S1", srv, { mode: "access" });
+      const tr = sw("T1", { mode: "transparent", version: 2 }, { mode: "trunk" }, 2);
+      const c = sw("C1", cli, { mode: "trunk" });
+      const t = topo([s1, tr, c], [link(s1, 0, tr, 0), link(tr, 1, c, 0)]);
+      expect(computeVtpSync(c, t).servers).toEqual([]);
+    });
   });
 
   it("Kette Server — Client — Client: zweiter Client synchronisiert über den ersten", () => {

@@ -21,8 +21,13 @@ Ein Client erhält VLANs nur über eine Kette von Switches mit funktionierendem 
 - **vtp-dtp:** SW1 `desirable` ↔ SW2 `trunk nonegotiate`: kein Trunk, SW2 und SW3 bleiben bei den 5 Standard-VLANs (der bekannte Fehler im Lab-Text, siehe `KORREKTURVORSCHLAEGE-LABTEXT.md`).
 - **vlan-dhcp-nat-roas, dhcp-relay, vlan-vtp-dhcp-campus:** Trunks funktionieren, Clients synchronisieren.
 
+### Korrektur nach Review
+- **Switch ohne Domain** (Server oder Client): übernimmt die Domain der ersten empfangenen VTP-Nachricht über einen Trunk und synchronisiert danach, wenn das Passwort passt (beide ohne Passwort zählt als passend). Sind mehrere Domains erreichbar, steht „abhängig vom Verlauf“. Switches ohne jeden VTP-Befehl im Lab gelten als Werkseinstellung (Server, keine Domain, kein Passwort) und nehmen an der Verteilung teil. Hinweis im Inspector (`vtpHints`).
+- **Transparent in der Kette:** übernimmt keine VLANs, leitet VTP-Nachrichten über seine Trunks weiter: v2 unabhängig von der Domain, v1 nur bei gleicher Domain. Das Passwort prüft er nicht. Fehlt im Lab die `vtp version` und weicht die Domain ab, ist die Weiterleitung „nicht bestimmbar“ (kein Ergebnis behauptet).
+- Annahme: ein Passwort nur auf einer Seite zählt als Abweichung (Digest passt nicht).
+
 ### Tests
-`lab-show-outputs-dhcp-vtp.test.ts` (23 Prüfungen): positive Fälle an dhcp, vtp-dtp, vlan-dhcp-nat-roas, vlan-vtp-dhcp-campus; negative Fälle (Geräte ohne Pool/VTP, Startzustand, Pool ohne `network`, andere Domain, anderes Passwort, Access-Port, Port aus, auto/auto, Domain fehlt, Transparent, unterbrochene Kette); Parser-Tests; DTP-Tabelle. Der Test „keine erfundenen IP-Adressen“ lässt zusätzlich die im Lab konfigurierten DHCP-Werte des jeweiligen Geräts zu (Gateway, DNS, Netz, Ausschlüsse), sonst nichts.
+`lab-show-outputs-dhcp-vtp.test.ts` (40 Prüfungen): positive Fälle an dhcp, vtp-dtp, vlan-dhcp-nat-roas, vlan-vtp-dhcp-campus; negative Fälle (Geräte ohne Pool/VTP, Startzustand, Pool ohne `network`, andere Domain, anderes Passwort, Access-Port, Port aus, auto/auto, Domain fehlt, Transparent, unterbrochene Kette); Parser-Tests; DTP-Tabelle. Der Test „keine erfundenen IP-Adressen“ lässt zusätzlich die im Lab konfigurierten DHCP-Werte des jeweiligen Geräts zu (Gateway, DNS, Netz, Ausschlüsse), sonst nichts.
 
 ### Offene Punkte
 - Die Revisionsnummer und der MD5-Digest werden nicht ausgegeben (hängen vom Verlauf ab bzw. sind nicht bestimmbar).
