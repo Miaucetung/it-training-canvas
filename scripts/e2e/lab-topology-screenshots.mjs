@@ -1,7 +1,7 @@
 // Screenshots der Lab-Topologien: Lab-Dialog und Canvas v2, Dark/Light, 1440/390 px, Simple/Detail.
 //
 // Aufruf:  npm run build && node scripts/e2e/lab-topology-screenshots.mjs stp vtp-dtp etherchannel ivr-svi
-// Optional: AUDIT_BASE_URL=http://localhost:5000, SHOT_OUT=docs/lab-topologien/screenshots
+// Optional: AUDIT_BASE_URL=http://localhost:5000, SHOT_OUT=<Ordner> (Standard: .local/screenshots, gitignored)
 // Ergebnis: <out>/<lab>/<ort>-<theme>-<breite>-<modus>.jpg und eine Prüfung der Rücksprung-Navigation.
 import { chromium } from "playwright-core";
 import { spawn } from "node:child_process";
@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
-const outRoot = path.resolve(root, process.env.SHOT_OUT ?? "docs/lab-topologien/screenshots");
+const outRoot = path.resolve(root, process.env.SHOT_OUT ?? ".local/screenshots");
 const labIds = process.argv.slice(2);
 if (labIds.length === 0) {
   console.error("Bitte Lab-IDs angeben, z. B. stp vtp-dtp");

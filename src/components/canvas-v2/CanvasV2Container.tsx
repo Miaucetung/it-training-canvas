@@ -39,6 +39,7 @@ import { useTopologyHistory } from "@/hooks/useTopologyHistory";
 import { CiscoCliGenerator } from "@/lib/topology/cisco-cli-generator";
 import { computeOspfNeighbors } from "@/lib/topology/ospf-neighbors";
 import { ipv6Hints } from "@/lib/topology/ipv6-routing";
+import { stpHints } from "@/lib/topology/stp-hints";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -218,7 +219,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     return CiscoCliGenerator.getDynamicShowOutputs(selectedDevice, activeTopology);
   }, [selectedDevice, activeTopology]);
 
-  const ipv6HintList = useMemo(() => (selectedDevice ? ipv6Hints(selectedDevice) : []), [selectedDevice]);
+  const ipv6HintList = useMemo(() => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice)] : []), [selectedDevice]);
 
   // Broadcast-Segment mit DR/BDR-Wahl: Hinweis zur Nicht-Präemption
   const hasOspfBroadcastSegment = useMemo(() => {

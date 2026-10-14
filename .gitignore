@@ -42,3 +42,6 @@ coverage/
 # (strukturierte Exhibit-Daten in ccnaQuestions(Classified).ts ersetzen sie)
 notes/ccna-exam/images/
 scripts/e2e/out/
+
+# lokale Screenshots (nicht ins Repo)
+.local/

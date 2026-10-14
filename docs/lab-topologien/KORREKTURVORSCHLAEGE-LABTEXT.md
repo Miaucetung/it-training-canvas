@@ -103,7 +103,7 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 | co-acl-nat-isp | Geräteliste | SW1/SW2 (Standort-LANs) und der Switch des Internet-Segments fehlen bzw. sind nicht konfiguriert; die Topologie zeichnet SW1/SW2 als „im Lab nicht konfiguriert“ und das Internet-Segment als „im Lab nicht angegeben“. EIGRP (CO-1, ISP-MUMBAI) ist nicht modelliert, daher zeigt CO-1 keine Nachbarn; OSPF CO-2 ↔ ISP-MUMBAI wird berechnet. | Switches mit Ports in Geräteliste und Verbindungsliste ergänzen. |
 | dhcp-snooping-dai | Schritt „DHCP Snooping aktivieren“ | `ip dhcp snooping vlan 10`, aber kein VLAN 10 und keine Access-Ports in VLAN 10: die Ports Fa0/1–3 liegen im VLAN 1, Snooping würde nicht greifen. | `vlan 10` und `switchport access vlan 10` für Fa0/1–3 sowie Trunk/Access für Gi0/1 ergänzen (oder `snooping vlan 1`). |
 | stp-hardening | Verbindungsliste | `Dist1 ↔ Dist2 (Gi0/3)`: Catalyst 2960 hat nur Gi0/1–2. Die Topologie nutzt ein Profil „2960 mit 4 Gigabit-Uplinks“. Dist-Ports zum Core sind nicht genannt (angenommen Gi0/1). | Dist-Ports nennen (`Core Gi0/1 ↔ Dist1 Gi0/1`, `Core Gi0/2 ↔ Dist2 Gi0/1`) und `Gi0/3` durch einen vorhandenen Port ersetzen. |
-| stp-hardening | Schritt 1 (Core) | `spanning-tree vlan 1-100 priority 4096` gefolgt von `… root primary`: die Wirkung des Makros nach expliziter Priority ist uneindeutig. Die Topologie nimmt 4096 an. | Nur einen der beiden Befehle verwenden. |
+| stp-hardening | Schritt 1 (Core) | `spanning-tree vlan 1-100 priority 4096` gefolgt von `… root primary`: beide setzen dieselbe Konfigurationszeile, der letzte Befehl gilt (Core: 24576, da kein anderer Switch eine niedrigere Priority hat). Die 4096 aus dem ersten Befehl sind damit überschrieben. | Nur einen der beiden Befehle verwenden. |
 | vlan-hopping, port-security | Hosts | Gateway (192.168.10.1 bzw. 192.168.1.1) ohne Gerät im Lab; VLAN 20 VOICE ohne Port. | Router ergänzen oder Gateway streichen. |
 | ssh | `connections` | „direkt oder via Switch“: die Topologie zeichnet direkt. | Eine Variante festlegen. |
 | device-hardening, aaa-radius-tacacs | `connections` | Admin-PC-Port am SW1 (und SW1-Port zum RADIUS-Server) nicht genannt: angenommen Fa0/1 bzw. Gi0/1. RADIUS-Maske und Weg dorthin fehlen. | Ports nennen; Maske/Gateway des Servers ergänzen. |
@@ -115,3 +115,20 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 | device-hardening | SW1 Fa0/1 |
 | stp-hardening | Dist1 Gi0/1, Gi0/3; Dist2 Gi0/1, Gi0/3 |
 | aaa-radius-tacacs | SW1 Fa0/1, Gi0/1 |
+
+
+## 12. Paket 6 (Operations/Automation): Befunde
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| netflow | `connections` | „R1 Mgmt → Collector 10.0.0.60:9996“: Port nicht genannt; der Collector liegt im Netz von Gi0/0 (10.0.0.0/24), das als „LAN — wird beobachtet“ beschrieben ist. Die Topologie zeichnet die Verbindung über Gi0/0. | Port nennen (z. B. `R1 Gi0/0 ↔ Collector`) und klären, ob das beobachtete LAN und das Management-Netz dasselbe sind. |
+| restconf, netconf-yang | `connections` | „Admin-PC → R1 Mgmt 10.0.0.1:443/830“: Port nicht genannt; Modell „IOS-XE“ ohne Typ, Interface heißt `GigabitEthernet0/0`. Die Topologie nutzt ein generisches IOS-XE-Profil mit Gi0/0–0/2. | Modell nennen (z. B. Catalyst 8000V/ISR 4000, dort heißen die Ports `GigabitEthernet0/0/0` bzw. `GigabitEthernet1`). |
+| ios-backup-upgrade | `connections` | Subnetz nur als „z. B. 10.1.1.0/24“; R1-Adresse und Maske des TFTP-Servers fehlen (nur `ping 10.1.1.10`). | R1 `ip address 10.1.1.1 255.255.255.0` und die TFTP-Server-Adresse mit Maske ergänzen. |
+| dhcp-troubleshoot-lab | Schritte 1–3 | Nur die Korrekturen stehen im Lab, die Ausgangskonfiguration (Pools, Subinterfaces, Switch-Ports, Server-Netze) fehlt; Netz von Client Rot unbekannt. VLAN-1-SVI 192.168.2.50/24 liegt im Server-Netz VLAN 71 (192.168.2.0/24). SW1-Ports nicht genannt. | Basiskonfiguration vor den Fehlern ergänzen; SW1-Ports nennen; prüfen, ob die SVI-Adresse im Server-VLAN gewollt ist. |
+
+Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
+
+| Lab | Angenommene Ports |
+|---|---|
+| dhcp-troubleshoot-lab | SW1 Gi0/1, Fa0/1, Fa0/2, Fa0/3 |
+| netflow, restconf, netconf-yang | R1 Gi0/0 („Mgmt“ ohne Port im Lab) |
