@@ -1,10 +1,10 @@
-# Übergabe: Lab-Topologien (Stand nach Paket 6)
+# Übergabe: Lab-Topologien (Stand nach Paket 7)
 
 ## Stand
-- In `main` (`75fbd5a`): Pakete 1 bis 5 (Layer 2, Routing, IPv6, Services, Security) mit Fundament, IPv6-Ausgaben, OSPF über Switch-Segmente, Diagramm-Zoom.
-- `feature/lab-topologies-operations` (nicht gemergt): Paket 6 Operations/Automation (5 Labs), STP-Makros „letzter Befehl gilt“, Canvas-Notizen, siehe `BERICHT-PAKET-6.md`.
-- Lint 0 Fehler (48 Warnungen), 1525 Tests in 61 Dateien grün, Build grün.
-- Berichte: `BESTANDSAUFNAHME.md` (alle 55 Labs), `BERICHT-PAKET-1.md` bis `-6.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots: `screenshots/<lab>/`.
+- In `main` (`03969dd`): Pakete 1 bis 6, IPv6-Ausgaben, OSPF über Switch-Segmente, STP-Makros, Dashboard (Lernpfad, Fortschritt, Einführung).
+- `feature/lab-topologies-campus` (nicht gemergt): Paket 7 Campus (2 Labs), siehe `BERICHT-PAKET-7.md`. Damit haben 50 von 55 Labs eine Vorlage; die fünf ohne Netz sind im Bericht genannt.
+- Lint 0 Fehler (48 Warnungen), 1607 Tests in 67 Dateien grün, Build grün.
+- Berichte: `BESTANDSAUFNAHME.md`, `BERICHT-PAKET-1.md` bis `-7.md`, `KORREKTURVORSCHLAEGE-LABTEXT.md`. Screenshots entstehen nur noch unter `.local/screenshots` (nicht im Repo).
 
 ## Fundament (für alle Pakete)
 - Daten: `src/components/labs/topologies/<kategorie>.ts` plus `builders.ts`, zusammengeführt in `curated-topologies.ts`.

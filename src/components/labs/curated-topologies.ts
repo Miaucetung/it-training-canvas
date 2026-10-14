@@ -8,6 +8,7 @@ import { IPV6_LABS_TOPOLOGIES } from "./topologies/ipv6-labs";
 import { SERVICES_LABS_TOPOLOGIES } from "./topologies/services-labs";
 import { SECURITY_LABS_TOPOLOGIES } from "./topologies/security-labs";
 import { OPERATIONS_LABS_TOPOLOGIES } from "./topologies/operations-labs";
+import { CAMPUS_LABS_TOPOLOGIES } from "./topologies/campus-labs";
 
 /**
  * Kuratierte, rasterausgerichtete Cisco-Press-Topologien aller Labs mit Netzwerk-Topologie.
@@ -23,4 +24,5 @@ export const CURATED_TOPOLOGIES: Record<string, LabTopologyData> = {
   ...SERVICES_LABS_TOPOLOGIES,
   ...SECURITY_LABS_TOPOLOGIES,
   ...OPERATIONS_LABS_TOPOLOGIES,
+  ...CAMPUS_LABS_TOPOLOGIES,
 };
