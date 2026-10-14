@@ -87,6 +87,36 @@ export interface TopologyInterface {
   ospf?: InterfaceOspfConfig;
   /** Port im Lab nicht angegeben, nach Konvention angenommen */
   assumed?: boolean;
+  /** `switchport mode dynamic desirable|auto` (DTP); ohne Angabe gilt für nicht festgelegte Ports der Plattform-Standard */
+  dtp?: "desirable" | "auto";
+  /** `switchport nonegotiate`: der Port sendet keine DTP-Frames */
+  nonegotiate?: boolean;
+}
+
+export interface DeviceDhcpPool {
+  name: string;
+  /** Netz (Adresse/Präfix) aus `network <Adresse> <Maske>`; fehlt, wenn das Lab es nicht setzt */
+  network?: string;
+  defaultRouter?: string;
+  dnsServers?: string[];
+  /** `lease ...` wie im Lab angegeben */
+  lease?: string;
+}
+
+export interface DeviceDhcpExcluded {
+  from: string;
+  to: string;
+}
+
+export type VtpMode = "server" | "client" | "transparent" | "off";
+
+export interface DeviceVtpConfig {
+  /** fehlt, wenn das Lab keinen `vtp mode` setzt */
+  mode?: VtpMode;
+  domain?: string;
+  /** `vtp version <n>`; fehlt, wenn das Lab sie nicht setzt */
+  version?: number;
+  password?: string;
 }
 
 export interface InterfaceOspfv3Config {
@@ -150,6 +180,9 @@ export interface DeviceConfig {
   ipv6Routes?: DeviceIpv6Route[];
   ospfv3?: { processId: number; routerId?: string };
   eigrpv6?: { asn: number; routerId?: string; shutdown?: boolean };
+  dhcpPools?: DeviceDhcpPool[];
+  dhcpExcluded?: DeviceDhcpExcluded[];
+  vtp?: DeviceVtpConfig;
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"

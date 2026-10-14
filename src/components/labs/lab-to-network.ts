@@ -1,11 +1,15 @@
 import type {
   ChannelGroupMode,
   DeviceConfig,
+  DeviceDhcpExcluded,
+  DeviceDhcpPool,
+  DeviceVtpConfig,
   InterfaceMode,
   NetworkTopology,
   TopologyDevice,
   TopologyInterface,
   TopologyLink,
+  VtpMode,
 } from "@/types/topology";
 import {
   baseInterfaceName,
@@ -78,6 +82,8 @@ interface IfaceCfg {
   ospfPassive?: boolean;
   ospfNetworkType?: "broadcast" | "point-to-point";
   ospfPriority?: number;
+  dtp?: "desirable" | "auto";
+  nonegotiate?: boolean;
 }
 
 export interface ParsedDeviceConfig {
@@ -97,6 +103,9 @@ export interface ParsedDeviceConfig {
   ospfv3?: { processId: number; routerId?: string; passive: string[]; passiveDefault: boolean; noPassive: string[] };
   eigrp6?: { processId: number; routerId?: string; shutdown: boolean };
   ipv6Routes: Array<{ prefix: string; nextHop?: string; outInterface?: string; distance?: number }>;
+  dhcpPools: DeviceDhcpPool[];
+  dhcpExcluded: DeviceDhcpExcluded[];
+  vtp?: DeviceVtpConfig;
   /** Alle Befehle für diesen Gerät in Lab-Reihenfolge, ohne Prompt */
   cli: string;
 }
@@ -185,12 +194,13 @@ function parseVlanList(spec: string): number[] {
 const PROMPT_FREE_SKIP = /^(enable|configure terminal|conf t|end|exit|do copy running-config startup-config|copy running-config startup-config|wr|write memory)$/i;
 
 export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName: string): ParsedDeviceConfig {
-  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], cli: "" };
+  const cfg: ParsedDeviceConfig = { vlans: new Map(), ifaces: new Map(), ipRouting: false, ipv6Routing: false, ipv6Routes: [], dhcpPools: [], dhcpExcluded: [], cli: "" };
   const cliLines: string[] = [];
   let ctxIfaces: string[] = [];
   let ctxVlan: number | null = null;
   let ctxOspf = false;
   let ctxV6: "ospf" | "eigrp" | null = null;
+  let ctxPool: DeviceDhcpPool | null = null;
   const ifaceOf = (n: string): IfaceCfg => {
     const k = normalizeInterfaceName(n);
     const cur = cfg.ifaces.get(k) ?? {};
@@ -210,12 +220,47 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           const line = raw.trim();
           if (!line) continue;
           cliLines.push(raw.replace(/\s+$/, ""));
+          if (ctxPool && !/^(network|default-router|dns-server|lease|domain-name|option)\b/i.test(line)) ctxPool = null;
           if (PROMPT_FREE_SKIP.test(line)) {
             if (/^exit$|^end$/i.test(line)) {
               ctxIfaces = [];
               ctxVlan = null;
               ctxOspf = false;
             }
+            continue;
+          }
+
+          // DHCP-Pool (Router/L3-Switch) und VTP
+          let dh: RegExpExecArray | null;
+          if (ctxPool) {
+            if ((dh = /^network\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})$/i.exec(line))) {
+              const p = maskToPrefix(dh[2]);
+              if (p !== null) ctxPool.network = `${dh[1]}/${p}`;
+            } else if ((dh = /^default-router\s+(\d+(?:\.\d+){3})/i.exec(line))) ctxPool.defaultRouter = dh[1];
+            else if ((dh = /^dns-server\s+(.+)$/i.exec(line))) ctxPool.dnsServers = dh[1].split(/\s+/);
+            else if ((dh = /^lease\s+(.+)$/i.exec(line))) ctxPool.lease = dh[1];
+            continue;
+          }
+          if ((dh = /^ip dhcp pool\s+(\S+)$/i.exec(line))) {
+            const poolName = dh[1];
+            ctxPool = cfg.dhcpPools.find((p) => p.name === poolName) ?? { name: poolName };
+            if (!cfg.dhcpPools.includes(ctxPool)) cfg.dhcpPools.push(ctxPool);
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^ip dhcp excluded-address\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) {
+            cfg.dhcpExcluded.push({ from: dh[1], to: dh[2] ?? dh[1] });
+            continue;
+          }
+          if ((dh = /^vtp\s+(domain|mode|version|password)\s+(\S+)/i.exec(line))) {
+            const vtp = (cfg.vtp ??= {});
+            const key = dh[1].toLowerCase();
+            if (key === "domain") vtp.domain = dh[2];
+            else if (key === "password") vtp.password = dh[2];
+            else if (key === "version") vtp.version = Number(dh[2]);
+            else if (/^(server|client|transparent|off)$/i.test(dh[2])) vtp.mode = dh[2].toLowerCase() as VtpMode;
             continue;
           }
 
@@ -450,7 +495,13 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
               if ((m = /^ip address\s+(\S+)\s+(\S+)/i.exec(line))) {
                 const p = maskToPrefix(m[2]);
                 if (p !== null) i.ip = `${m[1]}/${p}`;
-              } else if ((m = /^switchport mode\s+(access|trunk)$/i.exec(line))) i.mode = m[1].toLowerCase() as InterfaceMode;
+              } else if ((m = /^switchport mode\s+(access|trunk)$/i.exec(line))) {
+                i.mode = m[1].toLowerCase() as InterfaceMode;
+                i.dtp = undefined;
+              } else if ((m = /^switchport mode dynamic\s+(desirable|auto)$/i.exec(line))) {
+                i.dtp = m[1].toLowerCase() as "desirable" | "auto";
+                i.mode = undefined;
+              } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
               else if ((m = /^switchport access vlan\s+(\d+)/i.exec(line))) i.accessVlan = Number(m[1]);
               else if ((m = /^switchport trunk allowed vlan\s+(?:add\s+)?(\S+)/i.exec(line))) i.allowedVlans = parseVlanList(m[1]);
               else if ((m = /^switchport trunk native vlan\s+(\d+)/i.exec(line))) i.nativeVlan = Number(m[1]);
@@ -542,6 +593,8 @@ export function buildNetworkTopologyFromLab(
         const it = ensure(name);
         if (c.ip) it.ip = c.ip;
         if (c.mode) it.mode = c.mode;
+        if (c.dtp) it.dtp = c.dtp;
+        if (c.nonegotiate) it.nonegotiate = true;
         if (c.accessVlan !== undefined) it.vlan = c.accessVlan;
         if (c.allowedVlans) it.allowedVlans = c.allowedVlans;
         if (c.nativeVlan !== undefined) it.nativeVlan = c.nativeVlan;
@@ -629,6 +682,9 @@ export function buildNetworkTopologyFromLab(
         (config.routingProtocols ??= []).push(`OSPFv3 ${parsed.ospfv3.processId}${areas.length ? ` Area ${areas.join(",")}` : ""}`);
       }
       if (parsed.eigrp6) (config.routingProtocols ??= []).push(`EIGRPv6 ${parsed.eigrp6.processId}`);
+      if (parsed.dhcpPools.length > 0) config.dhcpPools = parsed.dhcpPools;
+      if (parsed.dhcpExcluded.length > 0) config.dhcpExcluded = parsed.dhcpExcluded;
+      if (parsed.vtp) config.vtp = parsed.vtp;
       if (parsed.ipv6Routing) config.ipv6RoutingEnabled = true;
       if (parsed.ipv6Routes.length > 0) config.ipv6Routes = parsed.ipv6Routes;
       if (parsed.ospfv3) config.ospfv3 = { processId: parsed.ospfv3.processId, routerId: parsed.ospfv3.routerId };

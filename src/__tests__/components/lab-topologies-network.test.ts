@@ -280,6 +280,20 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
       if (d.config?.ospf?.routerId) allowed.add(d.config.ospf.routerId); // im Lab konfigurierte Router-ID
       if (d.config?.ospfv3?.routerId) allowed.add(d.config.ospfv3.routerId); // OSPFv3-Router-ID aus dem Lab
       if (d.config?.eigrpv6?.routerId) allowed.add(d.config.eigrpv6.routerId); // EIGRPv6-Router-ID aus dem Lab
+      // DHCP-Konfiguration des Geräts (Pool-Gateway, DNS, ausgeschlossene Bereiche) steht im Lab
+      for (const pool of d.config?.dhcpPools ?? []) {
+        if (pool.defaultRouter) allowed.add(pool.defaultRouter);
+        for (const dns of pool.dnsServers ?? []) allowed.add(dns);
+        if (pool.network) {
+          const [net, p] = pool.network.split("/");
+          allowed.add(net);
+          allowed.add(cidrMask(Number(p)));
+        }
+      }
+      for (const e of d.config?.dhcpExcluded ?? []) {
+        allowed.add(e.from);
+        allowed.add(e.to);
+      }
     }
     for (const d of target.topology.devices) {
       const outputs = CiscoCliGenerator.getDynamicShowOutputs(d, target.topology);
