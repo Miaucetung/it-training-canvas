@@ -1,5 +1,5 @@
 import type { InterfaceHsrpGroup, NetworkTopology, TopologyDevice, TopologyInterface } from "@/types/topology";
-import { collectSegmentPeers, findLinkEnd, isInterfaceActive, isLinkUsable, sameSubnet } from "./ospf-neighbors";
+import { collectSegmentPeers, endpointsForInterface, isInterfaceActive, isLinkUsable, sameSubnet } from "./ospf-neighbors";
 
 export const HSRP_DEFAULT_PRIORITY = 100;
 
@@ -90,10 +90,9 @@ export function computeHsrp(device: TopologyDevice, topology: NetworkTopology): 
       const members: Member[] = [{ device, iface, group, eff }];
       let undeterminable = false;
       const seen = new Set<string>([iface.id]);
-      for (const link of topology.links) {
-        const first = findLinkEnd(topology, link, device.id);
-        if (!first || first.local.id !== iface.id || !isLinkUsable(link)) continue;
-        const peers = collectSegmentPeers(topology, device, iface, first, link);
+      for (const { link, first, vlan } of endpointsForInterface(topology, device, iface)) {
+        if (!isLinkUsable(link)) continue;
+        const peers = collectSegmentPeers(topology, device, iface, first, link, vlan);
         if (!peers) {
           undeterminable = true;
           continue;

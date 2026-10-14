@@ -74,6 +74,9 @@ export interface TopologyInterface {
   ospfv3?: InterfaceOspfv3Config;
   eigrpv6?: { asn: number };
   hsrp?: InterfaceHsrp;
+  /** `bandwidth <kbit/s>` und `delay <10 µs>` aus dem Lab (EIGRP-Metrik) */
+  bandwidthKbps?: number;
+  delayTens?: number;
   tunnel?: InterfaceTunnel;
   /** Name der angewendeten Crypto Map */
   cryptoMap?: string;
@@ -263,9 +266,39 @@ export interface DevicePortChannel {
   members: string[];
 }
 
+export type RedistributeSource = "ospf" | "eigrp" | "static" | "connected" | "rip" | "bgp";
+
+export interface DeviceRedistribute {
+  source: RedistributeSource;
+  /** Prozess-ID bzw. AS des Quellprotokolls */
+  id?: number;
+  /** OSPF: `metric <n>` */
+  metric?: number;
+  /** EIGRP: `metric <Bandbreite kbit/s> <Delay in 10 µs> <Reliability> <Load> <MTU>` */
+  vector?: number[];
+  /** OSPF: `metric-type 1|2` */
+  metricType?: 1 | 2;
+  /** OSPF: `subnets` */
+  subnets: boolean;
+  routeMap?: string;
+}
+
+export interface DeviceEigrpConfig {
+  asn: number;
+  routerId?: string;
+  networks: Array<{ net: string; wildcard?: string }>;
+  passive: string[];
+  passiveDefault: boolean;
+  noPassive: string[];
+  /** K-Werte aus `metric weights 0 k1 k2 k3 k4 k5`; ohne Angabe die Standardwerte */
+  kValues?: number[];
+  redistribute: DeviceRedistribute[];
+}
+
 export interface DeviceOspfConfig {
   processId?: number;
   routerId?: string; // manuell konfigurierte router-id
+  redistribute?: DeviceRedistribute[];
 }
 
 export interface DeviceStpConfig {
@@ -299,6 +332,7 @@ export interface DeviceConfig {
   dhcpExcluded?: DeviceDhcpExcluded[];
   vtp?: DeviceVtpConfig;
   nat?: DeviceNatConfig;
+  eigrp?: DeviceEigrpConfig;
   ipRoutes?: DeviceStaticRoute[];
   /** Nummerierte ACLs wie im Lab (`access-list <n> ...`) */
   accessLists?: Record<string, string[]>;

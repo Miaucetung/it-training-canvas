@@ -44,7 +44,8 @@ export function installedStaticRoutes(device: TopologyDevice): InstalledStaticRo
   for (const route of device.config?.ipRoutes ?? []) {
     const distance = route.distance ?? 1;
     if (route.outInterface && !route.nextHop) {
-      if (interfaceUp(device, route.outInterface)) out.push({ route, distance, outInterface: route.outInterface });
+      if (/^null0$/i.test(route.outInterface)) out.push({ route, distance, outInterface: "Null0" });
+      else if (interfaceUp(device, route.outInterface)) out.push({ route, distance, outInterface: route.outInterface });
       continue;
     }
     if (route.nextHop) {

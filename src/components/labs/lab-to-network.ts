@@ -5,6 +5,8 @@ import type {
   DeviceDhcpPool,
   DeviceCryptoConfig,
   DeviceCryptoMapEntry,
+  DeviceEigrpConfig,
+  DeviceRedistribute,
   DeviceIsakmpPolicy,
   DeviceTransformSet,
   DeviceNatConfig,
@@ -95,6 +97,8 @@ interface IfaceCfg {
   natSide?: "inside" | "outside";
   hsrpVersion?: 1 | 2;
   hsrpGroups?: Map<number, InterfaceHsrpGroup>;
+  bandwidthKbps?: number;
+  delayTens?: number;
   tunnelSource?: string;
   tunnelDestination?: string;
   tunnelMode?: string;
@@ -109,7 +113,8 @@ export interface ParsedDeviceConfig {
   stpPriority?: number;
   /** letzter STP-Befehl war `root primary` */
   stpMacro?: "primary";
-  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean };
+  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean; redistribute: DeviceRedistribute[] };
+  eigrp?: DeviceEigrpConfig;
   hostIp?: { ip: string; mask: string; gateway?: string };
   hostIpv6?: { ip: string; gateway?: string };
   /** Desktop steht auf DHCP */
@@ -210,6 +215,28 @@ function parseVlanList(spec: string): number[] {
   });
 }
 
+/** `redistribute <Quelle> [<id>] [metric ...] [metric-type n] [subnets] [route-map X]` */
+function parseRedistribute(rest: string): DeviceRedistribute | null {
+  const t = rest.trim().split(/\s+/);
+  const src = t.shift()?.toLowerCase();
+  if (!src || !["ospf", "eigrp", "static", "connected", "rip", "bgp"].includes(src)) return null;
+  const red: DeviceRedistribute = { source: src as DeviceRedistribute["source"], subnets: false };
+  if (t[0] && /^\d+$/.test(t[0])) red.id = Number(t.shift());
+  while (t.length > 0) {
+    const k = t.shift()!.toLowerCase();
+    if (k === "subnets") red.subnets = true;
+    else if (k === "metric-type" && t[0]) red.metricType = Number(t.shift()) === 1 ? 1 : 2;
+    else if (k === "route-map" && t[0]) red.routeMap = t.shift();
+    else if (k === "metric") {
+      const nums: number[] = [];
+      while (t[0] && /^\d+$/.test(t[0])) nums.push(Number(t.shift()));
+      if (nums.length === 5) red.vector = nums;
+      else if (nums.length === 1) red.metric = nums[0];
+    }
+  }
+  return red;
+}
+
 const PROMPT_FREE_SKIP = /^(enable|configure terminal|conf t|end|exit|do copy running-config startup-config|copy running-config startup-config|wr|write memory)$/i;
 
 export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName: string): ParsedDeviceConfig {
@@ -220,6 +247,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
   let ctxOspf = false;
   let ctxV6: "ospf" | "eigrp" | null = null;
   let ctxPool: DeviceDhcpPool | null = null;
+  let ctxEigrp = false;
   type CryptoCtx = { kind: "policy"; ref: DeviceIsakmpPolicy } | { kind: "tset"; ref: DeviceTransformSet } | { kind: "map"; ref: DeviceCryptoMapEntry };
   let ctxCrypto: CryptoCtx | null = null;
   const cryptoCfg = (): DeviceCryptoConfig => (cfg.crypto ??= { policies: [], keys: [], transformSets: [], maps: [] });
@@ -243,6 +271,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           if (!line) continue;
           cliLines.push(raw.replace(/\s+$/, ""));
           if (ctxPool && !/^(network|default-router|dns-server|lease|domain-name|option)\b/i.test(line)) ctxPool = null;
+          if (ctxEigrp && !/^(no\s+)?(network|auto-summary|passive-interface|eigrp|metric|redistribute|variance|maximum-paths|distance|default-metric|traffic-share|timers|bfd)\b/i.test(line)) ctxEigrp = false;
           if (ctxCrypto) {
             const subs = ctxCrypto.kind === "policy" ? /^(encryption|encr|hash|authentication|group|lifetime)\b/i : ctxCrypto.kind === "tset" ? /^mode\b/i : /^(set|match)\b/i;
             if (!subs.test(line)) ctxCrypto = null;
@@ -579,8 +608,32 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             }
             continue;
           }
+          if ((m = /^router eigrp\s+(\d+)$/i.exec(line))) {
+            cfg.eigrp = cfg.eigrp ?? { asn: Number(m[1]), networks: [], passive: [], passiveDefault: false, noPassive: [], redistribute: [] };
+            ctxEigrp = true;
+            ctxOspf = false;
+            ctxIfaces = [];
+            ctxVlan = null;
+            continue;
+          }
+          if (ctxEigrp && cfg.eigrp) {
+            const e = cfg.eigrp;
+            if ((m = /^network\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) e.networks.push({ net: m[1], ...(m[2] ? { wildcard: m[2] } : {}) });
+            else if ((m = /^no passive-interface\s+(\S+)/i.exec(line))) e.noPassive.push(normalizeInterfaceName(m[1]));
+            else if ((m = /^passive-interface\s+(\S+)/i.exec(line))) {
+              if (/^default$/i.test(m[1])) e.passiveDefault = true;
+              else e.passive.push(normalizeInterfaceName(m[1]));
+            } else if ((m = /^eigrp router-id\s+(\S+)/i.exec(line))) e.routerId = m[1];
+            else if ((m = /^metric weights\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/i.exec(line))) e.kValues = [Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])];
+            else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
+              const red = parseRedistribute(m[1]);
+              if (red) e.redistribute.push(red);
+            }
+            continue;
+          }
           if ((m = /^router ospf\s+(\d+)/i.exec(line))) {
-            cfg.ospf = cfg.ospf ?? { processId: Number(m[1]), networks: [], passive: [], passiveDefault: false };
+            cfg.ospf = cfg.ospf ?? { processId: Number(m[1]), networks: [], passive: [], passiveDefault: false, redistribute: [] };
+            ctxEigrp = false;
             ctxOspf = true;
             ctxIfaces = [];
             ctxVlan = null;
@@ -592,6 +645,9 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             else if ((m = /^passive-interface\s+(\S+)/i.exec(line))) {
               if (/^default$/i.test(m[1])) cfg.ospf.passiveDefault = true;
               else cfg.ospf.passive.push(normalizeInterfaceName(m[1]));
+            } else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
+              const red = parseRedistribute(m[1]);
+              if (red) cfg.ospf.redistribute.push(red);
             }
             continue;
           }
@@ -599,6 +655,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxIfaces = [];
             ctxVlan = null;
             ctxOspf = false;
+            ctxEigrp = false;
             continue;
           }
 
@@ -617,6 +674,8 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
                 i.mode = undefined;
               } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
               else if ((m = /^ip nat\s+(inside|outside)$/i.exec(line))) i.natSide = m[1].toLowerCase() as "inside" | "outside";
+              else if ((m = /^bandwidth\s+(\d+)$/i.exec(line))) i.bandwidthKbps = Number(m[1]);
+              else if ((m = /^delay\s+(\d+)$/i.exec(line))) i.delayTens = Number(m[1]);
               else if ((m = /^tunnel source\s+(\S+)$/i.exec(line))) i.tunnelSource = /^\d+(?:\.\d+){3}$/.test(m[1]) ? m[1] : normalizeInterfaceName(m[1]);
               else if ((m = /^tunnel destination\s+(\S+)$/i.exec(line))) i.tunnelDestination = m[1];
               else if ((m = /^tunnel mode\s+(.+)$/i.exec(line))) i.tunnelMode = m[1].trim();
@@ -738,6 +797,8 @@ export function buildNetworkTopologyFromLab(
         if (c.nonegotiate) it.nonegotiate = true;
         if (c.tunnelSource || c.tunnelDestination || c.tunnelMode) it.tunnel = { source: c.tunnelSource, destination: c.tunnelDestination, mode: c.tunnelMode };
         if (c.cryptoMap) it.cryptoMap = c.cryptoMap;
+        if (c.bandwidthKbps !== undefined) it.bandwidthKbps = c.bandwidthKbps;
+        if (c.delayTens !== undefined) it.delayTens = c.delayTens;
         if (c.hsrpGroups && c.hsrpGroups.size > 0) {
           const hsrp: InterfaceHsrp = { version: c.hsrpVersion ?? 1, groups: [...c.hsrpGroups.values()] };
           it.hsrp = hsrp;
@@ -858,10 +919,14 @@ export function buildNetworkTopologyFromLab(
       if (parsed.ipv6Routes.length > 0) config.ipv6Routes = parsed.ipv6Routes;
       if (parsed.ospfv3) config.ospfv3 = { processId: parsed.ospfv3.processId, routerId: parsed.ospfv3.routerId };
       if (parsed.eigrp6) config.eigrpv6 = { asn: parsed.eigrp6.processId, routerId: parsed.eigrp6.routerId, shutdown: parsed.eigrp6.shutdown };
+      if (parsed.eigrp) {
+        config.eigrp = parsed.eigrp;
+        (config.routingProtocols ??= []).push(`EIGRP ${parsed.eigrp.asn}`);
+      }
       // OSPF
       if (parsed.ospf) {
         config.routingProtocols = [`OSPF ${parsed.ospf.processId}`, ...(config.routingProtocols ?? [])];
-        config.ospf = { processId: parsed.ospf.processId, routerId: parsed.ospf.routerId };
+        config.ospf = { processId: parsed.ospf.processId, routerId: parsed.ospf.routerId, ...(parsed.ospf.redistribute.length > 0 ? { redistribute: parsed.ospf.redistribute } : {}) };
         for (const it of ifaces) {
           if (!it.ip) continue;
           const ip = it.ip.split("/")[0];

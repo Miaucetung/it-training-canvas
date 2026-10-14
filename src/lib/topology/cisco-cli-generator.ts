@@ -20,6 +20,7 @@ import { formatShowIpNatTranslations, hasNatConfig } from "./nat-outputs";
 import { formatShowStandbyBrief, hasHsrpConfig } from "./hsrp";
 import { installedStaticRoutes } from "./static-routes";
 import { greOutputs } from "./gre-tunnel";
+import { computeEigrpNeighbors, computeEigrpRoutes, computeOspfExternalRoutes, eigrpV4Runs, formatEigrpNeighborTable } from "./eigrp-ipv4";
 import { cryptoOutputs } from "./ipsec";
 
 /**
@@ -89,7 +90,12 @@ export class CiscoCliGenerator {
       "",
     ].join("\n");
 
-    const routes: string[] = [];
+    interface RouteEntry {
+      prefix: string;
+      ad: number;
+      line: string;
+    }
+    const routes: RouteEntry[] = [];
 
     // 1. Lokale und Direkt verbundene Routen (C und L)
     for (const iface of device.interfaces) {
@@ -98,11 +104,11 @@ export class CiscoCliGenerator {
       if (!netInfo) continue;
 
       // Connected Route
-      routes.push(`C    ${netInfo.network} is directly connected, ${iface.name}`);
+      routes.push({ prefix: netInfo.network, ad: 0, line: `C    ${netInfo.network} is directly connected, ${iface.name}` });
 
       // Local Route (/32 für die Host-IP)
       if (netInfo.cidr < 32) {
-        routes.push(`L    ${netInfo.ip}/32 is directly connected, ${iface.name}`);
+        routes.push({ prefix: `${netInfo.ip}/32`, ad: 0, line: `L    ${netInfo.ip}/32 is directly connected, ${iface.name}` });
       }
     }
 
@@ -121,9 +127,11 @@ export class CiscoCliGenerator {
         });
 
         if (!isLocal) {
-          routes.push(
-            `O    ${nNet.network} [110/2] via ${adj.neighborAddress}, 00:14:22, ${adj.localInterface.name}`
-          );
+          routes.push({
+            prefix: nNet.network,
+            ad: 110,
+            line: `O    ${nNet.network} [110/2] via ${adj.neighborAddress}, 00:14:22, ${adj.localInterface.name}`,
+          });
         }
       }
     }
@@ -135,17 +143,40 @@ export class CiscoCliGenerator {
       if (isDefault && s.route.nextHop && !gateway) gateway = s.route.nextHop;
       const tag = isDefault ? "S*" : "S ";
       const target = s.route.nextHop ? `via ${s.route.nextHop}` : `is directly connected, ${s.outInterface}`;
-      routes.push(`${tag}   ${s.route.network} [${s.distance}/0] ${target}`);
+      routes.push({ prefix: s.route.network, ad: s.distance, line: `${tag}   ${s.route.network} [${s.distance}/0] ${target}` });
     }
 
-    if (routes.length === 0) {
+    // 4. EIGRP (D, D EX) und OSPF-extern (O E1/E2) aus Redistribution; ohne Uptime (Laufzeitwert)
+    const formatVias = (code: string, prefix: string, ad: number, metric: number | null, vias: Array<{ nextHop: string; iface: { name: string } }>): string[] => {
+      const metricText = metric === null ? "nicht bestimmbar" : String(metric);
+      return vias.map((v, idx) =>
+        idx === 0
+          ? `${code.padEnd(5)}${prefix} [${ad}/${metricText}] via ${v.nextHop}, ${v.iface.name}`
+          : `${" ".repeat(5 + prefix.length + 1)}[${ad}/${metricText}] via ${v.nextHop}, ${v.iface.name}`
+      );
+    };
+    for (const r of computeEigrpRoutes(device, topology)) {
+      const ad = r.external ? 170 : 90;
+      routes.push({ prefix: r.network, ad, line: formatVias(r.external ? "D EX" : "D", r.network, ad, r.metric, r.vias).join("\n") });
+    }
+    for (const r of computeOspfExternalRoutes(device, topology)) {
+      routes.push({ prefix: r.network, ad: 110, line: formatVias(r.type === 1 ? "O E1" : "O E2", r.network, 110, r.metric, r.vias).join("\n") });
+    }
+
+    // je Präfix gewinnt die niedrigste Administrative Distance
+    const bestAd = new Map<string, number>();
+    for (const r of routes) bestAd.set(r.prefix, Math.min(bestAd.get(r.prefix) ?? Infinity, r.ad));
+    const lines = routes.filter((r) => r.ad === bestAd.get(r.prefix)).map((r) => r.line);
+
+    if (lines.length === 0) {
       return codesHeader + "(Keine aktiven IPv4-Routen konfiguriert)";
     }
     if (gateway) codesHeader = codesHeader.replace("Gateway of last resort is not set", `Gateway of last resort is ${gateway} to network 0.0.0.0`);
 
     // Sortierung nach Netzwerk-Präfix
-    routes.sort((a, b) => a.localeCompare(b));
-    return codesHeader + routes.join("\n");
+    lines.sort((a, b) => a.localeCompare(b));
+    const hasRuntimeFree = routes.some((r) => /^(D|O E)/.test(r.line));
+    return codesHeader + lines.join("\n") + (hasRuntimeFree ? "\n(Uptime ist ein Laufzeitwert: bei D- und O-E-Routen nicht ausgegeben)" : "");
   }
 
   /**
@@ -576,6 +607,13 @@ export class CiscoCliGenerator {
     if ((device.type === "router" || device.type === "switch-l3") && hasHsrpConfig(device)) outputs["show standby brief"] = formatShowStandbyBrief(device, topology);
     if (device.type === "router" || device.type === "switch-l3") {
       Object.assign(outputs, greOutputs(device, topology), cryptoOutputs(device, topology));
+    }
+    if (eigrpV4Runs(device)) {
+      outputs["show ip eigrp neighbors"] = formatEigrpNeighborTable(device, computeEigrpNeighbors(device, topology));
+      const routeLines = this.generateShowIpRoute(device, topology)
+        .split("\n")
+        .filter((l) => /^(D|\s+\[90\/|\s+\[170\/)/.test(l) && !/^Codes/.test(l));
+      outputs["show ip route eigrp"] = routeLines.length > 0 ? routeLines.join("\n") : "(keine EIGRP-Routen)";
     }
     if (hasVtpConfig(device)) outputs["show vtp status"] = formatShowVtpStatus(device, topology);
 
