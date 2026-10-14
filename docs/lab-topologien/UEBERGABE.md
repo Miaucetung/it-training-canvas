@@ -11,7 +11,7 @@
 - Konverter Lab -> Canvas: `src/components/labs/lab-to-network.ts` (Konfiguration nur aus den Lab-Befehlen).
 - Hardware-Profile: `src/lib/topology/hardware-profiles.ts`.
 - Tests laufen datengetrieben über alle Einträge in `CURATED_TOPOLOGIES` (`lab-topologies-network`, `lab-topology-quality`, `lab-topology-matches-lab-text`). Neues Lab = Eintrag anlegen, Tests greifen automatisch.
-- Screenshots: `npm run build && node scripts/e2e/lab-topology-screenshots.mjs <lab-id> ...`.
+- Screenshots: `npm run build && node scripts/e2e/lab-topology-screenshots.mjs <lab-id> ...` (Ausgabe nach `.local/screenshots`, gitignored; nicht committen).
 - Layout-Analyse: `scripts/audit/lab-layout.audit.ts` (`npx vitest run -c scripts/audit/vitest.audit.config.ts scripts/audit/lab-layout.audit.ts --disableConsoleIntercept`).
 
 ## Offen

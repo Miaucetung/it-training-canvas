@@ -21,6 +21,8 @@ function routerAndHost(opts: {
   hostIp: string;
   routerIp?: string;
   note: string;
+  /** Lab nennt nur „Mgmt“ ohne Port: Router-Port Gi0/0 ist angenommen */
+  assumedRouterPort?: boolean;
   rows: LabTopologyData["addressingTable"];
 }): LabTopologyData {
   return {
@@ -39,6 +41,7 @@ function routerAndHost(opts: {
         fromPortOffset: 70,
         toPortOffset: 80,
         toPortSide: 14,
+        ...(opts.assumedRouterPort ? { assumedPorts: ["from" as const] } : {}),
       }),
     ],
     addressingTable: opts.rows,
@@ -67,6 +70,7 @@ export const OPERATIONS_LABS_TOPOLOGIES: Record<string, LabTopologyData> = {
     hostType: "server",
     hostIp: "10.0.0.60",
     routerIp: "10.0.0.1",
+    assumedRouterPort: true,
     note: "Lab: „R1 Mgmt → Collector“, Port nicht genannt; hier Gi0/0 (gleiches Subnetz 10.0.0.0/24)",
     rows: [
       ifRow("R1", "Gi0/0", "10.0.0.1", "255.255.255.0", "LAN", "Flow Monitor FNF-MON input/output (wird beobachtet)"),
@@ -83,6 +87,7 @@ export const OPERATIONS_LABS_TOPOLOGIES: Record<string, LabTopologyData> = {
     hostType: "pc",
     hostIp: "10.0.0.10",
     routerIp: "10.0.0.1",
+    assumedRouterPort: true,
     note: "Lab: „Admin-PC → R1 Mgmt 10.0.0.1:443“, Port nicht genannt; hier Gi0/0 (10.0.0.1)",
     rows: [
       ifRow("R1", "Gi0/0", "10.0.0.1", "255.255.255.0", "Management", "RESTCONF über HTTPS (443), IOS-XE"),
@@ -98,6 +103,7 @@ export const OPERATIONS_LABS_TOPOLOGIES: Record<string, LabTopologyData> = {
     hostType: "pc",
     hostIp: "10.0.0.10",
     routerIp: "10.0.0.1",
+    assumedRouterPort: true,
     note: "Lab: „Admin-PC → R1 Mgmt 10.0.0.1:830“, Port nicht genannt; hier Gi0/0 (10.0.0.1)",
     rows: [
       ifRow("R1", "Gi0/0", "10.0.0.1", "255.255.255.0", "Management", "NETCONF über SSH (830), IOS-XE"),

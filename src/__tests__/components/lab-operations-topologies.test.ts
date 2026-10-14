@@ -31,6 +31,11 @@ describe("Paket 6 Operations/Automation – labspezifische Prüfungen", () => {
     const cli = getLabDeviceCli(t.lab, "R1");
     for (const needle of ["flow exporter FNF-EXP", "transport udp 9996", "ip flow monitor FNF-MON input"]) expect(cli).toContain(needle);
     expect(CURATED_TOPOLOGIES.netflow.notes?.[0].text).toContain("Port nicht genannt");
+    // „Mgmt“ ohne Port: Gi0/0 ist als angenommen gekennzeichnet
+    for (const id of ["netflow", "restconf", "netconf-yang"]) {
+      const r1 = dev(build(id), "R1");
+      expect(r1.interfaces.filter((i) => i.assumed).map((i) => i.name), id).toEqual(["Gi0/0"]);
+    }
   });
 
   it("restconf / netconf-yang: IOS-XE-Profil, Management-Adressen, Aktivierungsbefehle", () => {

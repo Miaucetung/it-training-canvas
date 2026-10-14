@@ -684,6 +684,9 @@ export function buildNetworkTopologyFromLab(
     for (const [dev, it, port] of [[a, ia, l.fromPort], [b, ib, l.toPort]] as const) {
       if (dev.type.startsWith("switch") && !dev.assumed && !labMentionsPort(lab, dev.name, port)) it.assumed = true;
     }
+    // explizit gekennzeichnete Ports (z. B. „Mgmt“ ohne Port im Lab)
+    if (l.assumedPorts?.includes("from")) ia.assumed = true;
+    if (l.assumedPorts?.includes("to")) ib.assumed = true;
     const bundled = state === "target" && ia.channelGroup && ib.channelGroup;
     links.push({
       id: l.id,

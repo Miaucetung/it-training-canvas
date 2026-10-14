@@ -68,6 +68,8 @@ export interface LabTopologyLink {
   toIp?: string;           // z. B. "192.168.1.2"
   cableType?: "copper-straight" | "copper-cross" | "serial" | "fiber" | "tunnel";
   isTrunk?: boolean;       // Hebt 802.1Q-Trunk optisch hervor
+  /** Port-Enden, die das Lab nicht nennt und die nach Konvention angenommen sind (zusätzlich zu den automatisch erkannten Switch-Ports) */
+  assumedPorts?: Array<"from" | "to">;
   vlan?: number;
   /** Optionale orthogonale Knickpunkte für rechtwinklige Linienführung */
   bendPoints?: Array<{ x: number; y: number }>;

@@ -131,3 +131,4 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 | Lab | Angenommene Ports |
 |---|---|
 | dhcp-troubleshoot-lab | SW1 Gi0/1, Fa0/1, Fa0/2, Fa0/3 |
+| netflow, restconf, netconf-yang | R1 Gi0/0 („Mgmt“ ohne Port im Lab) |
