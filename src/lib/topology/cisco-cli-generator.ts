@@ -16,6 +16,7 @@ import {
 } from "./ipv6-routing";
 import { formatShowIpDhcpBinding, formatShowIpDhcpPool, hasDhcpPools } from "./dhcp-outputs";
 import { formatShowVtpStatus, hasVtpConfig } from "./vtp-status";
+import { formatShowIpNatTranslations, hasNatConfig } from "./nat-outputs";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -556,6 +557,7 @@ export class CiscoCliGenerator {
       outputs["show ip dhcp pool"] = formatShowIpDhcpPool(device);
       outputs["show ip dhcp binding"] = formatShowIpDhcpBinding();
     }
+    if ((device.type === "router" || device.type === "switch-l3") && hasNatConfig(device)) outputs["show ip nat translations"] = formatShowIpNatTranslations(device);
     if (hasVtpConfig(device)) outputs["show vtp status"] = formatShowVtpStatus(device, topology);
 
     // IPv6: nur für Router und L3-Switches mit IPv6-Konfiguration

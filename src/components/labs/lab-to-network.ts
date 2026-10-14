@@ -3,6 +3,7 @@ import type {
   DeviceConfig,
   DeviceDhcpExcluded,
   DeviceDhcpPool,
+  DeviceNatConfig,
   DeviceVtpConfig,
   InterfaceMode,
   NetworkTopology,
@@ -84,6 +85,7 @@ interface IfaceCfg {
   ospfPriority?: number;
   dtp?: "desirable" | "auto";
   nonegotiate?: boolean;
+  natSide?: "inside" | "outside";
 }
 
 export interface ParsedDeviceConfig {
@@ -106,6 +108,7 @@ export interface ParsedDeviceConfig {
   dhcpPools: DeviceDhcpPool[];
   dhcpExcluded: DeviceDhcpExcluded[];
   vtp?: DeviceVtpConfig;
+  nat?: DeviceNatConfig;
   /** Alle Befehle für diesen Gerät in Lab-Reihenfolge, ohne Prompt */
   cli: string;
 }
@@ -252,6 +255,28 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
           }
           if ((dh = /^ip dhcp excluded-address\s+(\d+(?:\.\d+){3})(?:\s+(\d+(?:\.\d+){3}))?$/i.exec(line))) {
             cfg.dhcpExcluded.push({ from: dh[1], to: dh[2] ?? dh[1] });
+            continue;
+          }
+          if ((dh = /^ip nat pool\s+(\S+)\s+(\d+(?:\.\d+){3})\s+(\d+(?:\.\d+){3})(?:\s+(?:netmask|prefix-length)\s+(\S+))?/i.exec(line))) {
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).pools.push({ name: dh[1], start: dh[2], end: dh[3], netmask: dh[4] });
+            continue;
+          }
+          if ((dh = /^ip nat inside source static(?:\s+(tcp|udp))?\s+(\d+(?:\.\d+){3})(?:\s+(\d+))?\s+(\d+(?:\.\d+){3})(?:\s+(\d+))?$/i.exec(line))) {
+            const proto = dh[1]?.toLowerCase() as "tcp" | "udp" | undefined;
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).statics.push({
+              local: dh[2],
+              global: dh[4],
+              ...(proto ? { protocol: proto, localPort: Number(dh[3]), globalPort: Number(dh[5]) } : {}),
+            });
+            continue;
+          }
+          if ((dh = /^ip nat inside source list\s+(\S+)\s+(pool|interface)\s+(\S+)(\s+overload)?/i.exec(line))) {
+            const toPool = dh[2].toLowerCase() === "pool";
+            (cfg.nat ??= { statics: [], pools: [], rules: [], insideInterfaces: [], outsideInterfaces: [] }).rules.push({
+              acl: dh[1],
+              ...(toPool ? { pool: dh[3] } : { interface: normalizeInterfaceName(dh[3]) }),
+              overload: !!dh[4],
+            });
             continue;
           }
           if ((dh = /^vtp\s+(domain|mode|version|password)\s+(\S+)/i.exec(line))) {
@@ -502,6 +527,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
                 i.dtp = m[1].toLowerCase() as "desirable" | "auto";
                 i.mode = undefined;
               } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
+              else if ((m = /^ip nat\s+(inside|outside)$/i.exec(line))) i.natSide = m[1].toLowerCase() as "inside" | "outside";
               else if ((m = /^switchport access vlan\s+(\d+)/i.exec(line))) i.accessVlan = Number(m[1]);
               else if ((m = /^switchport trunk allowed vlan\s+(?:add\s+)?(\S+)/i.exec(line))) i.allowedVlans = parseVlanList(m[1]);
               else if ((m = /^switchport trunk native vlan\s+(\d+)/i.exec(line))) i.nativeVlan = Number(m[1]);
@@ -685,6 +711,25 @@ export function buildNetworkTopologyFromLab(
       if (parsed.dhcpPools.length > 0) config.dhcpPools = parsed.dhcpPools;
       if (parsed.dhcpExcluded.length > 0) config.dhcpExcluded = parsed.dhcpExcluded;
       if (parsed.vtp) config.vtp = parsed.vtp;
+      if (parsed.nat) {
+        const nat: DeviceNatConfig = { ...parsed.nat };
+        for (const [name, c] of parsed.ifaces) {
+          if (c.natSide === "inside") nat.insideInterfaces.push(name);
+          if (c.natSide === "outside") nat.outsideInterfaces.push(name);
+        }
+        config.nat = nat;
+      } else {
+        const sides = [...parsed.ifaces].filter(([, c]) => c.natSide);
+        if (sides.length > 0) {
+          config.nat = {
+            statics: [],
+            pools: [],
+            rules: [],
+            insideInterfaces: sides.filter(([, c]) => c.natSide === "inside").map(([n]) => n),
+            outsideInterfaces: sides.filter(([, c]) => c.natSide === "outside").map(([n]) => n),
+          };
+        }
+      }
       if (parsed.ipv6Routing) config.ipv6RoutingEnabled = true;
       if (parsed.ipv6Routes.length > 0) config.ipv6Routes = parsed.ipv6Routes;
       if (parsed.ospfv3) config.ospfv3 = { processId: parsed.ospfv3.processId, routerId: parsed.ospfv3.routerId };

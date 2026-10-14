@@ -108,6 +108,39 @@ export interface DeviceDhcpExcluded {
   to: string;
 }
 
+export interface DeviceNatStatic {
+  local: string;
+  global: string;
+  protocol?: "tcp" | "udp";
+  localPort?: number;
+  globalPort?: number;
+}
+
+export interface DeviceNatPool {
+  name: string;
+  start: string;
+  end: string;
+  /** Maske bzw. Präfixlänge wie im Lab angegeben */
+  netmask?: string;
+}
+
+export interface DeviceNatRule {
+  /** ACL-Nummer oder -Name aus `list <acl>` */
+  acl: string;
+  /** Ziel: Pool oder Interface (Overload auf die Interface-Adresse) */
+  pool?: string;
+  interface?: string;
+  overload: boolean;
+}
+
+export interface DeviceNatConfig {
+  statics: DeviceNatStatic[];
+  pools: DeviceNatPool[];
+  rules: DeviceNatRule[];
+  insideInterfaces: string[];
+  outsideInterfaces: string[];
+}
+
 export type VtpMode = "server" | "client" | "transparent" | "off";
 
 export interface DeviceVtpConfig {
@@ -183,6 +216,7 @@ export interface DeviceConfig {
   dhcpPools?: DeviceDhcpPool[];
   dhcpExcluded?: DeviceDhcpExcluded[];
   vtp?: DeviceVtpConfig;
+  nat?: DeviceNatConfig;
   routingTable?: Array<{
     network: string; // "192.168.2.0/24"
     nextHop?: string; // "10.0.0.2"

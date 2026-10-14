@@ -41,6 +41,7 @@ import { computeOspfNeighbors } from "@/lib/topology/ospf-neighbors";
 import { ipv6Hints } from "@/lib/topology/ipv6-routing";
 import { stpHints } from "@/lib/topology/stp-hints";
 import { vtpHints } from "@/lib/topology/vtp-status";
+import { natHints } from "@/lib/topology/nat-outputs";
 import { AnnotationHandleType, SvgTopologyRenderer } from "./SvgTopologyRenderer";
 import { TopologyLegend } from "./TopologyLegend";
 import { CanvasToolMode, DevicePalette } from "./DevicePalette";
@@ -221,7 +222,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   }, [selectedDevice, activeTopology]);
 
   const ipv6HintList = useMemo(
-    () => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice), ...vtpHints(selectedDevice, activeTopology)] : []),
+    () => (selectedDevice ? [...ipv6Hints(selectedDevice), ...stpHints(selectedDevice), ...vtpHints(selectedDevice, activeTopology), ...natHints(selectedDevice)] : []),
     [selectedDevice, activeTopology]
   );
 

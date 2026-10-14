@@ -33,3 +33,14 @@ Ein Client erhält VLANs nur über eine Kette von Switches mit funktionierendem 
 - Die Revisionsnummer und der MD5-Digest werden nicht ausgegeben (hängen vom Verlauf ab bzw. sind nicht bestimmbar).
 - DHCP-Pools auf Servern (Packet-Tracer-Server mit GUI-Pools, z. B. dhcp-relay) sind keine IOS-Konfiguration und erzeugen keine Ausgabe.
 - In vlan-vtp-dhcp-campus sind laut Lab SW1 und SW2 beide Server; die Ausgabe weist darauf hin, dass bei Konflikten die Revisionsnummer entscheidet.
+
+## Stufe 2: NAT (statische Einträge)
+
+- **Modell:** `DeviceConfig.nat` (statische Zuordnungen mit optionalem Protokoll/Port, Pools, Regeln `list … pool|interface [overload]`, inside-/outside-Interfaces). Parser in `parseLabDeviceConfig`, Ausgabe in `src/lib/topology/nat-outputs.ts`.
+- **`show ip nat translations`** (Router/L3-Switch mit NAT-Befehlen): statische Einträge stehen vollständig in der Tabelle (`---` Zeilen bzw. `tcp`/`udp` mit Ports). Für dynamische Regeln (Pool, Interface-Overload) bleibt die Tabelle leer; darunter steht je Regel „Dynamisch: ACL … → Pool/Interface …: Einträge entstehen erst nach Verkehr“. Fehlt der Pool im Lab: „im Lab nicht definiert“.
+- **Inspector-Hinweise** (`natHints`): fehlendes `ip nat inside`/`outside`, Pool ohne Overload, dynamische Einträge erst nach Verkehr.
+- **Labs:** static-nat (3 Einträge), co-acl-nat-isp (CO-1 und CO-2 je 4 Einträge mit den eigenen Adressen), nat-pat, dynamic-nat, nat-pool-overload, vlan-dhcp-nat-roas (dynamisch).
+- **Test „keine erfundenen IP-Adressen“:** lässt zusätzlich die im Lab konfigurierten NAT-Adressen (statische Zuordnungen, Pool-Grenzen) des jeweiligen Geräts zu.
+- **Tests:** `lab-show-outputs-nat.test.ts` (10 Prüfungen): positive Fälle je Lab, negative (Geräte ohne NAT, Startzustand, nur inside/outside ohne Regeln, dynamisch ohne Einträge, Pool nicht definiert), Parser mit Port/Pool/Interface.
+- **Bewusst nicht enthalten:** `show ip nat statistics` (Treffer/Fehlschläge sind Laufzeitwerte). Kann auf Wunsch mit den Konfigurationsteilen (Interfaces, Pool) ergänzt werden.
+- **Annahme:** Statische Einträge erscheinen mit der Konfiguration in der Tabelle, auch wenn `ip nat inside/outside` fehlt; dann weist der Inspector darauf hin, dass nicht übersetzt wird.

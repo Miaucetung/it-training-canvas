@@ -290,6 +290,15 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
           allowed.add(cidrMask(Number(p)));
         }
       }
+      // NAT-Konfiguration des Geräts (statische Zuordnungen, Pools) steht im Lab
+      for (const st of d.config?.nat?.statics ?? []) {
+        allowed.add(st.local);
+        allowed.add(st.global);
+      }
+      for (const pl of d.config?.nat?.pools ?? []) {
+        allowed.add(pl.start);
+        allowed.add(pl.end);
+      }
       for (const e of d.config?.dhcpExcluded ?? []) {
         allowed.add(e.from);
         allowed.add(e.to);
