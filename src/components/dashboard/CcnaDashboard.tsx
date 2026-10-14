@@ -11,8 +11,9 @@ import { RecentActivitySection, RecentActivityItem } from "./RecentActivitySecti
 import { CommandPalette } from "./CommandPalette";
 import { DashboardFooter } from "./DashboardFooter";
 import { LearningPathSection } from "./LearningPathSection";
+import { IntroCard, isIntroDismissed } from "./IntroCard";
 import { NextStepCard, type NextStepLookups } from "./NextStepCard";
-import { MagnifyingGlass, Presentation, X } from "@phosphor-icons/react";
+import { MagnifyingGlass, Presentation, Question, X } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { recordQuizResult, useLearningProgress } from "@/lib/learning-progress";
 import { LEARNING_STEPS } from "@/lib/learning-path-config";
@@ -54,6 +55,7 @@ export function CcnaDashboard({
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [introOpen, setIntroOpen] = useState<boolean>(() => !isIntroDismissed());
   const labInfos = useLabInfos();
   const completedLabs = useCompletedLabs();
   // Load CCNA module topics
@@ -221,6 +223,16 @@ export function CcnaDashboard({
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => setIntroOpen((v) => !v)}
+              aria-expanded={introOpen}
+              aria-label="Hilfe: So funktioniert die App"
+              title="Hilfe: So funktioniert die App"
+              className="inline-flex items-center justify-center h-7 w-7 rounded border border-border bg-surface-elevated hover:bg-surface text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Question className="h-4 w-4" weight="bold" />
+            </button>
+            <button
+              type="button"
               onClick={() => setIsCommandPaletteOpen(true)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border bg-surface-elevated hover:bg-surface text-muted-foreground hover:text-foreground transition-colors font-mono text-[11px]"
               title="Befehlspalette öffnen (Strg+K)"
@@ -244,6 +256,8 @@ export function CcnaDashboard({
             </button>
           </div>
         </header>
+
+        <IntroCard open={introOpen} onClose={() => setIntroOpen(false)} />
 
         {/* A. Nächster Schritt */}
         <NextStepCard

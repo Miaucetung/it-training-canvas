@@ -1915,6 +1915,7 @@ function App() {
       )}
 
       <OnboardingTour
+        autoOpen={!(catalogModuleId === "ccna" && !canvasView)}
         forceOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
       />
