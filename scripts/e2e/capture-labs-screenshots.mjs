@@ -195,7 +195,7 @@ async function main() {
     localStorage.setItem('theme', 'dark');
     localStorage.setItem('it-canvas:onboarding:v1:dismissed', 'true');
     document.documentElement.classList.add('dark');
-    const menuBtn = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+    const menuBtn = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
     if (menuBtn) menuBtn.click();
     await new Promise((r) => setTimeout(r, 300));
     const scrollContainer = document.querySelector('[role="dialog"] .overflow-y-auto');
@@ -209,7 +209,7 @@ async function main() {
     localStorage.setItem('theme', 'dark');
     localStorage.setItem('it-canvas:onboarding:v1:dismissed', 'true');
     document.documentElement.classList.add('dark');
-    const menuBtn = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+    const menuBtn = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
     if (menuBtn) menuBtn.click();
     await new Promise((r) => setTimeout(r, 300));
     const openLabsBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes('Packet Tracer Labs'));

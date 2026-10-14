@@ -40,6 +40,7 @@ import {
 } from "@/lib/canvas-utils";
 import { createTemplate } from "@/lib/collaboration-engine";
 import { CATALOG_PREVIEW } from "@/lib/content/module-catalog";
+import { loadModule } from "@/lib/content/content-loader";
 import { SUBJECT_TO_MODULE_ID } from "@/constants";
 import type { CertificationModule, Topic } from "@/lib/content/types";
 import {
@@ -362,6 +363,7 @@ function App() {
   // Lab-Vorlage im Canvas v2 öffnen, ohne die gespeicherte Engine-Einstellung zu verändern
   const [labCanvasRequest, setLabCanvasRequest] = useState<{ labId: string; nonce: number } | null>(null);
   const [labInitialId, setLabInitialId] = useState<string | undefined>(undefined);
+  const [selectedTopicAnchor, setSelectedTopicAnchor] = useState<string | undefined>(undefined);
   const canvasEngine: "v1" | "v2" = labCanvasRequest ? "v2" : storedCanvasEngine;
   const setCanvasEngine = useCallback(
     (engine: "v1" | "v2") => {
@@ -1352,6 +1354,24 @@ function App() {
   // Phase 6c-2: resolve catalog module ID for current subject (null = legacy)
   const catalogModuleId = SUBJECT_TO_MODULE_ID[currentSubject] ?? null;
 
+  // Lernpfad-Verknüpfungen: Lab direkt öffnen, Lektion (optional an einem Abschnitt) aus dem Lab öffnen
+  const openLabById = (labId: string) => {
+    setLabInitialId(labId);
+    setShowLabScenarios(true);
+  };
+  const openLessonFromLab = (topicId: string, anchor?: string) => {
+    void loadModule("ccna").then((mod) => {
+      const topic = mod.topics.find((t) => t.id === topicId);
+      if (!topic) return;
+      setShowLabScenarios(false);
+      setCanvasView(false);
+      setCurrentSubject("CCNA");
+      setSelectedTopicAnchor(anchor);
+      setSelectedTopic(topic);
+      setSelectedTopicModule(mod);
+    });
+  };
+
   // Simulation engine (Packet-Tracer-style HUD)
   const noopObjects = useCallback((_o: DrawingObject[]) => {}, []);
   const noopConnections = useCallback((_c: CanvasConnection[]) => {}, []);
@@ -1513,11 +1533,13 @@ function App() {
                         <CcnaDashboard
                           theme={theme}
                           userProgress={userProgress}
-                          onTopicClick={(topic, mod) => {
+                          onTopicClick={(topic, mod, anchor) => {
+                            setSelectedTopicAnchor(anchor);
                             setSelectedTopic(topic);
                             setSelectedTopicModule(mod);
                           }}
                           onLaunchTool={(toolId) => setActiveTool(toolId as ToolId)}
+                          onOpenLab={openLabById}
                           onToggleCanvasView={handleToggleCanvasView}
                           onOpenExamPrep={() => setShowExamPrep(true)}
                           onOpenPrioritizedLearning={() => setShowPrioritizedLearning(true)}
@@ -1543,6 +1565,8 @@ function App() {
                       <TopicDetailPanel
                         topic={selectedTopic}
                         module={selectedTopicModule}
+                        initialAnchor={selectedTopicAnchor}
+                        onOpenLab={openLabById}
                         theme={theme}
                         onOpenTemplate={(tplId) => {
                           setPendingTemplateId(tplId);
@@ -1551,6 +1575,7 @@ function App() {
                         onClose={() => {
                           setSelectedTopic(null);
                           setSelectedTopicModule(null);
+                          setSelectedTopicAnchor(undefined);
                         }}
                       />
                     </div>
@@ -1836,6 +1861,7 @@ function App() {
           open={showLabScenarios}
           onClose={() => setShowLabScenarios(false)}
           initialLabId={labInitialId}
+          onOpenLesson={openLessonFromLab}
           onOpenInCanvas={(labId) => {
             setShowLabScenarios(false);
             setLabCanvasRequest({ labId, nonce: Date.now() });
@@ -1889,6 +1915,7 @@ function App() {
       )}
 
       <OnboardingTour
+        autoOpen={!(catalogModuleId === "ccna" && !canvasView)}
         forceOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
       />

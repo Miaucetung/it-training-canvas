@@ -191,7 +191,7 @@ async function main() {
     document.documentElement.classList.add('dark');
     // Open mobile menu drawer
     for (let i = 0; i < 30; i++) {
-      const b = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+      const b = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
       if (b) {
         b.click();
         break;
@@ -212,7 +212,7 @@ async function main() {
     document.documentElement.classList.add('dark');
     // Open mobile menu drawer
     for (let i = 0; i < 30; i++) {
-      const b = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+      const b = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
       if (b) {
         b.click();
         break;
@@ -232,7 +232,7 @@ async function main() {
     localStorage.setItem('it-canvas:onboarding:v1:dismissed', 'true');
     document.documentElement.classList.add('dark');
     for (let i = 0; i < 30; i++) {
-      const b = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+      const b = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
       if (b) {
         b.click();
         break;

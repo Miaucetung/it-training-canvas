@@ -9,6 +9,10 @@
 // ============================================================
 
 import { extractQuizzes, getTopicQuizIds } from "@/lib/content/adapters";
+import { markLessonOpened, recordQuizResult, setLessonRead, useLearningProgress } from "@/lib/learning-progress";
+import { stepsForTopic } from "@/lib/learning-path-config";
+import { useLabInfos } from "@/lib/lab-infos";
+import { useCompletedLabs } from "@/lib/completed-labs";
 import { CONCEPT_BRIDGES } from "@/lib/content/cross-references";
 import type { CertificationModule, Topic } from "@/lib/content/types";
 import type { Quiz, ScoreResult } from "@/lib/types";
@@ -82,6 +86,10 @@ interface TopicDetailPanelProps {
   onClose: () => void;
   /** Callback: Lerner möchte ein Canvas-Template öffnen (Variante A) */
   onOpenTemplate?: (templateId: string) => void;
+  /** Konzept-ID, an der die Lektion geöffnet wird (z. B. "ospf") */
+  initialAnchor?: string;
+  /** Lab öffnen (aus „Passende Labs“) */
+  onOpenLab?: (labId: string) => void;
 }
 
 // ── Cross-reference helpers ──────────────────────────────────
@@ -134,6 +142,8 @@ export function TopicDetailPanel({
   theme,
   onClose,
   onOpenTemplate,
+  initialAnchor,
+  onOpenLab,
 }: TopicDetailPanelProps) {
   const dark = theme === "dark";
   const [drillOpen, setDrillOpen] = useState(false);
@@ -148,6 +158,24 @@ export function TopicDetailPanel({
   const [roasAnimOpen, setRoasAnimOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const { progress } = useLearningProgress();
+  const labInfos = useLabInfos();
+  const completedLabs = useCompletedLabs();
+  const isRead = progress.readTopicIds.has(topic.id);
+
+  // Lektion geöffnet = begonnen
+  useEffect(() => {
+    markLessonOpened(topic.id);
+  }, [topic.id]);
+
+  // Direkt zum passenden Abschnitt der Lektion (Anker = Konzept-ID)
+  useEffect(() => {
+    if (!initialAnchor) return;
+    const t = setTimeout(() => {
+      document.getElementById(`concept-${initialAnchor}`)?.scrollIntoView?.({ block: "start" });
+    }, 0);
+    return () => clearTimeout(t);
+  }, [initialAnchor, topic.id]);
   const [lastResult, setLastResult] = useState<ScoreResult | null>(null);
   const hasSubnettingDrill = topic.conceptIds.includes("subnetting-drill");
   const hasIPv6Calculator = topic.conceptIds.includes("ipv6-calculator");
@@ -304,6 +332,27 @@ export function TopicDetailPanel({
             {topic.description}
           </p>
         )}
+
+        {/* ── Lernfortschritt: Lektion als gelesen markieren (wieder abwählbar) ── */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setLessonRead(topic.id, !isRead)}
+            aria-pressed={isRead}
+            className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors ${
+              isRead
+                ? dark
+                  ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
+                  : "border-emerald-300 bg-emerald-50 text-emerald-800"
+                : dark
+                  ? "border-slate-600 text-slate-200 hover:bg-slate-800"
+                  : "border-slate-300 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {isRead ? "✓ Als gelesen markiert (zurücknehmen)" : "Als gelesen markieren"}
+          </button>
+          <span className="text-xs text-text-muted">Status: {isRead ? "gelesen" : progress.openedTopicIds.has(topic.id) ? "begonnen" : "offen"}</span>
+        </div>
 
         {/* ── Subnetting Drill CTA (interaktiv, 30 generierte Aufgaben) ── */}
         {hasSubnettingDrill && (
@@ -790,7 +839,8 @@ export function TopicDetailPanel({
               {concepts.map((concept, idx) => (
                 <div
                   key={concept.id}
-                  className={`rounded-xl border p-4 ${
+                  id={`concept-${concept.id}`}
+                  className={`rounded-xl border p-4 scroll-mt-4 ${
                     dark
                       ? "bg-slate-800/60 border-slate-700/50"
                       : "bg-slate-50 border-slate-200"
@@ -862,6 +912,60 @@ export function TopicDetailPanel({
           )}
         </section>
 
+        {/* ── Weiter im Lernpfad: Lektion → Übungsfragen → Lab ── */}
+        {(() => {
+          const pathLabIds = stepsForTopic(topic.id).flatMap((st) => st.labIds);
+          const nextQuiz = topicQuizzes.find((q) => !progress.quizzes[q.id]) ?? topicQuizzes[0];
+          if (!nextQuiz && pathLabIds.length === 0) return null;
+          return (
+            <section aria-label="Weiter im Lernpfad" className={`rounded-xl border p-4 space-y-3 ${dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"}`}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Weiter im Lernpfad</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLessonRead(topic.id, !isRead)}
+                  aria-pressed={isRead}
+                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium ${dark ? "border-slate-600 text-slate-200 hover:bg-slate-800" : "border-slate-300 text-slate-700 hover:bg-white"}`}
+                >
+                  {isRead ? "✓ Gelesen (zurücknehmen)" : "Fertig gelesen: Lektion markieren"}
+                </button>
+                {nextQuiz && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLastResult(null);
+                      setActiveQuiz(nextQuiz);
+                    }}
+                    className={`text-xs px-3 py-1.5 rounded-lg border font-medium ${dark ? "border-amber-500/40 text-amber-300 hover:bg-amber-500/10" : "border-amber-300 text-amber-800 hover:bg-amber-50"}`}
+                  >
+                    Weiter: Übungsfragen ({nextQuiz.title})
+                  </button>
+                )}
+              </div>
+              {pathLabIds.length > 0 && (
+                <div>
+                  <p className="text-xs text-text-muted mb-1.5">Passende Labs zum Anwenden:</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {pathLabIds.map((labId) => (
+                      <li key={labId}>
+                        <button
+                          type="button"
+                          disabled={!onOpenLab}
+                          onClick={() => onOpenLab?.(labId)}
+                          className={`text-xs px-2.5 py-1 rounded-lg border ${dark ? "border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10" : "border-indigo-300 text-indigo-700 hover:bg-indigo-50"} disabled:opacity-50`}
+                        >
+                          {labInfos[labId]?.title ?? labId}
+                          {completedLabs.has(labId) ? " ✓" : ""}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          );
+        })()}
+
         {/* ── Quizzes ── */}
         {topicQuizzes.length > 0 && (
           <section>
@@ -900,6 +1004,15 @@ export function TopicDetailPanel({
                   <div className="text-xs mt-1 text-slate-500">
                     {quiz.questions.length} Fragen · Bestehensgrenze{" "}
                     {quiz.passingScore}%
+                  </div>
+                  <div className="text-xs mt-1 text-text-muted" data-testid={`quiz-status-${quiz.id}`}>
+                    {progress.quizzes[quiz.id]
+                      ? `Bearbeitet${
+                          progress.quizzes[quiz.id].bestPercent !== undefined
+                            ? ` · bestes Ergebnis ${progress.quizzes[quiz.id].bestPercent} %${progress.quizzes[quiz.id].attempts > 1 ? ` (${progress.quizzes[quiz.id].attempts} Versuche)` : ""}`
+                            : " (Ergebnis nicht gespeichert)"
+                        }`
+                      : "Noch nicht bearbeitet"}
                   </div>
 
                   {/* Quiz questions preview */}
@@ -1097,6 +1210,7 @@ export function TopicDetailPanel({
           quiz={activeQuiz}
           theme={theme}
           onComplete={(result) => {
+            recordQuizResult(activeQuiz.id, result.percentage);
             setLastResult(result);
             setActiveQuiz(null);
           }}

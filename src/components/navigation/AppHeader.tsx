@@ -413,7 +413,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           }}
           className="xl:hidden flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 rounded-lg text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-elevated border border-border-default transition-colors"
           title="Menü & Werkzeuge öffnen"
-          aria-label="Navigation und Werkzeuge öffnen"
+          aria-label="Menü: Navigation und Werkzeuge öffnen"
         >
           <List size={20} weight="bold" />
           <span className="ml-1 text-xs font-medium">Menü</span>

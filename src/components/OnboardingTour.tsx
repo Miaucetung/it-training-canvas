@@ -99,12 +99,14 @@ const STEPS: Step[] = [
 ];
 
 interface OnboardingTourProps {
+  /** false: nicht automatisch beim ersten Start öffnen (z. B. auf dem Dashboard, dort erklärt die Einführungskarte die App) */
+  autoOpen?: boolean;
   /** Force open (e.g. from a help button). */
   forceOpen?: boolean;
   onClose?: () => void;
 }
 
-export function OnboardingTour({ forceOpen, onClose }: OnboardingTourProps) {
+export function OnboardingTour({ forceOpen, onClose, autoOpen = true }: OnboardingTourProps) {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
 
@@ -116,11 +118,11 @@ export function OnboardingTour({ forceOpen, onClose }: OnboardingTourProps) {
     }
     try {
       const dismissed = localStorage.getItem(STORAGE_KEY);
-      if (!dismissed) setOpen(true);
+      if (!dismissed && autoOpen) setOpen(true);
     } catch {
       /* localStorage unavailable — skip */
     }
-  }, [forceOpen]);
+  }, [forceOpen, autoOpen]);
 
   const close = (dismissPermanent: boolean) => {
     setOpen(false);

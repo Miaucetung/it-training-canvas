@@ -162,7 +162,7 @@ async function main() {
 
         // 3. Open Labs Dialog
         if (${mobile}) {
-          const menuBtn = document.querySelector('button[aria-label="Navigation und Werkzeuge öffnen"]');
+          const menuBtn = document.querySelector('button[aria-label="Menü: Navigation und Werkzeuge öffnen"]');
           if (menuBtn) {
             menuBtn.click();
             await new Promise((r) => setTimeout(r, 350));
