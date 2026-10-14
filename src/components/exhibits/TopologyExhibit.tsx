@@ -92,6 +92,120 @@ function DeviceIcon({ type }: { type: TopologyDevice["type"] }) {
   }
 }
 
+function computeTopologyBounds(
+  devices: TopologyDevice[],
+  links: TopologyExhibitData["links"],
+  labels?: TopologyExhibitData["labels"],
+): { minX: number; minY: number; w: number; h: number } {
+  const byId = new Map(devices.map((d) => [d.id, d]));
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  const includePoint = (x: number, y: number) => {
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  };
+
+  const includeBox = (left: number, top: number, right: number, bottom: number) => {
+    if (left < minX) minX = left;
+    if (right > maxX) maxX = right;
+    if (top < minY) minY = top;
+    if (bottom > maxY) maxY = bottom;
+  };
+
+  // 1. Geräte & Gerätemittelpunkte, Icons (ca. 35px Radius) und Labels bei y=42
+  for (const d of devices) {
+    includeBox(d.x - 35, d.y - 35, d.x + 35, d.y + 35);
+    const labelW = (d.label?.length ?? 0) * 8.5;
+    includeBox(d.x - labelW / 2, d.y + 26, d.x - labelW / 2 + labelW, d.y + 56);
+  }
+
+  // 2. Links, Subnetz-Badges und Schnittstellen-Labels
+  for (const link of links) {
+    const a = byId.get(link.from);
+    const b = byId.get(link.to);
+    if (!a || !b) continue;
+
+    includePoint(a.x, a.y);
+    includePoint(b.x, b.y);
+
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+
+    if (link.subnet) {
+      const halfW = (link.subnet.length * 6.8 + 8) / 2;
+      includeBox(mx - halfW - 6, my - 12, mx + halfW + 6, my + 12);
+    }
+
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+
+    if (link.labelFrom) {
+      const fx = a.x + ux * 40;
+      const fy = a.y + uy * 40;
+      const halfW = (link.labelFrom.length * 7) / 2;
+      includeBox(fx - halfW - 4, fy - 18, fx + halfW + 4, fy + 4);
+    }
+
+    if (link.labelTo) {
+      const tx = b.x - ux * 40;
+      const ty = b.y - uy * 40;
+      const halfW = (link.labelTo.length * 7) / 2;
+      includeBox(tx - halfW - 4, ty - 18, tx + halfW + 4, ty + 4);
+    }
+  }
+
+  // 3. Frei angehängte Labels (z. B. Subnetze, MACs, IP-Adressen)
+  if (labels) {
+    for (const lab of labels) {
+      const d = byId.get(lab.attachTo);
+      if (!d) continue;
+      const off = 50;
+      const textW = lab.text.length * 8.5;
+      switch (lab.position) {
+        case "left":
+          // TextAnchor = "end" at d.x - off
+          includeBox(d.x - off - textW - 6, d.y - 12, d.x - off + 4, d.y + 12);
+          break;
+        case "right":
+          // TextAnchor = "start" at d.x + off
+          includeBox(d.x + off - 4, d.y - 12, d.x + off + textW + 6, d.y + 12);
+          break;
+        case "above":
+          // TextAnchor = "middle" at d.x, y = d.y - off
+          includeBox(d.x - textW / 2 - 4, d.y - off - 16, d.x + textW / 2 + 4, d.y - off + 8);
+          break;
+        case "below":
+          // TextAnchor = "middle" at d.x, y = d.y + off
+          includeBox(d.x - textW / 2 - 4, d.y + off - 8, d.x + textW / 2 + 4, d.y + off + 16);
+          break;
+      }
+    }
+  }
+
+  // Großzügiges Padding (mindestens 24px) um die gesamte Bounding-Box
+  const pad = 24;
+  const finalMinX = Math.floor(minX - pad);
+  const finalMinY = Math.floor(minY - pad);
+  const finalMaxX = Math.ceil(maxX + pad);
+  const finalMaxY = Math.ceil(maxY + pad);
+
+  return {
+    minX: finalMinX,
+    minY: finalMinY,
+    w: Math.max(120, finalMaxX - finalMinX),
+    h: Math.max(90, finalMaxY - finalMinY),
+  };
+}
+
 export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
   const { devices, links, labels } = exhibit;
   if (devices.length === 0) {
@@ -103,12 +217,7 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
   }
 
   const byId = new Map(devices.map((d) => [d.id, d]));
-  const minX = Math.min(...devices.map((d) => d.x)) - 60;
-  const minY = Math.min(...devices.map((d) => d.y)) - 60;
-  const maxX = Math.max(...devices.map((d) => d.x)) + 60;
-  const maxY = Math.max(...devices.map((d) => d.y)) + 60;
-  const w = maxX - minX;
-  const h = maxY - minY;
+  const { minX, minY, w, h } = computeTopologyBounds(devices, links, labels);
 
   return (
     <div className="bg-card p-2">
