@@ -154,6 +154,24 @@ export function QuizDialog({
     });
   }, [questions, onAnswerConfirmed]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__quizDialogState = {
+        setIndex: (idx: number) => {
+          setState((prev) => ({ ...prev, currentIndex: idx }));
+        },
+        confirmCurrent: () => {
+          if (currentQuestion) confirmAnswer(currentQuestion.id);
+        },
+        resetConfirmed: () => {
+          setState((prev) => ({ ...prev, confirmedQuestions: {} }));
+        },
+        getCurrentQ: () => currentQuestion,
+        getQuestions: () => questions,
+      };
+    }
+  }, [currentQuestion, questions, confirmAnswer]);
+
   const setTextAnswer = useCallback((questionId: string, text: string) => {
     setState((prev) => {
       if (prev.confirmedQuestions[questionId]) return prev;

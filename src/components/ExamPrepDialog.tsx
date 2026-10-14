@@ -453,7 +453,9 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
   }, [questions, selectedCategory]);
 
   function startLearn() {
-    const pool = shuffle(filteredPool);
+    const pool = typeof window !== "undefined" && (window as any).__AUDIT_NO_SHUFFLE__
+      ? filteredPool
+      : shuffle(filteredPool);
     setSessionQ(pool);
     setQIndex(0);
     setUserAnswers(new Map());
@@ -463,6 +465,21 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
     setSessionMode("learn");
     setMode("learn");
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__examPrepState = {
+        setQIndex: (idx: number) => {
+          setQIndex(idx);
+        },
+        revealAnswer: () => revealAnswer(),
+        resetRevealed: () => setRevealed(new Set()),
+        getCurrentQ: () => sessionQ[qIndex],
+        getQuestions: () => sessionQ,
+        startLearn: () => startLearn(),
+      };
+    }
+  }, [qIndex, sessionQ]);
 
   function startExam() {
     const pool = shuffle(filteredPool).slice(0, EXAM_QUESTIONS_COUNT);
