@@ -98,11 +98,11 @@ export function resolveInterfaceOspf(
   };
 }
 
-function isLinkUsable(link: TopologyLink): boolean {
+export function isLinkUsable(link: TopologyLink): boolean {
   return link.status === "up" || link.status === "stp-forwarding";
 }
 
-function sameSubnet(ipA: string, ipB: string): boolean {
+export function sameSubnet(ipA: string, ipB: string): boolean {
   const a = parseIpCidr(ipA);
   const b = parseIpCidr(ipB);
   return !!a && !!b && a.prefix === b.prefix && a.networkIp === b.networkIp && a.ip !== b.ip;

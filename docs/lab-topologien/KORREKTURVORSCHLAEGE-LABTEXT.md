@@ -132,3 +132,11 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 |---|---|
 | dhcp-troubleshoot-lab | SW1 Gi0/1, Fa0/1, Fa0/2, Fa0/3 |
 | netflow, restconf, netconf-yang | R1 Gi0/0 („Mgmt“ ohne Port im Lab) |
+
+
+## 13. show-Ausgaben (Nachrüstschritt): Befunde
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| hsrp | Schritt 1 (R1) | `standby 1 track Gi0/1 30`: Gi0/1 ist im Lab weder konfiguriert noch verbunden und damit down. Die Priority von R1 sinkt von 110 auf 80, R2 (100, Preempt) wird Active. Die Texte „R1 HSRP Active, Priority 110“ stimmen so nicht. | Tracking-Interface konfigurieren und verbinden (`no shutdown`, Link zu einem Gerät) oder `track` weglassen. |
+| hsrp | Abschlusstest | Der letzte Befehl `shutdown` auf R1 Gi0/0 bleibt als Endzustand stehen; im Zielzustand ist R1 abgeschaltet und R2 allein Active. | Nach dem Test `no shutdown` ergänzen oder den Endzustand im Text nennen. |

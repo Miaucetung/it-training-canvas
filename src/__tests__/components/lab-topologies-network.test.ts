@@ -290,6 +290,8 @@ describe.each(labIds)("Lab-Topologie %s als Netzwerk-Vorlage", (id) => {
           allowed.add(cidrMask(Number(p)));
         }
       }
+      // virtuelle HSRP-IPs stehen im Lab
+      for (const i of d.interfaces) for (const g of i.hsrp?.groups ?? []) if (g.ip) allowed.add(g.ip);
       // NAT-Konfiguration des Geräts (statische Zuordnungen, Pools) steht im Lab
       for (const st of d.config?.nat?.statics ?? []) {
         allowed.add(st.local);

@@ -73,6 +73,7 @@ export interface TopologyInterface {
   dhcp?: { network: string };
   ospfv3?: InterfaceOspfv3Config;
   eigrpv6?: { asn: number };
+  hsrp?: InterfaceHsrp;
   mac?: string; // e.g. "00:50:79:66:68:01"
   vlan?: number; // Access VLAN, e.g. 10
   allowedVlans?: number[]; // Trunk Allowed VLANs, e.g. [10, 20]
@@ -150,6 +151,28 @@ export interface DeviceVtpConfig {
   /** `vtp version <n>`; fehlt, wenn das Lab sie nicht setzt */
   version?: number;
   password?: string;
+}
+
+export interface InterfaceHsrpGroup {
+  id: number;
+  /** virtuelle IP aus `standby <n> ip`; fehlt, wenn das Lab sie nicht setzt */
+  ip?: string;
+  /** konfigurierte Priority; ohne Angabe gilt der Standard 100 */
+  priority?: number;
+  preempt?: boolean;
+  /** `timers ...` wie im Lab angegeben (normalisiert) */
+  timers?: string;
+  /** `track <Interface> [<Abzug>]` */
+  track?: Array<{ interface: string; decrement: number }>;
+  /** Tracking-Objekte (`track <Nummer> ...`): nicht modelliert */
+  trackObjects?: number[];
+  /** Authentifizierung als "text:<Schlüssel>", "md5:<Schlüssel>" oder "md5chain:<Name>" */
+  authentication?: string;
+}
+
+export interface InterfaceHsrp {
+  version: 1 | 2;
+  groups: InterfaceHsrpGroup[];
 }
 
 export interface InterfaceOspfv3Config {

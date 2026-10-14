@@ -44,3 +44,14 @@ Ein Client erhält VLANs nur über eine Kette von Switches mit funktionierendem 
 - **Tests:** `lab-show-outputs-nat.test.ts` (10 Prüfungen): positive Fälle je Lab, negative (Geräte ohne NAT, Startzustand, nur inside/outside ohne Regeln, dynamisch ohne Einträge, Pool nicht definiert), Parser mit Port/Pool/Interface.
 - **Bewusst nicht enthalten:** `show ip nat statistics` (Treffer/Fehlschläge sind Laufzeitwerte). Kann auf Wunsch mit den Konfigurationsteilen (Interfaces, Pool) ergänzt werden.
 - **Annahme:** Statische Einträge erscheinen mit der Konfiguration in der Tabelle, auch wenn `ip nat inside/outside` fehlt; dann weist der Inspector darauf hin, dass nicht übersetzt wird.
+
+## Stufe 3: HSRP
+
+- **Modell:** `TopologyInterface.hsrp` (Version, Gruppen mit virtueller IP, Priority, Preempt, Timer, Tracking, Authentication). Parser für `standby version`, `standby [n] ip|priority|preempt|timers|track|authentication`.
+- **`show standby brief`** (Router/L3-Switch mit `standby`-Befehlen, `src/lib/topology/hsrp.ts`): Zeile je Interface und Gruppe mit Priority (nach Tracking-Abzug), Preempt-Kennzeichen P, Zustand, Active, Standby, virtuelle IP. Die Wahl läuft über alle Teilnehmer am Segment (L2-Segmentlogik wie bei OSPF): höchste Priority, bei Gleichstand die höhere Interface-IP; weitere Router sind `Listen`.
+- **Preempt-Hinweis analog zur DR-Wahl:** Hat der Router mit der höchsten Priority kein Preempt, steht dort „Angezeigt ist das Ergebnis bei gleichzeitigem Start … abhängig von der Startreihenfolge“, ebenso im Inspector.
+- **Ausgeschlossene Teilnehmer:** andere HSRP-Version, unterschiedliche Authentication (beide Router werden Active), anderes Subnetz, andere Gruppennummer. Unterschiedliche Timer: Hinweis „nicht bestimmbar“. Tracking-Objekte (`track <Nummer>`) werden nicht ausgewertet und vermerkt. Ein Layer-3-Switch oder Routed-Port im Pfad: „nicht bestimmbar“.
+- **Tracking:** Ein Tracking-Interface gilt als oben, wenn es existiert, nicht abgeschaltet und im Lab mit einem aktiven Link verbunden ist; sonst sinkt die Priority um den Abzug (Standard 10).
+- **hsrp-Lab:** Im Zielzustand ist R1 abgeschaltet (letzter Befehl des Failover-Tests), R2 ist allein Active. Ohne diesen `shutdown` wäre R1 wegen `track Gi0/1 30` (Gi0/1 nicht verbunden) nur 80 und R2 Active; beides steht als Befund in `KORREKTURVORSCHLAEGE-LABTEXT.md`, Abschnitt 13.
+- **Tests:** `lab-show-outputs-hsrp.test.ts` (18 Prüfungen): Lab im Zielzustand und in zwei Varianten (ohne Shutdown, ohne Tracking), negative Fälle (PC/Switch, Startzustand, Authentication, Version, Subnetz, Gruppe, Interface down/ohne IP, Tracking-Objekt), Wahl bei 3 Routern, Gleichstand, Preempt-Fälle, Timer, Tracking mit verbundenem/abgeschaltetem Interface, Parser. Der IP-Test lässt die virtuellen IPs aus dem Lab zu.
+- **Annahme:** Ein Tracking-Interface ohne Link im Lab ist down (physikalisch kein Signal), auch wenn `no shutdown` fehlt oder gesetzt ist.

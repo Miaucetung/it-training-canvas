@@ -5,6 +5,8 @@ import type {
   DeviceDhcpPool,
   DeviceNatConfig,
   DeviceVtpConfig,
+  InterfaceHsrp,
+  InterfaceHsrpGroup,
   InterfaceMode,
   NetworkTopology,
   TopologyDevice,
@@ -86,6 +88,8 @@ interface IfaceCfg {
   dtp?: "desirable" | "auto";
   nonegotiate?: boolean;
   natSide?: "inside" | "outside";
+  hsrpVersion?: 1 | 2;
+  hsrpGroups?: Map<number, InterfaceHsrpGroup>;
 }
 
 export interface ParsedDeviceConfig {
@@ -528,6 +532,28 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
                 i.mode = undefined;
               } else if (/^switchport nonegotiate$/i.test(line)) i.nonegotiate = true;
               else if ((m = /^ip nat\s+(inside|outside)$/i.exec(line))) i.natSide = m[1].toLowerCase() as "inside" | "outside";
+              else if ((m = /^standby version\s+(1|2)$/i.exec(line))) i.hsrpVersion = Number(m[1]) as 1 | 2;
+              else if ((m = /^standby\s+(?:(\d+)\s+)?(ip|priority|preempt|timers|track|authentication)\b\s*(.*)$/i.exec(line))) {
+                const gid = m[1] ? Number(m[1]) : 0;
+                const groups = (i.hsrpGroups ??= new Map());
+                const g = groups.get(gid) ?? { id: gid };
+                groups.set(gid, g);
+                const key = m[2].toLowerCase();
+                const rest = m[3].trim();
+                if (key === "ip" && /^\d+(?:\.\d+){3}$/.test(rest)) g.ip = rest;
+                else if (key === "priority" && /^\d+$/.test(rest)) g.priority = Number(rest);
+                else if (key === "preempt") g.preempt = true;
+                else if (key === "timers") g.timers = rest.replace(/\s+/g, " ");
+                else if (key === "track") {
+                  const t = /^(\S+)(?:\s+(?:decrement\s+)?(\d+))?/.exec(rest);
+                  if (t && /^\d+$/.test(t[1])) (g.trackObjects ??= []).push(Number(t[1]));
+                  else if (t) (g.track ??= []).push({ interface: normalizeInterfaceName(t[1]), decrement: t[2] ? Number(t[2]) : 10 });
+                } else if (key === "authentication") {
+                  const au = /^(?:(text|md5)\s+)?(?:key-string\s+|key-chain\s+)?(\S+)$/i.exec(rest);
+                  const chain = /key-chain/i.test(rest);
+                  if (au) g.authentication = `${chain ? "md5chain" : (au[1] ?? "text").toLowerCase()}:${au[2]}`;
+                }
+              }
               else if ((m = /^switchport access vlan\s+(\d+)/i.exec(line))) i.accessVlan = Number(m[1]);
               else if ((m = /^switchport trunk allowed vlan\s+(?:add\s+)?(\S+)/i.exec(line))) i.allowedVlans = parseVlanList(m[1]);
               else if ((m = /^switchport trunk native vlan\s+(\d+)/i.exec(line))) i.nativeVlan = Number(m[1]);
@@ -621,6 +647,10 @@ export function buildNetworkTopologyFromLab(
         if (c.mode) it.mode = c.mode;
         if (c.dtp) it.dtp = c.dtp;
         if (c.nonegotiate) it.nonegotiate = true;
+        if (c.hsrpGroups && c.hsrpGroups.size > 0) {
+          const hsrp: InterfaceHsrp = { version: c.hsrpVersion ?? 1, groups: [...c.hsrpGroups.values()] };
+          it.hsrp = hsrp;
+        }
         if (c.accessVlan !== undefined) it.vlan = c.accessVlan;
         if (c.allowedVlans) it.allowedVlans = c.allowedVlans;
         if (c.nativeVlan !== undefined) it.nativeVlan = c.nativeVlan;
