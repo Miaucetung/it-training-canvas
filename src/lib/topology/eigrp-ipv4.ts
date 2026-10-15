@@ -1,16 +1,15 @@
 import type { DeviceRedistribute, NetworkTopology, TopologyDevice, TopologyInterface } from "@/types/topology";
 import {
   collectSegmentPeers,
-  computeOspfNeighbors,
   deviceRunsOspf,
   isInterfaceActive,
   isLinkUsable,
   localEndpoints,
-  resolveInterfaceOspf,
   sameSubnet,
 } from "./ospf-neighbors";
-import { eigrpMetric, eigrpVector, isIfaceOperational, ospfCost } from "./ipv6-routing";
+import { eigrpMetric, eigrpVector, isIfaceOperational } from "./ipv6-routing";
 import { installedStaticRoutes } from "./static-routes";
+import { computeOspfRoutes, ospfSeedMetric, ospfSpf, ownOspfPrefixes } from "./ospf-routes";
 
 const DEFAULT_K = [1, 0, 1, 0, 0];
 
@@ -124,36 +123,44 @@ export function formatEigrpNeighborTable(device: TopologyDevice, neighbors: Eigr
 // Redistribution: Quellen
 // ---------------------------------------------------------------------------
 
+interface SourceNet {
+  net: number;
+  len: number;
+  /** Interface, aus dem die Route stammt (connected/static): liefert die Seed-Metrik ohne `metric` */
+  iface?: TopologyInterface;
+}
+
 interface SourceResult {
-  nets: Array<{ net: number; len: number }>;
+  nets: SourceNet[];
   note?: string;
 }
 
-function dedupe(nets: Array<{ net: number; len: number }>): Array<{ net: number; len: number }> {
+function dedupe(nets: SourceNet[]): SourceNet[] {
   const seen = new Set<string>();
   return nets.filter((n) => (seen.has(keyOf(n.net, n.len)) ? false : (seen.add(keyOf(n.net, n.len)), true)));
 }
 
 /** Netze, die ein Router für `redistribute` aus der Quelle liefert (nur interne Routen, keine bereits weiterverteilten). */
 export function redistributionSources(r: TopologyDevice, red: DeviceRedistribute, topology: NetworkTopology): SourceResult {
-  const nets: Array<{ net: number; len: number }> = [];
-  const push = (cidr?: string) => {
+  const nets: SourceNet[] = [];
+  const push = (cidr?: string, iface?: TopologyInterface) => {
     const c = cidr ? cidrOf(cidr) : null;
-    if (c) nets.push(c);
+    if (c) nets.push({ ...c, iface });
   };
   switch (red.source) {
     case "connected":
-      for (const i of r.interfaces) if (i.ip && isInterfaceActive(i)) push(i.ip);
+      for (const i of r.interfaces) if (i.ip && isInterfaceActive(i)) push(i.ip, i);
       break;
     case "static":
-      for (const s of installedStaticRoutes(r)) if (s.route.network !== "0.0.0.0/0") push(s.route.network);
+      for (const s of installedStaticRoutes(r)) {
+        if (s.route.network === "0.0.0.0/0") continue;
+        push(s.route.network, r.interfaces.find((i) => i.name === s.outInterface));
+      }
       break;
     case "ospf": {
       if (!r.config?.ospf || (red.id !== undefined && r.config.ospf.processId !== red.id)) return { nets, note: `Der Prozess ospf ${red.id ?? ""} existiert auf diesem Gerät im Lab nicht.` };
-      for (const i of r.interfaces) if (i.ip && isInterfaceActive(i) && resolveInterfaceOspf(r, i)) push(i.ip);
-      for (const adj of computeOspfNeighbors(r, topology)) {
-        for (const ni of adj.neighbor.interfaces) if (ni.ip && isInterfaceActive(ni) && resolveInterfaceOspf(adj.neighbor, ni)) push(ni.ip);
-      }
+      for (const p of ownOspfPrefixes(r)) push(p.prefix);
+      for (const route of computeOspfRoutes(r, topology)) push(route.network);
       break;
     }
     case "eigrp": {
@@ -216,16 +223,21 @@ function eigrpTables(topology: NetworkTopology, asn: number, withExternal: boole
       for (const red of r.config!.eigrp!.redistribute) {
         const src = redistributionSources(r, red, topology);
         if (src.note) (notes.get(r.id) ?? notes.set(r.id, []).get(r.id)!).push(src.note);
-        if (!red.vector) {
-          (notes.get(r.id) ?? notes.set(r.id, []).get(r.id)!).push(`redistribute ${red.source}${red.id !== undefined ? ` ${red.id}` : ""}: Seed-Metrik (metric …) fehlt im Lab, ohne sie gibt EIGRP die Routen nicht weiter (nicht bestimmbar).`);
+        const fromInterface = !red.vector && (red.source === "connected" || red.source === "static");
+        if (!red.vector && !fromInterface) {
+          (notes.get(r.id) ?? notes.set(r.id, []).get(r.id)!).push(`redistribute ${red.source}${red.id !== undefined ? ` ${red.id}` : ""}: Seed-Metrik (metric …) fehlt im Lab, ohne sie gibt EIGRP Routen aus dynamischen Quellen nicht weiter.`);
           continue;
         }
         for (const n of src.nets) {
           const k = keyOf(n.net, n.len);
           if (own.has(k)) continue;
-          const bw = red.vector[0];
-          const delay = red.vector[1] * 10;
-          own.set(k, { net: n.net, len: n.len, bw, delay, metric: eigrpMetric(bw, delay), external: true, hops: [] });
+          // connected/static ohne metric: Seed-Metrik aus Bandbreite und Verzögerung des Interfaces
+          const v = red.vector ? { bw: red.vector[0], delay: red.vector[1] * 10 } : n.iface ? vectorOf(n.iface) : null;
+          if (!v) {
+            (notes.get(r.id) ?? notes.set(r.id, []).get(r.id)!).push(`redistribute ${red.source}: für ${textOf(n.net, n.len)} ist ohne metric kein Interface-Vektor bestimmbar (z. B. Null0).`);
+            continue;
+          }
+          own.set(k, { net: n.net, len: n.len, bw: v.bw, delay: v.delay, metric: eigrpMetric(v.bw, v.delay), external: true, hops: [] });
         }
       }
     }
@@ -299,8 +311,9 @@ export function computeEigrpRoutes(device: TopologyDevice, topology: NetworkTopo
 export interface OspfExternalRoute {
   network: string;
   type: 1 | 2;
-  /** null: im Lab ist keine Seed-Metrik angegeben */
-  metric: number | null;
+  metric: number;
+  /** Seed-Metrik ist der IOS-Standardwert (im Lab kein `metric`) */
+  defaultMetric: boolean;
   vias: Array<{ nextHop: string; iface: TopologyInterface }>;
   asbr: string;
 }
@@ -312,30 +325,8 @@ const classfulLen = (net: number): number => {
 
 export function computeOspfExternalRoutes(device: TopologyDevice, topology: NetworkTopology): OspfExternalRoute[] {
   if (!deviceRunsOspf(device)) return [];
-  const ospfRouters = topology.devices.filter((d) => deviceRunsOspf(d));
-  const adjOf = new Map(ospfRouters.map((r) => [r.id, computeOspfNeighbors(r, topology)]));
-
-  // Dijkstra über die OSPF-Nachbarschaften, Start: dieses Gerät
-  const dist = new Map<string, number>([[device.id, 0]]);
-  const first = new Map<string, Array<{ nextHop: string; iface: TopologyInterface }>>([[device.id, []]]);
-  const queue: string[] = [device.id];
-  while (queue.length > 0) {
-    queue.sort((a, b) => dist.get(a)! - dist.get(b)!);
-    const cur = queue.shift()!;
-    for (const adj of adjOf.get(cur) ?? []) {
-      const cost = dist.get(cur)! + ospfCost(adj.localInterface);
-      const hop = cur === device.id ? [{ nextHop: adj.neighborAddress, iface: adj.localInterface }] : first.get(cur)!;
-      const known = dist.get(adj.neighbor.id);
-      if (known === undefined || cost < known) {
-        dist.set(adj.neighbor.id, cost);
-        first.set(adj.neighbor.id, hop);
-        queue.push(adj.neighbor.id);
-      } else if (cost === known) {
-        const merged = first.get(adj.neighbor.id)!;
-        for (const h of hop) if (!merged.some((m) => m.nextHop === h.nextHop)) merged.push(h);
-      }
-    }
-  }
+  const spf = ospfSpf(device, topology);
+  const { dist, hops: first } = spf;
 
   const own = new Set<string>();
   for (const i of device.interfaces) {
@@ -343,7 +334,7 @@ export function computeOspfExternalRoutes(device: TopologyDevice, topology: Netw
     if (c) own.add(keyOf(c.net, c.len));
   }
   const out = new Map<string, OspfExternalRoute & { rank: number }>();
-  for (const asbr of ospfRouters) {
+  for (const asbr of spf.routers) {
     const reds = asbr.config?.ospf?.redistribute ?? [];
     if (asbr.id === device.id || reds.length === 0 || !dist.has(asbr.id)) continue;
     for (const red of reds) {
@@ -355,12 +346,14 @@ export function computeOspfExternalRoutes(device: TopologyDevice, topology: Netw
         const key = keyOf(n.net, n.len);
         if (own.has(key)) continue;
         const type = red.metricType ?? 2;
-        const seed = red.metric ?? null;
+        const seed = ospfSeedMetric(red);
         const path = dist.get(asbr.id)!;
-        const metric = seed === null ? null : type === 1 ? seed + path : seed;
-        const rank = (type === 1 ? 0 : 1) * 1e9 + (metric ?? 1e8) * 1e3 + path;
+        const metric = type === 1 ? seed.metric + path : seed.metric;
+        const rank = (type === 1 ? 0 : 1) * 1e9 + metric * 1e3 + path;
         const cur = out.get(key);
-        if (!cur || rank < cur.rank) out.set(key, { network: textOf(n.net, n.len), type, metric, vias: first.get(asbr.id)!, asbr: nameOf(asbr), rank });
+        if (!cur || rank < cur.rank) {
+          out.set(key, { network: textOf(n.net, n.len), type, metric, defaultMetric: seed.isDefault, vias: first.get(asbr.id)!, asbr: nameOf(asbr), rank });
+        }
       }
     }
   }
@@ -396,7 +389,11 @@ export function eigrpHints(device: TopologyDevice, topology: NetworkTopology): s
   }
   if (!kDefault(device)) hints.push("Die K-Werte weichen vom Standard ab: die Metrik der EIGRP-Routen ist nicht bestimmbar.");
   for (const red of e.redistribute) {
-    if (!red.vector) hints.push(`redistribute ${red.source}: ohne metric gibt EIGRP die Routen nicht weiter.`);
+    if (!red.vector && red.source !== "connected" && red.source !== "static") {
+      hints.push(`redistribute ${red.source}: ohne metric gibt EIGRP Routen aus dynamischen Quellen nicht weiter.`);
+    } else if (!red.vector) {
+      hints.push(`redistribute ${red.source} ohne metric: die Seed-Metrik stammt aus Bandbreite und Verzögerung des Interfaces.`);
+    }
   }
   hints.push("EIGRP-Metrik mit Standard-K-Werten aus den Standardwerten der Interface-Art (Bandbreite, Verzögerung); Uptime, Hold und Zähler sind Laufzeitwerte.");
   return [...new Set(hints)];

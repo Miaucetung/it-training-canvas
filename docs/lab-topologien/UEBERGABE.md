@@ -25,5 +25,5 @@
 
 ## Nächste Schritte
 - **Nachrüstschritt show-Ausgaben: umgesetzt auf `feature/show-outputs`** (Stufen 1 bis 5, je ein Commit; Details und Annahmen in `BERICHT-SHOW-OUTPUTS.md`): DHCP (`show ip dhcp pool/binding`), VTP (`show vtp status`), NAT (statische Einträge), HSRP (`show standby brief`), statische Routen im `show ip route`, GRE (`show interfaces tunnel`), IPsec (`show crypto map/isakmp sa/ipsec sa`), EIGRP für IPv4 (Nachbarn, `D`-Routen), Redistribution (`D EX`, `O E2/E1`). Nach OK mergen.
-- Offene Folgearbeit: `show ip nat statistics`, `show ip eigrp topology` (Feasible Successor), OSPF-Routen mit echten Kosten und Transit (die bisherigen `O`-Routen zeigen `[110/2]` und eine feste Uptime), O IA für Mehrbereichs-OSPF, ACL-Auswertung (`show ip access-lists` mit Treffern entsteht zur Laufzeit).
+- Offene Folgearbeit: `show ip nat statistics`, `show ip eigrp topology` (Feasible Successor), Stub-/NSSA-Areas und ABR-Summarisierung bei OSPF, ACL-Auswertung (`show ip access-lists` mit Treffern entsteht zur Laufzeit).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.
