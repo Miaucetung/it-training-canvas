@@ -410,6 +410,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
               <div key={sw.id} className="flex items-center gap-2">
                 <span className="text-xs font-mono w-12">{sw.name}</span>
                 <select
+                  aria-label={`Bridge Priority ${sw.name}`}
                   value={sw.priority}
                   onChange={(e) => updatePriority(sw.id, Number(e.target.value))}
                   className={`flex-1 text-xs rounded px-2 py-1 border ${

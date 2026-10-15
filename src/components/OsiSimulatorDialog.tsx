@@ -576,6 +576,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
               <span className="opacity-70">Schritt:</span>
               <input
                 type="range"
+                aria-label="Schritt"
                 min={0}
                 max={6}
                 value={step}
@@ -590,6 +591,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
               </span>
               <span className="opacity-70 ml-3">Speed:</span>
               <select
+                aria-label="Geschwindigkeit"
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
                 className={`text-xs rounded px-2 py-1 border ${
