@@ -2,6 +2,8 @@ import { AUDIT_HOOKS_ENABLED, registerAuditHook } from "@/lib/audit-hooks";
 import { Question, Quiz, ScoreResult, ValidationResult } from "@/lib/types";
 import { hasExhibit, getExhibitList, categorizeQuestion } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
+import { CliOptionText } from "@/components/CliOptionText";
+import { cliButtonClass } from "@/lib/cli-option";
 import {
   CheckCircle,
   Clock,
@@ -764,7 +766,7 @@ function QuestionCard({
                 key={answer.id}
                 onClick={() => !isConfirmed && onSelectAnswer(answer.id)}
                 disabled={isConfirmed}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${getAnswerStyle(answer.id, answer.isCorrect)} disabled:cursor-default`}
+                className={`w-full text-left p-4 rounded-xl border transition-all ${getAnswerStyle(answer.id, answer.isCorrect)} disabled:cursor-default${cliButtonClass(answer.text)}`}
               >
                 <div className="flex items-center gap-3">
                   {isConfirmed ? (
@@ -795,7 +797,7 @@ function QuestionCard({
                       )}
                     </div>
                   )}
-                  <span className="text-sm">{answer.text}</span>
+                  <CliOptionText text={answer.text} className="text-sm" cliClassName="flex-1" />
                 </div>
               </button>
             );
