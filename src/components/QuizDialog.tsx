@@ -278,7 +278,7 @@ export function QuizDialog({
     );
     const byDomain: Record<string, { c: number; t: number }> = {};
     result.results.forEach((r, i) => {
-      const cat = categorizeQuestion(questions[i]?.text ?? "");
+      const cat = questions[i]?.categoryOverride ?? categorizeQuestion(questions[i]?.text ?? "");
       (byDomain[cat] ??= { c: 0, t: 0 }).t++;
       if (r.passed) byDomain[cat].c++;
     });

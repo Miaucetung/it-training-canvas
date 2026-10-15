@@ -59,6 +59,7 @@ export function toQuestion(raw: CCNAQuestionClassified): Question {
     answers,
     exhibit: toAppExhibit(raw.exhibit),
     blueprint: raw.blueprint_section,
+    ...(raw.categoryOverride ? { categoryOverride: raw.categoryOverride } : {}),
   };
 }
 

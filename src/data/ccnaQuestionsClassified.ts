@@ -21,6 +21,8 @@ export interface CCNAQuestionClassified {
   options: string[];
   correct: CorrectAnswer;
   exhibit: ExhibitField;
+  /** Optional: feste Kategorie statt der Ableitung aus Schlagwörtern im Fragetext (`categoryOf`). */
+  categoryOverride?: string;
   blueprint_section: string;
   blueprint_domain: string;
   priority_score: number;
@@ -20108,6 +20110,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "type": "cli",
       "content": "FastEthernet0/13 is up, line protocol is up\nHardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd)\nMTU 1500 bytes, BW 100000 Kbit, DLY 100 usec,\nreliability 250/255, txload 1/255, rxload 1/255\nEncapsulation ARPA, loopback not set\nKeepalive not set -\nAuto-duplex (Full) Auto Speed (100), 100BaseTX/FX\nARP type: ARPA, ARP Timeout 04:00:00\nLast input 18:52:43, output 00:00:01, output hang never\nLast clearing of “show interface” counters never\nQueueing strategy: fifo -\nOutput queue 0/40, 0 drops; input queue 0/75, 0 drops\n5 minute input rate 12000 bits/sec, 6 packets/sec\n5 minute output rate 24000 bits/sec, 6 packets/sec\n14488019 packets input, 2434163609 bytes\nReceived 345348 broadcasts, 0 runts, 0 giants, 0 throttles\n261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored\n0 watchdog, 84207 multicast\n0 input packets with dribble condition detected\n19658279 packets output, 3529106068 bytes, 0 underruns\n0 output errors, 0 collisions, 1 interface resets\n0 babbles, 0 late collision, 0 deferred\n0 lost carrier, 0 no carrier\n0 output buffer failures, 0 output buffers swapped out"
     },
+    "categoryOverride": "Geräte & Medien",
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 85,

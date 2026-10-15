@@ -27,3 +27,9 @@
 - **Nachrüstschritt show-Ausgaben: umgesetzt auf `feature/show-outputs`** (Stufen 1 bis 5, je ein Commit; Details und Annahmen in `BERICHT-SHOW-OUTPUTS.md`): DHCP (`show ip dhcp pool/binding`), VTP (`show vtp status`), NAT (statische Einträge), HSRP (`show standby brief`), statische Routen im `show ip route`, GRE (`show interfaces tunnel`), IPsec (`show crypto map/isakmp sa/ipsec sa`), EIGRP für IPv4 (Nachbarn, `D`-Routen), Redistribution (`D EX`, `O E2/E1`). Nach OK mergen.
 - Offene Folgearbeit: `show ip nat statistics`, `show ip eigrp topology` (Feasible Successor), Stub-/NSSA-Areas und ABR-Summarisierung bei OSPF, ACL-Auswertung (`show ip access-lists` mit Treffern entsteht zur Laufzeit).
 - Pro Paket: Topologie-Datei, Tests grün, Screenshots, Bericht mit Selbstprüfung, dann auf OK warten.
+
+## Fragenpool (außerhalb der Labs)
+
+- **Kategorie langfristig aus der Blueprint-Zuordnung ableiten statt aus Schlagwörtern.** Heute leitet `categorizeQuestion` (`src/lib/ccna-question-pool.ts`) die Kategorie für Prüfungstrainer-Filter und Domain-Analyse aus Schlagwörtern im Fragetext ab; das trifft bei Fragen mit CLI-/JSON-Exhibit oder ohne Fachwort im Text oft daneben (Analyse: `docs/fragen-darstellung/ANALYSE-KATEGORIE-AUS-EXHIBIT.md`, 101 Fragen würden bei Einbeziehung des Exhibit-Textes wechseln, davon 26 zwischen zwei Fachkategorien, überwiegend fachlich falsch). Der klassifizierte Pool trägt je Frage `blueprint_section`/`blueprint_domain`; daraus ließe sich eine stabile Kategorie ableiten.
+- **Übergangslösung:** das optionale Feld `categoryOverride` (nur q0829/Q0829 auf „Geräte & Medien“) und `categoryOf(q)` in `src/lib/ccna-question-pool.ts`. Die Schlagwort-Ableitung selbst ist unverändert.
+

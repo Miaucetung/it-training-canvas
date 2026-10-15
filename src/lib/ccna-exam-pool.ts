@@ -10,7 +10,7 @@
 
 import { ccnaQuestions, type CCNAQuestion } from "@/data/ccnaQuestions";
 import type { ExhibitData } from "@/types/exhibit";
-import { categorizeQuestion } from "@/lib/ccna-question-pool";
+import { categoryOf } from "@/lib/ccna-question-pool";
 import { inferDiagramId } from "@/lib/quiz-to-exam";
 
 const LETTERS = "abcdefghijklmnop".toUpperCase();
@@ -31,7 +31,7 @@ function toPrepQuestion(raw: CCNAQuestion): PrepQuestion {
   const correctIdx = Array.isArray(raw.correct) ? raw.correct : [raw.correct];
   return {
     id: raw.id,
-    category: categorizeQuestion(raw.question),
+    category: categoryOf(raw),
     type: correctIdx.length > 1 ? "multi-select" : "single",
     expectedAnswerCount: correctIdx.length,
     text: raw.question,
