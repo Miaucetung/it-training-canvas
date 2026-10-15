@@ -75,7 +75,7 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
           </div>
 
           {/* Content */}
-          <div className="overflow-auto p-5">
+          <div tabIndex={0} role="region" aria-label="Tabelleninhalt" className="overflow-auto p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {tab === "cidr" && (
               <table className="w-full text-xs">
                 <thead>

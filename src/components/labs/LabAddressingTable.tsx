@@ -55,7 +55,7 @@ export const LabAddressingTable: React.FC<LabAddressingTableProps> = ({
         </span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div tabIndex={0} role="region" aria-label="Adressierungstabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr

@@ -301,7 +301,7 @@ export default function SubnettingCheatsheet() {
 
       {/* Section 1 — Blockgrößen-Tabelle */}
       <Section n={1} title="Blockgrößen-Tabelle">
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Blockgrößen-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
