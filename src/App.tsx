@@ -385,10 +385,13 @@ function App() {
               if (target === "exam") setShowExamPrep(true);
               if (target === "prioritized") setShowPrioritizedLearning(true);
               if (target === "dragdrop") setActiveTool("dragdrop-trainer");
+              if (target === "labs") setShowLabScenarios(true);
             },
+            openTool: (id) => setActiveTool(id),
             closeDialogs: () => {
               setShowExamPrep(false);
               setShowPrioritizedLearning(false);
+              setShowLabScenarios(false);
               setActiveTool(null);
             },
           })
@@ -1582,7 +1585,7 @@ function App() {
 
                   {/* Topic detail — nur bei Auswahl */}
                   {selectedTopic && selectedTopicModule && (
-                    <div className="flex-1 overflow-hidden">
+                    <main className="flex-1 overflow-hidden">
                       <TopicDetailPanel
                         topic={selectedTopic}
                         module={selectedTopicModule}
@@ -1599,7 +1602,7 @@ function App() {
                           setSelectedTopicAnchor(undefined);
                         }}
                       />
-                    </div>
+                    </main>
                   )}
                 </>
               ) : (

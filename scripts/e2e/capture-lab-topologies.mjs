@@ -189,7 +189,7 @@ async function main() {
 
         // 5. Toggle Detail Mode (IPs an) if requested
         if (${detailMode}) {
-          const detailBtn = document.querySelector('button[aria-label="Detail-Modus umschalten"]');
+          const detailBtn = document.querySelector('button[aria-label^="Detail-Modus umschalten"]');
           if (detailBtn) {
             detailBtn.click();
             await new Promise((r) => setTimeout(r, 350));
@@ -198,7 +198,7 @@ async function main() {
 
         // 6. Toggle Presentation Mode if requested
         if (${presentation}) {
-          const presBtn = document.querySelector('button[aria-label="Präsentationsmodus umschalten"]');
+          const presBtn = document.querySelector('button[aria-label^="Präsentationsmodus umschalten"]');
           if (presBtn) {
             presBtn.click();
             await new Promise((r) => setTimeout(r, 450));

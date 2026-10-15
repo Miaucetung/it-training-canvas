@@ -255,13 +255,13 @@ export function TopicDetailPanel({
         </button>
 
         <div className="flex-1 min-w-0">
-          <h2
+          <h1
             className={`font-semibold text-sm truncate ${
               dark ? "text-white" : "text-slate-900"
             }`}
           >
             {topic.title}
-          </h2>
+          </h1>
           <p className="text-xs text-text-muted mt-0.5">
             {topic.estimatedMinutes} Min. · {concepts.length} Konzepte
             {topicQuizzes.length > 0 &&
@@ -821,13 +821,13 @@ export function TopicDetailPanel({
               size={14}
               className={dark ? "text-indigo-400" : "text-indigo-500"}
             />
-            <h3
+            <h2
               className={`text-xs font-semibold uppercase tracking-wider ${
                 "text-text-muted"
               }`}
             >
               Konzepte ({concepts.length})
-            </h3>
+            </h2>
           </div>
 
           {concepts.length === 0 ? (
@@ -919,7 +919,7 @@ export function TopicDetailPanel({
           if (!nextQuiz && pathLabIds.length === 0) return null;
           return (
             <section aria-label="Weiter im Lernpfad" className={`rounded-xl border p-4 space-y-3 ${dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"}`}>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Weiter im Lernpfad</h3>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Weiter im Lernpfad</h2>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -974,14 +974,14 @@ export function TopicDetailPanel({
                 size={14}
                 className={dark ? "text-amber-400" : "text-amber-500"}
               />
-              <h3
+              <h2
                 className={`text-xs font-semibold uppercase tracking-wider ${
                   "text-text-muted"
                 }`}
               >
                 Quiz ({topicQuizzes.reduce((s, q) => s + q.questions.length, 0)}{" "}
                 Fragen)
-              </h3>
+              </h2>
             </div>
 
             <div className="space-y-2">
@@ -1073,13 +1073,13 @@ export function TopicDetailPanel({
                 size={14}
                 className={dark ? "text-emerald-400" : "text-emerald-500"}
               />
-              <h3
+              <h2
                 className={`text-xs font-semibold uppercase tracking-wider ${
                   "text-text-muted"
                 }`}
               >
                 Cross-References ({crossRefs.length})
-              </h3>
+              </h2>
             </div>
 
             <div className="space-y-2">

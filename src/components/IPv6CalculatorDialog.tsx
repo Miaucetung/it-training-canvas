@@ -144,7 +144,7 @@ export function getIPv6Type(input: string): TypeInfo {
       label: "Ungültige Adresse",
       description: "Die Adresse konnte nicht verarbeitet werden.",
       prefix: "",
-      badgeClass: "bg-slate-500",
+      badgeClass: "bg-muted-foreground text-background",
     };
   if (exp === "0000:0000:0000:0000:0000:0000:0000:0001")
     return {
@@ -153,7 +153,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Wie 127.0.0.1 bei IPv4 — nur für lokale Tests auf dem Gerät selbst. Kein Routing.",
       prefix: "::1/128",
-      badgeClass: "bg-purple-500",
+      badgeClass: "bg-status-trunk-solid text-on-status-trunk-solid",
     };
   if (exp === "0000:0000:0000:0000:0000:0000:0000:0000")
     return {
@@ -162,7 +162,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Adresse noch nicht zugewiesen (wie 0.0.0.0 bei IPv4). Wird beim Bootstrapping verwendet.",
       prefix: "::/128",
-      badgeClass: "bg-slate-500",
+      badgeClass: "bg-muted-foreground text-background",
     };
   const f = parseInt(exp.split(":")[0], 16);
   if ((f & 0xff00) === 0xff00)
@@ -172,7 +172,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Eine-zu-Viele. Scope im zweiten Nibble: FF02 = Link-Local, FF05 = Site-Local, FF0E = Global.",
       prefix: "FF00::/8",
-      badgeClass: "bg-orange-500",
+      badgeClass: "bg-status-blocking-solid text-on-status-blocking-solid",
     };
   if ((f & 0xffc0) === 0xfe80)
     return {
@@ -181,7 +181,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Nur im lokalen Netzwerksegment gültig. Automatisch per NDP konfiguriert. Router leiten Link-Local-Pakete nie weiter.",
       prefix: "FE80::/10",
-      badgeClass: "bg-sky-500",
+      badgeClass: "bg-accent-solid text-on-accent-solid",
     };
   if ((f & 0xfe00) === 0xfc00)
     return {
@@ -190,7 +190,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Privat routbar innerhalb einer Organisation (wie RFC 1918). Nicht global routbar. In der Praxis meist FD::-Adressen mit Zufalls-Präfix.",
       prefix: "FC00::/7",
-      badgeClass: "bg-emerald-500",
+      badgeClass: "bg-status-success-solid text-on-status-success-solid",
     };
   if ((f & 0xe000) === 0x2000)
     return {
@@ -199,7 +199,7 @@ export function getIPv6Type(input: string): TypeInfo {
       description:
         "Öffentlich routbar. Beginnt mit 2000::/3 (erste 3 Bits = 001). ISP vergibt /32, Organisation /48, Subnetz /64.",
       prefix: "2000::/3",
-      badgeClass: "bg-indigo-500",
+      badgeClass: "bg-accent-solid text-on-accent-solid",
     };
   return {
     type: "unknown",
@@ -207,7 +207,7 @@ export function getIPv6Type(input: string): TypeInfo {
     description:
       "Reservierter Adressbereich — aktuell nicht für allgemeine Nutzung zugewiesen.",
     prefix: "",
-    badgeClass: "bg-slate-400",
+    badgeClass: "bg-muted-foreground text-background",
   };
 }
 
@@ -513,25 +513,23 @@ function makeDrillTask(dt?: DrillType): DrillTask {
 // ── Small shared helpers ──────────────────────────────────────
 
 function InfoRow({
-  dark,
   label,
   value,
 }: {
-  dark: boolean;
   label: string;
   value: string;
 }) {
   return (
     <div
-      className={`rounded-lg border px-3 py-2 ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
+      className="rounded-lg border px-3 py-2 bg-muted border-border"
     >
       <span
-        className={`text-xs block mb-0.5 ${dark ? "text-slate-500" : "text-slate-400"}`}
+        className="text-xs block mb-0.5 text-muted-foreground"
       >
         {label}
       </span>
       <span
-        className={`text-sm font-mono font-medium break-all ${dark ? "text-white" : "text-slate-900"}`}
+        className="text-sm font-mono font-medium break-all text-foreground"
       >
         {value}
       </span>
@@ -540,23 +538,21 @@ function InfoRow({
 }
 
 function StatBlock({
-  dark,
   label,
   value,
 }: {
-  dark: boolean;
   label: string;
   value: string;
 }) {
   return (
     <div className="text-center">
       <div
-        className={`text-lg font-bold font-mono ${dark ? "text-emerald-300" : "text-emerald-700"}`}
+        className="text-lg font-bold font-mono text-status-success-fg"
       >
         {value}
       </div>
       <div
-        className={`text-xs mt-0.5 ${dark ? "text-slate-500" : "text-slate-400"}`}
+        className="text-xs mt-0.5 text-muted-foreground"
       >
         {label}
       </div>
@@ -566,7 +562,7 @@ function StatBlock({
 
 // ── Tab: Adress-Analyse ───────────────────────────────────────
 
-function AnalyseTab({ dark }: { dark: boolean }) {
+function AnalyseTab() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<{
     expanded: string;
@@ -608,7 +604,7 @@ function AnalyseTab({ dark }: { dark: boolean }) {
     <div className="p-5 space-y-4">
       {/* Didaktik */}
       <div
-        className={`rounded-xl p-3 text-xs ${dark ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border border-indigo-200 text-indigo-700"}`}
+        className="rounded-xl p-3 text-xs bg-accent-primary/10 border border-accent-primary/20 text-accent-primary-fg"
       >
         <strong>Lernziel:</strong> Eine IPv6-Adresse analysieren — Vollform und
         Kurzform unterscheiden, Adresstyp erkennen, Präfix von Interface-ID
@@ -618,7 +614,7 @@ function AnalyseTab({ dark }: { dark: boolean }) {
       {/* Input */}
       <div>
         <label
-          className={`block text-xs font-medium mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}
+          className="block text-xs font-medium mb-1 text-muted-foreground"
         >
           IPv6-Adresse eingeben
         </label>
@@ -628,38 +624,38 @@ function AnalyseTab({ dark }: { dark: boolean }) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && analyse()}
             placeholder="z.B.  2001:db8::1  oder  fe80::1"
-            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-800 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+            className="flex-1 rounded-lg border px-3 py-2 text-sm font-mono bg-muted border-border text-foreground placeholder:text-muted-foreground"
           />
           <button
             onClick={analyse}
-            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors"
+            className="px-4 py-2 rounded-lg bg-accent-solid hover:opacity-90 text-on-accent-solid text-xs font-semibold transition-colors"
           >
             Analysieren
           </button>
         </div>
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-xs text-status-error-fg mt-1">{error}</p>}
       </div>
 
       {/* Result */}
       {result && (
         <div className="space-y-3">
           <div
-            className={`rounded-xl border p-3 ${dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+            className="rounded-xl border p-3 bg-muted/60 border-border"
           >
             <div className="flex items-center gap-2 mb-1.5">
               <span
-                className={`text-xs font-bold px-2 py-0.5 rounded-full text-white ${result.typeInfo.badgeClass}`}
+                className={`text-xs font-bold px-2 py-0.5 rounded-full ${result.typeInfo.badgeClass}`}
               >
                 {result.typeInfo.label}
               </span>
               <span
-                className={`text-xs font-mono ${dark ? "text-slate-400" : "text-slate-500"}`}
+                className="text-xs font-mono text-muted-foreground"
               >
                 {result.typeInfo.prefix}
               </span>
             </div>
             <p
-              className={`text-xs ${dark ? "text-slate-300" : "text-slate-600"}`}
+              className="text-xs text-muted-foreground"
             >
               {result.typeInfo.description}
             </p>
@@ -667,46 +663,44 @@ function AnalyseTab({ dark }: { dark: boolean }) {
 
           <div className="space-y-2">
             <InfoRow
-              dark={dark}
               label="Vollform (expanded)"
               value={result.expanded}
             />
             <InfoRow
-              dark={dark}
               label="Kurzform (compressed)"
               value={result.compressed}
             />
           </div>
 
           <div
-            className={`rounded-xl border p-3 ${dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+            className="rounded-xl border p-3 bg-muted/60 border-border"
           >
             <p
-              className={`text-xs font-semibold mb-2 ${dark ? "text-slate-300" : "text-slate-700"}`}
+              className="text-xs font-semibold mb-2 text-muted-foreground"
             >
               Präfix / Interface-ID Aufteilung bei /64
             </p>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span
-                  className={`block text-xs mb-0.5 ${dark ? "text-slate-500" : "text-slate-400"}`}
+                  className="block text-xs mb-0.5 text-muted-foreground"
                 >
                   Präfix (erste 64 Bit)
                 </span>
                 <span
-                  className={`text-xs font-mono font-semibold ${dark ? "text-indigo-300" : "text-indigo-700"}`}
+                  className="text-xs font-mono font-semibold text-accent-primary-fg"
                 >
                   {result.prefix64}
                 </span>
               </div>
               <div>
                 <span
-                  className={`block text-xs mb-0.5 ${dark ? "text-slate-500" : "text-slate-400"}`}
+                  className="block text-xs mb-0.5 text-muted-foreground"
                 >
                   Interface-ID (letzte 64 Bit)
                 </span>
                 <span
-                  className={`text-xs font-mono font-semibold ${dark ? "text-emerald-300" : "text-emerald-700"}`}
+                  className="text-xs font-mono font-semibold text-status-success-fg"
                 >
                   {result.ifaceId}
                 </span>
@@ -715,7 +709,7 @@ function AnalyseTab({ dark }: { dark: boolean }) {
           </div>
 
           <div
-            className={`rounded-xl p-3 text-xs ${dark ? "bg-amber-500/10 border border-amber-500/20 text-amber-300" : "bg-amber-50 border border-amber-200 text-amber-700"}`}
+            className="rounded-xl p-3 text-xs bg-status-warning-bg border border-status-warning-border/20 text-status-warning-fg"
           >
             <strong>Praxis-Tipp:</strong> Bei SLAAC-Adressen wird die
             Interface-ID per EUI-64 aus der MAC-Adresse berechnet. Wechsle zum
@@ -727,10 +721,10 @@ function AnalyseTab({ dark }: { dark: boolean }) {
       {/* Examples */}
       {!result && (
         <div
-          className={`rounded-xl border p-3 ${dark ? "bg-slate-800/40 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+          className="rounded-xl border p-3 bg-muted/40 border-border"
         >
           <p
-            className={`text-xs font-medium mb-2 ${dark ? "text-slate-400" : "text-slate-600"}`}
+            className="text-xs font-medium mb-2 text-muted-foreground"
           >
             Beispiel-Adressen zum Ausprobieren:
           </p>
@@ -739,10 +733,10 @@ function AnalyseTab({ dark }: { dark: boolean }) {
               <button
                 key={addr}
                 onClick={() => setInput(addr)}
-                className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10" : "text-slate-600 hover:text-indigo-700 hover:bg-indigo-50"}`}
+                className="w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg transition-colors text-muted-foreground hover:text-accent-primary-fg hover:bg-accent-primary/10"
               >
                 <span className="font-mono text-xs">{addr}</span>
-                <span className="text-xs opacity-60">— {lbl}</span>
+                <span className="text-xs text-muted-foreground">— {lbl}</span>
               </button>
             ))}
           </div>
@@ -761,10 +755,8 @@ function toBin8(n: number): string {
 }
 
 function XorExplainer({
-  dark,
   initialByte,
 }: {
-  dark: boolean;
   initialByte?: number;
 }) {
   const [byteA, setByteA] = useState(
@@ -797,15 +789,13 @@ function XorExplainer({
     );
   };
 
-  const card = dark
-    ? "bg-slate-800/60 border-slate-700"
-    : "bg-slate-50 border-slate-200";
-  const lbl = dark ? "text-slate-400" : "text-slate-500";
-  const mono = dark ? "text-white" : "text-slate-900";
-  const accent = dark ? "text-amber-300" : "text-amber-700";
-  const accentBg = dark ? "bg-amber-500/20" : "bg-amber-100";
-  const cyanText = dark ? "text-cyan-300" : "text-cyan-700";
-  const cyanBg = dark ? "bg-cyan-500/25" : "bg-cyan-100";
+  const card = "bg-muted/60 border-border";
+  const lbl = "text-muted-foreground";
+  const mono = "text-foreground";
+  const accent = "text-status-warning-fg";
+  const accentBg = "bg-status-warning-bg";
+  const cyanText = "text-accent-primary-fg";
+  const cyanBg = "bg-accent-primary/25";
 
   // 0x02 = 00000010: the set bit is at Bit 1 (0-indexed from RIGHT, value=2).
   // In the left-to-right display array [7,6,5,4,3,2,1,0], that is array index 6.
@@ -837,7 +827,7 @@ function XorExplainer({
 
       {/* Step 0: XOR rules */}
       <div
-        className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-slate-700 bg-slate-900/50" : "border-slate-200 bg-white"}`}
+        className="rounded-lg border p-3 text-xs space-y-2 border-border bg-card/50"
       >
         <p className={`font-bold ${mono}`}>Schritt 0 - Die XOR-Regel</p>
         <div className="grid grid-cols-4 gap-2 text-center font-mono">
@@ -851,7 +841,7 @@ function XorExplainer({
           ).map(([x, y, r, note], i) => (
             <div
               key={i}
-              className={`rounded-lg border p-2 ${note === "flippt!" ? (dark ? "border-cyan-600 bg-cyan-500/10" : "border-cyan-300 bg-cyan-50") : dark ? "border-slate-700 bg-slate-800/60" : "border-slate-200 bg-slate-50"}`}
+              className={`rounded-lg border p-2 ${note === "flippt!" ? ("border-accent-primary bg-accent-primary/10") : "border-border bg-muted/60"}`}
             >
               <p className={`text-sm font-bold ${mono}`}>
                 {x} XOR {y} = {r}
@@ -874,7 +864,7 @@ function XorExplainer({
       {/* Step 1: Why 0x02 = only 1 bit */}
       {b === 0x02 && (
         <div
-          className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10" : "border-amber-200 bg-amber-50"}`}
+          className="rounded-lg border p-3 text-xs space-y-2 border-status-warning-border/30 bg-status-warning-bg"
         >
           <p className={`font-bold ${accent}`}>
             Schritt 1 - Was bedeutet "XOR mit 0x02"?
@@ -886,7 +876,7 @@ function XorExplainer({
               .map((bit, i) => (
                 <span
                   key={i}
-                  className={`w-8 h-8 flex items-center justify-center rounded font-black border ${i === UL_ARRAY_IDX ? `${accentBg} ${accent} border-amber-400` : `${dark ? "border-slate-600 text-slate-400" : "border-slate-300 text-slate-400"}`}`}
+                  className={`w-8 h-8 flex items-center justify-center rounded font-black border ${i === UL_ARRAY_IDX ? `${accentBg} ${accent} border-status-warning-border` : `border-border text-muted-foreground`}`}
                 >
                   {bit}
                 </span>
@@ -926,7 +916,7 @@ function XorExplainer({
               onChange={(e) => handleA(e.target.value.toUpperCase())}
               maxLength={2}
               placeholder="z.B. AA"
-              className={`w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase ${dark ? "bg-slate-900 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+              className="w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase bg-card border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <div>
@@ -938,11 +928,11 @@ function XorExplainer({
               onChange={(e) => handleB(e.target.value.toUpperCase())}
               maxLength={2}
               placeholder="z.B. 02"
-              className={`w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase ${dark ? "bg-slate-900 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+              className="w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase bg-card border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
-        {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+        {error && <p className="text-xs text-status-error-fg mt-1">{error}</p>}
         <div className="flex gap-2 mt-1.5 flex-wrap">
           {[
             ["AA", "02"],
@@ -957,7 +947,7 @@ function XorExplainer({
                 handleA(ma);
                 setByteB(mb);
               }}
-              className={`text-xs px-2 py-0.5 rounded border transition-colors ${dark ? "border-slate-700 text-slate-400 hover:text-amber-300 hover:border-amber-500/40" : "border-slate-200 text-slate-500 hover:text-amber-700 hover:border-amber-300"}`}
+              className="text-xs px-2 py-0.5 rounded border transition-colors border-border text-muted-foreground hover:text-status-warning-fg hover:border-status-warning-border/40"
             >
               0x{ma} XOR 0x{mb}
             </button>
@@ -994,7 +984,7 @@ function XorExplainer({
                           {bitNr}
                         </div>
                         <div
-                          className={`text-xs ${isULCol(i) ? `${accent} opacity-80` : lbl}`}
+                          className={`text-xs ${isULCol(i) ? `${accent}` : lbl}`}
                           style={{ fontSize: "9px" }}
                         >
                           ={Math.pow(2, bitNr)}
@@ -1045,7 +1035,7 @@ function XorExplainer({
                       return (
                         <td
                           key={i}
-                          className={`text-center py-0.5`}
+                          className="text-center py-0.5"
                           style={{ fontSize: "9px" }}
                         >
                           <span className={bBit === 1 ? cyanText : lbl}>
@@ -1056,7 +1046,7 @@ function XorExplainer({
                     })}
                   </tr>
                   <tr
-                    className={`border-t-2 ${dark ? "border-amber-500/50" : "border-amber-400"}`}
+                    className="border-t-2 border-status-warning-border/50"
                   >
                     <td className={`pr-2 py-2 text-left font-bold ${accent}`}>
                       = 0x{result.toString(16).toUpperCase().padStart(2, "0")}
@@ -1095,7 +1085,7 @@ function XorExplainer({
 
           {/* Step 3: Bit by bit */}
           <div
-            className={`rounded-lg border p-3 space-y-1 text-xs ${dark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-white"}`}
+            className="rounded-lg border p-3 space-y-1 text-xs border-border bg-card/40"
           >
             <p className={`font-bold mb-2 ${mono}`}>
               Schritt 3 - Jedes Bit einzeln (von links nach rechts = Bit 7 bis
@@ -1172,7 +1162,7 @@ function XorExplainer({
 
           {/* Step 4: Summary */}
           <div
-            className={`rounded-lg border p-3 ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}
+            className="rounded-lg border p-3 bg-card border-border"
           >
             <p className={`text-xs font-bold mb-2 ${mono}`}>
               Schritt 4 - Ergebnis
@@ -1212,7 +1202,7 @@ function XorExplainer({
           {/* U/L Bit naming confusion explainer */}
           {b === 0x02 && (
             <div
-              className={`rounded-lg border p-3 text-xs space-y-2 ${dark ? "border-amber-500/30 bg-amber-500/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-900"}`}
+              className="rounded-lg border p-3 text-xs space-y-2 border-status-warning-border/30 bg-status-warning-bg text-status-warning-fg"
             >
               <p className="font-bold text-sm">
                 Das "7. Bit" - Warum heisst es so? (Namenswirrwarr klaren!)
@@ -1224,7 +1214,7 @@ function XorExplainer({
               <table className="w-full border-collapse text-xs">
                 <thead>
                   <tr
-                    className={`${dark ? "text-amber-300" : "text-amber-800"}`}
+                    className="text-status-warning-fg"
                   >
                     <th className="text-left py-1 pr-3">Zahlung</th>
                     <th className="text-left py-1">
@@ -1241,7 +1231,7 @@ function XorExplainer({
                     <td className="py-0.5">
                       das <strong>7. Bit</strong>
                     </td>
-                    <td className="py-0.5 opacity-80">
+                    <td className="py-0.5">
                       Position 7 von 8 von links
                     </td>
                   </tr>
@@ -1252,7 +1242,7 @@ function XorExplainer({
                     <td className="py-0.5">
                       <strong>Bit 1</strong>
                     </td>
-                    <td className="py-0.5 opacity-80">
+                    <td className="py-0.5">
                       Informatik-Konvention (LSB=0)
                     </td>
                   </tr>
@@ -1263,14 +1253,14 @@ function XorExplainer({
                     <td className="py-0.5">
                       das <strong>2. Bit</strong>
                     </td>
-                    <td className="py-0.5 opacity-80">Alltagssprache</td>
+                    <td className="py-0.5">Alltagssprache</td>
                   </tr>
                   <tr>
                     <td className="pr-3 py-0.5 font-semibold">Wert</td>
                     <td className="py-0.5">
                       <strong>2 (= 0x02 = 2^1)</strong>
                     </td>
-                    <td className="py-0.5 opacity-80">
+                    <td className="py-0.5">
                       Einzig eindeutige Angabe!
                     </td>
                   </tr>
@@ -1285,7 +1275,7 @@ function XorExplainer({
                 (10101000) - nur das 2. Bit von rechts (Wert 2) kippt von 1 auf
                 0.
               </p>
-              <p className="opacity-80">
+              <p>
                 IEEE U/L-Bit Bedeutung: Bei einer neuen fabrikseitig zugeteilten
                 MAC ist dieses Bit = 0. EUI-64 setzt es auf 1 um zu
                 kennzeichnen: "diese Interface-ID wurde aus einer MAC
@@ -1299,7 +1289,7 @@ function XorExplainer({
   );
 }
 
-function EUI64Tab({ dark }: { dark: boolean }) {
+function EUI64Tab() {
   const [mac, setMac] = useState("");
   const [result, setResult] = useState<EUI64Result | null>(null);
   const [error, setError] = useState("");
@@ -1322,7 +1312,7 @@ function EUI64Tab({ dark }: { dark: boolean }) {
   return (
     <div className="p-5 space-y-4">
       <div
-        className={`rounded-xl p-3 text-xs ${dark ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-300" : "bg-cyan-50 border border-cyan-200 text-cyan-700"}`}
+        className="rounded-xl p-3 text-xs bg-accent-primary/10 border border-accent-primary/20 text-accent-primary-fg"
       >
         <strong>Lernziel:</strong> Verstehen, wie eine IPv6 Interface-ID per
         EUI-64 aus einer MAC-Adresse generiert wird — der Mechanismus hinter
@@ -1331,7 +1321,7 @@ function EUI64Tab({ dark }: { dark: boolean }) {
 
       <div>
         <label
-          className={`block text-xs font-medium mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}
+          className="block text-xs font-medium mb-1 text-muted-foreground"
         >
           MAC-Adresse eingeben
         </label>
@@ -1341,16 +1331,16 @@ function EUI64Tab({ dark }: { dark: boolean }) {
             onChange={(e) => setMac(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && calculate()}
             placeholder="z.B.  AA:BB:CC:DD:EE:FF"
-            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-800 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+            className="flex-1 rounded-lg border px-3 py-2 text-sm font-mono bg-muted border-border text-foreground placeholder:text-muted-foreground"
           />
           <button
             onClick={calculate}
-            className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold transition-colors"
+            className="px-4 py-2 rounded-lg bg-accent-solid hover:opacity-90 text-on-accent-solid text-xs font-semibold transition-colors"
           >
             Berechnen
           </button>
         </div>
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-xs text-status-error-fg mt-1">{error}</p>}
       </div>
 
       {result && (
@@ -1358,38 +1348,38 @@ function EUI64Tab({ dark }: { dark: boolean }) {
           {result.steps.map((step, i) => (
             <div
               key={i}
-              className={`rounded-xl border overflow-hidden ${dark ? "border-slate-700" : "border-slate-200"}`}
+              className="rounded-xl border overflow-hidden border-border"
             >
               <button
                 onClick={() => setOpenStep(openStep === i ? null : i)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${dark ? "bg-slate-800 hover:bg-slate-700/80" : "bg-slate-50 hover:bg-slate-100"}`}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors bg-muted hover:bg-muted/80"
               >
                 <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-white ${i === result.steps.length - 1 ? "bg-cyan-500" : "bg-slate-500"}`}
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${i === result.steps.length - 1 ? "bg-accent-solid text-on-accent-solid" : "bg-muted-foreground text-background"}`}
                 >
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
                   <span
-                    className={`text-xs font-medium block ${dark ? "text-slate-300" : "text-slate-700"}`}
+                    className="text-xs font-medium block text-muted-foreground"
                   >
                     {step.label}
                   </span>
                   <span
-                    className={`text-xs font-mono break-all mt-0.5 block ${dark ? "text-cyan-300" : "text-cyan-700"}`}
+                    className="text-xs font-mono break-all mt-0.5 block text-accent-primary-fg"
                   >
                     {step.value}
                   </span>
                 </div>
                 <span
-                  className={`text-lg leading-none ${dark ? "text-slate-500" : "text-slate-400"}`}
+                  className="text-lg leading-none text-muted-foreground"
                 >
                   {openStep === i ? "−" : "+"}
                 </span>
               </button>
               {openStep === i && (
                 <div
-                  className={`px-4 py-3 text-xs leading-relaxed border-t ${dark ? "bg-slate-800/40 text-slate-400 border-slate-700" : "bg-white text-slate-600 border-slate-200"}`}
+                  className="px-4 py-3 text-xs leading-relaxed border-t bg-muted/40 text-muted-foreground border-border"
                 >
                   {step.explanation}
                 </div>
@@ -1398,20 +1388,20 @@ function EUI64Tab({ dark }: { dark: boolean }) {
           ))}
 
           <div
-            className={`rounded-xl border p-3 ${dark ? "bg-cyan-500/10 border-cyan-500/30" : "bg-cyan-50 border-cyan-200"}`}
+            className="rounded-xl border p-3 bg-accent-primary/10 border-accent-primary/30"
           >
             <span
-              className={`text-xs font-semibold block mb-1 ${dark ? "text-cyan-300" : "text-cyan-700"}`}
+              className="text-xs font-semibold block mb-1 text-accent-primary-fg"
             >
               Ergebnis: Interface-ID
             </span>
             <span
-              className={`text-lg font-mono font-bold ${dark ? "text-white" : "text-slate-900"}`}
+              className="text-lg font-mono font-bold text-foreground"
             >
               {result.interfaceId}
             </span>
             <span
-              className={`text-xs block mt-1 ${dark ? "text-slate-400" : "text-slate-500"}`}
+              className="text-xs block mt-1 text-muted-foreground"
             >
               Vollständige SLAAC-Adresse (Beispiel): 2001:DB8:1::
               {result.interfaceId}/64
@@ -1422,10 +1412,10 @@ function EUI64Tab({ dark }: { dark: boolean }) {
 
       {!result && (
         <div
-          className={`rounded-xl border p-3 ${dark ? "bg-slate-800/40 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+          className="rounded-xl border p-3 bg-muted/40 border-border"
         >
           <p
-            className={`text-xs font-medium mb-2 ${dark ? "text-slate-400" : "text-slate-600"}`}
+            className="text-xs font-medium mb-2 text-muted-foreground"
           >
             Beispiel-MACs aus dem Lernguide:
           </p>
@@ -1436,10 +1426,10 @@ function EUI64Tab({ dark }: { dark: boolean }) {
             <button
               key={m}
               onClick={() => setMac(m)}
-              className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10" : "text-slate-600 hover:text-cyan-700 hover:bg-cyan-50"}`}
+              className="w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg transition-colors text-muted-foreground hover:text-accent-primary-fg hover:bg-accent-primary/10"
             >
               <span className="font-mono text-xs">{m}</span>
-              <span className="text-xs opacity-60">— {lbl}</span>
+              <span className="text-xs text-muted-foreground">— {lbl}</span>
             </button>
           ))}
         </div>
@@ -1447,7 +1437,6 @@ function EUI64Tab({ dark }: { dark: boolean }) {
 
       {/* ── XOR / U/L-Bit Erklärer ─────────────────────────────── */}
       <XorExplainer
-        dark={dark}
         initialByte={
           result ? parseInt(result.steps[0].value.split(":")[0], 16) : undefined
         }
@@ -1458,7 +1447,7 @@ function EUI64Tab({ dark }: { dark: boolean }) {
 
 // ── Tab: Segmentierung ────────────────────────────────────────
 
-function SegmentationTab({ dark }: { dark: boolean }) {
+function SegmentationTab() {
   const [prefix, setPrefix] = useState("2001:DB8:CAFE::/48");
   const [newCidr, setNewCidr] = useState(56);
   const [result, setResult] = useState<SegResult | null>(null);
@@ -1507,7 +1496,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
   return (
     <div className="p-5 space-y-4">
       <div
-        className={`rounded-xl p-3 text-xs ${dark ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300" : "bg-emerald-50 border border-emerald-200 text-emerald-700"}`}
+        className="rounded-xl p-3 text-xs bg-status-success-bg border border-status-success-border/20 text-status-success-fg"
       >
         <strong>Lernziel:</strong> IPv6-Präfixe hierarchisch aufteilen. Bei IPv6
         ist <strong>/64</strong> die kleinste SLAAC-fähige Einheit. Typische
@@ -1521,7 +1510,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
       {/* Scenario quick-pick */}
       <div>
         <p
-          className={`text-xs font-medium mb-2 ${dark ? "text-slate-400" : "text-slate-600"}`}
+          className="text-xs font-medium mb-2 text-muted-foreground"
         >
           Typische Szenarien:
         </p>
@@ -1534,14 +1523,14 @@ function SegmentationTab({ dark }: { dark: boolean }) {
                 setNewCidr(s.newCidr);
                 setResult(null);
               }}
-              className={`text-left text-xs px-3 py-2 rounded-lg border transition-colors ${dark ? "border-slate-700 bg-slate-800 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-slate-400 hover:text-emerald-300" : "border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 text-slate-600 hover:text-emerald-700"}`}
+              className="text-left text-xs px-3 py-2 rounded-lg border transition-colors border-border bg-muted hover:bg-status-success-border/20 hover:border-status-success-border/30 text-muted-foreground hover:text-status-success-fg"
             >
               <span className="font-mono font-semibold">{s.prefix}</span>
               {" → /"}
               <span className="font-semibold">{s.newCidr}</span>
-              <span className="ml-2 opacity-60">{s.label}</span>
+              <span className="ml-2 text-muted-foreground">{s.label}</span>
               <span
-                className={`ml-1 text-xs ${dark ? "text-emerald-500" : "text-emerald-600"}`}
+                className="ml-1 text-xs text-status-success-fg"
               >
                 ({s.note})
               </span>
@@ -1554,7 +1543,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label
-            className={`block text-xs font-medium mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}
+            className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Ausgangspräfix (mit /CIDR)
           </label>
@@ -1562,12 +1551,12 @@ function SegmentationTab({ dark }: { dark: boolean }) {
             value={prefix}
             onChange={(e) => setPrefix(e.target.value)}
             placeholder="z.B. 2001:DB8::/48"
-            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-800 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+            className="w-full rounded-lg border px-3 py-2 text-sm font-mono bg-muted border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <div>
           <label
-            className={`block text-xs font-medium mb-1 ${dark ? "text-slate-300" : "text-slate-700"}`}
+            className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Neues CIDR (1–128)
           </label>
@@ -1577,31 +1566,29 @@ function SegmentationTab({ dark }: { dark: boolean }) {
             max={128}
             value={newCidr}
             onChange={(e) => setNewCidr(parseInt(e.target.value))}
-            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-800 border-slate-600 text-white" : "bg-white border-slate-300 text-slate-900"}`}
+            className="w-full rounded-lg border px-3 py-2 text-sm font-mono bg-muted border-border text-foreground"
           />
         </div>
       </div>
 
       <button
         onClick={calculate}
-        className="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
+        className="w-full py-2 rounded-lg bg-status-success-solid hover:opacity-90 text-on-status-success-solid text-sm font-semibold transition-colors"
       >
         Segmentieren
       </button>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-status-error-fg">{error}</p>}
 
       {result && (
         <div className="space-y-3">
           <div
-            className={`rounded-xl border p-3 grid grid-cols-3 gap-3 text-center ${dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+            className="rounded-xl border p-3 grid grid-cols-3 gap-3 text-center bg-muted/60 border-border"
           >
             <StatBlock
-              dark={dark}
               label="Subnetz-Bits"
               value={String(result.subnetBits)}
             />
             <StatBlock
-              dark={dark}
               label="Anzahl Subnetze"
               value={
                 result.totalCount > BigInt(1_000_000)
@@ -1610,7 +1597,6 @@ function SegmentationTab({ dark }: { dark: boolean }) {
               }
             />
             <StatBlock
-              dark={dark}
               label="Präfix-Länge"
               value={`/${result.subnets[0]?.prefixLength ?? ""}`}
             />
@@ -1618,7 +1604,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
 
           <div>
             <p
-              className={`text-xs font-medium mb-2 ${dark ? "text-slate-400" : "text-slate-600"}`}
+              className="text-xs font-medium mb-2 text-muted-foreground"
             >
               Erste {result.showFirst} Subnetze
               {result.totalCount > BigInt(8)
@@ -1627,18 +1613,18 @@ function SegmentationTab({ dark }: { dark: boolean }) {
               :
             </p>
             <div
-              className={`rounded-xl border overflow-hidden ${dark ? "border-slate-700" : "border-slate-200"}`}
+              className="rounded-xl border overflow-hidden border-border"
             >
               <table className="w-full text-xs">
                 <thead>
-                  <tr className={dark ? "bg-slate-800" : "bg-slate-100"}>
+                  <tr className={"bg-muted"}>
                     <th
-                      className={`px-3 py-2 text-left font-semibold w-8 ${dark ? "text-slate-400" : "text-slate-500"}`}
+                      className="px-3 py-2 text-left font-semibold w-8 text-muted-foreground"
                     >
                       #
                     </th>
                     <th
-                      className={`px-3 py-2 text-left font-semibold ${dark ? "text-slate-400" : "text-slate-500"}`}
+                      className="px-3 py-2 text-left font-semibold text-muted-foreground"
                     >
                       Netzwerkadresse
                     </th>
@@ -1649,18 +1635,16 @@ function SegmentationTab({ dark }: { dark: boolean }) {
                     <tr
                       key={i}
                       className={
-                        dark
-                          ? "border-t border-slate-700"
-                          : "border-t border-slate-100"
+                        "border-t border-border"
                       }
                     >
                       <td
-                        className={`px-3 py-2 ${dark ? "text-slate-600" : "text-slate-400"}`}
+                        className="px-3 py-2 text-muted-foreground"
                       >
                         {i}
                       </td>
                       <td
-                        className={`px-3 py-2 font-mono font-medium ${dark ? "text-emerald-300" : "text-emerald-700"}`}
+                        className="px-3 py-2 font-mono font-medium text-status-success-fg"
                       >
                         {s.networkAddress}/{s.prefixLength}
                       </td>
@@ -1672,7 +1656,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
           </div>
 
           <div
-            className={`rounded-xl p-3 text-xs ${dark ? "bg-amber-500/10 border border-amber-500/20 text-amber-300" : "bg-amber-50 border border-amber-200 text-amber-700"}`}
+            className="rounded-xl p-3 text-xs bg-status-warning-bg border border-status-warning-border/20 text-status-warning-fg"
           >
             <strong>Praxis-Tipp:</strong> /64 ist die Mindestgröße für SLAAC.
             Router-zu-Router Point-to-Point-Links dürfen /127 (RFC 6164)
@@ -1687,7 +1671,7 @@ function SegmentationTab({ dark }: { dark: boolean }) {
 
 // ── Tab: Drill ────────────────────────────────────────────────
 
-function DrillTab({ dark }: { dark: boolean }) {
+function DrillTab() {
   const [filter, setFilter] = useState<DrillType | "random">("random");
   const [task, setTask] = useState<DrillTask>(() => makeDrillTask());
   const [textInput, setTextInput] = useState("");
@@ -1762,14 +1746,14 @@ function DrillTab({ dark }: { dark: boolean }) {
           <button
             key={f}
             onClick={() => changeFilter(f)}
-            className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${filter === f ? (dark ? "bg-amber-500/20 border-amber-500/40 text-amber-300" : "bg-amber-100 border-amber-300 text-amber-700") : dark ? "border-slate-700 text-slate-500 hover:text-slate-300" : "border-slate-200 text-slate-500 hover:text-slate-700"}`}
+            className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${filter === f ? ("bg-status-warning-bg border-status-warning-border/40 text-status-warning-fg") : "border-border text-muted-foreground hover:text-foreground"}`}
           >
             {filterLabels[f]}
           </button>
         ))}
         {accuracy !== null && (
           <span
-            className={`ml-auto text-xs font-semibold ${accuracy >= 70 ? (dark ? "text-emerald-400" : "text-emerald-600") : dark ? "text-amber-400" : "text-amber-600"}`}
+            className={`ml-auto text-xs font-semibold ${accuracy >= 70 ? ("text-status-success-fg") : "text-status-warning-fg"}`}
           >
             {score.right}/{score.total} ({accuracy}%)
           </span>
@@ -1778,27 +1762,27 @@ function DrillTab({ dark }: { dark: boolean }) {
 
       {/* Task card */}
       <div
-        className={`rounded-xl border p-4 ${dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+        className="rounded-xl border p-4 bg-muted/60 border-border"
       >
         <div className="flex items-center gap-2 mb-3">
           <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${dark ? "bg-amber-500/20 text-amber-300" : "bg-amber-100 text-amber-700"}`}
+            className="text-xs px-2 py-0.5 rounded-full font-medium bg-status-warning-bg text-status-warning-fg"
           >
             {taskTypeLabel[task.drillType]}
           </span>
         </div>
 
         <p
-          className={`text-sm font-medium mb-3 ${dark ? "text-white" : "text-slate-900"}`}
+          className="text-sm font-medium mb-3 text-foreground"
         >
           {task.question}
         </p>
 
         <div
-          className={`rounded-lg border px-3 py-2 mb-4 ${dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}
+          className="rounded-lg border px-3 py-2 mb-4 bg-card border-border"
         >
           <span
-            className={`text-sm font-mono break-all ${dark ? "text-indigo-300" : "text-indigo-700"}`}
+            className="text-sm font-mono break-all text-accent-primary-fg"
           >
             {task.input}
           </span>
@@ -1815,25 +1799,15 @@ function DrillTab({ dark }: { dark: boolean }) {
               let colorClass: string;
               if (checked) {
                 if (isCorrectChoice)
-                  colorClass = dark
-                    ? "bg-emerald-500/20 border-emerald-500 text-emerald-300"
-                    : "bg-emerald-50 border-emerald-400 text-emerald-700";
+                  colorClass = "bg-status-success-bg border-status-success-border text-status-success-fg";
                 else if (isSelectedChoice)
-                  colorClass = dark
-                    ? "bg-red-500/20 border-red-500 text-red-300"
-                    : "bg-red-50 border-red-400 text-red-700";
+                  colorClass = "bg-status-error-bg border-status-error-border text-status-error-fg";
                 else
-                  colorClass = dark
-                    ? "border-slate-700 text-slate-600"
-                    : "border-slate-200 text-slate-400";
+                  colorClass = "border-border text-muted-foreground";
               } else if (isSelectedChoice) {
-                colorClass = dark
-                  ? "bg-amber-500/20 border-amber-500 text-amber-300"
-                  : "bg-amber-50 border-amber-400 text-amber-700";
+                colorClass = "bg-status-warning-bg border-status-warning-border text-status-warning-fg";
               } else {
-                colorClass = dark
-                  ? "border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-100";
+                colorClass = "border-border text-muted-foreground hover:bg-muted hover:text-foreground";
               }
               return (
                 <button
@@ -1853,7 +1827,7 @@ function DrillTab({ dark }: { dark: boolean }) {
             onKeyDown={(e) => e.key === "Enter" && !checked && check()}
             disabled={checked}
             placeholder="Antwort eingeben …"
-            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-900 border-slate-600 text-white placeholder-slate-500 disabled:opacity-60" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400 disabled:bg-slate-50"}`}
+            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono bg-card border-border text-foreground placeholder:text-muted-foreground disabled:bg-muted disabled:text-muted-foreground`}
           />
         )}
       </div>
@@ -1862,7 +1836,7 @@ function DrillTab({ dark }: { dark: boolean }) {
       {!checked && (
         <button
           onClick={() => setShowHint((v) => !v)}
-          className={`flex items-center gap-1.5 text-xs transition-colors ${dark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"}`}
+          className="flex items-center gap-1.5 text-xs transition-colors text-muted-foreground hover:text-muted-foreground"
         >
           <Info size={12} />
           {showHint ? "Hinweis ausblenden" : "Hinweis anzeigen"}
@@ -1870,7 +1844,7 @@ function DrillTab({ dark }: { dark: boolean }) {
       )}
       {showHint && !checked && (
         <div
-          className={`rounded-xl p-3 text-xs ${dark ? "bg-slate-800 border border-slate-700 text-slate-400" : "bg-slate-100 border border-slate-200 text-slate-600"}`}
+          className="rounded-xl p-3 text-xs bg-muted border border-border text-muted-foreground"
         >
           {task.hint}
         </div>
@@ -1879,30 +1853,30 @@ function DrillTab({ dark }: { dark: boolean }) {
       {/* Feedback */}
       {checked && (
         <div
-          className={`rounded-xl border p-3 ${correct ? (dark ? "bg-emerald-500/10 border-emerald-500/30" : "bg-emerald-50 border-emerald-200") : dark ? "bg-red-500/10 border-red-500/30" : "bg-red-50 border-red-200"}`}
+          className={`rounded-xl border p-3 ${correct ? ("bg-status-success-bg border-status-success-border/30") : "bg-status-error-bg border-status-error-border/30"}`}
         >
           <div className="flex items-center gap-2 mb-1">
             {correct ? (
               <CheckCircle
                 size={14}
-                className={dark ? "text-emerald-400" : "text-emerald-500"}
+                className={"text-status-success-fg"}
                 weight="fill"
               />
             ) : (
               <XCircle
                 size={14}
-                className={dark ? "text-red-400" : "text-red-500"}
+                className={"text-status-error-fg"}
                 weight="fill"
               />
             )}
             <span
-              className={`text-xs font-semibold ${correct ? (dark ? "text-emerald-300" : "text-emerald-700") : dark ? "text-red-300" : "text-red-700"}`}
+              className={`text-xs font-semibold ${correct ? ("text-status-success-fg") : "text-status-error-fg"}`}
             >
               {correct ? "Richtig!" : "Falsch"}
             </span>
           </div>
           <p
-            className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}
+            className="text-xs text-muted-foreground"
           >
             {task.explanation}
           </p>
@@ -1915,7 +1889,7 @@ function DrillTab({ dark }: { dark: boolean }) {
           <button
             onClick={check}
             disabled={!task.choices ? textInput.trim() === "" : choice === null}
-            className="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
+            className="flex-1 py-2 rounded-lg bg-status-warning-solid hover:opacity-90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-on-status-warning-solid text-sm font-semibold transition-colors"
           >
             Überprüfen
           </button>
@@ -1923,7 +1897,7 @@ function DrillTab({ dark }: { dark: boolean }) {
         {checked && (
           <button
             onClick={() => newTask()}
-            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-status-warning-solid hover:opacity-90 text-on-status-warning-solid text-sm font-semibold transition-colors"
           >
             <ArrowClockwise size={14} />
             Nächste Aufgabe
@@ -1942,15 +1916,15 @@ function hexToBin4(h: string): string {
   return parseInt(h, 16).toString(2).padStart(4, "0");
 }
 
-function BinaryTab({ dark }: { dark: boolean }) {
+function BinaryTab() {
   const [ipv6Input, setIpv6Input] = useState("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
   const [hoverDigit, setHoverDigit] = useState<string | null>(null);
   const [clickedDigit, setClickedDigit] = useState<string | null>(null);
 
-  const card = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
-  const lbl = dark ? "text-slate-400" : "text-slate-500";
-  const mono = dark ? "text-white" : "text-slate-900";
-  const accent = dark ? "text-indigo-300" : "text-indigo-700";
+  const card = "bg-muted/60 border-border";
+  const lbl = "text-muted-foreground";
+  const mono = "text-foreground";
+  const accent = "text-accent-primary-fg";
 
   const activeDigit = clickedDigit ?? hoverDigit;
 
@@ -2002,8 +1976,8 @@ function BinaryTab({ dark }: { dark: boolean }) {
                 onClick={() => setClickedDigit(clickedDigit === h ? null : h)}
                 className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-left transition-all ${
                   isActive
-                    ? dark ? "border-indigo-500 bg-indigo-500/25" : "border-indigo-400 bg-indigo-50"
-                    : dark ? "border-slate-700 hover:border-slate-500 hover:bg-slate-700/50" : "border-slate-200 hover:border-slate-300 hover:bg-white"
+                    ? "border-accent-primary bg-accent-primary/25"
+                    : "border-border hover:border-border hover:bg-muted/50"
                 }`}
               >
                 {/* Hex digit */}
@@ -2014,8 +1988,8 @@ function BinaryTab({ dark }: { dark: boolean }) {
                   {bin.split("").map((bit, i) => (
                     <span key={i} className={`w-6 h-6 flex items-center justify-center rounded font-mono font-bold text-sm border ${
                       bit === "1"
-                        ? dark ? "bg-indigo-500/30 border-indigo-500/60 text-indigo-200" : "bg-indigo-100 border-indigo-300 text-indigo-800"
-                        : dark ? "bg-slate-700/50 border-slate-600 text-slate-500" : "bg-slate-100 border-slate-200 text-slate-400"
+                        ? "bg-accent-primary/30 border-accent-primary/60 text-accent-primary-fg"
+                        : "bg-muted/50 border-border text-muted-foreground"
                     }`}>{bit}</span>
                   ))}
                 </span>
@@ -2031,7 +2005,7 @@ function BinaryTab({ dark }: { dark: boolean }) {
           const bin = hexToBin4(activeDigit);
           const parts = [8, 4, 2, 1];
           return (
-            <div className={`rounded-lg border p-3 space-y-2 text-xs ${dark ? "border-indigo-500/40 bg-indigo-500/10" : "border-indigo-200 bg-indigo-50"}`}>
+            <div className="rounded-lg border p-3 space-y-2 text-xs border-accent-primary/40 bg-accent-primary/10">
               <p className={`font-bold ${accent}`}>
                 0x{activeDigit} = {val} = Binär: {bin}
               </p>
@@ -2040,8 +2014,8 @@ function BinaryTab({ dark }: { dark: boolean }) {
                   <div key={i} className="text-center">
                     <div className={`w-9 h-9 flex items-center justify-center rounded-lg font-mono font-black text-lg border-2 ${
                       bit === "1"
-                        ? dark ? "bg-indigo-500/30 border-indigo-400 text-indigo-200" : "bg-indigo-100 border-indigo-400 text-indigo-800"
-                        : dark ? "bg-slate-800 border-slate-600 text-slate-500" : "bg-white border-slate-300 text-slate-400"
+                        ? "bg-accent-primary/20 border-accent-primary text-accent-primary-fg"
+                        : "bg-muted border-border text-muted-foreground"
                     }`}>{bit}</div>
                     <div className={`mt-0.5 font-semibold ${bit === "1" ? accent : lbl}`}>{parts[i]}</div>
                   </div>
@@ -2072,12 +2046,12 @@ function BinaryTab({ dark }: { dark: boolean }) {
             value={ipv6Input}
             onChange={(e) => setIpv6Input(e.target.value)}
             placeholder="z.B. 2001:db8::1"
-            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono ${dark ? "bg-slate-900 border-slate-600 text-white placeholder-slate-500" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"}`}
+            className="w-full rounded-lg border px-3 py-2 text-sm font-mono bg-card border-border text-foreground placeholder:text-muted-foreground"
           />
           <div className="flex gap-2 mt-1.5 flex-wrap">
             {["2001:0db8:85a3::8a2e:0370:7334", "fe80::1", "::1", "ff02::1", "2001:db8:1:2:3:4:5:6"].map(ex => (
               <button key={ex} onClick={() => setIpv6Input(ex)}
-                className={`text-xs px-2 py-0.5 rounded border transition-colors ${dark ? "border-slate-700 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/40" : "border-slate-200 text-slate-500 hover:text-indigo-700 hover:border-indigo-300"}`}>
+                className="text-xs px-2 py-0.5 rounded border transition-colors border-border text-muted-foreground hover:text-accent-primary-fg hover:border-accent-primary/40">
                 {ex}
               </button>
             ))}
@@ -2097,7 +2071,7 @@ function BinaryTab({ dark }: { dark: boolean }) {
                   </tr>
                   <tr>
                     {groups.map((g, gi) => (
-                      <td key={gi} className={`px-1 pb-2`}>
+                      <td key={gi} className="px-1 pb-2">
                         <span className={`font-mono font-bold text-sm ${accent}`}>{g}</span>
                       </td>
                     ))}
@@ -2116,8 +2090,8 @@ function BinaryTab({ dark }: { dark: boolean }) {
                               {bin.split("").map((bit, bi) => (
                                 <span key={bi} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-mono font-bold border ${
                                   bit === "1"
-                                    ? dark ? "bg-indigo-500/25 border-indigo-500/50 text-indigo-200" : "bg-indigo-100 border-indigo-300 text-indigo-700"
-                                    : dark ? "bg-slate-700/40 border-slate-700 text-slate-500" : "bg-slate-100 border-slate-200 text-slate-400"
+                                    ? "bg-accent-primary/25 border-accent-primary/50 text-accent-primary-fg"
+                                    : "bg-muted/40 border-border text-muted-foreground"
                                 }`}>{bit}</span>
                               ))}
                             </div>
@@ -2138,7 +2112,7 @@ function BinaryTab({ dark }: { dark: boolean }) {
             </div>
 
             {/* Full 128-bit binary string */}
-            <div className={`rounded-lg border p-3 space-y-2 ${dark ? "border-slate-700 bg-slate-900/40" : "border-slate-200 bg-white"}`}>
+            <div className="rounded-lg border p-3 space-y-2 border-border bg-card/40">
               <p className={`text-xs font-bold ${mono}`}>Vollständige 128-Bit Darstellung</p>
               <div className="flex flex-wrap gap-0.5">
                 {groups.map((g, gi) =>
@@ -2149,8 +2123,8 @@ function BinaryTab({ dark }: { dark: boolean }) {
                         <span key={absIdx} className={`font-mono text-xs font-bold ${
                           (absIdx % 16 === 0 && absIdx > 0) ? "ml-2" : (absIdx % 4 === 0 && absIdx > 0 ? "ml-0.5" : "")
                         } ${bit === "1"
-                          ? dark ? "text-indigo-300" : "text-indigo-700"
-                          : dark ? "text-slate-600" : "text-slate-400"
+                          ? "text-accent-primary-fg"
+                          : "text-muted-foreground"
                         }`}>{bit}</span>
                       );
                     })
@@ -2168,7 +2142,7 @@ function BinaryTab({ dark }: { dark: boolean }) {
       </div>
 
       {/* Quick tip */}
-      <div className={`rounded-lg border p-3 text-xs space-y-1 ${dark ? "border-slate-700 bg-slate-800/40 text-slate-400" : "border-slate-200 bg-slate-50 text-slate-500"}`}>
+      <div className="rounded-lg border p-3 text-xs space-y-1 border-border bg-muted/40 text-muted-foreground">
         <p className={`font-bold ${mono}`}>Merkhilfe</p>
         <p>1 Hex-Ziffer = 4 Bit | 1 IPv6-Gruppe (z.B. <span className="font-mono">85a3</span>) = 4 Ziffern = <strong className={mono}>16 Bit</strong> | Ganze IPv6-Adresse = 8 Gruppen = <strong className={mono}>128 Bit</strong></p>
         <p>Tipp: Klicke eine Ziffer in der Tabelle oben an, um die Berechnungsformel zu sehen.</p>
@@ -2182,15 +2156,13 @@ function BinaryTab({ dark }: { dark: boolean }) {
 interface IPv6CalculatorDialogProps {
   open: boolean;
   onClose: () => void;
-  theme: "light" | "dark";
+  theme?: "light" | "dark";
 }
 
 export function IPv6CalculatorDialog({
   open,
   onClose,
-  theme,
 }: IPv6CalculatorDialogProps) {
-  const dark = theme === "dark";
   const [tab, setTab] = useState<IPv6Tab>("analyse");
 
   if (!open) return null;
@@ -2199,37 +2171,27 @@ export function IPv6CalculatorDialog({
     {
       id: "analyse",
       label: "Adress-Analyse",
-      activeClass: dark
-        ? "border-indigo-400 text-indigo-300"
-        : "border-indigo-600 text-indigo-700",
+      activeClass: "border-accent-primary text-accent-primary-fg",
     },
     {
       id: "eui64",
       label: "EUI-64",
-      activeClass: dark
-        ? "border-cyan-400 text-cyan-300"
-        : "border-cyan-600 text-cyan-700",
+      activeClass: "border-accent-primary text-accent-primary-fg",
     },
     {
       id: "segmentation",
       label: "Segmentierung",
-      activeClass: dark
-        ? "border-emerald-400 text-emerald-300"
-        : "border-emerald-600 text-emerald-700",
+      activeClass: "border-status-success-border text-status-success-fg",
     },
     {
       id: "drill",
       label: "Drill",
-      activeClass: dark
-        ? "border-amber-400 text-amber-300"
-        : "border-amber-600 text-amber-700",
+      activeClass: "border-status-warning-border text-status-warning-fg",
     },
     {
       id: "binaer",
       label: "Binär",
-      activeClass: dark
-        ? "border-violet-400 text-violet-300"
-        : "border-violet-600 text-violet-700",
+      activeClass: "border-status-trunk-border text-status-trunk-fg",
     },
   ];
 
@@ -2243,24 +2205,24 @@ export function IPv6CalculatorDialog({
         onClick={onClose}
       >
         <div
-          className={`relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${dark ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-200"}`}
+          className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden bg-card border border-border"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div
-            className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50"}`}
+            className="flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 border-border bg-muted/50"
           >
-            <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center flex-shrink-0">
-              <Calculator size={18} weight="duotone" className="text-white" />
+            <div className="w-9 h-9 rounded-xl bg-accent-solid flex items-center justify-center flex-shrink-0">
+              <Calculator size={18} weight="duotone" className="text-on-accent-solid" />
             </div>
             <div>
               <h2
-                className={`font-bold text-sm ${dark ? "text-white" : "text-slate-900"}`}
+                className="font-bold text-sm text-foreground"
               >
                 IPv6 Rechner & Drill
               </h2>
               <p
-                className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}
+                className="text-xs mt-0.5 text-muted-foreground"
               >
                 Adress-Analyse · EUI-64 · Segmentierung · Binär · Drill
               </p>
@@ -2268,7 +2230,7 @@ export function IPv6CalculatorDialog({
             <button
               onClick={onClose}
               aria-label="Schließen"
-              className={`ml-auto p-1.5 rounded-lg transition-colors ${dark ? "text-slate-400 hover:text-white hover:bg-slate-700" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"}`}
+              className="ml-auto p-1.5 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
             >
               <X size={16} />
             </button>
@@ -2276,13 +2238,13 @@ export function IPv6CalculatorDialog({
 
           {/* Tab Bar */}
           <div
-            className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}
+            className="flex border-b flex-shrink-0 border-border"
           >
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent ${dark ? "text-slate-500 hover:text-slate-300" : "text-slate-500 hover:text-slate-700"}`}`}
+                className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent text-muted-foreground hover:text-foreground`}`}
               >
                 {t.label}
               </button>
@@ -2291,11 +2253,11 @@ export function IPv6CalculatorDialog({
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto">
-            {tab === "analyse" && <AnalyseTab dark={dark} />}
-            {tab === "eui64" && <EUI64Tab dark={dark} />}
-            {tab === "segmentation" && <SegmentationTab dark={dark} />}
-            {tab === "drill" && <DrillTab dark={dark} />}
-            {tab === "binaer" && <BinaryTab dark={dark} />}
+            {tab === "analyse" && <AnalyseTab />}
+            {tab === "eui64" && <EUI64Tab />}
+            {tab === "segmentation" && <SegmentationTab />}
+            {tab === "drill" && <DrillTab />}
+            {tab === "binaer" && <BinaryTab />}
           </div>
         </div>
       </div>

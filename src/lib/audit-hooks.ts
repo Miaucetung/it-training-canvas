@@ -1,10 +1,13 @@
+import type { ToolId } from "@/lib/types";
+
 export type AuditTheme = "light" | "dark";
-export type AuditDialogTarget = "exam" | "prioritized" | "dragdrop";
+export type AuditDialogTarget = "exam" | "prioritized" | "dragdrop" | "labs";
 
 export interface AuditHookMap {
   __auditApp: {
     setTheme: (theme: AuditTheme) => void;
     openDialog: (target: AuditDialogTarget) => void;
+    openTool: (id: ToolId) => void;
     closeDialogs: () => void;
   };
   __quizDialogState: {

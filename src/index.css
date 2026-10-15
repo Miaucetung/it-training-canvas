@@ -61,6 +61,15 @@
   --status-blocking-bg: #FFF7ED;
   --status-blocking-border: #EA580C;
 
+  /* ── OSI-Schichten (Text/Rahmen, Kontrast >= 4.5:1 auf Karte und Tönung) ── */
+  --osi-layer-1: #475569;
+  --osi-layer-2: #92400E;
+  --osi-layer-3: #1D4ED8;
+  --osi-layer-4: #065F46;
+  --osi-layer-5: #BE123C;
+  --osi-layer-6: #BE185D;
+  --osi-layer-7: #7E22CE;
+
   /* ── Terminal Tokens (Console - Identical in both themes) ─── */
   --terminal-bg: #0B0F19;
   --terminal-fg: #E2E8F0;
@@ -155,6 +164,15 @@
   --status-blocking-fg: #FB923C;
   --status-blocking-bg: rgba(249, 115, 22, 0.12);
   --status-blocking-border: #EA580C;
+
+  /* ── OSI-Schichten (Dark Mode) ───────────────────────────── */
+  --osi-layer-1: #CBD5E1;
+  --osi-layer-2: #FCD34D;
+  --osi-layer-3: #93C5FD;
+  --osi-layer-4: #6EE7B7;
+  --osi-layer-5: #FDA4AF;
+  --osi-layer-6: #F9A8D4;
+  --osi-layer-7: #D8B4FE;
 
   /* ── Terminal Tokens (Dark Mode) ─────────────────────────── */
   --terminal-bg: #0B0F19;

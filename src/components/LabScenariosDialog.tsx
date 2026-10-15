@@ -854,7 +854,8 @@ export function LabScenariosDialog({
                       : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200",
                   )}
                   title="Schaltet Interface-IPs und Subnetzangaben im Diagramm ein/aus"
-                  aria-label="Detail-Modus umschalten"
+                  aria-label={`Detail-Modus umschalten: ${detailMode ? "IPs an" : "Kompakt"}`}
+                  aria-pressed={detailMode}
                 >
                   <Eye size={14} className={detailMode ? "text-cyan-400" : "text-terminal-muted"} />
                   <span className="hidden md:inline">{detailMode ? "IPs an" : "Kompakt"}</span>
@@ -870,7 +871,8 @@ export function LabScenariosDialog({
                       : "bg-slate-800 text-slate-300 hover:text-white border-slate-700",
                   )}
                   title="Präsentationsmodus für Beamer (Taste P)"
-                  aria-label="Präsentationsmodus umschalten"
+                  aria-label="Präsentationsmodus umschalten: Beamer (P)"
+                  aria-pressed={presentationMode}
                 >
                   <Slideshow size={14} className={presentationMode ? "text-amber-400" : "text-slate-400"} />
                   <span className="hidden sm:inline">Beamer (P)</span>
