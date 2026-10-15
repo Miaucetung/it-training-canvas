@@ -368,8 +368,8 @@ export function AclDrillDialog({ open, onClose }: Props) {
             <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
             <span>Richtig: <span className="font-semibold text-status-success-fg">{stats.correct}</span></span>
             {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
-            {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
-            {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
+            {stats.streak >= 3 && <span className="font-semibold text-status-blocking-fg">🔥 {stats.streak}er Serie</span>}
+            {stats.best >= 5 && <span className="text-status-trunk-fg">Best: {stats.best}</span>}
           </div>
 
           {/* Body */}

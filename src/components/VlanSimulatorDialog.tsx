@@ -83,7 +83,7 @@ const FRAME_FIELDS = [
   },
 ];
 
-function FrameVivisektor({ dark }: { dark: boolean }) {
+function FrameVivisektor() {
   const [selected, setSelected] = useState<string | null>("tag");
   const [tagEnabled, setTagEnabled] = useState(true);
 
@@ -977,7 +977,7 @@ interface TrunkFrame {
   x: number;
 }
 
-function TrunkAnimation({ dark }: { dark: boolean }) {
+function TrunkAnimation() {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [frames, setFrames] = useState<TrunkFrame[]>([]);
@@ -1183,7 +1183,7 @@ const NODE_LABELS: Record<WalkLocation, string> = {
   "pc-b": "PC-B\n(VLAN 10)",
 };
 
-function PacketWalkSimulator({ dark }: { dark: boolean }) {
+function PacketWalkSimulator() {
   const [step, setStep] = useState(0);
   const current = WALK_STEPS[step];
   const nodes: WalkLocation[] = ["pc-a", "sw1", "trunk", "sw2", "pc-b"];
@@ -1395,10 +1395,10 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "frame"       && <FrameVivisektor dark={dark} />}
+            {tab === "frame"       && <FrameVivisektor />}
             {tab === "topology"    && <TopologySimulator dark={dark} />}
-            {tab === "trunk"       && <TrunkAnimation dark={dark} />}
-            {tab === "packet-walk" && <PacketWalkSimulator dark={dark} />}
+            {tab === "trunk"       && <TrunkAnimation />}
+            {tab === "packet-walk" && <PacketWalkSimulator />}
           </div>
         </div>
       </div>
