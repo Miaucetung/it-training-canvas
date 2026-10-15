@@ -43,3 +43,20 @@ q1254 / Q1254: `question` ist ein leerer String; Optionen und JSON-Exhibit sind 
 ## Gleiches Muster, nicht angefasst
 
 Im Prüfungstrainer stehen dieselben zu hellen Zinkfarben noch an anderen Stellen, die der Lauf nicht trifft (andere Bildschirme): `text-zinc-400`/`text-zinc-500` bei der Zeitangabe und den Domain-Zählern im Ergebnisbildschirm sowie `text-zinc-600/400` bei „Schwächeliste zurücksetzen“ im Menü. Das wären weitere ein- bis zweizeilige Änderungen auf `text-muted-foreground`.
+
+## Nachtrag: die drei verbleibenden Zink-Stellen (Branch `fix/exam-zinc-contrast`)
+
+Im Prüfungstrainer sind jetzt auch diese drei Stellen auf `text-muted-foreground` umgestellt (Test in `exam-prep-contrast.test.tsx`, hell und dunkel):
+
+- Ergebnisbildschirm: Zeitangabe („Zeit: 0:00“) und Domain-Zähler („3/4 (75 %)“),
+- Menü: „Schwächeliste zurücksetzen (n)“ (mit `hover:text-foreground`).
+
+axe auf Menü und Ergebnisbildschirm (1440 px, dunkel und hell): diese drei Stellen werden nicht mehr gemeldet. Auf den beiden Bildschirmen bleiben weitere, bereits vorhandene Befunde, die nicht Teil des Auftrags waren:
+
+| Bildschirm | Befund |
+|---|---|
+| Menü (dunkel) | `color-contrast`: Statistikbeschriftungen („Fragen gesamt“, „Mit Grafik“, „Schwächefragen“, „Kategorien“; `text-zinc-500`, 3,08 : 1) |
+| Menü (hell und dunkel) | `color-contrast`: Texte der drei Modus-Kacheln (`text-sky-500`/`text-purple-500` auf getönten Flächen, z. B. 2,44 : 1 hell) |
+| Menü | `select-name`: das Kategorie-Auswahlfeld hat kein Label |
+| Ergebnisbildschirm (dunkel) | `color-contrast`: „/ 1000“ (`text-zinc-500`) |
+| Ergebnisbildschirm | `color-contrast`: Schaltfläche mit `bg-sky-500` und weißem Text (2,7 : 1) |

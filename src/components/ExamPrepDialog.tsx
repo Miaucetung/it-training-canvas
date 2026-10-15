@@ -335,7 +335,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
           {" · "}Cisco-Grenze: 825/1000
         </div>
         {mode === "exam" && elapsedSeconds != null && (
-          <div className={`mt-1 text-sm ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
+          <div className="mt-1 text-sm text-muted-foreground">
             Zeit: {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, "0")}
           </div>
         )}
@@ -361,7 +361,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
               <div key={cat} className="space-y-0.5">
                 <div className="flex justify-between text-xs">
                   <span className={dark ? "text-zinc-300" : "text-zinc-700"}>{cat}</span>
-                  <span className={dark ? "text-zinc-500" : "text-zinc-400"}>
+                  <span className="text-muted-foreground">
                     {c}/{t} ({Math.round((c / t) * 100)}%)
                   </span>
                 </div>
@@ -759,7 +759,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                     setWeakIds(new Set());
                     saveWeakIds(new Set());
                   }}
-                  className={`text-xs ${dark ? "text-zinc-600 hover:text-zinc-400" : "text-zinc-400 hover:text-zinc-600"}`}
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   Schwächeliste zurücksetzen ({weakIds.size})
                 </button>
