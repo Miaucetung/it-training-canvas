@@ -79,7 +79,7 @@ describe("buildQuestionPoolQuiz", () => {
     }
   });
 
-  it("Anzahl Exhibit-Fragen stimmt (362)", () => {
+  it("Anzahl Exhibit-Fragen stimmt (363)", () => {
     // 334 -> 333: q0964 referenziert laut PDF (S. 428) kein Exhibit — die
     // Konfigurationen stehen vollständig in den Antwortoptionen.
     // 333 -> 340: "Which interface condition is occurring in this output?"
@@ -93,6 +93,7 @@ describe("buildQuestionPoolQuiz", () => {
     // Exhibit, obwohl im Original vorhanden.
     // 366 -> 362: Die vier leeren { type: "none" } Platzhalter
     // (q0089, q0265, q0325, q0365) entfernt.
-    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(362);
+    // 362 -> 363: q0829 hat die CLI-Ausgabe (show interfaces FastEthernet0/13) jetzt als CLI-Exhibit statt im Fragetext.
+    expect(quiz.questions.filter((q) => q.exhibit)).toHaveLength(363);
   });
 });

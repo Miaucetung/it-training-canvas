@@ -1,0 +1,894 @@
+{
+ "_hinweis": "Originalstand vor dem Umzug der CLI-Ausgaben aus dem Fragetext (main @ 9b519dd). Nur für den Nachweis-Test.",
+ "ccnaQuestions": {
+  "q0829": {
+   "question": "A technician receives a report of network slowness and the issue has been isolated to the interface FastEthemet0/13. What is the root cause of the issue? FastEthernet0/13 is up, line protocol is up Hardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd) MTU 1500 bytes, BW 100000 Kbit, DLY 100 usec, reliability 250/255, txload 1/255, rxload 1/255 Encapsulation ARPA, loopback not set Keepalive not set - Auto-duplex (Full) Auto Speed (100), 100BaseTX/FX ARP type: ARPA, ARP Timeout 04:00:00 Last input 18:52:43, output 00:00:01, output hang never Last clearing of “show interface” counters never Queueing strategy: fifo - Output queue 0/40, 0 drops; input queue 0/75, 0 drops 5 minute input rate 12000 bits/sec, 6 packets/sec 5 minute output rate 24000 bits/sec, 6 packets/sec 14488019 packets input, 2434163609 bytes Received 345348 broadcasts, 0 runts, 0 giants, 0 throttles 261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored 0 watchdog, 84207 multicast 0 input packets with dribble condition detected 19658279 packets output, 3529106068 bytes, 0 underruns 0 output errors, 0 collisions, 1 interface resets 0 babbles, 0 late collision, 0 deferred 0 lost carrier, 0 no carrier 0 output buffer failures, 0 output buffers swapped out",
+   "exhibit": false
+  },
+  "q0965": {
+   "question": "hostname CPE service password-encryption ip domain name ccna.cisco.com ip name-server 198.51.100.210 crypto key generate rsa modulus 1024 username admin privilege 15 secret s0m3s3cr3t line vty 0 4 transport input ssh login local Refer to the exhibit. An engineer executed the script and added commands that were not necessary for SSH and now must remove the commands. Which two commands must be executed to correct the configuration? (Choose two.)",
+   "exhibit": {
+    "type": "cli",
+    "content": "hostname CPE\nservice password-encryption\n\nip domain name ccna.cisco.com\nip name-server 198.51.100.210\n\ncrypto key generate rsa modulus 1024\n\nusername admin privilege 15 secret s0m3s3cr3t\n\nline vty 0 4\ntransport input ssh\nlogin local"
+   }
+  }
+ },
+ "ccnaQuestionsClassified": {
+  "Q0829": {
+   "question": "A technician receives a report of network slowness and the issue has been isolated to the interface\nFastEthemet0/13. What is the root cause of the issue?\nFastEthernet0/13 is up, line protocol is up\nHardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd)\nMTU 1500 bytes, BW 100000 Kbit, DLY 100 usec,\nreliability 250/255, txload 1/255, rxload 1/255\nEncapsulation ARPA, loopback not set\nKeepalive not set -\nAuto-duplex (Full) Auto Speed (100), 100BaseTX/FX\nARP type: ARPA, ARP Timeout 04:00:00\nLast input 18:52:43, output 00:00:01, output hang never\nLast clearing of “show interface” counters never\nQueueing strategy: fifo -\nOutput queue 0/40, 0 drops; input queue 0/75, 0 drops\n5 minute input rate 12000 bits/sec, 6 packets/sec\n5 minute output rate 24000 bits/sec, 6 packets/sec\n14488019 packets input, 2434163609 bytes\nReceived 345348 broadcasts, 0 runts, 0 giants, 0 throttles\n261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored\n0 watchdog, 84207 multicast\n0 input packets with dribble condition detected\n19658279 packets output, 3529106068 bytes, 0 underruns\n0 output errors, 0 collisions, 1 interface resets\n0 babbles, 0 late collision, 0 deferred\n0 lost carrier, 0 no carrier\n0 output buffer failures, 0 output buffers swapped out",
+   "exhibit": false
+  },
+  "Q0965": {
+   "question": "hostname CPE\nservice password-encryption\nip domain name ccna.cisco.com\nip name-server 198.51.100.210\ncrypto key generate rsa modulus 1024\nusername admin privilege 15 secret s0m3s3cr3t\nline vty 0 4\ntransport input ssh\nlogin local\nRefer to the exhibit. An engineer executed the script and added commands that were not necessary for\nSSH and now must remove the commands. Which two commands must be executed to correct the\nconfiguration? (Choose two.)",
+   "exhibit": {
+    "type": "cli",
+    "content": "hostname CPE\nservice password-encryption\n\nip domain name ccna.cisco.com\nip name-server 198.51.100.210\n\ncrypto key generate rsa modulus 1024\n\nusername admin privilege 15 secret s0m3s3cr3t\n\nline vty 0 4\ntransport input ssh\nlogin local"
+   }
+  }
+ },
+ "randfaelleUnveraendert": {
+  "_hinweis": "Randfälle der Analyse: werden nicht verändert (Stand vor der Umsetzung).",
+  "ccnaQuestions": {
+   "q0181": {
+    "question": "Refer to the exhibit. Which switch in this configuration will be elected as the root bridge? SW1: 0C:E0:38:41:86:07 - SW2: 0C:0E:15:22:05:97 - SW3: 0C:0E:15:1A:3C:9D - SW4: 0C:E0:18:A1:B3:19 -",
+    "options": [
+     "SW1",
+     "SW2",
+     "SW3",
+     "SW4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "sw1",
+       "type": "switch",
+       "label": "SW1",
+       "x": 250,
+       "y": 50
+      },
+      {
+       "id": "sw2",
+       "type": "switch",
+       "label": "SW2",
+       "x": 90,
+       "y": 190
+      },
+      {
+       "id": "sw3",
+       "type": "switch",
+       "label": "SW3",
+       "x": 410,
+       "y": 190
+      },
+      {
+       "id": "sw4",
+       "type": "switch",
+       "label": "SW4",
+       "x": 250,
+       "y": 330
+      }
+     ],
+     "links": [
+      {
+       "from": "sw1",
+       "to": "sw2"
+      },
+      {
+       "from": "sw1",
+       "to": "sw3"
+      },
+      {
+       "from": "sw2",
+       "to": "sw4"
+      },
+      {
+       "from": "sw3",
+       "to": "sw4"
+      },
+      {
+       "from": "sw2",
+       "to": "sw3"
+      }
+     ],
+     "labels": [
+      {
+       "text": "0C:E0:38:41:86:07",
+       "attachTo": "sw1",
+       "position": "above"
+      },
+      {
+       "text": "0C:0E:15:22:05:97",
+       "attachTo": "sw2",
+       "position": "left"
+      },
+      {
+       "text": "0C:0E:15:1A:3C:9D",
+       "attachTo": "sw3",
+       "position": "right"
+      },
+      {
+       "text": "0C:E0:18:1A:1B:19",
+       "attachTo": "sw4",
+       "position": "below"
+      }
+     ]
+    }
+   },
+   "q0242": {
+    "question": "Refer to the exhibit. After the election process, what is the root bridge in the HQ LAN? Switch 1: 0C:E0:38:81:32:58 - Switch 2: 0C:0E:15:22:1A:61 - Switch 3: 0C:0E:15:1D:3C:9A - Switch 4: 0C:E0:19:A1:4D:16 -",
+    "options": [
+     "Switch 1",
+     "Switch 2",
+     "Switch 3",
+     "Switch 4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "hq1",
+       "type": "multilayer-switch",
+       "label": "HQ-1",
+       "x": 150,
+       "y": 40
+      },
+      {
+       "id": "hq2",
+       "type": "multilayer-switch",
+       "label": "HQ-2",
+       "x": 380,
+       "y": 40
+      },
+      {
+       "id": "s1",
+       "type": "switch",
+       "label": "Switch 1",
+       "x": 140,
+       "y": 190
+      },
+      {
+       "id": "s2",
+       "type": "switch",
+       "label": "Switch 2",
+       "x": 390,
+       "y": 190
+      },
+      {
+       "id": "s3",
+       "type": "switch",
+       "label": "Switch 3",
+       "x": 140,
+       "y": 340
+      },
+      {
+       "id": "s4",
+       "type": "switch",
+       "label": "Switch 4",
+       "x": 390,
+       "y": 340
+      }
+     ],
+     "links": [
+      {
+       "from": "hq1",
+       "to": "s1"
+      },
+      {
+       "from": "hq1",
+       "to": "s2"
+      },
+      {
+       "from": "hq2",
+       "to": "s1"
+      },
+      {
+       "from": "hq2",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s3"
+      },
+      {
+       "from": "s2",
+       "to": "s4"
+      },
+      {
+       "from": "s3",
+       "to": "s4"
+      }
+     ],
+     "labels": [
+      {
+       "text": "0C:E0:38:81:32:58",
+       "attachTo": "s1",
+       "position": "left"
+      },
+      {
+       "text": "0C:0E:15:22:1A:61",
+       "attachTo": "s2",
+       "position": "right"
+      },
+      {
+       "text": "0C:0E:15:1D:3C:9A",
+       "attachTo": "s3",
+       "position": "left"
+      },
+      {
+       "text": "0C:E0:19:A1:4D:16",
+       "attachTo": "s4",
+       "position": "right"
+      }
+     ]
+    }
+   },
+   "q0254": {
+    "question": "Refer to the exhibit. Only four switches are participating in the VLAN spanning-tree process. Branch-1: priority 614440 - Branch-2: priority 39391170 - Branch-3: priority- Branch-4: root primary - Which switch becomes the permanent root bridge for VLAN 5?",
+    "options": [
+     "Branch-1",
+     "Branch-2",
+     "Branch-3",
+     "Branch-4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "b1",
+       "type": "switch",
+       "label": "Branch-1",
+       "x": 120,
+       "y": 70
+      },
+      {
+       "id": "b2",
+       "type": "switch",
+       "label": "Branch-2",
+       "x": 410,
+       "y": 70
+      },
+      {
+       "id": "b3",
+       "type": "switch",
+       "label": "Branch-3",
+       "x": 120,
+       "y": 300
+      },
+      {
+       "id": "b4",
+       "type": "switch",
+       "label": "Branch-4",
+       "x": 410,
+       "y": 300
+      }
+     ],
+     "links": [
+      {
+       "from": "b1",
+       "to": "b2",
+       "subnet": "10G"
+      },
+      {
+       "from": "b1",
+       "to": "b3",
+       "subnet": "10G"
+      },
+      {
+       "from": "b2",
+       "to": "b4",
+       "subnet": "10G"
+      },
+      {
+       "from": "b3",
+       "to": "b4",
+       "subnet": "10G"
+      }
+     ],
+     "labels": [
+      {
+       "text": "Branch Sales - VLAN 5",
+       "attachTo": "b1",
+       "position": "above"
+      },
+      {
+       "text": "Prio 614440",
+       "attachTo": "b1",
+       "position": "left"
+      },
+      {
+       "text": "Prio 39391170",
+       "attachTo": "b2",
+       "position": "right"
+      },
+      {
+       "text": "Prio niedrigste (permanent)",
+       "attachTo": "b3",
+       "position": "below"
+      },
+      {
+       "text": "root primary (nicht permanent)",
+       "attachTo": "b4",
+       "position": "below"
+      }
+     ]
+    }
+   },
+   "q0277": {
+    "question": "Refer to the exhibit. Which switch becomes the root of the spanning tree? Switch 1 - BID: 32778 0018.184e.3c00 - Switch 2 - BID: 24586 001a.e3ff.a680 - Switch 3 - BID: 28682 0022.55cf.cc00 - Switch 4 - BID: 64000 4e15.8403.08f -",
+    "options": [
+     "Switch 1",
+     "Switch 2",
+     "Switch 3",
+     "Switch 4"
+    ],
+    "correct": 1,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "hq1",
+       "type": "multilayer-switch",
+       "label": "HQ-1",
+       "x": 150,
+       "y": 40
+      },
+      {
+       "id": "hq2",
+       "type": "multilayer-switch",
+       "label": "HQ-2",
+       "x": 380,
+       "y": 40
+      },
+      {
+       "id": "s1",
+       "type": "switch",
+       "label": "Switch 1",
+       "x": 140,
+       "y": 190
+      },
+      {
+       "id": "s2",
+       "type": "switch",
+       "label": "Switch 2",
+       "x": 390,
+       "y": 190
+      },
+      {
+       "id": "s3",
+       "type": "switch",
+       "label": "Switch 3",
+       "x": 140,
+       "y": 340
+      },
+      {
+       "id": "s4",
+       "type": "switch",
+       "label": "Switch 4",
+       "x": 390,
+       "y": 340
+      }
+     ],
+     "links": [
+      {
+       "from": "hq1",
+       "to": "s1"
+      },
+      {
+       "from": "hq1",
+       "to": "s2"
+      },
+      {
+       "from": "hq2",
+       "to": "s1"
+      },
+      {
+       "from": "hq2",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s2",
+       "subnet": "10G"
+      },
+      {
+       "from": "s1",
+       "to": "s3",
+       "subnet": "10G"
+      },
+      {
+       "from": "s2",
+       "to": "s4",
+       "subnet": "10G"
+      },
+      {
+       "from": "s3",
+       "to": "s4",
+       "subnet": "10G"
+      }
+     ],
+     "labels": [
+      {
+       "text": "BID 32778 0018.184e.3c00",
+       "attachTo": "s1",
+       "position": "left"
+      },
+      {
+       "text": "BID 24586 001a.e3ff.a680",
+       "attachTo": "s2",
+       "position": "right"
+      },
+      {
+       "text": "BID 28682 0022.55cf.cc00",
+       "attachTo": "s3",
+       "position": "left"
+      },
+      {
+       "text": "BID 64000 4e15.8403.08f",
+       "attachTo": "s4",
+       "position": "right"
+      }
+     ]
+    }
+   },
+   "q0398": {
+    "question": "Refer to the exhibit. A network associate has configured OSPF with the command: City(config-router)# network 192.168.12.64 0.0.0.63 area 0 After completing the configuration, the associate discovers that not all the interfaces are participating in OSPF. Which three of the interfaces shown in the exhibit will participate in OSPF according to this configuration statement? (Choose three.)",
+    "options": [
+     "FastEthernet0 /0",
+     "FastEthernet0 /1",
+     "Serial0/0",
+     "Serial0/1.102",
+     "Serial0/1.103",
+     "Serial0/1.104"
+    ],
+    "correct": [
+     1,
+     2,
+     3
+    ],
+    "exhibit": {
+     "type": "cli",
+     "content": "City#show ip interface brief\nInterface          IP-Address      OK? Method Status Protocol\nFastEthernet0/0    192.168.12.48   Yes manual up     up\nFastEthernet0/1    192.168.12.65   Yes manual up     up\nSerial0/0          192.168.12.121  Yes manual up     up\nSerial0/1          unassigned      Yes unset  up     up\nSerial0/1.102      192.168.12.125  Yes manual up     up\nSerial0/1.103      192.168.12.129  Yes manual up     up\nSerial0/1.104      192.168.12.133  Yes manual up     up"
+    }
+   }
+  },
+  "ccnaQuestionsClassified": {
+   "Q0181": {
+    "question": "Refer to the exhibit. Which switch in this configuration will be elected as the root bridge?\nSW1: 0C:E0:38:41:86:07 -\nSW2: 0C:0E:15:22:05:97 -\nSW3: 0C:0E:15:1A:3C:9D -\nSW4: 0C:E0:18:A1:B3:19 -",
+    "options": [
+     "SW1",
+     "SW2",
+     "SW3",
+     "SW4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "sw1",
+       "type": "switch",
+       "label": "SW1",
+       "x": 250,
+       "y": 50
+      },
+      {
+       "id": "sw2",
+       "type": "switch",
+       "label": "SW2",
+       "x": 90,
+       "y": 190
+      },
+      {
+       "id": "sw3",
+       "type": "switch",
+       "label": "SW3",
+       "x": 410,
+       "y": 190
+      },
+      {
+       "id": "sw4",
+       "type": "switch",
+       "label": "SW4",
+       "x": 250,
+       "y": 330
+      }
+     ],
+     "links": [
+      {
+       "from": "sw1",
+       "to": "sw2"
+      },
+      {
+       "from": "sw1",
+       "to": "sw3"
+      },
+      {
+       "from": "sw2",
+       "to": "sw4"
+      },
+      {
+       "from": "sw3",
+       "to": "sw4"
+      },
+      {
+       "from": "sw2",
+       "to": "sw3"
+      }
+     ],
+     "labels": [
+      {
+       "text": "0C:E0:38:41:86:07",
+       "attachTo": "sw1",
+       "position": "above"
+      },
+      {
+       "text": "0C:0E:15:22:05:97",
+       "attachTo": "sw2",
+       "position": "left"
+      },
+      {
+       "text": "0C:0E:15:1A:3C:9D",
+       "attachTo": "sw3",
+       "position": "right"
+      },
+      {
+       "text": "0C:E0:18:1A:1B:19",
+       "attachTo": "sw4",
+       "position": "below"
+      }
+     ]
+    }
+   },
+   "Q0242": {
+    "question": "Refer to the exhibit. After the election process, what is the root bridge in the HQ LAN?\nSwitch 1: 0C:E0:38:81:32:58 -\nSwitch 2: 0C:0E:15:22:1A:61 -\nSwitch 3: 0C:0E:15:1D:3C:9A -\nSwitch 4: 0C:E0:19:A1:4D:16 -",
+    "options": [
+     "Switch 1",
+     "Switch 2",
+     "Switch 3",
+     "Switch 4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "hq1",
+       "type": "multilayer-switch",
+       "label": "HQ-1",
+       "x": 150,
+       "y": 40
+      },
+      {
+       "id": "hq2",
+       "type": "multilayer-switch",
+       "label": "HQ-2",
+       "x": 380,
+       "y": 40
+      },
+      {
+       "id": "s1",
+       "type": "switch",
+       "label": "Switch 1",
+       "x": 140,
+       "y": 190
+      },
+      {
+       "id": "s2",
+       "type": "switch",
+       "label": "Switch 2",
+       "x": 390,
+       "y": 190
+      },
+      {
+       "id": "s3",
+       "type": "switch",
+       "label": "Switch 3",
+       "x": 140,
+       "y": 340
+      },
+      {
+       "id": "s4",
+       "type": "switch",
+       "label": "Switch 4",
+       "x": 390,
+       "y": 340
+      }
+     ],
+     "links": [
+      {
+       "from": "hq1",
+       "to": "s1"
+      },
+      {
+       "from": "hq1",
+       "to": "s2"
+      },
+      {
+       "from": "hq2",
+       "to": "s1"
+      },
+      {
+       "from": "hq2",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s3"
+      },
+      {
+       "from": "s2",
+       "to": "s4"
+      },
+      {
+       "from": "s3",
+       "to": "s4"
+      }
+     ],
+     "labels": [
+      {
+       "text": "0C:E0:38:81:32:58",
+       "attachTo": "s1",
+       "position": "left"
+      },
+      {
+       "text": "0C:0E:15:22:1A:61",
+       "attachTo": "s2",
+       "position": "right"
+      },
+      {
+       "text": "0C:0E:15:1D:3C:9A",
+       "attachTo": "s3",
+       "position": "left"
+      },
+      {
+       "text": "0C:E0:19:A1:4D:16",
+       "attachTo": "s4",
+       "position": "right"
+      }
+     ]
+    }
+   },
+   "Q0254": {
+    "question": "Refer to the exhibit. Only four switches are participating in the VLAN spanning-tree process.\nBranch-1: priority 614440 -\nBranch-2: priority 39391170 -\nBranch-3: priority-\nBranch-4: root primary -\nWhich switch becomes the permanent root bridge for VLAN 5?",
+    "options": [
+     "Branch-1",
+     "Branch-2",
+     "Branch-3",
+     "Branch-4"
+    ],
+    "correct": 2,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "b1",
+       "type": "switch",
+       "label": "Branch-1",
+       "x": 120,
+       "y": 70
+      },
+      {
+       "id": "b2",
+       "type": "switch",
+       "label": "Branch-2",
+       "x": 410,
+       "y": 70
+      },
+      {
+       "id": "b3",
+       "type": "switch",
+       "label": "Branch-3",
+       "x": 120,
+       "y": 300
+      },
+      {
+       "id": "b4",
+       "type": "switch",
+       "label": "Branch-4",
+       "x": 410,
+       "y": 300
+      }
+     ],
+     "links": [
+      {
+       "from": "b1",
+       "to": "b2",
+       "subnet": "10G"
+      },
+      {
+       "from": "b1",
+       "to": "b3",
+       "subnet": "10G"
+      },
+      {
+       "from": "b2",
+       "to": "b4",
+       "subnet": "10G"
+      },
+      {
+       "from": "b3",
+       "to": "b4",
+       "subnet": "10G"
+      }
+     ],
+     "labels": [
+      {
+       "text": "Branch Sales - VLAN 5",
+       "attachTo": "b1",
+       "position": "above"
+      },
+      {
+       "text": "Prio 614440",
+       "attachTo": "b1",
+       "position": "left"
+      },
+      {
+       "text": "Prio 39391170",
+       "attachTo": "b2",
+       "position": "right"
+      },
+      {
+       "text": "Prio niedrigste (permanent)",
+       "attachTo": "b3",
+       "position": "below"
+      },
+      {
+       "text": "root primary (nicht permanent)",
+       "attachTo": "b4",
+       "position": "below"
+      }
+     ]
+    }
+   },
+   "Q0277": {
+    "question": "Refer to the exhibit. Which switch becomes the root of the spanning tree?\nSwitch 1 -\nBID: 32778 0018.184e.3c00 -\nSwitch 2 -\nBID: 24586 001a.e3ff.a680 -\nSwitch 3 -\nBID: 28682 0022.55cf.cc00 -\nSwitch 4 -\nBID: 64000 4e15.8403.08f -",
+    "options": [
+     "Switch 1",
+     "Switch 2",
+     "Switch 3",
+     "Switch 4"
+    ],
+    "correct": 1,
+    "exhibit": {
+     "type": "topology",
+     "devices": [
+      {
+       "id": "hq1",
+       "type": "multilayer-switch",
+       "label": "HQ-1",
+       "x": 150,
+       "y": 40
+      },
+      {
+       "id": "hq2",
+       "type": "multilayer-switch",
+       "label": "HQ-2",
+       "x": 380,
+       "y": 40
+      },
+      {
+       "id": "s1",
+       "type": "switch",
+       "label": "Switch 1",
+       "x": 140,
+       "y": 190
+      },
+      {
+       "id": "s2",
+       "type": "switch",
+       "label": "Switch 2",
+       "x": 390,
+       "y": 190
+      },
+      {
+       "id": "s3",
+       "type": "switch",
+       "label": "Switch 3",
+       "x": 140,
+       "y": 340
+      },
+      {
+       "id": "s4",
+       "type": "switch",
+       "label": "Switch 4",
+       "x": 390,
+       "y": 340
+      }
+     ],
+     "links": [
+      {
+       "from": "hq1",
+       "to": "s1"
+      },
+      {
+       "from": "hq1",
+       "to": "s2"
+      },
+      {
+       "from": "hq2",
+       "to": "s1"
+      },
+      {
+       "from": "hq2",
+       "to": "s2"
+      },
+      {
+       "from": "s1",
+       "to": "s2",
+       "subnet": "10G"
+      },
+      {
+       "from": "s1",
+       "to": "s3",
+       "subnet": "10G"
+      },
+      {
+       "from": "s2",
+       "to": "s4",
+       "subnet": "10G"
+      },
+      {
+       "from": "s3",
+       "to": "s4",
+       "subnet": "10G"
+      }
+     ],
+     "labels": [
+      {
+       "text": "BID 32778 0018.184e.3c00",
+       "attachTo": "s1",
+       "position": "left"
+      },
+      {
+       "text": "BID 24586 001a.e3ff.a680",
+       "attachTo": "s2",
+       "position": "right"
+      },
+      {
+       "text": "BID 28682 0022.55cf.cc00",
+       "attachTo": "s3",
+       "position": "left"
+      },
+      {
+       "text": "BID 64000 4e15.8403.08f",
+       "attachTo": "s4",
+       "position": "right"
+      }
+     ]
+    }
+   },
+   "Q0398": {
+    "question": "Refer to the exhibit. A network associate has configured OSPF with the command:\nCity(config-router)# network 192.168.12.64 0.0.0.63 area 0\nAfter completing the configuration, the associate discovers that not all the interfaces are participating in\nOSPF. Which three of the interfaces shown in the exhibit will participate in OSPF according to this\nconfiguration statement? (Choose three.)",
+    "options": [
+     "FastEthernet0 /0",
+     "FastEthernet0 /1",
+     "Serial0/0",
+     "Serial0/1.102",
+     "Serial0/1.103",
+     "Serial0/1.104"
+    ],
+    "correct": [
+     1,
+     2,
+     3
+    ],
+    "exhibit": {
+     "type": "cli",
+     "content": "City#show ip interface brief\nInterface          IP-Address      OK? Method Status Protocol\nFastEthernet0/0    192.168.12.48   Yes manual up     up\nFastEthernet0/1    192.168.12.65   Yes manual up     up\nSerial0/0          192.168.12.121  Yes manual up     up\nSerial0/1          unassigned      Yes unset  up     up\nSerial0/1.102      192.168.12.125  Yes manual up     up\nSerial0/1.103      192.168.12.129  Yes manual up     up\nSerial0/1.104      192.168.12.133  Yes manual up     up"
+    }
+   }
+  }
+ }
+}

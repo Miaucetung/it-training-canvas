@@ -147,3 +147,50 @@ export function exhibitState(exhibit: unknown, cli: string): ExhibitState {
   if (clis.length === 0) return "anderes Exhibit vorhanden";
   return clis.some((c) => norm(c.content) === norm(cli)) ? "CLI-Exhibit vorhanden (Inhalt gleich)" : "CLI-Exhibit vorhanden (Inhalt abweichend)";
 }
+
+/**
+ * Typische Zeilenanfänge einer `show interfaces`-Ausgabe. Dient als Gegenprobe: aus dem einzeiligen Text des
+ * Prüfungspools lassen sich damit dieselben Zeilen herleiten, die der klassifizierte Pool aus dem PDF mitbringt.
+ */
+export const IOS_SHOW_INTERFACE_LINE_STARTS: RegExp[] = [
+  /^\S+ is (?:up|down|administratively down), line protocol is/,
+  /^Hardware is /,
+  /^MTU \d+ bytes/,
+  /^reliability \d+\/\d+/,
+  /^Encapsulation /,
+  /^Keepalive /,
+  /^(?:Auto|Full|Half)-duplex/,
+  /^ARP type:/,
+  /^Last input /,
+  /^Last clearing /,
+  /^Queueing strategy/,
+  /^Output queue /,
+  /^\d+ minute (?:input|output) rate /,
+  /^\d+ packets input/,
+  /^Received \d+ broadcasts/,
+  /^\d+ input errors/,
+  /^\d+ watchdog/,
+  /^\d+ input packets with dribble/,
+  /^\d+ packets output/,
+  /^\d+ output errors/,
+  /^\d+ babbles/,
+  /^\d+ lost carrier/,
+  /^\d+ output buffer failures/,
+];
+
+/** Zerlegt einen einzeiligen CLI-Text an den typischen Zeilenanfängen; es werden nur Leerzeichen an den Schnittstellen durch Umbrüche ersetzt. */
+export function reconstructIosLines(flat: string, starts: RegExp[] = IOS_SHOW_INTERFACE_LINE_STARTS): string[] {
+  const words = flat.trim().split(/ +/);
+  const lines: string[] = [];
+  let cur: string[] = [];
+  for (let i = 0; i < words.length; i++) {
+    const rest = words.slice(i).join(" ");
+    if (cur.length > 0 && starts.some((re) => re.test(rest))) {
+      lines.push(cur.join(" "));
+      cur = [];
+    }
+    cur.push(words[i]);
+  }
+  if (cur.length > 0) lines.push(cur.join(" "));
+  return lines;
+}

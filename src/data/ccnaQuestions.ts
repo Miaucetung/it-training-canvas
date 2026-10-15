@@ -12379,7 +12379,7 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
   },
   {
     id: "q0829",
-    question: "A technician receives a report of network slowness and the issue has been isolated to the interface FastEthemet0/13. What is the root cause of the issue? FastEthernet0/13 is up, line protocol is up Hardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd) MTU 1500 bytes, BW 100000 Kbit, DLY 100 usec, reliability 250/255, txload 1/255, rxload 1/255 Encapsulation ARPA, loopback not set Keepalive not set - Auto-duplex (Full) Auto Speed (100), 100BaseTX/FX ARP type: ARPA, ARP Timeout 04:00:00 Last input 18:52:43, output 00:00:01, output hang never Last clearing of “show interface” counters never Queueing strategy: fifo - Output queue 0/40, 0 drops; input queue 0/75, 0 drops 5 minute input rate 12000 bits/sec, 6 packets/sec 5 minute output rate 24000 bits/sec, 6 packets/sec 14488019 packets input, 2434163609 bytes Received 345348 broadcasts, 0 runts, 0 giants, 0 throttles 261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored 0 watchdog, 84207 multicast 0 input packets with dribble condition detected 19658279 packets output, 3529106068 bytes, 0 underruns 0 output errors, 0 collisions, 1 interface resets 0 babbles, 0 late collision, 0 deferred 0 lost carrier, 0 no carrier 0 output buffer failures, 0 output buffers swapped out",
+    question: "A technician receives a report of network slowness and the issue has been isolated to the interface FastEthemet0/13. What is the root cause of the issue?",
     options: [
     "local buffer overload",
     "err-disabled port on the far end",
@@ -12387,7 +12387,30 @@ en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
     "duplicate IP addressing"
     ],
     correct: 2,
-    exhibit: false,
+    exhibit: { type: "cli", content: `FastEthernet0/13 is up, line protocol is up
+Hardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd)
+MTU 1500 bytes, BW 100000 Kbit, DLY 100 usec,
+reliability 250/255, txload 1/255, rxload 1/255
+Encapsulation ARPA, loopback not set
+Keepalive not set -
+Auto-duplex (Full) Auto Speed (100), 100BaseTX/FX
+ARP type: ARPA, ARP Timeout 04:00:00
+Last input 18:52:43, output 00:00:01, output hang never
+Last clearing of “show interface” counters never
+Queueing strategy: fifo -
+Output queue 0/40, 0 drops; input queue 0/75, 0 drops
+5 minute input rate 12000 bits/sec, 6 packets/sec
+5 minute output rate 24000 bits/sec, 6 packets/sec
+14488019 packets input, 2434163609 bytes
+Received 345348 broadcasts, 0 runts, 0 giants, 0 throttles
+261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored
+0 watchdog, 84207 multicast
+0 input packets with dribble condition detected
+19658279 packets output, 3529106068 bytes, 0 underruns
+0 output errors, 0 collisions, 1 interface resets
+0 babbles, 0 late collision, 0 deferred
+0 lost carrier, 0 no carrier
+0 output buffer failures, 0 output buffers swapped out` },
   },
   {
     id: "q0830",
@@ -14110,7 +14133,7 @@ SW1(config-if)#switchport access vlan 20`, highlight: ["DHCPServer(dhcp-config)#
   },
   {
     id: "q0965",
-    question: "hostname CPE service password-encryption ip domain name ccna.cisco.com ip name-server 198.51.100.210 crypto key generate rsa modulus 1024 username admin privilege 15 secret s0m3s3cr3t line vty 0 4 transport input ssh login local Refer to the exhibit. An engineer executed the script and added commands that were not necessary for SSH and now must remove the commands. Which two commands must be executed to correct the configuration? (Choose two.)",
+    question: "Refer to the exhibit. An engineer executed the script and added commands that were not necessary for SSH and now must remove the commands. Which two commands must be executed to correct the configuration? (Choose two.)",
     options: [
     "no ip name-serveer 198.51.100.210",
     "no login local",

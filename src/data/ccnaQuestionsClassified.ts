@@ -20096,7 +20096,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
   },
   {
     "id": "Q0829",
-    "question": "A technician receives a report of network slowness and the issue has been isolated to the interface\nFastEthemet0/13. What is the root cause of the issue?\nFastEthernet0/13 is up, line protocol is up\nHardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd)\nMTU 1500 bytes, BW 100000 Kbit, DLY 100 usec,\nreliability 250/255, txload 1/255, rxload 1/255\nEncapsulation ARPA, loopback not set\nKeepalive not set -\nAuto-duplex (Full) Auto Speed (100), 100BaseTX/FX\nARP type: ARPA, ARP Timeout 04:00:00\nLast input 18:52:43, output 00:00:01, output hang never\nLast clearing of “show interface” counters never\nQueueing strategy: fifo -\nOutput queue 0/40, 0 drops; input queue 0/75, 0 drops\n5 minute input rate 12000 bits/sec, 6 packets/sec\n5 minute output rate 24000 bits/sec, 6 packets/sec\n14488019 packets input, 2434163609 bytes\nReceived 345348 broadcasts, 0 runts, 0 giants, 0 throttles\n261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored\n0 watchdog, 84207 multicast\n0 input packets with dribble condition detected\n19658279 packets output, 3529106068 bytes, 0 underruns\n0 output errors, 0 collisions, 1 interface resets\n0 babbles, 0 late collision, 0 deferred\n0 lost carrier, 0 no carrier\n0 output buffer failures, 0 output buffers swapped out",
+    "question": "A technician receives a report of network slowness and the issue has been isolated to the interface\nFastEthemet0/13. What is the root cause of the issue?",
     "options": [
       "local buffer overload",
       "err-disabled port on the far end",
@@ -20104,7 +20104,10 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
       "duplicate IP addressing"
     ],
     "correct": 2,
-    "exhibit": false,
+    "exhibit": {
+      "type": "cli",
+      "content": "FastEthernet0/13 is up, line protocol is up\nHardware is Fast Ethernet, address is 0001.4d27.66cd (bia 0001.4d27.66cd)\nMTU 1500 bytes, BW 100000 Kbit, DLY 100 usec,\nreliability 250/255, txload 1/255, rxload 1/255\nEncapsulation ARPA, loopback not set\nKeepalive not set -\nAuto-duplex (Full) Auto Speed (100), 100BaseTX/FX\nARP type: ARPA, ARP Timeout 04:00:00\nLast input 18:52:43, output 00:00:01, output hang never\nLast clearing of “show interface” counters never\nQueueing strategy: fifo -\nOutput queue 0/40, 0 drops; input queue 0/75, 0 drops\n5 minute input rate 12000 bits/sec, 6 packets/sec\n5 minute output rate 24000 bits/sec, 6 packets/sec\n14488019 packets input, 2434163609 bytes\nReceived 345348 broadcasts, 0 runts, 0 giants, 0 throttles\n261028 input errors, 259429 CRC, 1599 frame, 0 overrun, 0 ignored\n0 watchdog, 84207 multicast\n0 input packets with dribble condition detected\n19658279 packets output, 3529106068 bytes, 0 underruns\n0 output errors, 0 collisions, 1 interface resets\n0 babbles, 0 late collision, 0 deferred\n0 lost carrier, 0 no carrier\n0 output buffer failures, 0 output buffers swapped out"
+    },
     "blueprint_section": "1.4",
     "blueprint_domain": "1.0",
     "priority_score": 85,
@@ -24702,7 +24705,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
   },
   {
     "id": "Q0965",
-    "question": "hostname CPE\nservice password-encryption\nip domain name ccna.cisco.com\nip name-server 198.51.100.210\ncrypto key generate rsa modulus 1024\nusername admin privilege 15 secret s0m3s3cr3t\nline vty 0 4\ntransport input ssh\nlogin local\nRefer to the exhibit. An engineer executed the script and added commands that were not necessary for\nSSH and now must remove the commands. Which two commands must be executed to correct the\nconfiguration? (Choose two.)",
+    "question": "Refer to the exhibit. An engineer executed the script and added commands that were not necessary for\nSSH and now must remove the commands. Which two commands must be executed to correct the\nconfiguration? (Choose two.)",
     "options": [
       "no ip name-serveer 198.51.100.210",
       "no login local",
