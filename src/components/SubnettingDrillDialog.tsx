@@ -233,13 +233,12 @@ type DrillMode = "single" | "segmentation";
 interface Props {
   open: boolean;
   onClose: () => void;
-  theme: "light" | "dark";
+  theme?: "light" | "dark";
 }
 
 // ── Segmentation sub-component ─────────────────────────────
 
 interface SegDrillProps {
-  dark: boolean;
   inputCls: string;
 }
 
@@ -426,11 +425,9 @@ export function explainSeg(task: SegTask): SegExplain {
 function BinaryOctet({
   value,
   netBits,
-  dark,
 }: {
   value: number;
   netBits: number;
-  dark: boolean;
 }) {
   const bits = toBin8(value).split("");
   return (
@@ -440,12 +437,8 @@ function BinaryOctet({
           key={i}
           className={`inline-block w-4 py-1 text-center ${
             i < netBits
-              ? dark
-                ? "bg-indigo-500/25 text-indigo-200"
-                : "bg-indigo-100 text-indigo-700"
-              : dark
-                ? "bg-slate-700/40 text-slate-300"
-                : "bg-slate-100 text-slate-600"
+              ? "bg-accent-primary/25 text-accent-primary-fg"
+              : "bg-muted/40 text-muted-foreground"
           } ${i === netBits - 1 ? "mr-1.5 rounded-r-sm" : ""} ${i === netBits ? "rounded-l-sm" : ""} ${i === 0 ? "rounded-l-sm" : ""} ${i === 7 ? "rounded-r-sm" : ""}`}
         >
           {b}
@@ -455,19 +448,17 @@ function BinaryOctet({
   );
 }
 
-function StepList({ steps, dark }: { steps: string[]; dark: boolean }) {
+function StepList({ steps }: { steps: string[] }) {
   return (
     <ol className="space-y-1.5">
       {steps.map((s, i) => (
         <li key={i} className="flex gap-2">
           <span
-            className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-              dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-700"
-            }`}
+            className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold bg-accent-primary/20 text-accent-primary-fg"
           >
             {i + 1}
           </span>
-          <span className={`text-xs leading-snug ${dark ? "text-slate-300" : "text-slate-700"}`}>
+          <span className="text-xs leading-snug text-muted-foreground">
             {s}
           </span>
         </li>
@@ -478,24 +469,18 @@ function StepList({ steps, dark }: { steps: string[]; dark: boolean }) {
 
 function CalcPathCard({
   title,
-  dark,
   children,
 }: {
   title: string;
-  dark: boolean;
   children: ReactNode;
 }) {
   return (
     <div
-      className={`rounded-xl border p-3.5 space-y-3 ${
-        dark
-          ? "border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-violet-500/5"
-          : "border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50/60"
-      }`}
+      className="rounded-xl border p-3.5 space-y-3 border-accent-primary/30 bg-accent-primary/10"
     >
       <div className="flex items-center gap-1.5">
-        <Path size={14} weight="bold" className={dark ? "text-indigo-400" : "text-indigo-600"} />
-        <span className={`text-xs font-semibold ${dark ? "text-indigo-200" : "text-indigo-800"}`}>
+        <Path size={14} weight="bold" className={"text-accent-primary-fg"} />
+        <span className="text-xs font-semibold text-accent-primary-fg">
           {title}
         </span>
       </div>
@@ -504,7 +489,7 @@ function CalcPathCard({
   );
 }
 
-function SingleCalcPath({ task, dark }: { task: DrillTask; dark: boolean }) {
+function SingleCalcPath({ task }: { task: DrillTask }) {
   const ex = explainSingle(task);
   const rows: Array<{ label: string; octet: number; strong?: boolean }> = [
     { label: "IP", octet: ex.ipOctet },
@@ -513,23 +498,23 @@ function SingleCalcPath({ task, dark }: { task: DrillTask; dark: boolean }) {
     { label: "Broadcast", octet: ex.broadcastOctet, strong: true },
   ];
   return (
-    <CalcPathCard title="Rechenweg" dark={dark}>
-      <StepList steps={ex.steps} dark={dark} />
-      <div className={`rounded-lg p-2.5 ${dark ? "bg-slate-900/50" : "bg-white/70"}`}>
-        <div className={`mb-1.5 text-[10px] font-medium uppercase tracking-wide ${dark ? "text-slate-400" : "text-slate-500"}`}>
+    <CalcPathCard title="Rechenweg">
+      <StepList steps={ex.steps} />
+      <div className="rounded-lg p-2.5 bg-card/50">
+        <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           Binär · {ex.octetLabel} ·{" "}
-          <span className={dark ? "text-indigo-300" : "text-indigo-600"}>Netz</span>
+          <span className={"text-accent-primary-fg"}>Netz</span>
           {" | "}
-          <span className={dark ? "text-slate-400" : "text-slate-500"}>Host</span>
+          <span className={"text-muted-foreground"}>Host</span>
         </div>
         <div className="space-y-1">
           {rows.map((r) => (
             <div key={r.label} className="flex items-center gap-2">
-              <span className={`w-20 shrink-0 text-[11px] ${r.strong ? (dark ? "text-indigo-200 font-semibold" : "text-indigo-700 font-semibold") : dark ? "text-slate-400" : "text-slate-500"}`}>
+              <span className={`w-20 shrink-0 text-[11px] ${r.strong ? ("text-accent-primary-fg font-semibold") : "text-muted-foreground"}`}>
                 {r.label}
               </span>
-              <BinaryOctet value={r.octet} netBits={ex.netBitsInOctet} dark={dark} />
-              <span className={`ml-1 font-mono text-[11px] ${dark ? "text-slate-300" : "text-slate-600"}`}>
+              <BinaryOctet value={r.octet} netBits={ex.netBitsInOctet} />
+              <span className="ml-1 font-mono text-[11px] text-muted-foreground">
                 = {r.octet}
               </span>
             </div>
@@ -540,16 +525,16 @@ function SingleCalcPath({ task, dark }: { task: DrillTask; dark: boolean }) {
   );
 }
 
-function SegCalcPath({ task, dark }: { task: SegTask; dark: boolean }) {
+function SegCalcPath({ task }: { task: SegTask }) {
   const ex = explainSeg(task);
   return (
-    <CalcPathCard title="Rechenweg" dark={dark}>
-      <StepList steps={ex.steps} dark={dark} />
+    <CalcPathCard title="Rechenweg">
+      <StepList steps={ex.steps} />
     </CalcPathCard>
   );
 }
 
-function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
+function SegmentationDrill({ inputCls }: SegDrillProps) {
   const drill = useSegDrill();
   const { task, checked, result, SHOW_SUBNETS } = drill;
 
@@ -557,7 +542,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
 
   const fieldOk = (ok: boolean | undefined) =>
     checked ? (
-      <span className={`text-xs flex items-center gap-1 ${ok ? "text-emerald-500" : "text-rose-500"}`}>
+      <span className={`text-xs flex items-center gap-1 ${ok ? "text-status-success-fg" : "text-status-error-fg"}`}>
         {ok ? <CheckCircle size={12} weight="fill" /> : <XCircle size={12} weight="fill" />}
         {ok ? "richtig" : "falsch"}
       </span>
@@ -568,21 +553,21 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
   return (
     <div className="space-y-4">
       {/* Progress bar */}
-      <div className={`h-1 rounded-full ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+      <div className="h-1 rounded-full bg-muted">
         <div
-          className="h-full bg-violet-500 rounded-full transition-all"
+          className="h-full bg-status-trunk-solid rounded-full transition-all"
           style={{ width: `${((drill.idx + (checked ? 1 : 0)) / TOTAL_TASKS) * 100}%` }}
         />
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-muted-foreground">
           Aufgabe {drill.idx + 1} / {TOTAL_TASKS} · Score: {drill.score} ✓
         </span>
         <button
           type="button"
           onClick={drill.handleRestart}
-          className={`p-1 rounded transition-colors ${dark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
+          className="p-1 rounded transition-colors text-muted-foreground hover:text-foreground"
           title="Neu starten"
           aria-label="Segmentierungs-Drill neu starten"
         >
@@ -591,12 +576,12 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
       </div>
 
       {/* Task display */}
-      <div className={`rounded-xl px-4 py-3 font-mono text-sm ${dark ? "bg-slate-800 text-violet-300" : "bg-violet-50 text-violet-900"}`}>
-        <div><span className="opacity-70">Netzwerk:&nbsp;&nbsp;&nbsp;</span><span className="font-bold">{task.baseNetwork}/{task.baseCidr}</span></div>
-        <div><span className="opacity-70">Benötigte Subnetze: </span><span className="font-bold">{task.requiredSubnets}</span></div>
+      <div className="rounded-xl px-4 py-3 font-mono text-sm bg-status-trunk-bg text-status-trunk-fg">
+        <div><span>Netzwerk:&nbsp;&nbsp;&nbsp;</span><span className="font-bold">{task.baseNetwork}/{task.baseCidr}</span></div>
+        <div><span>Benötigte Subnetze: </span><span className="font-bold">{task.requiredSubnets}</span></div>
       </div>
 
-      <p className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
+      <p className="text-xs text-muted-foreground">
         Wie wird das Netz in mindestens {task.requiredSubnets} gleich große Subnetze aufgeteilt?
         Bestimme neue Präfixlänge, Subnetzmaske, Hosts pro Subnetz und die ersten {SHOW_SUBNETS} Subnetz-IDs.
       </p>
@@ -605,7 +590,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
         {/* Neue Präfixlänge */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className={`text-xs font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>
+            <label className="text-xs font-medium text-muted-foreground">
               Neue Präfixlänge (CIDR)
             </label>
             {fieldOk(result?.cidrOk)}
@@ -619,14 +604,14 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
             disabled={checked}
           />
           {checked && !result?.cidrOk && (
-            <p className="text-xs text-rose-400">Lösung: /{task.newCidr}</p>
+            <p className="text-xs text-status-error-fg">Lösung: /{task.newCidr}</p>
           )}
         </div>
 
         {/* Neue Maske */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className={`text-xs font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>
+            <label className="text-xs font-medium text-muted-foreground">
               Neue Subnetzmaske
             </label>
             {fieldOk(result?.maskOk)}
@@ -640,14 +625,14 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
             disabled={checked}
           />
           {checked && !result?.maskOk && (
-            <p className="text-xs text-rose-400">Lösung: {task.newMask}</p>
+            <p className="text-xs text-status-error-fg">Lösung: {task.newMask}</p>
           )}
         </div>
 
         {/* Hosts pro Subnetz */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className={`text-xs font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>
+            <label className="text-xs font-medium text-muted-foreground">
               Hosts / Subnetz
             </label>
             {fieldOk(result?.hostsOk)}
@@ -661,25 +646,25 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
             disabled={checked}
           />
           {checked && !result?.hostsOk && (
-            <p className="text-xs text-rose-400">Lösung: {task.hostsPerSubnet}</p>
+            <p className="text-xs text-status-error-fg">Lösung: {task.hostsPerSubnet}</p>
           )}
         </div>
       </div>
 
       {/* Subnetz-IDs */}
-      <div className={`rounded-lg p-3 space-y-2 ${dark ? "bg-slate-800/60" : "bg-slate-50"}`}>
-        <p className={`text-xs font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>
+      <div className="rounded-lg p-3 space-y-2 bg-muted/60">
+        <p className="text-xs font-medium text-muted-foreground">
           Subnetz-IDs (erste {SHOW_SUBNETS} Subnetze):
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {Array.from({ length: SHOW_SUBNETS }, (_, i) => (
             <div key={i} className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
+                <label className="text-xs text-muted-foreground">
                   Subnetz {i + 1}
                 </label>
                 {checked && (
-                  <span className={`text-xs flex items-center gap-1 ${result?.subnetsOk[i] ? "text-emerald-500" : "text-rose-500"}`}>
+                  <span className={`text-xs flex items-center gap-1 ${result?.subnetsOk[i] ? "text-status-success-fg" : "text-status-error-fg"}`}>
                     {result?.subnetsOk[i]
                       ? <CheckCircle size={11} weight="fill" />
                       : <XCircle size={11} weight="fill" />}
@@ -705,24 +690,19 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
         <>
           <div className={`rounded-md px-3 py-2 text-xs ${
             allOk
-              ? dark ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
-                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-              : dark ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
-                     : "bg-rose-50 text-rose-700 border border-rose-200"
+              ? "bg-status-success-bg text-status-success-fg border border-status-success-border/30"
+              : "bg-status-error-bg text-status-error-fg border border-status-error-border/30"
           }`}>
             {allOk
               ? "Alles korrekt — gut gemacht!"
               : "Nicht alles richtig — der Rechenweg zeigt jeden Schritt."}
           </div>
-          <SegCalcPath task={task} dark={dark} />
+          <SegCalcPath task={task} />
         </>
       )}
 
       {drill.finished && (
-        <div className={`rounded-xl p-3 text-xs ${
-          dark ? "bg-violet-500/10 border border-violet-500/30 text-violet-200"
-               : "bg-violet-50 border border-violet-200 text-violet-800"
-        }`}>
+        <div className="rounded-xl p-3 text-xs bg-status-trunk-bg border border-status-trunk-border/30 text-status-trunk-fg">
           <strong>Drill beendet.</strong> {drill.score} von {TOTAL_TASKS} beim ersten Versuch korrekt.
         </div>
       )}
@@ -733,7 +713,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
           <button
             type="button"
             onClick={drill.handleCheck}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-status-trunk-solid hover:opacity-90 text-on-status-trunk-solid transition-colors"
           >
             Prüfen
           </button>
@@ -742,7 +722,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
           <button
             type="button"
             onClick={drill.handleNext}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-status-trunk-solid hover:opacity-90 text-on-status-trunk-solid transition-colors flex items-center gap-1.5"
           >
             Nächste Aufgabe <ArrowRight size={14} />
           </button>
@@ -751,7 +731,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
           <button
             type="button"
             onClick={drill.handleRestart}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-status-trunk-solid hover:opacity-90 text-on-status-trunk-solid transition-colors flex items-center gap-1.5"
           >
             Neuen Drill starten <ArrowClockwise size={14} />
           </button>
@@ -761,8 +741,7 @@ function SegmentationDrill({ dark, inputCls }: SegDrillProps) {
   );
 }
 
-export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
-  const dark = theme === "dark";
+export function SubnettingDrillDialog({ open, onClose }: Props) {
   const [mode, setMode] = useState<DrillMode>("single");
   const [tasks, setTasks] = useState<DrillTask[]>(() =>
     generateBatch(TOTAL_TASKS),
@@ -793,11 +772,7 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
 
   if (!open) return null;
 
-  const inputCls = `w-full px-2.5 py-1.5 rounded-md text-sm font-mono border ${
-    dark
-      ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-600 focus:border-indigo-500"
-      : "bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-indigo-500"
-  } focus:outline-none focus:ring-1 focus:ring-indigo-500`;
+  const inputCls = `w-full px-2.5 py-1.5 rounded-md text-sm font-mono border bg-card border-border text-foreground placeholder:text-muted-foreground focus:border-accent-primary focus:outline-none focus:ring-1 focus:ring-indigo-500`;
 
   const handleCheck = () => {
     if (!task) return;
@@ -863,13 +838,13 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <label
-            className={`text-xs font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}
+            className="text-xs font-medium text-muted-foreground"
           >
             {label}
           </label>
           {checked && (
             <span
-              className={`text-xs flex items-center gap-1 ${isOk ? "text-emerald-500" : "text-rose-500"}`}
+              className={`text-xs flex items-center gap-1 ${isOk ? "text-status-success-fg" : "text-status-error-fg"}`}
             >
               {isOk ? (
                 <CheckCircle size={12} weight="fill" />
@@ -899,12 +874,8 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
       onClick={() => setMode(m)}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
         mode === m
-          ? dark
-            ? "bg-indigo-600 text-white"
-            : "bg-indigo-600 text-white"
-          : dark
-            ? "text-slate-400 hover:text-white hover:bg-slate-700"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          ? "bg-accent-solid text-on-accent-solid"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
       }`}
       aria-pressed={mode === m}
     >
@@ -923,49 +894,37 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
         onClick={onClose}
       >
         <div
-          className={`w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] ${
-            dark
-              ? "bg-slate-900 border border-slate-700"
-              : "bg-white border border-slate-200"
-          }`}
+          className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] bg-card border border-border"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div
-            className={`flex flex-wrap items-center gap-3 px-5 py-3 border-b ${
-              dark ? "border-slate-700" : "border-slate-200"
-            }`}
+            className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-border"
           >
             <div
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"
-              }`}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-primary/20 text-accent-primary-fg"
             >
               <Calculator size={16} weight="bold" />
             </div>
             <div className="flex-1 min-w-0">
               <div
-                className={`font-semibold text-sm ${dark ? "text-white" : "text-slate-900"}`}
+                className="font-semibold text-sm text-foreground"
               >
                 Subnetting-Drill
               </div>
-              <div className={`text-[11px] ${dark ? "text-slate-400" : "text-slate-500"}`}>
+              <div className="text-[11px] text-muted-foreground">
                 Üben mit Rechenweg — Magic Number & Binär
               </div>
             </div>
             {/* Mode toggle */}
-            <div className={`flex gap-1 p-1 rounded-lg order-last w-full sm:order-none sm:w-auto ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+            <div className="flex gap-1 p-1 rounded-lg order-last w-full sm:order-none sm:w-auto bg-muted">
               {tabBtn("single", "Einzelsubnetz", <Calculator size={13} />)}
               {tabBtn("segmentation", "Segmentierung", <GridFour size={13} />)}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`shrink-0 p-1.5 rounded-md transition-colors ${
-                dark
-                  ? "text-slate-400 hover:text-white hover:bg-slate-700"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-              }`}
+              className="shrink-0 p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
               aria-label="Schließen"
             >
               <X size={16} />
@@ -975,32 +934,28 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
           {/* Body */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
             {mode === "segmentation" ? (
-              <SegmentationDrill dark={dark} inputCls={inputCls} />
+              <SegmentationDrill inputCls={inputCls} />
             ) : (
               <>
                 {/* Progress */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-muted-foreground">
                     Aufgabe {idx + 1} / {TOTAL_TASKS} · Score: {score} ✓
                   </span>
                   <button
                     type="button"
                     onClick={handleRestart}
                     title="Neu generieren"
-                    className={`p-1 rounded transition-colors ${
-                      dark
-                        ? "text-slate-400 hover:text-white"
-                        : "text-slate-500 hover:text-slate-900"
-                    }`}
+                    className="p-1 rounded transition-colors text-muted-foreground hover:text-foreground"
                     aria-label="Aufgaben neu generieren"
                   >
                     <ArrowClockwise size={14} />
                   </button>
                 </div>
 
-                <div className={`h-1 rounded-full ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+                <div className="h-1 rounded-full bg-muted">
                   <div
-                    className="h-full bg-indigo-500 rounded-full transition-all"
+                    className="h-full bg-accent-solid rounded-full transition-all"
                     style={{
                       width: `${((idx + (checked ? 1 : 0)) / TOTAL_TASKS) * 100}%`,
                     }}
@@ -1010,25 +965,21 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                 {task && (
                   <>
                     <div
-                      className={`rounded-xl px-4 py-3 font-mono text-sm ${
-                        dark
-                          ? "bg-slate-800 text-indigo-300"
-                          : "bg-indigo-50 text-indigo-900"
-                      }`}
+                      className="rounded-xl px-4 py-3 font-mono text-sm bg-accent-primary/10 text-accent-primary-fg"
                     >
                       <div>
-                        <span className="opacity-70">IP-Adresse:&nbsp;&nbsp;</span>
+                        <span>IP-Adresse:&nbsp;&nbsp;</span>
                         <span className="font-bold">{ipStr}</span>
                       </div>
                       <div>
-                        <span className="opacity-70">Subnetzmaske:</span>{" "}
+                        <span>Subnetzmaske:</span>{" "}
                         <span className="font-bold">{maskStr}</span>{" "}
-                        <span className="opacity-70">(/{task.cidr})</span>
+                        <span>(/{task.cidr})</span>
                       </div>
                     </div>
 
                     <p
-                      className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}
+                      className="text-xs text-muted-foreground"
                     >
                       Bestimme Subnetz-ID, Broadcast, ersten und letzten nutzbaren
                       Host sowie die Magic Number.
@@ -1087,12 +1038,8 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                           result.firstOk &&
                           result.lastOk &&
                           result.magicOk
-                            ? dark
-                              ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
-                              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : dark
-                              ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
-                              : "bg-rose-50 text-rose-700 border border-rose-200"
+                            ? "bg-status-success-bg text-status-success-fg border border-status-success-border/30"
+                            : "bg-status-error-bg text-status-error-fg border border-status-error-border/30"
                         }`}
                       >
                         {result.subnetOk &&
@@ -1105,17 +1052,13 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                       </div>
                     )}
 
-                    {checked && <SingleCalcPath task={task} dark={dark} />}
+                    {checked && <SingleCalcPath task={task} />}
                   </>
                 )}
 
                 {finished && (
                   <div
-                    className={`rounded-xl p-4 text-sm ${
-                      dark
-                        ? "bg-indigo-500/10 border border-indigo-500/30 text-indigo-200"
-                        : "bg-indigo-50 border border-indigo-200 text-indigo-800"
-                    }`}
+                    className="rounded-xl p-4 text-sm bg-accent-primary/10 border border-accent-primary/30 text-accent-primary-fg"
                   >
                     <strong>Drill beendet.</strong> Du hast {score} von {TOTAL_TASKS}{" "}
                     Aufgaben beim ersten Versuch korrekt gelöst. Klicke auf das
@@ -1129,7 +1072,7 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                     <button
                       type="button"
                       onClick={handleCheck}
-                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-accent-solid hover:opacity-90 text-on-accent-solid transition-colors"
                     >
                       Prüfen
                     </button>
@@ -1138,7 +1081,7 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-accent-solid hover:opacity-90 text-on-accent-solid transition-colors flex items-center gap-1.5"
                     >
                       Nächste Aufgabe <ArrowRight size={14} />
                     </button>
@@ -1147,7 +1090,7 @@ export function SubnettingDrillDialog({ open, onClose, theme }: Props) {
                     <button
                       type="button"
                       onClick={handleRestart}
-                      className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5"
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-accent-solid hover:opacity-90 text-on-accent-solid transition-colors flex items-center gap-1.5"
                     >
                       Neuen Drill starten <ArrowClockwise size={14} />
                     </button>

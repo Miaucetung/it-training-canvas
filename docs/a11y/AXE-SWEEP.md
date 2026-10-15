@@ -2,7 +2,7 @@
 
 Erzeugt von `scripts/e2e/a11y-sweep.mjs` und `scripts/e2e/a11y-sweep-report.mjs` (nur lesend; axe-core mit allen Regeln inkl. Farbkontrast, Dev-Server, Edge). Es wurde nichts geändert; im Canvas-Code (`src/components/canvas-v2/`, `src/lib/topology/`) bleiben Befunde reine Liste.
 
-**116 Läufe (29 Ansichten × 4 Kombinationen): 93 ohne Verstöße, 23 mit Verstößen.**
+**116 Läufe (29 Ansichten × 4 Kombinationen): 108 ohne Verstöße, 8 mit Verstößen.**
 
 ## Ergebnis je Ansicht
 
@@ -10,15 +10,15 @@ Erzeugt von `scripts/e2e/a11y-sweep.mjs` und `scripts/e2e/a11y-sweep-report.mjs`
 |---|---|---|---|---|---|
 | Dashboard | App | ✓ | ✓ | ✓ | ✓ |
 | Header: Lernen-Menü | App | ✓ | ✓ | ✓ | ✓ |
-| Header: Navigation/Werkzeuge-Menü | App | ✓ | ✓ | ✓ | color-contrast×5 |
+| Header: Navigation/Werkzeuge-Menü | App | ✓ | ✓ | ✓ | ✓ |
 | Lektion | Lektion | ✓ | ✓ | ✓ | ✓ |
 | Prüfungstrainer: Menü | Trainer | ✓ | ✓ | ✓ | ✓ |
 | Prüfungstrainer: Frage mit Grafik (Lernmodus) | Trainer | ✓ | ✓ | ✓ | ✓ |
 | Prüfungstrainer: Ergebnis (Prüfungsmodus) | Trainer | ✓ | ✓ | ✓ | ✓ |
-| Priorisiertes Lernen: Menü | Trainer | color-contrast×2 | color-contrast×2 | color-contrast×2 | color-contrast×2 |
+| Priorisiertes Lernen: Menü | Trainer | ✓ | ✓ | ✓ | ✓ |
 | Priorisiertes Lernen: Quiz-Frage | Trainer | ✓ | ✓ | ✓ | ✓ |
-| Werkzeug: Subnetting-Drill | Werkzeuge/Simulatoren | color-contrast×4 | ✓ | color-contrast×4 | ✓ |
-| Werkzeug: Routing-Drill | Werkzeuge/Simulatoren | color-contrast×1 | ✓ | color-contrast×1 | ✓ |
+| Werkzeug: Subnetting-Drill | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
+| Werkzeug: Routing-Drill | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: OSPF-Wildcard-Drill | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: ACL-Drill | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: Subnetting-Quiz | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
@@ -28,10 +28,10 @@ Erzeugt von `scripts/e2e/a11y-sweep.mjs` und `scripts/e2e/a11y-sweep-report.mjs`
 | Werkzeug: VLAN-Simulator | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: STP-Simulator | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: OSI-Simulator | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
-| Werkzeug: Routing-Simulator | Werkzeuge/Simulatoren | color-contrast×2 | color-contrast×2 | color-contrast×2 | color-contrast×2 |
+| Werkzeug: Routing-Simulator | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: Verkabelungs-Trainer | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: Drag-and-Drop-Trainer | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
-| Werkzeug: Topologie-Erkunder | Werkzeuge/Simulatoren | ✓ | color-contrast×1 | ✓ | color-contrast×1 |
+| Werkzeug: Topologie-Erkunder | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Werkzeug: CLI-Glossar | Werkzeuge/Simulatoren | ✓ | ✓ | ✓ | ✓ |
 | Labs-Dialog (Liste) | Labs | ✓ | ✓ | ✓ | ✓ |
 | Labs-Dialog (Lab geöffnet) | Labs | ✓ | ✓ | ✓ | ✓ |
@@ -42,24 +42,11 @@ Erzeugt von `scripts/e2e/a11y-sweep.mjs` und `scripts/e2e/a11y-sweep-report.mjs`
 
 | Regel | Schwere | Ansichten | Läufe | Elemente |
 |---|---|---:|---:|---:|
-| color-contrast | serious | 8 | 19 | 37 |
 | label-content-name-mismatch | serious | 2 | 8 | 30 |
 | region | moderate | 2 | 8 | 24 |
+| color-contrast | serious | 2 | 4 | 4 |
 | landmark-one-main | moderate | 2 | 4 | 4 |
 | page-has-heading-one | moderate | 2 | 4 | 4 |
-
-### color-contrast (serious)
-
-Betroffene Ansichten (8): Priorisiertes Lernen: Menü; Werkzeug: Subnetting-Drill; Werkzeug: Routing-Drill; Werkzeug: Routing-Simulator; Werkzeug: Topologie-Erkunder; Canvas v1; Canvas v2; Header: Navigation/Werkzeuge-Menü
-
-Beispiele (Selektor, Element, Meldung):
-
-- Priorisiertes Lernen: Menü: `.bg-indigo-500\/10 > .font-semibold` — `<span class="font-semibold">Fragen üben</span>` — Element has insufficient color contrast of 3.54 (foreground color: #615fff, background color: #171e40, font size: 12.0pt (16px), font weight
-- Priorisiertes Lernen: Menü: `.bg-indigo-500\/10 > .opacity-80.text-xs` — `<span class="text-xs opacity-80">1043 Fragen</span>` — Element has insufficient color contrast of 2.75 (foreground color: #5352d9, background color: #171e40, font size: 9.0pt (12px), font weight:
-- Werkzeug: Subnetting-Drill: `.justify-between.items-center.flex > .text-slate-500.text-xs` — `<span class="text-xs text-slate-500">Aufgabe 1 / 30 · Score: 0 ✓</span>` — Element has insufficient color contrast of 3.74 (foreground color: #62748e, background color: #0f172b, font size: 9.0pt (12px), font weight:
-- Werkzeug: Subnetting-Drill: `div:nth-child(1) > .opacity-70` — `<span class="opacity-70">IP-Adresse:&nbsp;&nbsp;</span>` — Element has insufficient color contrast of 4.37 (foreground color: #7b8ac5, background color: #1d293d, font size: 10.5pt (14px), font weight
-- Werkzeug: Subnetting-Drill: `div:nth-child(2) > .opacity-70:nth-child(1)` — `<span class="opacity-70">Subnetzmaske:</span>` — Element has insufficient color contrast of 4.37 (foreground color: #7b8ac5, background color: #1d293d, font size: 10.5pt (14px), font weight
-- Werkzeug: Routing-Drill: `.text-slate-500.font-mono.shrink-0` — `<span class="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>` — Element has insufficient color contrast of 3.74 (foreground color: #62748e, background color: #0f172b, font size: 9.0pt (12px), font weight:
 
 ### label-content-name-mismatch (serious)
 
@@ -85,6 +72,14 @@ Beispiele (Selektor, Element, Meldung):
 - Canvas v2: `.bg-slate-900\/90 > .flex-wrap.gap-2.items-center` — `<div class="flex flex-wrap items-center gap-2">` — Some page content is not contained by landmarks
 - Canvas v2: `.w-10` — `<span class="text-[11px] font-mono px-1 w-10 text-center">100%</span>` — Some page content is not contained by landmarks
 - Canvas v2: `.mr-0\.5` — `<span class="text-[10px] font-bold uppercase tracking-wider mr-0.5 hidden xl:inline text-slate-400">Geräte:</s` — Some page content is not contained by landmarks
+
+### color-contrast (serious)
+
+Betroffene Ansichten (2): Canvas v1; Canvas v2
+
+Beispiele (Selektor, Element, Meldung):
+
+- Canvas v1: `.sm\:px-3 > .font-semibold` — `<span class="font-semibold">Lernen</span>` — Element has insufficient color contrast of 4.2 (foreground color: #1d4ed8, background color: #c1cdea, font size: 9.0pt (12px), font weight: 
 
 ### landmark-one-main (moderate)
 

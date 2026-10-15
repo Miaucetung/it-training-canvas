@@ -107,12 +107,11 @@ interface Props {
 }
 
 export function PrioritizedLearningDialog({ theme, onClose }: Props) {
-  const isDark = theme === "dark";
-  const bg = isDark ? "bg-slate-900" : "bg-white";
-  const border = isDark ? "border-slate-700" : "border-slate-200";
-  const text = isDark ? "text-white" : "text-slate-900";
-  const textMuted = isDark ? "text-slate-400" : "text-slate-500";
-  const cardBg = isDark ? "bg-slate-800/50" : "bg-slate-50";
+  const bg = "bg-card";
+  const border = "border-border";
+  const text = "text-foreground";
+  const textMuted = "text-muted-foreground";
+  const cardBg = "bg-muted/50";
 
   const [activeDomains, setActiveDomains] = useState<Set<string>>(new Set(BLUEPRINT_DOMAINS));
   const [sortMode, setSortMode] = useState<SortMode>("priority");
@@ -230,7 +229,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
           {/* Header */}
           <div className={`shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b ${border}`}>
             <div className="flex items-center gap-3 min-w-0">
-              <ChartLine size={22} className="text-indigo-500 shrink-0" />
+              <ChartLine size={22} className="text-accent-primary-fg shrink-0" />
               <div className="min-w-0">
                 <h2 className={`font-bold truncate ${text}`}>Priorisierte Lern-Queue</h2>
                 <p className={`text-xs truncate ${textMuted}`}>
@@ -240,7 +239,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
             </div>
             <button
               onClick={onClose}
-              className={`p-2 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-slate-700/50 ${textMuted}`}
+              className={`p-2 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-muted ${textMuted}`}
               aria-label="Schließen"
             >
               <X size={20} />
@@ -251,12 +250,12 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
           {/* Stats */}
           <div className={`grid grid-cols-2 gap-3 rounded-xl p-4 ${cardBg}`}>
             <div className="flex flex-col items-center gap-1 text-center">
-              <ListChecks size={20} className="text-indigo-500" />
+              <ListChecks size={20} className="text-accent-primary-fg" />
               <span className={`text-2xl font-bold ${text}`}>{filteredCount}</span>
               <span className={`text-xs ${textMuted}`}>Fragen (aktueller Filter)</span>
             </div>
             <div className="flex flex-col items-center gap-1 text-center">
-              <FireSimple size={20} className="text-orange-500" />
+              <FireSimple size={20} className="text-status-blocking-fg" />
               <span className={`text-2xl font-bold ${text}`}>{weakIds.size}</span>
               <span className={`text-xs ${textMuted}`}>Schwächefragen</span>
             </div>
@@ -276,12 +275,8 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
                     onClick={() => toggleDomain(domain)}
                     className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                       active
-                        ? isDark
-                          ? "border-indigo-500 bg-indigo-500/15 text-indigo-300"
-                          : "border-indigo-400 bg-indigo-50 text-indigo-700"
-                        : isDark
-                          ? "border-slate-700 text-slate-500 hover:border-slate-600"
-                          : "border-slate-200 text-slate-400 hover:border-slate-300"
+                        ? "border-accent-primary bg-accent-primary/15 text-accent-primary-fg"
+                        : "border-border text-muted-foreground hover:border-border"
                     }`}
                   >
                     {getDomainTitle(domain)} ({DOMAIN_WEIGHTS[domain]}%) · {domainCounts[domain] ?? 0}
@@ -300,10 +295,8 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
                   onClick={() => setSortMode("priority")}
                   className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                     sortMode === "priority"
-                      ? isDark
-                        ? "bg-indigo-500/20 text-indigo-300"
-                        : "bg-indigo-50 text-indigo-700"
-                      : `${textMuted} hover:bg-slate-700/20`
+                      ? "bg-accent-primary/20 text-accent-primary-fg"
+                      : `${textMuted} hover:bg-muted`
                   }`}
                 >
                   Nach Wichtigkeit
@@ -312,10 +305,8 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
                   onClick={() => setSortMode("domain")}
                   className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                     sortMode === "domain"
-                      ? isDark
-                        ? "bg-indigo-500/20 text-indigo-300"
-                        : "bg-indigo-50 text-indigo-700"
-                      : `${textMuted} hover:bg-slate-700/20`
+                      ? "bg-accent-primary/20 text-accent-primary-fg"
+                      : `${textMuted} hover:bg-muted`
                   }`}
                 >
                   Nach Domäne
@@ -339,21 +330,21 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
             <button
               onClick={startAll}
               disabled={filteredCount === 0}
-              className="flex flex-col items-center gap-2 rounded-xl border border-indigo-500 bg-indigo-500/10 p-5 text-indigo-500 transition-all hover:bg-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex flex-col items-center gap-2 rounded-xl border border-accent-primary bg-accent-primary/10 p-5 text-accent-primary-fg transition-all hover:bg-accent-primary/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
             >
               <ChartLine size={32} />
               <span className="font-semibold">Fragen üben</span>
-              <span className="text-xs opacity-80">{filteredCount} Fragen</span>
+              <span className="text-xs">{filteredCount} Fragen</span>
             </button>
 
             <button
               onClick={startDrill}
               disabled={weakIds.size === 0}
-              className="flex flex-col items-center gap-2 rounded-xl border border-orange-500 bg-orange-500/10 p-5 text-orange-500 transition-all hover:bg-orange-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex flex-col items-center gap-2 rounded-xl border border-status-blocking-border bg-status-blocking-bg p-5 text-status-blocking-fg transition-all hover:bg-status-blocking-border/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
             >
               <FireSimple size={32} />
               <span className="font-semibold">Schwächen-Drill</span>
-              <span className="text-xs opacity-80">
+              <span className="text-xs">
                 {weakIds.size > 0 ? `${weakIds.size} gespeicherte Fehler` : "Noch keine Fehler"}
               </span>
             </button>
@@ -365,7 +356,7 @@ export function PrioritizedLearningDialog({ theme, onClose }: Props) {
                 setWeakIds(new Set());
                 saveWeakIds(new Set());
               }}
-              className={`text-xs self-start ${isDark ? "text-slate-600 hover:text-slate-400" : "text-slate-400 hover:text-slate-600"}`}
+              className="text-xs self-start text-muted-foreground hover:text-muted-foreground"
             >
               Schwächeliste zurücksetzen ({weakIds.size})
             </button>

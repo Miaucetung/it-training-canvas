@@ -27,7 +27,7 @@ import { ModalPortal } from "@/components/ui/modal-portal";
 interface Props {
   open: boolean;
   onClose: () => void;
-  theme: "light" | "dark";
+  theme?: "light" | "dark";
 }
 
 type Mode = "ip-route" | "match";
@@ -39,8 +39,7 @@ interface Stats {
   best: number;
 }
 
-export function RoutingDrillDialog({ open, onClose, theme }: Props) {
-  const dark = theme === "dark";
+export function RoutingDrillDialog({ open, onClose }: Props) {
   const [mode, setMode] = useState<Mode>("ip-route");
   const [ipTask, setIpTask] = useState<IpRouteTask>(() => generateIpRouteTask());
   const [matchTask, setMatchTask] = useState<MatchTask>(() => generateMatchTask());
@@ -66,15 +65,12 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
 
   if (!open) return null;
 
-  const panel = dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200";
-  const text = dark ? "text-white" : "text-slate-900";
-  const muted = dark ? "text-slate-400" : "text-slate-500";
-  const cardBg = dark ? "bg-slate-800/60" : "bg-slate-50";
-  const inputCls = `w-full rounded-lg border px-3 py-2.5 font-mono text-sm ${
-    dark
-      ? "bg-slate-950 border-slate-700 text-emerald-300 placeholder-slate-600"
-      : "bg-slate-900 border-slate-700 text-emerald-300 placeholder-slate-500"
-  } focus:outline-none focus:ring-2 focus:ring-indigo-500/50`;
+  const panel = "bg-card border-border";
+  const text = "text-foreground";
+  const muted = "text-muted-foreground";
+  const cardBg = "bg-muted/60";
+  const inputCls =
+    "w-full rounded-lg border px-3 py-2.5 font-mono text-sm bg-terminal-bg border-terminal-border text-terminal-fg placeholder:text-terminal-muted focus:outline-none focus:ring-2 focus:ring-ring/50";
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : null;
@@ -128,10 +124,8 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
       onClick={() => switchMode(m)}
       className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
         mode === m
-          ? "bg-indigo-600 text-white"
-          : dark
-            ? "text-slate-400 hover:bg-slate-700 hover:text-white"
-            : "text-slate-600 hover:bg-slate-100"
+          ? "bg-accent-solid text-on-accent-solid"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
       aria-pressed={mode === m}
     >
@@ -154,22 +148,22 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={`flex shrink-0 items-center gap-3 border-b px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
-            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${dark ? "bg-indigo-500/20 text-indigo-300" : "bg-indigo-100 text-indigo-600"}`}>
+          <div className="flex shrink-0 items-center gap-3 border-b px-5 py-3 border-border">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-primary/20 text-accent-primary-fg">
               <Path size={16} weight="bold" />
             </div>
             <div className="flex-1">
               <div className={`text-sm font-semibold ${text}`}>Routing-Endlos-Lab</div>
               <div className={`text-[11px] ${muted}`}>ip route schreiben & Longest-Prefix-Match — gegen die Uhr</div>
             </div>
-            <div className={`flex gap-1 rounded-lg p-1 ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+            <div className="flex gap-1 rounded-lg p-1 bg-muted">
               {tabBtn("ip-route", "ip route", <Terminal size={13} />)}
               {tabBtn("match", "Route wählen", <Path size={13} />)}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`rounded-md p-1.5 transition-colors ${dark ? "text-slate-400 hover:bg-slate-700" : "text-slate-500 hover:bg-slate-100"}`}
+              className="rounded-md p-1.5 transition-colors text-muted-foreground hover:bg-muted"
               aria-label="Schließen"
             >
               <X size={16} />
@@ -180,10 +174,10 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
           <div className={`flex shrink-0 items-center gap-4 px-5 py-2 text-xs ${muted}`}>
             <span className="flex items-center gap-1"><Timer size={13} /> {fmt(elapsed)}</span>
             <span>Aufgaben: <span className={`font-semibold ${text}`}>{stats.total}</span></span>
-            <span>Richtig: <span className="font-semibold text-emerald-500">{stats.correct}</span></span>
+            <span>Richtig: <span className="font-semibold text-status-success-fg">{stats.correct}</span></span>
             {accuracy !== null && <span>Quote: <span className="font-semibold">{accuracy}%</span></span>}
-            {stats.streak >= 3 && <span className="font-semibold text-orange-500">🔥 {stats.streak}er Serie</span>}
-            {stats.best >= 5 && <span className="text-violet-500">Best: {stats.best}</span>}
+            {stats.streak >= 3 && <span className="font-semibold text-status-blocking-fg">🔥 {stats.streak}er Serie</span>}
+            {stats.best >= 5 && <span className="text-status-trunk-fg">Best: {stats.best}</span>}
           </div>
 
           {/* Body */}
@@ -198,7 +192,7 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                 <div>
                   <label className={`mb-1 block text-xs ${muted}`}>Befehl im global-config-Modus:</label>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-slate-500 shrink-0">R1(config)#</span>
+                    <span className="font-mono text-xs text-muted-foreground shrink-0">R1(config)#</span>
                     <input
                       autoFocus
                       value={input}
@@ -216,8 +210,8 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                   <div
                     className={`rounded-lg border p-3 text-sm ${
                       isCorrect
-                        ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
+                        ? "border-status-success-border/30 bg-status-success-bg text-status-success-fg"
+                        : "border-status-error-border/30 bg-status-error-bg text-status-error-fg"
                     }`}
                   >
                     <div className="flex items-center gap-2 font-semibold">
@@ -227,7 +221,7 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                     {!isCorrect && ipCheck?.reason && <p className="mt-1 text-xs opacity-90">{ipCheck.reason}</p>}
                     <p className="mt-2 font-mono text-xs">
                       <span className={muted}>Lösung: </span>
-                      <span className={dark ? "text-emerald-300" : "text-emerald-700"}>{ipTask.expected}</span>
+                      <span className={"text-status-success-fg"}>{ipTask.expected}</span>
                     </p>
                     <p className={`mt-1 text-xs ${muted}`}>💡 {ipTask.hint}</p>
                   </div>
@@ -241,10 +235,10 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                     {matchTask.table.map((r, i) => {
                       const isAns = i === matchTask.correctIndex;
                       const isSel = i === selected;
-                      let cls = dark ? "border-slate-700 hover:border-indigo-500" : "border-slate-200 hover:border-indigo-400";
-                      if (checked && isAns) cls = "border-emerald-500 bg-emerald-500/10";
-                      else if (checked && isSel) cls = "border-rose-500 bg-rose-500/10";
-                      else if (isSel) cls = "border-indigo-500 bg-indigo-500/10";
+                      let cls = "border-border hover:border-accent-primary";
+                      if (checked && isAns) cls = "border-status-success-border bg-status-success-bg";
+                      else if (checked && isSel) cls = "border-status-error-border bg-status-error-bg";
+                      else if (isSel) cls = "border-accent-primary bg-accent-primary/10";
                       return (
                         <button
                           key={i}
@@ -253,7 +247,7 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                           onClick={() => setSelected(i)}
                           className={`w-full rounded-md border px-2.5 py-1.5 text-left font-mono text-[12px] tabular-nums transition-colors ${cls} ${text}`}
                         >
-                          <span className="text-indigo-400 font-semibold">{r.proto}</span>{"  "}
+                          <span className="text-accent-primary-fg font-semibold">{r.proto}</span>{"  "}
                           {r.net}/{r.cidr}
                           {r.cidr > 0 && <span className={muted}> [{r.ad}/{r.metric}]</span>} via {r.nextHop}
                           <span className={muted}>, {r.iface}</span>
@@ -270,8 +264,8 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
                   <div
                     className={`rounded-lg border p-3 text-sm ${
                       isCorrect
-                        ? dark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : dark ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-rose-200 bg-rose-50 text-rose-700"
+                        ? "border-status-success-border/30 bg-status-success-bg text-status-success-fg"
+                        : "border-status-error-border/30 bg-status-error-bg text-status-error-fg"
                     }`}
                   >
                     <div className="flex items-center gap-2 font-semibold">
@@ -286,14 +280,14 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
           </div>
 
           {/* Footer */}
-          <div className={`flex shrink-0 items-center justify-between border-t px-5 py-3 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+          <div className="flex shrink-0 items-center justify-between border-t px-5 py-3 border-border">
             <span className={`text-[11px] ${muted}`}>{mode === "ip-route" ? `/${ipTask.cidr} → ${ipTask.scenario === "default" ? "0.0.0.0" : maskString(ipTask.cidr)}` : "Longest Prefix Match"}</span>
             {!checked ? (
               <button
                 type="button"
                 onClick={handleCheck}
                 disabled={mode === "match" && selected === null}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40"
+                className="rounded-lg bg-accent-solid px-4 py-2 text-sm font-medium text-on-accent-solid transition-colors hover:opacity-90 disabled:opacity-40"
               >
                 Prüfen
               </button>
@@ -301,7 +295,7 @@ export function RoutingDrillDialog({ open, onClose, theme }: Props) {
               <button
                 type="button"
                 onClick={handleNext}
-                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                className="flex items-center gap-1.5 rounded-lg bg-accent-solid px-4 py-2 text-sm font-medium text-on-accent-solid transition-colors hover:opacity-90"
               >
                 Nächste <ArrowRight size={14} />
               </button>
