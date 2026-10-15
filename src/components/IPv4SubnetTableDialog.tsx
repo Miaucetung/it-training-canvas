@@ -8,24 +8,23 @@ import {
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
-  dark: boolean;
+  dark?: boolean;
   onClose: () => void;
 }
 
 type Tab = "cidr" | "block" | "octet";
 
-export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
+export function IPv4SubnetTableDialog({ onClose }: Props) {
   const [tab, setTab] = useState<Tab>("cidr");
   const cidr = useMemo(() => cidrTable(), []);
   const blocks = useMemo(() => blockSizeTable(), []);
   const octets = useMemo(() => octetTable(), []);
 
-  const panel = dark
-    ? "bg-zinc-900 border-zinc-700 text-zinc-100"
-    : "bg-white border-zinc-200 text-zinc-900";
-  const headRow = dark ? "bg-zinc-800 text-zinc-300" : "bg-zinc-100 text-zinc-600";
-  const border = dark ? "border-zinc-700/60" : "border-zinc-200";
-  const muted = dark ? "text-zinc-500" : "text-zinc-400";
+  const panel = "bg-card border-border text-foreground";
+  const headRow = "bg-muted text-muted-foreground";
+  const border = "border-border";
+  const muted = "text-muted-foreground";
+  const accentText = "text-accent-primary-fg";
   const mono = "font-mono tabular-nums";
 
   const fmt = (n: number) => n.toLocaleString("de-DE");
@@ -36,12 +35,8 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
         onClick={() => setTab(id)}
         className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
           tab === id
-            ? dark
-              ? "bg-sky-500/20 text-sky-300"
-              : "bg-sky-100 text-sky-700"
-            : dark
-              ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-              : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100"
+            ? "bg-accent-primary/20 text-accent-primary-fg"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted"
         }`}
       >
         {label}
@@ -66,7 +61,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
             </div>
             <button aria-label="Schließen"
               onClick={onClose}
-              className={`rounded-lg p-1.5 transition-colors ${dark ? "hover:bg-zinc-700" : "hover:bg-zinc-100"}`}
+              className={`rounded-lg p-1.5 transition-colors hover:bg-muted`}
             >
               <X size={16} />
             </button>
@@ -80,7 +75,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
           </div>
 
           {/* Content */}
-          <div className="overflow-auto p-5">
+          <div tabIndex={0} role="region" aria-label="Tabelleninhalt" className="overflow-auto p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {tab === "cidr" && (
               <table className="w-full text-xs">
                 <thead>
@@ -96,7 +91,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
                 <tbody>
                   {cidr.map((r) => (
                     <tr key={r.cidr} className={`border-b ${border}`}>
-                      <td className={`px-2 py-1.5 ${mono} font-semibold ${dark ? "text-sky-400" : "text-sky-600"}`}>/{r.cidr}</td>
+                      <td className={`px-2 py-1.5 ${mono} font-semibold ${accentText}`}>/{r.cidr}</td>
                       <td className={`px-2 py-1.5 ${mono}`}>{r.mask}</td>
                       <td className={`px-2 py-1.5 ${mono} ${muted} text-[10px]`}>{r.maskBinary}</td>
                       <td className={`px-2 py-1.5 ${mono} ${muted}`}>{r.wildcard}</td>
@@ -131,7 +126,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
                     {blocks.map((r) => (
                       <tr key={r.cidr} className={`border-b ${border}`}>
                         <td className={`px-2 py-1.5 text-right ${mono} font-semibold`}>{fmt(r.blockSize)}</td>
-                        <td className={`px-2 py-1.5 ${mono} ${dark ? "text-sky-400" : "text-sky-600"}`}>/{r.cidr}</td>
+                        <td className={`px-2 py-1.5 ${mono} ${accentText}`}>/{r.cidr}</td>
                         <td className={`px-2 py-1.5 ${mono}`}>{r.mask}</td>
                         <td className={`px-2 py-1.5 ${mono}`}>{r.maskOctet}</td>
                         <td className={`px-2 py-1.5 ${mono} ${muted}`}>{r.maskOctetBinary}</td>
@@ -156,11 +151,7 @@ export function IPv4SubnetTableDialog({ dark, onClose }: Props) {
                     <div
                       key={r.dec}
                       className={`flex items-center justify-between border-b px-1 py-0.5 ${border} ${
-                        r.isMaskOctet
-                          ? dark
-                            ? "bg-sky-500/10 text-sky-300"
-                            : "bg-sky-50 text-sky-700"
-                          : ""
+                        r.isMaskOctet ? "bg-accent-primary/10 text-accent-primary-fg" : ""
                       }`}
                     >
                       <span className={`${mono} text-xs font-semibold`}>{r.dec}</span>

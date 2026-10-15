@@ -277,13 +277,13 @@ const SEQ_29: string[] = Array.from({ length: 256 / 8 }, (_, i) => {
 export default function SubnettingCheatsheet() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 p-4">
-      <header className="space-y-1">
+      <div className="space-y-1">
         <h1 className="text-xl font-bold">Subnetting-Cheatsheet</h1>
         <p className="text-sm text-muted-foreground">
           Blockgrößen, Grenzen, VLSM und die schnelle Kopfrechen-Methode für die
           CCNA-Prüfung.
         </p>
-      </header>
+      </div>
 
       {/* Sticky Mini-Referenz */}
       <div className="sticky top-0 z-10 -mx-4 border-y border-border bg-background/90 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -301,7 +301,7 @@ export default function SubnettingCheatsheet() {
 
       {/* Section 1 — Blockgrößen-Tabelle */}
       <Section n={1} title="Blockgrößen-Tabelle">
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Blockgrößen-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
@@ -309,7 +309,9 @@ export default function SubnettingCheatsheet() {
                 <th className="py-2 pr-3 font-semibold">Subnetzmaske</th>
                 <th className="py-2 pr-3 text-right font-semibold">Blockgröße</th>
                 <th className="py-2 pr-3 text-right font-semibold">Nutzbare Hosts</th>
-                <th className="py-2 font-semibold"></th>
+                <th className="py-2 font-semibold">
+                  <span className="sr-only">Hinweis</span>
+                </th>
               </tr>
             </thead>
             <tbody>

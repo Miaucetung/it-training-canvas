@@ -241,12 +241,14 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
           <div className={`flex items-center justify-between gap-2 px-5 py-3 border-t shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
             <button
               onClick={() => goto((qIndex - 1 + ccnaDragDropQuestions.length) % ccnaDragDropQuestions.length)}
+              aria-label="Zurück"
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm ${chipBase}`}
             >
               <ArrowLeft size={15} /> <span className="hidden sm:inline">Zurück</span>
             </button>
             <div className="flex items-center gap-2">
               <button
+                aria-label="Reset"
                 onClick={() => {
                   setPlaced({});
                   setSelected(null);
@@ -266,6 +268,7 @@ export function DragDropTrainerDialog({ dark, onClose }: Props) {
             </div>
             <button
               onClick={() => goto((qIndex + 1) % ccnaDragDropQuestions.length)}
+              aria-label="Weiter"
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm ${chipBase}`}
             >
               <span className="hidden sm:inline">Weiter</span> <ArrowRight size={15} />

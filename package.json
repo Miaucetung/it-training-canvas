@@ -16,7 +16,8 @@
     "test:e2e:canvas": "node scripts/e2e/canvas-e2e.mjs",
     "test:e2e:browser": "node scripts/e2e/browser-audit.mjs",
     "test:e2e:dashboard": "node scripts/e2e/dashboard-didaktik.mjs",
-    "snapshot:content:update": "node scripts/audit/update-content-snapshot.mjs"
+    "snapshot:content:update": "node scripts/audit/update-content-snapshot.mjs",
+    "baseline:colors:update": "node scripts/audit/update-color-baseline.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",

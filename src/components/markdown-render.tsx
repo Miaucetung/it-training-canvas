@@ -74,7 +74,8 @@ function makeMarkdownComponents(dark: boolean): Components {
     },
     pre: ({ children }) => (
       <pre
-        className={`text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto ${dark ? "bg-slate-900 border border-slate-700" : "bg-slate-100 border border-slate-200"}`}
+        tabIndex={0}
+        className={`text-xs rounded-lg p-3 my-2 font-mono overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${dark ? "bg-slate-900 border border-slate-700" : "bg-slate-100 border border-slate-200"}`}
       >
         {children}
       </pre>
@@ -87,7 +88,7 @@ function makeMarkdownComponents(dark: boolean): Components {
       </blockquote>
     ),
     table: ({ children }) => (
-      <div className="overflow-x-auto my-2">
+      <div tabIndex={0} className="overflow-x-auto my-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <table className="w-full text-xs border-collapse">{children}</table>
       </div>
     ),

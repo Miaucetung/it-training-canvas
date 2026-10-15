@@ -6,42 +6,43 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 
 - Gesucht werden Klassen `text-*`, `bg-*`, `from-*`, `via-*`, `to-*` mit Farbpalette und Stufe (`text-zinc-500`, `bg-sky-500/10`, `dark:text-gray-300`, `hover:bg-purple-600` …) sowie `text-white`, `bg-black` usw. und beliebige Hex-Werte (`bg-[#0f172a]`). Varianten (`dark:`, `hover:`, `md:` …) zählen mit.
 - Nicht gesucht werden Token-Klassen (`text-muted-foreground`, `bg-card`, `text-accent-primary-fg`, `bg-status-*` …) und `border-*`/`ring-*`/`fill-*`/`stroke-*`.
+- Ausgenommen sind die in `ALLOWED_ALWAYS_DARK` benannten, bewusst immer dunklen Dateien (Lab-Dialog, CLI-Exhibit, Terminal-Emulator). Die Sperrklinke (`src/__tests__/build/hardcoded-colors-ratchet.test.ts`) hält je Datei die Obergrenze aus `src/__tests__/fixtures/hardcoded-colors-baseline.json`.
 - Durchsucht werden alle `.tsx`/`.ts`/`.css` unter `src/` außer `__tests__`. Ein Treffer ist keine Fehlerliste: manche Stellen sind gewollt (Terminal-Blöcke bewusst dunkel, Statusfarben wie `text-green-500`); entschieden wird danach.
 
 ## Zusammenfassung
 
-5174 Klassen in 89 Dateien; davon Canvas-Code (`src/components/canvas-v2/`, `src/lib/topology/`): 771 in 8 Dateien (nur aufgelistet, Gemini arbeitet dort), übrige App: 4403 in 81 Dateien.
+3920 Klassen in 85 Dateien; davon Canvas-Code (`src/components/canvas-v2/`, `src/lib/topology/`): 771 in 8 Dateien (nur aufgelistet, Gemini arbeitet dort), übrige App: 3149 in 77 Dateien.
 
 | Präfix | Treffer |
 |---|---:|
-| `text-*` | 2802 |
-| `bg-*` | 2301 |
-| `from-*` | 32 |
-| `to-*` | 31 |
+| `text-*` | 2065 |
+| `bg-*` | 1790 |
+| `from-*` | 29 |
+| `to-*` | 28 |
 | `bg-[#…]` | 5 |
 | `via-*` | 3 |
 
 | Farbfamilie | Treffer |
 |---|---:|
-| slate | 2411 |
-| white | 488 |
-| indigo | 350 |
-| amber | 289 |
-| emerald | 288 |
-| red | 228 |
-| sky | 225 |
-| cyan | 158 |
-| zinc | 137 |
-| green | 122 |
-| violet | 88 |
-| blue | 72 |
-| rose | 64 |
-| gray | 64 |
-| black | 53 |
-| purple | 49 |
-| orange | 42 |
+| slate | 1754 |
+| white | 364 |
+| indigo | 255 |
+| sky | 208 |
+| emerald | 204 |
+| amber | 204 |
+| red | 195 |
+| zinc | 120 |
+| green | 102 |
+| cyan | 98 |
+| violet | 67 |
+| blue | 65 |
+| gray | 60 |
+| black | 52 |
+| rose | 47 |
+| purple | 43 |
+| orange | 37 |
 | teal | 17 |
-| yellow | 14 |
+| yellow | 13 |
 | pink | 6 |
 | fuchsia | 4 |
 
@@ -49,9 +50,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 
 | Datei | Treffer |
 |---|---:|
-| src/components/IPv6CalculatorDialog.tsx | 374 |
-| src/components/LabScenariosDialog.tsx | 295 |
-| src/components/VlanSimulatorDialog.tsx | 249 |
 | src/components/TopicDetailPanel.tsx | 235 |
 | src/components/SubnettingDrillDialog.tsx | 162 |
 | src/components/ExamPrepDialog.tsx | 159 |
@@ -59,16 +57,13 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 | src/components/RoutingSimulatorDialog.tsx | 150 |
 | src/components/ShapeConfigDialog.tsx | 128 |
 | src/components/SubnetSegmentationTool.tsx | 123 |
-| src/components/VerkabelungTrainerDialog.tsx | 111 |
 | src/components/ShareExportDialog.tsx | 110 |
 | src/tools/SubnettingDrillQuiz.tsx | 103 |
 | src/components/StpSimulatorDialog.tsx | 98 |
 | src/components/TemplateGallery.tsx | 97 |
-| src/components/AclDrillDialog.tsx | 93 |
 | src/components/QuizDialog.tsx | 90 |
 | src/components/TopicListPanel.tsx | 87 |
 | src/components/CliGlossaryDialog.tsx | 74 |
-| src/components/OsiSimulatorDialog.tsx | 71 |
 | src/components/OspfWildcardDrillDialog.tsx | 64 |
 | src/components/RoutingDrillDialog.tsx | 62 |
 | src/components/AnnotationLayer.tsx | 57 |
@@ -90,11 +85,9 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 | src/components/AccountDialog.tsx | 32 |
 | src/components/markdown-render.tsx | 32 |
 | src/components/OnboardingTour.tsx | 32 |
-| src/components/IPv4SubnetTableDialog.tsx | 31 |
 | src/components/SimulationControls.tsx | 30 |
 | src/lib/types.ts | 30 |
 | src/components/MetricsDashboard.tsx | 29 |
-| src/components/TerminalEmulator.tsx | 29 |
 | src/components/HintPanel.tsx | 27 |
 | src/components/SetPasswordDialog.tsx | 26 |
 | src/components/SelectionToolbar.tsx | 25 |
@@ -108,7 +101,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 | src/components/RouterOnAStickDialog.tsx | 14 |
 | src/components/AuthMenu.tsx | 12 |
 | src/components/Canvas.tsx | 10 |
-| src/components/exhibits/CLIExhibit.tsx | 9 |
 | src/components/dashboard/TodayPracticeSection.tsx | 8 |
 | src/tools/SubnettingCheatsheet.tsx | 8 |
 | src/components/dashboard/CcnaDashboard.tsx | 7 |
@@ -117,15 +109,20 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 | src/components/Callout.tsx | 5 |
 | src/components/dashboard/LearningPathSection.tsx | 4 |
 | src/components/MiniMap.tsx | 4 |
+| src/components/AclDrillDialog.tsx | 3 |
 | src/components/exhibits/TableExhibit.tsx | 2 |
 | src/components/exhibits/TopologyExhibit.tsx | 2 |
 | src/components/LessonSummaryCard.tsx | 2 |
 | src/components/ui/alert.tsx | 2 |
 | src/components/ui/scroll-area.tsx | 2 |
+| src/components/VlanSimulatorDialog.tsx | 2 |
 | src/components/dashboard/BlueprintDomainsGrid.tsx | 1 |
 | src/components/dashboard/CommandPalette.tsx | 1 |
+| src/components/IPv4SubnetTableDialog.tsx | 1 |
+| src/components/IPv6CalculatorDialog.tsx | 1 |
 | src/components/labs/security.tsx | 1 |
 | src/components/navigation/AppBreadcrumbs.tsx | 1 |
+| src/components/OsiSimulatorDialog.tsx | 1 |
 | src/components/ui/alert-dialog.tsx | 1 |
 | src/components/ui/cisco-terminal.tsx | 1 |
 | src/components/ui/dialog.tsx | 1 |
@@ -145,446 +142,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 | src/components/canvas-v2/DeviceContextMenu.tsx | 20 |
 
 ## Einzelne Stellen (Datei, Zeile, Klassen)
-
-### src/components/IPv6CalculatorDialog.tsx
-
-- 147: `bg-slate-500`
-- 156: `bg-purple-500`
-- 165: `bg-slate-500`
-- 175: `bg-orange-500`
-- 184: `bg-sky-500`
-- 193: `bg-emerald-500`
-- 202: `bg-indigo-500`
-- 210: `bg-slate-400`
-- 526: `bg-slate-800` `bg-white`
-- 529: `text-slate-500` `text-slate-400`
-- 534: `text-white` `text-slate-900`
-- 554: `text-emerald-300` `text-emerald-700`
-- 559: `text-slate-500` `text-slate-400`
-- 611: `bg-indigo-500/10` `text-indigo-300` `bg-indigo-50` `text-indigo-700`
-- 621: `text-slate-300` `text-slate-700`
-- 631: `bg-slate-800` `text-white` `bg-white` `text-slate-900`
-- 635: `bg-indigo-600` `hover:bg-indigo-700` `text-white`
-- 640: `text-red-500`
-- 647: `bg-slate-800/60` `bg-slate-50`
-- 651: `text-white`
-- 656: `text-slate-400` `text-slate-500`
-- 662: `text-slate-300` `text-slate-600`
-- 682: `bg-slate-800/60` `bg-slate-50`
-- 685: `text-slate-300` `text-slate-700`
-- 692: `text-slate-500` `text-slate-400`
-- 697: `text-indigo-300` `text-indigo-700`
-- 704: `text-slate-500` `text-slate-400`
-- 709: `text-emerald-300` `text-emerald-700`
-- 718: `bg-amber-500/10` `text-amber-300` `bg-amber-50` `text-amber-700`
-- 730: `bg-slate-800/40` `bg-slate-50`
-- 733: `text-slate-400` `text-slate-600`
-- 742: `text-slate-400` `hover:text-indigo-300` `hover:bg-indigo-500/10` `text-slate-600` `hover:text-indigo-700` `hover:bg-indigo-50`
-- 801: `bg-slate-800/60`
-- 802: `bg-slate-50`
-- 803: `text-slate-400` `text-slate-500`
-- 804: `text-white` `text-slate-900`
-- 805: `text-amber-300` `text-amber-700`
-- 806: `bg-amber-500/20` `bg-amber-100`
-- 807: `text-cyan-300` `text-cyan-700`
-- 808: `bg-cyan-500/25` `bg-cyan-100`
-- 840: `bg-slate-900/50` `bg-white`
-- 854: `bg-cyan-500/10` `bg-cyan-50` `bg-slate-800/60` `bg-slate-50`
-- 877: `bg-amber-500/10` `bg-amber-50`
-- 889: `text-slate-400`
-- 929: `bg-slate-900` `text-white` `bg-white` `text-slate-900`
-- 941: `bg-slate-900` `text-white` `bg-white` `text-slate-900`
-- 945: `text-red-400`
-- 960: `text-slate-400` `hover:text-amber-300` `text-slate-500` `hover:text-amber-700`
-- 1098: `bg-slate-900/40` `bg-white`
-- 1175: `bg-slate-900` `bg-white`
-- 1215: `bg-amber-500/10` `text-amber-200` `bg-amber-50` `text-amber-900`
-- 1227: `text-amber-300` `text-amber-800`
-- 1325: `bg-cyan-500/10` `text-cyan-300` `bg-cyan-50` `text-cyan-700`
-- 1334: `text-slate-300` `text-slate-700`
-- 1344: `bg-slate-800` `text-white` `bg-white` `text-slate-900`
-- 1348: `bg-cyan-600` `hover:bg-cyan-700` `text-white`
-- 1353: `text-red-500`
-- 1365: `bg-slate-800` `hover:bg-slate-700/80` `bg-slate-50` `hover:bg-slate-100`
-- 1368: `text-white` `bg-cyan-500` `bg-slate-500`
-- 1374: `text-slate-300` `text-slate-700`
-- 1379: `text-cyan-300` `text-cyan-700`
-- 1385: `text-slate-500` `text-slate-400`
-- 1392: `bg-slate-800/40` `text-slate-400` `bg-white` `text-slate-600`
-- 1401: `bg-cyan-500/10` `bg-cyan-50`
-- 1404: `text-cyan-300` `text-cyan-700`
-- 1409: `text-white` `text-slate-900`
-- 1414: `text-slate-400` `text-slate-500`
-- 1425: `bg-slate-800/40` `bg-slate-50`
-- 1428: `text-slate-400` `text-slate-600`
-- 1439: `text-slate-400` `hover:text-cyan-300` `hover:bg-cyan-500/10` `text-slate-600` `hover:text-cyan-700` `hover:bg-cyan-50`
-- 1510: `bg-emerald-500/10` `text-emerald-300` `bg-emerald-50` `text-emerald-700`
-- 1524: `text-slate-400` `text-slate-600`
-- 1537: `bg-slate-800` `hover:bg-emerald-500/10` `text-slate-400` `hover:text-emerald-300` `bg-slate-50` `hover:bg-emerald-50` `text-slate-600` `hover:text-emerald-700`
-- 1544: `text-emerald-500` `text-emerald-600`
-- 1557: `text-slate-300` `text-slate-700`
-- 1565: `bg-slate-800` `text-white` `bg-white` `text-slate-900`
-- 1570: `text-slate-300` `text-slate-700`
-- 1580: `bg-slate-800` `text-white` `bg-white` `text-slate-900`
-- 1587: `bg-emerald-600` `hover:bg-emerald-700` `text-white`
-- 1591: `text-red-500`
-- 1596: `bg-slate-800/60` `bg-slate-50`
-- 1621: `text-slate-400` `text-slate-600`
-- 1634: `bg-slate-800` `bg-slate-100`
-- 1636: `text-slate-400` `text-slate-500`
-- 1641: `text-slate-400` `text-slate-500`
-- 1658: `text-slate-600` `text-slate-400`
-- 1663: `text-emerald-300` `text-emerald-700`
-- 1675: `bg-amber-500/10` `text-amber-300` `bg-amber-50` `text-amber-700`
-- 1765: `bg-amber-500/20` `text-amber-300` `bg-amber-100` `text-amber-700` `text-slate-500` `hover:text-slate-300` `hover:text-slate-700`
-- 1772: `text-emerald-400` `text-emerald-600` `text-amber-400` `text-amber-600`
-- 1781: `bg-slate-800/60` `bg-slate-50`
-- 1785: `bg-amber-500/20` `text-amber-300` `bg-amber-100` `text-amber-700`
-- 1792: `text-white` `text-slate-900`
-- 1798: `bg-slate-900` `bg-white`
-- 1801: `text-indigo-300` `text-indigo-700`
-- 1819: `bg-emerald-500/20` `text-emerald-300`
-- 1820: `bg-emerald-50` `text-emerald-700`
-- 1823: `bg-red-500/20` `text-red-300`
-- 1824: `bg-red-50` `text-red-700`
-- 1827: `text-slate-600`
-- 1828: `text-slate-400`
-- 1831: `bg-amber-500/20` `text-amber-300`
-- 1832: `bg-amber-50` `text-amber-700`
-- 1835: `text-slate-400` `hover:bg-slate-700` `hover:text-slate-200`
-- 1836: `text-slate-600` `hover:bg-slate-100`
-- 1856: `bg-slate-900` `text-white` `bg-white` `text-slate-900` `disabled:bg-slate-50`
-- 1865: `text-slate-500` `hover:text-slate-300` `text-slate-400` `hover:text-slate-600`
-- 1873: `bg-slate-800` `text-slate-400` `bg-slate-100` `text-slate-600`
-- 1882: `bg-emerald-500/10` `bg-emerald-50` `bg-red-500/10` `bg-red-50`
-- 1888: `text-emerald-400` `text-emerald-500`
-- 1894: `text-red-400` `text-red-500`
-- 1899: `text-emerald-300` `text-emerald-700` `text-red-300` `text-red-700`
-- 1905: `text-slate-400` `text-slate-600`
-- 1918: `bg-amber-600` `hover:bg-amber-700` `text-white`
-- 1926: `bg-amber-600` `hover:bg-amber-700` `text-white`
-- 1950: `bg-slate-800/60` `bg-slate-50`
-- 1951: `text-slate-400` `text-slate-500`
-- 1952: `text-white` `text-slate-900`
-- 1953: `text-indigo-300` `text-indigo-700`
-- 2005: `bg-indigo-500/25` `bg-indigo-50`
-- 2006: `hover:bg-slate-700/50` `hover:bg-white`
-- 2017: `bg-indigo-500/30` `text-indigo-200` `bg-indigo-100` `text-indigo-800`
-- 2018: `bg-slate-700/50` `text-slate-500` `bg-slate-100` `text-slate-400`
-- 2034: `bg-indigo-500/10` `bg-indigo-50`
-- 2043: `bg-indigo-500/30` `text-indigo-200` `bg-indigo-100` `text-indigo-800`
-- 2044: `bg-slate-800` `text-slate-500` `bg-white` `text-slate-400`
-- 2075: `bg-slate-900` `text-white` `bg-white` `text-slate-900`
-- 2080: `text-slate-400` `hover:text-indigo-300` `text-slate-500` `hover:text-indigo-700`
-- 2119: `bg-indigo-500/25` `text-indigo-200` `bg-indigo-100` `text-indigo-700`
-- 2120: `bg-slate-700/40` `text-slate-500` `bg-slate-100` `text-slate-400`
-- 2141: `bg-slate-900/40` `bg-white`
-- 2152: `text-indigo-300` `text-indigo-700`
-- 2153: `text-slate-600` `text-slate-400`
-- 2171: `bg-slate-800/40` `text-slate-400` `bg-slate-50` `text-slate-500`
-- 2203: `text-indigo-300`
-- 2204: `text-indigo-700`
-- 2210: `text-cyan-300`
-- 2211: `text-cyan-700`
-- 2217: `text-emerald-300`
-- 2218: `text-emerald-700`
-- 2224: `text-amber-300`
-- 2225: `text-amber-700`
-- 2231: `text-violet-300`
-- 2232: `text-violet-700`
-- 2242: `bg-black/60`
-- 2246: `bg-slate-900` `bg-white`
-- 2251: `bg-slate-800/50` `bg-slate-50`
-- 2253: `bg-indigo-500`
-- 2254: `text-white`
-- 2258: `text-white` `text-slate-900`
-- 2263: `text-slate-400` `text-slate-500`
-- 2271: `text-slate-400` `hover:text-white` `hover:bg-slate-700` `text-slate-500` `hover:text-slate-900` `hover:bg-slate-100`
-- 2285: `text-slate-500` `hover:text-slate-300` `hover:text-slate-700`
-
-### src/components/LabScenariosDialog.tsx
-
-- 98: `text-cyan-400` `bg-cyan-400/10`
-- 99: `text-emerald-400` `bg-emerald-400/10`
-- 100: `text-amber-400` `bg-amber-400/10`
-- 101: `text-rose-400` `bg-rose-400/10`
-- 110: `text-slate-300` `hover:text-white` `hover:bg-slate-700/80`
-- 120: `text-emerald-400`
-- 121: `text-emerald-400`
-- 140: `bg-slate-950/80`
-- 142: `bg-slate-900`
-- 144: `text-emerald-400`
-- 145: `text-white`
-- 148: `text-cyan-400/90` `bg-cyan-950/60`
-- 156: `text-slate-400` `hover:text-white` `hover:bg-slate-800`
-- 169: `hover:bg-slate-900/60`
-- 172: `text-slate-600`
-- 175: `text-emerald-300` `selection:bg-emerald-800` `selection:text-white`
-- 180: `text-slate-400`
-- 792: `bg-black/75`
-- 800: `bg-slate-950` `text-slate-100`
-- 801: `bg-slate-900` `text-slate-100`
-- 805: `bg-slate-950/90`
-- 807: `bg-violet-500/15` `text-violet-400`
-- 814: `text-white`
-- 819: `bg-amber-500/20` `text-amber-300`
-- 824: `bg-violet-500/20` `text-violet-300`
-- 827: `bg-slate-800` `text-slate-300`
-- 830: `bg-sky-950` `text-sky-300`
-- 836: `text-slate-400`
-- 853: `bg-cyan-950/70` `text-cyan-300`
-- 854: `bg-slate-800` `text-slate-400` `hover:text-slate-200`
-- 859: `text-cyan-400`
-- 869: `bg-amber-500/20` `text-amber-300`
-- 870: `bg-slate-800` `text-slate-300` `hover:text-white`
-- 875: `text-amber-400` `text-slate-400`
-- 882: `bg-slate-800` `hover:bg-slate-700` `text-slate-300` `hover:text-white`
-- 892: `bg-slate-800` `hover:bg-slate-700` `text-slate-300` `hover:text-white`
-- 901: `text-rose-300` `hover:text-white` `bg-rose-950/60` `hover:bg-rose-900/60`
-- 910: `text-slate-400` `hover:text-slate-200`
-- 917: `bg-slate-800` `text-violet-500`
-- 922: `bg-slate-800`
-- 928: `bg-slate-800/80` `text-slate-300`
-- 931: `text-emerald-400`
-- 937: `bg-slate-800`
-- 943: `text-slate-300` `hover:text-white` `bg-slate-800` `hover:bg-slate-700`
-- 948: `text-emerald-400`
-- 949: `text-emerald-400`
-- 963: `text-cyan-300` `bg-cyan-950/60` `hover:bg-cyan-900/60`
-- 974: `text-rose-300` `hover:text-white` `bg-rose-950/40` `hover:bg-rose-900/40`
-- 985: `text-slate-400` `hover:text-white` `hover:bg-slate-800`
-- 992: `bg-slate-800`
-- 997: `text-slate-400` `hover:text-white` `hover:bg-slate-800`
-- 1007: `bg-slate-950`
-- 1014: `bg-violet-600` `text-white`
-- 1015: `bg-slate-900` `text-slate-400` `hover:text-slate-200`
-- 1026: `bg-violet-600` `text-white`
-- 1027: `bg-slate-900` `text-slate-400` `hover:text-slate-200`
-- 1039: `bg-slate-950/50`
-- 1044: `bg-slate-900/40`
-- 1049: `text-slate-400`
-- 1056: `bg-slate-900` `text-slate-100`
-- 1061: `text-slate-400` `hover:text-white`
-- 1078: `bg-violet-600` `text-white`
-- 1079: `bg-slate-800/80` `text-slate-400` `hover:text-slate-200` `hover:bg-slate-800`
-- 1093: `bg-slate-800` `text-slate-300`
-- 1102: `text-slate-400` `hover:text-slate-200`
-- 1107: `bg-slate-800` `text-violet-500`
-- 1142: `bg-violet-600/15`
-- 1143: `hover:bg-slate-800/40`
-- 1154: `text-white` `text-slate-200` `group-hover:text-white`
-- 1166: `hover:text-emerald-400`
-- 1171: `text-emerald-400` `text-slate-600` `hover:text-slate-400`
-- 1177: `text-slate-400`
-- 1190: `text-slate-400` `bg-slate-800/80`
-- 1193: `text-violet-300/80` `bg-violet-950/60`
-- 1208: `bg-slate-900/60`
-- 1221: `text-slate-400`
-- 1222: `text-violet-400`
-- 1226: `text-slate-400`
-- 1231: `text-slate-400`
-- 1237: `text-sky-300` `hover:text-sky-200`
-- 1249: `text-white`
-- 1252: `text-slate-300`
-- 1263: `bg-emerald-500/15` `text-emerald-300`
-- 1264: `bg-slate-800` `text-slate-300` `hover:text-white` `hover:bg-slate-700`
-- 1269: `text-emerald-400` `text-slate-400`
-- 1288: `bg-slate-800` `text-slate-300`
-- 1291: `bg-slate-800` `text-slate-300`
-- 1294: `bg-slate-800` `text-slate-300`
-- 1297: `bg-slate-800` `text-slate-300`
-- 1312: `bg-cyan-400`
-- 1313: `text-slate-300`
-- 1322: `bg-indigo-500/20` `text-indigo-200` `hover:bg-indigo-500/30`
-- 1329: `bg-slate-900`
-- 1334: `text-slate-300` `hover:bg-slate-800` `disabled:text-slate-600`
-- 1339: `text-slate-300`
-- 1344: `text-slate-300` `hover:bg-slate-800` `disabled:text-slate-600`
-- 1356: `bg-cyan-500/20` `text-cyan-300` `bg-slate-800` `text-slate-400` `hover:text-slate-200`
-- 1367: `bg-cyan-500/20` `text-cyan-300`
-- 1368: `bg-slate-800` `text-slate-400` `hover:text-slate-200`
-- 1402: `bg-slate-950/60`
-- 1413: `bg-slate-900`
-- 1414: `text-slate-200`
-- 1418: `text-emerald-300` `hover:bg-slate-800`
-- 1426: `text-emerald-300` `hover:bg-slate-800`
-- 1438: `bg-slate-950/60`
-- 1444: `text-slate-300`
-- 1445: `text-cyan-500`
-- 1450: `bg-amber-950/30` `text-amber-200/90`
-- 1451: `text-amber-400`
-- 1453: `text-amber-300`
-- 1464: `from-indigo-950/40` `to-slate-900`
-- 1466: `bg-indigo-400`
-- 1467: `text-indigo-300`
-- 1472: `bg-slate-900/60`
-- 1473: `text-indigo-400`
-- 1476: `text-slate-300`
-- 1480: `bg-slate-900/60`
-- 1481: `text-emerald-400`
-- 1484: `text-slate-300`
-- 1496: `bg-emerald-500/20` `text-emerald-300`
-- 1499: `text-white`
-- 1503: `text-slate-400`
-- 1511: `bg-slate-800` `text-slate-300`
-- 1514: `text-white`
-- 1527: `bg-emerald-950/20`
-- 1529: `bg-emerald-500/20` `text-emerald-300`
-- 1532: `text-white`
-- 1541: `bg-slate-950/80`
-- 1545: `text-emerald-300`
-- 1549: `text-slate-300`
-- 1551: `text-emerald-400`
-- 1562: `bg-slate-950/50`
-- 1564: `bg-slate-800` `text-slate-300`
-- 1567: `text-white`
-- 1576: `bg-slate-900`
-- 1578: `text-cyan-300`
-- 1581: `text-slate-400`
-- 1596: `from-indigo-950/40` `to-slate-900`
-- 1598: `bg-indigo-400`
-- 1599: `text-indigo-300`
-- 1604: `bg-slate-900/60`
-- 1605: `text-indigo-400`
-- 1608: `text-slate-300`
-- 1612: `bg-slate-900/60`
-- 1613: `text-emerald-400`
-- 1616: `text-slate-300`
-- 1625: `bg-cyan-950/20`
-- 1628: `bg-cyan-500/20` `text-cyan-300`
-- 1631: `text-white`
-- 1635: `text-cyan-300/80`
-- 1640: `text-slate-300`
-- 1653: `bg-slate-900/90`
-- 1655: `bg-cyan-500/15` `text-cyan-400`
-- 1659: `text-white`
-- 1662: `text-slate-400`
-- 1676: `bg-slate-950/70`
-- 1678: `text-slate-300`
-- 1679: `text-cyan-500`
-- 1687: `bg-amber-950/40` `text-amber-200`
-- 1688: `text-amber-400`
-- 1690: `text-amber-300`
-- 1697: `bg-slate-950`
-- 1718: `bg-emerald-500/20` `text-emerald-300`
-- 1721: `text-white`
-- 1725: `text-slate-400`
-- 1733: `bg-slate-800` `text-slate-300`
-- 1736: `text-white`
-- 1749: `bg-emerald-950/20`
-- 1751: `bg-emerald-500/20` `text-emerald-300`
-- 1754: `text-white`
-- 1763: `bg-slate-950/80`
-- 1767: `text-emerald-300`
-- 1771: `text-slate-300`
-- 1773: `text-emerald-400`
-- 1782: `bg-slate-950/50`
-- 1784: `bg-slate-800` `text-slate-300`
-- 1787: `text-white`
-- 1796: `bg-slate-900`
-- 1798: `text-cyan-300`
-- 1801: `text-slate-400`
-- 1817: `bg-slate-800` `hover:bg-slate-700` `text-slate-200`
-- 1831: `bg-violet-600` `hover:bg-violet-500` `text-white`
-
-### src/components/VlanSimulatorDialog.tsx
-
-- 96: `text-slate-400` `text-slate-600`
-- 100: `text-slate-300` `text-slate-700`
-- 103: `bg-indigo-600` `bg-slate-600` `bg-slate-300`
-- 105: `bg-white`
-- 119: `bg-slate-800` `bg-white`
-- 122: `text-slate-400` `text-slate-500`
-- 129: `bg-slate-800` `bg-slate-50`
-- 132: `text-white` `text-slate-900`
-- 133: `text-slate-400` `text-slate-500`
-- 135: `text-slate-300` `text-slate-600`
-- 136: `bg-slate-900` `text-slate-300` `bg-slate-100` `text-slate-700`
-- 137: `text-slate-500`
-- 141: `text-slate-500`
-- 149: `bg-amber-900/20` `text-amber-300` `bg-amber-50` `text-amber-800`
-- 496: `bg-slate-800` `bg-slate-50`
-- 497: `text-slate-300` `text-slate-700`
-- 521: `bg-indigo-600` `text-white` `hover:bg-indigo-500`
-- 525: `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
-- 530: `bg-slate-800` `bg-slate-100`
-- 535: `bg-indigo-600` `text-white` `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
-- 548: `text-slate-500` `text-slate-400`
-- 559: `bg-slate-700` `bg-green-50`
-- 561: `text-green-300` `text-green-800`
-- 562: `text-slate-400` `text-slate-500`
-- 577: `bg-slate-700` `bg-slate-100`
-- 674: `text-slate-500` `text-slate-400`
-- 728: `bg-white`
-- 742: `text-slate-500` `text-slate-400`
-- 750: `text-slate-400` `text-slate-500`
-- 777: `bg-slate-800/80` `bg-indigo-50/60`
-- 778: `text-white` `text-slate-900`
-- 785: `text-slate-400` `text-slate-600`
-- 789: `bg-slate-700` `text-slate-200` `bg-white` `text-slate-700`
-- 799: `text-slate-400` `text-slate-600`
-- 805: `bg-slate-700` `text-slate-200` `bg-white` `text-slate-700`
-- 811: `text-slate-400` `text-slate-600`
-- 815: `bg-slate-700` `text-slate-200` `bg-white` `text-slate-700`
-- 825: `text-slate-400` `text-slate-600`
-- 829: `bg-slate-700` `text-slate-200` `bg-white` `text-slate-700`
-- 839: `text-slate-400` `text-slate-600`
-- 858: `text-slate-400` `text-slate-600`
-- 862: `bg-slate-700` `text-slate-200` `bg-white` `text-slate-700`
-- 880: `text-slate-300` `text-slate-600`
-- 893: `bg-slate-900` `text-slate-300` `bg-slate-100` `text-slate-700`
-- 894: `text-slate-500`
-- 909: `bg-slate-800/60` `bg-white`
-- 910: `text-white` `text-slate-900`
-- 912: `bg-red-500/20` `text-red-400` `bg-amber-500/20` `text-amber-400` `bg-green-500/20` `text-green-400`
-- 922: `bg-red-900/30` `text-red-300` `bg-red-50` `text-red-700`
-- 924: `bg-amber-900/30` `text-amber-300` `bg-amber-50` `text-amber-800`
-- 925: `bg-slate-700/60` `text-slate-300` `bg-slate-50` `text-slate-600`
-- 941: `bg-indigo-600` `text-white` `text-slate-300` `hover:bg-slate-700` `text-slate-700` `hover:bg-slate-50`
-- 947: `bg-indigo-600` `text-white` `text-slate-300` `hover:bg-slate-700` `text-slate-700` `hover:bg-slate-50`
-- 954: `bg-slate-900` `text-slate-300` `bg-slate-100` `text-slate-700`
-- 1033: `text-slate-400` `text-slate-600`
-- 1055: `bg-slate-900` `bg-slate-100`
-- 1057: `from-slate-500` `to-slate-400`
-- 1058: `text-slate-400` `text-slate-500`
-- 1059: `text-slate-400` `text-slate-500`
-- 1067: `text-white`
-- 1083: `bg-red-900/40` `text-red-300` `hover:bg-red-800/40` `bg-red-100` `text-red-700` `hover:bg-red-200`
-- 1084: `bg-indigo-600` `text-white` `hover:bg-indigo-500`
-- 1091: `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
-- 1096: `text-slate-400` `text-slate-600`
-- 1102: `text-slate-300` `text-slate-700`
-- 1111: `text-slate-300` `text-slate-700`
-- 1112: `text-slate-500` `text-slate-400`
-- 1224: `text-amber-600` `bg-amber-50`
-- 1226: `text-slate-400` `bg-slate-800`
-- 1227: `text-slate-500` `bg-white`
-- 1238: `bg-slate-600` `bg-slate-300`
-- 1255: `bg-indigo-500`
-- 1257: `bg-slate-600` `hover:bg-slate-500`
-- 1258: `bg-slate-300` `hover:bg-slate-400`
-- 1267: `bg-slate-800` `bg-slate-50`
-- 1273: `bg-indigo-900` `text-indigo-300` `bg-indigo-100` `text-indigo-700`
-- 1280: `text-slate-100` `text-slate-800`
-- 1287: `text-slate-300` `text-slate-600`
-- 1297: `bg-amber-900/30` `text-amber-300`
-- 1298: `bg-amber-50` `text-amber-800`
-- 1300: `bg-slate-700/50` `text-slate-400`
-- 1301: `bg-white` `text-slate-500`
-- 1307: `text-amber-300` `text-amber-700`
-- 1326: `bg-slate-800` `text-slate-600`
-- 1327: `bg-slate-100` `text-slate-400`
-- 1329: `bg-slate-700` `text-slate-200` `hover:bg-slate-600`
-- 1330: `bg-slate-200` `text-slate-700` `hover:bg-slate-300`
-- 1341: `bg-slate-800` `text-slate-600`
-- 1342: `bg-slate-100` `text-slate-400`
-- 1343: `bg-indigo-600` `text-white` `hover:bg-indigo-700`
-- 1353: `bg-green-900/30` `text-green-300` `bg-green-50` `text-green-700`
-- 1386: `bg-slate-900` `text-white` `bg-white` `text-slate-900`
-- 1393: `text-slate-400` `text-slate-500`
-- 1400: `hover:bg-slate-700` `text-slate-400` `hover:bg-slate-100` `text-slate-500`
-- 1414: `text-indigo-300` `text-indigo-700`
-- 1415: `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
 
 ### src/components/TopicDetailPanel.tsx
 
@@ -1149,53 +706,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 709: `bg-emerald-500/20` `text-emerald-300` `bg-emerald-50` `text-emerald-700` `bg-slate-700` `hover:bg-slate-600` `text-slate-300` `bg-slate-100` `hover:bg-slate-200` `text-slate-700`
 - 715: `text-slate-300` `bg-slate-950/50` `text-slate-700` `bg-slate-50`
 
-### src/components/VerkabelungTrainerDialog.tsx
-
-- 159: `text-slate-300` `text-slate-700`
-- 166: `bg-indigo-600` `text-white`
-- 167: `bg-slate-700` `text-slate-300` `hover:bg-slate-600` `bg-slate-100` `text-slate-700` `hover:bg-slate-200`
-- 173: `text-slate-500` `text-slate-400`
-- 176: `text-slate-400` `text-slate-600`
-- 215: `bg-green-900/40` `text-green-300` `bg-green-50` `text-green-700`
-- 216: `bg-red-900/40` `text-red-300` `bg-red-50` `text-red-700`
-- 225: `bg-slate-700` `text-slate-200` `hover:bg-slate-600` `bg-slate-100` `text-slate-700` `hover:bg-slate-200`
-- 228: `bg-indigo-600` `text-white` `hover:bg-indigo-500`
-- 231: `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
-- 236: `bg-slate-800` `bg-slate-50`
-- 237: `text-slate-300` `text-slate-700`
-- 240: `text-slate-400` `text-slate-500`
-- 242: `text-slate-300` `text-slate-700`
-- 256: `text-slate-400` `text-slate-600`
-- 268: `bg-slate-800` `bg-white`
-- 270: `text-slate-200` `text-slate-800`
-- 271: `text-slate-500`
-- 272: `text-slate-500`
-- 280: `bg-slate-800` `bg-white`
-- 284: `text-white` `text-slate-900`
-- 285: `text-slate-400` `text-slate-500`
-- 290: `bg-slate-900` `bg-slate-50`
-- 291: `text-slate-300` `text-slate-700`
-- 294: `text-slate-400` `text-slate-500`
-- 300: `text-slate-300` `text-slate-700`
-- 301: `text-slate-400` `text-slate-600`
-- 305: `bg-amber-900/30` `text-amber-300` `bg-amber-50` `text-amber-800`
-- 321: `text-slate-400` `text-slate-600`
-- 327: `bg-slate-700` `bg-slate-100`
-- 329: `text-slate-200` `text-slate-700`
-- 340: `bg-indigo-900/40` `bg-indigo-50`
-- 341: `hover:bg-slate-700/50` `hover:bg-slate-50`
-- 344: `text-indigo-300` `text-indigo-700`
-- 345: `text-slate-300` `text-slate-600`
-- 346: `text-slate-300` `text-slate-600`
-- 347: `text-slate-300` `text-slate-600`
-- 348: `text-slate-400` `text-slate-500`
-- 354: `bg-slate-800` `text-slate-300` `bg-slate-50` `text-slate-600`
-- 383: `bg-slate-900` `text-white` `bg-white` `text-slate-900`
-- 390: `text-slate-400` `text-slate-500`
-- 397: `hover:bg-slate-700` `text-slate-400` `hover:bg-slate-100` `text-slate-500`
-- 411: `text-indigo-300` `text-indigo-700`
-- 412: `text-slate-400` `hover:text-slate-200` `text-slate-500` `hover:text-slate-700`
-
 ### src/components/ShareExportDialog.tsx
 
 - 165: `bg-black/60`
@@ -1307,51 +817,51 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 
 - 216: `bg-slate-800/40` `bg-slate-50`
 - 404: `bg-slate-800/40` `bg-white`
-- 417: `bg-slate-900` `text-slate-100`
-- 418: `bg-white` `text-slate-900`
-- 428: `text-yellow-500`
-- 437: `hover:bg-slate-700` `text-slate-300`
-- 438: `hover:bg-slate-100` `text-slate-700`
-- 448: `bg-cyan-500/5` `text-cyan-100`
-- 449: `bg-cyan-50` `text-cyan-900`
-- 507: `bg-slate-800/40` `bg-slate-50`
-- 514: `bg-cyan-500/30` `hover:bg-cyan-500/50` `text-cyan-100` `bg-cyan-100` `hover:bg-cyan-200` `text-cyan-900`
-- 523: `hover:bg-slate-700` `hover:bg-slate-100`
-- 564: `bg-black/20`
-- 598: `bg-slate-800/40` `bg-white`
-- 605: `text-slate-400` `text-slate-600`
-- 671: `bg-slate-800/40` `bg-slate-50`
-- 678: `bg-amber-500/30` `hover:bg-amber-500/50` `text-amber-100` `bg-amber-100` `hover:bg-amber-200` `text-amber-900`
-- 687: `hover:bg-slate-700` `hover:bg-slate-100`
-- 699: `text-emerald-300` `text-emerald-600`
-- 703: `bg-slate-700` `bg-slate-200`
-- 705: `from-red-500` `via-amber-500` `to-emerald-500`
-- 721: `text-emerald-300` `text-emerald-600`
-- 725: `bg-slate-700` `bg-slate-200`
-- 727: `from-cyan-400` `to-emerald-500`
-- 740: `bg-cyan-500/10` `bg-cyan-50`
-- 756: `bg-slate-800/40` `bg-white`
-- 763: `text-slate-400` `text-slate-600`
-- 854: `bg-slate-800/40` `bg-slate-50`
-- 893: `bg-cyan-500/30` `text-cyan-100`
-- 894: `bg-cyan-100` `text-cyan-900`
-- 896: `hover:bg-slate-700`
-- 897: `hover:bg-slate-100`
-- 907: `bg-red-500/30` `text-red-100`
-- 908: `bg-red-100` `text-red-900`
-- 910: `hover:bg-slate-700`
-- 911: `hover:bg-slate-100`
-- 920: `bg-slate-900` `bg-slate-800` `text-green-400`
-- 945: `bg-slate-900/50` `bg-white`
-- 949: `text-green-400` `text-green-700`
-- 980: `bg-black/60`
-- 985: `bg-slate-900` `text-slate-100` `bg-white` `text-slate-900`
-- 992: `bg-slate-900` `bg-white`
-- 998: `bg-cyan-500/20` `text-cyan-300` `bg-cyan-100` `text-cyan-700`
-- 1013: `hover:bg-slate-500/20`
-- 1022: `bg-slate-900` `bg-white`
-- 1035: `text-cyan-300`
-- 1036: `text-cyan-700`
+- 418: `bg-slate-900` `text-slate-100`
+- 419: `bg-white` `text-slate-900`
+- 429: `text-yellow-500`
+- 438: `hover:bg-slate-700` `text-slate-300`
+- 439: `hover:bg-slate-100` `text-slate-700`
+- 449: `bg-cyan-500/5` `text-cyan-100`
+- 450: `bg-cyan-50` `text-cyan-900`
+- 508: `bg-slate-800/40` `bg-slate-50`
+- 515: `bg-cyan-500/30` `hover:bg-cyan-500/50` `text-cyan-100` `bg-cyan-100` `hover:bg-cyan-200` `text-cyan-900`
+- 524: `hover:bg-slate-700` `hover:bg-slate-100`
+- 565: `bg-black/20`
+- 599: `bg-slate-800/40` `bg-white`
+- 606: `text-slate-400` `text-slate-600`
+- 672: `bg-slate-800/40` `bg-slate-50`
+- 679: `bg-amber-500/30` `hover:bg-amber-500/50` `text-amber-100` `bg-amber-100` `hover:bg-amber-200` `text-amber-900`
+- 688: `hover:bg-slate-700` `hover:bg-slate-100`
+- 700: `text-emerald-300` `text-emerald-600`
+- 704: `bg-slate-700` `bg-slate-200`
+- 706: `from-red-500` `via-amber-500` `to-emerald-500`
+- 722: `text-emerald-300` `text-emerald-600`
+- 726: `bg-slate-700` `bg-slate-200`
+- 728: `from-cyan-400` `to-emerald-500`
+- 741: `bg-cyan-500/10` `bg-cyan-50`
+- 757: `bg-slate-800/40` `bg-white`
+- 764: `text-slate-400` `text-slate-600`
+- 855: `bg-slate-800/40` `bg-slate-50`
+- 894: `bg-cyan-500/30` `text-cyan-100`
+- 895: `bg-cyan-100` `text-cyan-900`
+- 897: `hover:bg-slate-700`
+- 898: `hover:bg-slate-100`
+- 908: `bg-red-500/30` `text-red-100`
+- 909: `bg-red-100` `text-red-900`
+- 911: `hover:bg-slate-700`
+- 912: `hover:bg-slate-100`
+- 921: `bg-slate-900` `bg-slate-800` `text-green-400`
+- 946: `bg-slate-900/50` `bg-white`
+- 950: `text-green-400` `text-green-700`
+- 981: `bg-black/60`
+- 986: `bg-slate-900` `text-slate-100` `bg-white` `text-slate-900`
+- 993: `bg-slate-900` `bg-white`
+- 999: `bg-cyan-500/20` `text-cyan-300` `bg-cyan-100` `text-cyan-700`
+- 1014: `hover:bg-slate-500/20`
+- 1023: `bg-slate-900` `bg-white`
+- 1036: `text-cyan-300`
+- 1037: `text-cyan-700`
 
 ### src/components/TemplateGallery.tsx
 
@@ -1402,54 +912,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 636: `bg-slate-800` `text-slate-400`
 - 637: `bg-slate-100` `text-slate-500`
 - 654: `bg-blue-500` `hover:bg-blue-600` `text-white`
-
-### src/components/AclDrillDialog.tsx
-
-- 131: `bg-slate-900` `bg-white`
-- 132: `text-white` `text-slate-900`
-- 133: `text-slate-400` `text-slate-500`
-- 134: `bg-slate-800/60` `bg-slate-50`
-- 139: `bg-slate-950` `text-emerald-300`
-- 140: `bg-slate-900` `text-emerald-300`
-- 196: `bg-indigo-600` `text-white`
-- 198: `text-slate-400` `hover:bg-slate-700` `hover:text-white`
-- 199: `text-slate-600` `hover:bg-slate-100`
-- 242: `bg-emerald-500/10` `text-emerald-300` `bg-emerald-50` `text-emerald-700`
-- 243: `bg-rose-500/10` `text-rose-300` `bg-rose-50` `text-rose-700`
-- 285: `bg-slate-950/40` `bg-white`
-- 292: `text-emerald-300` `text-emerald-700`
-- 307: `text-rose-300` `text-rose-700`
-- 316: `text-emerald-300` `text-emerald-700`
-- 329: `bg-black/60`
-- 341: `bg-indigo-500/20` `text-indigo-300` `bg-indigo-100` `text-indigo-600`
-- 351: `text-slate-400` `hover:bg-slate-700` `text-slate-500` `hover:bg-slate-100`
-- 360: `bg-slate-800` `bg-slate-100`
-- 375: `text-emerald-500`
-- 377: `text-orange-500`
-- 378: `text-violet-500`
-- 391: `bg-indigo-500/10` `bg-indigo-50`
-- 392: `text-indigo-300` `text-indigo-700`
-- 396: `text-slate-300` `text-slate-700`
-- 417: `text-indigo-300` `text-indigo-700`
-- 427: `text-slate-300` `text-slate-700`
-- 438: `bg-slate-950/40` `bg-white`
-- 471: `text-slate-300` `text-slate-600`
-- 472: `text-rose-500`
-- 498: `text-slate-500`
-- 525: `bg-amber-500/10` `text-amber-300` `bg-amber-50` `text-amber-700`
-- 537: `text-emerald-300` `text-emerald-700`
-- 548: `text-emerald-300` `text-emerald-700`
-- 564: `bg-slate-950/60` `text-slate-200` `bg-white` `text-slate-800`
-- 566: `text-slate-500` `text-slate-400`
-- 569: `text-amber-300` `text-amber-700`
-- 580: `bg-emerald-500/10`
-- 581: `bg-rose-500/10`
-- 582: `bg-indigo-500/10`
-- 606: `bg-emerald-500/10`
-- 607: `bg-rose-500/10`
-- 608: `bg-indigo-500/10`
-- 627: `bg-indigo-600` `text-white` `hover:bg-indigo-500`
-- 632: `bg-indigo-600` `text-white` `hover:bg-indigo-500`
 
 ### src/components/QuizDialog.tsx
 
@@ -1589,52 +1051,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 241: `text-amber-400` `text-amber-700`
 - 246: `text-amber-400/90` `text-amber-700`
 - 262: `text-slate-400` `text-slate-500`
-
-### src/components/OsiSimulatorDialog.tsx
-
-- 466: `bg-black/60`
-- 472: `bg-slate-900` `text-slate-100`
-- 473: `bg-white` `text-slate-900`
-- 480: `bg-slate-900` `bg-white`
-- 487: `bg-purple-500/20` `text-purple-300`
-- 488: `bg-purple-100` `text-purple-700`
-- 505: `hover:bg-slate-500/20`
-- 515: `bg-slate-900/95`
-- 516: `bg-white/95`
-- 528: `bg-purple-500` `text-white`
-- 530: `hover:bg-slate-800`
-- 531: `hover:bg-slate-100`
-- 540: `bg-emerald-500` `text-white`
-- 542: `hover:bg-slate-800`
-- 543: `hover:bg-slate-100`
-- 550: `bg-slate-500/30`
-- 556: `bg-cyan-500/30` `hover:bg-cyan-500/50` `text-cyan-100`
-- 557: `bg-cyan-100` `hover:bg-cyan-200` `text-cyan-900`
-- 568: `hover:bg-slate-700`
-- 569: `hover:bg-slate-100`
-- 597: `bg-slate-900` `text-slate-100`
-- 598: `bg-white` `text-slate-900`
-- 614: `bg-slate-800/40` `bg-slate-50`
-- 641: `bg-slate-900`
-- 642: `bg-white`
-- 682: `bg-cyan-500/10`
-- 683: `bg-cyan-50`
-- 703: `bg-slate-800/40` `bg-slate-50`
-- 729: `bg-slate-700` `text-slate-100` `bg-slate-200` `text-slate-900`
-- 821: `bg-blue-500/5`
-- 822: `bg-blue-50`
-- 827: `text-blue-300` `text-blue-700`
-- 839: `bg-orange-500/5`
-- 840: `bg-orange-50`
-- 845: `text-orange-300` `text-orange-700`
-- 871: `bg-slate-800` `text-slate-300`
-- 872: `bg-slate-100` `text-slate-700`
-- 921: `bg-slate-800` `bg-slate-100`
-- 936: `bg-slate-800` `bg-slate-100`
-- 955: `bg-slate-950` `text-green-400`
-- 956: `bg-slate-900` `text-green-400`
-- 969: `bg-violet-500/5` `text-violet-100`
-- 970: `bg-violet-50` `text-violet-900`
 
 ### src/components/OspfWildcardDrillDialog.tsx
 
@@ -2143,7 +1559,7 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 228: `bg-green-500/10` `text-green-600` `dark:text-green-400`
 - 229: `bg-amber-500/10` `text-amber-700` `dark:text-amber-300`
 - 235: `text-slate-300` `text-slate-600`
-- 262: `bg-indigo-500` `text-white` `hover:bg-indigo-600` `disabled:bg-slate-300` `disabled:text-slate-500` `dark:disabled:bg-slate-700` `dark:disabled:text-slate-400`
+- 264: `bg-indigo-500` `text-white` `hover:bg-indigo-600` `disabled:bg-slate-300` `disabled:text-slate-500` `dark:disabled:bg-slate-700` `dark:disabled:text-slate-400`
 
 ### src/components/TopologieExplorerDialog.tsx
 
@@ -2269,11 +1685,11 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 53: `text-slate-300` `text-slate-600`
 - 63: `bg-slate-900` `text-slate-200` `bg-slate-100` `text-slate-800`
 - 69: `bg-slate-700` `text-indigo-300` `bg-slate-100` `text-indigo-700`
-- 77: `bg-slate-900` `bg-slate-100`
-- 84: `text-slate-400` `text-slate-500`
-- 95: `bg-slate-700` `bg-slate-100`
-- 101: `text-slate-200` `text-slate-700`
-- 108: `text-slate-300` `text-slate-600`
+- 78: `bg-slate-900` `bg-slate-100`
+- 85: `text-slate-400` `text-slate-500`
+- 96: `bg-slate-700` `bg-slate-100`
+- 102: `text-slate-200` `text-slate-700`
+- 109: `text-slate-300` `text-slate-600`
 
 ### src/components/OnboardingTour.tsx
 
@@ -2299,23 +1715,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 202: `bg-slate-800` `text-slate-200`
 - 210: `bg-cyan-600` `hover:bg-cyan-500` `text-white`
 - 217: `bg-cyan-600` `hover:bg-cyan-500` `text-white`
-
-### src/components/IPv4SubnetTableDialog.tsx
-
-- 24: `bg-zinc-900` `text-zinc-100`
-- 25: `bg-white` `text-zinc-900`
-- 26: `bg-zinc-800` `text-zinc-300` `bg-zinc-100` `text-zinc-600`
-- 28: `text-zinc-500` `text-zinc-400`
-- 40: `bg-sky-500/20` `text-sky-300`
-- 41: `bg-sky-100` `text-sky-700`
-- 43: `text-zinc-400` `hover:text-zinc-200` `hover:bg-zinc-800`
-- 44: `text-zinc-500` `hover:text-zinc-700` `hover:bg-zinc-100`
-- 57: `bg-black/50`
-- 69: `hover:bg-zinc-700` `hover:bg-zinc-100`
-- 99: `text-sky-400` `text-sky-600`
-- 134: `text-sky-400` `text-sky-600`
-- 161: `bg-sky-500/10` `text-sky-300`
-- 162: `bg-sky-50` `text-sky-700`
 
 ### src/components/SimulationControls.tsx
 
@@ -2383,34 +1782,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 418: `bg-slate-500`
 - 548: `bg-slate-800/50` `bg-slate-50`
 - 551: `text-slate-500` `text-slate-400`
-
-### src/components/TerminalEmulator.tsx
-
-- 998: `bg-slate-950`
-- 999: `bg-slate-900`
-- 1003: `bg-slate-800`
-- 1005: `text-green-500`
-- 1006: `text-white`
-- 1013: `bg-green-500`
-- 1014: `bg-slate-500`
-- 1015: `bg-red-500`
-- 1025: `text-slate-400` `hover:text-white`
-- 1039: `text-slate-400` `hover:text-white`
-- 1048: `text-slate-400` `hover:text-white`
-- 1057: `text-green-400`
-- 1060: `text-slate-500`
-- 1070: `text-cyan-400`
-- 1071: `text-slate-500`
-- 1072: `text-blue-400`
-- 1073: `text-slate-500`
-- 1074: `text-white`
-- 1081: `text-slate-300` `text-red-400`
-- 1093: `bg-slate-900`
-- 1094: `text-cyan-400`
-- 1095: `text-slate-500`
-- 1096: `text-blue-400`
-- 1097: `text-slate-500`
-- 1103: `text-white`
 
 ### src/components/HintPanel.tsx
 
@@ -2604,17 +1975,6 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 1721: `bg-slate-800/80` `text-slate-400`
 - 1722: `bg-white/80` `text-slate-600`
 
-### src/components/exhibits/CLIExhibit.tsx
-
-- 6: `bg-green-900/40`
-- 9: `text-gray-200`
-- 11: `text-gray-400`
-- 13: `text-green-400`
-- 15: `text-blue-400`
-- 17: `text-yellow-400`
-- 19: `text-red-400`
-- 31: `bg-gray-900` `dark:bg-gray-950`
-
 ### src/components/dashboard/TodayPracticeSection.tsx
 
 - 104: `bg-violet-500/10` `hover:bg-violet-500/20` `text-violet-700` `hover:text-violet-900` `dark:text-violet-300` `dark:hover:text-white`
@@ -2626,7 +1986,7 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 144: `text-rose-600` `dark:text-rose-400`
 - 164: `text-rose-500`
 - 215: `text-white`
-- 323: `bg-amber-50` `dark:bg-amber-500/10`
+- 325: `bg-amber-50` `dark:bg-amber-500/10`
 
 ### src/components/dashboard/CcnaDashboard.tsx
 
@@ -2663,6 +2023,12 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 - 184: `text-slate-400`
 - 185: `text-slate-500`
 
+### src/components/AclDrillDialog.tsx
+
+- 323: `bg-black/60`
+- 371: `text-orange-500`
+- 372: `text-violet-500`
+
 ### src/components/exhibits/TableExhibit.tsx
 
 - 33: `even:bg-gray-50` `dark:even:bg-gray-900`
@@ -2683,6 +2049,11 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 
 - 52: `bg-slate-600/70` `hover:bg-slate-500`
 
+### src/components/VlanSimulatorDialog.tsx
+
+- 728: `bg-white`
+- 1068: `text-white`
+
 ### src/components/dashboard/BlueprintDomainsGrid.tsx
 
 - 138: `text-emerald-500`
@@ -2691,6 +2062,14 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 
 - 355: `bg-black/60`
 
+### src/components/IPv4SubnetTableDialog.tsx
+
+- 52: `bg-black/50`
+
+### src/components/IPv6CalculatorDialog.tsx
+
+- 2204: `bg-black/60`
+
 ### src/components/labs/security.tsx
 
 - 1916: `bg-slate-950`
@@ -2698,6 +2077,10 @@ Erzeugt von `scripts/audit/hardcoded-colors.audit.ts` (nur lesend). Es wurde nic
 ### src/components/navigation/AppBreadcrumbs.tsx
 
 - 82: `text-sky-400`
+
+### src/components/OsiSimulatorDialog.tsx
+
+- 466: `bg-black/60`
 
 ### src/components/ui/alert-dialog.tsx
 

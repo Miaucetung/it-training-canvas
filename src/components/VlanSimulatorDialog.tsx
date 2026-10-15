@@ -83,7 +83,7 @@ const FRAME_FIELDS = [
   },
 ];
 
-function FrameVivisektor({ dark }: { dark: boolean }) {
+function FrameVivisektor() {
   const [selected, setSelected] = useState<string | null>("tag");
   const [tagEnabled, setTagEnabled] = useState(true);
 
@@ -93,16 +93,16 @@ function FrameVivisektor({ dark }: { dark: boolean }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
+        <span className="text-xs text-muted-foreground">
           Klicke auf ein Frame-Feld für Details.
         </span>
         <label className="flex items-center gap-2 cursor-pointer ml-auto">
-          <span className={`text-xs font-semibold ${dark ? "text-slate-300" : "text-slate-700"}`}>802.1Q Tag</span>
+          <span className="text-xs font-semibold text-muted-foreground">802.1Q Tag</span>
           <button
             onClick={() => { setTagEnabled(!tagEnabled); if (!tagEnabled) setSelected("tag"); else if (selected === "tag") setSelected(null); }}
-            className={`relative w-9 h-5 rounded-full transition-colors ${tagEnabled ? "bg-indigo-600" : dark ? "bg-slate-600" : "bg-slate-300"}`}
+            className={`relative w-9 h-5 rounded-full transition-colors ${tagEnabled ? "bg-accent-solid" : "bg-muted-foreground/40"}`}
           >
-            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${tagEnabled ? "translate-x-4" : "translate-x-0.5"}`} />
+            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-background shadow transition-transform ${tagEnabled ? "translate-x-4" : "translate-x-0.5"}`} />
           </button>
         </label>
       </div>
@@ -116,29 +116,29 @@ function FrameVivisektor({ dark }: { dark: boolean }) {
             style={{ borderColor: f.color, background: selected === f.id ? f.color + "33" : undefined }}
             className={`flex flex-col items-center justify-center rounded-lg border-2 px-2 py-2 min-w-[52px] text-center transition-all hover:scale-105 ${
               selected === f.id ? "ring-2 ring-offset-1" : ""
-            } ${dark ? "bg-slate-800" : "bg-white shadow-sm"}`}
+            } bg-card shadow-sm`}
           >
-            <span className="text-[10px] font-semibold" style={{ color: f.color }}>{f.label}</span>
-            <span className={`text-[9px] mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}>{f.bytes}B</span>
+            <span className="text-[10px] font-semibold text-foreground">{f.label}</span>
+            <span className="text-[9px] mt-0.5 text-muted-foreground">{f.bytes}B</span>
           </button>
         ))}
       </div>
 
       {/* Detail panel */}
       {selectedField && (
-        <div className={`rounded-xl border p-4 space-y-3 transition-all ${dark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200"}`}>
+        <div className="rounded-xl border p-4 space-y-3 transition-all bg-muted border-border">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: selectedField.color }} />
-            <span className={`font-bold text-sm ${dark ? "text-white" : "text-slate-900"}`}>{selectedField.label}</span>
-            <span className={`text-xs ${dark ? "text-slate-400" : "text-slate-500"}`}>({selectedField.bytes} Byte)</span>
+            <span className="font-bold text-sm text-foreground">{selectedField.label}</span>
+            <span className="text-xs text-muted-foreground">({selectedField.bytes} Byte)</span>
           </div>
-          <p className={`text-xs leading-relaxed ${dark ? "text-slate-300" : "text-slate-600"}`}>{selectedField.detail}</p>
-          <div className={`rounded-lg p-2 font-mono text-xs ${dark ? "bg-slate-900 border border-slate-700 text-slate-300" : "bg-slate-100 border border-slate-200 text-slate-700"}`}>
-            <div className="text-[10px] text-slate-500 mb-1">Hex</div>
+          <p className="text-xs leading-relaxed text-muted-foreground">{selectedField.detail}</p>
+          <div className="rounded-lg p-2 font-mono text-xs bg-muted border border-border text-muted-foreground">
+            <div className="text-[10px] text-muted-foreground mb-1">Hex</div>
             <div>{selectedField.hex}</div>
             {selectedField.bits && (
               <>
-                <div className="text-[10px] text-slate-500 mt-2 mb-1">Binär</div>
+                <div className="text-[10px] text-muted-foreground mt-2 mb-1">Binär</div>
                 <div className="whitespace-pre-wrap text-[10px]">{selectedField.bits}</div>
               </>
             )}
@@ -146,7 +146,7 @@ function FrameVivisektor({ dark }: { dark: boolean }) {
         </div>
       )}
 
-      <div className={`text-xs rounded-xl border p-3 ${dark ? "bg-amber-900/20 border-amber-700/30 text-amber-300" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
+      <div className="text-xs rounded-xl border p-3 bg-status-warning-bg border-status-warning-border/30 text-status-warning-fg">
         ⚠️ Mit Tag: Frame-Größe = 1522 Byte max. | Ohne Tag: 1518 Byte max.
         Native VLAN = kein Tag auf Trunk-Port.
       </div>
@@ -493,8 +493,8 @@ function TopologySimulator({ dark }: { dark: boolean }) {
     return { tag: false, why: "Port nicht konfiguriert — kein Traffic erlaubt.", color: "#ef4444" };
   }
 
-  const sb = dark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200";
-  const tb = dark ? "text-slate-300" : "text-slate-700";
+  const sb = "bg-muted border-border";
+  const tb = "text-muted-foreground";
 
   // ── Topology diagram data ──────────────────────────────────────
   // Group connected ports by device type for visual diagram
@@ -518,21 +518,21 @@ function TopologySimulator({ dark }: { dark: boolean }) {
         <div className="ml-auto flex gap-1.5">
           <button
             onClick={loadScenario}
-            className="text-[10px] px-2.5 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 font-semibold"
+            className="text-[10px] px-2.5 py-1 rounded-lg bg-accent-solid text-on-accent-solid hover:opacity-90 font-semibold"
           >
             📋 Szenario laden
           </button>
-          <button onClick={reset} className={`text-[10px] px-2 py-1 rounded-lg border ${dark ? "border-slate-600 text-slate-400 hover:text-slate-200" : "border-slate-300 text-slate-500 hover:text-slate-700"}`}>↺ Reset</button>
+          <button onClick={reset} className="text-[10px] px-2 py-1 rounded-lg border border-border text-muted-foreground hover:text-muted-foreground">↺ Reset</button>
         </div>
       </div>
 
       {/* View toggle */}
-      <div className={`flex gap-1 rounded-lg p-0.5 w-fit ${dark ? "bg-slate-800" : "bg-slate-100"}`}>
+      <div className="flex gap-1 rounded-lg p-0.5 w-fit bg-muted">
         {(["topo", "ports"] as const).map(v => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`text-[10px] px-3 py-1 rounded-md font-semibold transition-colors ${view === v ? "bg-indigo-600 text-white" : dark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+            className={`text-[10px] px-3 py-1 rounded-md font-semibold transition-colors ${view === v ? "bg-accent-solid text-on-accent-solid" : "text-muted-foreground hover:text-muted-foreground"}`}
           >
             {v === "topo" ? "🗺 Topologie" : "🔌 Port-Faceplate"}
           </button>
@@ -545,7 +545,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
           <div className={`text-xs font-bold ${tb}`}>Netzwerk-Topologie</div>
 
           {connectedPorts.length === 0 && (
-            <div className={`text-xs text-center py-6 ${dark ? "text-slate-500" : "text-slate-400"}`}>
+            <div className="text-xs text-center py-6 text-muted-foreground">
               Keine Geräte konfiguriert. Klicke <strong>„Szenario laden"</strong> für ein Beispiel oder wechsle zu <em>Port-Faceplate</em> zum manuellen Konfigurieren.
             </div>
           )}
@@ -556,14 +556,14 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               {/* ROUTER row */}
               {routerPort.length > 0 && (
                 <div className="flex flex-col items-center">
-                  <div className={`rounded-xl border-2 px-4 py-2 text-center ${dark ? "bg-slate-700 border-green-500/60" : "bg-green-50 border-green-400"}`} style={{ minWidth: 140 }}>
+                  <div className={`rounded-xl border-2 px-4 py-2 text-center bg-status-success-bg border-status-success-border`} style={{ minWidth: 140 }}>
                     <div className="text-lg">🔀</div>
-                    <div className={`text-[11px] font-bold ${dark ? "text-green-300" : "text-green-800"}`}>Router (ISR)</div>
-                    <div className={`text-[9px] mt-0.5 font-mono ${dark ? "text-slate-400" : "text-slate-500"}`}>
+                    <div className="text-[11px] font-bold text-status-success-fg">Router (ISR)</div>
+                    <div className="text-[9px] mt-0.5 font-mono text-muted-foreground">
                       {router.filter(r => r.active).map(r => r.id).join(" · ") || "keine Subinterfaces"}
                     </div>
                   </div>
-                  <div className={`flex flex-col items-center`}>
+                  <div className="flex flex-col items-center">
                     <div className="w-px h-4" style={{ background: "#22c55e" }} />
                     <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold" style={{ background: "#22c55e22", color: "#22c55e" }}>
                       Trunk Port {routerPort[0].num} · VLANs {routerPort[0].trunkAllowed?.join(",")}
@@ -574,21 +574,21 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               )}
 
               {/* SWITCH */}
-              <div className={`rounded-xl border-2 px-4 py-2.5 w-full max-w-xl text-center ${dark ? "bg-slate-700 border-slate-500" : "bg-slate-100 border-slate-400"}`}>
+              <div className="rounded-xl border-2 px-4 py-2.5 w-full max-w-xl text-center bg-muted border-border">
                 <div className={`text-[11px] font-bold mb-1 ${tb}`}>🖧 Cisco Catalyst 2960X — 24-Port Switch</div>
                 <div className="flex flex-wrap justify-center gap-0.5">
                   {ports.map(p => {
                     const vc = p.mode === "access" ? vlanDef(p.accessVlan) : null;
                     const bg = p.mode === "unassigned"
-                      ? dark ? "#374151" : "#e2e8f0"
-                      : p.mode === "trunk" ? dark ? "#1e3a8a55" : "#dbeafe" : dark ? vc!.bgD : vc!.bg;
-                    const bc = p.mode === "unassigned" ? dark ? "#4b5563" : "#cbd5e1" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
+                      ? "var(--muted)"
+                      : p.mode === "trunk" ? "color-mix(in srgb, var(--accent-primary) 18%, transparent)" : dark ? vc!.bgD : vc!.bg;
+                    const bc = p.mode === "unassigned" ? "color-mix(in srgb, var(--muted-foreground) 45%, transparent)" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
                     return (
                       <div
                         key={p.num}
                         title={`Port ${p.num}${p.deviceLabel ? ` — ${p.deviceLabel}` : ""}`}
                         style={{ background: bg, borderColor: bc, width: 14, height: 18 }}
-                        className={`rounded border flex items-center justify-center text-[7px] font-bold cursor-default ${selectedPort === p.num ? "ring-1 ring-indigo-400" : ""}`}
+                        className={`rounded border flex items-center justify-center text-[7px] font-bold cursor-default ${selectedPort === p.num ? "ring-1 ring-ring" : ""}`}
                       >
                         {p.connectedTo !== "none" ? DEVICE_META[p.connectedTo].badge : ""}
                       </div>
@@ -600,7 +600,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               {/* Connection lines + device groups */}
               {(apPorts.length > 0 || serverPorts.length > 0 || pcPorts.length > 0) && (
                 <div className="w-full max-w-xl">
-                  <div className="border-t-2 border-dashed mt-0 mb-2" style={{ borderColor: dark ? "#334155" : "#cbd5e1" }} />
+                  <div className="border-t-2 border-dashed mt-0 mb-2" style={{ borderColor: "color-mix(in srgb, var(--muted-foreground) 35%, transparent)" }} />
                   <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${deviceColCount}, 1fr)` }}>
 
                     {/* Access Points */}
@@ -611,14 +611,14 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                             <div className="w-px h-3" style={{ background: "#f59e0b" }} />
                             <div
                               onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
-                              className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-105" : ""}`}
-                              style={{ borderColor: "#f59e0b", background: dark ? "#78350f22" : "#fef3c7" }}
+                              className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-ring scale-105" : ""}`}
+                              style={{ borderColor: "#f59e0b", background: "var(--status-warning-bg)" }}
                             >
                               <div className="text-base">📡</div>
-                              <div className="text-[10px] font-bold" style={{ color: dark ? "#fcd34d" : "#92400e" }}>
+                              <div className="text-[10px] font-bold" style={{ color: "var(--status-warning-fg)" }}>
                                 {p.deviceLabel || `AP Port ${p.num}`}
                               </div>
-                              <div className="text-[9px]" style={{ color: dark ? "#a3a3a3" : "#78716c" }}>
+                              <div className="text-[9px]" style={{ color: "var(--muted-foreground)" }}>
                                 Trunk P{p.num} · {p.trunkAllowed?.filter(v => v !== p.trunkNative).map(v => `VLAN${v}`).join("+")}
                               </div>
                             </div>
@@ -651,14 +651,14 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                               <div className="w-px h-3" style={{ background: vd.color }} />
                               <div
                                 onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
-                                className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-105" : ""}`}
+                                className={`rounded-xl border-2 px-3 py-1.5 text-center cursor-pointer transition-all hover:scale-105 ${selectedPort === p.num ? "ring-2 ring-ring scale-105" : ""}`}
                                 style={{ borderColor: vd.color, background: dark ? vd.bgD : vd.bg }}
                               >
                                 <div className="text-base">🖥</div>
                                 <div className="text-[10px] font-bold" style={{ color: dark ? vd.textD : vd.text }}>
                                   {p.deviceLabel || `Server Port ${p.num}`}
                                 </div>
-                                <div className="text-[9px]" style={{ color: dark ? "#a3a3a3" : "#78716c" }}>
+                                <div className="text-[9px]" style={{ color: "var(--muted-foreground)" }}>
                                   Access P{p.num} · VLAN {p.accessVlan}
                                 </div>
                               </div>
@@ -671,7 +671,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                     {/* PCs */}
                     {pcPorts.length > 0 && (
                       <div>
-                        <div className={`text-[9px] font-semibold mb-1 ${dark ? "text-slate-500" : "text-slate-400"}`}>Clients ({pcPorts.length} Geräte)</div>
+                        <div className="text-[9px] font-semibold mb-1 text-muted-foreground">Clients ({pcPorts.length} Geräte)</div>
                         <div className="flex flex-wrap gap-1">
                           {pcPorts.map(p => {
                             const vd = vlanDef(p.accessVlan);
@@ -680,12 +680,12 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                                 key={p.num}
                                 onClick={() => setSelectedPort(selectedPort === p.num ? null : p.num)}
                                 title={`${p.deviceLabel || "PC"} — Port ${p.num} — VLAN ${p.accessVlan}`}
-                                className={`rounded-lg border px-1.5 py-1 text-center cursor-pointer transition-all hover:scale-110 ${selectedPort === p.num ? "ring-2 ring-indigo-400 scale-110" : ""}`}
+                                className={`rounded-lg border px-1.5 py-1 text-center cursor-pointer transition-all hover:scale-110 ${selectedPort === p.num ? "ring-2 ring-ring scale-110" : ""}`}
                                 style={{ borderColor: vd.color, background: dark ? vd.bgD : vd.bg }}
                               >
                                 <div className="text-sm">💻</div>
                                 <div className="text-[8px] font-semibold" style={{ color: dark ? vd.textD : vd.text }}>P{p.num}</div>
-                                <div className="text-[7px]" style={{ color: dark ? "#94a3b8" : "#64748b" }}>V{p.accessVlan}</div>
+                                <div className="text-[7px]" style={{ color: "var(--muted-foreground)" }}>V{p.accessVlan}</div>
                               </div>
                             );
                           })}
@@ -710,8 +710,8 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               <div key={row} className="flex gap-1 flex-wrap">
                 {ports.slice(row * 12, row * 12 + 12).map(p => {
                   const vc = p.mode === "access" ? vlanDef(p.accessVlan) : null;
-                  const portBg = p.mode === "unassigned" ? dark ? "#374151" : "#e2e8f0" : p.mode === "trunk" ? dark ? "#1e3a8a55" : "#dbeafe" : dark ? vc!.bgD : vc!.bg;
-                  const portBorder = p.mode === "unassigned" ? dark ? "#4b5563" : "#cbd5e1" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
+                  const portBg = p.mode === "unassigned" ? "var(--muted)" : p.mode === "trunk" ? "color-mix(in srgb, var(--accent-primary) 18%, transparent)" : dark ? vc!.bgD : vc!.bg;
+                  const portBorder = p.mode === "unassigned" ? "color-mix(in srgb, var(--muted-foreground) 45%, transparent)" : p.mode === "trunk" ? "#3b82f6" : vc!.color;
                   const isSelected = selectedPort === p.num;
                   const dm = DEVICE_META[p.connectedTo];
                   return (
@@ -720,9 +720,9 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                       onClick={() => setSelectedPort(isSelected ? null : p.num)}
                       title={`Port ${p.num}${p.deviceLabel ? ` — ${p.deviceLabel}` : ""}`}
                       style={{ background: portBg, borderColor: portBorder }}
-                      className={`relative w-7 h-9 rounded border-2 flex flex-col items-center justify-center gap-0.5 transition-all hover:scale-110 ${isSelected ? "ring-2 ring-indigo-400 scale-110" : ""}`}
+                      className={`relative w-7 h-9 rounded border-2 flex flex-col items-center justify-center gap-0.5 transition-all hover:scale-110 ${isSelected ? "ring-2 ring-ring scale-110" : ""}`}
                     >
-                      <span className="text-[8px] font-bold leading-none" style={{ color: dark ? "#94a3b8" : "#475569" }}>{p.num}</span>
+                      <span className="text-[8px] font-bold leading-none" style={{ color: "var(--muted-foreground)" }}>{p.num}</span>
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: p.mode === "unassigned" ? "#4b5563" : p.mode === "trunk" ? "#f59e0b" : vc!.color }} />
                       {p.connectedTo !== "none" && (
                         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border text-[6px] flex items-center justify-center font-bold" style={{ borderColor: portBorder, color: portBorder }}>
@@ -737,9 +737,9 @@ function TopologySimulator({ dark }: { dark: boolean }) {
           </div>
           <div className="flex gap-3 mt-2 text-[10px] flex-wrap">
             {Object.entries(DEVICE_META).filter(([k]) => k !== "none").map(([k, v]) => (
-              <span key={k} style={{ color: dark ? "#94a3b8" : "#64748b" }}>{v.badge}={v.label.split(" ")[0]}</span>
+              <span key={k} style={{ color: "var(--muted-foreground)" }}>{v.badge}={v.label.split(" ")[0]}</span>
             ))}
-            <span className={dark ? "text-slate-500" : "text-slate-400"}>· LED: <span style={{ color: "#4b5563" }}>grau</span>=frei, <span style={{ color: "#f59e0b" }}>gelb</span>=Trunk, Farbe=VLAN</span>
+            <span className={"text-muted-foreground"}>· LED: <span style={{ color: "#4b5563" }}>grau</span>=frei, <span style={{ color: "#f59e0b" }}>gelb</span>=Trunk, Farbe=VLAN</span>
           </div>
         </div>
       )}
@@ -747,7 +747,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       {/* Router subinterface panel */}
       <div className={`rounded-xl border p-3 ${sb}`}>
         <div className={`text-xs font-bold mb-1 ${tb}`}>🔀 Cisco ISR — Router-on-a-Stick Subinterfaces</div>
-        <div className={`text-[10px] mb-2 ${dark ? "text-slate-400" : "text-slate-500"}`}>Klicken zum Aktivieren/Deaktivieren — aktive Subinterfaces ermöglichen Inter-VLAN-Routing</div>
+        <div className="text-[10px] mb-2 text-muted-foreground">Klicken zum Aktivieren/Deaktivieren — aktive Subinterfaces ermöglichen Inter-VLAN-Routing</div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
           {router.map(r => {
             const vd = vlanDef(r.vlan);
@@ -755,15 +755,15 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               <button
                 key={r.id}
                 onClick={() => toggleRouterIntf(r.id)}
-                style={{ borderColor: r.active ? vd.color : dark ? "#374151" : "#e2e8f0", background: r.active ? (dark ? vd.bgD : vd.bg) : "transparent" }}
+                style={{ borderColor: r.active ? vd.color : "var(--muted)", background: r.active ? (dark ? vd.bgD : vd.bg) : "transparent" }}
                 className="text-left rounded-lg border p-2 transition-all hover:scale-105"
               >
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: r.active ? vd.color : dark ? "#4b5563" : "#cbd5e1" }} />
-                  <span className="text-[10px] font-mono font-semibold" style={{ color: r.active ? (dark ? vd.textD : vd.text) : dark ? "#94a3b8" : "#64748b" }}>{r.id}</span>
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: r.active ? vd.color : "color-mix(in srgb, var(--muted-foreground) 45%, transparent)" }} />
+                  <span className="text-[10px] font-mono font-semibold" style={{ color: r.active ? (dark ? vd.textD : vd.text) : "var(--muted-foreground)" }}>{r.id}</span>
                 </div>
-                <div className="text-[9px] mt-0.5 ml-3.5" style={{ color: dark ? "#64748b" : "#94a3b8" }}>{r.ip}</div>
-                <div className="text-[9px] ml-3.5" style={{ color: r.active ? vd.color : "#ef4444" }}>{r.active ? "✓ aktiv" : "✗ inaktiv"}</div>
+                <div className="text-[9px] mt-0.5 ml-3.5" style={{ color: "var(--muted-foreground)" }}>{r.ip}</div>
+                <div className="text-[9px] ml-3.5" style={{ color: r.active ? "var(--status-success-fg)" : "var(--status-error-fg)" }}>{r.active ? "✓ aktiv" : "✗ inaktiv"}</div>
               </button>
             );
           })}
@@ -774,19 +774,19 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       {selPort && (() => {
         const te = taggingExplain(selPort);
         return (
-          <div className={`rounded-xl border p-4 space-y-3 ${dark ? "bg-slate-800/80 border-indigo-500/40" : "bg-indigo-50/60 border-indigo-200"}`}>
-            <div className={`font-semibold text-sm ${dark ? "text-white" : "text-slate-900"}`}>
+          <div className={`rounded-xl border p-4 space-y-3 bg-card border-accent-primary/40`}>
+            <div className="font-semibold text-sm text-foreground">
               Port {selPort.num} konfigurieren
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {/* Connected to */}
               <div>
-                <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Gerät angeschlossen</label>
+                <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Gerät angeschlossen</label>
                 <select
                   value={selPort.connectedTo}
                   onChange={e => updatePort(selPort.num, { connectedTo: e.target.value as DeviceType })}
-                  className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
+                  className="w-full text-xs rounded-lg border px-2 py-1 bg-muted border-border text-muted-foreground"
                 >
                   {Object.entries(DEVICE_META).map(([k, v]) => (
                     <option key={k} value={k}>{v.icon} {v.label}</option>
@@ -796,23 +796,23 @@ function TopologySimulator({ dark }: { dark: boolean }) {
 
               {/* Label */}
               <div>
-                <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Beschriftung</label>
+                <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Beschriftung</label>
                 <input
                   type="text"
                   value={selPort.deviceLabel}
                   placeholder={selPort.connectedTo === "pc" ? "z.B. PC-Buchhaltung" : selPort.connectedTo === "router" ? "Router Gi0/0" : ""}
                   onChange={e => updatePort(selPort.num, { deviceLabel: e.target.value })}
-                  className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
+                  className="w-full text-xs rounded-lg border px-2 py-1 bg-muted border-border text-muted-foreground"
                 />
               </div>
 
               {/* Port mode */}
               <div>
-                <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Port-Modus</label>
+                <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Port-Modus</label>
                 <select
                   value={selPort.mode}
                   onChange={e => updatePort(selPort.num, { mode: e.target.value as PortMode })}
-                  className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
+                  className="w-full text-xs rounded-lg border px-2 py-1 bg-muted border-border text-muted-foreground"
                 >
                   <option value="unassigned">— nicht konfiguriert —</option>
                   <option value="access">Access (ungetaggt)</option>
@@ -822,11 +822,11 @@ function TopologySimulator({ dark }: { dark: boolean }) {
 
               {selPort.mode === "access" && (
                 <div>
-                  <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Access VLAN</label>
+                  <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Access VLAN</label>
                   <select
                     value={selPort.accessVlan}
                     onChange={e => updatePort(selPort.num, { accessVlan: Number(e.target.value) })}
-                    className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
+                    className="w-full text-xs rounded-lg border px-2 py-1 bg-muted border-border text-muted-foreground"
                   >
                     {VLAN_DEFS.map(v => <option key={v.id} value={v.id}>VLAN {v.id} — {v.name}</option>)}
                   </select>
@@ -836,7 +836,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               {selPort.mode === "trunk" && (
                 <>
                   <div>
-                    <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Erlaubte VLANs</label>
+                    <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Erlaubte VLANs</label>
                     <div className="flex flex-wrap gap-1">
                       {VLAN_DEFS.map(v => (
                         <button
@@ -855,11 +855,11 @@ function TopologySimulator({ dark }: { dark: boolean }) {
                     </div>
                   </div>
                   <div>
-                    <label className={`text-[10px] font-semibold block mb-1 ${dark ? "text-slate-400" : "text-slate-600"}`}>Native VLAN</label>
+                    <label className="text-[10px] font-semibold block mb-1 text-muted-foreground">Native VLAN</label>
                     <select
                       value={selPort.trunkNative}
                       onChange={e => updatePort(selPort.num, { trunkNative: Number(e.target.value) })}
-                      className={`w-full text-xs rounded-lg border px-2 py-1 ${dark ? "bg-slate-700 border-slate-600 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
+                      className="w-full text-xs rounded-lg border px-2 py-1 bg-muted border-border text-muted-foreground"
                     >
                       {VLAN_DEFS.map(v => <option key={v.id} value={v.id}>VLAN {v.id}</option>)}
                       <option value={999}>VLAN 999 (empfohlen: leer)</option>
@@ -877,7 +877,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               <div className="font-semibold mb-1" style={{ color: te.color }}>
                 {te.tag ? "🏷 Frames werden getaggt (802.1Q)" : "🔓 Frames werden NICHT getaggt (untagged)"}
               </div>
-              <div className={dark ? "text-slate-300" : "text-slate-600"}>{te.why}</div>
+              <div className={"text-muted-foreground"}>{te.why}</div>
               {selPort.mode === "trunk" && (
                 <div className="mt-2 font-mono text-[10px] space-y-0.5" style={{ color: te.color }}>
                   {selPort.trunkAllowed.map(vid => (
@@ -890,8 +890,8 @@ function TopologySimulator({ dark }: { dark: boolean }) {
             </div>
 
             {/* Auto-detected IOS commands */}
-            <div className={`rounded-lg p-2 font-mono text-[10px] ${dark ? "bg-slate-900 border border-slate-700 text-slate-300" : "bg-slate-100 border border-slate-200 text-slate-700"}`}>
-              <div className="text-slate-500 mb-1">Cisco IOS — automatisch generiert:</div>
+            <div className="rounded-lg p-2 font-mono text-[10px] bg-muted border border-border text-muted-foreground">
+              <div className="text-terminal-muted mb-1">Cisco IOS — automatisch generiert:</div>
               <div>interface GigabitEthernet0/{selPort.num}</div>
               {selPort.deviceLabel && <div> description {selPort.deviceLabel}</div>}
               {selPort.mode === "access" && (
@@ -906,10 +906,10 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       })()}
 
       {/* Validation panel */}
-      <div className={`rounded-xl border p-3 space-y-2 ${dark ? "bg-slate-800/60 border-slate-700" : "bg-white border-slate-200 shadow-sm"}`}>
-        <div className={`text-xs font-bold flex items-center gap-2 ${dark ? "text-white" : "text-slate-900"}`}>
+      <div className={`rounded-xl border p-3 space-y-2 bg-card/60 border-border shadow-sm`}>
+        <div className="text-xs font-bold flex items-center gap-2 text-foreground">
           🔍 Automatische Verbindungsprüfung
-          <span className={`text-[10px] font-normal px-1.5 py-0.5 rounded-full ${errors.length > 0 ? "bg-red-500/20 text-red-400" : warnings.length > 0 ? "bg-amber-500/20 text-amber-400" : "bg-green-500/20 text-green-400"}`}>
+          <span className={`text-[10px] font-normal px-1.5 py-0.5 rounded-full ${errors.length > 0 ? "bg-status-error-bg text-status-error-fg" : warnings.length > 0 ? "bg-status-warning-bg text-status-warning-fg" : "bg-status-success-bg text-status-success-fg"}`}>
             {errors.length} Fehler · {warnings.length} Warnungen · {infos.length} Info
           </span>
         </div>
@@ -919,10 +919,10 @@ function TopologySimulator({ dark }: { dark: boolean }) {
               key={i}
               className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-[11px] ${
                 issue.level === "error"
-                  ? dark ? "bg-red-900/30 text-red-300" : "bg-red-50 text-red-700"
+                  ? "bg-status-error-bg text-status-error-fg"
                   : issue.level === "warn"
-                    ? dark ? "bg-amber-900/30 text-amber-300" : "bg-amber-50 text-amber-800"
-                    : dark ? "bg-slate-700/60 text-slate-300" : "bg-slate-50 text-slate-600"
+                    ? "bg-status-warning-bg text-status-warning-fg"
+                    : "bg-muted/60 text-muted-foreground"
               }`}
             >
               <span className="flex-shrink-0 mt-0.5">
@@ -938,20 +938,20 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       <div className="flex gap-2">
         <button
           onClick={() => setShowConfig(showConfig === "switch" ? null : "switch")}
-          className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${showConfig === "switch" ? "bg-indigo-600 text-white border-indigo-600" : dark ? "border-slate-600 text-slate-300 hover:bg-slate-700" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+          className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${showConfig === "switch" ? "bg-accent-solid text-on-accent-solid border-accent-primary" : "border-border text-muted-foreground hover:bg-muted"}`}
         >
           📋 Switch-Config
         </button>
         <button
           onClick={() => setShowConfig(showConfig === "router" ? null : "router")}
-          className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${showConfig === "router" ? "bg-indigo-600 text-white border-indigo-600" : dark ? "border-slate-600 text-slate-300 hover:bg-slate-700" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+          className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${showConfig === "router" ? "bg-accent-solid text-on-accent-solid border-accent-primary" : "border-border text-muted-foreground hover:bg-muted"}`}
         >
           📋 Router-Config
         </button>
       </div>
 
       {showConfig && (
-        <pre className={`text-[10px] rounded-xl p-3 font-mono overflow-x-auto ${dark ? "bg-slate-900 border border-slate-700 text-slate-300" : "bg-slate-100 border border-slate-200 text-slate-700"}`}>
+        <pre className="text-[10px] rounded-xl p-3 font-mono overflow-x-auto bg-muted border border-border text-muted-foreground">
           {showConfig === "switch"
             ? generateSwitchConfig(ports)
             : generateRouterConfig(router, trunkToRouterPort?.num ?? null)}
@@ -977,7 +977,7 @@ interface TrunkFrame {
   x: number;
 }
 
-function TrunkAnimation({ dark }: { dark: boolean }) {
+function TrunkAnimation() {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [frames, setFrames] = useState<TrunkFrame[]>([]);
@@ -1030,7 +1030,7 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
 
   return (
     <div className="space-y-4">
-      <p className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
+      <p className="text-xs text-muted-foreground">
         Jede Farbe = ein VLAN. Alle Frames teilen sich denselben physischen Trunk-Link — durch 802.1Q-Tags bleibt die Zugehörigkeit erhalten.
       </p>
 
@@ -1041,9 +1041,10 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
             key={v.id}
             onClick={() => toggleVlan(v.id)}
             className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-semibold border transition-all ${
-              visibleVlans.has(v.id) ? "opacity-100" : "opacity-40"
+              visibleVlans.has(v.id) ? "text-foreground" : "text-muted-foreground border-dashed"
             }`}
-            style={{ borderColor: v.color, color: v.color }}
+            aria-pressed={visibleVlans.has(v.id)}
+            style={{ borderColor: v.color }}
           >
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: v.color }} />
             VLAN {v.id}
@@ -1052,11 +1053,11 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
       </div>
 
       {/* Animation canvas */}
-      <div className={`relative rounded-xl overflow-hidden ${dark ? "bg-slate-900 border border-slate-700" : "bg-slate-100 border border-slate-200"}`} style={{ height: 100 }}>
+      <div className="relative rounded-xl overflow-hidden bg-muted border border-border" style={{ height: 100 }}>
         {/* Trunk line */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-2 bg-gradient-to-r from-slate-500 to-slate-400 opacity-40" />
-        <div className={`absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold ${dark ? "text-slate-400" : "text-slate-500"}`}>SW1</div>
-        <div className={`absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold ${dark ? "text-slate-400" : "text-slate-500"}`}>SW2</div>
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-2 bg-muted-foreground/30" />
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">SW1</div>
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">SW2</div>
 
         {/* Frames */}
         {frames.map((f) => {
@@ -1080,26 +1081,26 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
           onClick={() => setRunning(!running)}
           className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
             running
-              ? dark ? "bg-red-900/40 text-red-300 hover:bg-red-800/40" : "bg-red-100 text-red-700 hover:bg-red-200"
-              : "bg-indigo-600 text-white hover:bg-indigo-500"
+              ? "bg-status-error-bg text-status-error-fg hover:bg-status-error-border/20"
+              : "bg-accent-solid text-on-accent-solid hover:opacity-90"
           }`}
         >
           {running ? "⏹ Stop" : "▶ Start"}
         </button>
         <button
           onClick={() => setFrames([])}
-          className={`px-3 py-1.5 rounded-lg text-xs ${dark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+          className="px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-muted-foreground"
         >
           Leeren
         </button>
         <div className="flex items-center gap-2 ml-auto">
-          <span className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>Geschwindigkeit:</span>
+          <span className="text-xs text-muted-foreground">Geschwindigkeit:</span>
           <input
             type="range" min={0.5} max={4} step={0.5} value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
             className="w-20"
           />
-          <span className={`text-xs font-mono ${dark ? "text-slate-300" : "text-slate-700"}`}>{speed}×</span>
+          <span className="text-xs font-mono text-muted-foreground">{speed}×</span>
         </div>
       </div>
 
@@ -1108,8 +1109,8 @@ function TrunkAnimation({ dark }: { dark: boolean }) {
         {TRUNK_VLANS.map((v) => (
           <div key={v.id} className="flex items-center gap-2 text-xs">
             <span className="w-3 h-3 rounded flex-shrink-0" style={{ background: v.color }} />
-            <span className={dark ? "text-slate-300" : "text-slate-700"}>{v.label}</span>
-            <code className={`text-[10px] font-mono ${dark ? "text-slate-500" : "text-slate-400"}`}>Tag: 0x8100 + VID={v.id}</code>
+            <span className={"text-muted-foreground"}>{v.label}</span>
+            <code className="text-[10px] font-mono text-muted-foreground">Tag: 0x8100 + VID={v.id}</code>
           </div>
         ))}
       </div>
@@ -1182,17 +1183,17 @@ const NODE_LABELS: Record<WalkLocation, string> = {
   "pc-b": "PC-B\n(VLAN 10)",
 };
 
-function PacketWalkSimulator({ dark }: { dark: boolean }) {
+function PacketWalkSimulator() {
   const [step, setStep] = useState(0);
   const current = WALK_STEPS[step];
   const nodes: WalkLocation[] = ["pc-a", "sw1", "trunk", "sw2", "pc-b"];
 
   const nodeColor = (loc: WalkLocation) => {
-    if (current.location === loc) return "#6366f1";
-    return dark ? "#334155" : "#e2e8f0";
+    if (current.location === loc) return "var(--accent-solid)";
+    return "var(--muted)";
   };
   const textColor = (loc: WalkLocation) =>
-    current.location === loc ? "#fff" : dark ? "#94a3b8" : "#475569";
+    current.location === loc ? "var(--on-accent-solid)" : "var(--muted-foreground)";
 
   return (
     <div className="space-y-5">
@@ -1221,10 +1222,8 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
                   <div
                     className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${
                       current.hasTag
-                        ? "border-amber-400 text-amber-600 bg-amber-50"
-                        : dark
-                        ? "border-slate-500 text-slate-400 bg-slate-800"
-                        : "border-slate-300 text-slate-500 bg-white"
+                        ? "border-status-warning-border text-status-warning-fg bg-status-warning-bg"
+                        : "border-border text-muted-foreground bg-muted"
                     }`}
                   >
                     {current.hasTag ? `Tag VID=${current.tagVid}` : "kein Tag"}
@@ -1234,9 +1233,7 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
               {i < nodes.length - 1 && (
                 <div
                   key={`arrow-${i}`}
-                  className={`flex-1 h-0.5 ${
-                    dark ? "bg-slate-600" : "bg-slate-300"
-                  }`}
+                  className="flex-1 h-0.5 bg-muted-foreground/40"
                 />
               )}
             </>
@@ -1252,10 +1249,8 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
             onClick={() => setStep(i)}
             className={`w-2 h-2 rounded-full transition-all ${
               i === step
-                ? "w-5 bg-indigo-500"
-                : dark
-                ? "bg-slate-600 hover:bg-slate-500"
-                : "bg-slate-300 hover:bg-slate-400"
+                ? "w-5 bg-accent-solid"
+                : "bg-muted-foreground/40 hover:bg-muted-foreground/60"
             }`}
           />
         ))}
@@ -1263,29 +1258,21 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
 
       {/* Step content */}
       <div
-        className={`rounded-xl border p-4 space-y-2 ${
-          dark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-slate-50"
-        }`}
+        className="rounded-xl border p-4 space-y-2 border-border bg-muted"
       >
         <div className="flex items-center gap-2">
           <span
-            className={`text-xs font-mono px-2 py-0.5 rounded-full ${
-              dark ? "bg-indigo-900 text-indigo-300" : "bg-indigo-100 text-indigo-700"
-            }`}
+            className="text-xs font-mono px-2 py-0.5 rounded-full bg-accent-primary/10 text-accent-primary-fg"
           >
             Schritt {step + 1} / {WALK_STEPS.length}
           </span>
           <span
-            className={`text-sm font-semibold ${
-              dark ? "text-slate-100" : "text-slate-800"
-            }`}
+            className="text-sm font-semibold text-foreground"
           >
             {current.title}
           </span>
         </div>
-        <p className={`text-xs leading-relaxed ${
-          dark ? "text-slate-300" : "text-slate-600"
-        }`}>
+        <p className="text-xs leading-relaxed text-muted-foreground">
           {current.description}
         </p>
 
@@ -1293,18 +1280,14 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
         <div
           className={`mt-2 rounded-lg p-3 font-mono text-xs border ${
             current.hasTag
-              ? dark
-                ? "border-amber-700 bg-amber-900/30 text-amber-300"
-                : "border-amber-300 bg-amber-50 text-amber-800"
-              : dark
-              ? "border-slate-600 bg-slate-700/50 text-slate-400"
-              : "border-slate-200 bg-white text-slate-500"
+              ? "border-status-warning-border bg-status-warning-bg text-status-warning-fg"
+              : "border-border bg-muted/50 text-muted-foreground"
           }`}
         >
           {current.hasTag ? (
             <span>
               [ Ziel-MAC | Quell-MAC |{" "}
-              <span className={dark ? "text-amber-300" : "text-amber-700"}>
+              <span className={"text-status-warning-fg"}>
                 0x8100 VID={current.tagVid}
               </span>{" "}
               | Ethertype | Daten | FCS ]
@@ -1322,12 +1305,8 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
           onClick={() => setStep(step - 1)}
           className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
             step === 0
-              ? dark
-                ? "bg-slate-800 text-slate-600 cursor-not-allowed"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
-              : dark
-              ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
-              : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-muted text-foreground hover:bg-muted/70"
           }`}
         >
           ← Zurück
@@ -1337,10 +1316,8 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
           onClick={() => setStep(step + 1)}
           className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
             step === WALK_STEPS.length - 1
-              ? dark
-                ? "bg-slate-800 text-slate-600 cursor-not-allowed"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
-              : "bg-indigo-600 text-white hover:bg-indigo-700"
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-accent-solid text-on-accent-solid hover:opacity-90"
           }`}
         >
           Weiter →
@@ -1349,9 +1326,7 @@ function PacketWalkSimulator({ dark }: { dark: boolean }) {
 
       {step === WALK_STEPS.length - 1 && (
         <div
-          className={`text-center text-xs py-2 px-4 rounded-lg ${
-            dark ? "bg-green-900/30 text-green-300" : "bg-green-50 text-green-700"
-          }`}
+          className="text-center text-xs py-2 px-4 rounded-lg bg-status-success-bg text-status-success-fg"
         >
           ✓ Packet-Walk abgeschlossen — Frame erfolgreich zugestellt!
         </div>
@@ -1382,37 +1357,35 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
         style={{ background: "rgba(0,0,0,0.6)" }}
       >
         <div
-          className={`relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${
-            dark ? "bg-slate-900 text-white" : "bg-white text-slate-900"
-          }`}
+          className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden bg-card text-foreground"
         >
           {/* Header */}
-          <div className={`flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+          <div className="flex items-center gap-3 px-5 py-4 border-b flex-shrink-0 border-border">
             <div className="flex-1">
               <h2 className="font-bold text-base">🌐 VLAN-Simulator</h2>
-              <p className={`text-xs mt-0.5 ${dark ? "text-slate-400" : "text-slate-500"}`}>
+              <p className="text-xs mt-0.5 text-muted-foreground">
                 802.1Q Frame-Vivisektor · Switch-Simulator · Trunk-Animation · Packet-Walk
               </p>
             </div>
             <button
               onClick={onClose}
               aria-label="Schließen"
-              className={`p-1.5 rounded-lg ${dark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"}`}
+              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
             >
               <X size={18} />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className={`flex border-b flex-shrink-0 ${dark ? "border-slate-700" : "border-slate-200"}`}>
+          <div className="flex border-b flex-shrink-0 border-border">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
                   tab === t.id
-                    ? dark ? "border-indigo-400 text-indigo-300" : "border-indigo-600 text-indigo-700"
-                    : dark ? "border-transparent text-slate-400 hover:text-slate-200" : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-accent-primary text-accent-primary-fg"
+                    : "border-transparent text-muted-foreground hover:text-muted-foreground"
                 }`}
               >
                 {t.label}
@@ -1422,10 +1395,10 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "frame"       && <FrameVivisektor dark={dark} />}
+            {tab === "frame"       && <FrameVivisektor />}
             {tab === "topology"    && <TopologySimulator dark={dark} />}
-            {tab === "trunk"       && <TrunkAnimation dark={dark} />}
-            {tab === "packet-walk" && <PacketWalkSimulator dark={dark} />}
+            {tab === "trunk"       && <TrunkAnimation />}
+            {tab === "packet-walk" && <PacketWalkSimulator />}
           </div>
         </div>
       </div>

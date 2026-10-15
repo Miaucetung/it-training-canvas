@@ -1,28 +1,13 @@
 import { describe, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import { ALLOWED_ALWAYS_DARK, COLOR, HEX_ARBITRARY, walkSources } from "../../src/__tests__/helpers/hardcoded-colors";
 
 // Analyse (nur lesend): fest eingetragene Tailwind-Farbklassen für Text und Flächen außerhalb der Design-Tokens.
 // Aufruf: npx vitest run -c scripts/audit/vitest.audit.config.ts scripts/audit/hardcoded-colors.audit.ts --disableConsoleIntercept
 // Ausgabe: docs/a11y/HARDCODED-FARBKLASSEN.md (Datei, Zeile, Klassen) und .local/hardcoded-colors.json
 
-const PALETTE = "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
-// Text und Flächen (inkl. Verläufe); Varianten wie dark:, hover:, md: werden mitgezählt, der Präfix wird gemerkt
-const COLOR = new RegExp(`(?<![\\w-])((?:[a-z0-9\\-\\[\\]\\/&>:_]+:)*)(text|bg|from|via|to)-((?:${PALETTE})-\\d{2,3}|white|black)(?:\\/\\d{1,3})?(?![\\w-])`, "g");
-const HEX_ARBITRARY = /(?<![\w-])((?:[a-z0-9\-[\]/&>:_]+:)*)(text|bg)-\[#[0-9a-fA-F]{3,8}\]/g;
-
 const root = path.resolve("src");
-const SKIP_DIRS = new Set(["__tests__", "node_modules"]);
-
-function walk(dir: string, out: string[] = []): string[] {
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (SKIP_DIRS.has(e.name)) continue;
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) walk(p, out);
-    else if (/\.(tsx|ts|css)$/.test(e.name)) out.push(p);
-  }
-  return out;
-}
 
 interface Hit {
   line: number;
@@ -34,8 +19,9 @@ describe("Analyse: fest eingetragene Farbklassen", () => {
     const files: Array<{ file: string; area: string; hits: Hit[]; count: number }> = [];
     const byUtility = new Map<string, number>();
     const byHue = new Map<string, number>();
-    for (const f of walk(root)) {
+    for (const f of walkSources(root)) {
       const rel = path.relative(process.cwd(), f).replace(/\\/g, "/");
+      if (rel in ALLOWED_ALWAYS_DARK) continue;
       const lines = fs.readFileSync(f, "utf8").split(/\r?\n/);
       const hits: Hit[] = [];
       let count = 0;
@@ -72,6 +58,7 @@ describe("Analyse: fest eingetragene Farbklassen", () => {
     md.push("## Erfassung", "");
     md.push("- Gesucht werden Klassen `text-*`, `bg-*`, `from-*`, `via-*`, `to-*` mit Farbpalette und Stufe (`text-zinc-500`, `bg-sky-500/10`, `dark:text-gray-300`, `hover:bg-purple-600` …) sowie `text-white`, `bg-black` usw. und beliebige Hex-Werte (`bg-[#0f172a]`). Varianten (`dark:`, `hover:`, `md:` …) zählen mit.");
     md.push("- Nicht gesucht werden Token-Klassen (`text-muted-foreground`, `bg-card`, `text-accent-primary-fg`, `bg-status-*` …) und `border-*`/`ring-*`/`fill-*`/`stroke-*`.");
+    md.push("- Ausgenommen sind die in `ALLOWED_ALWAYS_DARK` benannten, bewusst immer dunklen Dateien (Lab-Dialog, CLI-Exhibit, Terminal-Emulator). Die Sperrklinke (`src/__tests__/build/hardcoded-colors-ratchet.test.ts`) hält je Datei die Obergrenze aus `src/__tests__/fixtures/hardcoded-colors-baseline.json`.");
     md.push("- Durchsucht werden alle `.tsx`/`.ts`/`.css` unter `src/` außer `__tests__`. Ein Treffer ist keine Fehlerliste: manche Stellen sind gewollt (Terminal-Blöcke bewusst dunkel, Statusfarben wie `text-green-500`); entschieden wird danach.", "");
     md.push("## Zusammenfassung", "");
     md.push(`${total} Klassen in ${files.length} Dateien; davon Canvas-Code (\`src/components/canvas-v2/\`, \`src/lib/topology/\`): ${canvas.reduce((a, f) => a + f.count, 0)} in ${canvas.length} Dateien (nur aufgelistet, Gemini arbeitet dort), übrige App: ${rest.reduce((a, f) => a + f.count, 0)} in ${rest.length} Dateien.`, "");
