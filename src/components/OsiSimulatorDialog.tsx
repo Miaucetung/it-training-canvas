@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
-  dark: boolean;
+  dark?: boolean;
   onClose: () => void;
 }
 
@@ -59,7 +59,7 @@ const LAYERS: LayerDef[] = [
     name: "Application",
     shortName: "App",
     pdu: "Data",
-    color: "#a855f7",
+    color: "var(--osi-layer-7)",
     protocols: ["HTTP/HTTPS", "DNS", "FTP", "SMTP", "SSH", "DHCP"],
     devices: ["Browser", "Mail-Client", "Webserver"],
     logicalRole:
@@ -99,7 +99,7 @@ const LAYERS: LayerDef[] = [
     name: "Presentation",
     shortName: "Pres",
     pdu: "Data",
-    color: "#ec4899",
+    color: "var(--osi-layer-6)",
     protocols: ["TLS/SSL", "ASCII", "UTF-8", "JPEG", "Gzip"],
     devices: ["Betriebssystem", "TLS-Bibliothek (OpenSSL)"],
     logicalRole:
@@ -137,7 +137,7 @@ const LAYERS: LayerDef[] = [
     name: "Session",
     shortName: "Sess",
     pdu: "Data",
-    color: "#f43f5e",
+    color: "var(--osi-layer-5)",
     protocols: ["NetBIOS", "RPC", "PPTP", "SOCKS"],
     devices: ["Betriebssystem"],
     logicalRole:
@@ -162,7 +162,7 @@ const LAYERS: LayerDef[] = [
     name: "Transport",
     shortName: "TCP",
     pdu: "Segment",
-    color: "#10b981",
+    color: "var(--osi-layer-4)",
     protocols: ["TCP", "UDP", "QUIC"],
     devices: ["Betriebssystem-Kernel"],
     logicalRole:
@@ -226,7 +226,7 @@ const LAYERS: LayerDef[] = [
     name: "Network",
     shortName: "IP",
     pdu: "Packet",
-    color: "#3b82f6",
+    color: "var(--osi-layer-3)",
     protocols: ["IPv4", "IPv6", "ICMP", "OSPF", "EIGRP"],
     devices: ["Router", "L3-Switch", "Firewall"],
     logicalRole:
@@ -284,7 +284,7 @@ const LAYERS: LayerDef[] = [
     name: "Data Link",
     shortName: "Eth",
     pdu: "Frame",
-    color: "#f59e0b",
+    color: "var(--osi-layer-2)",
     protocols: ["Ethernet", "802.11 WLAN", "PPP", "HDLC"],
     devices: ["Switch", "Bridge", "Wireless AP", "NIC"],
     logicalRole:
@@ -343,7 +343,7 @@ const LAYERS: LayerDef[] = [
     name: "Physical",
     shortName: "PHY",
     pdu: "Bit",
-    color: "#64748b",
+    color: "var(--osi-layer-1)",
     protocols: ["10/100/1000BASE-T", "1000BASE-SX", "802.11 PHY", "DOCSIS"],
     devices: ["Kabel (Cat6a, OM4)", "Hub", "Repeater", "Transceiver (SFP+)"],
     logicalRole:
@@ -390,7 +390,7 @@ function cumulativeBytes(uptoLayerIdx: number): number {
 }
 
 // ── Component ───────────────────────────────────────────────
-export function OsiSimulatorDialog({ dark, onClose }: Props) {
+export function OsiSimulatorDialog({ onClose }: Props) {
   const [direction, setDirection] = useState<Direction>("send");
   const [step, setStep] = useState(0); // 0..6
   const [running, setRunning] = useState(false);
@@ -467,26 +467,16 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
         onClick={onClose}
       >
         <div
-          className={`relative w-full max-w-[1200px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-            dark
-              ? "bg-slate-900 border-slate-700 text-slate-100"
-              : "bg-white border-slate-200 text-slate-900"
-          }`}
+          className="relative w-full max-w-[1200px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl bg-card border-border text-foreground"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div
-            className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-            }`}
+            className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b bg-card border-border"
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-                  dark
-                    ? "bg-purple-500/20 text-purple-300"
-                    : "bg-purple-100 text-purple-700"
-                }`}
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-status-trunk-bg text-status-trunk-fg"
               >
                 📦
               </div>
@@ -494,7 +484,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                 <h2 className="text-lg font-semibold">
                   OSI Encapsulation Simulator
                 </h2>
-                <p className="text-xs opacity-70">
+                <p className="text-xs text-muted-foreground">
                   Beispiel: Browser ruft <code>http://example.com/index.html</code> ab
                 </p>
               </div>
@@ -502,7 +492,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
             <button
               onClick={onClose}
               aria-label="Schließen"
-              className="p-2 rounded-lg hover:bg-slate-500/20"
+              className="p-2 rounded-lg hover:bg-muted"
             >
               <X size={18} weight="bold" />
             </button>
@@ -510,25 +500,17 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
 
           {/* Toolbar */}
           <div
-            className={`sticky top-[73px] z-10 flex flex-wrap items-center gap-3 px-6 py-3 border-b ${
-              dark
-                ? "bg-slate-900/95 border-slate-700"
-                : "bg-white/95 border-slate-200"
-            }`}
+            className="sticky top-[73px] z-10 flex flex-wrap items-center gap-3 px-6 py-3 border-b bg-card/95 border-border"
           >
             <div
-              className={`inline-flex rounded-lg overflow-hidden border ${
-                dark ? "border-slate-700" : "border-slate-300"
-              }`}
+              className="inline-flex rounded-lg overflow-hidden border border-border"
             >
               <button
                 onClick={() => setDirection("send")}
                 className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
                   direction === "send"
-                    ? "bg-purple-500 text-white"
-                    : dark
-                      ? "hover:bg-slate-800"
-                      : "hover:bg-slate-100"
+                    ? "bg-status-trunk-solid text-on-status-trunk-solid"
+                    : "hover:bg-muted"
                 }`}
               >
                 <ArrowDown size={14} weight="bold" /> Encapsulation (Send)
@@ -537,25 +519,19 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                 onClick={() => setDirection("receive")}
                 className={`px-3 py-1.5 text-sm flex items-center gap-1.5 ${
                   direction === "receive"
-                    ? "bg-emerald-500 text-white"
-                    : dark
-                      ? "hover:bg-slate-800"
-                      : "hover:bg-slate-100"
+                    ? "bg-status-success-solid text-on-status-success-solid"
+                    : "hover:bg-muted"
                 }`}
               >
                 <ArrowUp size={14} weight="bold" /> Decapsulation (Receive)
               </button>
             </div>
 
-            <div className="h-6 w-px bg-slate-500/30" />
+            <div className="h-6 w-px bg-muted-foreground/30" />
 
             <button
               onClick={playPause}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold ${
-                dark
-                  ? "bg-cyan-500/30 hover:bg-cyan-500/50 text-cyan-100"
-                  : "bg-cyan-100 hover:bg-cyan-200 text-cyan-900"
-              }`}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold bg-accent-primary/15 hover:bg-accent-primary/25 text-accent-primary-fg"
             >
               {running ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
               {running ? "Pause" : step >= 6 ? "Neu starten" : "Play"}
@@ -563,17 +539,13 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
 
             <button
               onClick={reset}
-              className={`px-3 py-1.5 rounded-lg text-sm border ${
-                dark
-                  ? "border-slate-600 hover:bg-slate-700"
-                  : "border-slate-300 hover:bg-slate-100"
-              }`}
+              className="px-3 py-1.5 rounded-lg text-sm border border-border hover:bg-muted"
             >
               ↺ Reset
             </button>
 
             <div className="flex items-center gap-2 text-xs ml-auto">
-              <span className="opacity-70">Schritt:</span>
+              <span className="text-muted-foreground">Schritt:</span>
               <input
                 type="range"
                 aria-label="Schritt"
@@ -589,16 +561,12 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
               <span className="font-mono w-12">
                 {step + 1}/7
               </span>
-              <span className="opacity-70 ml-3">Speed:</span>
+              <span className="text-muted-foreground ml-3">Speed:</span>
               <select
                 aria-label="Geschwindigkeit"
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
-                className={`text-xs rounded px-2 py-1 border ${
-                  dark
-                    ? "bg-slate-900 border-slate-600 text-slate-100"
-                    : "bg-white border-slate-300 text-slate-900"
-                }`}
+                className="text-xs rounded px-2 py-1 border bg-card border-border text-foreground"
               >
                 <option value={3000}>0.3×</option>
                 <option value={1500}>1×</option>
@@ -612,11 +580,9 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
           <div className="grid lg:grid-cols-[420px_1fr] gap-5 p-6">
             {/* Layer-Stack */}
             <div
-              className={`rounded-xl border p-4 ${
-                dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-              }`}
+              className="rounded-xl border p-4 border-border bg-muted/40"
             >
-              <div className="text-xs opacity-70 mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 {direction === "send"
                   ? "Daten gehen DOWN durch den Stack — jede Schicht hängt einen Header an."
                   : "Daten kommen vom Kabel UP durch den Stack — jede Schicht streift ihren Header ab."}
@@ -634,14 +600,10 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                       }}
                       className={`w-full text-left rounded-lg p-2.5 transition-all border ${
                         active
-                          ? "ring-2 scale-[1.02]"
+                          ? "ring-2 scale-[1.02] bg-card border-border"
                           : wrapped
-                            ? "opacity-100"
-                            : "opacity-50"
-                      } ${
-                        dark
-                          ? "bg-slate-900 border-slate-700"
-                          : "bg-white border-slate-200"
+                            ? "bg-card border-border"
+                            : "bg-muted/40 border-dashed border-border"
                       }`}
                       style={{
                         borderLeftWidth: 5,
@@ -662,14 +624,14 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                         <span
                           className="text-[10px] font-mono px-1.5 py-0.5 rounded"
                           style={{
-                            background: `${l.color}30`,
+                            background: `color-mix(in srgb, ${l.color} 10%, transparent)`,
                             color: l.color,
                           }}
                         >
                           {l.pdu}
                         </span>
                       </div>
-                      <div className="text-[10px] opacity-70 mt-1 font-mono">
+                      <div className="text-[10px] text-muted-foreground mt-1 font-mono">
                         {l.protocols.slice(0, 3).join(" · ")}
                       </div>
                     </button>
@@ -679,11 +641,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
 
               {/* PDU-Größe */}
               <div
-                className={`mt-4 rounded-lg p-3 text-xs ${
-                  dark
-                    ? "bg-cyan-500/10 border border-cyan-500/30"
-                    : "bg-cyan-50 border border-cyan-200"
-                }`}
+                className="mt-4 rounded-lg p-3 text-xs bg-accent-primary/10 border border-accent-primary/30"
               >
                 <div className="font-semibold mb-1">Aktuelle PDU-Größe</div>
                 <div className="font-mono">
@@ -691,7 +649,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                     ? `${cumulativeBytes(activeLayerIdx)} Bytes nach L${activeLayer.num}`
                     : `${cumulativeBytes(activeLayerIdx)} Bytes vor L${activeLayer.num}-Decap`}
                 </div>
-                <div className="opacity-70 mt-1">
+                <div className="text-muted-foreground mt-1">
                   Annahme: 50 B HTTP-Payload + Header pro Schicht
                 </div>
               </div>
@@ -701,11 +659,9 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
             <div className="space-y-4">
               {/* Animierte Frame-Darstellung */}
               <div
-                className={`rounded-xl border p-4 ${
-                  dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-                }`}
+                className="rounded-xl border p-4 border-border bg-muted/40"
               >
-                <div className="text-xs opacity-70 mb-2">
+                <div className="text-xs text-muted-foreground mb-2">
                   Aktuelle PDU-Struktur (visuell)
                 </div>
                 <div className="flex items-stretch gap-1 overflow-x-auto py-2">
@@ -715,26 +671,24 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                       key={`h-${l.num}`}
                       className="flex flex-col items-center justify-center px-2 py-3 rounded text-xs font-mono whitespace-nowrap"
                       style={{
-                        background: `${l.color}30`,
+                        background: `color-mix(in srgb, ${l.color} 10%, transparent)`,
                         color: l.color,
                         border: `1.5px solid ${l.color}`,
                         minWidth: 70,
                       }}
                     >
                       <div className="font-bold">L{l.num}-HDR</div>
-                      <div className="text-[10px] opacity-80">{l.headerBytes} B</div>
+                      <div className="text-[10px]">{l.headerBytes} B</div>
                     </div>
                   ))}
                   {/* Payload */}
                   <div
-                    className={`flex flex-col items-center justify-center px-4 py-3 rounded text-xs font-mono ${
-                      dark ? "bg-slate-700 text-slate-100" : "bg-slate-200 text-slate-900"
-                    }`}
+                    className="flex flex-col items-center justify-center px-4 py-3 rounded text-xs font-mono bg-muted text-foreground"
                     style={{ minWidth: 100 }}
                   >
                     <div className="font-bold">PAYLOAD</div>
-                    <div className="text-[10px] opacity-80">~50 B</div>
-                    <div className="text-[10px] opacity-60 mt-0.5">
+                    <div className="text-[10px]">~50 B</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
                       GET /index.html
                     </div>
                   </div>
@@ -747,14 +701,14 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                         key={`t-${l.num}`}
                         className="flex flex-col items-center justify-center px-2 py-3 rounded text-xs font-mono whitespace-nowrap"
                         style={{
-                          background: `${l.color}30`,
+                          background: `color-mix(in srgb, ${l.color} 10%, transparent)`,
                           color: l.color,
                           border: `1.5px solid ${l.color}`,
                           minWidth: 70,
                         }}
                       >
                         <div className="font-bold">L{l.num}-FCS</div>
-                        <div className="text-[10px] opacity-80">{l.trailerBytes} B</div>
+                        <div className="text-[10px]">{l.trailerBytes} B</div>
                       </div>
                     ))}
                 </div>
@@ -778,7 +732,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                         {activeLayer.name}
                       </h3>
                     </div>
-                    <div className="text-xs opacity-70 mt-1 font-mono">
+                    <div className="text-xs text-muted-foreground mt-1 font-mono">
                       PDU: <strong>{activeLayer.pdu}</strong> · Header: {activeLayer.headerBytes} B
                       {activeLayer.trailerBytes ? ` + Trailer: ${activeLayer.trailerBytes} B` : ""}
                     </div>
@@ -786,7 +740,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                   <div
                     className="text-xs px-2 py-1 rounded font-mono"
                     style={{
-                      background: `${activeLayer.color}25`,
+                      background: `color-mix(in srgb, ${activeLayer.color} 15%, transparent)`,
                       color: activeLayer.color,
                     }}
                   >
@@ -800,12 +754,12 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                   style={{
                     background:
                       direction === "send"
-                        ? `${activeLayer.color}15`
-                        : `${activeLayer.color}10`,
+                        ? `color-mix(in srgb, ${activeLayer.color} 8%, transparent)`
+                        : `color-mix(in srgb, ${activeLayer.color} 6%, transparent)`,
                     borderLeft: `3px solid ${activeLayer.color}`,
                   }}
                 >
-                  <div className="text-xs font-semibold mb-1 uppercase tracking-wide opacity-80">
+                  <div className="text-xs font-semibold mb-1 uppercase tracking-wide">
                     Was passiert genau?
                   </div>
                   <p className="text-sm">
@@ -818,16 +772,10 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                 {/* Logical / Physical */}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div
-                    className={`rounded-lg p-3 border ${
-                      dark
-                        ? "bg-blue-500/5 border-blue-500/30"
-                        : "bg-blue-50 border-blue-200"
-                    }`}
+                    className="rounded-lg p-3 border bg-accent-primary/5 border-accent-primary/30"
                   >
                     <div
-                      className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
-                        dark ? "text-blue-300" : "text-blue-700"
-                      }`}
+                      className="text-xs font-semibold uppercase tracking-wide mb-1 text-accent-primary-fg"
                     >
                       🧠 Logischer Ablauf
                     </div>
@@ -836,16 +784,10 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                     </p>
                   </div>
                   <div
-                    className={`rounded-lg p-3 border ${
-                      dark
-                        ? "bg-orange-500/5 border-orange-500/30"
-                        : "bg-orange-50 border-orange-200"
-                    }`}
+                    className="rounded-lg p-3 border bg-status-blocking-bg border-status-blocking-border/30"
                   >
                     <div
-                      className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
-                        dark ? "text-orange-300" : "text-orange-700"
-                      }`}
+                      className="text-xs font-semibold uppercase tracking-wide mb-1 text-status-blocking-fg"
                     >
                       ⚙ Physischer Ablauf
                     </div>
@@ -862,17 +804,11 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                     {activeLayer.trailerBytes ? ` + ${activeLayer.trailerBytes} B Trailer` : ""})
                   </div>
                   <div
-                    className={`rounded-lg border overflow-hidden ${
-                      dark ? "border-slate-700" : "border-slate-200"
-                    }`}
+                    className="rounded-lg border overflow-hidden border-border"
                   >
                     <table className="w-full text-xs">
                       <thead
-                        className={`text-left ${
-                          dark
-                            ? "bg-slate-800 text-slate-300"
-                            : "bg-slate-100 text-slate-700"
-                        }`}
+                        className="text-left bg-muted text-muted-foreground"
                       >
                         <tr>
                           <th className="py-1.5 px-2">Feld</th>
@@ -885,14 +821,12 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                         {activeLayer.headerFields.map((f, i) => (
                           <tr
                             key={i}
-                            className={`border-t ${
-                              dark ? "border-slate-700" : "border-slate-200"
-                            }`}
+                            className="border-t border-border"
                           >
                             <td className="py-1.5 px-2 font-mono font-semibold">
                               {f.name}
                             </td>
-                            <td className="py-1.5 px-2 font-mono opacity-70">
+                            <td className="py-1.5 px-2 font-mono text-muted-foreground">
                               {f.bytes}
                             </td>
                             <td
@@ -901,7 +835,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                             >
                               {f.value}
                             </td>
-                            <td className="py-1.5 px-2 opacity-80">
+                            <td className="py-1.5 px-2">
                               {f.explain}
                             </td>
                           </tr>
@@ -914,14 +848,12 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                 {/* Protokolle & Geräte */}
                 <div className="grid sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <div className="font-semibold mb-1 opacity-80">Protokolle</div>
+                    <div className="font-semibold mb-1">Protokolle</div>
                     <div className="flex flex-wrap gap-1">
                       {activeLayer.protocols.map((p) => (
                         <span
                           key={p}
-                          className={`px-2 py-0.5 rounded font-mono ${
-                            dark ? "bg-slate-800" : "bg-slate-100"
-                          }`}
+                          className="px-2 py-0.5 rounded font-mono bg-muted"
                         >
                           {p}
                         </span>
@@ -929,14 +861,12 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                     </div>
                   </div>
                   <div>
-                    <div className="font-semibold mb-1 opacity-80">Cisco-Geräte / Komponenten</div>
+                    <div className="font-semibold mb-1">Cisco-Geräte / Komponenten</div>
                     <div className="flex flex-wrap gap-1">
                       {activeLayer.devices.map((d) => (
                         <span
                           key={d}
-                          className={`px-2 py-0.5 rounded ${
-                            dark ? "bg-slate-800" : "bg-slate-100"
-                          }`}
+                          className="px-2 py-0.5 rounded bg-muted"
                         >
                           {d}
                         </span>
@@ -952,11 +882,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
                       Hex-Beispiel (auf dem Draht)
                     </div>
                     <pre
-                      className={`rounded-lg p-3 text-[11px] font-mono leading-relaxed overflow-x-auto ${
-                        dark
-                          ? "bg-slate-950 text-green-400 border border-slate-700"
-                          : "bg-slate-900 text-green-400"
-                      }`}
+                      className="rounded-lg p-3 text-[11px] font-mono leading-relaxed overflow-x-auto bg-terminal-bg text-terminal-fg border border-terminal-border"
                     >
                       {activeLayer.hexExample}
                     </pre>
@@ -966,11 +892,7 @@ export function OsiSimulatorDialog({ dark, onClose }: Props) {
 
               {/* Lernzusammenfassung */}
               <div
-                className={`rounded-xl border p-4 text-xs ${
-                  dark
-                    ? "border-violet-500/30 bg-violet-500/5 text-violet-100"
-                    : "border-violet-200 bg-violet-50 text-violet-900"
-                }`}
+                className="rounded-xl border p-4 text-xs border-status-trunk-border/30 bg-status-trunk-bg text-status-trunk-fg"
               >
                 <div className="font-semibold mb-2">💡 Merke</div>
                 <ul className="space-y-1 list-disc ml-5">
