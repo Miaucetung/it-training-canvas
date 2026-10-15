@@ -601,7 +601,7 @@ function DeviceIcon({
       <g>
         <rect x={x} y={y} width="60" height="40" rx="4" fill={fill} stroke={stroke} strokeWidth="2" />
         <rect x={x + 8} y={y + 6} width="44" height="20" fill={"var(--card)"} />
-        <text x={x + 30} y={y + 56} textAnchor="middle" fontSize="11" fill={txt} fontWeight="bold">
+        <text x={x + 30} y={y + 56} textAnchor="middle" fontSize="11" fill="var(--foreground)" fontWeight="bold">
           {label}
         </text>
       </g>
