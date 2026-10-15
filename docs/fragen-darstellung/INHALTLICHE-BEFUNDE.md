@@ -202,3 +202,11 @@ Geänderte Fragen und Felder dieses Schritts (alle übrigen Prüfsummen im Snaps
 | ccnaQuestions | q0965 | `text` | doppelter Konfigurationsblock aus dem Fragetext entfernt (Exhibit enthielt ihn schon) |
 | ccnaQuestionsClassified | Q0965 | `text` | wie oben |
 
+---
+
+## 5. Leerer Fragetext (aus dem axe-Lauf über alle Fragen mit Exhibit)
+
+| Frage (beide Pools) | Auffälligkeit | Stand |
+|---|---|---|
+| q1254 / Q1254 | `question` ist ein leerer String; die Antwortoptionen („value“, „array“, „object“, „key“) und das JSON-Exhibit sind vorhanden. Der Fragetext fehlt vermutlich als Einlesefehler (er stand im PDF vermutlich in der Grafik). Vergleichbare Fragen (q1062 ff.: „What is represented by the word … within this JSON schema?“) haben einen Text. | unverändert; nur die Anzeige erzeugt keine leere Überschrift mehr |
+

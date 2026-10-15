@@ -175,7 +175,7 @@ function QuestionCard({
     <div className={`rounded-xl border p-5 shadow-sm ${base}`}>
       {/* Header */}
       <div className="mb-3 flex items-center gap-2 text-sm">
-        <span className={dark ? "text-zinc-500" : "text-zinc-400"}>
+        <span className="text-muted-foreground">
           {index + 1}/{total}
         </span>
         <CategoryBadge category={question.category} dark={dark} />
@@ -856,7 +856,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
             {/* Back to menu */}
             <button
               onClick={() => setMode("menu")}
-              className={`self-center text-xs ${dark ? "text-zinc-600 hover:text-zinc-400" : "text-zinc-400 hover:text-zinc-600"}`}
+              className="self-center text-xs text-muted-foreground hover:text-foreground"
             >
               ← Zum Menü
             </button>

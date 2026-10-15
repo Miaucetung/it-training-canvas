@@ -1,4 +1,5 @@
 import type { WirelessZonesExhibit as WirelessZonesExhibitData } from "@/types/exhibit";
+import { wirelessZonesAriaLabel } from "@/lib/exhibit-a11y";
 
 // Farbkonvention wie TopologyExhibit: muted-foreground für sichtbare Strokes,
 // --border nur für Hairlines (im Light-Mode zu hell für Diagramm-Linien).
@@ -58,6 +59,7 @@ export function WirelessZonesExhibit({ exhibit }: { exhibit: WirelessZonesExhibi
         className="w-full h-auto"
         style={{ maxHeight: 420 }}
         role="img"
+        aria-label={wirelessZonesAriaLabel(exhibit)}
       >
         <defs>
           {channels.map((ch) => (

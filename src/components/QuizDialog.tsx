@@ -743,7 +743,7 @@ function QuestionCard({
       )}
 
       {/* Question text */}
-      <h3 className={`text-lg font-semibold ${text}`}>{question.text}</h3>
+      {question.text && <h3 className={`text-lg font-semibold ${text}`}>{question.text}</h3>}
 
       {/* Answers */}
       {question.type === "text-input" ? (

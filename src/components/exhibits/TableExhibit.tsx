@@ -11,7 +11,14 @@ import {
 export function TableExhibit({ exhibit }: { exhibit: TableExhibitData }) {
   return (
     <div className="overflow-x-auto p-2">
-      <Table>
+      <Table
+        containerProps={{
+          role: "region",
+          "aria-label": "Tabelle",
+          tabIndex: 0,
+          className: "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        }}
+      >
         <TableHeader>
           <TableRow>
             {exhibit.headers.map((h, i) => (

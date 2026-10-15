@@ -8,7 +8,7 @@ function lineClass(line: string, highlight: string[] | undefined, revealed: bool
 
   let color = "text-gray-200";
   if (/^Router\(config|^Switch\(config|^Router#|^Switch#|^Router>|^Switch>/.test(trimmed)) {
-    color = "text-gray-500";
+    color = "text-gray-400";
   } else if (/^C[\s\t]/.test(line)) {
     color = "text-green-400";
   } else if (/^O[\s\t]/.test(line)) {
@@ -24,7 +24,12 @@ function lineClass(line: string, highlight: string[] | undefined, revealed: bool
 export function CLIExhibit({ exhibit, revealed = false }: { exhibit: CLIExhibitData; revealed?: boolean }) {
   const lines = exhibit.content.replace(/\r\n/g, "\n").split("\n");
   return (
-    <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 overflow-x-auto">
+    <div
+      role="region"
+      aria-label="CLI-Ausgabe"
+      tabIndex={0}
+      className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <pre className="font-mono text-sm leading-relaxed">
         {lines.map((line, i) => (
           <span key={i} className={lineClass(line, exhibit.highlight, revealed)}>
