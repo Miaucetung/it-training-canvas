@@ -92,6 +92,70 @@ function DeviceIcon({ type }: { type: TopologyDevice["type"] }) {
   }
 }
 
+function getInterfaceLabelLayout(
+  dev: TopologyDevice,
+  otherDev: TopologyDevice,
+  isFrom: boolean,
+  label: string,
+  len: number,
+  ux: number,
+  uy: number,
+  parallelIndex = 0,
+  parallelCount = 1,
+): { x: number; y: number; anchor: "start" | "middle" | "end" } {
+  const effUx = isFrom ? ux : -ux;
+  const effUy = isFrom ? uy : -uy;
+
+  // Mostly vertical link (|effUy| > 0.75)
+  if (Math.abs(effUy) > 0.75) {
+    const isDown = effUy > 0;
+    const devLabelW = (dev.label?.length ?? 0) * 7.5;
+    const sideOffset = isDown ? Math.max(16, devLabelW / 2 + 8) : 14;
+    const goesLeft = effUx < -0.05;
+    return {
+      x: goesLeft ? dev.x - sideOffset : dev.x + sideOffset,
+      y: isDown ? dev.y + 36 : dev.y - 36,
+      anchor: goesLeft ? "end" : "start",
+    };
+  }
+
+  // Primarily horizontal or diagonal link (|effUy| <= 0.75)
+  let nx = -uy;
+  let ny = ux;
+  if (ny > 0) {
+    nx = -nx;
+    ny = -ny;
+  }
+
+  let pShift = 0;
+  if (parallelCount === 2) {
+    pShift = parallelIndex === 0 ? -16 : 16;
+  }
+
+  if (effUx > 0.2) {
+    const dist = Math.min(30, len * 0.25);
+    return {
+      x: dev.x + dist + nx * pShift,
+      y: dev.y + effUy * dist + ny * 12 + ny * pShift,
+      anchor: "start",
+    };
+  } else if (effUx < -0.2) {
+    const dist = Math.min(30, len * 0.25);
+    return {
+      x: dev.x - dist + nx * pShift,
+      y: dev.y + effUy * dist + ny * 12 + ny * pShift,
+      anchor: "end",
+    };
+  }
+
+  const dist = Math.min(36, len * 0.3);
+  return {
+    x: dev.x + effUx * dist + nx * pShift,
+    y: dev.y + effUy * dist + ny * 12 + ny * pShift,
+    anchor: "middle",
+  };
+}
+
 function computeTopologyBounds(
   devices: TopologyDevice[],
   links: TopologyExhibitData["links"],
@@ -125,22 +189,24 @@ function computeTopologyBounds(
     includeBox(d.x - labelW / 2, d.y + 26, d.x - labelW / 2 + labelW, d.y + 56);
   }
 
+  // Pre-calculate parallel links
+  const pairCounts = new Map<string, number>();
+  for (const l of links) {
+    const key = [l.from, l.to].sort().join("--");
+    pairCounts.set(key, (pairCounts.get(key) || 0) + 1);
+  }
+  const pairIndexSeen = new Map<string, number>();
+
   // 2. Links, Subnetz-Badges und Schnittstellen-Labels
   for (const link of links) {
     const a = byId.get(link.from);
     const b = byId.get(link.to);
     if (!a || !b) continue;
 
-    includePoint(a.x, a.y);
-    includePoint(b.x, b.y);
-
-    const mx = (a.x + b.x) / 2;
-    const my = (a.y + b.y) / 2;
-
-    if (link.subnet) {
-      const halfW = (link.subnet.length * 6.8 + 8) / 2;
-      includeBox(mx - halfW - 6, my - 12, mx + halfW + 6, my + 12);
-    }
+    const key = [link.from, link.to].sort().join("--");
+    const parallelCount = pairCounts.get(key) || 1;
+    const parallelIndex = pairIndexSeen.get(key) || 0;
+    pairIndexSeen.set(key, parallelIndex + 1);
 
     const dx = b.x - a.x;
     const dy = b.y - a.y;
@@ -148,18 +214,37 @@ function computeTopologyBounds(
     const ux = dx / len;
     const uy = dy / len;
 
+    let nx = -uy;
+    let ny = ux;
+    if (ny > 0) {
+      nx = -nx;
+      ny = -ny;
+    }
+    const pShift = parallelCount === 2 ? (parallelIndex === 0 ? -16 : 16) : 0;
+
+    includePoint(a.x + nx * pShift, a.y + ny * pShift);
+    includePoint(b.x + nx * pShift, b.y + ny * pShift);
+
+    const mx = (a.x + b.x) / 2 + nx * pShift;
+    const my = (a.y + b.y) / 2 + ny * pShift;
+
+    if (link.subnet) {
+      const halfW = (link.subnet.length * 6.8 + 8) / 2;
+      includeBox(mx - halfW - 6, my - 12, mx + halfW + 6, my + 12);
+    }
+
     if (link.labelFrom) {
-      const fx = a.x + ux * 40;
-      const fy = a.y + uy * 40;
-      const halfW = (link.labelFrom.length * 7) / 2;
-      includeBox(fx - halfW - 4, fy - 18, fx + halfW + 4, fy + 4);
+      const pos = getInterfaceLabelLayout(a, b, true, link.labelFrom, len, ux, uy, parallelIndex, parallelCount);
+      const textW = link.labelFrom.length * 7;
+      const left = pos.anchor === "start" ? pos.x : pos.anchor === "end" ? pos.x - textW : pos.x - textW / 2;
+      includeBox(left - 4, pos.y - 14, left + textW + 4, pos.y + 4);
     }
 
     if (link.labelTo) {
-      const tx = b.x - ux * 40;
-      const ty = b.y - uy * 40;
-      const halfW = (link.labelTo.length * 7) / 2;
-      includeBox(tx - halfW - 4, ty - 18, tx + halfW + 4, ty + 4);
+      const pos = getInterfaceLabelLayout(b, a, false, link.labelTo, len, ux, uy, parallelIndex, parallelCount);
+      const textW = link.labelTo.length * 7;
+      const left = pos.anchor === "start" ? pos.x : pos.anchor === "end" ? pos.x - textW : pos.x - textW / 2;
+      includeBox(left - 4, pos.y - 14, left + textW + 4, pos.y + 4);
     }
   }
 
@@ -168,7 +253,7 @@ function computeTopologyBounds(
     for (const lab of labels) {
       const d = byId.get(lab.attachTo);
       if (!d) continue;
-      const off = 50;
+      const off = lab.position === "below" ? 62 : 50;
       const textW = lab.text.length * 8.5;
       switch (lab.position) {
         case "left":
@@ -184,7 +269,7 @@ function computeTopologyBounds(
           includeBox(d.x - textW / 2 - 4, d.y - off - 16, d.x + textW / 2 + 4, d.y - off + 8);
           break;
         case "below":
-          // TextAnchor = "middle" at d.x, y = d.y + off
+          // TextAnchor = "middle" at d.x, y = d.y + off (off = 62)
           includeBox(d.x - textW / 2 - 4, d.y + off - 8, d.x + textW / 2 + 4, d.y + off + 16);
           break;
       }
@@ -219,6 +304,13 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
   const byId = new Map(devices.map((d) => [d.id, d]));
   const { minX, minY, w, h } = computeTopologyBounds(devices, links, labels);
 
+  const pairCounts = new Map<string, number>();
+  for (const l of links) {
+    const key = [l.from, l.to].sort().join("--");
+    pairCounts.set(key, (pairCounts.get(key) || 0) + 1);
+  }
+  const pairIndexSeen = new Map<string, number>();
+
   return (
     <div className="bg-card p-2">
       <svg
@@ -232,20 +324,37 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
           const a = byId.get(link.from);
           const b = byId.get(link.to);
           if (!a || !b) return null;
-          const mx = (a.x + b.x) / 2;
-          const my = (a.y + b.y) / 2;
+
+          const key = [link.from, link.to].sort().join("--");
+          const parallelCount = pairCounts.get(key) || 1;
+          const parallelIndex = pairIndexSeen.get(key) || 0;
+          pairIndexSeen.set(key, parallelIndex + 1);
+
           const dx = b.x - a.x;
           const dy = b.y - a.y;
           const len = Math.hypot(dx, dy) || 1;
           const ux = dx / len;
           const uy = dy / len;
-          const fx = a.x + ux * 40;
-          const fy = a.y + uy * 40;
-          const tx = b.x - ux * 40;
-          const ty = b.y - uy * 40;
+
+          let nx = -uy;
+          let ny = ux;
+          if (ny > 0) {
+            nx = -nx;
+            ny = -ny;
+          }
+          const pShift = parallelCount === 2 ? (parallelIndex === 0 ? -16 : 16) : 0;
+
+          const x1 = a.x + nx * pShift;
+          const y1 = a.y + ny * pShift;
+          const x2 = b.x + nx * pShift;
+          const y2 = b.y + ny * pShift;
+
+          const mx = (a.x + b.x) / 2 + nx * pShift;
+          const my = (a.y + b.y) / 2 + ny * pShift;
+
           return (
             <g key={i}>
-              <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} style={{ stroke: STROKE }} strokeWidth={2} />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} style={{ stroke: STROKE }} strokeWidth={2} />
               {link.subnet && (
                 <g>
                   <rect
@@ -262,16 +371,36 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
                   </text>
                 </g>
               )}
-              {link.labelFrom && (
-                <text x={fx} y={fy - 5} textAnchor="middle" fontSize={10} fontFamily="'IBM Plex Mono', monospace" style={{ fill: TEXT_MUTED }}>
-                  {link.labelFrom}
-                </text>
-              )}
-              {link.labelTo && (
-                <text x={tx} y={ty - 5} textAnchor="middle" fontSize={10} fontFamily="'IBM Plex Mono', monospace" style={{ fill: TEXT_MUTED }}>
-                  {link.labelTo}
-                </text>
-              )}
+              {link.labelFrom && (() => {
+                const pos = getInterfaceLabelLayout(a, b, true, link.labelFrom, len, ux, uy, parallelIndex, parallelCount);
+                return (
+                  <text
+                    x={pos.x}
+                    y={pos.y}
+                    textAnchor={pos.anchor}
+                    fontSize={10}
+                    fontFamily="'IBM Plex Mono', monospace"
+                    style={{ fill: TEXT_MUTED }}
+                  >
+                    {link.labelFrom}
+                  </text>
+                );
+              })()}
+              {link.labelTo && (() => {
+                const pos = getInterfaceLabelLayout(b, a, false, link.labelTo, len, ux, uy, parallelIndex, parallelCount);
+                return (
+                  <text
+                    x={pos.x}
+                    y={pos.y}
+                    textAnchor={pos.anchor}
+                    fontSize={10}
+                    fontFamily="'IBM Plex Mono', monospace"
+                    style={{ fill: TEXT_MUTED }}
+                  >
+                    {link.labelTo}
+                  </text>
+                );
+              })()}
             </g>
           );
         })}
@@ -290,7 +419,7 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
         {labels?.map((lab, i) => {
           const d = byId.get(lab.attachTo);
           if (!d) return null;
-          const off = 50;
+          const off = lab.position === "below" ? 62 : 50;
           const pos = {
             above: { x: d.x, y: d.y - off, anchor: "middle" as const },
             below: { x: d.x, y: d.y + off, anchor: "middle" as const },
