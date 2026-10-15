@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
-  dark: boolean;
+  dark?: boolean;
   onClose: () => void;
 }
 
@@ -236,20 +236,18 @@ function edges(id: TopologyId, n = 6): [number, number][] {
 
 function TopologyDiagram({
   id,
-  dark,
   failedEdge,
 }: {
   id: TopologyId;
-  dark: boolean;
   failedEdge: number | null;
 }) {
   const pts = useMemo(() => nodePositions(id), [id]);
   const es = useMemo(() => edges(id), [id]);
-  const stroke = dark ? "#94a3b8" : "#475569";
-  const failColor = "#ef4444";
-  const nodeFill = dark ? "#1e293b" : "#f1f5f9";
-  const nodeStroke = dark ? "#60a5fa" : "#2563eb";
-  const centerStroke = dark ? "#fbbf24" : "#d97706";
+  const stroke = "var(--muted-foreground)";
+  const failColor = "var(--status-error-border)";
+  const nodeFill = "var(--muted)";
+  const nodeStroke = "var(--accent-primary-fg)";
+  const centerStroke = "var(--status-warning-fg)";
 
   // For animated packet flow we walk a path along edges 0..n
   const [step, setStep] = useState(0);
@@ -292,7 +290,7 @@ function TopologyDiagram({
             cx={(pts[a].x + pts[b].x) / 2}
             cy={(pts[a].y + pts[b].y) / 2}
             r={5}
-            fill={dark ? "#fde047" : "#eab308"}
+            fill={"var(--status-warning-fg)"}
           >
             <animate attributeName="r" values="4;7;4" dur="0.7s" repeatCount="indefinite" />
           </circle>
@@ -316,7 +314,7 @@ function TopologyDiagram({
               y={p.y + 4}
               textAnchor="middle"
               fontSize={10}
-              fill={dark ? "#e2e8f0" : "#0f172a"}
+              fill={"var(--foreground)"}
               fontFamily="'IBM Plex Mono', monospace"
             >
               {isCenter ? "SW" : i}
@@ -329,7 +327,7 @@ function TopologyDiagram({
 }
 
 // ── Main Dialog ─────────────────────────────────────────────
-export function TopologieExplorerDialog({ dark, onClose }: Props) {
+export function TopologieExplorerDialog({ onClose }: Props) {
   const [selected, setSelected] = useState<TopologyId>("stern");
   const [failedEdge, setFailedEdge] = useState<number | null>(null);
 
@@ -346,25 +344,21 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
         onClick={onClose}
       >
         <div
-          className={`relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-            dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
-          }`}
+          className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl bg-card border-border text-foreground"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-            dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-          }`}>
+          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b bg-card border-border">
             <div>
               <h2 className="text-lg font-semibold">Topologie-Explorer</h2>
-              <p className="text-xs opacity-70">
+              <p className="text-xs text-muted-foreground">
                 Stern · Bus · Ring · Mesh · Baum · Linie · Hybrid — mit animiertem Paketfluss & Ausfallsimulation.
               </p>
             </div>
             <button
               onClick={onClose}
               aria-label="Schließen"
-              className={`p-2 rounded-lg hover:bg-slate-500/20`}
+              className="p-2 rounded-lg hover:bg-muted"
             >
               <X size={18} weight="bold" />
             </button>
@@ -384,16 +378,12 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
                     }}
                     className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
                       active
-                        ? dark
-                          ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-100"
-                          : "bg-cyan-50 border-cyan-300 text-cyan-900"
-                        : dark
-                          ? "border-slate-700 hover:bg-slate-800"
-                          : "border-slate-200 hover:bg-slate-50"
+                        ? "bg-accent-primary/20 border-accent-primary/40 text-accent-primary-fg"
+                        : "border-border hover:bg-muted"
                     }`}
                   >
                     <div className="font-semibold">{t.label}</div>
-                    <div className="text-xs opacity-70 mt-0.5">{t.short}</div>
+                    <div className={`text-xs mt-0.5 ${active ? "text-accent-primary-fg" : "text-muted-foreground"}`}>{t.short}</div>
                   </button>
                 );
               })}
@@ -402,18 +392,16 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
             {/* Main area */}
             <div className="space-y-4">
               {/* Diagram */}
-              <div className={`rounded-xl border p-4 ${
-                dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-              }`}>
-                <TopologyDiagram id={selected} dark={dark} failedEdge={failedEdge} />
+              <div className="rounded-xl border p-4 border-border bg-muted/40">
+                <TopologyDiagram id={selected} failedEdge={failedEdge} />
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                  <span className="opacity-70">Ausfallsimulation:</span>
+                  <span className="text-muted-foreground">Ausfallsimulation:</span>
                   <button
                     onClick={() => setFailedEdge(null)}
                     className={`px-2 py-1 rounded border ${
                       failedEdge === null
-                        ? dark ? "bg-emerald-500/30 border-emerald-500/50" : "bg-emerald-100 border-emerald-300"
-                        : dark ? "border-slate-700 hover:bg-slate-700" : "border-slate-300 hover:bg-slate-100"
+                        ? "bg-status-success-bg border-status-success-border/50"
+                        : "border-border hover:bg-muted"
                     }`}
                   >
                     Alle Links OK
@@ -424,8 +412,8 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
                       onClick={() => setFailedEdge(i)}
                       className={`px-2 py-1 rounded border ${
                         failedEdge === i
-                          ? "bg-red-500/30 border-red-500/50 text-red-100"
-                          : dark ? "border-slate-700 hover:bg-slate-700" : "border-slate-300 hover:bg-slate-100"
+                          ? "bg-status-error-bg border-status-error-border text-status-error-fg"
+                          : "border-border hover:bg-muted"
                       }`}
                     >
                       Link {i + 1} ⚠
@@ -433,7 +421,7 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
                   ))}
                 </div>
                 {failedEdge !== null && (
-                  <p className={`mt-2 text-xs ${dark ? "text-red-300" : "text-red-600"}`}>
+                  <p className="mt-2 text-xs text-status-error-fg">
                     {def.failureBehavior}
                   </p>
                 )}
@@ -441,31 +429,27 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
 
               {/* Vor-/Nachteile */}
               <div className="grid sm:grid-cols-2 gap-3">
-                <div className={`rounded-xl border p-4 ${
-                  dark ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50"
-                }`}>
-                  <div className={`text-sm font-semibold mb-2 ${dark ? "text-emerald-200" : "text-emerald-800"}`}>
+                <div className="rounded-xl border p-4 border-status-success-border/30 bg-status-success-bg">
+                  <div className="text-sm font-semibold mb-2 text-status-success-fg">
                     Vorteile
                   </div>
                   <ul className="text-sm space-y-1">
                     {def.pros.map((p, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className={dark ? "text-emerald-400" : "text-emerald-600"}>+</span>
+                        <span className={"text-status-success-fg"}>+</span>
                         <span>{p}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className={`rounded-xl border p-4 ${
-                  dark ? "border-amber-500/30 bg-amber-500/5" : "border-amber-200 bg-amber-50"
-                }`}>
-                  <div className={`text-sm font-semibold mb-2 ${dark ? "text-amber-200" : "text-amber-800"}`}>
+                <div className="rounded-xl border p-4 border-status-warning-border/30 bg-status-warning-bg">
+                  <div className="text-sm font-semibold mb-2 text-status-warning-fg">
                     Nachteile
                   </div>
                   <ul className="text-sm space-y-1">
                     {def.cons.map((c, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className={dark ? "text-amber-400" : "text-amber-600"}>−</span>
+                        <span className={"text-status-warning-fg"}>−</span>
                         <span>{c}</span>
                       </li>
                     ))}
@@ -474,11 +458,9 @@ export function TopologieExplorerDialog({ dark, onClose }: Props) {
               </div>
 
               {/* Einsatz */}
-              <div className={`rounded-xl border p-4 ${
-                dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-              }`}>
+              <div className="rounded-xl border p-4 border-border bg-muted/40">
                 <div className="text-sm font-semibold mb-1">Typischer Einsatz</div>
-                <div className="text-sm opacity-80">{def.examples.join(" · ")}</div>
+                <div className="text-sm">{def.examples.join(" · ")}</div>
               </div>
             </div>
           </div>

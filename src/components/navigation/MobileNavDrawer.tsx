@@ -222,7 +222,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
               >
-                <ChartLine size={18} className="text-indigo-400 shrink-0" />
+                <ChartLine size={18} className="text-accent-primary-fg shrink-0" />
                 <span>Mein Lernfortschritt</span>
               </button>
 
@@ -233,7 +233,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
               >
-                <Plus size={18} className="text-emerald-400 shrink-0" />
+                <Plus size={18} className="text-status-success-fg shrink-0" />
                 <span>Neuen Lernpfad anlegen</span>
               </button>
 
@@ -267,7 +267,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 
           {/* Sektion 3: Üben & Prüfen */}
           <div>
-            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-400">
+            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-primary-fg">
               Üben & Prüfen
             </p>
             <div className="space-y-1">
@@ -276,13 +276,13 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   onClose();
                   onOpenExamPrep();
                 }}
-                className="w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-semibold bg-accent-primary/10 text-accent-primary-fg hover:bg-accent-primary/20 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Target size={18} weight="fill" className="text-sky-400 shrink-0" />
+                  <Target size={18} weight="fill" className="text-accent-primary-fg shrink-0" />
                   <span>Prüfungsfragen-Trainer</span>
                 </div>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent-primary/10 text-accent-primary-fg font-bold">
                   1.081 Fragen
                 </span>
               </button>
@@ -296,10 +296,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <Stack size={18} weight="fill" className="text-indigo-400 shrink-0" />
+                    <Stack size={18} weight="fill" className="text-accent-primary-fg shrink-0" />
                     <span>Drag-and-Drop-Trainer</span>
                   </div>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent-primary/10 text-accent-primary-fg font-bold">
                     81 Aufgaben
                   </span>
                 </button>
@@ -312,7 +312,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
               >
-                <ChartLine size={18} weight="fill" className="text-amber-400 shrink-0" />
+                <ChartLine size={18} weight="fill" className="text-status-warning-fg shrink-0" />
                 <span>Priorisiertes Lernen (Blueprint)</span>
               </button>
 
@@ -323,7 +323,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
               >
-                <Lightning size={18} weight="fill" className="text-rose-400 shrink-0" />
+                <Lightning size={18} weight="fill" className="text-status-error-fg shrink-0" />
                 <span>Gezielter Schwächen-Drill</span>
               </button>
             </div>
@@ -331,7 +331,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 
           {/* Sektion 4: Simulatoren */}
           <div>
-            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-teal-400">
+            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-status-success-fg">
               Simulatoren
             </p>
             <div className="space-y-1">
@@ -343,7 +343,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
                 >
-                  <TreeStructure size={18} className="text-sky-400 shrink-0" />
+                  <TreeStructure size={18} className="text-accent-primary-fg shrink-0" />
                   <span>VLAN- und Trunk-Simulator</span>
                 </button>
               )}
@@ -356,7 +356,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
                 >
-                  <GitFork size={18} className="text-emerald-400 shrink-0" />
+                  <GitFork size={18} className="text-status-success-fg shrink-0" />
                   <span>Spanning-Tree-Simulator (STP/RSTP)</span>
                 </button>
               )}
@@ -369,7 +369,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
                 >
-                  <Stack size={18} className="text-purple-400 shrink-0" />
+                  <Stack size={18} className="text-status-trunk-fg shrink-0" />
                   <span>OSI- und TCP/IP-Simulator</span>
                 </button>
               )}
@@ -382,7 +382,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
                 >
-                  <Compass size={18} className="text-amber-400 shrink-0" />
+                  <Compass size={18} className="text-status-warning-fg shrink-0" />
                   <span>Routing- und OSPF-Simulator</span>
                 </button>
               )}
@@ -401,7 +401,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Lightning size={18} className="text-cyan-400 shrink-0" />
+                      <Lightning size={18} className="text-accent-primary-fg shrink-0" />
                       <span>Geführter Ping-Test</span>
                     </div>
                     {pingStatus.requiresV1 && (
@@ -422,7 +422,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="w-full flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium hover:bg-surface-elevated text-text-primary transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <Lightning size={18} className={isPacketFlowActive ? "text-emerald-400" : "text-text-muted"} />
+                    <Lightning size={18} className={isPacketFlowActive ? "text-status-success-fg" : "text-text-muted"} />
                     <span>Paketfluss-Visualisierer (Canvas v2)</span>
                   </div>
                   <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-surface-elevated text-text-muted border border-border-default">
@@ -445,7 +445,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Pulse size={18} className={isSimulationHUDActive ? "text-teal-400" : "text-text-muted"} />
+                      <Pulse size={18} className={isSimulationHUDActive ? "text-status-success-fg" : "text-text-muted"} />
                       <span>Topologie-Simulation (HUD)</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -454,7 +454,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                           Nur v1
                         </span>
                       )}
-                      {isSimulationHUDActive && <div className="w-2 h-2 rounded-full bg-teal-400" />}
+                      {isSimulationHUDActive && <div className="w-2 h-2 rounded-full bg-status-success-solid" />}
                     </div>
                   </button>
                 );
@@ -465,10 +465,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           {/* Sektion: Packet Tracer Labs */}
           <div>
             <div className="flex items-center justify-between px-1 pb-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-violet-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-status-trunk-fg">
                 Praxis-Labs
               </p>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-700 dark:text-violet-300 font-mono font-semibold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-status-trunk-bg text-status-trunk-fg font-mono font-semibold">
                 55 Labs
               </span>
             </div>
@@ -477,10 +477,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 onClose();
                 onOpenLabs();
               }}
-              className="w-full flex items-center justify-between p-3 min-h-[48px] rounded-xl border border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20 text-left transition-colors"
+              className="w-full flex items-center justify-between p-3 min-h-[48px] rounded-xl border border-status-trunk-border/30 bg-status-trunk-solid/10 hover:bg-status-trunk-solid/20 text-left transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                <BookOpen size={20} className="text-violet-400 shrink-0" />
+                <BookOpen size={20} className="text-status-trunk-fg shrink-0" />
                 <div>
                   <span className="text-xs font-bold text-text-primary block">
                     Packet Tracer Labs
@@ -490,7 +490,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   </span>
                 </div>
               </div>
-              <span className="text-xs font-bold text-violet-400">
+              <span className="text-xs font-bold text-status-trunk-fg">
                 Öffnen →
               </span>
             </button>
@@ -498,7 +498,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
 
           {/* Sektion 5: Werkzeuge */}
           <div>
-            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+            <p className="px-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-status-warning-fg">
               Werkzeuge & Rechner
             </p>
             <div className="grid grid-cols-2 gap-1.5">
@@ -508,7 +508,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Timer size={14} className="text-amber-400 shrink-0" />
+                    <Timer size={14} className="text-status-warning-fg shrink-0" />
                     <span className="truncate">Subnetting-Drill</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Gegen die Uhr</div>
@@ -520,7 +520,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Question size={14} className="text-sky-400 shrink-0" />
+                    <Question size={14} className="text-accent-primary-fg shrink-0" />
                     <span className="truncate">Subnetting-Quiz</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Multiple-Choice</div>
@@ -532,7 +532,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <FileText size={14} className="text-emerald-400 shrink-0" />
+                    <FileText size={14} className="text-status-success-fg shrink-0" />
                     <span className="truncate">Subnetting-Übersicht</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">VLSM & Masken</div>
@@ -544,7 +544,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Table size={14} className="text-indigo-400 shrink-0" />
+                    <Table size={14} className="text-accent-primary-fg shrink-0" />
                     <span className="truncate">IPv4-Tabelle</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">CIDR & Masken</div>
@@ -556,7 +556,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Calculator size={14} className="text-cyan-400 shrink-0" />
+                    <Calculator size={14} className="text-accent-primary-fg shrink-0" />
                     <span className="truncate">IPv6-Rechner</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">EUI-64, Präfixe</div>
@@ -568,7 +568,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <BookOpen size={14} className="text-teal-400 shrink-0" />
+                    <BookOpen size={14} className="text-status-success-fg shrink-0" />
                     <span className="truncate">CLI-Referenz</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">IOS-Befehle</div>
@@ -580,7 +580,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Terminal size={14} className="text-emerald-400 shrink-0" />
+                    <Terminal size={14} className="text-status-success-fg shrink-0" />
                     <span className="truncate">IOS-Terminal</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Geräte-Konsole</div>
@@ -592,7 +592,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <GraduationCap size={14} className="text-indigo-400 shrink-0" />
+                    <GraduationCap size={14} className="text-accent-primary-fg shrink-0" />
                     <span className="truncate">Praxis-Labs</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Geführte Übungen</div>
@@ -604,7 +604,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Plugs size={14} className="text-yellow-400 shrink-0" />
+                    <Plugs size={14} className="text-status-warning-fg shrink-0" />
                     <span className="truncate">Kabel-Trainer</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Medien & Ports</div>
@@ -616,7 +616,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <Compass size={14} className="text-amber-400 shrink-0" />
+                    <Compass size={14} className="text-status-warning-fg shrink-0" />
                     <span className="truncate">Routing-Trainer</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">ip route & Match</div>
@@ -628,7 +628,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <TreeStructure size={14} className="text-violet-400 shrink-0" />
+                    <TreeStructure size={14} className="text-status-trunk-fg shrink-0" />
                     <span className="truncate">OSPF-Trainer</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Wildcard & Area</div>
@@ -640,7 +640,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   className="p-2.5 min-h-[48px] rounded-lg border border-border-default bg-surface-elevated hover:bg-surface text-left transition-colors flex flex-col justify-center"
                 >
                   <div className="flex items-center gap-1.5 font-semibold text-xs truncate">
-                    <ShieldCheck size={14} className="text-rose-400 shrink-0" />
+                    <ShieldCheck size={14} className="text-status-error-fg shrink-0" />
                     <span className="truncate">ACL-Trainer</span>
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Access-Listen</div>
@@ -653,10 +653,10 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 >
                   <div className="flex items-center justify-between font-semibold text-xs">
                     <div className="flex items-center gap-1.5 truncate">
-                      <CurrencyDollar size={14} className="text-amber-400 shrink-0" />
+                      <CurrencyDollar size={14} className="text-status-warning-fg shrink-0" />
                       <span className="truncate">Kosten-Rechner</span>
                     </div>
-                    {isCostCalculatorActive && <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 ml-1" />}
+                    {isCostCalculatorActive && <div className="w-1.5 h-1.5 rounded-full bg-status-warning-solid shrink-0 ml-1" />}
                   </div>
                   <div className="text-[10px] text-text-muted truncate ml-5">Cloud-Kosten</div>
                 </button>
@@ -684,7 +684,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Plus size={16} className="text-sky-400 shrink-0" />
+                      <Plus size={16} className="text-accent-primary-fg shrink-0" />
                       <span>Gerät hinzufügen</span>
                     </div>
                     {addDevStatus.requiresV1 && (
@@ -710,7 +710,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Stethoscope size={16} className="text-blue-400 shrink-0" />
+                      <Stethoscope size={16} className="text-accent-primary-fg shrink-0" />
                       <span>Topologie-Diagnose</span>
                     </div>
                     {valStatus.requiresV1 && (
@@ -727,7 +727,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                   onClick={() => { onClose(); onSelectTool("topologie-explorer"); }}
                   className="w-full flex items-center gap-3 px-3 py-2 min-h-[40px] rounded-lg text-xs hover:bg-surface-elevated text-text-secondary hover:text-text-primary transition-colors text-left"
                 >
-                  <Compass size={16} className="text-cyan-400 shrink-0" />
+                  <Compass size={16} className="text-accent-primary-fg shrink-0" />
                   <span>Topologie-Explorer</span>
                 </button>
               )}
@@ -746,7 +746,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <ChartLine size={16} className="text-teal-400 shrink-0" />
+                      <ChartLine size={16} className="text-status-success-fg shrink-0" />
                       <span>Live-Metriken</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -755,7 +755,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                           Nur v1
                         </span>
                       )}
-                      {isMetricsActive && <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />}
+                      {isMetricsActive && <div className="w-1.5 h-1.5 rounded-full bg-status-success-solid" />}
                     </div>
                   </button>
                 );
@@ -775,7 +775,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Notepad size={16} className="text-pink-400 shrink-0" />
+                      <Notepad size={16} className="text-status-trunk-fg shrink-0" />
                       <span>Topologie-Notizen</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -784,7 +784,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                           Nur v1
                         </span>
                       )}
-                      {isAnnotationsActive && <div className="w-1.5 h-1.5 rounded-full bg-pink-400" />}
+                      {isAnnotationsActive && <div className="w-1.5 h-1.5 rounded-full bg-status-trunk-solid" />}
                     </div>
                   </button>
                 );
@@ -804,7 +804,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <FolderOpen size={16} className="text-purple-400 shrink-0" />
+                      <FolderOpen size={16} className="text-status-trunk-fg shrink-0" />
                       <span>Topologie-Vorlagen</span>
                     </div>
                     {tplStatus.requiresV1 && (
@@ -830,7 +830,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Export size={16} className="text-cyan-400 shrink-0" />
+                      <Export size={16} className="text-accent-primary-fg shrink-0" />
                       <span>Teilen und Exportieren</span>
                     </div>
                     {expStatus.requiresV1 && (

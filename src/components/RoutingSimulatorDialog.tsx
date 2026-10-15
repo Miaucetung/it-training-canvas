@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
-  dark: boolean;
+  dark?: boolean;
   onClose: () => void;
 }
 
@@ -304,7 +304,7 @@ function dijkstra(
 // Komponente
 // ════════════════════════════════════════════════════════════
 
-export function RoutingSimulatorDialog({ dark, onClose }: Props) {
+export function RoutingSimulatorDialog({ onClose }: Props) {
   const [tab, setTab] = useState<Tab>("journey");
 
   // ESC schließt
@@ -326,42 +326,34 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
         onClick={onClose}
       >
         <div
-          className={`relative w-full max-w-[1280px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-            dark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-900"
-          }`}
+          className="relative w-full max-w-[1280px] max-h-[94vh] overflow-y-auto rounded-2xl border shadow-2xl bg-card border-border text-foreground"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div
-            className={`sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b ${
-              dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-            }`}
+            className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b bg-card border-border"
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-                  dark ? "bg-sky-500/20 text-sky-300" : "bg-sky-100 text-sky-700"
-                }`}
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-accent-primary/20 text-accent-primary-fg"
               >
                 🛣️
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Routing &amp; OSPF Simulator</h2>
-                <p className="text-xs opacity-70">
+                <p className="text-xs text-muted-foreground">
                   Pakete folgen, Routing-Tabelle lesen, OSPF-Adjacency &amp; SPF interaktiv verstehen
                 </p>
               </div>
             </div>
-            <button onClick={onClose} aria-label="Schließen" className="p-2 rounded-lg hover:bg-slate-500/20">
+            <button onClick={onClose} aria-label="Schließen" className="p-2 rounded-lg hover:bg-muted">
               <X size={18} weight="bold" />
             </button>
           </div>
 
           {/* Tab-Bar */}
           <div
-            className={`sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b ${
-              dark ? "bg-slate-900/95 border-slate-700" : "bg-white/95 border-slate-200"
-            }`}
+            className="sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b bg-card/95 border-border"
           >
             {(
               [
@@ -377,12 +369,8 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
                 onClick={() => setTab(t.id)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   tab === t.id
-                    ? dark
-                      ? "bg-sky-500 text-white"
-                      : "bg-sky-600 text-white"
-                    : dark
-                      ? "hover:bg-slate-800 text-slate-300"
-                      : "hover:bg-slate-100 text-slate-700"
+                    ? "bg-accent-solid text-on-accent-solid"
+                    : "hover:bg-muted text-muted-foreground"
                 }`}
               >
                 {t.label}
@@ -392,11 +380,11 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
 
           {/* Content */}
           <div className="p-6">
-            {tab === "journey" && <JourneyTab dark={dark} />}
-            {tab === "traceroute" && <TracerouteTab dark={dark} />}
-            {tab === "table" && <TableTab dark={dark} />}
-            {tab === "neighbor" && <NeighborTab dark={dark} />}
-            {tab === "spf" && <SpfTab dark={dark} />}
+            {tab === "journey" && <JourneyTab />}
+            {tab === "traceroute" && <TracerouteTab />}
+            {tab === "table" && <TableTab />}
+            {tab === "neighbor" && <NeighborTab />}
+            {tab === "spf" && <SpfTab />}
           </div>
         </div>
       </div>
@@ -408,7 +396,7 @@ export function RoutingSimulatorDialog({ dark, onClose }: Props) {
 // Tab 1: Paketreise
 // ════════════════════════════════════════════════════════════
 
-function JourneyTab({ dark }: { dark: boolean }) {
+function JourneyTab() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
 
@@ -428,8 +416,8 @@ function JourneyTab({ dark }: { dark: boolean }) {
 
   const hop = HOPS[step];
 
-  const subText = dark ? "text-slate-400" : "text-slate-600";
-  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const subText = "text-muted-foreground";
+  const cardBg = "bg-muted/60 border-border";
 
   return (
     <div className="space-y-4">
@@ -448,52 +436,52 @@ function JourneyTab({ dark }: { dark: boolean }) {
       <div className={`rounded-lg border p-4 ${cardBg}`}>
         <svg viewBox="0 0 800 200" className="w-full h-auto" style={{ maxHeight: 260 }}>
           {/* Subnetz-Labels */}
-          <text x="80" y="20" textAnchor="middle" fontSize="11" fill={dark ? "#94a3b8" : "#475569"}>
+          <text x="80" y="20" textAnchor="middle" fontSize="11" fill={"var(--muted-foreground)"}>
             192.168.1.0/24
           </text>
-          <text x="265" y="20" textAnchor="middle" fontSize="11" fill={dark ? "#94a3b8" : "#475569"}>
+          <text x="265" y="20" textAnchor="middle" fontSize="11" fill={"var(--muted-foreground)"}>
             10.0.12.0/30
           </text>
-          <text x="450" y="20" textAnchor="middle" fontSize="11" fill={dark ? "#94a3b8" : "#475569"}>
+          <text x="450" y="20" textAnchor="middle" fontSize="11" fill={"var(--muted-foreground)"}>
             10.0.23.0/30
           </text>
-          <text x="700" y="20" textAnchor="middle" fontSize="11" fill={dark ? "#94a3b8" : "#475569"}>
+          <text x="700" y="20" textAnchor="middle" fontSize="11" fill={"var(--muted-foreground)"}>
             192.168.4.0/24
           </text>
 
           {/* Links */}
-          <line x1="80" y1="115" x2="180" y2="115" stroke={dark ? "#475569" : "#cbd5e1"} strokeWidth="3" />
-          <line x1="220" y1="115" x2="350" y2="115" stroke={dark ? "#475569" : "#cbd5e1"} strokeWidth="3" />
-          <line x1="390" y1="115" x2="530" y2="115" stroke={dark ? "#475569" : "#cbd5e1"} strokeWidth="3" />
-          <line x1="570" y1="115" x2="700" y2="115" stroke={dark ? "#475569" : "#cbd5e1"} strokeWidth="3" />
+          <line x1="80" y1="115" x2="180" y2="115" stroke={"color-mix(in srgb, var(--muted-foreground) 45%, transparent)"} strokeWidth="3" />
+          <line x1="220" y1="115" x2="350" y2="115" stroke={"color-mix(in srgb, var(--muted-foreground) 45%, transparent)"} strokeWidth="3" />
+          <line x1="390" y1="115" x2="530" y2="115" stroke={"color-mix(in srgb, var(--muted-foreground) 45%, transparent)"} strokeWidth="3" />
+          <line x1="570" y1="115" x2="700" y2="115" stroke={"color-mix(in srgb, var(--muted-foreground) 45%, transparent)"} strokeWidth="3" />
 
           {/* PC1 */}
-          <DeviceIcon x={50} y={90} kind="pc" label="PC1" active={hop.location === "pc1"} dark={dark} />
-          <text x="80" y="170" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={50} y={90} kind="pc" label="PC1" active={hop.location === "pc1"} />
+          <text x="80" y="170" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             .10
           </text>
 
           {/* R1 */}
-          <DeviceIcon x={180} y={90} kind="router" label="R1" active={hop.location === "r1"} dark={dark} />
-          <text x="200" y="170" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={180} y={90} kind="router" label="R1" active={hop.location === "r1"} />
+          <text x="200" y="170" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             .1 / .1
           </text>
 
           {/* R2 */}
-          <DeviceIcon x={350} y={90} kind="router" label="R2" active={hop.location === "r2"} dark={dark} />
-          <text x="370" y="170" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={350} y={90} kind="router" label="R2" active={hop.location === "r2"} />
+          <text x="370" y="170" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             .2 / .1
           </text>
 
           {/* R3 */}
-          <DeviceIcon x={530} y={90} kind="router" label="R3" active={hop.location === "r3"} dark={dark} />
-          <text x="550" y="170" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={530} y={90} kind="router" label="R3" active={hop.location === "r3"} />
+          <text x="550" y="170" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             .2 / .1
           </text>
 
           {/* PC2 */}
-          <DeviceIcon x={700} y={90} kind="pc" label="PC2" active={hop.location === "pc2"} dark={dark} />
-          <text x="730" y="170" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={700} y={90} kind="pc" label="PC2" active={hop.location === "pc2"} />
+          <text x="730" y="170" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             .10
           </text>
 
@@ -507,17 +495,13 @@ function JourneyTab({ dark }: { dark: boolean }) {
         <button
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium disabled:opacity-40 ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-muted hover:bg-muted/70"
         >
           ← Zurück
         </button>
         <button
           onClick={() => setPlaying((p) => !p)}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 ${
-            dark ? "bg-sky-500 hover:bg-sky-400 text-white" : "bg-sky-600 hover:bg-sky-700 text-white"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 bg-accent-solid hover:opacity-90 text-on-accent-solid"
         >
           {playing ? <Pause size={14} weight="bold" /> : <Play size={14} weight="bold" />}
           {playing ? "Pause" : "Auto-Play"}
@@ -525,9 +509,7 @@ function JourneyTab({ dark }: { dark: boolean }) {
         <button
           onClick={() => setStep((s) => Math.min(HOPS.length - 1, s + 1))}
           disabled={step === HOPS.length - 1}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 disabled:opacity-40 ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-muted hover:bg-muted/70"
         >
           Weiter <SkipForward size={14} weight="bold" />
         </button>
@@ -536,9 +518,7 @@ function JourneyTab({ dark }: { dark: boolean }) {
             setStep(0);
             setPlaying(false);
           }}
-          className={`px-3 py-1.5 rounded-md text-sm ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm bg-muted hover:bg-muted/70"
         >
           Reset
         </button>
@@ -551,24 +531,24 @@ function JourneyTab({ dark }: { dark: boolean }) {
       <div className={`rounded-lg border p-4 ${cardBg}`}>
         <h3 className="font-semibold mb-2">{hop.title}</h3>
         <p className={`text-sm ${subText} mb-3`}>{hop.description}</p>
-        <div className={`text-xs italic ${dark ? "text-sky-300" : "text-sky-700"}`}>→ {hop.action}</div>
+        <div className="text-xs italic text-accent-primary-fg">→ {hop.action}</div>
       </div>
 
       {/* Frame-/Paket-Felder */}
       <div className="grid md:grid-cols-2 gap-3">
         <div className={`rounded-lg border p-4 ${cardBg}`}>
-          <div className="text-xs font-semibold uppercase mb-2 opacity-70">Layer-2 (Frame-Header)</div>
-          <FieldRow label="Source MAC" value={hop.srcMac} dark={dark} highlight />
-          <FieldRow label="Dest MAC" value={hop.dstMac} dark={dark} highlight />
+          <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Layer-2 (Frame-Header)</div>
+          <FieldRow label="Source MAC" value={hop.srcMac} highlight />
+          <FieldRow label="Dest MAC" value={hop.dstMac} highlight />
           <div className={`text-[11px] mt-2 ${subText}`}>
             MACs ändern sich bei JEDEM Hop — das ist der Kern des Layer-2-Hopping.
           </div>
         </div>
         <div className={`rounded-lg border p-4 ${cardBg}`}>
-          <div className="text-xs font-semibold uppercase mb-2 opacity-70">Layer-3 (IP-Header)</div>
-          <FieldRow label="Source IP" value={hop.srcIp} dark={dark} />
-          <FieldRow label="Dest IP" value={hop.dstIp} dark={dark} />
-          <FieldRow label="TTL" value={String(hop.ttl)} dark={dark} highlight />
+          <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Layer-3 (IP-Header)</div>
+          <FieldRow label="Source IP" value={hop.srcIp} />
+          <FieldRow label="Dest IP" value={hop.dstIp} />
+          <FieldRow label="TTL" value={String(hop.ttl)} highlight />
           <div className={`text-[11px] mt-2 ${subText}`}>
             IPs bleiben über alle Hops gleich. TTL sinkt pro Router um 1.
           </div>
@@ -578,10 +558,10 @@ function JourneyTab({ dark }: { dark: boolean }) {
       {/* Routing-Tabelle des aktuellen Routers */}
       {hop.routeHit && (
         <div className={`rounded-lg border p-4 ${cardBg}`}>
-          <div className="text-xs font-semibold uppercase mb-2 opacity-70">Routing-Tabellen-Treffer (Longest Prefix Match)</div>
+          <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Routing-Tabellen-Treffer (Longest Prefix Match)</div>
           <div className="font-mono text-xs overflow-x-auto">
-            <div className={`px-2 py-1 rounded ${dark ? "bg-amber-500/20 text-amber-200" : "bg-amber-100 text-amber-900"}`}>
-              <span className="opacity-70">Code</span> <strong>O</strong>
+            <div className="px-2 py-1 rounded bg-status-warning-bg text-status-warning-fg">
+              <span className="text-muted-foreground">Code</span> <strong>O</strong>
               {"   "}
               {hop.routeHit.dest}
               {"   "}[<strong>{hop.routeHit.ad}</strong>/{hop.routeHit.metric}]{"   "}
@@ -605,24 +585,22 @@ function DeviceIcon({
   kind,
   label,
   active,
-  dark,
 }: {
   x: number;
   y: number;
   kind: "pc" | "router";
   label: string;
   active: boolean;
-  dark: boolean;
 }) {
-  const fill = active ? "#0ea5e9" : dark ? "#334155" : "#e2e8f0";
-  const stroke = active ? "#7dd3fc" : dark ? "#64748b" : "#94a3b8";
-  const txt = active ? "#fff" : dark ? "#cbd5e1" : "#334155";
+  const fill = active ? "var(--accent-solid)" : "var(--muted)";
+  const stroke = active ? "#7dd3fc" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)";
+  const txt = active ? "var(--on-accent-solid)" : "var(--foreground)";
 
   if (kind === "pc") {
     return (
       <g>
         <rect x={x} y={y} width="60" height="40" rx="4" fill={fill} stroke={stroke} strokeWidth="2" />
-        <rect x={x + 8} y={y + 6} width="44" height="20" fill={dark ? "#1e293b" : "#fff"} />
+        <rect x={x + 8} y={y + 6} width="44" height="20" fill={"var(--card)"} />
         <text x={x + 30} y={y + 56} textAnchor="middle" fontSize="11" fill={txt} fontWeight="bold">
           {label}
         </text>
@@ -661,19 +639,15 @@ function PacketDot({ location }: { location: HopState["location"] }) {
   );
 }
 
-function FieldRow({ label, value, dark, highlight }: { label: string; value: string; dark: boolean; highlight?: boolean }) {
+function FieldRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3 py-1 text-xs">
-      <span className={dark ? "text-slate-400" : "text-slate-600"}>{label}</span>
+      <span className={"text-muted-foreground"}>{label}</span>
       <span
         className={`font-mono ${
           highlight
-            ? dark
-              ? "text-emerald-300 font-semibold"
-              : "text-emerald-700 font-semibold"
-            : dark
-              ? "text-slate-200"
-              : "text-slate-800"
+            ? "text-status-success-fg font-semibold"
+            : "text-foreground"
         }`}
       >
         {value}
@@ -703,7 +677,7 @@ const TRACE: TraceHop[] = [
   { node: "server", cx: 700, ip: "8.8.8.8", role: "Ziel-Host", rtt: ["19 ms", "18 ms", "19 ms"], reply: "Echo Reply — Ziel erreicht ✓", isTarget: true },
 ];
 
-function TracerouteTab({ dark }: { dark: boolean }) {
+function TracerouteTab() {
   const [step, setStep] = useState(0); // aktueller Probe-Index (0 = TTL 1 → R1)
   const [playing, setPlaying] = useState(false);
 
@@ -723,15 +697,15 @@ function TracerouteTab({ dark }: { dark: boolean }) {
 
   const ttl = step + 1;
   const hop = TRACE[step];
-  const subText = dark ? "text-slate-400" : "text-slate-600";
-  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const subText = "text-muted-foreground";
+  const cardBg = "bg-muted/60 border-border";
   const nodes: Array<{ key: TraceHop["node"]; cx: number; kind: "pc" | "router"; label: string }> = [
     { key: "r1", cx: 220, kind: "router", label: "R1" },
     { key: "r2", cx: 380, kind: "router", label: "R2" },
     { key: "r3", cx: 540, kind: "router", label: "R3" },
     { key: "server", cx: 700, kind: "pc", label: "Server" },
   ];
-  const line = dark ? "#475569" : "#cbd5e1";
+  const line = "color-mix(in srgb, var(--muted-foreground) 45%, transparent)";
   const linkColor = (toCx: number) => (toCx <= hop.cx ? "#0ea5e9" : line);
 
   return (
@@ -771,16 +745,16 @@ function TracerouteTab({ dark }: { dark: boolean }) {
           })}
 
           {/* PC */}
-          <DeviceIcon x={40} y={85} kind="pc" label="PC" active={false} dark={dark} />
-          <text x={70} y="165" textAnchor="middle" fontSize="10" fill={dark ? "#cbd5e1" : "#475569"}>
+          <DeviceIcon x={40} y={85} kind="pc" label="PC" active={false} />
+          <text x={70} y="165" textAnchor="middle" fontSize="10" fill={"var(--text-secondary)"}>
             192.168.1.10
           </text>
 
           {/* Hops */}
           {nodes.map((n) => (
             <g key={n.key}>
-              <DeviceIcon x={n.cx - 30} y={85} kind={n.kind} label={n.label} active={n.key === hop.node} dark={dark} />
-              <text x={n.cx} y="165" textAnchor="middle" fontSize="10" fill={n.key === hop.node ? "#0ea5e9" : dark ? "#cbd5e1" : "#475569"}>
+              <DeviceIcon x={n.cx - 30} y={85} kind={n.kind} label={n.label} active={n.key === hop.node} />
+              <text x={n.cx} y="165" textAnchor="middle" fontSize="10" fill={n.key === hop.node ? "#0ea5e9" : "var(--text-secondary)"}>
                 {TRACE.find((t) => t.node === n.key)?.ip}
               </text>
             </g>
@@ -817,16 +791,16 @@ function TracerouteTab({ dark }: { dark: boolean }) {
       </div>
 
       {/* Output */}
-      <div className={`rounded-lg border p-3 font-mono text-xs ${dark ? "bg-slate-950 border-slate-700 text-slate-200" : "bg-slate-900 border-slate-700 text-slate-100"}`}>
-        <div className="text-slate-400">C:\&gt; tracert 8.8.8.8</div>
-        <div className="text-slate-400 mb-1">Routenverfolgung zu 8.8.8.8 über maximal 30 Hops:</div>
+      <div className="rounded-lg border p-3 font-mono text-xs bg-terminal-bg border-terminal-border text-terminal-fg">
+        <div className="text-terminal-muted">C:\&gt; tracert 8.8.8.8</div>
+        <div className="text-terminal-muted mb-1">Routenverfolgung zu 8.8.8.8 über maximal 30 Hops:</div>
         {TRACE.slice(0, step + 1).map((t, i) => (
-          <div key={t.node} className={t.isTarget ? "text-emerald-400" : ""}>
+          <div key={t.node} className={t.isTarget ? "text-status-success-fg" : ""}>
             {String(i + 1).padStart(2, " ")}   {t.rtt.join("   ")}   {t.ip}
             {t.isTarget ? "   ← Ziel" : ""}
           </div>
         ))}
-        {step >= TRACE.length - 1 && <div className="text-emerald-400">Ablaufverfolgung beendet.</div>}
+        {step >= TRACE.length - 1 && <div className="text-status-success-fg">Ablaufverfolgung beendet.</div>}
       </div>
 
       {/* Controls */}
@@ -834,13 +808,13 @@ function TracerouteTab({ dark }: { dark: boolean }) {
         <button
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium disabled:opacity-40 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-muted hover:bg-muted/70"
         >
           ← Zurück
         </button>
         <button
           onClick={() => setPlaying((p) => !p)}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 ${dark ? "bg-sky-500 hover:bg-sky-400 text-white" : "bg-sky-600 hover:bg-sky-700 text-white"}`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 bg-accent-solid hover:opacity-90 text-on-accent-solid"
         >
           {playing ? <Pause size={14} weight="bold" /> : <Play size={14} weight="bold" />}
           {playing ? "Pause" : "Auto-Play"}
@@ -848,13 +822,13 @@ function TracerouteTab({ dark }: { dark: boolean }) {
         <button
           onClick={() => setStep((s) => Math.min(TRACE.length - 1, s + 1))}
           disabled={step >= TRACE.length - 1}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 disabled:opacity-40 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-muted hover:bg-muted/70"
         >
           Weiter <ArrowRight size={14} weight="bold" />
         </button>
         <button
           onClick={() => { setStep(0); setPlaying(false); }}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 ${dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"}`}
+          className="px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 bg-muted hover:bg-muted/70"
         >
           <SkipForward size={14} weight="bold" style={{ transform: "scaleX(-1)" }} /> Reset
         </button>
@@ -867,10 +841,10 @@ function TracerouteTab({ dark }: { dark: boolean }) {
 // Tab 2: Routing-Tabelle & Administrative Distance
 // ════════════════════════════════════════════════════════════
 
-function TableTab({ dark }: { dark: boolean }) {
+function TableTab() {
   const [routes, setRoutes] = useState<RouteSource[]>(DEFAULT_ROUTES);
-  const subText = dark ? "text-slate-400" : "text-slate-600";
-  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const subText = "text-muted-foreground";
+  const cardBg = "bg-muted/60 border-border";
 
   const enabled = routes.filter((r) => r.enabled);
   const winner = enabled.sort((a, b) => a.ad - b.ad)[0] ?? null;
@@ -895,12 +869,8 @@ function TableTab({ dark }: { dark: boolean }) {
             onClick={() => setRoutes((rs) => rs.map((x, i) => (i === idx ? { ...x, enabled: !x.enabled } : x)))}
             className={`text-left rounded-lg border p-3 transition-colors ${
               r.enabled
-                ? dark
-                  ? "bg-slate-800 border-slate-600"
-                  : "bg-white border-slate-300 shadow-sm"
-                : dark
-                  ? "bg-slate-900/50 border-slate-800 opacity-50"
-                  : "bg-slate-100/50 border-slate-200 opacity-50"
+                ? "bg-card border-border shadow-sm"
+                : "bg-muted/50 border-border text-muted-foreground"
             }`}
           >
             <div className="flex items-center justify-between mb-1">
@@ -908,7 +878,7 @@ function TableTab({ dark }: { dark: boolean }) {
                 <span className="w-3 h-3 rounded-full" style={{ background: r.color }} />
                 <span className="font-semibold text-sm">{r.protocol}</span>
               </div>
-              <span className={`text-xs font-mono ${dark ? "text-amber-300" : "text-amber-700"}`}>AD {r.ad}</span>
+              <span className="text-xs font-mono text-status-warning-fg">AD {r.ad}</span>
             </div>
             <div className={`text-xs ${subText}`}>{r.description}</div>
             <div className={`text-[11px] mt-1 ${subText}`}>
@@ -921,10 +891,10 @@ function TableTab({ dark }: { dark: boolean }) {
       {/* Winner */}
       <div
         className={`rounded-lg border p-4 ${
-          winner ? (dark ? "bg-emerald-500/10 border-emerald-500/40" : "bg-emerald-50 border-emerald-300") : cardBg
+          winner ? ("bg-status-success-bg border-status-success-border/40") : cardBg
         }`}
       >
-        <div className="text-xs font-semibold uppercase mb-2 opacity-70">Was steht in der Routing-Tabelle?</div>
+        <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Was steht in der Routing-Tabelle?</div>
         {winner ? (
           <>
             <div className="font-mono text-sm">
@@ -965,9 +935,7 @@ function TableTab({ dark }: { dark: boolean }) {
           ].map(([proto, ad]) => (
             <div
               key={proto}
-              className={`flex items-center justify-between px-2 py-1 rounded ${
-                dark ? "bg-slate-900/60" : "bg-white"
-              }`}
+              className="flex items-center justify-between px-2 py-1 rounded bg-card/60"
             >
               <span>{proto}</span>
               <span className="font-mono font-semibold">{ad}</span>
@@ -983,10 +951,10 @@ function TableTab({ dark }: { dark: boolean }) {
 // Tab 3: OSPF Neighbor States
 // ════════════════════════════════════════════════════════════
 
-function NeighborTab({ dark }: { dark: boolean }) {
+function NeighborTab() {
   const [step, setStep] = useState(0);
-  const subText = dark ? "text-slate-400" : "text-slate-600";
-  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const subText = "text-muted-foreground";
+  const cardBg = "bg-muted/60 border-border";
 
   const cur = NEIGHBOR_STEPS[step];
 
@@ -1011,16 +979,10 @@ function NeighborTab({ dark }: { dark: boolean }) {
                 onClick={() => setStep(i)}
                 className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                   i === step
-                    ? dark
-                      ? "bg-sky-500 text-white"
-                      : "bg-sky-600 text-white"
+                    ? "bg-accent-solid text-on-accent-solid"
                     : i < step
-                      ? dark
-                        ? "bg-emerald-500/30 text-emerald-200"
-                        : "bg-emerald-100 text-emerald-800"
-                      : dark
-                        ? "bg-slate-700 text-slate-400"
-                        : "bg-slate-200 text-slate-600"
+                      ? "bg-status-success-bg text-status-success-fg"
+                      : "bg-muted text-muted-foreground"
                 }`}
               >
                 {s.state}
@@ -1039,10 +1001,10 @@ function NeighborTab({ dark }: { dark: boolean }) {
           <text x="100" y="84" textAnchor="middle" fontSize="13" fill="#fff" fontWeight="bold">
             R1
           </text>
-          <text x="100" y="130" textAnchor="middle" fontSize="11" fill={dark ? "#cbd5e1" : "#475569"}>
+          <text x="100" y="130" textAnchor="middle" fontSize="11" fill={"var(--text-secondary)"}>
             RID 1.1.1.1
           </text>
-          <text x="100" y="146" textAnchor="middle" fontSize="10" fill={dark ? "#94a3b8" : "#64748b"}>
+          <text x="100" y="146" textAnchor="middle" fontSize="10" fill={"var(--muted-foreground)"}>
             State: {cur.state}
           </text>
 
@@ -1051,20 +1013,20 @@ function NeighborTab({ dark }: { dark: boolean }) {
           <text x="500" y="84" textAnchor="middle" fontSize="13" fill="#fff" fontWeight="bold">
             R2
           </text>
-          <text x="500" y="130" textAnchor="middle" fontSize="11" fill={dark ? "#cbd5e1" : "#475569"}>
+          <text x="500" y="130" textAnchor="middle" fontSize="11" fill={"var(--text-secondary)"}>
             RID 2.2.2.2
           </text>
-          <text x="500" y="146" textAnchor="middle" fontSize="10" fill={dark ? "#94a3b8" : "#64748b"}>
+          <text x="500" y="146" textAnchor="middle" fontSize="10" fill={"var(--muted-foreground)"}>
             State: {cur.state}
           </text>
 
           {/* Link */}
-          <line x1="132" y1="80" x2="468" y2="80" stroke={dark ? "#475569" : "#cbd5e1"} strokeWidth="2" />
+          <line x1="132" y1="80" x2="468" y2="80" stroke={"color-mix(in srgb, var(--muted-foreground) 45%, transparent)"} strokeWidth="2" />
 
           {/* Paket-Pfeil */}
           {cur.direction !== "—" && (
             <g key={step}>
-              <text x="300" y="50" textAnchor="middle" fontSize="11" fontWeight="bold" fill={dark ? "#fbbf24" : "#b45309"}>
+              <text x="300" y="50" textAnchor="middle" fontSize="11" fontWeight="bold" fill={"var(--status-warning-fg)"}>
                 {cur.packet}
               </text>
               {cur.direction === "→" && (
@@ -1112,9 +1074,7 @@ function NeighborTab({ dark }: { dark: boolean }) {
         </div>
         {cur.troubleshoot && (
           <div
-            className={`mt-3 rounded p-2 text-xs ${
-              dark ? "bg-rose-500/10 text-rose-200 border border-rose-500/30" : "bg-rose-50 text-rose-800 border border-rose-200"
-            }`}
+            className="mt-3 rounded p-2 text-xs bg-status-error-bg text-status-error-fg border border-status-error-border/30"
           >
             ⚠ <strong>Häufige Stolperstelle:</strong> {cur.troubleshoot}
           </div>
@@ -1125,26 +1085,20 @@ function NeighborTab({ dark }: { dark: boolean }) {
         <button
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className={`px-3 py-1.5 rounded-md text-sm disabled:opacity-40 ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-muted hover:bg-muted/70"
         >
           ← Vorheriger State
         </button>
         <button
           onClick={() => setStep((s) => Math.min(NEIGHBOR_STEPS.length - 1, s + 1))}
           disabled={step === NEIGHBOR_STEPS.length - 1}
-          className={`px-3 py-1.5 rounded-md text-sm disabled:opacity-40 ${
-            dark ? "bg-sky-500 hover:bg-sky-400 text-white" : "bg-sky-600 hover:bg-sky-700 text-white"
-          }`}
+          className="px-3 py-1.5 rounded-md text-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed bg-accent-solid hover:opacity-90 text-on-accent-solid"
         >
           Nächster State →
         </button>
         <button
           onClick={() => setStep(0)}
-          className={`ml-auto px-3 py-1.5 rounded-md text-sm ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="ml-auto px-3 py-1.5 rounded-md text-sm bg-muted hover:bg-muted/70"
         >
           Reset
         </button>
@@ -1157,7 +1111,7 @@ function NeighborTab({ dark }: { dark: boolean }) {
 // Tab 4: SPF / Cost
 // ════════════════════════════════════════════════════════════
 
-function SpfTab({ dark }: { dark: boolean }) {
+function SpfTab() {
   const [costs, setCosts] = useState<Record<string, number>>(() => {
     const o: Record<string, number> = {};
     SPF_EDGES.forEach((e) => (o[`${e.from}-${e.to}`] = e.defaultCost));
@@ -1166,8 +1120,8 @@ function SpfTab({ dark }: { dark: boolean }) {
   const [src, setSrc] = useState("R1");
   const [dst, setDst] = useState("R4");
 
-  const subText = dark ? "text-slate-400" : "text-slate-600";
-  const cardBg = dark ? "bg-slate-800/60 border-slate-700" : "bg-slate-50 border-slate-200";
+  const subText = "text-muted-foreground";
+  const cardBg = "bg-muted/60 border-border";
 
   const result = useMemo(() => {
     const edges = SPF_EDGES.map((e) => ({
@@ -1207,9 +1161,7 @@ function SpfTab({ dark }: { dark: boolean }) {
           <select
             value={src}
             onChange={(e) => setSrc(e.target.value)}
-            className={`px-2 py-1 rounded border ${
-              dark ? "bg-slate-800 border-slate-600" : "bg-white border-slate-300"
-            }`}
+            className="px-2 py-1 rounded border bg-muted border-border"
           >
             {SPF_NODES.map((n) => (
               <option key={n.id} value={n.id}>
@@ -1223,9 +1175,7 @@ function SpfTab({ dark }: { dark: boolean }) {
           <select
             value={dst}
             onChange={(e) => setDst(e.target.value)}
-            className={`px-2 py-1 rounded border ${
-              dark ? "bg-slate-800 border-slate-600" : "bg-white border-slate-300"
-            }`}
+            className="px-2 py-1 rounded border bg-muted border-border"
           >
             {SPF_NODES.map((n) => (
               <option key={n.id} value={n.id}>
@@ -1240,9 +1190,7 @@ function SpfTab({ dark }: { dark: boolean }) {
             SPF_EDGES.forEach((e) => (o[`${e.from}-${e.to}`] = e.defaultCost));
             setCosts(o);
           }}
-          className={`ml-auto px-3 py-1.5 rounded-md text-xs ${
-            dark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-200 hover:bg-slate-300"
-          }`}
+          className="ml-auto px-3 py-1.5 rounded-md text-xs bg-muted hover:bg-muted/70"
         >
           Kosten zurücksetzen
         </button>
@@ -1266,7 +1214,7 @@ function SpfTab({ dark }: { dark: boolean }) {
                   y1={a.y}
                   x2={b.x}
                   y2={b.y}
-                  stroke={onPath ? "#10b981" : dark ? "#475569" : "#cbd5e1"}
+                  stroke={onPath ? "#10b981" : "color-mix(in srgb, var(--muted-foreground) 45%, transparent)"}
                   strokeWidth={onPath ? 4 : 2}
                 />
                 <rect
@@ -1275,8 +1223,8 @@ function SpfTab({ dark }: { dark: boolean }) {
                   width="36"
                   height="20"
                   rx="4"
-                  fill={onPath ? "#10b981" : dark ? "#0f172a" : "#fff"}
-                  stroke={onPath ? "#10b981" : dark ? "#64748b" : "#94a3b8"}
+                  fill={onPath ? "#10b981" : "var(--card)"}
+                  stroke={onPath ? "#10b981" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)"}
                   strokeWidth="1"
                 />
                 <text
@@ -1285,7 +1233,7 @@ function SpfTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize="11"
                   fontWeight="bold"
-                  fill={onPath ? "#fff" : dark ? "#cbd5e1" : "#334155"}
+                  fill={onPath ? "#fff" : "var(--foreground)"}
                 >
                   {cost}
                 </text>
@@ -1297,7 +1245,7 @@ function SpfTab({ dark }: { dark: boolean }) {
             const isSrc = n.id === src;
             const isDst = n.id === dst;
             const onPath = result.path.includes(n.id);
-            const fill = isSrc ? "#0ea5e9" : isDst ? "#f59e0b" : onPath ? "#10b981" : dark ? "#334155" : "#e2e8f0";
+            const fill = isSrc ? "#0ea5e9" : isDst ? "#f59e0b" : onPath ? "#10b981" : "var(--muted)";
             return (
               <g key={n.id}>
                 <circle cx={n.x} cy={n.y} r="28" fill={fill} stroke="#fff" strokeWidth="2" />
@@ -1307,7 +1255,7 @@ function SpfTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize="13"
                   fontWeight="bold"
-                  fill={isSrc || isDst || onPath ? "#fff" : dark ? "#cbd5e1" : "#334155"}
+                  fill={isSrc || isDst || onPath ? "#fff" : "var(--foreground)"}
                 >
                   {n.label}
                 </text>
@@ -1319,7 +1267,7 @@ function SpfTab({ dark }: { dark: boolean }) {
 
       {/* Slider für jede Kante */}
       <div className={`rounded-lg border p-4 ${cardBg}`}>
-        <div className="text-xs font-semibold uppercase mb-2 opacity-70">Link-Kosten anpassen</div>
+        <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Link-Kosten anpassen</div>
         <div className="grid sm:grid-cols-2 gap-3">
           {SPF_EDGES.map((e) => {
             const key = `${e.from}-${e.to}`;
@@ -1348,13 +1296,11 @@ function SpfTab({ dark }: { dark: boolean }) {
       <div
         className={`rounded-lg border p-4 ${
           result.path.length > 0
-            ? dark
-              ? "bg-emerald-500/10 border-emerald-500/40"
-              : "bg-emerald-50 border-emerald-300"
+            ? "bg-status-success-bg border-status-success-border/40"
             : cardBg
         }`}
       >
-        <div className="text-xs font-semibold uppercase mb-2 opacity-70">Bester Pfad (Dijkstra)</div>
+        <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Bester Pfad (Dijkstra)</div>
         {result.path.length > 0 && result.cost !== Infinity ? (
           <>
             <div className="font-mono text-lg">{result.path.join("  →  ")}</div>
@@ -1374,7 +1320,7 @@ function SpfTab({ dark }: { dark: boolean }) {
       {/* Praxis-Hinweis */}
       <div className={`rounded-lg border p-4 ${cardBg}`}>
         <h4 className="font-semibold text-sm mb-2">Praxis-Tipp: Cost manuell setzen</h4>
-        <pre className={`text-xs font-mono overflow-x-auto p-2 rounded ${dark ? "bg-slate-900" : "bg-slate-100"}`}>
+        <pre className="text-xs font-mono overflow-x-auto p-2 rounded bg-muted">
 {`R1(config)# interface Gi0/1
 R1(config-if)# ip ospf cost 5         ! überschreibt die berechnete Cost
 
