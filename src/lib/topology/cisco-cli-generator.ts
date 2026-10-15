@@ -18,55 +18,17 @@ import { formatShowIpDhcpBinding, formatShowIpDhcpPool, hasDhcpPools } from "./d
 import { formatShowVtpStatus, hasVtpConfig } from "./vtp-status";
 import { formatShowIpNatTranslations, hasNatConfig } from "./nat-outputs";
 import { formatShowStandbyBrief, hasHsrpConfig } from "./hsrp";
-import { installedStaticRoutes } from "./static-routes";
 import { greOutputs } from "./gre-tunnel";
-import { computeEigrpNeighbors, computeEigrpRoutes, computeOspfExternalRoutes, eigrpV4Runs, formatEigrpNeighborTable } from "./eigrp-ipv4";
-import { computeOspfRoutes } from "./ospf-routes";
+import { computeEigrpNeighbors, eigrpV4Runs, formatEigrpNeighborTable } from "./eigrp-ipv4";
 import { cryptoOutputs } from "./ipsec";
+import {
+  cidrToSubnetMask,
+  computeStructuredRoutingTable,
+  formatShowIpRoute,
+  getNetworkAddress,
+} from "./routing-table";
 
-/**
- * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
- */
-export function cidrToSubnetMask(cidr: number): string {
-  const mask = [];
-  for (let i = 0; i < 4; i++) {
-    const bits = Math.min(Math.max(cidr - i * 8, 0), 8);
-    mask.push(256 - Math.pow(2, 8 - bits));
-  }
-  return mask.join(".");
-}
-
-/**
- * Berechnet die Netzadresse aus einer IP/CIDR (z. B. "192.168.10.1/24" -> "192.168.10.0/24")
- */
-export function getNetworkAddress(ipCidr: string): { network: string; ip: string; cidr: number; mask: string } | null {
-  const parts = ipCidr.split("/");
-  if (parts.length !== 2) return null;
-  const ip = parts[0].trim();
-  const cidr = parseInt(parts[1].trim(), 10);
-  if (isNaN(cidr) || cidr < 0 || cidr > 32) return null;
-
-  const octets = ip.split(".").map(Number);
-  if (octets.length !== 4 || octets.some((o) => isNaN(o) || o < 0 || o > 255)) return null;
-
-  const ipNum = (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3];
-  const maskNum = cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
-  const netNum = (ipNum & maskNum) >>> 0;
-
-  const netOctets = [
-    (netNum >>> 24) & 255,
-    (netNum >>> 16) & 255,
-    (netNum >>> 8) & 255,
-    netNum & 255,
-  ];
-
-  return {
-    network: `${netOctets.join(".")}/${cidr}`,
-    ip,
-    cidr,
-    mask: cidrToSubnetMask(cidr),
-  };
-}
+export { cidrToSubnetMask, getNetworkAddress };
 
 /**
  * Standard Cisco IOS Show-Commands Generator
@@ -76,97 +38,15 @@ export class CiscoCliGenerator {
    * Generiert Cisco IOS 'show ip route'
    */
   static generateShowIpRoute(device: TopologyDevice, topology: NetworkTopology): string {
-    let codesHeader = [
-      "Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP",
-      "       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area",
-      "       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2",
-      "       E1 - OSPF external type 1, E2 - OSPF external type 2",
-      "       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2",
-      "       ia - IS-IS inter area, * - candidate default, U - per-user static route",
-      "       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP",
-      "       a - application route",
-      "       + - replicated route, % - next hop override, p - overrides from PfR",
-      "",
-      "Gateway of last resort is not set",
-      "",
-    ].join("\n");
+    const table = computeStructuredRoutingTable(device, topology);
+    return formatShowIpRoute(table);
+  }
 
-    interface RouteEntry {
-      prefix: string;
-      ad: number;
-      line: string;
-    }
-    const routes: RouteEntry[] = [];
-
-    // 1. Lokale und Direkt verbundene Routen (C und L)
-    for (const iface of device.interfaces) {
-      if (!iface.ip) continue;
-      const netInfo = getNetworkAddress(iface.ip);
-      if (!netInfo) continue;
-
-      // Connected Route
-      routes.push({ prefix: netInfo.network, ad: 0, line: `C    ${netInfo.network} is directly connected, ${iface.name}` });
-
-      // Local Route (/32 für die Host-IP)
-      if (netInfo.cidr < 32) {
-        routes.push({ prefix: `${netInfo.ip}/32`, ad: 0, line: `L    ${netInfo.ip}/32 is directly connected, ${iface.name}` });
-      }
-    }
-
-    // 2. OSPF-Routen: kürzeste Pfade über echte Nachbarschaften, Kosten = Summe der Ausgangs-Interface-Kosten (siehe ospf-routes.ts)
-    const ospfRoutes = computeOspfRoutes(device, topology);
-
-    // 3. Statische Routen (nur installierbare: Next Hop in einem aktiven verbundenen Netz)
-    let gateway: string | null = null;
-    for (const s of installedStaticRoutes(device)) {
-      const isDefault = s.route.network === "0.0.0.0/0";
-      if (isDefault && s.route.nextHop && !gateway) gateway = s.route.nextHop;
-      const tag = isDefault ? "S*" : "S ";
-      const target = s.route.nextHop ? `via ${s.route.nextHop}` : `is directly connected, ${s.outInterface}`;
-      routes.push({ prefix: s.route.network, ad: s.distance, line: `${tag}   ${s.route.network} [${s.distance}/0] ${target}` });
-    }
-
-    // 4. EIGRP (D, D EX) und OSPF-extern (O E1/E2) aus Redistribution; ohne Uptime (Laufzeitwert)
-    const formatVias = (code: string, prefix: string, ad: number, metric: number | null, vias: Array<{ nextHop: string; iface: { name: string } }>): string[] => {
-      const metricText = metric === null ? "nicht bestimmbar" : String(metric);
-      return vias.map((v, idx) =>
-        idx === 0
-          ? `${code.padEnd(5)}${prefix} [${ad}/${metricText}] via ${v.nextHop}, ${v.iface.name}`
-          : `${" ".repeat(5 + prefix.length + 1)}[${ad}/${metricText}] via ${v.nextHop}, ${v.iface.name}`
-      );
-    };
-    for (const r of computeEigrpRoutes(device, topology)) {
-      const ad = r.external ? 170 : 90;
-      routes.push({ prefix: r.network, ad, line: formatVias(r.external ? "D EX" : "D", r.network, ad, r.metric, r.vias).join("\n") });
-    }
-    for (const r of ospfRoutes) {
-      routes.push({ prefix: r.network, ad: 110, line: formatVias(r.code, r.network, 110, r.cost, r.vias).join("\n") });
-    }
-    const externals = computeOspfExternalRoutes(device, topology);
-    for (const r of externals) {
-      routes.push({ prefix: r.network, ad: 110, line: formatVias(r.type === 1 ? "O E1" : "O E2", r.network, 110, r.metric, r.vias).join("\n") });
-    }
-
-    // je Präfix gewinnt die niedrigste Administrative Distance
-    const bestAd = new Map<string, number>();
-    for (const r of routes) bestAd.set(r.prefix, Math.min(bestAd.get(r.prefix) ?? Infinity, r.ad));
-    const lines = routes.filter((r) => r.ad === bestAd.get(r.prefix)).map((r) => r.line);
-
-    if (lines.length === 0) {
-      return codesHeader + "(Keine aktiven IPv4-Routen konfiguriert)";
-    }
-    if (gateway) codesHeader = codesHeader.replace("Gateway of last resort is not set", `Gateway of last resort is ${gateway} to network 0.0.0.0`);
-
-    // Sortierung nach Netzwerk-Präfix
-    lines.sort((a, b) => a.localeCompare(b));
-    const hasRuntimeFree = routes.some((r) => /^(D|O)/.test(r.line));
-    const hasDefaultSeed = externals.some((r) => r.defaultMetric);
-    return (
-      codesHeader +
-      lines.join("\n") +
-      (hasRuntimeFree ? "\n(Uptime ist ein Laufzeitwert und nicht bestimmbar: bei D- und O-Routen nicht ausgegeben)" : "") +
-      (hasDefaultSeed ? "\n(O E1/E2 ohne metric im Lab: Seed-Metrik 20 bzw. 1 bei Quelle BGP ist der IOS-Standardwert)" : "")
-    );
+  /**
+   * Liefert die strukturierte Routing-Tabelle für Routing/LPM und Inspektion
+   */
+  static getStructuredRoutingTable(device: TopologyDevice, topology: NetworkTopology) {
+    return computeStructuredRoutingTable(device, topology);
   }
 
   /**
