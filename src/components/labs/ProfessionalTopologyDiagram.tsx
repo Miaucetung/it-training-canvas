@@ -108,7 +108,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
       <svg
         viewBox={`0 0 ${topology.viewBox.width} ${topology.viewBox.height}`}
         className="w-full h-auto block"
-        role="img"
+        role="group"
         aria-label="Cisco Netzwerk-Topologiediagramm"
         style={{
           fontFamily:
@@ -441,7 +441,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
               }
               role="button"
               tabIndex={0}
-              aria-label={`Gerät ${device.name} auswählen`}
+              aria-label={`${[device.name, device.model, device.assumed ? assumedCaption(device.assumedReason) : null].filter(Boolean).join(" ")}: Gerät auswählen`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   onSelectDevice?.(isSelected ? null : device.name);
@@ -531,7 +531,7 @@ export const ProfessionalTopologyDiagram: React.FC<ProfessionalTopologyDiagramPr
                   }
                   letterSpacing="0.01em"
                 >
-                  {device.name}
+                  {device.name}{" "}
                 </text>
 
                 {/* Hardware-Modell (z. B. Cisco 2901) */}
