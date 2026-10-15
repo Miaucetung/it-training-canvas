@@ -1585,7 +1585,7 @@ function App() {
 
                   {/* Topic detail — nur bei Auswahl */}
                   {selectedTopic && selectedTopicModule && (
-                    <div className="flex-1 overflow-hidden">
+                    <main className="flex-1 overflow-hidden">
                       <TopicDetailPanel
                         topic={selectedTopic}
                         module={selectedTopicModule}
@@ -1602,7 +1602,7 @@ function App() {
                           setSelectedTopicAnchor(undefined);
                         }}
                       />
-                    </div>
+                    </main>
                   )}
                 </>
               ) : (

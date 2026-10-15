@@ -149,6 +149,19 @@ describe("a) Topic-Title und Description", () => {
     expect(screen.getByText("Netzwerkgrundlagen")).toBeTruthy();
   });
 
+  it("Topic-Titel ist die Seitenüberschrift (h1), Abschnitte sind h2", () => {
+    render(
+      <TopicDetailPanel
+        topic={TOPIC_WITH_QUIZ}
+        module={MODULE_TEST}
+        theme="dark"
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 1, name: "Netzwerkgrundlagen" })).toBeTruthy();
+    expect(screen.queryAllByRole("heading", { level: 3 }).length).toBe(0);
+  });
+
   it("zeigt die Topic-Description", () => {
     render(
       <TopicDetailPanel
