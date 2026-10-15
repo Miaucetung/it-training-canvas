@@ -323,7 +323,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
         <span className={`text-3xl font-bold ${passed ? "text-green-500" : "text-red-500"}`}>
           {score}
         </span>
-        <span className="text-xs text-zinc-500">/ 1000</span>
+        <span className="text-xs text-muted-foreground">/ 1000</span>
       </div>
 
       <div className="text-center">
@@ -379,7 +379,7 @@ function ResultsScreen({ results, questions, dark, onRetry, onMenu, mode, elapse
       <div className="flex gap-3">
         <button
           onClick={onRetry}
-          className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white hover:bg-sky-600"
+          className="flex items-center gap-2 rounded-lg bg-accent-solid px-4 py-2 text-sm font-medium text-on-accent-solid hover:opacity-90"
         >
           <Shuffle size={16} />
           Nochmal
@@ -681,7 +681,7 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                   <div key={s.label} className="flex flex-col items-center gap-1 text-center">
                     {s.icon}
                     <span className="text-2xl font-bold">{s.value}</span>
-                    <span className={`text-xs ${dark ? "text-zinc-500" : "text-zinc-500"}`}>
+                    <span className="text-xs text-muted-foreground">
                       {s.label}
                     </span>
                   </div>
@@ -690,10 +690,11 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
 
               {/* Category filter */}
               <div>
-                <label className={`mb-2 block text-sm font-medium ${dark ? "text-zinc-400" : "text-zinc-600"}`}>
+                <label htmlFor="exam-category-filter" className={`mb-2 block text-sm font-medium ${dark ? "text-zinc-400" : "text-zinc-600"}`}>
                   Kategorie filtern
                 </label>
                 <select
+                  id="exam-category-filter"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className={`w-full rounded-lg border px-3 py-2 text-sm ${
@@ -721,21 +722,21 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                 <button
                   onClick={startLearn}
                   disabled={filteredPool.length === 0}
-                  className="flex flex-col items-center gap-2 rounded-xl border border-sky-500 bg-sky-500/10 p-5 text-sky-500 transition-all hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-accent-primary bg-accent-primary/10 p-5 text-accent-primary-fg transition-all hover:bg-accent-primary/20 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <BookOpen size={32} />
                   <span className="font-semibold">Lernmodus</span>
-                  <span className="text-xs opacity-80">Sofortiges Feedback · Alle {filteredPool.length} Fragen</span>
+                  <span className="text-xs">Sofortiges Feedback · Alle {filteredPool.length} Fragen</span>
                 </button>
 
                 <button
                   onClick={startExam}
                   disabled={filteredPool.length < 10}
-                  className="flex flex-col items-center gap-2 rounded-xl border border-purple-500 bg-purple-500/10 p-5 text-purple-500 transition-all hover:bg-purple-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-status-trunk-border bg-status-trunk-bg p-5 text-status-trunk-fg transition-all hover:bg-status-trunk-border/20 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Clock size={32} />
                   <span className="font-semibold">Prüfungsmodus</span>
-                  <span className="text-xs opacity-80">
+                  <span className="text-xs">
                     120 min · {Math.min(EXAM_QUESTIONS_COUNT, filteredPool.length)} Fragen · Score
                   </span>
                 </button>
@@ -743,11 +744,11 @@ export default function ExamPrepDialog({ dark, onClose }: Props) {
                 <button
                   onClick={startDrill}
                   disabled={weakIds.size === 0}
-                  className="flex flex-col items-center gap-2 rounded-xl border border-orange-500 bg-orange-500/10 p-5 text-orange-500 transition-all hover:bg-orange-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-status-blocking-border bg-status-blocking-bg p-5 text-status-blocking-fg transition-all hover:bg-status-blocking-border/20 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <FireSimple size={32} />
                   <span className="font-semibold">Schwächen-Drill</span>
-                  <span className="text-xs opacity-80">
+                  <span className="text-xs">
                     {weakIds.size > 0 ? `${weakIds.size} gespeicherte Fehler` : "Noch keine Fehler"}
                   </span>
                 </button>

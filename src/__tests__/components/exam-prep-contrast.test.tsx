@@ -64,5 +64,40 @@ describe("ExamPrepDialog: Textfarben über Design-Tokens (Kontrast)", () => {
       expect(reset.className).not.toMatch(/text-zinc-(400|600)/);
     });
   }
+
+  for (const dark of [true, false]) {
+    it(`Menü: Statistik-Beschriftungen, Modus-Kacheln und Kategorie-Auswahl über Design-Tokens (${dark ? "dunkel" : "hell"})`, () => {
+      render(<ExamPrepDialog dark={dark} onClose={vi.fn()} />);
+      for (const label of ["Fragen gesamt", "Mit Grafik", "Schwächefragen", "Kategorien"]) {
+        expect(screen.getByText(label).className).toBe("text-xs text-muted-foreground");
+      }
+      const tile = (name: string) => screen.getByText(name).closest("button") as HTMLElement;
+      expect(tile("Lernmodus").className).toContain("text-accent-primary-fg");
+      expect(tile("Prüfungsmodus").className).toContain("text-status-trunk-fg");
+      expect(tile("Schwächen-Drill").className).toContain("text-status-blocking-fg");
+      for (const name of ["Lernmodus", "Prüfungsmodus", "Schwächen-Drill"]) {
+        expect(tile(name).className, name).not.toMatch(/(?:text|bg|border)-(?:sky|purple|orange)-/);
+        expect(tile(name).innerHTML, name).not.toContain("opacity-80");
+      }
+      // Auswahlfeld hat ein Label
+      const select = screen.getByLabelText("Kategorie filtern") as HTMLSelectElement;
+      expect(select.tagName).toBe("SELECT");
+      expect(select.id).toBe("exam-category-filter");
+    });
+
+    it(`Ergebnisbildschirm: „/ 1000“ und „Nochmal“ über Design-Tokens (${dark ? "dunkel" : "hell"})`, () => {
+      render(<ExamPrepDialog dark={dark} onClose={vi.fn()} />);
+      fireEvent.click(screen.getByText("Prüfungsmodus"));
+      for (let i = 0; i < 12; i++) {
+        fireEvent.click(screen.getByText("the longest prefix"));
+        fireEvent.click(screen.getByText(i < 11 ? /Weiter/ : /Auswertung/));
+      }
+      expect(screen.getByText("/ 1000").className).toBe("text-xs text-muted-foreground");
+      const again = screen.getByText("Nochmal").closest("button") as HTMLElement;
+      expect(again.className).toContain("bg-accent-solid");
+      expect(again.className).toContain("text-on-accent-solid");
+      expect(again.className).not.toMatch(/bg-sky-|text-white/);
+    });
+  }
 });
 

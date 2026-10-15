@@ -385,10 +385,13 @@ function App() {
               if (target === "exam") setShowExamPrep(true);
               if (target === "prioritized") setShowPrioritizedLearning(true);
               if (target === "dragdrop") setActiveTool("dragdrop-trainer");
+              if (target === "labs") setShowLabScenarios(true);
             },
+            openTool: (id) => setActiveTool(id),
             closeDialogs: () => {
               setShowExamPrep(false);
               setShowPrioritizedLearning(false);
+              setShowLabScenarios(false);
               setActiveTool(null);
             },
           })
