@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface Props {
-  dark: boolean;
+  dark?: boolean;
   onClose: () => void;
 }
 
@@ -44,7 +44,7 @@ const CABLE_SCENARIOS = [
     from: "PC (MDI)",
     to: "Switch (MDI-X)",
     cable: "Straight-through",
-    color: "#6366f1",
+    color: "var(--accent-primary)",
     reason: "PC hat MDI-Stecker, Switch hat MDI-X. Senden und Empfangen liegen auf verschiedenen Pins — kein Kreuzen nötig.",
     pins: "TX(PC)→RX(Switch), RX(PC)←TX(Switch) — Pins 1/2 ↔ 1/2, 3/6 ↔ 3/6",
     note: "Heute: Auto-MDI-X macht das automatisch. Crossover ist für PC↔Switch meist nicht mehr nötig.",
@@ -112,7 +112,7 @@ const KATEGORIEN = [
 ];
 
 // ── PinTrainer Component ───────────────────────────────────────
-function PinTrainer({ dark }: { dark: boolean }) {
+function PinTrainer() {
   const [standard, setStandard] = useState<"A" | "B">("B");
   const [userOrder, setUserOrder] = useState<number[]>([0, 1, 2, 3, 4, 5, 6, 7]);
   const [dragging, setDragging] = useState<number | null>(null);
@@ -164,7 +164,7 @@ function PinTrainer({ dark }: { dark: boolean }) {
             className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
               standard === s
                 ? "bg-accent-solid text-on-accent-solid"
-                : dark ? "bg-slate-700 text-slate-300 hover:bg-slate-600" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                : "bg-muted text-muted-foreground hover:bg-muted/70 hover:text-foreground"
             }`}
           >
             T568{s}
@@ -195,14 +195,14 @@ function PinTrainer({ dark }: { dark: boolean }) {
               }}
               style={{
                 background: w.bg,
-                borderColor: dragging === pinIdx ? "#6366f1" : (checked ? (isCorrect ? "#22c55e" : "#ef4444") : w.border),
+                borderColor: dragging === pinIdx ? "var(--accent-primary)" : (checked ? (isCorrect ? "var(--status-success-border)" : "var(--status-error-border)") : w.border),
                 color: w.text,
               }}
               className={`w-14 h-16 rounded-lg border-2 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
-                dragging === pinIdx ? "ring-2 ring-indigo-400 scale-105" : "hover:scale-105"
+                dragging === pinIdx ? "ring-2 ring-ring scale-105" : "hover:scale-105"
               }`}
             >
-              <span className="text-[9px] opacity-60">Pin {pinIdx + 1}</span>
+              <span className="text-[9px]">Pin {pinIdx + 1}</span>
               <span className="text-center leading-tight">{w.label}</span>
             </button>
           );
@@ -222,7 +222,7 @@ function PinTrainer({ dark }: { dark: boolean }) {
       )}
 
       <div className="flex gap-2 flex-wrap">
-        <button onClick={shuffle} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${dark ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>
+        <button onClick={shuffle} className={`px-3 py-1.5 rounded-lg text-xs font-semibold bg-muted text-foreground hover:bg-muted/70`}>
           🔀 Mischen
         </button>
         <button onClick={checkAnswer} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent-solid text-on-accent-solid hover:opacity-90">
@@ -248,7 +248,7 @@ function PinTrainer({ dark }: { dark: boolean }) {
 }
 
 // ── CableWizard Component ──────────────────────────────────────
-function CableWizard({ dark }: { dark: boolean }) {
+function CableWizard() {
   const [selected, setSelected] = useState<number | null>(null);
 
   return (
@@ -263,13 +263,13 @@ function CableWizard({ dark }: { dark: boolean }) {
             onClick={() => setSelected(i)}
             className={`rounded-xl border p-3 text-left text-xs transition-all ${
               selected === i
-                ? "ring-2 ring-indigo-500"
+                ? "ring-2 ring-ring"
                 : "hover:scale-105"
-            } ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200 shadow-sm"}`}
+            } bg-card border-border shadow-sm`}
           >
             <div className="font-semibold text-foreground">{s.label}</div>
-            <div className="text-slate-500 mt-0.5">{s.from}</div>
-            <div className="text-slate-500">→ {s.to}</div>
+            <div className="text-muted-foreground mt-0.5">{s.from}</div>
+            <div className="text-muted-foreground">→ {s.to}</div>
           </button>
         ))}
       </div>
@@ -277,7 +277,7 @@ function CableWizard({ dark }: { dark: boolean }) {
       {selected !== null && (() => {
         const s = CABLE_SCENARIOS[selected];
         return (
-          <div className={`rounded-xl border p-4 space-y-3 ${dark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-xl border p-4 space-y-3 bg-card border-border shadow-sm`}>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: s.color }} />
               <div>
@@ -314,7 +314,7 @@ function CableWizard({ dark }: { dark: boolean }) {
 }
 
 // ── KategorieTabelle Component ─────────────────────────────────
-function KategorieTabelle({ dark }: { dark: boolean }) {
+function KategorieTabelle() {
   const [selected, setSelected] = useState<string | null>(null);
   return (
     <div className="space-y-4">
@@ -360,7 +360,7 @@ function KategorieTabelle({ dark }: { dark: boolean }) {
 
 // ── Main Dialog ────────────────────────────────────────────────
 
-export function VerkabelungTrainerDialog({ dark, onClose }: Props) {
+export function VerkabelungTrainerDialog({ onClose }: Props) {
   const [tab, setTab] = useState<Tab>("pin");
 
   const tabs: { id: Tab; label: string }[] = [
@@ -417,9 +417,9 @@ export function VerkabelungTrainerDialog({ dark, onClose }: Props) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "pin"       && <PinTrainer dark={dark} />}
-            {tab === "wizard"    && <CableWizard dark={dark} />}
-            {tab === "kategorie" && <KategorieTabelle dark={dark} />}
+            {tab === "pin"       && <PinTrainer />}
+            {tab === "wizard"    && <CableWizard />}
+            {tab === "kategorie" && <KategorieTabelle />}
           </div>
         </div>
       </div>
