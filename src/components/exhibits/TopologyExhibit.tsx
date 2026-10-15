@@ -2,6 +2,7 @@ import type {
   TopologyExhibit as TopologyExhibitData,
   TopologyDevice,
 } from "@/types/exhibit";
+import { topologyAriaLabel } from "@/lib/exhibit-a11y";
 
 // Farben über shadcn-CSS-Variablen (dark-mode-fähig); Fallbacks falls Token fehlt.
 // STROKE bewusst muted-foreground statt border: --border ist im Light-Mode zu
@@ -318,6 +319,7 @@ export function TopologyExhibit({ exhibit }: { exhibit: TopologyExhibitData }) {
         className="w-full h-auto"
         style={{ maxHeight: 420 }}
         role="img"
+        aria-label={topologyAriaLabel(exhibit)}
       >
         {/* Links zuerst (unter den Geräten) */}
         {links.map((link, i) => {
