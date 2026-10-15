@@ -7813,7 +7813,7 @@ router ospf 100
         { from: "r3", to: "internet" },
       ],
       labels: [
-        { text: "R3 = Primärroute, R2 = Backup", attachTo: "r1", position: "left" },
+        { text: "R3 = Primärroute, R2 = Backup", attachTo: "r1", position: "above" },
       ],
     },
   },
@@ -13283,7 +13283,7 @@ Washington: Static route to Lo1 on Atlanta via Se0/0/1` }],
     "longest prefix match"
     ],
     correct: [2, 4],
-    exhibit: [{ type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 460, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 190, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 730, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 460, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "left" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] }, { type: "cli", content: `R1#show ip route
+    exhibit: [{ type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 460, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 190, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 730, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 460, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "above" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] }, { type: "cli", content: `R1#show ip route
      1.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
 O IA    1.1.1.0/24 [110/3] via 12.1.1.2, 00:00:25, FastEthernet0/0
 C       24.1.1.0/30 is directly connected, FastEthernet2/0
@@ -13862,7 +13862,7 @@ S    0.0.0.0/0 [1/0] via 10.10.10.14`, highlight: ["D    192.168.20.0/25 [90/144
     "lowest administrative distance"
     ],
     correct: [2, 4],
-    exhibit: { type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 380, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 130, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 630, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 380, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "left" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] },
+    exhibit: { type: "topology", devices: [{ id: "r3", type: "router", label: "R3 (1.1.1.3)", x: 380, y: 60 }, { id: "r4", type: "router", label: "R4 (1.1.1.4)", x: 130, y: 280 }, { id: "r2", type: "router", label: "R2 (1.1.1.2)", x: 630, y: 280 }, { id: "r1", type: "router", label: "R1 (1.1.1.1)", x: 380, y: 480 }], links: [{ from: "r4", to: "r3", labelFrom: "F0/0", labelTo: "F0/0", subnet: "34.1.1.0/30" }, { from: "r3", to: "r2", labelFrom: "F0/1", labelTo: "F0/0", subnet: "32.1.1.0/30" }, { from: "r4", to: "r1", labelFrom: "F0/1", labelTo: "F0/0", subnet: "14.1.1.0/30" }, { from: "r1", to: "r2", labelFrom: "F0/1", labelTo: "F0/1", subnet: "12.1.1.0/30" }], labels: [{ text: "OSPF Area 0", attachTo: "r3", position: "above" }, { text: "OSPF Area 1", attachTo: "r1", position: "left" }] },
   },
   {
     id: "q0945",

@@ -12489,7 +12489,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
         {
           "text": "R3 = Primärroute, R2 = Backup",
           "attachTo": "r1",
-          "position": "left"
+          "position": "above"
         }
       ]
     },
@@ -22669,7 +22669,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
           {
             "text": "OSPF Area 0",
             "attachTo": "r3",
-            "position": "left"
+            "position": "above"
           },
           {
             "text": "OSPF Area 1",
@@ -24299,7 +24299,7 @@ export const ccnaQuestionsClassified: CCNAQuestionClassified[] = [
         {
           "text": "OSPF Area 0",
           "attachTo": "r3",
-          "position": "left"
+          "position": "above"
         },
         {
           "text": "OSPF Area 1",
