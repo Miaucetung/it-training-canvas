@@ -31,6 +31,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EXAM_DIAGRAMS } from "@/lib/exam-diagrams";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { CliOptionText } from "@/components/CliOptionText";
+import { cliButtonClass } from "@/lib/cli-option";
 import { getExamPrepQuestions, type PrepQuestion } from "@/lib/ccna-exam-pool";
 import { hasExhibit, getExhibitList } from "@/lib/ccna-question-pool";
 import { ExhibitRenderer } from "@/components/exhibits/ExhibitRenderer";
@@ -229,7 +231,7 @@ function QuestionCard({
             key={opt.letter}
             disabled={revealed}
             onClick={() => onToggle(opt.letter)}
-            className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${optionCls(opt.letter)}`}
+            className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${optionCls(opt.letter)}${cliButtonClass(opt.text)}`}
           >
             <span
               className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs font-bold ${
@@ -242,7 +244,7 @@ function QuestionCard({
             >
               {opt.letter}
             </span>
-            <span className="flex-1">{opt.text}</span>
+            <CliOptionText text={opt.text} className="flex-1" cliClassName="flex-1" />
             {revealed && correct.includes(opt.letter) && (
               <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5" />
             )}
