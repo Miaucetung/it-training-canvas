@@ -92,6 +92,7 @@ interface IfaceCfg {
   ospfPassive?: boolean;
   ospfNetworkType?: "broadcast" | "point-to-point";
   ospfPriority?: number;
+  ospfCost?: number;
   dtp?: "desirable" | "auto";
   nonegotiate?: boolean;
   natSide?: "inside" | "outside";
@@ -113,7 +114,7 @@ export interface ParsedDeviceConfig {
   stpPriority?: number;
   /** letzter STP-Befehl war `root primary` */
   stpMacro?: "primary";
-  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean; redistribute: DeviceRedistribute[] };
+  ospf?: { processId: number; routerId?: string; networks: Array<{ net: string; wildcard: string; area: number }>; passive: string[]; passiveDefault: boolean; redistribute: DeviceRedistribute[]; referenceBandwidthMbps?: number };
   eigrp?: DeviceEigrpConfig;
   hostIp?: { ip: string; mask: string; gateway?: string };
   hostIpv6?: { ip: string; gateway?: string };
@@ -645,7 +646,8 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             else if ((m = /^passive-interface\s+(\S+)/i.exec(line))) {
               if (/^default$/i.test(m[1])) cfg.ospf.passiveDefault = true;
               else cfg.ospf.passive.push(normalizeInterfaceName(m[1]));
-            } else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
+            } else if ((m = /^auto-cost reference-bandwidth\s+(\d+)/i.exec(line))) cfg.ospf.referenceBandwidthMbps = Number(m[1]);
+            else if ((m = /^redistribute\s+(.+)$/i.exec(line))) {
               const red = parseRedistribute(m[1]);
               if (red) cfg.ospf.redistribute.push(red);
             }
@@ -712,6 +714,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
               else if (/^no shutdown$/i.test(line)) i.shutdown = false;
               else if ((m = /^ip ospf network\s+(broadcast|point-to-point)/i.exec(line))) i.ospfNetworkType = m[1].toLowerCase() as "broadcast" | "point-to-point";
               else if ((m = /^ip ospf priority\s+(\d+)/i.exec(line))) i.ospfPriority = Number(m[1]);
+              else if ((m = /^ip ospf cost\s+(\d+)/i.exec(line))) i.ospfCost = Number(m[1]);
             }
           }
         }
@@ -926,7 +929,12 @@ export function buildNetworkTopologyFromLab(
       // OSPF
       if (parsed.ospf) {
         config.routingProtocols = [`OSPF ${parsed.ospf.processId}`, ...(config.routingProtocols ?? [])];
-        config.ospf = { processId: parsed.ospf.processId, routerId: parsed.ospf.routerId, ...(parsed.ospf.redistribute.length > 0 ? { redistribute: parsed.ospf.redistribute } : {}) };
+        config.ospf = {
+          processId: parsed.ospf.processId,
+          routerId: parsed.ospf.routerId,
+          ...(parsed.ospf.referenceBandwidthMbps !== undefined ? { referenceBandwidthMbps: parsed.ospf.referenceBandwidthMbps } : {}),
+          ...(parsed.ospf.redistribute.length > 0 ? { redistribute: parsed.ospf.redistribute } : {}),
+        };
         for (const it of ifaces) {
           if (!it.ip) continue;
           const ip = it.ip.split("/")[0];
@@ -941,6 +949,7 @@ export function buildNetworkTopologyFromLab(
             networkType: c?.ospfNetworkType ?? (it.name.startsWith("Tu") ? "point-to-point" : "broadcast"),
             passive: parsed.ospf.passive.includes(it.name) || parsed.ospf.passiveDefault,
             ...(c?.ospfPriority !== undefined ? { priority: c.ospfPriority } : {}),
+            ...(c?.ospfCost !== undefined ? { cost: c.ospfCost } : {}),
           };
         }
       }

@@ -60,6 +60,8 @@ export interface InterfaceOspfConfig {
   networkType?: OspfNetworkType; // default: broadcast (Ethernet)
   passive?: boolean; // passive-interface
   priority?: number; // ip ospf priority, 0-255, default 1
+  /** `ip ospf cost <n>` aus dem Lab; sonst Referenzbandbreite / Interface-Bandbreite */
+  cost?: number;
 }
 
 export interface TopologyInterface {
@@ -298,6 +300,8 @@ export interface DeviceEigrpConfig {
 export interface DeviceOspfConfig {
   processId?: number;
   routerId?: string; // manuell konfigurierte router-id
+  /** `auto-cost reference-bandwidth <Mbit/s>` aus dem Lab; Standard 100 */
+  referenceBandwidthMbps?: number;
   redistribute?: DeviceRedistribute[];
 }
 

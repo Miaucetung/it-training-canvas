@@ -4,7 +4,7 @@ import {
 } from "@/types/topology";
 import { checkEtherChannelMemberConsistency } from "./topology-validation";
 import { formatShowSpanningTree } from "./stp-calc";
-import { computeOspfNeighbors, formatOspfNeighborTable, resolveInterfaceOspf } from "./ospf-neighbors";
+import { computeOspfNeighbors, formatOspfNeighborTable } from "./ospf-neighbors";
 import {
   computeEigrpv6Neighbors,
   computeOspfv3Neighbors,
@@ -21,6 +21,7 @@ import { formatShowStandbyBrief, hasHsrpConfig } from "./hsrp";
 import { installedStaticRoutes } from "./static-routes";
 import { greOutputs } from "./gre-tunnel";
 import { computeEigrpNeighbors, computeEigrpRoutes, computeOspfExternalRoutes, eigrpV4Runs, formatEigrpNeighborTable } from "./eigrp-ipv4";
+import { computeOspfRoutes } from "./ospf-routes";
 import { cryptoOutputs } from "./ipsec";
 
 /**
@@ -112,29 +113,8 @@ export class CiscoCliGenerator {
       }
     }
 
-    // 2. OSPF-Routen nur über echte Nachbarschaften (siehe ospf-neighbors.ts)
-    for (const adj of computeOspfNeighbors(device, topology)) {
-      for (const nIface of adj.neighbor.interfaces) {
-        if (!nIface.ip || !resolveInterfaceOspf(adj.neighbor, nIface)) continue;
-        if (nIface.status !== "up" || nIface.isShutdown) continue;
-        const nNet = getNetworkAddress(nIface.ip);
-        if (!nNet) continue;
-
-        // Ist dieses Netz schon lokal vorhanden?
-        const isLocal = device.interfaces.some((i) => {
-          const myNet = i.ip ? getNetworkAddress(i.ip) : null;
-          return myNet?.network === nNet.network;
-        });
-
-        if (!isLocal) {
-          routes.push({
-            prefix: nNet.network,
-            ad: 110,
-            line: `O    ${nNet.network} [110/2] via ${adj.neighborAddress}, 00:14:22, ${adj.localInterface.name}`,
-          });
-        }
-      }
-    }
+    // 2. OSPF-Routen: kürzeste Pfade über echte Nachbarschaften, Kosten = Summe der Ausgangs-Interface-Kosten (siehe ospf-routes.ts)
+    const ospfRoutes = computeOspfRoutes(device, topology);
 
     // 3. Statische Routen (nur installierbare: Next Hop in einem aktiven verbundenen Netz)
     let gateway: string | null = null;
@@ -159,7 +139,11 @@ export class CiscoCliGenerator {
       const ad = r.external ? 170 : 90;
       routes.push({ prefix: r.network, ad, line: formatVias(r.external ? "D EX" : "D", r.network, ad, r.metric, r.vias).join("\n") });
     }
-    for (const r of computeOspfExternalRoutes(device, topology)) {
+    for (const r of ospfRoutes) {
+      routes.push({ prefix: r.network, ad: 110, line: formatVias(r.code, r.network, 110, r.cost, r.vias).join("\n") });
+    }
+    const externals = computeOspfExternalRoutes(device, topology);
+    for (const r of externals) {
       routes.push({ prefix: r.network, ad: 110, line: formatVias(r.type === 1 ? "O E1" : "O E2", r.network, 110, r.metric, r.vias).join("\n") });
     }
 
@@ -175,8 +159,14 @@ export class CiscoCliGenerator {
 
     // Sortierung nach Netzwerk-Präfix
     lines.sort((a, b) => a.localeCompare(b));
-    const hasRuntimeFree = routes.some((r) => /^(D|O E)/.test(r.line));
-    return codesHeader + lines.join("\n") + (hasRuntimeFree ? "\n(Uptime ist ein Laufzeitwert: bei D- und O-E-Routen nicht ausgegeben)" : "");
+    const hasRuntimeFree = routes.some((r) => /^(D|O)/.test(r.line));
+    const hasDefaultSeed = externals.some((r) => r.defaultMetric);
+    return (
+      codesHeader +
+      lines.join("\n") +
+      (hasRuntimeFree ? "\n(Uptime ist ein Laufzeitwert und nicht bestimmbar: bei D- und O-Routen nicht ausgegeben)" : "") +
+      (hasDefaultSeed ? "\n(O E1/E2 ohne metric im Lab: Seed-Metrik 20 bzw. 1 bei Quelle BGP ist der IOS-Standardwert)" : "")
+    );
   }
 
   /**

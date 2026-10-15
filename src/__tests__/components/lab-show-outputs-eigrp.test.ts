@@ -146,11 +146,13 @@ describe("Redistribution EIGRP ↔ OSPF (co-acl-nat-isp)", () => {
     expect(route).not.toMatch(/D EX 192\.168\.10/);
   });
 
-  it("CO-2 lernt die EIGRP-Netze als O E2; ohne metric im Lab „nicht bestimmbar“", () => {
+  it("CO-2 lernt die EIGRP-Netze als O E2 mit dem IOS-Standard 20 (kein metric im Lab), mit Hinweis", () => {
     const route = showOutputs(topologyOf(coLab), "CO-2")["show ip route"];
-    expect(route).toMatch(/O E2 192\.168\.10\.0\/24 \[110\/nicht bestimmbar\] via 45\.35\.55\.75, Et0\/1/);
-    expect(route).toMatch(/O E2 20\.30\.10\.0\/24 \[110\/nicht bestimmbar\] via 45\.35\.55\.75, Et0\/1/);
-    expect(route).toMatch(/O\s+200\.10\.20\.0\/24 \[110\/2\]/);
+    expect(route).toMatch(/O E2 192\.168\.10\.0\/24 \[110\/20\] via 45\.35\.55\.75, Et0\/1/);
+    expect(route).toMatch(/O E2 20\.30\.10\.0\/24 \[110\/20\] via 45\.35\.55\.75, Et0\/1/);
+    expect(route).toContain("IOS-Standardwert");
+    expect(route).not.toContain("nicht bestimmbar]");
+    expect(route).toMatch(/O\s+200\.10\.20\.0\/24 \[110\/20\]/);
   });
 
   it("ISP-MUMBAI: interne D-Route mit Metrik aus Standardwerten (2× Ethernet), eigene Redistribution erscheint nicht als externe Route", () => {
@@ -162,7 +164,7 @@ describe("Redistribution EIGRP ↔ OSPF (co-acl-nat-isp)", () => {
   it("negativ: ohne metric bei redistribute ospf gibt EIGRP nichts weiter", () => {
     const t = topologyOf(editedLab(coLab, (d, l) => (d === "ISP-MUMBAI" && l.startsWith("redistribute ospf 100") ? "redistribute ospf 100" : l)));
     expect(showOutputs(t, "CO-1")["show ip route"]).not.toMatch(/D EX/);
-    expect(eigrpHints(dev(t, "ISP-MUMBAI"), t).join(" ")).toContain("ohne metric gibt EIGRP die Routen nicht weiter");
+    expect(eigrpHints(dev(t, "ISP-MUMBAI"), t).join(" ")).toContain("ohne metric gibt EIGRP Routen aus dynamischen Quellen nicht weiter");
   });
 
   it("negativ: ohne subnets werden nur klassische Netze nach OSPF übernommen", () => {
