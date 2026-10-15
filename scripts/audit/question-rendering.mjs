@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const EDGE_PATH = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
 const SCREENSHOTS_DIR = path.resolve(".local/screenshots");
 const RESULTS_FILE = path.resolve(".local/rendering_audit_results.json");
 const APP_DUMP_FILE = path.resolve(".local/app_questions_dump.json");
