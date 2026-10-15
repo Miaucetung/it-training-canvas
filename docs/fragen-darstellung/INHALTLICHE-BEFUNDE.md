@@ -179,3 +179,26 @@ Bei diesen 23 Fragen weicht die Anzahl der Antwortoptionen zwischen App und PDF 
 | q1014 | 452 | 4 Optionen | 8 Optionen | App hat 4 Optionen, PDF hat 8 Optionen | What is the advantage of separating the control plane from the data plane within an SDN ne... |
 | q1149 | 525 | 4 Optionen | 3 Optionen | App hat 4 Optionen, PDF hat 3 Optionen | Refer to the exhibit. The engineer configured the VLANs on the new AccSw2 switch. A router... |
 | q1198 | 546 | 4 Optionen | 3 Optionen | App hat 4 Optionen, PDF hat 3 Optionen | Refer to the exhibit. Router R1 receives static routing updates from routers A, B, C, and ... |
+
+---
+
+## 4. Einlesefehler in den umgezogenen CLI-Blöcken (q0829 / Q0829, q0965 / Q0965)
+
+Beim Umzug der CLI-Ausgaben aus dem Fragetext in CLI-Exhibits (`fix/inline-cli-exhibits`) wurde **kein Zeichen verändert**. Die folgenden Auffälligkeiten stammen aus dem Einlesen des PDFs und sind bewusst **nicht korrigiert**:
+
+| Frage (beide Pools) | Fundstelle | Auffälligkeit | Stand |
+|---|---|---|---|
+| q0829 / Q0829 | Fragetext: „…the interface FastEthemet0/13.“ | Tippfehler „FastEthemet“ statt „FastEthernet“ (rn → m). Im CLI-Exhibit steht richtig „FastEthernet0/13 is up“. | unverändert |
+| q0829 / Q0829 | Exhibit, Zeilen „Keepalive not set -“ und „Queueing strategy: fifo -“ | Der Bindestrich am Zeilenende ist ein Rest des Zeilenumbruchs im PDF; in einer echten `show interfaces`-Ausgabe steht er nicht. | unverändert |
+| q0829 / Q0829 | Exhibit, Zeile „Last clearing of “show interface” counters never“ | Geprüft: die Anführungszeichen sind typografische Zeichen (U+201C / U+201D), keine defekten Zeichen. Eine Konsolenanzeige mit anderer Codierung zeigt sie als „?“; in den Daten ist nichts defekt. Eine echte IOS-Ausgabe hat gerade Anführungszeichen. | unverändert, kein Einlesefehler |
+| q0965 / Q0965 | Antwortoptionen | „no ip name-serveer 198.51.100.210“ (richtig: name-server) und „no ip domain mame ccna.cisco.com“ (richtig: „no ip domain name ccna.cisco.com“). | unverändert |
+
+Geänderte Fragen und Felder dieses Schritts (alle übrigen Prüfsummen im Snapshot sind gleich geblieben):
+
+| Pool | Frage | Geänderte Felder | Art der Änderung |
+|---|---|---|---|
+| ccnaQuestions | q0829 | `text`, `exhibitKind`, `exhibitCli`, `exhibitAll` | CLI-Block aus dem Fragetext in ein neues CLI-Exhibit (24 Zeilen) |
+| ccnaQuestionsClassified | Q0829 | `text`, `exhibitKind`, `exhibitCli`, `exhibitAll` | wie oben, gleiches Exhibit |
+| ccnaQuestions | q0965 | `text` | doppelter Konfigurationsblock aus dem Fragetext entfernt (Exhibit enthielt ihn schon) |
+| ccnaQuestionsClassified | Q0965 | `text` | wie oben |
+
