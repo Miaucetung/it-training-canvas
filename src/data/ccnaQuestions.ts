@@ -14,6 +14,8 @@ export interface CCNAQuestion {
   // boolean = noch nicht migriert (true = Grafik nötig, false = keine);
   // ExhibitData | ExhibitData[] = ein oder mehrere strukturierte Exhibits.
   exhibit: boolean | ExhibitData | ExhibitData[];
+  /** Optional: feste Kategorie statt der Ableitung aus Schlagwörtern im Fragetext (`categoryOf`). */
+  categoryOverride?: string;
 }
 
 export const ccnaQuestions: CCNAQuestion[] = [
@@ -12411,6 +12413,7 @@ Received 345348 broadcasts, 0 runts, 0 giants, 0 throttles
 0 babbles, 0 late collision, 0 deferred
 0 lost carrier, 0 no carrier
 0 output buffer failures, 0 output buffers swapped out` },
+    categoryOverride: "Geräte & Medien",
   },
   {
     id: "q0830",

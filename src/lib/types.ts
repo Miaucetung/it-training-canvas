@@ -244,6 +244,8 @@ export interface Question {
    * (z. B. Topologie + CLI) zum Rendern.
    */
   exhibit?: boolean | ExhibitData | ExhibitData[];
+  /** Feste Kategorie statt der Ableitung aus dem Fragetext (nur für einzelne Fragen gesetzt). */
+  categoryOverride?: string;
 }
 
 export interface Answer {

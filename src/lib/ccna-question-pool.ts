@@ -45,6 +45,7 @@ export function toQuestion(raw: CCNAQuestion): Question {
     points: 1,
     answers,
     exhibit: raw.exhibit,
+    ...(raw.categoryOverride ? { categoryOverride: raw.categoryOverride } : {}),
   };
 }
 
@@ -70,6 +71,11 @@ export function categorizeQuestion(textRaw: string): string {
   return FALLBACK_CATEGORY;
 }
 
+/** Kategorie einer Frage: feste `categoryOverride`, sonst die Ableitung aus dem Fragetext. */
+export function categoryOf(q: { question: string; categoryOverride?: string }): string {
+  return q.categoryOverride ?? categorizeQuestion(q.question);
+}
+
 export interface QuestionPoolQuizOptions {
   /** Nur Fragen dieser Kategorie (aus categorizeQuestion). "all" = keine Einschränkung. */
   category?: string;
@@ -85,7 +91,7 @@ export function buildQuestionPoolQuiz(options: QuestionPoolQuizOptions = {}): Qu
   let raw = ccnaQuestions;
   if (ids) raw = raw.filter((q) => ids.has(q.id));
   if (category && category !== "all") {
-    raw = raw.filter((q) => categorizeQuestion(q.question) === category);
+    raw = raw.filter((q) => categoryOf(q) === category);
   }
   return {
     id: "ccna-fragenpool",
