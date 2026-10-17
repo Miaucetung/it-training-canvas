@@ -535,7 +535,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               : "border-border-default text-text-secondary hover:text-text-primary hover:bg-surface-elevated"
           )}
           title={canvasView ? "Zurück zur Lernoberfläche (Flip)" : "Zum Canvas wechseln (Flip)"}
-          aria-label={canvasView ? "Zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
+          aria-label={canvasView ? "Lernen: zurück zur Lernoberfläche" : "Zum Canvas wechseln"}
         >
           <ArrowClockwise size={15} weight="bold" className={canvasView ? "rotate-180 transition-transform duration-300" : "transition-transform duration-300"} />
           <span className="font-semibold">{canvasView ? "Lernen" : "Canvas"}</span>

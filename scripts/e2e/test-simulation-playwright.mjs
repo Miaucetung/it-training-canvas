@@ -95,7 +95,7 @@ async function run() {
 
     // Simulation Dock öffnen
     console.log("Öffne Simulation Dock...");
-    const simButton = page1440.locator('button[aria-label="Netzwerksimulation öffnen oder schließen"]');
+    const simButton = page1440.locator('button[aria-label="Simulation öffnen oder schließen"]');
     await simButton.waitFor({ state: "visible", timeout: 8000 });
     await simButton.click();
     await page1440.waitForTimeout(500);
@@ -171,7 +171,7 @@ async function run() {
 
     await navigateToCanvas(pageReduced);
 
-    const simButtonRed = pageReduced.locator('button[aria-label="Netzwerksimulation öffnen oder schließen"]');
+    const simButtonRed = pageReduced.locator('button[aria-label="Simulation öffnen oder schließen"]');
     await simButtonRed.waitFor({ state: "visible", timeout: 8000 });
     await simButtonRed.click();
     await pageReduced.waitForTimeout(500);
@@ -214,7 +214,7 @@ async function run() {
     await navigateToCanvas(page390);
 
     console.log("Öffne Simulation Dock auf Mobile...");
-    const simButtonMobile = page390.locator('button[aria-label="Netzwerksimulation öffnen oder schließen"]');
+    const simButtonMobile = page390.locator('button[aria-label="Simulation öffnen oder schließen"]');
     await simButtonMobile.waitFor({ state: "visible", timeout: 8000 });
     await simButtonMobile.click();
     await page390.waitForTimeout(500);

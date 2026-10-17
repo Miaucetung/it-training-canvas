@@ -99,6 +99,11 @@ interface SvgTopologyRendererProps {
   selectedAnnotationId?: string | null;
   activeSimulationDeviceId?: string | null;
   activeSimulationLinkId?: string | null;
+  /** Gerät, das das Paket im aktiven Hop sendet (Richtung der Paketanimation entlang des Links) */
+  activeSimulationFromDeviceId?: string | null;
+  /** Alle am Ping beteiligten Geräte und Links (dauerhafte Hervorhebung des Pfads) */
+  simulationPathDeviceIds?: readonly string[];
+  simulationPathLinkIds?: readonly string[];
   prefersReducedMotion?: boolean;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
@@ -133,6 +138,9 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   selectedAnnotationId = null,
   activeSimulationDeviceId = null,
   activeSimulationLinkId = null,
+  activeSimulationFromDeviceId = null,
+  simulationPathDeviceIds = [],
+  simulationPathLinkIds = [],
   prefersReducedMotion = false,
   onDeviceClick,
   onLinkClick,
@@ -468,6 +476,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           if (!src || !tgt) return null;
 
           const isSimLink = activeSimulationLinkId === link.id;
+          const isPathLink = simulationPathLinkIds.includes(link.id);
 
           const x1 = src.x + (src.width || 80) / 2;
           const y1 = src.y + (src.height || 60) / 2;
@@ -476,9 +485,24 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           const bends = link.bendPoints ?? [];
           const pts = [{ x: x1, y: y1 }, ...bends, { x: x2, y: y2 }];
           const pathD = pts.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
+          // Paket läuft vom sendenden Gerät des aktiven Hops zum anderen Ende des Links
+          const motionPts = activeSimulationFromDeviceId === link.targetDeviceId ? [...pts].reverse() : pts;
+          const motionD = motionPts.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
 
           return (
             <g key={link.id}>
+              {isPathLink && !isSimLink && (
+                <path
+                  d={pathD}
+                  fill="none"
+                  stroke="currentColor"
+                  className="pointer-events-none text-primary opacity-40"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                  data-testid="simulation-path-link"
+                />
+              )}
               <LinkRenderer
                 link={link}
                 sourceDevice={src}
@@ -507,7 +531,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                       <animateMotion
                         dur="1.2s"
                         repeatCount="indefinite"
-                        path={pathD}
+                        path={motionD}
                       />
                     </circle>
                   )}
@@ -532,28 +556,38 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           // Interfaces mit vergebener IP-Adresse herausfiltern
           const ipInterfaces = device.interfaces.filter((i) => i.ip || i.ipv6 || i.dhcp);
 
+          const pointerHandlers = {
+            onPointerDown: (e: React.PointerEvent) => onDevicePointerDown?.(device, e),
+            onContextMenu: (e: React.MouseEvent) => {
+              e.preventDefault();
+              onDeviceContextMenu?.(device, e);
+            },
+            onClick: (e: React.MouseEvent) => {
+              e.stopPropagation();
+              onDeviceClick?.(device);
+            },
+          };
+          const labelsHeight = iconSize + (viewDensity === "detail" ? 22 + 13 * Math.max(0, Math.min(ipInterfaces.length, 4)) : 22);
+
+          // Der Knoten mit role="button" enthält keinen sichtbaren Text (Label in Name, WCAG 2.5.3);
+          // Gerätename und Adressen liegen als dekorative Geschwistergruppe daneben und lösen dieselben Aktionen aus.
           return (
             <g
               key={device.id}
-              data-device-id={device.id}
               transform={`translate(${device.x}, ${device.y})`}
-              className={`topology-device cursor-pointer transition-transform hover:scale-105 focus:outline-none ${
+              className={`transition-transform hover:scale-105 ${
                 isSelected ? "filter drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" : ""
               }`}
+            >
+            <g
+              data-device-id={device.id}
+              className="topology-device cursor-pointer focus:outline-none"
               tabIndex={isRovingActive ? 0 : -1}
               role="button"
               aria-label={getDeviceAriaLabel(device, topology)}
               aria-haspopup="dialog"
               aria-expanded={isSelected}
-              onPointerDown={(e) => onDevicePointerDown?.(device, e)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                onDeviceContextMenu?.(device, e);
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeviceClick?.(device);
-              }}
+              {...pointerHandlers}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -569,6 +603,8 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 }
               }}
             >
+              <rect x={-Math.max(0, (104 - w) / 2)} y="0" width={Math.max(w, 104)} height={labelsHeight} fill="transparent" />
+
               {/* Selektions-Halo */}
               {isSelected && (
                 <rect
@@ -582,6 +618,23 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   strokeWidth="2.5"
                   strokeDasharray="4 3"
                   vectorEffect="non-scaling-stroke"
+                />
+              )}
+
+              {/* Beteiligte Geräte des Pings (dauerhaft) */}
+              {simulationPathDeviceIds.includes(device.id) && activeSimulationDeviceId !== device.id && (
+                <rect
+                  x="-6"
+                  y="-6"
+                  width={w + 12}
+                  height={viewDensity === "detail" ? h + 44 : h + 20}
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  className="pointer-events-none text-primary opacity-70"
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                  data-testid="simulation-path-device"
                 />
               )}
 
@@ -623,9 +676,12 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   type={device.type}
                   size={iconSize}
                   status={device.status}
+                  decorative
                 />
               </g>
 
+            </g>
+            <g aria-hidden="true" className="topology-device-labels cursor-pointer" {...pointerHandlers}>
               {/* Gerätename Label */}
               <g transform={`translate(${w / 2}, ${iconSize + 2})`}>
                 <rect
@@ -639,7 +695,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   strokeWidth="1"
                   opacity="0.95"
                 />
-                <text
+                <text aria-hidden="true"
                   x="0"
                   y="10"
                   fill={isDark ? "#F8FAFC" : "#0F172A"}
@@ -653,7 +709,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
               </g>
 
               {device.assumed && (
-                <text
+                <text aria-hidden="true"
                   x={w / 2}
                   y={iconSize + 28}
                   textAnchor="middle"
@@ -685,7 +741,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                         strokeWidth="0.8"
                         opacity="0.95"
                       />
-                      <text
+                      <text aria-hidden="true"
                         x="0"
                         y="8"
                         fill={isDark ? "#38BDF8" : "#0284C7"}
@@ -701,6 +757,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   })}
                 </g>
               )}
+            </g>
             </g>
           );
         })}

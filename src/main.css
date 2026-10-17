@@ -44,6 +44,11 @@
 */
 :root {
   --radius: 0.625rem;
+  --sim-sidebar-width: clamp(20rem, 30vw, 26rem);
+  --sim-sidebar-rail: 3rem;
+  --sim-sheet-collapsed: 3rem;
+  --sim-sheet-half: 13.5rem;
+  --sim-sheet-full: 85%;
   --background: var(--app-bg);
   --foreground: var(--text-primary);
   --card: var(--surface);

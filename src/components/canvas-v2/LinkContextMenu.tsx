@@ -83,8 +83,6 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({ link, topology
   return (
     <div
       ref={menuRef}
-      role="menu"
-      aria-label={`Verbindung ${title}`}
       onKeyDown={handleKeyDown}
       style={{ left: `${Math.min(window.innerWidth - 270, Math.max(10, x))}px`, top: `${Math.min(window.innerHeight - 240, Math.max(10, y))}px` }}
       className="fixed z-50 w-64 rounded-2xl border border-border bg-popover p-1.5 text-xs text-popover-foreground shadow-2xl"
@@ -95,7 +93,7 @@ export const LinkContextMenu: React.FC<LinkContextMenuProps> = ({ link, topology
           <X size={13} aria-hidden />
         </button>
       </div>
-      <div className="space-y-0.5">
+      <div role="menu" aria-label={`Verbindung ${title}`} className="space-y-0.5">
         {items.map((item) => (
           <button
             key={item.key}

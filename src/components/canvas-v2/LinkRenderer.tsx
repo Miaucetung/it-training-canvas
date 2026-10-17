@@ -216,7 +216,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
             strokeWidth="1"
             opacity="0.95"
           />
-          <text
+          <text aria-hidden="true"
             x="0"
             y="3.5"
             fill={isDark ? "#94A3B8" : "#475569"}
@@ -251,7 +251,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           strokeWidth="1"
           opacity="0.95"
         />
-        <text
+        <text aria-hidden="true"
           x="-9"
           y="3.5"
           fill={isDark ? "#94A3B8" : "#475569"}
@@ -270,7 +270,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           rx="2"
           fill={roleConfig.bg}
         />
-        <text
+        <text aria-hidden="true"
           x="16"
           y="3"
           fill={roleConfig.text}
@@ -285,22 +285,30 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
     );
   };
 
+  const activate = () => onLinkClick?.(link);
+  const openMenu = (e: React.MouseEvent) => {
+    if (!onLinkContextMenu) return;
+    e.preventDefault();
+    e.stopPropagation();
+    onLinkContextMenu(link, e);
+  };
+
+  // Der Knoten mit role="button" enthält keinen sichtbaren Text (Label in Name, WCAG 2.5.3);
+  // die Beschriftungen liegen als dekorative Geschwistergruppe daneben und lösen dieselben Aktionen aus.
   return (
     <g
-      data-link-id={link.id}
-      className={`topology-link cursor-pointer transition-opacity hover:opacity-95 focus:outline-none ${
+      className={`transition-opacity hover:opacity-95 ${
         selected ? "filter drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" : ""
       }`}
+    >
+    <g
+      data-link-id={link.id}
+      className="topology-link cursor-pointer focus:outline-none"
       tabIndex={selected ? 0 : -1}
       role="button"
       aria-label={getLinkAriaLabel(link, sourceDevice, targetDevice)}
-      onClick={() => onLinkClick?.(link)}
-      onContextMenu={(e) => {
-        if (!onLinkContextMenu) return;
-        e.preventDefault();
-        e.stopPropagation();
-        onLinkContextMenu(link, e);
-      }}
+      onClick={activate}
+      onContextMenu={openMenu}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -438,6 +446,8 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
         </g>
       )}
 
+    </g>
+    <g aria-hidden="true" className="topology-link-labels cursor-pointer" onClick={activate} onContextMenu={openMenu}>
       {/* 3. STP-Blocking: Querbalken-Marker am Zielport */}
       {isStpBlocking && (
         <g transform={`translate(${x2 - tgtDirX * (hasBends ? 56 : 28)}, ${y2 - tgtDirY * (hasBends ? 56 : 28)})`}>
@@ -447,7 +457,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           <line x1="2.5" y1="-4" x2="2.5" y2="4" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />
           {/* Label BLK */}
           <rect x="-11" y="10" width="22" height="11" rx="2.5" fill="#9A3412" />
-          <text x="0" y="18" fill="#FFEDD5" fontSize="7.5" fontWeight="bold" textAnchor="middle" fontFamily="'IBM Plex Mono', monospace">
+          <text aria-hidden="true" x="0" y="18" fill="#FFEDD5" fontSize="7.5" fontWeight="bold" textAnchor="middle" fontFamily="'IBM Plex Mono', monospace">
             BLK
           </text>
         </g>
@@ -466,7 +476,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
             stroke={isDark ? "#818CF8" : "#4F46E5"}
             strokeWidth="1"
           />
-          <text
+          <text aria-hidden="true"
             x="0"
             y="3"
             fill={isDark ? "#C7D2FE" : "#3730A3"}
@@ -498,6 +508,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
           )}
         </>
       )}
+    </g>
     </g>
   );
 };

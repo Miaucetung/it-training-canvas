@@ -55,9 +55,9 @@ import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
-import { SimulationDock } from "./SimulationDock";
+import { SimulationDock, type DockStage, type DockTab, type SimulationPath } from "./SimulationDock";
 import { LinkContextMenu } from "./LinkContextMenu";
-import { FailoverPanel } from "./FailoverPanel";
+import { computeFitTransform } from "@/lib/topology/fit-view";
 import { analyzeFailover, applyFailoverAction, type ConvergenceMode, type FailoverAction, type FailoverAnalysis } from "@/lib/topology/failover";
 import { simulateDhcpLeases } from "@/lib/topology/simulation/packet-simulator";
 import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
@@ -207,6 +207,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [activeSimulationHopIndex, setActiveSimulationHopIndex] = useState<number | null>(null);
   const [activeSimulationDeviceId, setActiveSimulationDeviceId] = useState<string | null>(null);
   const [activeSimulationLinkId, setActiveSimulationLinkId] = useState<string | null>(null);
+  const [activeSimulationFromDeviceId, setActiveSimulationFromDeviceId] = useState<string | null>(null);
+  const [simulationPath, setSimulationPath] = useState<SimulationPath | null>(null);
+  const [simStage, setSimStage] = useState<DockStage>("half");
+  const [dockTabRequest, setDockTabRequest] = useState<{ tab: DockTab; nonce: number } | null>(null);
 
   useEffect(() => {
     if (externalStorageTab) {
@@ -333,6 +337,29 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     setTranslateX((targetW - width * optimalScale) / 2 - minX * optimalScale + 60 * optimalScale);
     setTranslateY((targetH - height * optimalScale) / 2 - minY * optimalScale + 60 * optimalScale);
   }, [activeTopology, containerSize]);
+
+  // Ansicht auf eine Auswahl von Geräten einpassen (am Ping beteiligte Geräte)
+  const containerSizeRef = useRef(containerSize);
+  containerSizeRef.current = containerSize;
+  const fitViewRef = useRef(fitView);
+  fitViewRef.current = fitView;
+  const fitToDevices = useCallback(
+    (deviceIds: readonly string[]) => {
+      const devs = activeTopology.devices.filter((d) => deviceIds.includes(d.id));
+      if (devs.length === 0) return;
+      const minX = Math.min(...devs.map((d) => d.x));
+      const maxX = Math.max(...devs.map((d) => d.x + (d.width || 80)));
+      const minY = Math.min(...devs.map((d) => d.y));
+      const maxY = Math.max(...devs.map((d) => d.y + (d.height || 60) + 44));
+      const fit = computeFitTransform({ minX, maxX, minY, maxY }, containerSizeRef.current, { minScale: MIN_SCALE });
+      setScale(fit.scale);
+      setTranslateX(fit.translateX);
+      setTranslateY(fit.translateY);
+    },
+    [activeTopology],
+  );
+  const fitToDevicesRef = useRef(fitToDevices);
+  fitToDevicesRef.current = fitToDevices;
 
   // Unterrichts-Labs (Vorlagen aus den Labs, lazy geladen)
   const pendingFitRef = useRef(false);
@@ -519,11 +546,44 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     }, 500);
   };
 
+  // Simulation geöffnet: Zeichen-/Platzierungsmodi beenden; die Ansicht nach der Größenänderung des Canvas neu einpassen
+  const simulationWasOpen = useRef(false);
+  useEffect(() => {
+    if (isSimulationOpen) {
+      setActiveMode("select");
+      setActivePlacementType(null);
+      setConnectSourceDevice(null);
+    }
+    if (isSimulationOpen === simulationWasOpen.current) return;
+    simulationWasOpen.current = isSimulationOpen;
+    const t = setTimeout(() => fitViewRef.current(), 250);
+    return () => clearTimeout(t);
+  }, [isSimulationOpen]);
+
+  // Seitenleiste ein-/ausgeklappt bzw. Sheet-Stufe gewechselt: Canvas hat eine neue Größe, Ansicht neu einpassen
+  const previousStage = useRef(simStage);
+  useEffect(() => {
+    if (previousStage.current === simStage) return;
+    previousStage.current = simStage;
+    if (!isSimulationOpen) return;
+    const t = setTimeout(() => (simulationPath ? fitToDevicesRef.current(simulationPath.deviceIds) : fitViewRef.current()), 250);
+    return () => clearTimeout(t);
+  }, [simStage, isSimulationOpen, simulationPath]);
+
+  // Ping gestartet: beteiligte Geräte einpassen (nach dem Layout der Seitenleiste)
+  useEffect(() => {
+    if (!simulationPath) return;
+    const t = setTimeout(() => fitToDevicesRef.current(simulationPath.deviceIds), 120);
+    return () => clearTimeout(t);
+  }, [simulationPath]);
+
   // Verbindung trennen/wiederherstellen, shutdown/no shutdown: neu berechnen, Vorher/Nachher anzeigen (mit Undo)
   const runFailover = (actions: FailoverAction[], after?: NetworkTopology) => {
     const analysis = analyzeFailover(activeTopology, actions, after);
     setTopology(analysis.after, true);
     setFailoverAnalysis(analysis);
+    setIsSimulationOpen(true);
+    setDockTabRequest({ tab: "ausfall", nonce: Date.now() });
     if (selectedLink) setSelectedLink(analysis.after.links.find((l) => l.id === selectedLink.id) ?? null);
     if (selectedDevice) setSelectedDevice(analysis.after.devices.find((d) => d.id === selectedDevice.id) ?? null);
     toast.info(`${analysis.title} (Rückgängig mit Strg+Z)`);
@@ -669,7 +729,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Maus- und Touch-Pan / Drag / Draw Handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest(".topology-device, .topology-link, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
+    if ((e.target as HTMLElement).closest(".topology-device, .topology-device-labels, .topology-link, .topology-link-labels, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
     if (!viewportRef.current) return;
 
     const isDrawingTool = ["freehand", "line", "arrow", "box", "circle", "text", "note"].includes(activeMode);
@@ -958,7 +1018,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         return;
       }
 
-      if ((e.target as HTMLElement).closest(".topology-device, .topology-link, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
+      if ((e.target as HTMLElement).closest(".topology-device, .topology-device-labels, .topology-link, .topology-link-labels, .topology-annotation, .annotation-handles, button, select, textarea, input")) return;
 
       setIsPanning(true);
       setPanStart({ x: t.clientX - translateX, y: t.clientY - translateY });
@@ -1294,7 +1354,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   };
 
   return (
-    <div
+    <main
+      aria-label="Topologie-Canvas"
       tabIndex={-1}
       onKeyDown={handleKeyDown}
       className={`relative w-full h-full flex flex-col select-none overflow-hidden outline-none ${
@@ -1306,16 +1367,18 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         WebkitTouchCallout: "none",
       }}
     >
+      <h1 className="sr-only">Topologie-Canvas (v2)</h1>
+
       {/* ── TOPBAR: Steuerung, Topologie-Auswahl & Feature-Flag ── */}
       <div
-        className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b shrink-0 z-20 ${
+        className={`flex ${isSimulationOpen ? "flex-nowrap overflow-x-auto" : "flex-wrap"} items-center justify-between gap-2 px-3 py-2 border-b shrink-0 z-20 ${
           isDark
             ? "bg-slate-900/90 border-slate-800"
             : "bg-white/90 border-slate-200"
         } backdrop-blur-md`}
       >
         {/* Linke Seite: Topologie-Auswahl */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={`flex items-center gap-2 ${isSimulationOpen ? "shrink-0 flex-nowrap" : "flex-wrap"}`}>
           <label htmlFor="topology-selector" className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-sky-400" : "text-sky-700"}`}>
             Topologie:
           </label>
@@ -1324,7 +1387,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             aria-label="Topologie auswählen"
             value={selectedTopologyId}
             onChange={(e) => handleSelectTopology(e.target.value)}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer outline-none transition-colors ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer outline-none transition-colors ${isSimulationOpen ? "max-w-56" : ""} ${
               isDark
                 ? "bg-slate-800 border-slate-700 text-white hover:border-sky-500"
                 : "bg-white border-slate-300 text-slate-900 hover:border-sky-500"
@@ -1367,7 +1430,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             )}
           </select>
           {activeTopology.metadata?.labId && (
-            <div className="flex items-center gap-1.5" role="group" aria-label="Lab-Vorlage">
+            <div className={`flex items-center gap-1.5 ${isSimulationOpen ? "max-md:hidden" : ""}`} role="group" aria-label="Lab-Vorlage">
               <div
                 className={`flex items-center p-0.5 rounded-lg border text-xs font-medium ${
                   isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-200"
@@ -1409,10 +1472,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
 
         {/* Mitte: Ansichts-Optionen */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {/* Simple / Detail Umschalter */}
           <div
-            className={`flex items-center p-0.5 rounded-lg border text-xs font-medium ${
+            className={`${isSimulationOpen ? "max-md:hidden" : ""} flex items-center p-0.5 rounded-lg border text-xs font-medium ${
               isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-200"
             }`}
           >
@@ -1441,7 +1504,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           {/* Legende Toggle */}
           <button
             onClick={() => setShowLegend((v) => !v)}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`${isSimulationOpen ? "max-md:hidden" : ""} px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               showLegend
                 ? "bg-sky-500/20 border-sky-500 text-sky-300"
                 : isDark
@@ -1471,7 +1534,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               setStorageDialogTab("saved");
               setIsStorageDialogOpen(true);
             }}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`${isSimulationOpen ? "max-md:hidden" : ""} flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               isDark
                 ? "border-slate-700 text-slate-200 hover:bg-slate-800 bg-slate-800/50"
                 : "border-slate-200 text-slate-700 hover:bg-slate-100 bg-slate-50"
@@ -1479,7 +1542,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             title="Topologie speichern, exportieren (JSON/SVG/PNG) oder importieren"
           >
             <FloppyDisk size={15} weight="bold" />
-            <span className="hidden md:inline">Speichern & Export</span>
+            <span className={isSimulationOpen ? "hidden" : "hidden md:inline"}>Speichern & Export</span>
           </button>
 
           {/* Netzwerk-Diagnose Button mit Badge */}
@@ -1488,7 +1551,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
               setStorageDialogTab("diagnostics");
               setIsStorageDialogOpen(true);
             }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`${isSimulationOpen ? "max-md:hidden" : ""} flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               diagnostics.warningsCount > 0
                 ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
                 : isDark
@@ -1505,7 +1568,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             ) : (
               <>
                 <ShieldCheck size={15} weight="bold" className="text-emerald-500" />
-                <span className={`hidden md:inline text-[11px] font-bold ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>
+                <span className={`${isSimulationOpen ? "hidden" : "hidden md:inline"} text-[11px] font-bold ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>
                   OK
                 </span>
               </>
@@ -1515,7 +1578,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           {/* Barrierefreie Semantik-Tabelle (WCAG AA Textalternative) */}
           <button
             onClick={() => setShowScreenReaderView(true)}
-            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`${isSimulationOpen ? "max-md:hidden" : ""} flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               isDark
                 ? "border-slate-700 text-slate-300 hover:bg-slate-800"
                 : "border-slate-200 text-slate-700 hover:bg-slate-100"
@@ -1524,7 +1587,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             aria-label="Semantische Textübersicht der Topologie anzeigen"
           >
             <Table size={15} weight="bold" className="text-sky-400" />
-            <span className="hidden lg:inline text-[11px]">Tabelle</span>
+            <span className={`${isSimulationOpen ? "hidden" : "hidden lg:inline"} text-[11px]`}>Tabelle</span>
           </button>
 
           {/* Netzwerksimulation Button */}
@@ -1536,7 +1599,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                 : "border-border text-foreground hover:bg-accent"
             }`}
             title="Netzwerksimulation: Ping, ARP & Hop-Trace"
-            aria-label="Netzwerksimulation öffnen oder schließen"
+            aria-label="Simulation öffnen oder schließen"
           >
             <Play size={15} weight="bold" />
             <span className="hidden md:inline">Simulation</span>
@@ -1544,7 +1607,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
 
         {/* Rechte Seite: Zoom & Feature-Flag */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {/* Zoom Buttons */}
           <div className="hidden sm:flex items-center gap-1">
             <button
@@ -1571,7 +1634,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           </div>
 
           {/* Feature-Flag Umschalter (v1 Canvas vs v2 SVG) */}
-          {onSwitchToV1 && (
+          {onSwitchToV1 && !isSimulationOpen && (
             <div
               className={`flex items-center p-0.5 rounded-lg border text-xs font-semibold ${
                 isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-200"
@@ -1598,7 +1661,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       </div>
 
-      {/* ── 2. GERÄTEPALETTE & EDITING TOOLBAR (Schritte 2d-1 & 2d-2) ── */}
+      {/* ── 2. GERÄTEPALETTE & EDITING TOOLBAR (Schritte 2d-1 & 2d-2); bei geöffneter Simulation ausgeblendet ── */}
+      {!isSimulationOpen && (
       <DevicePalette
         theme={theme}
         activePlacementType={activePlacementType}
@@ -1621,6 +1685,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         selectedAnnotationId={selectedAnnotation?.id}
         onDeleteSelected={handleDeleteSelected}
       />
+      )}
 
       {/* ── KONFLIKT-BANNER (Präzise formuliert mit reversibler Wiederherstellung) ── */}
       {migrationConflicts.length > 0 && (
@@ -1699,10 +1764,11 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         </div>
       )}
 
-      {/* ── CANVAS BEREICH: Interaktives SVG Rendering ── */}
+      {/* ── CANVAS BEREICH + SIMULATION: Seitenleiste (Desktop) bzw. Bottom Sheet (Mobil), beides im Layout-Fluss ── */}
+      <div className="relative flex min-h-0 flex-1 flex-col md:flex-row">
       <div
         ref={viewportRef}
-        className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
+        className="min-h-0 min-w-0 flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
         style={{
           touchAction: "none",
           userSelect: "none",
@@ -1767,6 +1833,9 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           drawingAnnotationPreview={drawingAnnotationPreview}
           activeSimulationDeviceId={activeSimulationDeviceId}
           activeSimulationLinkId={activeSimulationLinkId}
+          activeSimulationFromDeviceId={activeSimulationFromDeviceId}
+          simulationPathDeviceIds={simulationPath?.deviceIds}
+          simulationPathLinkIds={simulationPath?.linkIds}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
@@ -1862,11 +1931,43 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           )}
         </div>
       </div>
+      {/* ── NETZWERKSIMULATION: Ping, Ausfall, Konvergenz ── */}
+      <SimulationDock
+        topology={activeTopology}
+        isOpen={isSimulationOpen}
+        stage={simStage}
+        onStageChange={setSimStage}
+        onClose={() => {
+          setIsSimulationOpen(false);
+          setActiveSimulationHopIndex(null);
+          setActiveSimulationDeviceId(null);
+          setActiveSimulationLinkId(null);
+          setActiveSimulationFromDeviceId(null);
+          setSimulationPath(null);
+        }}
+        activeHopIndex={activeSimulationHopIndex}
+        onSelectHop={(hopIndex, deviceId, linkId, fromDeviceId) => {
+          setActiveSimulationHopIndex(hopIndex);
+          setActiveSimulationDeviceId(deviceId ?? null);
+          setActiveSimulationLinkId(linkId ?? null);
+          setActiveSimulationFromDeviceId(fromDeviceId ?? null);
+        }}
+        onPathChange={setSimulationPath}
+        failoverAnalysis={failoverAnalysis}
+        convergenceMode={convergenceMode}
+        onConvergenceModeChange={setConvergenceMode}
+        requestedTab={dockTabRequest}
+      />
+      </div>
 
       {/* ── DETAIL-PANEL: Beim Klick auf Gerät / Link ── */}
       {selectedDevice && (
         <div
           className={`absolute bottom-0 right-0 sm:top-24 sm:bottom-auto sm:right-3 w-full sm:w-80 max-h-[55vh] sm:max-h-[75vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl border shadow-2xl p-4 z-40 transition-all ${
+            isSimulationOpen
+              ? `${simStage === "collapsed" ? "max-md:bottom-[var(--sim-sheet-collapsed)]" : "max-md:bottom-[var(--sim-sheet-half)]"} ${simStage === "collapsed" ? "md:right-[calc(var(--sim-sidebar-rail)+0.75rem)]" : "md:right-[calc(var(--sim-sidebar-width)+0.75rem)]"}`
+              : ""
+          } ${
             isDark
               ? "bg-slate-900/98 border-slate-700/80 text-white"
               : "bg-white/98 border-slate-200 text-slate-900"
@@ -2089,17 +2190,6 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         />
       )}
 
-      {/* ── AUSFALL-ANALYSE (Vorher/Nachher, Konvergenz) ── */}
-      {failoverAnalysis && (
-        <FailoverPanel
-          analysis={failoverAnalysis}
-          mode={convergenceMode}
-          onModeChange={setConvergenceMode}
-          onClose={() => setFailoverAnalysis(null)}
-          prefersReducedMotion={typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches}
-        />
-      )}
-
       {/* ── GERÄTE-KONFIGURATIONSDIALOG (Schritt 2d-3) ── */}
       {isConfigDialogOpen && selectedDevice && (
         <DeviceConfigDialog
@@ -2171,23 +2261,6 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         />
       )}
 
-      {/* ── NETZWERKSIMULATION DOCK (PHASE 1: PING & HOP-INSPECTOR) ── */}
-      <SimulationDock
-        topology={activeTopology}
-        isOpen={isSimulationOpen}
-        onClose={() => {
-          setIsSimulationOpen(false);
-          setActiveSimulationHopIndex(null);
-          setActiveSimulationDeviceId(null);
-          setActiveSimulationLinkId(null);
-        }}
-        activeHopIndex={activeSimulationHopIndex}
-        onSelectHop={(hopIndex, deviceId, linkId) => {
-          setActiveSimulationHopIndex(hopIndex);
-          setActiveSimulationDeviceId(deviceId ?? null);
-          setActiveSimulationLinkId(linkId ?? null);
-        }}
-      />
-    </div>
+    </main>
   );
 };

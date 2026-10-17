@@ -6,6 +6,8 @@ interface DeviceIconProps {
   size?: number;
   className?: string;
   status?: "active" | "warning" | "error" | "inactive" | "disabled";
+  /** Rein dekorativ (der umgebende Knoten trägt den Namen): vor Screenreadern verborgen */
+  decorative?: boolean;
 }
 
 /**
@@ -18,7 +20,10 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
   size = 48,
   className = "",
   status = "active",
+  decorative = false,
 }) => {
+  const a11y = (label: string) =>
+    decorative ? ({ "aria-hidden": true } as const) : ({ role: "img", "aria-label": label } as const);
   const statusColor =
     status === "error"
       ? "#EF4444"
@@ -38,8 +43,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Cisco Router"
+          {...a11y("Cisco Router")}
         >
           {/* 3D-Zylinder Gehäuse */}
           <ellipse
@@ -87,8 +91,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Cisco Layer 2 Switch"
+          {...a11y("Cisco Layer 2 Switch")}
         >
           {/* Quader Gehäuse */}
           <rect
@@ -123,8 +126,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Cisco Layer 3 Switch (Multilayer)"
+          {...a11y("Cisco Layer 3 Switch (Multilayer)")}
         >
           {/* Quader Gehäuse */}
           <rect
@@ -147,7 +149,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           </g>
           {/* L3 Kennzeichnung Badge */}
           <rect x="42" y="14" width="16" height="10" rx="3" fill="#312E81" stroke="#A5B4FC" strokeWidth="1" />
-          <text x="45" y="22" fill="#E0E7FF" fontSize="7" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">L3</text>
+          <text aria-hidden="true" x="45" y="22" fill="#E0E7FF" fontSize="7" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">L3</text>
         </svg>
       );
 
@@ -160,8 +162,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Cisco Firewall / ASA / FTD"
+          {...a11y("Cisco Firewall / ASA / FTD")}
         >
           {/* Backsteinmauer-Körper */}
           <rect
@@ -215,8 +216,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Wireless Access Point"
+          {...a11y("Wireless Access Point")}
         >
           {/* AP Sockel */}
           <ellipse cx="32" cy="46" rx="20" ry="8" fill={statusColor || "#0D9488"} />
@@ -253,8 +253,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Wireless LAN Controller"
+          {...a11y("Wireless LAN Controller")}
         >
           {/* Controller Chassis */}
           <rect
@@ -273,7 +272,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           <circle cx="18" cy="33" r="2.5" fill="#34D399" />
           <circle cx="26" cy="33" r="2.5" fill="#38BDF8" />
           {/* WLC Schriftzug */}
-          <text x="33" y="36" fill="#F5F3FF" fontSize="9" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
+          <text aria-hidden="true" x="33" y="36" fill="#F5F3FF" fontSize="9" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
             WLC
           </text>
         </svg>
@@ -288,8 +287,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Server"
+          {...a11y("Server")}
         >
           {/* Rackmount Einschub 1 */}
           <rect
@@ -347,8 +345,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="PC / Workstation"
+          {...a11y("PC / Workstation")}
         >
           {/* Monitor Gehäuse */}
           <rect
@@ -382,8 +379,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Laptop Client (WLAN & Ethernet)"
+          {...a11y("Laptop Client (WLAN & Ethernet)")}
         >
           {/* Display Deckel */}
           <rect
@@ -434,8 +430,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={className}
-          role="img"
-          aria-label="Cloud WAN / Internet"
+          {...a11y("Cloud WAN / Internet")}
         >
           {/* Wolkenumriss */}
           <path
@@ -447,7 +442,7 @@ export const DeviceIcon: React.FC<DeviceIconProps> = ({
             vectorEffect="non-scaling-stroke"
           />
           {/* WAN Schriftzug */}
-          <text x="23" y="32" fill="#F0F9FF" fontSize="10" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
+          <text aria-hidden="true" x="23" y="32" fill="#F0F9FF" fontSize="10" fontWeight="bold" fontFamily="'IBM Plex Mono', monospace">
             WAN
           </text>
         </svg>
