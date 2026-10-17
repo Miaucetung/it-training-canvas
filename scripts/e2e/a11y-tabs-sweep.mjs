@@ -2,7 +2,7 @@
 // Voraussetzung: Dev-Server (Audit-Hooks aktiv), Edge installiert. Port über BASE_URL (Standard http://localhost:5000).
 //   node scripts/e2e/a11y-tabs-sweep.mjs [1440|390] [dark|light]     (ohne Angaben: alle Kombinationen)
 //   Umgebung: ONLY=<Teil des Ansichtsnamens>
-// Reiter werden heuristisch gefunden: sichtbare Schaltflächen im oberen Bereich des Dialogs (ohne Schließen/Export).
+// Reiter werden über role="tab" gefunden; Dialoge ohne Tabs (Modus-Schalter der Drills) über button[aria-pressed].
 // Jeder Reiter wird aus frischem Zustand geöffnet (Dialog neu öffnen, dann klicken). Ausgabe: .local/a11y-tabs.json
 import { chromium } from "playwright-core";
 import fs from "node:fs";
@@ -25,12 +25,23 @@ const TOOLS = [
   ["topologie-explorer", "Topologie-Erkunder"], ["cli-glossary", "CLI-Glossar"],
 ];
 
-// Beschriftungen, die nicht angeklickt werden (Schließen, Export/Download, Navigation aus dem Dialog heraus)
-const SKIP = /^(schließen|close|png|svg|handout|pdf|drucken|download|export|pt-export|alle befehle|topologie im canvas|zurück zur|konto|anmelden|abmelden)/i;
 
 const VIEWS = [
   ...TOOLS.map(([id, label]) => ({ name: `Werkzeug: ${label}`, open: async (page) => { await page.evaluate(() => window.__auditApp.openTool(null)); await page.waitForTimeout(350); await page.evaluate((t) => window.__auditApp.openTool(t), id); await page.waitForSelector('[role="dialog"]', { timeout: 5000 }); await page.waitForTimeout(400); } })),
   { name: "Labs-Dialog (Liste)", open: async (page) => { await page.evaluate(() => window.__auditApp.closeDialogs()); await page.waitForTimeout(350); await page.evaluate(() => window.__auditApp.openDialog("labs")); await page.waitForTimeout(600); } },
+  {
+    name: "Labs-Dialog (Lab geöffnet)",
+    open: async (page) => {
+      await page.evaluate(() => window.__auditApp.closeDialogs());
+      await page.waitForTimeout(350);
+      await page.evaluate(() => window.__auditApp.openDialog("labs"));
+      await page.waitForTimeout(600);
+      const target = page.getByText("OSPF — Single Area 0").first();
+      if (!(await target.isVisible())) { await page.getByRole("button", { name: /Lab-Katalog/ }).first().click(); await page.waitForTimeout(300); }
+      await target.click();
+      await page.waitForTimeout(800);
+    },
+  },
   { name: "Prüfungstrainer: Menü", open: async (page) => { await page.evaluate(() => window.__auditApp.closeDialogs()); await page.waitForTimeout(350); await page.evaluate(() => window.__auditApp.openDialog("exam")); await page.waitForFunction(() => !!window.__examPrepState); await page.waitForTimeout(300); } },
   { name: "Priorisiertes Lernen: Menü", open: async (page) => { await page.evaluate(() => window.__auditApp.closeDialogs()); await page.waitForTimeout(350); await page.evaluate(() => window.__auditApp.openDialog("prioritized")); await page.waitForFunction(() => !!window.__prioritizedLearningState); await page.waitForTimeout(300); } },
 ];
@@ -42,20 +53,28 @@ const candidates = (page) =>
   page.evaluate(() => {
     const dlg = document.querySelector('[role="dialog"]');
     if (!dlg) return [];
-    const top = dlg.getBoundingClientRect().top;
+    const visible = (b) => { const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !b.disabled; };
+    let els = [...dlg.querySelectorAll('[role="tab"]')].filter(visible);
+    if (els.length === 0) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
     const seen = new Set();
     const out = [];
-    [...dlg.querySelectorAll('button, [role="tab"]')].forEach((b, idx) => {
-      const r = b.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0 || r.top - top > 300 || r.top < 0 || b.disabled) return;
-      const label = (b.getAttribute("aria-label") || b.textContent || "").replace(/\u00ad/g, "").replace(/\s+/g, " ").trim();
-      if (!label || label.length > 60 || seen.has(label)) return;
+    for (const b of els) {
+      const label = (b.getAttribute("aria-label") || b.textContent || "").replace(/­/g, "").replace(/\s+/g, " ").trim();
+      if (!label || label.length > 60 || seen.has(label)) continue;
       seen.add(label);
-      out.push({ label, idx });
-    });
+      out.push({ label, idx: els.indexOf(b) });
+    }
     return out;
   });
-const clickCandidate = (page, idx) => page.evaluate((i) => { const dlg = document.querySelector('[role="dialog"]'); [...dlg.querySelectorAll('button, [role="tab"]')][i].click(); }, idx);
+const clickCandidate = (page, idx) =>
+  page.evaluate((i) => {
+    const dlg = document.querySelector('[role="dialog"]');
+    const visible = (b) => { const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !b.disabled; };
+    let els = [...dlg.querySelectorAll('[role="tab"]')].filter(visible);
+    if (els.length === 0) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
+    els[i].dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+    els[i].click();
+  }, idx);
 
 const runAxe = (page) =>
   page.evaluate(async () => {
@@ -86,7 +105,7 @@ for (const width of widths) {
         await view.open(page);
         await page.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation:none!important}" });
         await page.evaluate(axeSource);
-        const rawLabels = (await candidates(page)).map((c) => c); if (process.env.DEBUG) console.log("Kandidaten:", JSON.stringify(rawLabels), await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length)); const labels = rawLabels.filter((c) => !SKIP.test(c.label));
+        const rawLabels = (await candidates(page)).map((c) => c); if (process.env.DEBUG) console.log("Kandidaten:", JSON.stringify(rawLabels), await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length)); const labels = rawLabels;
         // Standardzustand und jeder Reiter einzeln
         const states = [{ state: "Standard", label: null }, ...labels.map((c) => ({ state: `Reiter „${c.label.slice(0, 40)}“`, label: c.label, idx: c.idx }))];
         for (const s of states) {
