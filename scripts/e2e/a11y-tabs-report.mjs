@@ -21,7 +21,7 @@ const cleanStates = [...states.values()].filter((rs) => rs.every((r) => !r.error
 
 const md = [];
 md.push("# axe-Lauf über jeden Reiter einzeln (alle Regeln)", "");
-md.push("Erzeugt von `scripts/e2e/a11y-tabs-sweep.mjs` und `scripts/e2e/a11y-tabs-report.mjs`. Je Werkzeug-Dialog, Labs-Dialog, Prüfungstrainer-Menü und Priorisiertes Lernen wird jeder gefundene Reiter bzw. Modus aus frischem Zustand geöffnet und mit allen axe-Regeln geprüft (1440/390 px, hell/dunkel). Canvas v1 und v2 sind nicht Teil dieses Laufs (siehe `AXE-SWEEP.md`, nur aufgelistet). Es wurde nichts geändert.", "");
+md.push("Erzeugt von `scripts/e2e/a11y-tabs-sweep.mjs` und `scripts/e2e/a11y-tabs-report.mjs`. Je Werkzeug-Dialog, Labs-Dialog, Prüfungstrainer-Menü und Priorisiertes Lernen wird jeder gefundene Reiter (role=\"tab\"; in den Drills die Modus-Schalter mit aria-pressed) aus frischem Zustand geöffnet und mit allen axe-Regeln geprüft (1440/390 px, hell/dunkel). Canvas v1 und v2 sind nicht Teil dieses Laufs (siehe `AXE-SWEEP.md`, nur aufgelistet). Es wurde nichts geändert.", "");
 md.push(`**${total} Zustände (Ansicht × Reiter) in ${runs} Läufen: ${cleanStates} Zustände in allen vier Kombinationen sauber, ${total - cleanStates} mit Verstößen oder Skriptfehlern${errors.length ? ` (${errors.length} Läufe mit Skriptfehler)` : ""}.**`, "");
 
 // Übersicht je Ansicht
@@ -90,8 +90,8 @@ if (errors.length) {
 }
 
 md.push("## Grenzen des Laufs", "");
-md.push("- Reiter und Modi werden heuristisch gefunden (sichtbare Schaltflächen in den oberen 300 px des Dialogs, ohne Schließen/Export). Das schließt Schaltflächen ein, die keine Reiter sind (z. B. Felder im Frame-Vivisektor, Lab-Kapitel im Labs-Dialog); sie zählen als eigener Zustand.");
-md.push("- Der Labs-Dialog wird nur über die Kopfzone der Liste geprüft; einzelne Labs, Lab-Kapitel und die Katalog-Filter sind nicht vollständig durchlaufen.");
+md.push("- Reiter werden über role=\"tab\" gefunden. Dialoge ohne Tabs (Drills) werden über ihre Modus-Schalter (button mit aria-pressed) geprüft; Labs, Prüfungstrainer und Priorisiertes Lernen nur im Standardzustand (Labs zusätzlich mit geöffnetem Lab).");
+md.push("- Der Vorgängerlauf (`AXE-TABS-VORHER.md`) fand Reiter heuristisch und zählte dabei auch Schaltflächen, die keine Reiter sind; deshalb unterscheidet sich die Zahl der Zustände.");
 md.push("- Zustände nach Eingaben (Quiz beantworten, Drill prüfen, Ergebnisbildschirme) sind nicht Teil dieses Laufs.");
 md.push("");
 fs.mkdirSync(path.join(root, "docs", "a11y"), { recursive: true });
