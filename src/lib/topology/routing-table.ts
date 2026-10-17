@@ -2,6 +2,7 @@ import type { NetworkTopology, TopologyDevice } from "@/types/topology";
 import { computeEigrpRoutes, computeOspfExternalRoutes } from "./eigrp-ipv4";
 import { computeOspfRoutes } from "./ospf-routes";
 import { installedStaticRoutes, ipInCidr } from "./static-routes";
+import { isInterfaceActive } from "./ospf-neighbors";
 
 /**
  * Wandelt CIDR-Präfixlänge in eine Subnetzmaske um (z. B. 24 -> "255.255.255.0")
@@ -123,9 +124,9 @@ export function computeStructuredRoutingTable(
 ): StructuredRoutingTable {
   const candidates: StructuredRouteEntry[] = [];
 
-  // 1. Lokale und Direkt verbundene Routen (C und L)
+  // 1. Lokale und Direkt verbundene Routen (C und L): nur für Interfaces mit line protocol up
   for (const iface of device.interfaces) {
-    if (!iface.ip) continue;
+    if (!iface.ip || !isInterfaceActive(iface)) continue;
     const netInfo = getNetworkAddress(iface.ip);
     if (!netInfo) continue;
 

@@ -364,6 +364,32 @@ function longIfaceName(name: string): string {
 
 const padRight = (s: string, n: number) => s.padEnd(n, " ");
 
+/**
+ * STP-Rollen für die Canvas-Anzeige setzen (ändert die Topologie): Port-Rolle RP/DP/BLK an Switch-zu-Switch-Ports,
+ * Links mit blockiertem Ende als "stp-blocking". Vorherige Markierungen werden zuerst entfernt, damit die Funktion
+ * nach einer Topologieänderung (Link getrennt, shutdown) erneut laufen kann.
+ */
+export function applyStpPortRoles(topology: NetworkTopology): void {
+  const { devices, links } = topology;
+  for (const d of devices) for (const i of d.interfaces) delete i.portRole;
+  for (const l of links) if (l.status === "stp-blocking") l.status = "up";
+  const stp = computeStp(topology);
+  const roleOf = { Root: "RP", Desg: "DP", Altn: "BLK" } as const;
+  for (const bridge of stp.values()) {
+    for (const p of bridge.ports) {
+      const linked = links.some((l) => l.sourceInterfaceId === p.iface.id || l.targetInterfaceId === p.iface.id);
+      if (linked && links.some((l) => (l.sourceInterfaceId === p.iface.id || l.targetInterfaceId === p.iface.id) && stp.has(l.sourceDeviceId) && stp.has(l.targetDeviceId))) {
+        p.iface.portRole = roleOf[p.role];
+      }
+    }
+  }
+  for (const l of links) {
+    const ends = [l.sourceInterfaceId, l.targetInterfaceId];
+    const blocked = devices.some((d) => d.interfaces.some((i) => ends.includes(i.id) && i.portRole === "BLK"));
+    if (blocked) l.status = "stp-blocking";
+  }
+}
+
 export function formatShowSpanningTree(device: TopologyDevice, topology: NetworkTopology): string {
   if (!isSwitch(device)) return "% Spanning tree ist auf diesem Gerät nicht verfügbar";
   const all = computeStp(topology);
