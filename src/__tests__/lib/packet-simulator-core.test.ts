@@ -109,3 +109,34 @@ describe("Link-ID je Hop (Pfad-Hervorhebung)", () => {
     }
   });
 });
+
+describe("SVIs als L3-Endpunkt der VLAN-Domäne", () => {
+  it("ivr-svi: Eingang über Gi1/0/1 landet auf Vlan10, Ausgang über Vlan20 läuft per L2 zu PC-Mrkt", () => {
+    const t = labTopology("ivr-svi");
+    const r = simulatePing({ topology: t, sourceDeviceId: dev(t, "PC-Sales").id, targetIp: "192.168.20.1" });
+    expect(r.success).toBe(true);
+    const route = r.forwardHops.find((h) => h.action === "route" && h.deviceName === "MLS1")!;
+    expect(route.inInterface).toBe("Vlan10");
+    expect(route.outInterface).toBe("Vlan20");
+    const l2 = r.forwardHops.find((h) => h.action === "switch" && h.deviceName === "MLS1")!;
+    expect(l2.inInterface).toBe("Vlan20");
+    expect(l2.outInterface).toBe("Gi1/0/2");
+  });
+
+  it("Ping auf das SVI selbst endet am SVI (basic-ip: Switch0 Vlan1)", () => {
+    const t = labTopology("basic-ip");
+    const r = simulatePing({ topology: t, sourceDeviceId: dev(t, "PC0").id, targetIp: "192.168.1.2" });
+    expect(r.success).toBe(true);
+    expect(r.forwardHops[r.forwardHops.length - 1].inInterface).toBe("Vlan1");
+  });
+
+  it("Autostate: ohne aktiven Port im VLAN ist das SVI down", () => {
+    const t = labTopology("ivr-svi");
+    const port = dev(t, "MLS1").interfaces.find((i) => i.name === "Gi1/0/2")!;
+    port.isShutdown = true;
+    port.status = "admin-down";
+    const r = simulatePing({ topology: t, sourceDeviceId: dev(t, "PC-Sales").id, targetIp: "192.168.20.1" });
+    expect(r.success).toBe(false);
+    expect(r.allHops.find((h) => h.status === "dropped")?.reason).toMatch(/Vlan20 auf MLS1 ist down/);
+  });
+});

@@ -194,8 +194,23 @@ export function egressFrameVlan(iface: TopologyInterface): number | null {
   return iface.name.includes(".") && iface.vlan !== undefined ? iface.vlan : null;
 }
 
-/** Eingangs-Interface eines L3-Geräts für ein Frame: bei Tag das passende Subinterface, sonst das physische Interface. */
+/** VLAN eines SVI (Interface `Vlan<n>`), sonst null. */
+export function sviVlanOf(iface: TopologyInterface): number | null {
+  const m = /^vlan\s*(\d+)$/i.exec(iface.name.trim());
+  return m ? Number(m[1]) : null;
+}
+
+/**
+ * Eingangs-Interface eines Geräts für ein ankommendes Frame:
+ * Switch (L2/L3) mit SVI im VLAN des Frames → das SVI (L3-Endpunkt der VLAN-Domäne);
+ * Router mit Tag → das passende Subinterface; sonst das physische Interface.
+ */
 function l3IngressInterface(device: TopologyDevice, physical: TopologyInterface, frameVlan: number | null): TopologyInterface {
+  if (isSwitch(device) && physical.mode !== "routed" && sviVlanOf(physical) === null) {
+    const vlan = frameVlan ?? (physical.mode === "trunk" ? (physical.nativeVlan ?? 1) : (physical.vlan ?? 1));
+    const svi = device.interfaces.find((i) => sviVlanOf(i) === vlan);
+    return svi ?? physical;
+  }
   if (frameVlan === null) return physical;
   const sub = device.interfaces.find(
     (i) =>
@@ -215,10 +230,25 @@ function stpStateOf(stpData: Map<string, StpBridgeInfo>, device: TopologyDevice,
  * (evaluateTrunk aus vtp-status.ts; nur zwischen Switches, Router sprechen kein DTP).
  */
 function operationalPort(topology: NetworkTopology, device: TopologyDevice, iface: TopologyInterface): TopologyInterface {
+  const svi = sviVlanOf(iface);
+  if (svi !== null) return { ...iface, mode: "access", vlan: svi };
   if (iface.mode === "trunk" || iface.mode === "access" || iface.mode === "routed") return iface;
   const conn = findConnectedLinkForInterface(topology, device.id, iface.id);
   const trunk = !!conn && isSwitch(conn.remoteDevice) && evaluateTrunk(iface, conn.remoteIface).trunk;
   return { ...iface, mode: trunk ? "trunk" : "access" };
+}
+
+/**
+ * Autostate eines SVI: line protocol up, wenn mindestens ein aktiver, verbundener Port des Switches das VLAN trägt.
+ */
+function sviOperational(topology: NetworkTopology, device: TopologyDevice, svi: TopologyInterface): boolean {
+  const vlan = sviVlanOf(svi);
+  if (vlan === null || !isInterfaceActive(svi)) return false;
+  return device.interfaces.some((i) => {
+    if (sviVlanOf(i) !== null || !isInterfaceActive(i)) return false;
+    const conn = findConnectedLinkForInterface(topology, device.id, i.id);
+    return !!conn && isLinkUsable(conn.link) && portCarriesVlan(operationalPort(topology, device, i), vlan);
+  });
 }
 
 /** VLAN eines Frames im Switch: Access-Port bestimmt das VLAN, ein Trunk übernimmt das Tag (ungetaggt = natives VLAN). */
@@ -872,6 +902,53 @@ function tracePath(
         currentInIf = remoteTunIface;
         continue;
       }
+    }
+
+    // Ausgang über ein SVI: Ziel liegt in der VLAN-Domäne; L2-Weg ab dem Switch selbst (kein eigenes Kabel am SVI)
+    if (isSwitch(currentDev) && sviVlanOf(outIface) !== null) {
+      if (!sviOperational(topology, currentDev, outIface)) {
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          outInterface: outIface.name,
+          action: "drop",
+          reason: `${outIface.name} auf ${currentDev.name} ist down: kein aktiver Port im VLAN ${sviVlanOf(outIface)} (SVI-Autostate).`,
+          packet: { ...packet },
+          status: "dropped",
+          dropReason: "interface-down",
+        });
+        return { hops, success: false, dropReason: "interface-down", explanation: `${outIface.name} ist down (kein aktiver Port im VLAN)`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
+      }
+      const nextHopDev = findL2OwnerOf(topology, nextHopIp) ?? targetDevice;
+      arpCache[currentDev.id] ??= {};
+      if (!arpCache[currentDev.id][nextHopIp]) {
+        const ownerIface = findDeviceByIp(topology, nextHopIp)?.iface;
+        const resolvedMac = getSymbolicMac(nextHopDev, ownerIface);
+        arpCache[currentDev.id][nextHopIp] = resolvedMac;
+        arpResolvedThisRun = true;
+        routerArpLoss = true;
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          outInterface: outIface.name,
+          action: "arp-resolve",
+          reason: `ARP-Auflösung auf ${currentDev.name} (${outIface.name}) für ${nextHopIp}: Broadcast im VLAN ${sviVlanOf(outIface)} → Antwort mit ${resolvedMac}. Erstes ICMP-Echo geht während der ARP-Auflösung verloren (.!!!!).`,
+          packet: { ...packet, dstMac: resolvedMac },
+          packetOut: { ...packet, dstMac: resolvedMac },
+          status: "ok",
+        });
+      }
+      packet.srcMac = getSymbolicMac(currentDev, outIface);
+      packet.dstMac = arpCache[currentDev.id][nextHopIp];
+      const l2FromSvi = traverseL2Segment(topology, currentDev, outIface, nextHopDev, packet, hops, stpData, null);
+      if (l2FromSvi.dropped) {
+        return { hops, success: false, dropReason: l2FromSvi.dropReason, explanation: l2FromSvi.explanation, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
+      }
+      currentDev = l2FromSvi.currentDevice;
+      currentInIf = l2FromSvi.currentIface;
+      continue;
     }
 
     // Finde den nächsten physischen Link ausgehend von outIface

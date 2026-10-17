@@ -63,7 +63,7 @@ export const ORACLE: OracleRow[] = [
   { nr: 12, lab: "etherchannel", quelle: "PC0", ziel: "192.168.1.20", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4" },
   { nr: 13, lab: "stp", quelle: "PC0", ziel: "192.168.1.20", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4" },
   { nr: 14, lab: "roas", quelle: "PC0", ziel: "192.168.20.10", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4" },
-  { nr: 15, lab: "ivr-svi", quelle: "PC-Sales", ziel: "192.168.20.1", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4", offen: { art: "simulation", grund: "SVI wird wie ein physisches Interface mit Kabel behandelt (Schritt 4)." } },
+  { nr: 15, lab: "ivr-svi", quelle: "PC-Sales", ziel: "192.168.20.1", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4" },
   { nr: 16, lab: "static-routing", quelle: "PC0", ziel: "192.168.2.10", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 5" },
   { nr: 17, lab: "rip-v1", quelle: "PC0", ziel: "192.168.3.10", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 7", offen: OFFEN_RIP },
   { nr: 18, lab: "rip-v2", quelle: "PC0", ziel: "192.168.3.10", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 5", offen: OFFEN_RIP },
