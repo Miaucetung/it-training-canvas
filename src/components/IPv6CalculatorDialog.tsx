@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -2241,28 +2242,30 @@ export function IPv6CalculatorDialog({
           </div>
 
           {/* Tab Bar */}
-          <div
+          <TabBar value={tab} onValueChange={(v) => setTab(v as IPv6Tab)} className="contents">
+          <TabBarList aria-label="IPv6-Themen"
             className="flex border-b flex-shrink-0 border-border"
           >
             {tabs.map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent text-muted-foreground hover:text-foreground`}`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto">
-            {tab === "analyse" && <AnalyseTab />}
-            {tab === "eui64" && <EUI64Tab />}
-            {tab === "segmentation" && <SegmentationTab />}
-            {tab === "drill" && <DrillTab />}
-            {tab === "binaer" && <BinaryTab />}
+            <TabBarPanel value="analyse"><AnalyseTab /></TabBarPanel>
+            <TabBarPanel value="eui64"><EUI64Tab /></TabBarPanel>
+            <TabBarPanel value="segmentation"><SegmentationTab /></TabBarPanel>
+            <TabBarPanel value="drill"><DrillTab /></TabBarPanel>
+            <TabBarPanel value="binaer"><BinaryTab /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>
