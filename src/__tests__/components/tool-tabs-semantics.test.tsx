@@ -33,6 +33,17 @@ describe("Reiter in den Werkzeugen sind echte Tabs", () => {
       expect(selected.getAttribute("aria-controls")).toBe(panel.id);
     });
 
+    it(`${name}: jeder Tab hat nach dem Auswählen ein zugehöriges tabpanel`, async () => {
+      mount();
+      for (let i = 0; i < count; i++) {
+        fireEvent.mouseDown(screen.getAllByRole("tab")[i]);
+        await waitFor(() => expect(screen.getAllByRole("tab")[i].getAttribute("aria-selected")).toBe("true"));
+        const sel = screen.getAllByRole("tab")[i];
+        const panel = screen.getByRole("tabpanel");
+        expect(sel.getAttribute("aria-controls")).toBe(panel.id);
+      }
+    });
+
     it(`${name}: Pfeiltaste wechselt zum nächsten Tab`, async () => {
       mount();
       const tabs = screen.getAllByRole("tab");

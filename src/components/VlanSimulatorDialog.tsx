@@ -1401,7 +1401,7 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
             <TabBarPanel value="frame"><FrameVivisektor /></TabBarPanel>
-            {tab === "topology"    && <TopologySimulator dark={dark} />}
+            <TabBarPanel value="topology"><TopologySimulator dark={dark} /></TabBarPanel>
             <TabBarPanel value="trunk"><TrunkAnimation /></TabBarPanel>
             <TabBarPanel value="packet-walk"><PacketWalkSimulator /></TabBarPanel>
           </div>
