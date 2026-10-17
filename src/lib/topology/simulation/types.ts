@@ -75,6 +75,7 @@ export interface SimulationResult {
   returnHops: HopStep[];
   allHops: HopStep[];
   arpResolvedThisRun: boolean;
+  routerArpLoss?: boolean;
   arpCache: Record<string, Record<string, string>>;
 }
 

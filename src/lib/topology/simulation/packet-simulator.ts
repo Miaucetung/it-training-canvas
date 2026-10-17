@@ -7,6 +7,8 @@ import type {
 import { computeStructuredRoutingTable, lookupRouteLpm, getNetworkAddress } from "../routing-table";
 import { computeStp, isSwitch, type StpBridgeInfo, type StpPortInfo } from "../stp-calc";
 import { computeHsrp, hasHsrpConfig } from "../hsrp";
+import { computeTunnelState, isTunnelInterface } from "../gre-tunnel";
+import { hasNatConfig } from "../nat-outputs";
 import { evaluateAcl } from "./acl-evaluator";
 import type {
   SimulatedPacket,
@@ -16,7 +18,13 @@ import type {
   DropReasonCode,
 } from "./types";
 import { normalizeInterfaceName } from "../hardware-profiles";
-import { isLinkUsable, isInterfaceActive } from "../ospf-neighbors";
+import {
+  isLinkUsable,
+  isInterfaceActive,
+  findLinkEnd,
+  portCarriesVlan,
+  untaggedVlan,
+} from "../ospf-neighbors";
 
 /**
  * Gibt eine eindeutige symbolische MAC-Adresse zurück (z. B. "MAC(R1 Gi0/0)"),
@@ -124,28 +132,32 @@ function resolveNatTarget(
 
 /**
  * Findet den Link, der an einem bestimmten Interface eines Geräts angeschlossen ist.
+ * Nutzt die zentrale Funktion findLinkEnd() aus ospf-neighbors.ts.
  */
-function findConnectedLinkForInterface(
+export function findConnectedLinkForInterface(
   topology: NetworkTopology,
   deviceId: string,
   ifaceIdOrName: string,
 ): { link: TopologyLink; remoteDevice: TopologyDevice; remoteIface: TopologyInterface } | null {
-  const dev = topology.devices.find((d) => d.id === deviceId);
-  if (!dev) return null;
-  const iface = dev.interfaces.find((i) => i.id === ifaceIdOrName || i.name === ifaceIdOrName);
-  if (!iface) return null;
+  const normTarget = normalizeInterfaceName(ifaceIdOrName);
+  const baseName = ifaceIdOrName.includes(".") ? ifaceIdOrName.split(".")[0] : null;
+  const normBase = baseName ? normalizeInterfaceName(baseName) : null;
 
   for (const link of topology.links) {
-    const isSource = link.sourceDeviceId === deviceId && link.sourceInterfaceId === iface.id;
-    const isTarget = link.targetDeviceId === deviceId && link.targetInterfaceId === iface.id;
-    if (isSource || isTarget) {
-      const remoteDevId = isSource ? link.targetDeviceId : link.sourceDeviceId;
-      const remoteIfaceId = isSource ? link.targetInterfaceId : link.sourceInterfaceId;
-      const remoteDevice = topology.devices.find((d) => d.id === remoteDevId);
-      const remoteIface = remoteDevice?.interfaces.find((i) => i.id === remoteIfaceId);
-      if (remoteDevice && remoteIface) {
-        return { link, remoteDevice, remoteIface };
-      }
+    const end = findLinkEnd(topology, link, deviceId);
+    if (!end) continue;
+    if (
+      end.local.id === ifaceIdOrName ||
+      end.local.name === ifaceIdOrName ||
+      normalizeInterfaceName(end.local.name) === normTarget
+    ) {
+      return { link, remoteDevice: end.remoteDevice, remoteIface: end.remote };
+    }
+    if (
+      normBase &&
+      (end.local.name === baseName || normalizeInterfaceName(end.local.name) === normBase)
+    ) {
+      return { link, remoteDevice: end.remoteDevice, remoteIface: end.remote };
     }
   }
   return null;
@@ -153,6 +165,7 @@ function findConnectedLinkForInterface(
 
 /**
  * L2-Switching-Pfadsuche: Traversiert Switches, bis das L3-Zielgerät erreicht wird.
+ * Nutzt zentral computeStp(), untaggedVlan() und portCarriesVlan().
  */
 function traverseL2Segment(
   topology: NetworkTopology,
@@ -191,11 +204,10 @@ function traverseL2Segment(
       return { currentDevice: currDev, currentIface: currIf, dropped: true, dropReason: "stp-blocked", explanation: `STP-Blocking auf ${currDev.name} ${currIf.name}` };
     }
 
-    // VLAN bestimmen
-    const vlan = currIf.mode === "trunk" ? currIf.nativeVlan ?? 1 : currIf.vlan ?? 1;
+    // VLAN bestimmen über shared untaggedVlan()
+    const vlan = untaggedVlan(currIf) ?? 1;
 
     // Finde Egress-Port in Richtung targetDevice
-    // Suche Link, der weiterführt
     let foundNext: { link: TopologyLink; egressIface: TopologyInterface; nextDev: TopologyDevice; nextIface: TopologyInterface } | null = null;
 
     for (const ifc of currDev.interfaces) {
@@ -203,12 +215,8 @@ function traverseL2Segment(
       const conn = findConnectedLinkForInterface(topology, currDev.id, ifc.id);
       if (!conn) continue;
 
-      // Prüfe, ob dieser Port das VLAN transportiert
-      if (ifc.mode === "trunk") {
-        if (ifc.allowedVlans && !ifc.allowedVlans.includes(vlan)) continue;
-      } else {
-        if (ifc.vlan && ifc.vlan !== vlan) continue;
-      }
+      // Prüfe über shared portCarriesVlan(), ob dieser Port das VLAN transportiert
+      if (!portCarriesVlan(ifc, vlan)) continue;
 
       // Wenn der Link direkt zum targetDevice führt:
       if (conn.remoteDevice.id === targetDevice.id) {
@@ -307,12 +315,21 @@ function tracePath(
   arpCache: Record<string, Record<string, string>>,
   stpData: Map<string, StpBridgeInfo>,
   isReturnPath: boolean = false,
-): { hops: HopStep[]; success: boolean; dropReason?: DropReasonCode; explanation?: string; arpResolvedThisRun: boolean; finalPacket: SimulatedPacket } {
+): {
+  hops: HopStep[];
+  success: boolean;
+  dropReason?: DropReasonCode;
+  explanation?: string;
+  arpResolvedThisRun: boolean;
+  routerArpLoss: boolean;
+  finalPacket: SimulatedPacket;
+} {
   const hops: HopStep[] = [];
   let currentDev = sourceDevice;
   let currentInIf: TopologyInterface | undefined = undefined;
   const packet: SimulatedPacket = { ...initialPacket };
   let arpResolvedThisRun = false;
+  let routerArpLoss = false;
   let hopsCount = 0;
   const MAX_HOPS = 20;
 
@@ -351,7 +368,7 @@ function tracePath(
             status: "dropped",
             dropReason: "no-gateway",
           });
-          return { hops, success: false, dropReason: "no-gateway", explanation: `Kein Default Gateway auf ${sourceDevice.name}`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "no-gateway", explanation: `Kein Default Gateway auf ${sourceDevice.name}`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         const gwNetInfo = getNetworkAddress(`${gw}/${srcNetInfo.cidr}`);
@@ -366,7 +383,7 @@ function tracePath(
             status: "dropped",
             dropReason: "wrong-subnet",
           });
-          return { hops, success: false, dropReason: "wrong-subnet", explanation: `Gateway ${gw} liegt in anderem Subnetz`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "wrong-subnet", explanation: `Gateway ${gw} liegt in anderem Subnetz`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         nextHopIp = gw;
@@ -410,7 +427,7 @@ function tracePath(
           status: "dropped",
           dropReason: "ttl-expired",
         });
-        return { hops, success: false, dropReason: "ttl-expired", explanation: `TTL abgelaufen auf ${currentDev.name}`, arpResolvedThisRun, finalPacket: packet };
+        return { hops, success: false, dropReason: "ttl-expired", explanation: `TTL abgelaufen auf ${currentDev.name}`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
       }
 
       // Interface-Status prüfen
@@ -426,11 +443,11 @@ function tracePath(
           status: "dropped",
           dropReason: "interface-down",
         });
-        return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${currentInIf.name} ist down`, arpResolvedThisRun, finalPacket: packet };
+        return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${currentInIf.name} ist down`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
       }
 
       // NAT-Richtung bestimmen
-      const natCfg = currentDev.config?.nat;
+      const natCfg = hasNatConfig(currentDev) ? currentDev.config?.nat : undefined;
       const isInsideIn = natCfg?.insideInterfaces?.includes(currentInIf.name) ?? false;
       const isOutsideIn = natCfg?.outsideInterfaces?.includes(currentInIf.name) ?? false;
 
@@ -457,7 +474,7 @@ function tracePath(
               status: "dropped",
               dropReason: "acl-deny",
             });
-            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, finalPacket: packet };
+            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
           }
         }
 
@@ -499,7 +516,7 @@ function tracePath(
             status: "dropped",
             dropReason: "no-route",
           });
-          return { hops, success: false, dropReason: "no-route", explanation: `Keine Route zu ${packet.dstIp} auf ${currentDev.name}`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "no-route", explanation: `Keine Route zu ${packet.dstIp} auf ${currentDev.name}`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         const egressIfaceName = routeMatch.selectedVia.ifaceName;
@@ -516,7 +533,7 @@ function tracePath(
             status: "dropped",
             dropReason: "no-route",
           });
-          return { hops, success: false, dropReason: "no-route", explanation: `Interface ${egressIfaceName} fehlt`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "no-route", explanation: `Interface ${egressIfaceName} fehlt`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
         outIface = egressIface;
         nextHopIp = routeMatch.selectedVia.nextHop ?? packet.dstIp;
@@ -542,7 +559,7 @@ function tracePath(
               status: "dropped",
               dropReason: "acl-deny",
             });
-            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, finalPacket: packet };
+            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
           }
         }
 
@@ -560,7 +577,7 @@ function tracePath(
             status: "dropped",
             dropReason: "interface-down",
           });
-          return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist down`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist down`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         hops.push({
@@ -597,7 +614,7 @@ function tracePath(
               status: "dropped",
               dropReason: "acl-deny",
             });
-            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, finalPacket: packet };
+            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
           }
         }
 
@@ -616,7 +633,7 @@ function tracePath(
             status: "dropped",
             dropReason: "no-route",
           });
-          return { hops, success: false, dropReason: "no-route", explanation: `Keine Route zu ${packet.dstIp} auf ${currentDev.name}`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "no-route", explanation: `Keine Route zu ${packet.dstIp} auf ${currentDev.name}`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         const egressIfaceName = routeMatch.selectedVia.ifaceName;
@@ -633,7 +650,7 @@ function tracePath(
             status: "dropped",
             dropReason: "no-route",
           });
-          return { hops, success: false, dropReason: "no-route", explanation: `Interface ${egressIfaceName} fehlt`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "no-route", explanation: `Interface ${egressIfaceName} fehlt`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
         outIface = egressIface;
         nextHopIp = routeMatch.selectedVia.nextHop ?? packet.dstIp;
@@ -683,7 +700,7 @@ function tracePath(
               status: "dropped",
               dropReason: "acl-deny",
             });
-            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, finalPacket: packet };
+            return { hops, success: false, dropReason: "acl-deny", explanation: aclRes.reason, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
           }
         }
 
@@ -701,7 +718,7 @@ function tracePath(
             status: "dropped",
             dropReason: "interface-down",
           });
-          return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist down`, arpResolvedThisRun, finalPacket: packet };
+          return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist down`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
         }
 
         hops.push({
@@ -719,6 +736,51 @@ function tracePath(
       }
     }
 
+    // 6. GRE-Tunnel-Weiterleitung falls outIface ein Tunnel-Interface ist
+    if (isTunnelInterface(outIface)) {
+      const tState = computeTunnelState(currentDev, outIface, topology);
+      if (tState.lineProtocol !== "up") {
+        const reasonMsg = tState.notes[0] ?? `Tunnel ${outIface.name} auf ${currentDev.name} ist nicht betriebsbereit (line protocol is ${tState.lineProtocol}).`;
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          inInterface: currentInIf?.name,
+          outInterface: outIface.name,
+          action: "drop",
+          reason: reasonMsg,
+          packet: { ...packet },
+          status: "dropped",
+          dropReason: "interface-down",
+        });
+        return { hops, success: false, dropReason: "interface-down", explanation: reasonMsg, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
+      }
+
+      const destIp = outIface.tunnel?.destination;
+      const remoteTarget = destIp ? findDeviceByIp(topology, destIp) : null;
+      if (remoteTarget) {
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          inInterface: currentInIf?.name,
+          outInterface: outIface.name,
+          action: "route",
+          reason: `GRE-Tunnel: Paket wird über ${outIface.name} nach ${destIp} (${remoteTarget.device.name}) gekapselt und transportiert.`,
+          packet: { ...packet },
+          packetOut: { ...packet },
+          status: "ok",
+        });
+
+        currentDev = remoteTarget.device;
+        const remoteTunIface = currentDev.interfaces.find(
+          (i) => isTunnelInterface(i) && (i.tunnel?.destination === tState.sourceIp || !i.tunnel?.destination)
+        ) ?? remoteTarget.iface;
+        currentInIf = remoteTunIface;
+        continue;
+      }
+    }
+
     // Finde den nächsten physischen Link ausgehend von outIface
     const linkConn = findConnectedLinkForInterface(topology, currentDev.id, outIface.id);
     if (!linkConn) {
@@ -733,7 +795,7 @@ function tracePath(
         status: "dropped",
         dropReason: "interface-down",
       });
-      return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist nicht verkabelt`, arpResolvedThisRun, finalPacket: packet };
+      return { hops, success: false, dropReason: "interface-down", explanation: `Interface ${outIface.name} ist nicht verkabelt`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
     }
 
     if (!isLinkUsable(linkConn.link)) {
@@ -748,28 +810,43 @@ function tracePath(
         status: "dropped",
         dropReason: "interface-down",
       });
-      return { hops, success: false, dropReason: "interface-down", explanation: `Verbindung an ${outIface.name} ist inaktiv`, arpResolvedThisRun, finalPacket: packet };
+      return { hops, success: false, dropReason: "interface-down", explanation: `Verbindung an ${outIface.name} ist inaktiv`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
     }
 
     // ARP-Schritt für Next-Hop-IP prüfen
     arpCache[currentDev.id] ??= {};
     if (!arpCache[currentDev.id][nextHopIp]) {
-      // Neuer ARP-Eintrag
+      const isRouter = currentDev.type === "router" || (currentDev.type === "switch-l3" && currentDev.config?.ipRoutingEnabled !== false);
       const resolvedMac = getSymbolicMac(linkConn.remoteDevice, linkConn.remoteIface);
       arpCache[currentDev.id][nextHopIp] = resolvedMac;
       arpResolvedThisRun = true;
 
-      hops.push({
-        stepNumber: hops.length + 1,
-        deviceId: currentDev.id,
-        deviceName: currentDev.name,
-        outInterface: outIface.name,
-        action: "arp-resolve",
-        reason: `ARP-Auflösung für ${nextHopIp}: Broadcast ARP-Request → Antwort mit ${resolvedMac} (im ARP-Cache hinterlegt). Erstes ICMP-Echo geht während ARP-Auflösung verloren (Cisco IOS Verhalten: .!!!!).`,
-        packet: { ...packet, dstMac: resolvedMac },
-        packetOut: { ...packet, dstMac: resolvedMac },
-        status: "ok",
-      });
+      if (isRouter) {
+        routerArpLoss = true;
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          outInterface: outIface.name,
+          action: "arp-resolve",
+          reason: `ARP-Auflösung auf Router ${currentDev.name} für ${nextHopIp}: Broadcast ARP-Request → Antwort mit ${resolvedMac} (im ARP-Cache hinterlegt). Erstes ICMP-Echo geht während der IOS-ARP-Auflösung verloren (Cisco-Verhalten: .!!!!).`,
+          packet: { ...packet, dstMac: resolvedMac },
+          packetOut: { ...packet, dstMac: resolvedMac },
+          status: "ok",
+        });
+      } else {
+        hops.push({
+          stepNumber: hops.length + 1,
+          deviceId: currentDev.id,
+          deviceName: currentDev.name,
+          outInterface: outIface.name,
+          action: "arp-resolve",
+          reason: `ARP-Auflösung auf Host ${currentDev.name} für ${nextHopIp}: Broadcast ARP-Request → Antwort mit ${resolvedMac}. Host puffert das Paket während der ARP-Auflösung (kein Paketverlust).`,
+          packet: { ...packet, dstMac: resolvedMac },
+          packetOut: { ...packet, dstMac: resolvedMac },
+          status: "ok",
+        });
+      }
     }
 
     // Aktualisiere L2-MAC-Adressen im Paket
@@ -789,7 +866,7 @@ function tracePath(
         stpData,
       );
       if (l2Result.dropped) {
-        return { hops, success: false, dropReason: l2Result.dropReason, explanation: l2Result.explanation, arpResolvedThisRun, finalPacket: packet };
+        return { hops, success: false, dropReason: l2Result.dropReason, explanation: l2Result.explanation, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
       }
       currentDev = l2Result.currentDevice;
       currentInIf = l2Result.currentIface;
@@ -814,10 +891,10 @@ function tracePath(
       packetOut: { ...packet },
       status: "ok",
     });
-    return { hops, success: true, arpResolvedThisRun, finalPacket: packet };
+    return { hops, success: true, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
   }
 
-  return { hops, success: false, dropReason: "unreachable", explanation: "Ziel nicht erreicht (Max Hops überschritten).", arpResolvedThisRun, finalPacket: packet };
+  return { hops, success: false, dropReason: "unreachable", explanation: "Ziel nicht erreicht (Max Hops überschritten).", arpResolvedThisRun, routerArpLoss, finalPacket: packet };
 }
 
 /**
@@ -948,6 +1025,7 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
       returnHops: [],
       allHops: forwardTrace.hops,
       arpResolvedThisRun: forwardTrace.arpResolvedThisRun,
+      routerArpLoss: forwardTrace.routerArpLoss,
       arpCache,
     };
   }
@@ -980,6 +1058,7 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
 
   const allHops = [...forwardTrace.hops, ...returnTrace.hops];
   const anyArpResolved = forwardTrace.arpResolvedThisRun || returnTrace.arpResolvedThisRun;
+  const anyRouterArpLoss = forwardTrace.routerArpLoss || returnTrace.routerArpLoss;
 
   if (!returnTrace.success) {
     return {
@@ -991,6 +1070,7 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
       returnHops: returnTrace.hops,
       allHops,
       arpResolvedThisRun: anyArpResolved,
+      routerArpLoss: anyRouterArpLoss,
       arpCache,
     };
   }
@@ -999,14 +1079,17 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
   return {
     success: true,
     status: "success",
-    iosSummary: anyArpResolved ? ".!!!!" : "!!!!!",
-    explanation: anyArpResolved
-      ? `Erfolgreich (Erfolgsrate 80%, 4/5): Erstes Echo-Paket ging während der ARP-Auflösung verloren (.!!!!).`
+    iosSummary: anyRouterArpLoss ? ".!!!!" : "!!!!!",
+    explanation: anyRouterArpLoss
+      ? `Erfolgreich (Erfolgsrate 80%, 4/5): Erstes Echo-Paket ging während der ARP-Auflösung auf einem Cisco-Router verloren (.!!!!).`
+      : anyArpResolved
+      ? `Erfolgreich (Erfolgsrate 100%, 5/5): Host puffert Pakete während eigener ARP-Auflösung; alle ICMP Echo Replies empfangen (!!!!!).`
       : `Erfolgreich (Erfolgsrate 100%, 5/5): Alle ICMP Echo Replies empfangen (!!!!!).`,
     forwardHops: forwardTrace.hops,
     returnHops: returnTrace.hops,
     allHops,
     arpResolvedThisRun: anyArpResolved,
+    routerArpLoss: anyRouterArpLoss,
     arpCache,
   };
 }

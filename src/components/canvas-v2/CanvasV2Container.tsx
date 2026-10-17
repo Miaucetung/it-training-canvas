@@ -198,6 +198,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [isSimulationOpen, setIsSimulationOpen] = useState<boolean>(false);
   const [activeSimulationHopIndex, setActiveSimulationHopIndex] = useState<number | null>(null);
   const [activeSimulationDeviceId, setActiveSimulationDeviceId] = useState<string | null>(null);
+  const [activeSimulationLinkId, setActiveSimulationLinkId] = useState<string | null>(null);
 
   useEffect(() => {
     if (externalStorageTab) {
@@ -1726,6 +1727,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           onHandlePointerDown={handleHandlePointerDown}
           drawingAnnotationPreview={drawingAnnotationPreview}
           activeSimulationDeviceId={activeSimulationDeviceId}
+          activeSimulationLinkId={activeSimulationLinkId}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
@@ -2089,11 +2091,13 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           setIsSimulationOpen(false);
           setActiveSimulationHopIndex(null);
           setActiveSimulationDeviceId(null);
+          setActiveSimulationLinkId(null);
         }}
         activeHopIndex={activeSimulationHopIndex}
-        onSelectHop={(hopIndex, deviceId) => {
+        onSelectHop={(hopIndex, deviceId, linkId) => {
           setActiveSimulationHopIndex(hopIndex);
           setActiveSimulationDeviceId(deviceId ?? null);
+          setActiveSimulationLinkId(linkId ?? null);
         }}
       />
     </div>

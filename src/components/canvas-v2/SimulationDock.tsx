@@ -3,6 +3,7 @@ import type { NetworkTopology } from "@/types/topology";
 import {
   simulatePing,
   clearArpCache,
+  findConnectedLinkForInterface,
 } from "@/lib/topology/simulation/packet-simulator";
 import type {
   SimulationResult,
@@ -24,7 +25,7 @@ interface SimulationDockProps {
   isOpen: boolean;
   onClose: () => void;
   activeHopIndex: number | null;
-  onSelectHop: (hopIndex: number | null, deviceId?: string | null) => void;
+  onSelectHop: (hopIndex: number | null, deviceId?: string | null, linkId?: string | null) => void;
 }
 
 export const SimulationDock: React.FC<SimulationDockProps> = ({
@@ -60,15 +61,21 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Hilfsfunktion: Setzt Hop-Index und Gerätekennung
+  // Hilfsfunktion: Setzt Hop-Index, Gerätekennung und Link-ID für Pfadanimation
   const selectHop = useCallback((idx: number | null, result?: SimulationResult | null) => {
     const r = result ?? simulationResult;
     if (idx === null || !r || !r.allHops[idx]) {
-      onSelectHop(null, null);
+      onSelectHop(null, null, null);
     } else {
-      onSelectHop(idx, r.allHops[idx].deviceId);
+      const hop = r.allHops[idx];
+      let linkId: string | null = null;
+      if (hop.outInterface) {
+        const conn = findConnectedLinkForInterface(topology, hop.deviceId, hop.outInterface);
+        linkId = conn?.link.id ?? null;
+      }
+      onSelectHop(idx, hop.deviceId, linkId);
     }
-  }, [simulationResult, onSelectHop]);
+  }, [simulationResult, topology, onSelectHop]);
 
   // Verfügbare Quellgeräte (haben mindestens ein Interface mit IP)
   const candidateDevices = useMemo(() => {
@@ -368,7 +375,7 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
               className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${
                 simulationResult.success
                   ? "border-border bg-accent/20 text-foreground"
-                  : "border-destructive/30 bg-destructive/10 text-destructive"
+                  : "border-status-error-border bg-status-error-bg text-status-error-fg"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -388,16 +395,16 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
 
             {/* Hop-Inspector Tabelle */}
             <div className="max-h-[30vh] overflow-y-auto rounded-lg border border-border bg-card">
-              <table className="w-full text-left text-xs border-collapse">
+              <table aria-label="Hop-Tabelle der simulierten Netzwerk-Pfade" className="w-full text-left text-xs border-collapse">
                 <thead className="sticky top-0 z-10 border-b border-border bg-muted/80 text-muted-foreground">
                   <tr>
-                    <th className="px-3 py-2 font-semibold w-12 text-center">#</th>
-                    <th className="px-3 py-2 font-semibold">Richtung</th>
-                    <th className="px-3 py-2 font-semibold">Gerät</th>
-                    <th className="px-3 py-2 font-semibold">Interface</th>
-                    <th className="px-3 py-2 font-semibold">Aktion & Entscheidung</th>
-                    <th className="px-3 py-2 font-semibold w-24 text-center">Status</th>
-                    <th className="px-3 py-2 font-semibold w-16 text-center">PDU</th>
+                    <th scope="col" className="px-3 py-2 font-semibold w-12 text-center">#</th>
+                    <th scope="col" className="px-3 py-2 font-semibold">Richtung</th>
+                    <th scope="col" className="px-3 py-2 font-semibold">Gerät</th>
+                    <th scope="col" className="px-3 py-2 font-semibold">Interface</th>
+                    <th scope="col" className="px-3 py-2 font-semibold">Aktion & Entscheidung</th>
+                    <th scope="col" className="px-3 py-2 font-semibold w-24 text-center">Status</th>
+                    <th scope="col" className="px-3 py-2 font-semibold w-16 text-center">PDU</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -430,12 +437,12 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
                           <td className="px-3 py-2">{hop.reason}</td>
                           <td className="px-3 py-2 text-center">
                             <span
-                              className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${
+                              className={`inline-block rounded px-2 py-0.5 text-xs font-semibold border ${
                                 hop.status === "ok"
                                   ? hop.action.startsWith("nat")
-                                    ? "bg-secondary text-secondary-foreground border border-border"
-                                    : "bg-primary/20 text-primary border border-primary/30"
-                                  : "bg-destructive/20 text-destructive border border-destructive/40"
+                                    ? "border-border-subtle bg-surface-elevated text-text-secondary"
+                                    : "border-status-success-border bg-status-success-bg text-status-success-fg"
+                                  : "border-status-error-border bg-status-error-bg text-status-error-fg"
                               }`}
                             >
                               {hop.status === "ok"
@@ -454,6 +461,7 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
                               }}
                               className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                               title="PDU-Details einsehen"
+                              aria-label={`PDU-Details für Hop ${index + 1} ${isExpanded ? "zuklappen" : "aufklappen"}`}
                             >
                               {isExpanded ? <CaretDown size={14} /> : <CaretRight size={14} />}
                             </button>

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   NetworkTopology,
   TopologyDevice,
@@ -97,6 +98,8 @@ interface SvgTopologyRendererProps {
   selectedLinkId?: string | null;
   selectedAnnotationId?: string | null;
   activeSimulationDeviceId?: string | null;
+  activeSimulationLinkId?: string | null;
+  prefersReducedMotion?: boolean;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
   onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
@@ -128,6 +131,8 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   selectedLinkId = null,
   selectedAnnotationId = null,
   activeSimulationDeviceId = null,
+  activeSimulationLinkId = null,
+  prefersReducedMotion = false,
   onDeviceClick,
   onLinkClick,
   onDevicePointerDown,
@@ -144,6 +149,23 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   translateY = 0,
 }) => {
   const isDark = theme === "dark";
+
+  // System-Einstellung für prefers-reduced-motion automatisch abfragen
+  const [systemReducedMotion, setSystemReducedMotion] = useState<boolean>(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setSystemReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setSystemReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const effectiveReducedMotion = prefersReducedMotion || systemReducedMotion;
 
   // Device Map für O(1) Link Endpunkt-Zugriff
   const deviceMap = new Map<string, TopologyDevice>();
@@ -443,17 +465,52 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
           const tgt = deviceMap.get(link.targetDeviceId);
           if (!src || !tgt) return null;
 
+          const isSimLink = activeSimulationLinkId === link.id;
+
+          const x1 = src.x + (src.width || 80) / 2;
+          const y1 = src.y + (src.height || 60) / 2;
+          const x2 = tgt.x + (tgt.width || 80) / 2;
+          const y2 = tgt.y + (tgt.height || 60) / 2;
+          const bends = link.bendPoints ?? [];
+          const pts = [{ x: x1, y: y1 }, ...bends, { x: x2, y: y2 }];
+          const pathD = pts.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
+
           return (
-            <LinkRenderer
-              key={link.id}
-              link={link}
-              sourceDevice={src}
-              targetDevice={tgt}
-              viewDensity={viewDensity}
-              theme={theme}
-              selected={selectedLinkId === link.id}
-              onLinkClick={onLinkClick}
-            />
+            <g key={link.id}>
+              <LinkRenderer
+                link={link}
+                sourceDevice={src}
+                targetDevice={tgt}
+                viewDensity={viewDensity}
+                theme={theme}
+                selected={selectedLinkId === link.id || isSimLink}
+                onLinkClick={onLinkClick}
+              />
+              {isSimLink && (
+                <g className="simulation-packet-animation pointer-events-none">
+                  {/* Hervorgehobener Link-Pfad */}
+                  <path
+                    d={pathD}
+                    fill="none"
+                    stroke="currentColor"
+                    className="text-primary opacity-60"
+                    strokeWidth="4"
+                    strokeDasharray="6 4"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  {/* Animierter Paket-Punkt entlang der Link-Geometrie (wird bei prefers-reduced-motion unterdrückt) */}
+                  {!effectiveReducedMotion && (
+                    <circle r="7" className="fill-primary stroke-background stroke-2">
+                      <animateMotion
+                        dur="1.2s"
+                        repeatCount="indefinite"
+                        path={pathD}
+                      />
+                    </circle>
+                  )}
+                </g>
+              )}
+            </g>
           );
         })}
 

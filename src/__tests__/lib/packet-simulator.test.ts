@@ -117,11 +117,83 @@ describe("Symbolische MAC-Adressen (Vorgabe 4)", () => {
 });
 
 describe("ARP-Verhalten (Vorgabe 5)", () => {
-  it("verliert erstes Echo (.!!!!) bei leerem ARP-Cache und cached Folgeläufe (!!!!!)", () => {
+  it("Cisco-Router als Quelle verliert erstes Echo (.!!!!) während ARP-Auflösung", () => {
     const topo = createSimpleTopology();
     const arpCache = clearArpCache();
 
-    // 1. Lauf: Unaufgelöster ARP-Cache -> .!!!!
+    // R1 pingt R2 direkt (10.0.0.2)
+    const res = simulatePing({
+      topology: topo,
+      sourceDeviceId: "r1",
+      targetDeviceId: "r2",
+      arpCache,
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.iosSummary).toBe(".!!!!");
+    expect(res.arpResolvedThisRun).toBe(true);
+    expect(res.routerArpLoss).toBe(true);
+    expect(arpCache["r1"]["10.0.0.2"]).toBe("MAC(R2 Gi0/0)");
+  });
+
+  it("PC als Quelle hält Paket während eigener ARP-Auflösung zurück (kein Paketverlust, !!!!!)", () => {
+    // 2 PCs direkt im selben Subnetz
+    const pcA: TopologyDevice = {
+      id: "pca",
+      name: "PC-A",
+      type: "pc",
+      x: 100,
+      y: 100,
+      interfaces: [{ id: "pca-eth0", name: "Eth0", status: "up", ip: "192.168.1.10/24" }],
+      config: { hostname: "PC-A" },
+    };
+    const pcB: TopologyDevice = {
+      id: "pcb",
+      name: "PC-B",
+      type: "pc",
+      x: 300,
+      y: 100,
+      interfaces: [{ id: "pcb-eth0", name: "Eth0", status: "up", ip: "192.168.1.20/24" }],
+      config: { hostname: "PC-B" },
+    };
+    const link: TopologyLink = {
+      id: "l-pc",
+      sourceDeviceId: "pca",
+      sourceInterfaceId: "pca-eth0",
+      targetDeviceId: "pcb",
+      targetInterfaceId: "pcb-eth0",
+      linkType: "ethernet",
+      status: "up",
+    };
+    const lanTopo: NetworkTopology = {
+      id: "lan-topo",
+      name: "LAN",
+      version: "2.0",
+      devices: [pcA, pcB],
+      links: [link],
+    };
+
+    const arpCache = clearArpCache();
+    const res = simulatePing({
+      topology: lanTopo,
+      sourceDeviceId: "pca",
+      targetDeviceId: "pcb",
+      arpCache,
+    });
+
+    expect(res.success).toBe(true);
+    // PC puffert Paket: Erfolgsrate 100%, kein Verlust!
+    expect(res.iosSummary).toBe("!!!!!");
+    expect(res.arpResolvedThisRun).toBe(true);
+    expect(res.routerArpLoss).toBe(false);
+    expect(arpCache["pca"]["192.168.1.20"]).toBe("MAC(PC-B Eth0)");
+  });
+
+  it("PC über Router: Wenn Router ARP auflösen muss, geht das erste Echo verloren (.!!!!)", () => {
+    const topo = createSimpleTopology();
+    const arpCache = clearArpCache();
+
+    // 1. Lauf: PC1 -> PC2 (R1 & R2 müssen ARP auflösen) -> .!!!!
     const res1 = simulatePing({
       topology: topo,
       sourceDeviceId: "pc1",
@@ -132,9 +204,9 @@ describe("ARP-Verhalten (Vorgabe 5)", () => {
     expect(res1.success).toBe(true);
     expect(res1.iosSummary).toBe(".!!!!");
     expect(res1.arpResolvedThisRun).toBe(true);
-    expect(arpCache["pc1"]["192.168.1.1"]).toBe("MAC(R1 Gi0/0)");
+    expect(res1.routerArpLoss).toBe(true);
 
-    // 2. Lauf: Aufgelöster ARP-Cache -> !!!!!
+    // 2. Lauf: Aufgelöster ARP-Cache -> alle 5 Echos erfolgreich (!!!!!)
     const res2 = simulatePing({
       topology: topo,
       sourceDeviceId: "pc1",
@@ -145,6 +217,7 @@ describe("ARP-Verhalten (Vorgabe 5)", () => {
     expect(res2.success).toBe(true);
     expect(res2.iosSummary).toBe("!!!!!");
     expect(res2.arpResolvedThisRun).toBe(false);
+    expect(res2.routerArpLoss).toBe(false);
   });
 });
 
