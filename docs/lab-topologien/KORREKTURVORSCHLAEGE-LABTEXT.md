@@ -142,3 +142,14 @@ Ergänzung zu Abschnitt 8 (angenommene Switch-Ports):
 | hsrp | Abschlusstest | Der letzte Befehl `shutdown` auf R1 Gi0/0 bleibt als Endzustand stehen; im Zielzustand ist R1 abgeschaltet und R2 allein Active. | Nach dem Test `no shutdown` ergänzen oder den Endzustand im Text nennen. |
 | eigrp | Schritt „DUAL-Failover testen“ | `interface gi0/2` / `shutdown` auf R1 bleibt als Endzustand stehen; R1 erreicht R3-LAN danach nur über R2 (Metrik 3328 statt 3072). | Nach dem Test `no shutdown` ergänzen oder den Endzustand nennen. |
 | co-acl-nat-isp | Routing, ISP-MUMBAI | `redistribute eigrp 199 subnets` nennt keine Metrik: die Seed-Metrik nach OSPF bleibt in der Topologie „nicht bestimmbar“ (IOS verwendet 20, Typ E2). | `metric <n>` angeben oder erwähnen, dass der Standard gilt. |
+
+## 14. Paket-Simulation (Lab-Orakel): Befunde
+
+Aus dem Lab-Orakel (`src/__tests__/helpers/simulation-oracle.ts`). Nur Vorschläge, der Labtext ist unverändert.
+
+| Lab | Stelle | Befund | Vorschlag |
+|---|---|---|---|
+| nat-pat | Verify „ping 200.0.0.1 (vom Webserver)“ | Erwartet „Fehlschlag — PAT hat keinen permanenten Eintrag“. 200.0.0.1 ist aber die eigene Outside-Adresse des NAT-Routers; IOS beantwortet Pings an eigene Interface-Adressen auch mit PAT. | Ziel durch eine Inside-Adresse ersetzen, z. B. „ping 192.168.1.10 (vom Webserver) — Fehlschlag, kein Eintrag für eingehende Verbindungen“, oder den Text auf „der Router antwortet selbst, ein Inside-Host ist nicht erreichbar“ ändern. |
+| co-acl-nat-isp | Verify „ping 200.10.20.20 source 192.168.10.1“, „… source 192.168.10.100“, „ping 45.35.55.10 source 200.10.20.50“ | Wörtlich auf einem Router ungültig: die Quelladressen gehören VPC-9, R-PC bzw. USER_PC, nicht dem Router (IOS: „% Invalid source address“). Die Erklärung meint den Ping vom jeweiligen Endgerät. | „ping 200.10.20.20 (von VPC-9)“ usw. bzw. auf CO-1 „ping 200.10.20.20 source Ethernet0/0“ (ohne NAT-Übersetzung, da 192.168.10.254 nicht in der Static-NAT-Regel steht). |
+| nat-pool-overload, nat-pat, dynamic-nat, static-nat | Schritt „PCs adressieren“ | „Gleiche Vorgehensweise für PC0(1) … Gateway = NAT-Router Gig0/0“: das Gateway für PC0(1)/PC0(2) steht nur als Fließtext da und wird nicht in die Topologie übernommen. | Gateway für PC0(1)/PC0(2) ausdrücklich nennen (192.168.1.1) oder den Import (`lab-to-network`) die Angabe übernehmen lassen. |
+| ios-backup-upgrade | Schritt 1 | `ping 10.1.1.10` setzt Adressen voraus, die im Lab nicht angegeben sind (R1, TFTP-Server). | Adressierung von R1 und TFTP-Server im Lab ergänzen. |
