@@ -1094,8 +1094,9 @@ function TrunkAnimation() {
           Leeren
         </button>
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-muted-foreground">Geschwindigkeit:</span>
+          <label htmlFor="vlan-trunk-speed" className="text-xs text-muted-foreground">Geschwindigkeit:</label>
           <input
+            id="vlan-trunk-speed"
             type="range" min={0.5} max={4} step={0.5} value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
             className="w-20"
@@ -1247,6 +1248,8 @@ function PacketWalkSimulator() {
           <button
             key={i}
             onClick={() => setStep(i)}
+            aria-label={`Schritt ${i + 1} von ${WALK_STEPS.length}`}
+            aria-current={i === step ? "step" : undefined}
             className={`w-2 h-2 rounded-full transition-all ${
               i === step
                 ? "w-5 bg-accent-solid"

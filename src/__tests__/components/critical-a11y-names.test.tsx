@@ -46,3 +46,35 @@ describe("STP-Simulator: Tabellen", () => {
     expect(screen.getByRole("region", { name: "Tabelle Zustände" }).getAttribute("tabindex")).toBe("0");
   });
 });
+
+import { VlanSimulatorDialog } from "@/components/VlanSimulatorDialog";
+import { IPv6CalculatorDialog } from "@/components/IPv6CalculatorDialog";
+
+describe("Weitere critical-Fälle aus dem Reiter-Sweep", () => {
+  it("VLAN „Trunk-Animation“: Geschwindigkeits-Slider hat einen Namen", () => {
+    cleanup();
+    render(<VlanSimulatorDialog dark onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Trunk-Animation/ }));
+    expect(screen.getByRole("slider", { name: "Geschwindigkeit:" })).toBeTruthy();
+  });
+
+  it("VLAN „Packet-Walk“: Schritt-Punkte heißen „Schritt n von N“, aktueller Schritt mit aria-current", () => {
+    cleanup();
+    render(<VlanSimulatorDialog dark onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Packet-Walk/ }));
+    const dots = screen.getAllByRole("button", { name: /^Schritt \d+ von \d+$/ });
+    expect(dots.length).toBeGreaterThan(1);
+    expect(dots[0].getAttribute("aria-current")).toBe("step");
+    expect(dots[1].getAttribute("aria-current")).toBeNull();
+    fireEvent.click(dots[2]);
+    expect(screen.getAllByRole("button", { name: /^Schritt \d+ von \d+$/ })[2].getAttribute("aria-current")).toBe("step");
+  });
+
+  it("IPv6 „Segmentierung“: Präfix- und CIDR-Feld haben Namen", () => {
+    cleanup();
+    render(<IPv6CalculatorDialog open onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Segmentierung" }));
+    expect(screen.getByLabelText("Ausgangspräfix (mit /CIDR)")).toBeTruthy();
+    expect(screen.getByLabelText("Neues CIDR (1–128)")).toBeTruthy();
+  });
+});
