@@ -5,7 +5,7 @@ import type {
   TopologyLink,
 } from "@/types/topology";
 import { computeStructuredRoutingTable, lookupRouteLpm, getNetworkAddress } from "../routing-table";
-import { computeStp, isSwitch, type StpBridgeInfo, type StpPortInfo } from "../stp-calc";
+import { computeStp, isSwitch, type StpBridgeInfo } from "../stp-calc";
 import { computeHsrp, hasHsrpConfig } from "../hsrp";
 import { computeTunnelState, isTunnelInterface } from "../gre-tunnel";
 import { hasNatConfig } from "../nat-outputs";
@@ -18,6 +18,7 @@ import type {
   DropReasonCode,
 } from "./types";
 import { normalizeInterfaceName } from "../hardware-profiles";
+import { evaluateTrunk } from "../vtp-status";
 import {
   isLinkUsable,
   isInterfaceActive,
@@ -83,6 +84,18 @@ export function findDeviceByIp(
   return null;
 }
 
+/**
+ * Ausgangsinterface eines Routers zum Ziel laut Routing-Tabelle (LPM); IOS nimmt dessen Adresse als Quelle.
+ * Ohne Route oder ohne IP am Ausgangsinterface: undefined.
+ */
+export function egressInterfaceFor(device: TopologyDevice, topology: NetworkTopology, dstIp: string): TopologyInterface | undefined {
+  const match = lookupRouteLpm(computeStructuredRoutingTable(device, topology), dstIp);
+  const name = match?.selectedVia.ifaceName;
+  if (!name) return undefined;
+  const iface = device.interfaces.find((i) => i.name === name || normalizeInterfaceName(i.name) === normalizeInterfaceName(name));
+  return iface?.ip ? iface : undefined;
+}
+
 /** Findet das primäre Interface eines Geräts (mit IP oder erstes Interface) */
 export function getPrimaryInterface(device: TopologyDevice): TopologyInterface | undefined {
   return device.interfaces.find((i) => !!i.ip) ?? device.interfaces[0];
@@ -109,6 +122,18 @@ function resolveHsrpTarget(
 }
 
 /**
+ * Gerät, das im L2-Segment auf eine IP antwortet (ARP): eigene Interface-/SVI-Adresse,
+ * aktive HSRP-VIP oder eine Static-NAT-Adresse (Inside Global), die der NAT-Router auf der Outside-Seite beantwortet.
+ */
+export function findL2OwnerOf(topology: NetworkTopology, ip: string): TopologyDevice | undefined {
+  const own = findDeviceByIp(topology, ip);
+  if (own) return own.device;
+  const hsrp = resolveHsrpTarget(topology, ip);
+  if (hsrp) return hsrp.activeDevice;
+  return topology.devices.find((d) => d.config?.nat?.statics?.some((st) => st.global === ip));
+}
+
+/**
  * Löst ein Ziel hinter NAT auf: falls eine globale IP angepingt wird,
  * wird das reale Zielgerät (mit der lokalen IP) dahinter ermittelt.
  */
@@ -132,6 +157,7 @@ function resolveNatTarget(
 
 /**
  * Findet den Link, der an einem bestimmten Interface eines Geräts angeschlossen ist.
+ * Subinterfaces (z. B. Gi0/0.10) hängen am Link ihres physischen Interfaces (Gi0/0).
  * Nutzt die zentrale Funktion findLinkEnd() aus ospf-neighbors.ts.
  */
 export function findConnectedLinkForInterface(
@@ -139,33 +165,139 @@ export function findConnectedLinkForInterface(
   deviceId: string,
   ifaceIdOrName: string,
 ): { link: TopologyLink; remoteDevice: TopologyDevice; remoteIface: TopologyInterface } | null {
-  const normTarget = normalizeInterfaceName(ifaceIdOrName);
-  const baseName = ifaceIdOrName.includes(".") ? ifaceIdOrName.split(".")[0] : null;
-  const normBase = baseName ? normalizeInterfaceName(baseName) : null;
+  const device = topology.devices.find((d) => d.id === deviceId);
+  const norm = normalizeInterfaceName(ifaceIdOrName);
+  const iface = device?.interfaces.find(
+    (i) => i.id === ifaceIdOrName || i.name === ifaceIdOrName || normalizeInterfaceName(i.name) === norm,
+  );
+  const name = iface?.name ?? ifaceIdOrName;
+  const isSub = name.includes(".");
+  const physicalName = isSub ? name.slice(0, name.indexOf(".")) : name;
+  // Subinterface: das physische Interface trägt den Link. Ports ohne eindeutigen Namen (z. B. „–“) nur über die ID zuordnen.
+  const physical = isSub
+    ? device?.interfaces.find((i) => normalizeInterfaceName(i.name) === normalizeInterfaceName(physicalName))
+    : iface;
 
   for (const link of topology.links) {
     const end = findLinkEnd(topology, link, deviceId);
     if (!end) continue;
-    if (
-      end.local.id === ifaceIdOrName ||
-      end.local.name === ifaceIdOrName ||
-      normalizeInterfaceName(end.local.name) === normTarget
-    ) {
-      return { link, remoteDevice: end.remoteDevice, remoteIface: end.remote };
-    }
-    if (
-      normBase &&
-      (end.local.name === baseName || normalizeInterfaceName(end.local.name) === normBase)
-    ) {
-      return { link, remoteDevice: end.remoteDevice, remoteIface: end.remote };
+    const matches = physical
+      ? end.local.id === physical.id
+      : normalizeInterfaceName(end.local.name) === normalizeInterfaceName(physicalName);
+    if (matches) return { link, remoteDevice: end.remoteDevice, remoteIface: end.remote };
+  }
+  return null;
+}
+
+/** VLAN-Tag eines Frames, das über ein Router-Interface gesendet wird (Subinterface mit dot1Q), sonst ungetaggt. */
+export function egressFrameVlan(iface: TopologyInterface): number | null {
+  return iface.name.includes(".") && iface.vlan !== undefined ? iface.vlan : null;
+}
+
+/** Eingangs-Interface eines L3-Geräts für ein Frame: bei Tag das passende Subinterface, sonst das physische Interface. */
+function l3IngressInterface(device: TopologyDevice, physical: TopologyInterface, frameVlan: number | null): TopologyInterface {
+  if (frameVlan === null) return physical;
+  const sub = device.interfaces.find(
+    (i) =>
+      i.name.includes(".") &&
+      normalizeInterfaceName(i.name.slice(0, i.name.indexOf("."))) === normalizeInterfaceName(physical.name) &&
+      i.vlan === frameVlan,
+  );
+  return sub ?? physical;
+}
+
+function stpStateOf(stpData: Map<string, StpBridgeInfo>, device: TopologyDevice, iface: TopologyInterface): "FWD" | "BLK" | undefined {
+  return stpData.get(device.id)?.ports?.find((p) => p.iface.id === iface.id || p.iface.name === iface.name)?.state;
+}
+
+/**
+ * Betriebsmodus eines Switch-Ports: statisch konfiguriert (trunk/access) oder per DTP ausgehandelt
+ * (evaluateTrunk aus vtp-status.ts; nur zwischen Switches, Router sprechen kein DTP).
+ */
+function operationalPort(topology: NetworkTopology, device: TopologyDevice, iface: TopologyInterface): TopologyInterface {
+  if (iface.mode === "trunk" || iface.mode === "access" || iface.mode === "routed") return iface;
+  const conn = findConnectedLinkForInterface(topology, device.id, iface.id);
+  const trunk = !!conn && isSwitch(conn.remoteDevice) && evaluateTrunk(iface, conn.remoteIface).trunk;
+  return { ...iface, mode: trunk ? "trunk" : "access" };
+}
+
+/** VLAN eines Frames im Switch: Access-Port bestimmt das VLAN, ein Trunk übernimmt das Tag (ungetaggt = natives VLAN). */
+function ingressVlan(inIface: TopologyInterface, frameVlan: number | null): number {
+  return inIface.mode === "trunk" ? (frameVlan ?? inIface.nativeVlan ?? 1) : (untaggedVlan(inIface) ?? 1);
+}
+
+interface L2Step {
+  device: TopologyDevice;
+  inIface: TopologyInterface;
+  outIface: TopologyInterface;
+  vlan: number;
+}
+
+/**
+ * Sucht im L2-Segment einen Weg vom Eingangs-Port des ersten Switches zum Zielgerät (Breitensuche).
+ * Berücksichtigt VLAN-Zugehörigkeit (Access-VLAN, Trunk mit Tag/nativem VLAN, Allowed-VLANs),
+ * Link-Status und STP-Portzustände auf beiden Seiten eines Links.
+ */
+function findL2Path(
+  topology: NetworkTopology,
+  startDevice: TopologyDevice,
+  startIface: TopologyInterface,
+  frameVlan: number | null,
+  targetDevice: TopologyDevice,
+  stpData: Map<string, StpBridgeInfo>,
+  respectStp: boolean,
+): { steps: L2Step[]; arrivalIface: TopologyInterface; arrivalVlan: number | null } | null {
+  interface Node {
+    device: TopologyDevice;
+    inIface: TopologyInterface;
+    frameVlan: number | null;
+    path: L2Step[];
+  }
+  const queue: Node[] = [{ device: startDevice, inIface: startIface, frameVlan, path: [] }];
+  const visited = new Set<string>();
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    const device = node.device;
+    const inIface = operationalPort(topology, device, node.inIface);
+    if (respectStp && stpStateOf(stpData, device, inIface) === "BLK") continue;
+
+    const vlan = ingressVlan(inIface, node.frameVlan);
+    const key = `${device.id}|${vlan}`;
+    if (visited.has(key)) continue;
+    visited.add(key);
+
+    for (const rawOut of device.interfaces) {
+      if (rawOut.id === inIface.id) continue;
+      const out = operationalPort(topology, device, rawOut);
+      if (!portCarriesVlan(out, vlan)) continue;
+      const conn = findConnectedLinkForInterface(topology, device.id, out.id);
+      if (!conn) continue;
+      if (!isLinkUsable(conn.link) || !isInterfaceActive(out)) continue;
+      if (
+        respectStp &&
+        (stpStateOf(stpData, device, out) === "BLK" || stpStateOf(stpData, conn.remoteDevice, conn.remoteIface) === "BLK")
+      ) {
+        continue;
+      }
+
+      const outTagged = out.mode === "trunk" && vlan !== (out.nativeVlan ?? 1);
+      const nextFrameVlan = outTagged ? vlan : null;
+      const step: L2Step = { device, inIface, outIface: out, vlan };
+      if (conn.remoteDevice.id === targetDevice.id) {
+        return { steps: [...node.path, step], arrivalIface: conn.remoteIface, arrivalVlan: nextFrameVlan };
+      }
+      if (isSwitch(conn.remoteDevice)) {
+        queue.push({ device: conn.remoteDevice, inIface: conn.remoteIface, frameVlan: nextFrameVlan, path: [...node.path, step] });
+      }
     }
   }
   return null;
 }
 
 /**
- * L2-Switching-Pfadsuche: Traversiert Switches, bis das L3-Zielgerät erreicht wird.
- * Nutzt zentral computeStp(), untaggedVlan() und portCarriesVlan().
+ * L2-Switching: durchquert das Switch-Segment vom Eingangs-Port bis zum Zielgerät.
+ * Nutzt computeStp(), untaggedVlan() und portCarriesVlan() aus den gemeinsamen Modulen.
  */
 function traverseL2Segment(
   topology: NetworkTopology,
@@ -175,131 +307,58 @@ function traverseL2Segment(
   packet: SimulatedPacket,
   hops: HopStep[],
   stpData: Map<string, StpBridgeInfo>,
-  maxSteps: number = 10,
+  frameVlan: number | null = null,
 ): { currentDevice: TopologyDevice; currentIface: TopologyInterface; dropped?: boolean; dropReason?: DropReasonCode; explanation?: string } {
-  let currDev = startDevice;
-  let currIf = startIface;
-  let steps = 0;
+  if (startDevice.id === targetDevice.id) {
+    return { currentDevice: startDevice, currentIface: l3IngressInterface(startDevice, startIface, frameVlan) };
+  }
 
-  while (isSwitch(currDev) && currDev.id !== targetDevice.id && steps < maxSteps) {
-    steps++;
-    const swInfo = stpData.get(currDev.id);
-
-    // Ingress Port STP prüfen
-    const inPortStp = swInfo?.ports?.find(
-      (p: StpPortInfo) => p.iface.id === currIf.id || p.iface.name === currIf.name,
-    );
-    if (inPortStp && inPortStp.state === "BLK") {
-      hops.push({
-        stepNumber: hops.length + 1,
-        deviceId: currDev.id,
-        deviceName: currDev.name,
-        inInterface: currIf.name,
-        action: "drop",
-        reason: `Port ${currIf.name} auf Switch ${currDev.name} ist durch STP blockiert (BLK/ALT).`,
-        packet: { ...packet },
-        status: "dropped",
-        dropReason: "stp-blocked",
-      });
-      return { currentDevice: currDev, currentIface: currIf, dropped: true, dropReason: "stp-blocked", explanation: `STP-Blocking auf ${currDev.name} ${currIf.name}` };
-    }
-
-    // VLAN bestimmen über shared untaggedVlan()
-    const vlan = untaggedVlan(currIf) ?? 1;
-
-    // Finde Egress-Port in Richtung targetDevice
-    let foundNext: { link: TopologyLink; egressIface: TopologyInterface; nextDev: TopologyDevice; nextIface: TopologyInterface } | null = null;
-
-    for (const ifc of currDev.interfaces) {
-      if (ifc.id === currIf.id) continue;
-      const conn = findConnectedLinkForInterface(topology, currDev.id, ifc.id);
-      if (!conn) continue;
-
-      // Prüfe über shared portCarriesVlan(), ob dieser Port das VLAN transportiert
-      if (!portCarriesVlan(ifc, vlan)) continue;
-
-      // Wenn der Link direkt zum targetDevice führt:
-      if (conn.remoteDevice.id === targetDevice.id) {
-        foundNext = { link: conn.link, egressIface: ifc, nextDev: conn.remoteDevice, nextIface: conn.remoteIface };
-        break;
-      }
-      // Oder zu einem weiteren Switch:
-      if (isSwitch(conn.remoteDevice) && !hops.some((h) => h.deviceId === conn.remoteDevice.id)) {
-        foundNext = { link: conn.link, egressIface: ifc, nextDev: conn.remoteDevice, nextIface: conn.remoteIface };
-      }
-    }
-
-    if (!foundNext) {
-      hops.push({
-        stepNumber: hops.length + 1,
-        deviceId: currDev.id,
-        deviceName: currDev.name,
-        inInterface: currIf.name,
-        action: "drop",
-        reason: `Switch ${currDev.name}: Kein Egress-Port im VLAN ${vlan} in Richtung Ziel ${targetDevice.name} gefunden.`,
-        packet: { ...packet },
-        status: "dropped",
-        dropReason: "vlan-mismatch",
-      });
-      return { currentDevice: currDev, currentIface: currIf, dropped: true, dropReason: "vlan-mismatch", explanation: `VLAN ${vlan} Mismatch auf ${currDev.name}` };
-    }
-
-    // Egress Port STP prüfen
-    const outPortStp = swInfo?.ports?.find(
-      (p: StpPortInfo) => p.iface.id === foundNext.egressIface.id || p.iface.name === foundNext.egressIface.name,
-    );
-    if (outPortStp && outPortStp.state === "BLK") {
-      hops.push({
-        stepNumber: hops.length + 1,
-        deviceId: currDev.id,
-        deviceName: currDev.name,
-        inInterface: currIf.name,
-        outInterface: foundNext.egressIface.name,
-        action: "drop",
-        reason: `Ausgangs-Port ${foundNext.egressIface.name} auf Switch ${currDev.name} ist durch STP blockiert (BLK/ALT).`,
-        packet: { ...packet },
-        status: "dropped",
-        dropReason: "stp-blocked",
-      });
-      return { currentDevice: currDev, currentIface: foundNext.egressIface, dropped: true, dropReason: "stp-blocked", explanation: `STP-Blocking auf ${currDev.name} ${foundNext.egressIface.name}` };
-    }
-
-    // Link Usable prüfen
-    if (!isLinkUsable(foundNext.link)) {
-      hops.push({
-        stepNumber: hops.length + 1,
-        deviceId: currDev.id,
-        deviceName: currDev.name,
-        inInterface: currIf.name,
-        outInterface: foundNext.egressIface.name,
-        action: "drop",
-        reason: `Link an ${currDev.name} ${foundNext.egressIface.name} ist inaktiv oder getrennt.`,
-        packet: { ...packet },
-        status: "dropped",
-        dropReason: "interface-down",
-      });
-      return { currentDevice: currDev, currentIface: foundNext.egressIface, dropped: true, dropReason: "interface-down", explanation: `Link down an ${currDev.name} ${foundNext.egressIface.name}` };
-    }
-
-    // Switch Hop erfassen
+  const found = findL2Path(topology, startDevice, startIface, frameVlan, targetDevice, stpData, true);
+  if (!found) {
+    // Ursache: gäbe es ohne STP einen Weg, blockiert STP; sonst passt das VLAN nicht
+    const withoutStp = findL2Path(topology, startDevice, startIface, frameVlan, targetDevice, stpData, false);
+    const vlan = ingressVlan(operationalPort(topology, startDevice, startIface), frameVlan);
+    const dropReason: DropReasonCode = withoutStp ? "stp-blocked" : "vlan-mismatch";
+    const reason = withoutStp
+      ? `Switch ${startDevice.name}: Jeder Weg zu ${targetDevice.name} in VLAN ${vlan} führt über einen durch STP blockierten Port.`
+      : `Switch ${startDevice.name}: Kein Weg im VLAN ${vlan} in Richtung ${targetDevice.name} (Access-VLAN, Trunk oder Allowed-VLANs passen nicht).`;
     hops.push({
       stepNumber: hops.length + 1,
-      deviceId: currDev.id,
-      deviceName: currDev.name,
-      inInterface: currIf.name,
-      outInterface: foundNext.egressIface.name,
+      deviceId: startDevice.id,
+      deviceName: startDevice.name,
+      inInterface: startIface.name,
+      action: "drop",
+      reason,
+      packet: { ...packet },
+      status: "dropped",
+      dropReason,
+    });
+    return {
+      currentDevice: startDevice,
+      currentIface: startIface,
+      dropped: true,
+      dropReason,
+      explanation: withoutStp ? `STP-Blocking auf dem Weg zu ${targetDevice.name}` : `VLAN ${vlan} Mismatch auf ${startDevice.name}`,
+    };
+  }
+
+  for (const s of found.steps) {
+    const tagged = s.outIface.mode === "trunk" && s.vlan !== (s.outIface.nativeVlan ?? 1);
+    const trunkNote = s.outIface.mode === "trunk" ? (tagged ? ` (Trunk, 802.1Q-Tag ${s.vlan})` : " (Trunk, natives VLAN ungetaggt)") : "";
+    hops.push({
+      stepNumber: hops.length + 1,
+      deviceId: s.device.id,
+      deviceName: s.device.name,
+      inInterface: s.inIface.name,
+      outInterface: s.outIface.name,
       action: "switch",
-      reason: `Switch ${currDev.name}: Frame von ${currIf.name} (VLAN ${vlan}) an ${foundNext.egressIface.name} weitergeleitet (STP Forwarding).`,
+      reason: `Switch ${s.device.name}: Frame von ${s.inIface.name} (VLAN ${s.vlan}) an ${s.outIface.name} weitergeleitet${trunkNote}.`,
       packet: { ...packet },
       packetOut: { ...packet },
       status: "ok",
     });
-
-    currDev = foundNext.nextDev;
-    currIf = foundNext.nextIface;
   }
-
-  return { currentDevice: currDev, currentIface: currIf };
+  return { currentDevice: targetDevice, currentIface: l3IngressInterface(targetDevice, found.arrivalIface, found.arrivalVlan) };
 }
 
 /**
@@ -409,13 +468,15 @@ function tracePath(
 
     // Wenn aktuelles Gerät ein Router ist und nicht die Quelle:
     if (currentDev.type === "router" || (currentDev.type === "switch-l3" && currentDev.config?.ipRoutingEnabled)) {
+      // Vom Router selbst erzeugte Pakete: keine TTL-Verringerung, keine Eingangs-ACL, keine NAT-Inside-Prüfung
+      const originatedHere = currentDev.id === sourceDevice.id && !isHost && currentInIf === undefined;
       if (!currentInIf) {
         currentInIf = currentDev.interfaces[0];
       }
 
       // TTL prüfen
-      packet.ttl--;
-      if (packet.ttl <= 0) {
+      if (!originatedHere) packet.ttl--;
+      if (!originatedHere && packet.ttl <= 0) {
         hops.push({
           stepNumber: hops.length + 1,
           deviceId: currentDev.id,
@@ -431,7 +492,7 @@ function tracePath(
       }
 
       // Interface-Status prüfen
-      if (!isInterfaceActive(currentInIf)) {
+      if (!originatedHere && !isInterfaceActive(currentInIf)) {
         hops.push({
           stepNumber: hops.length + 1,
           deviceId: currentDev.id,
@@ -448,14 +509,14 @@ function tracePath(
 
       // NAT-Richtung bestimmen
       const natCfg = hasNatConfig(currentDev) ? currentDev.config?.nat : undefined;
-      const isInsideIn = natCfg?.insideInterfaces?.includes(currentInIf.name) ?? false;
-      const isOutsideIn = natCfg?.outsideInterfaces?.includes(currentInIf.name) ?? false;
+      const isInsideIn = !originatedHere && (natCfg?.insideInterfaces?.includes(currentInIf.name) ?? false);
+      const isOutsideIn = !originatedHere && (natCfg?.outsideInterfaces?.includes(currentInIf.name) ?? false);
 
       // ─── NAT ORDER OF OPERATION ───────────────────────────────────────────
       if (isOutsideIn) {
         // Richtungsfluss: OUTSIDE → INSIDE
         // 1. Eingangs-ACL (sieht unübersetzte Adresse)
-        if (currentInIf.inboundAcl) {
+        if (!originatedHere && currentInIf.inboundAcl) {
           const aclRes = evaluateAcl(
             currentInIf.inboundAcl,
             currentDev.config?.accessLists?.[currentInIf.inboundAcl],
@@ -539,7 +600,7 @@ function tracePath(
         nextHopIp = routeMatch.selectedVia.nextHop ?? packet.dstIp;
 
         // 4. Ausgangs-ACL (sieht übersetzte Adresse)
-        if (outIface.outboundAcl) {
+        if (!originatedHere && outIface.outboundAcl) {
           const aclRes = evaluateAcl(
             outIface.outboundAcl,
             currentDev.config?.accessLists?.[outIface.outboundAcl],
@@ -595,7 +656,7 @@ function tracePath(
       } else {
         // INSIDE → OUTSIDE oder STANDARD-ROUTING
         // 1. Eingangs-ACL
-        if (currentInIf.inboundAcl) {
+        if (!originatedHere && currentInIf.inboundAcl) {
           const aclRes = evaluateAcl(
             currentInIf.inboundAcl,
             currentDev.config?.accessLists?.[currentInIf.inboundAcl],
@@ -680,7 +741,7 @@ function tracePath(
         }
 
         // 4. Ausgangs-ACL (sieht bei Inside->Outside bereits die übersetzte Quell-Adresse!)
-        if (outIface.outboundAcl) {
+        if (!originatedHere && outIface.outboundAcl) {
           const aclRes = evaluateAcl(
             outIface.outboundAcl,
             currentDev.config?.accessLists?.[outIface.outboundAcl],
@@ -855,7 +916,7 @@ function tracePath(
 
     // Wenn der nächste Hop ein L2-Switch ist, durchquere das L2-Segment
     if (isSwitch(linkConn.remoteDevice)) {
-      const nextHopDev = findDeviceByIp(topology, nextHopIp)?.device ?? targetDevice;
+      const nextHopDev = findL2OwnerOf(topology, nextHopIp) ?? targetDevice;
       const l2Result = traverseL2Segment(
         topology,
         linkConn.remoteDevice,
@@ -864,6 +925,7 @@ function tracePath(
         packet,
         hops,
         stpData,
+        egressFrameVlan(outIface),
       );
       if (l2Result.dropped) {
         return { hops, success: false, dropReason: l2Result.dropReason, explanation: l2Result.explanation, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
@@ -872,7 +934,7 @@ function tracePath(
       currentInIf = l2Result.currentIface;
     } else {
       currentDev = linkConn.remoteDevice;
-      currentInIf = linkConn.remoteIface;
+      currentInIf = l3IngressInterface(linkConn.remoteDevice, linkConn.remoteIface, egressFrameVlan(outIface));
     }
   }
 
@@ -968,9 +1030,30 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
     };
   }
 
-  const sourceIface = options.sourceInterfaceId
-    ? sourceDevice.interfaces.find((i) => i.id === options.sourceInterfaceId) ?? getPrimaryInterface(sourceDevice)
-    : getPrimaryInterface(sourceDevice);
+  // Quell-Interface: explizit (Interface oder `source <ip>`), bei Routern das Ausgangsinterface zum Ziel (IOS-Verhalten)
+  let sourceIface: TopologyInterface | undefined;
+  if (options.sourceInterfaceId) {
+    sourceIface = sourceDevice.interfaces.find((i) => i.id === options.sourceInterfaceId) ?? getPrimaryInterface(sourceDevice);
+  } else if (options.sourceIp) {
+    sourceIface = sourceDevice.interfaces.find((i) => cleanIp(i.ip) === options.sourceIp && isInterfaceActive(i));
+    if (!sourceIface) {
+      return {
+        success: false,
+        status: "invalid-source",
+        iosSummary: "% Invalid source address",
+        explanation: `% Invalid source address- IP address not on any of our up interfaces: ${options.sourceIp} gehört zu keinem aktiven Interface von ${sourceDevice.name}.`,
+        forwardHops: [],
+        returnHops: [],
+        allHops: [],
+        arpResolvedThisRun: false,
+        arpCache,
+      };
+    }
+  } else if (sourceDevice.type === "router" || sourceDevice.type === "switch-l3") {
+    sourceIface = egressInterfaceFor(sourceDevice, topology, resolvedTargetIp) ?? getPrimaryInterface(sourceDevice);
+  } else {
+    sourceIface = getPrimaryInterface(sourceDevice);
+  }
 
   if (!sourceIface || !sourceIface.ip) {
     return {

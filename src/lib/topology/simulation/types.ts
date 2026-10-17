@@ -26,7 +26,8 @@ export type DropReasonCode =
   | "interface-down"
   | "ttl-expired"
   | "arp-timeout"
-  | "unreachable";
+  | "unreachable"
+  | "invalid-source";
 
 export type HopAction =
   | "originate"
@@ -68,7 +69,8 @@ export interface SimulationResult {
     | "stp-blocked"
     | "no-route"
     | "no-gateway"
-    | "interface-down";
+    | "interface-down"
+    | "invalid-source";
   iosSummary: string; // e.g. ".!!!!", "!!!!!", "U.U.U", "....."
   explanation: string;
   forwardHops: HopStep[];
@@ -83,6 +85,8 @@ export interface SimulationOptions {
   topology: NetworkTopology;
   sourceDeviceId: string;
   sourceInterfaceId?: string;
+  /** Quelladresse wie bei `ping <ziel> source <ip>`; muss einem aktiven Interface der Quelle gehören */
+  sourceIp?: string;
   targetDeviceId?: string;
   targetIp?: string;
   protocol?: SimulationProtocol;
