@@ -137,11 +137,11 @@ interface RouteSource {
 }
 
 const DEFAULT_ROUTES: RouteSource[] = [
-  { id: "connected", protocol: "Connected (C)", ad: 0, color: "#10b981", description: "Direkt am Router-Interface — kein 'Lernen' nötig.", metric: "0", enabled: true },
-  { id: "static", protocol: "Static (S)", ad: 1, color: "#3b82f6", description: "Vom Administrator manuell konfiguriert mit 'ip route ...'.", metric: "0", enabled: true },
-  { id: "eigrp", protocol: "EIGRP (D)", ad: 90, color: "#8b5cf6", description: "Cisco-proprietäres hybrides Protokoll.", metric: "2816", enabled: false },
-  { id: "ospf", protocol: "OSPF (O)", ad: 110, color: "#f59e0b", description: "Link-State, open standard, Dijkstra.", metric: "20", enabled: true },
-  { id: "rip", protocol: "RIP (R)", ad: 120, color: "#ef4444", description: "Distance-Vector, max 15 Hops — selten produktiv.", metric: "3", enabled: false },
+  { id: "connected", protocol: "Connected (C)", ad: 0, color: "var(--status-success-solid)", description: "Direkt am Router-Interface — kein 'Lernen' nötig.", metric: "0", enabled: true },
+  { id: "static", protocol: "Static (S)", ad: 1, color: "var(--accent-solid)", description: "Vom Administrator manuell konfiguriert mit 'ip route ...'.", metric: "0", enabled: true },
+  { id: "eigrp", protocol: "EIGRP (D)", ad: 90, color: "var(--status-trunk-solid)", description: "Cisco-proprietäres hybrides Protokoll.", metric: "2816", enabled: false },
+  { id: "ospf", protocol: "OSPF (O)", ad: 110, color: "var(--status-warning-solid)", description: "Link-State, open standard, Dijkstra.", metric: "20", enabled: true },
+  { id: "rip", protocol: "RIP (R)", ad: 120, color: "var(--status-error-solid)", description: "Distance-Vector, max 15 Hops — selten produktiv.", metric: "3", enabled: false },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -593,7 +593,7 @@ function DeviceIcon({
   active: boolean;
 }) {
   const fill = active ? "var(--accent-solid)" : "var(--muted)";
-  const stroke = active ? "#7dd3fc" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)";
+  const stroke = active ? "var(--accent-primary)" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)";
   const txt = active ? "var(--on-accent-solid)" : "var(--foreground)";
 
   if (kind === "pc") {
@@ -629,12 +629,9 @@ function PacketDot({ location }: { location: HopState["location"] }) {
   const p = positions[location];
   return (
     <g style={{ transition: "all 0.6s ease-in-out", transform: `translate(${p.x - 80}px, ${p.y - 115}px)` }}>
-      <circle cx={80} cy={115} r="10" fill="#10b981" stroke="#fff" strokeWidth="2">
+      <circle cx={80} cy={115} r="10" fill="var(--status-success-solid)" stroke="var(--card)" strokeWidth="2">
         <animate attributeName="r" values="10;14;10" dur="1.4s" repeatCount="indefinite" />
       </circle>
-      <text x={80} y={119} textAnchor="middle" fontSize="9" fill="#fff" fontWeight="bold">
-        📦
-      </text>
     </g>
   );
 }
@@ -706,7 +703,7 @@ function TracerouteTab() {
     { key: "server", cx: 700, kind: "pc", label: "Server" },
   ];
   const line = "color-mix(in srgb, var(--muted-foreground) 45%, transparent)";
-  const linkColor = (toCx: number) => (toCx <= hop.cx ? "#0ea5e9" : line);
+  const linkColor = (toCx: number) => (toCx <= hop.cx ? "var(--accent-primary)" : line);
 
   return (
     <div className="space-y-4">
@@ -736,7 +733,7 @@ function TracerouteTab() {
               <g key={n.key}>
                 <line x1={fromCx + 30} y1="110" x2={n.cx - 30} y2="110" stroke={linkColor(n.cx)} strokeWidth="3" />
                 {reached && (
-                  <text x={(fromCx + n.cx) / 2} y="100" textAnchor="middle" fontSize="11" fontWeight="bold" fill={ttlAtSeg <= 0 ? "#ef4444" : "#0ea5e9"}>
+                  <text x={(fromCx + n.cx) / 2} y="100" textAnchor="middle" fontSize="11" fontWeight="bold" fill={ttlAtSeg <= 0 ? "var(--status-error-fg)" : "var(--accent-primary-fg)"}>
                     {Math.max(ttlAtSeg, 0)}
                   </text>
                 )}
@@ -754,7 +751,7 @@ function TracerouteTab() {
           {nodes.map((n) => (
             <g key={n.key}>
               <DeviceIcon x={n.cx - 30} y={85} kind={n.kind} label={n.label} active={n.key === hop.node} />
-              <text x={n.cx} y="165" textAnchor="middle" fontSize="10" fill={n.key === hop.node ? "#0ea5e9" : "var(--text-secondary)"}>
+              <text x={n.cx} y="165" textAnchor="middle" fontSize="10" fill={n.key === hop.node ? "var(--accent-primary-fg)" : "var(--text-secondary)"}>
                 {TRACE.find((t) => t.node === n.key)?.ip}
               </text>
             </g>
@@ -762,10 +759,10 @@ function TracerouteTab() {
 
           {/* Paket-Dot am Verfall-Hop */}
           <g style={{ transition: "all 0.6s ease-in-out", transform: `translateX(${hop.cx - 70}px)` }}>
-            <circle cx={70} cy={110} r="11" fill={hop.isTarget ? "#10b981" : "#ef4444"} stroke="#fff" strokeWidth="2">
+            <circle cx={70} cy={110} r="11" fill={hop.isTarget ? "var(--status-success-solid)" : "var(--status-error-solid)"} stroke="var(--card)" strokeWidth="2">
               <animate attributeName="r" values="11;15;11" dur="1.2s" repeatCount="indefinite" />
             </circle>
-            <text x={70} y={114} textAnchor="middle" fontSize="9" fill="#fff" fontWeight="bold">
+            <text x={70} y={114} textAnchor="middle" fontSize="9" fill={hop.isTarget ? "var(--on-status-success-solid)" : "var(--on-status-error-solid)"} fontWeight="bold">
               {hop.isTarget ? "✓" : "0"}
             </text>
           </g>
@@ -997,8 +994,8 @@ function NeighborTab() {
         {/* Router-Paar mit Paket-Animation */}
         <svg viewBox="0 0 600 160" className="w-full h-auto" style={{ maxHeight: 180 }}>
           {/* R1 */}
-          <circle cx="100" cy="80" r="32" fill="#0ea5e9" stroke="#7dd3fc" strokeWidth="2" />
-          <text x="100" y="84" textAnchor="middle" fontSize="13" fill="#fff" fontWeight="bold">
+          <circle cx="100" cy="80" r="32" fill="var(--accent-solid)" stroke="var(--accent-primary)" strokeWidth="2" />
+          <text x="100" y="84" textAnchor="middle" fontSize="13" fill="var(--on-accent-solid)" fontWeight="bold">
             R1
           </text>
           <text x="100" y="130" textAnchor="middle" fontSize="11" fill={"var(--text-secondary)"}>
@@ -1009,8 +1006,8 @@ function NeighborTab() {
           </text>
 
           {/* R2 */}
-          <circle cx="500" cy="80" r="32" fill="#8b5cf6" stroke="#c4b5fd" strokeWidth="2" />
-          <text x="500" y="84" textAnchor="middle" fontSize="13" fill="#fff" fontWeight="bold">
+          <circle cx="500" cy="80" r="32" fill="var(--status-trunk-solid)" stroke="var(--status-trunk-border)" strokeWidth="2" />
+          <text x="500" y="84" textAnchor="middle" fontSize="13" fill="var(--on-status-trunk-solid)" fontWeight="bold">
             R2
           </text>
           <text x="500" y="130" textAnchor="middle" fontSize="11" fill={"var(--text-secondary)"}>
@@ -1031,22 +1028,22 @@ function NeighborTab() {
               </text>
               {cur.direction === "→" && (
                 <>
-                  <circle cx="150" cy="80" r="8" fill="#10b981">
+                  <circle cx="150" cy="80" r="8" fill="var(--status-success-solid)">
                     <animate attributeName="cx" from="150" to="450" dur="1.6s" repeatCount="indefinite" />
                   </circle>
                 </>
               )}
               {cur.direction === "←" && (
-                <circle cx="450" cy="80" r="8" fill="#10b981">
+                <circle cx="450" cy="80" r="8" fill="var(--status-success-solid)">
                   <animate attributeName="cx" from="450" to="150" dur="1.6s" repeatCount="indefinite" />
                 </circle>
               )}
               {cur.direction === "↔" && (
                 <>
-                  <circle cx="150" cy="70" r="7" fill="#10b981">
+                  <circle cx="150" cy="70" r="7" fill="var(--status-success-solid)">
                     <animate attributeName="cx" from="150" to="450" dur="1.6s" repeatCount="indefinite" />
                   </circle>
-                  <circle cx="450" cy="90" r="7" fill="#a855f7">
+                  <circle cx="450" cy="90" r="7" fill="var(--status-trunk-solid)">
                     <animate attributeName="cx" from="450" to="150" dur="1.6s" repeatCount="indefinite" />
                   </circle>
                 </>
@@ -1214,7 +1211,7 @@ function SpfTab() {
                   y1={a.y}
                   x2={b.x}
                   y2={b.y}
-                  stroke={onPath ? "#10b981" : "color-mix(in srgb, var(--muted-foreground) 45%, transparent)"}
+                  stroke={onPath ? "var(--status-success-solid)" : "color-mix(in srgb, var(--muted-foreground) 45%, transparent)"}
                   strokeWidth={onPath ? 4 : 2}
                 />
                 <rect
@@ -1223,8 +1220,8 @@ function SpfTab() {
                   width="36"
                   height="20"
                   rx="4"
-                  fill={onPath ? "#10b981" : "var(--card)"}
-                  stroke={onPath ? "#10b981" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)"}
+                  fill={onPath ? "var(--status-success-solid)" : "var(--card)"}
+                  stroke={onPath ? "var(--status-success-solid)" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)"}
                   strokeWidth="1"
                 />
                 <text
@@ -1233,7 +1230,7 @@ function SpfTab() {
                   textAnchor="middle"
                   fontSize="11"
                   fontWeight="bold"
-                  fill={onPath ? "#fff" : "var(--foreground)"}
+                  fill={onPath ? "var(--on-status-success-solid)" : "var(--foreground)"}
                 >
                   {cost}
                 </text>
@@ -1245,17 +1242,18 @@ function SpfTab() {
             const isSrc = n.id === src;
             const isDst = n.id === dst;
             const onPath = result.path.includes(n.id);
-            const fill = isSrc ? "#0ea5e9" : isDst ? "#f59e0b" : onPath ? "#10b981" : "var(--muted)";
+            const fill = isSrc ? "var(--accent-solid)" : isDst ? "var(--status-warning-solid)" : onPath ? "var(--status-success-solid)" : "var(--muted)";
+            const onFill = isSrc ? "var(--on-accent-solid)" : isDst ? "var(--on-status-warning-solid)" : onPath ? "var(--on-status-success-solid)" : "var(--foreground)";
             return (
               <g key={n.id}>
-                <circle cx={n.x} cy={n.y} r="28" fill={fill} stroke="#fff" strokeWidth="2" />
+                <circle cx={n.x} cy={n.y} r="28" fill={fill} stroke="var(--card)" strokeWidth="2" />
                 <text
                   x={n.x}
                   y={n.y + 5}
                   textAnchor="middle"
                   fontSize="13"
                   fontWeight="bold"
-                  fill={isSrc || isDst || onPath ? "#fff" : "var(--foreground)"}
+                  fill={onFill}
                 >
                   {n.label}
                 </text>

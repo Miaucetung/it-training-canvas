@@ -142,6 +142,7 @@ const VIEWS = [
   ...TOOLS.map((id) => ({ name: `Werkzeug: ${id}`, open: async (page) => { await page.evaluate((t) => window.__auditApp.openTool(t), id); await page.waitForTimeout(700); } })),
   {
     name: "Labs-Dialog (OSPF-Lab)",
+    alwaysDark: true, // Dialog ist bewusst immer dunkel; im hellen Thema würde nur die halbtransparente Fläche falsch gerechnet
     open: async (page) => {
       await page.evaluate(() => window.__auditApp.openDialog("labs"));
       await page.waitForTimeout(600);
@@ -187,7 +188,7 @@ async function runExhibits(themeName) {
   await context.close();
 }
 for (const theme of ["dark", "light"]) {
-  for (const v of VIEWS) await runView(v.name, theme, 1440, v.open);
+  for (const v of VIEWS) if (!(v.alwaysDark && theme === "light")) await runView(v.name, theme, 1440, v.open);
 }
 if (process.env.EXHIBITS === "1") for (const theme of ["dark", "light"]) await runExhibits(theme);
 await browser.close();
