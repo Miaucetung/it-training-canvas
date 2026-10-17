@@ -5,7 +5,7 @@ import type {
   TopologyLink,
 } from "@/types/topology";
 import { computeStructuredRoutingTable, lookupRouteLpm, getNetworkAddress } from "../routing-table";
-import { computeStp, isSwitch, type StpBridgeInfo } from "../stp-calc";
+import { computePortChannels, computeStp, isSwitch, type PortChannelBundle, type StpBridgeInfo } from "../stp-calc";
 import { computeHsrp, hasHsrpConfig } from "../hsrp";
 import { computeTunnelState, isTunnelInterface } from "../gre-tunnel";
 import { hasNatConfig } from "../nat-outputs";
@@ -228,9 +228,23 @@ function ingressVlan(inIface: TopologyInterface, frameVlan: number | null): numb
 
 interface L2Step {
   device: TopologyDevice;
+  /** Eingangs-Port wie in show-Ausgaben (bei Port-Channel-Membern das logische PoN) */
   inIface: TopologyInterface;
+  /** Ausgangs-Port wie in show-Ausgaben (bei Port-Channel-Membern das logische PoN) */
   outIface: TopologyInterface;
   vlan: number;
+  /** Member des Port-Channels, über den das Frame tatsächlich läuft */
+  viaMember?: TopologyInterface;
+  linkId: string;
+}
+
+/** Member-Interface-ID → Port-Channel (aus computePortChannels in stp-calc.ts). */
+function portChannelMemberMap(topology: NetworkTopology): Map<string, PortChannelBundle> {
+  const map = new Map<string, PortChannelBundle>();
+  for (const list of computePortChannels(topology).values()) {
+    for (const b of list) for (const m of b.members) map.set(m.id, b);
+  }
+  return map;
 }
 
 /**
@@ -255,20 +269,27 @@ function findL2Path(
   }
   const queue: Node[] = [{ device: startDevice, inIface: startIface, frameVlan, path: [] }];
   const visited = new Set<string>();
+  // Port-Channel: STP-Zustand und Anzeige gelten für das logische PoN, nicht für einzelne Member
+  const bundleOf = portChannelMemberMap(topology);
+  const logical = (iface: TopologyInterface) => bundleOf.get(iface.id)?.iface ?? iface;
 
   while (queue.length > 0) {
     const node = queue.shift()!;
     const device = node.device;
     const inIface = operationalPort(topology, device, node.inIface);
-    if (respectStp && stpStateOf(stpData, device, inIface) === "BLK") continue;
+    if (respectStp && stpStateOf(stpData, device, logical(inIface)) === "BLK") continue;
 
     const vlan = ingressVlan(inIface, node.frameVlan);
     const key = `${device.id}|${vlan}`;
     if (visited.has(key)) continue;
     visited.add(key);
 
+    const usedBundles = new Set<string>();
     for (const rawOut of device.interfaces) {
       if (rawOut.id === inIface.id) continue;
+      const bundle = bundleOf.get(rawOut.id);
+      // Frames verlassen ein Bündel nicht über das Bündel, über das sie gekommen sind
+      if (bundle && (usedBundles.has(bundle.iface.id) || bundleOf.get(inIface.id)?.iface.id === bundle.iface.id)) continue;
       const out = operationalPort(topology, device, rawOut);
       if (!portCarriesVlan(out, vlan)) continue;
       const conn = findConnectedLinkForInterface(topology, device.id, out.id);
@@ -276,14 +297,23 @@ function findL2Path(
       if (!isLinkUsable(conn.link) || !isInterfaceActive(out)) continue;
       if (
         respectStp &&
-        (stpStateOf(stpData, device, out) === "BLK" || stpStateOf(stpData, conn.remoteDevice, conn.remoteIface) === "BLK")
+        (stpStateOf(stpData, device, logical(out)) === "BLK" ||
+          stpStateOf(stpData, conn.remoteDevice, logical(conn.remoteIface)) === "BLK")
       ) {
         continue;
       }
+      if (bundle) usedBundles.add(bundle.iface.id);
 
       const outTagged = out.mode === "trunk" && vlan !== (out.nativeVlan ?? 1);
       const nextFrameVlan = outTagged ? vlan : null;
-      const step: L2Step = { device, inIface, outIface: out, vlan };
+      const step: L2Step = {
+        device,
+        inIface: logical(inIface),
+        outIface: logical(out),
+        vlan,
+        linkId: conn.link.id,
+        ...(bundle ? { viaMember: rawOut } : {}),
+      };
       if (conn.remoteDevice.id === targetDevice.id) {
         return { steps: [...node.path, step], arrivalIface: conn.remoteIface, arrivalVlan: nextFrameVlan };
       }
@@ -345,14 +375,16 @@ function traverseL2Segment(
   for (const s of found.steps) {
     const tagged = s.outIface.mode === "trunk" && s.vlan !== (s.outIface.nativeVlan ?? 1);
     const trunkNote = s.outIface.mode === "trunk" ? (tagged ? ` (Trunk, 802.1Q-Tag ${s.vlan})` : " (Trunk, natives VLAN ungetaggt)") : "";
+    const bundleNote = s.viaMember ? ` Port-Channel ${s.outIface.name} ist ein logischer Link; das Frame läuft über den Member ${s.viaMember.name}.` : "";
     hops.push({
       stepNumber: hops.length + 1,
       deviceId: s.device.id,
       deviceName: s.device.name,
       inInterface: s.inIface.name,
       outInterface: s.outIface.name,
+      linkId: s.linkId,
       action: "switch",
-      reason: `Switch ${s.device.name}: Frame von ${s.inIface.name} (VLAN ${s.vlan}) an ${s.outIface.name} weitergeleitet${trunkNote}.`,
+      reason: `Switch ${s.device.name}: Frame von ${s.inIface.name} (VLAN ${s.vlan}) an ${s.outIface.name} weitergeleitet${trunkNote}.${bundleNote}`,
       packet: { ...packet },
       packetOut: { ...packet },
       status: "ok",
@@ -874,6 +906,11 @@ function tracePath(
       return { hops, success: false, dropReason: "interface-down", explanation: `Verbindung an ${outIface.name} ist inaktiv`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
     }
 
+    // Hops dieses Geräts, die über diesen Link hinausgehen, erhalten die Link-ID (Pfad-Hervorhebung)
+    for (let k = hops.length - 1; k >= 0 && hops[k].deviceId === currentDev.id; k--) {
+      if (hops[k].outInterface && !hops[k].linkId) hops[k].linkId = linkConn.link.id;
+    }
+
     // ARP-Schritt für Next-Hop-IP prüfen
     arpCache[currentDev.id] ??= {};
     if (!arpCache[currentDev.id][nextHopIp]) {
@@ -889,6 +926,7 @@ function tracePath(
           deviceId: currentDev.id,
           deviceName: currentDev.name,
           outInterface: outIface.name,
+          linkId: linkConn.link.id,
           action: "arp-resolve",
           reason: `ARP-Auflösung auf Router ${currentDev.name} für ${nextHopIp}: Broadcast ARP-Request → Antwort mit ${resolvedMac} (im ARP-Cache hinterlegt). Erstes ICMP-Echo geht während der IOS-ARP-Auflösung verloren (Cisco-Verhalten: .!!!!).`,
           packet: { ...packet, dstMac: resolvedMac },
@@ -901,6 +939,7 @@ function tracePath(
           deviceId: currentDev.id,
           deviceName: currentDev.name,
           outInterface: outIface.name,
+          linkId: linkConn.link.id,
           action: "arp-resolve",
           reason: `ARP-Auflösung auf Host ${currentDev.name} für ${nextHopIp}: Broadcast ARP-Request → Antwort mit ${resolvedMac}. Host puffert das Paket während der ARP-Auflösung (kein Paketverlust).`,
           packet: { ...packet, dstMac: resolvedMac },

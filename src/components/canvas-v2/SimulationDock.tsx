@@ -70,8 +70,8 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
       onSelectHop(null, null, null);
     } else {
       const hop = r.allHops[idx];
-      let linkId: string | null = null;
-      if (hop.outInterface) {
+      let linkId: string | null = hop.linkId ?? null;
+      if (!linkId && hop.outInterface) {
         const conn = findConnectedLinkForInterface(topology, hop.deviceId, hop.outInterface);
         linkId = conn?.link.id ?? null;
       }

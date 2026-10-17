@@ -14,6 +14,11 @@ vi.mock("@/lib/topology/simulation/packet-simulator", async (importOriginal) => 
 
 const topology = buildNetworkTopologyFromLab(LABS.find((l) => l.id === "drill-interfaces")!, CURATED_TOPOLOGIES["drill-interfaces"], "target").topology;
 
+const lastCall = () => {
+  const calls = vi.mocked(simulator.simulatePing).mock.calls;
+  return calls[calls.length - 1][0];
+};
+
 describe("SimulationDock: Quell-IP (ping … source …)", () => {
   beforeEach(() => {
     cleanup();
@@ -32,9 +37,9 @@ describe("SimulationDock: Quell-IP (ping … source …)", () => {
   it("gibt die gewählte Quell-IP an die Simulation weiter, „automatisch“ keine", () => {
     render(<SimulationDock topology={topology} isOpen onClose={vi.fn()} activeHopIndex={null} onSelectHop={vi.fn()} />);
     fireEvent.click(screen.getByText("Ping senden"));
-    expect(vi.mocked(simulator.simulatePing).mock.calls.at(-1)![0].sourceIp).toBeUndefined();
+    expect(lastCall().sourceIp).toBeUndefined();
     fireEvent.change(screen.getByLabelText("Quell-IP:"), { target: { value: "192.168.10.1" } });
     fireEvent.click(screen.getByText("Ping senden"));
-    expect(vi.mocked(simulator.simulatePing).mock.calls.at(-1)![0].sourceIp).toBe("192.168.10.1");
+    expect(lastCall().sourceIp).toBe("192.168.10.1");
   });
 });

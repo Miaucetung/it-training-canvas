@@ -45,6 +45,8 @@ export interface HopStep {
   deviceName: string;
   inInterface?: string;
   outInterface?: string;
+  /** ID des Links, über den das Paket diesen Hop verlässt (für die Pfad-Hervorhebung) */
+  linkId?: string;
   action: HopAction;
   reason: string;
   packet: SimulatedPacket;

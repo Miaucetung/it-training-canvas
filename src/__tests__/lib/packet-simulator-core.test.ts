@@ -95,3 +95,17 @@ describe("STP-bewusste Egress-Auswahl", () => {
     expect(sw1.outInterface).toBe("Gi0/1");
   });
 });
+
+describe("Link-ID je Hop (Pfad-Hervorhebung)", () => {
+  it("jeder weiterleitende Hop trägt die ID des tatsächlich genutzten Links, auch bei Ports ohne Namen", () => {
+    const t = labTopology("co-acl-nat-isp");
+    const r = simulatePing({ topology: t, sourceDeviceId: dev(t, "VPC-9").id, targetIp: "200.10.20.20" });
+    expect(r.success).toBe(true);
+    const forwarding = r.allHops.filter((h) => h.action === "switch" || h.action === "route" || h.action === "originate");
+    for (const h of forwarding) {
+      expect(h.linkId, `${h.deviceName} ${h.action}`).toBeTruthy();
+      const link = t.links.find((l) => l.id === h.linkId)!;
+      expect([link.sourceDeviceId, link.targetDeviceId]).toContain(h.deviceId);
+    }
+  });
+});
