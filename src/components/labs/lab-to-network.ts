@@ -848,6 +848,8 @@ export function buildNetworkTopologyFromLab(
           it.status = "admin-down";
           it.isShutdown = true;
         }
+        if (c.inboundAcl) it.inboundAcl = c.inboundAcl;
+        if (c.outboundAcl) it.outboundAcl = c.outboundAcl;
       }
       // Port-Channels: Member erben die Port-channel-Konfiguration
       const poGroups = new Map<number, { mode: ChannelGroupMode; members: string[] }>();

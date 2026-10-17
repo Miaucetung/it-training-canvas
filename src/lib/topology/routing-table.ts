@@ -125,7 +125,7 @@ export function computeStructuredRoutingTable(
 
   // 1. Lokale und Direkt verbundene Routen (C und L)
   for (const iface of device.interfaces) {
-    if (!iface.ip || iface.status !== "up" || iface.isShutdown) continue;
+    if (!iface.ip) continue;
     const netInfo = getNetworkAddress(iface.ip);
     if (!netInfo) continue;
 
