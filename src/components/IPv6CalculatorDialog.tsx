@@ -1543,11 +1543,13 @@ function SegmentationTab() {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label
+            htmlFor="ipv6-seg-prefix"
             className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Ausgangspräfix (mit /CIDR)
           </label>
           <input
+            id="ipv6-seg-prefix"
             value={prefix}
             onChange={(e) => setPrefix(e.target.value)}
             placeholder="z.B. 2001:DB8::/48"
@@ -1556,11 +1558,13 @@ function SegmentationTab() {
         </div>
         <div>
           <label
+            htmlFor="ipv6-seg-cidr"
             className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Neues CIDR (1–128)
           </label>
           <input
+            id="ipv6-seg-cidr"
             type="number"
             min={1}
             max={128}
