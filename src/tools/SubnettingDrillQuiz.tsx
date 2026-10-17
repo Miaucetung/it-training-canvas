@@ -226,17 +226,17 @@ export default function SubnettingDrill() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-foreground">
             Subnetting Drill
           </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Blockgröße → Netzgrenzen → Usable Range
           </p>
         </div>
         <button
           onClick={() => setShowCheatsheet((v) => !v)}
-          className="text-xs px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700
-                     text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800
+          className="text-xs px-3 py-1.5 rounded-md border border-border
+                     text-muted-foreground hover:bg-muted
                      transition-colors"
         >
           {showCheatsheet ? "Cheatsheet ▲" : "Cheatsheet ▼"}
@@ -245,26 +245,26 @@ export default function SubnettingDrill() {
 
       {/* ── Cheatsheet collapsible ── */}
       {showCheatsheet && (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700
-                        bg-gray-50 dark:bg-gray-900 p-4 space-y-3">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+        <div className="rounded-xl border border-border
+                        bg-muted p-4 space-y-3">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Formel
           </p>
-          <code className="block text-xs bg-white dark:bg-gray-800 rounded-lg p-3
-                           border border-gray-100 dark:border-gray-700
-                           text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+          <code className="block text-xs bg-muted rounded-lg p-3
+                           border border-border
+                           text-foreground leading-relaxed whitespace-pre-wrap">
             {`Blockgröße  = 256 − Maskenoktett
 Netzadresse = floor(IP-Oktett ÷ Blockgröße) × Blockgröße
 Broadcast   = Netzadresse + Blockgröße − 1
 Usable      = Netz+1  →  Broadcast−1`}
           </code>
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mt-2">
             Referenz
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="text-gray-400 dark:text-gray-500">
+                <tr className="text-muted-foreground">
                   <th className="text-left py-1 pr-4">CIDR</th>
                   <th className="text-left py-1 pr-4">Maskenoktett</th>
                   <th className="text-left py-1 pr-4">Blockgröße</th>
@@ -275,10 +275,10 @@ Usable      = Netz+1  →  Broadcast−1`}
                 {blockRef.map((r) => (
                   <tr
                     key={r.cidr}
-                    className={`border-t border-gray-100 dark:border-gray-800
+                    className={`border-t border-border
                       ${[25, 28, 29, 30].includes(r.cidr)
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-gray-700 dark:text-gray-300"
+                        ? "text-accent-primary-fg"
+                        : "text-muted-foreground"
                       }`}
                   >
                     <td className="py-1 pr-4">/{r.cidr}</td>
@@ -290,23 +290,23 @@ Usable      = Netz+1  →  Broadcast−1`}
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+          <p className="text-xs text-muted-foreground italic">
             Blau = 4. Oktett · Schwarz = 3. Oktett (Falle!)
           </p>
         </div>
       )}
 
       {/* ── Stats bar ── */}
-      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center gap-4 text-xs text-muted-foreground">
         <span>
           Fragen:{" "}
-          <span className="font-semibold text-gray-700 dark:text-gray-300">
+          <span className="font-semibold text-muted-foreground">
             {stats.total}
           </span>
         </span>
         <span>
           Richtig:{" "}
-          <span className="font-semibold text-green-600 dark:text-green-400">
+          <span className="font-semibold text-status-success-fg">
             {stats.correct}
           </span>
         </span>
@@ -316,10 +316,10 @@ Usable      = Netz+1  →  Broadcast−1`}
             <span
               className={`font-semibold ${
                 accuracy >= 80
-                  ? "text-green-600 dark:text-green-400"
+                  ? "text-status-success-fg"
                   : accuracy >= 60
-                    ? "text-yellow-600 dark:text-yellow-400"
-                    : "text-red-500 dark:text-red-400"
+                    ? "text-status-warning-fg"
+                    : "text-status-error-fg"
               }`}
             >
               {accuracy}%
@@ -327,12 +327,12 @@ Usable      = Netz+1  →  Broadcast−1`}
           </span>
         )}
         {stats.streak >= 3 && (
-          <span className="text-orange-500 dark:text-orange-400 font-semibold">
+          <span className="text-status-blocking-fg font-semibold">
             🔥 {stats.streak}er Serie
           </span>
         )}
         {stats.total > 0 && stats.bestStreak >= 5 && (
-          <span className="text-purple-500 dark:text-purple-400 text-xs">
+          <span className="text-status-trunk-fg text-xs">
             Beststreak: {stats.bestStreak}
           </span>
         )}
@@ -346,8 +346,8 @@ Usable      = Netz+1  →  Broadcast−1`}
             onClick={() => setFilterMode(m)}
             className={`px-3 py-1 rounded-full border transition-colors ${
               filterMode === m
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                ? "bg-accent-solid border-accent-solid text-on-accent-solid"
+                : "border-border text-muted-foreground hover:bg-muted"
             }`}
           >
             {m === "mixed"
@@ -360,12 +360,12 @@ Usable      = Netz+1  →  Broadcast−1`}
       </div>
 
       {/* ── Question card ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700
-                      bg-white dark:bg-gray-900 p-5 space-y-4">
+      <div className="rounded-xl border border-border
+                      bg-card p-5 space-y-4">
         {/* Question type badge */}
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950
-                           text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-accent-primary/10
+                           text-accent-primary-fg border border-accent-primary font-medium">
             {question.mode === "identify-range"
               ? "Usable Range bestimmen"
               : "Subnetz bestimmen"}
@@ -375,26 +375,26 @@ Usable      = Netz+1  →  Broadcast−1`}
         {/* Stem */}
         {question.mode === "identify-range" ? (
           <div className="space-y-1">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Subnetz:</p>
-            <p className="font-mono text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+            <p className="text-sm text-muted-foreground">Subnetz:</p>
+            <p className="font-mono text-xl font-bold text-foreground tracking-tight">
               {question.subnet.ip}
-              <span className="text-blue-500 dark:text-blue-400">
+              <span className="text-accent-primary-fg">
                 /{question.subnet.cidr}
               </span>
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Welcher usable host range gehört dazu?
             </p>
           </div>
         ) : (
           <div className="space-y-1">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Usable Range:
             </p>
-            <p className="font-mono text-base font-bold text-gray-900 dark:text-gray-100">
+            <p className="font-mono text-base font-bold text-foreground">
               {formatRange(question.subnet)}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Welches Subnetz ({question.subnet.ip}/?) gehört dazu?
             </p>
           </div>
@@ -410,17 +410,17 @@ Usable      = Netz+1  →  Broadcast−1`}
 
             if (!answered) {
               cls +=
-                "border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 " +
-                "hover:bg-blue-50 dark:hover:bg-blue-950 text-gray-800 dark:text-gray-200 cursor-pointer";
+                "border-border hover:border-accent-primary " +
+                "hover:bg-accent-primary/10 text-foreground cursor-pointer";
             } else if (isRight) {
               cls +=
-                "border-green-500 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300";
+                "border-status-success-border bg-status-success-bg text-status-success-fg";
             } else if (isSelected && !isRight) {
               cls +=
-                "border-red-400 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300";
+                "border-status-error-border bg-status-error-bg text-status-error-fg";
             } else {
               cls +=
-                "border-gray-100 dark:border-gray-800 text-gray-400 dark:text-gray-600";
+                "border-border text-muted-foreground";
             }
 
             return (
@@ -430,7 +430,7 @@ Usable      = Netz+1  →  Broadcast−1`}
                     <span className="text-green-500 font-bold">✓</span>
                   )}
                   {answered && isSelected && !isRight && (
-                    <span className="text-red-500 font-bold">✗</span>
+                    <span className="text-status-error-fg font-bold">✗</span>
                   )}
                   {opt}
                 </span>
@@ -444,25 +444,25 @@ Usable      = Netz+1  →  Broadcast−1`}
           <div
             className={`rounded-lg p-4 text-sm leading-relaxed space-y-2 ${
               isCorrect
-                ? "bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800"
-                : "bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800"
+                ? "bg-status-success-bg border border-status-success-border"
+                : "bg-status-blocking-bg border border-status-blocking-border"
             }`}
           >
             <p
               className={`font-semibold ${
                 isCorrect
-                  ? "text-green-700 dark:text-green-300"
-                  : "text-orange-700 dark:text-orange-300"
+                  ? "text-status-success-fg"
+                  : "text-status-blocking-fg"
               }`}
             >
               {isCorrect ? "✓ Richtig!" : "✗ Falsch — Rechenweg:"}
             </p>
-            <p className="font-mono text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="font-mono text-xs text-muted-foreground whitespace-pre-wrap">
               {question.explanation}
             </p>
             {/* Quick calc breakdown */}
-            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700
-                            font-mono text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+            <div className="mt-2 pt-2 border-t border-border
+                            font-mono text-xs text-muted-foreground space-y-0.5">
               <div>Netzadresse : {question.subnet.networkAddr}</div>
               <div>Broadcast   : {question.subnet.broadcast}</div>
               <div>First host  : {question.subnet.firstHost}</div>
@@ -476,8 +476,8 @@ Usable      = Netz+1  →  Broadcast−1`}
         {answered && (
           <button
             onClick={next}
-            className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700
-                       text-white text-sm font-medium transition-colors"
+            className="w-full py-2.5 rounded-lg bg-accent-solid hover:opacity-90
+                       text-on-accent-solid text-sm font-medium transition-colors"
           >
             Nächste Frage →
           </button>
@@ -495,8 +495,7 @@ Usable      = Netz+1  →  Broadcast−1`}
                 generateQuestion(filterMode === "mixed" ? undefined : filterMode),
               );
             }}
-            className="text-xs text-gray-400 dark:text-gray-600 hover:text-gray-600
-                       dark:hover:text-gray-400 underline underline-offset-2 transition-colors"
+            className="text-xs text-muted-foreground hover:text-muted-foreground underline underline-offset-2 transition-colors"
           >
             Stats zurücksetzen
           </button>
