@@ -426,6 +426,12 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
                     {simulationResult.forwardHops.length}, Rückweg:{" "}
                     {simulationResult.returnHops.length})
                   </p>
+                  {simulationResult.simulatedLeases && simulationResult.simulatedLeases.length > 0 && (
+                    <p className="text-muted-foreground text-[11px]" data-testid="simulated-leases">
+                      Simulierte DHCP-Vergabe (nur in dieser Simulation, keine Bindings auf dem Server):{" "}
+                      {simulationResult.simulatedLeases.map((l) => `${l.deviceName} ${l.ip}`).join(", ")}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

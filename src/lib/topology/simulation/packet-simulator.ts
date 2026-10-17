@@ -10,6 +10,7 @@ import { computeHsrp, hasHsrpConfig } from "../hsrp";
 import { computeTunnelState, isTunnelInterface } from "../gre-tunnel";
 import { hasNatConfig } from "../nat-outputs";
 import { evaluateAcl } from "./acl-evaluator";
+import { assignSimulatedLeases, type SimulatedLease } from "./dhcp-simulation";
 import type {
   SimulatedPacket,
   HopStep,
@@ -1076,10 +1077,52 @@ function tracePath(
 }
 
 /**
+ * Simulierte DHCP-Vergabe: Der Discover eines Clients erreicht einen Server, wenn ein L2-Weg (VLAN, STP, Link-Status)
+ * vom Client zu einem Interface des Servers führt; maßgeblich ist das Eingangs-Interface (physisch, Subinterface, SVI).
+ * DHCP-Relay (ip helper-address) wird nicht modelliert.
+ */
+export function simulateDhcpLeases(topology: NetworkTopology): { topology: NetworkTopology; leases: SimulatedLease[] } {
+  let stpData: Map<string, StpBridgeInfo> | null = null;
+  return assignSimulatedLeases(topology, (client, clientIface, server) => {
+    if (!isInterfaceActive(clientIface)) return null;
+    const conn = findConnectedLinkForInterface(topology, client.id, clientIface.id);
+    if (!conn || !isLinkUsable(conn.link) || !isInterfaceActive(conn.remoteIface)) return null;
+    let arrival: TopologyInterface | null = null;
+    if (conn.remoteDevice.id === server.id) {
+      arrival = l3IngressInterface(server, conn.remoteIface, null);
+    } else if (isSwitch(conn.remoteDevice)) {
+      stpData ??= computeStp(topology);
+      const found = findL2Path(topology, conn.remoteDevice, conn.remoteIface, null, server, stpData, true);
+      if (found) arrival = l3IngressInterface(server, found.arrivalIface, found.arrivalVlan);
+    }
+    if (!arrival || !isInterfaceActive(arrival)) return null;
+    if (sviVlanOf(arrival) !== null && !sviOperational(topology, server, arrival)) return null;
+    return arrival;
+  });
+}
+
+/**
  * Simuliert einen Ping (ICMP Echo + Echo Reply) im Canvas v2.
- * Berechnet Hin- und Rückweg Hop für Hop nach Cisco-Standard.
+ * DHCP-Clients ohne Adresse erhalten vorher eine simulierte Lease (simulateDhcpLeases); im Ergebnis als
+ * `simulatedLeases` und im originate-Hop als „simulierte Vergabe“ ausgewiesen.
  */
 export function simulatePing(options: SimulationOptions): SimulationResult {
+  const { topology, leases } = simulateDhcpLeases(options.topology);
+  const result = simulatePingOn({ ...options, topology });
+  if (leases.length === 0) return result;
+  const leaseNote = (deviceId: string) => {
+    const l = leases.find((x) => x.deviceId === deviceId);
+    return l
+      ? ` Adresse ${l.ip} per DHCP (simulierte Vergabe aus Pool ${l.poolName} auf ${l.serverName}${l.gateway ? `, Gateway ${l.gateway}` : ""}).`
+      : "";
+  };
+  const mark = (h: HopStep): HopStep => (h.action === "originate" && leaseNote(h.deviceId) ? { ...h, reason: h.reason + leaseNote(h.deviceId) } : h);
+  const forwardHops = result.forwardHops.map(mark);
+  const returnHops = result.returnHops.map(mark);
+  return { ...result, forwardHops, returnHops, allHops: [...forwardHops, ...returnHops], simulatedLeases: leases };
+}
+
+function simulatePingOn(options: SimulationOptions): SimulationResult {
   const { topology, sourceDeviceId, targetDeviceId, targetIp } = options;
   const arpCache = options.arpCache ?? {};
 

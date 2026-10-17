@@ -1,4 +1,5 @@
 import type { NetworkTopology } from "@/types/topology";
+import type { SimulatedLease } from "./dhcp-simulation";
 
 export type SimulationProtocol = "icmp" | "ip" | "tcp" | "udp";
 
@@ -62,6 +63,8 @@ export interface HopStep {
 
 export interface SimulationResult {
   success: boolean;
+  /** DHCP-Leases, die nur für diese Simulation vergeben wurden (die Topologie selbst bleibt unverändert) */
+  simulatedLeases?: SimulatedLease[];
   status:
     | "success"
     | "timeout"

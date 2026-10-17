@@ -56,6 +56,7 @@ import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
 import { SimulationDock } from "./SimulationDock";
+import { simulateDhcpLeases } from "@/lib/topology/simulation/packet-simulator";
 import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
@@ -212,6 +213,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Live-Diagnose der Topologie
   const diagnostics = useMemo(() => validateTopology(activeTopology), [activeTopology]);
+  const simulatedLeases = useMemo(() => simulateDhcpLeases(activeTopology).leases, [activeTopology]);
 
   // Debounced Autosave (1500ms Drosselung nach Änderungen)
   useEffect(() => {
@@ -1915,6 +1917,14 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                       </div>
                       {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
                       {iface.dhcp && !iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>DHCP ({iface.dhcp.network})</div>}
+                      {iface.dhcp && !iface.ip && (() => {
+                        const lease = simulatedLeases.find((l) => l.deviceId === selectedDevice.id && l.ifaceName === iface.name);
+                        return lease ? (
+                          <div className="text-[10px] font-medium text-muted-foreground" data-testid="simulated-lease">
+                            {lease.ip} – simulierte Vergabe (Pool {lease.poolName} auf {lease.serverName})
+                          </div>
+                        ) : null;
+                      })()}
                       {iface.ipv6 && <div className={isDark ? "text-slate-300 break-all" : "text-slate-800 font-semibold break-all"}>{iface.ipv6}</div>}
                       {iface.description && (
                         <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>

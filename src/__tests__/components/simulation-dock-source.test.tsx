@@ -43,3 +43,19 @@ describe("SimulationDock: Quell-IP (ping … source …)", () => {
     expect(lastCall().sourceIp).toBe("192.168.10.1");
   });
 });
+
+describe("SimulationDock: simulierte DHCP-Vergabe", () => {
+  beforeEach(() => {
+    cleanup();
+    window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+  });
+
+  it("kennzeichnet vergebene Leases im Ergebnis als simulierte Vergabe", () => {
+    const dhcp = buildNetworkTopologyFromLab(LABS.find((l) => l.id === "dhcp")!, CURATED_TOPOLOGIES.dhcp, "target").topology;
+    render(<SimulationDock topology={dhcp} isOpen onClose={vi.fn()} activeHopIndex={null} onSelectHop={vi.fn()} />);
+    fireEvent.click(screen.getByText("Ping senden"));
+    const note = screen.getByTestId("simulated-leases");
+    expect(note.textContent).toMatch(/Simulierte DHCP-Vergabe/);
+    expect(note.textContent).toMatch(/PC0 192\.168\.1\.11\/24/);
+  });
+});
