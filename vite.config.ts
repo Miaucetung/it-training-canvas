@@ -47,6 +47,9 @@ function examImagesPlugin(): PluginOption {
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
+// Dev-Server-Port: PORT (Standard 5000). Feste Zuordnung: Claude Code 5000, Gemini 5001.
+const devPort = Number(process.env.PORT) || 5000
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -55,7 +58,7 @@ export default defineConfig({
     examImagesPlugin(),
     // DO NOT REMOVE
     createIconImportProxy() as PluginOption,
-    sparkPlugin() as PluginOption,
+    sparkPlugin({ port: devPort }) as PluginOption,
   ],
   resolve: {
     alias: {

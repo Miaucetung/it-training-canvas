@@ -58,11 +58,13 @@ Es gibt **zwei parallele, unabhängige Datenquellen** für CCNA-Fragen — das i
 
 ```bash
 npm install
-npm run dev              # http://localhost:5000 / 5173
+npm run dev              # http://localhost:5000 (Port über PORT änderbar)
 npm test                 # Vitest Unit- und Integrations-Tests (310 Tests)
 npm run test:e2e:canvas  # Reproduzierbare E2E-Tests (CDP) für Canvas V2 (Desktop & Mobile 390px)
 npm run build            # Produktions-Build nach dist/
 ```
+
+**Dev-Server-Port:** `vite.config.ts` liest den Port aus der Umgebungsvariable `PORT` (Standard 5000), z. B. `PORT=5001 npm run dev` (PowerShell: `$env:PORT=5001; npm run dev`). Feste Zuordnung bei paralleler Arbeit: **Claude Code 5000, Gemini 5001**. Die E2E- und Audit-Skripte nehmen die Adresse aus `BASE_URL` bzw. `APP_URL` (z. B. `BASE_URL=http://localhost:5001 node scripts/e2e/a11y-sweep.mjs`).
 
 ### 6.1 Canvas V2 & E2E-Tests
 
