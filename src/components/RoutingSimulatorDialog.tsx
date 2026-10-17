@@ -16,6 +16,7 @@
 import { ArrowRight, Pause, Play, SkipForward, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark?: boolean;
@@ -351,8 +352,10 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
             </button>
           </div>
 
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
           {/* Tab-Bar */}
-          <div
+          <TabBarList
+            aria-label="Routing-Themen"
             className="sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b bg-card/95 border-border"
           >
             {(
@@ -364,9 +367,9 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
                 { id: "spf", label: "5 · OSPF SPF / Cost" },
               ] as { id: Tab; label: string }[]
             ).map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   tab === t.id
                     ? "bg-accent-solid text-on-accent-solid"
@@ -374,18 +377,19 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
                 }`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Content */}
           <div className="p-6">
-            {tab === "journey" && <JourneyTab />}
-            {tab === "traceroute" && <TracerouteTab />}
-            {tab === "table" && <TableTab />}
-            {tab === "neighbor" && <NeighborTab />}
-            {tab === "spf" && <SpfTab />}
+            <TabBarPanel value="journey"><JourneyTab /></TabBarPanel>
+            <TabBarPanel value="traceroute"><TracerouteTab /></TabBarPanel>
+            <TabBarPanel value="table"><TableTab /></TabBarPanel>
+            <TabBarPanel value="neighbor"><NeighborTab /></TabBarPanel>
+            <TabBarPanel value="spf"><SpfTab /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>
