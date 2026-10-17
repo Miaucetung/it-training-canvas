@@ -1,5 +1,6 @@
 import type { NetworkTopology } from "@/types/topology";
 import type { SimulatedLease } from "./dhcp-simulation";
+import type { NatTable } from "./nat-simulation";
 
 export type SimulationProtocol = "icmp" | "ip" | "tcp" | "udp";
 
@@ -12,6 +13,8 @@ export interface SimulatedPacket {
   icmpType?: "echo" | "echo-reply";
   srcPort?: number;
   dstPort?: number;
+  /** ICMP-Identifier; dient bei PAT als Port */
+  icmpId?: number;
   ttl: number;
   srcMac: string;
   dstMac: string;
@@ -28,7 +31,8 @@ export type DropReasonCode =
   | "ttl-expired"
   | "arp-timeout"
   | "unreachable"
-  | "invalid-source";
+  | "invalid-source"
+  | "nat-pool-exhausted";
 
 export type HopAction =
   | "originate"
@@ -84,6 +88,8 @@ export interface SimulationResult {
   arpResolvedThisRun: boolean;
   routerArpLoss?: boolean;
   arpCache: Record<string, Record<string, string>>;
+  /** Translation-Tabelle (dynamisches NAT/PAT) nach diesem Ping; Teil des Simulationszustands */
+  natTranslations?: NatTable;
 }
 
 export interface SimulationOptions {
@@ -98,4 +104,6 @@ export interface SimulationOptions {
   port?: number;
   ttl?: number;
   arpCache?: Record<string, Record<string, string>>;
+  /** Translation-Tabelle aus vorherigen Pings (wird fortgeschrieben) */
+  natTranslations?: NatTable;
 }

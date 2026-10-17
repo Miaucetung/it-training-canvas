@@ -2,6 +2,7 @@ import { LABS } from "@/components/labs";
 import { CURATED_TOPOLOGIES } from "@/components/labs/curated-topologies";
 import { buildNetworkTopologyFromLab } from "@/components/labs/lab-to-network";
 import { simulatePing } from "@/lib/topology/simulation/packet-simulator";
+import type { NatTable } from "@/lib/topology/simulation/nat-simulation";
 import type { DropReasonCode, SimulationOptions, SimulationResult } from "@/lib/topology/simulation/types";
 import type { NetworkTopology, TopologyDevice } from "@/types/topology";
 
@@ -83,12 +84,12 @@ export const ORACLE: OracleRow[] = [
   { nr: 32, lab: "ipv6-ospfv3-eigrpv6", quelle: "PC0", ziel: "PC2", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6/9", offen: OFFEN_V6 },
   { nr: 33, lab: "ipv6-ospfv3-eigrpv6", quelle: "PC1", ziel: "PC2", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6/9", offen: OFFEN_V6 },
   { nr: 34, lab: "dhcp", quelle: "PC0", ziel: "PC1", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 5 (simulierte Vergabe: PC0 .11, PC1 .12 nach excluded .1–.10)" },
-  { nr: 35, lab: "nat-pat", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6", offen: { art: "simulation", grund: "PAT (overload) wird nicht übersetzt; Antwort an die private Adresse findet keine Route (Schritt 6)." } },
+  { nr: 35, lab: "nat-pat", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6" },
   { nr: 36, lab: "nat-pat", quelle: "Webserver", ziel: "200.0.0.1", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify", hinweis: "Lab-Text erwartet Fehlschlag. 200.0.0.1 ist die eigene Outside-Adresse des NAT-Routers; IOS beantwortet Pings an eigene Interface-Adressen auch mit PAT. Korrekturvorschlag Labtext." },
-  { nr: 37, lab: "dynamic-nat", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6", offen: { art: "simulation", grund: "Dynamisches NAT (Pool) wird nicht übersetzt (Schritt 6)." } },
+  { nr: 37, lab: "dynamic-nat", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6" },
   { nr: 38, lab: "dynamic-nat", quelle: "Webserver", ziel: "200.0.0.10", zustand: ZIEL, erwartet: "fehlschlag", beleg: "Schritt 7 / Verify: ohne aktiven NAT-Eintrag Fehlschlag" },
-  { nr: 39, lab: "dynamic-nat", quelle: "Webserver", ziel: "200.0.0.10", zustand: ZIEL, vorher: { quelle: "PC0", ziel: "47.11.8.15" }, erwartet: "erfolg", beleg: "Schritt 7 / Verify: sofort nach dem PC0-Ping erfolgreich", offen: { art: "simulation", grund: "Keine Translation-Tabelle im Simulationszustand (Schritt 6)." } },
-  { nr: 40, lab: "nat-pool-overload", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 7", offen: { art: "simulation", grund: "Pool mit Overload wird nicht übersetzt (Schritt 6)." } },
+  { nr: 39, lab: "dynamic-nat", quelle: "Webserver", ziel: "200.0.0.10", zustand: ZIEL, vorher: { quelle: "PC0", ziel: "47.11.8.15" }, erwartet: "erfolg", beleg: "Schritt 7 / Verify: sofort nach dem PC0-Ping erfolgreich" },
+  { nr: 40, lab: "nat-pool-overload", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 7" },
   { nr: 41, lab: "nat-pool-overload", quelle: "PC0(1)", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify (PC0/PC0(1)/PC0(2))", offen: { art: "lab", grund: "Lab-Text nennt das Gateway für PC0(1)/PC0(2) („Gleiche Vorgehensweise … Gateway = NAT-Router Gig0/0“), die Topologie übernimmt es nicht (lab-to-network)." } },
   { nr: 42, lab: "static-nat", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 4" },
   { nr: 43, lab: "static-nat", quelle: "Webserver", ziel: "200.0.0.10", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 5" },
@@ -114,10 +115,10 @@ export const ORACLE: OracleRow[] = [
   { nr: 63, lab: "co-acl-nat-isp", quelle: "CO-1", ziel: "200.10.20.20", quelleIp: "192.168.10.1", zustand: ZIEL, erwartet: "fehlschlag", grund: "invalid-source", beleg: "Verify: ping 200.10.20.20 source 192.168.10.1", hinweis: "Wörtlich auf CO-1 ungültig: 192.168.10.1 gehört VPC-9, nicht CO-1 (IOS: „Invalid source address“). Gemeint ist der Ping von VPC-9 (Zeile 60). Korrekturvorschlag Labtext." },
   { nr: 64, lab: "ios-backup-upgrade", quelle: "R1", ziel: "TFTP-Server", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 1", offen: { art: "lab", grund: "Adressen von R1 und TFTP-Server sind im Lab nicht angegeben (10.1.1.10 nur im Ping-Befehl)." } },
   { nr: 65, lab: "vlan-dhcp-nat-roas", quelle: "PC0", ziel: "PC2", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 10 (Inter-VLAN zu einem Grün-PC)" },
-  { nr: 66, lab: "vlan-dhcp-nat-roas", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 10 / Verify", offen: { art: "simulation", grund: "PAT (overload) wird nicht übersetzt (Schritt 6)." } },
-  { nr: 67, lab: "vlan-dhcp-nat-roas", quelle: "PC3", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 10 / Verify", offen: { art: "simulation", grund: "PAT (overload) wird nicht übersetzt (Schritt 6)." } },
-  { nr: 68, lab: "vlan-dhcp-nat-roas", quelle: "PC1", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify (alle VLANs)", offen: { art: "simulation", grund: "PAT (overload) wird nicht übersetzt (Schritt 6)." } },
-  { nr: 69, lab: "vlan-dhcp-nat-roas", quelle: "PC2", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify (alle VLANs)", offen: { art: "simulation", grund: "PAT (overload) wird nicht übersetzt (Schritt 6)." } },
+  { nr: 66, lab: "vlan-dhcp-nat-roas", quelle: "PC0", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 10 / Verify" },
+  { nr: 67, lab: "vlan-dhcp-nat-roas", quelle: "PC3", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 10 / Verify" },
+  { nr: 68, lab: "vlan-dhcp-nat-roas", quelle: "PC1", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify (alle VLANs)" },
+  { nr: 69, lab: "vlan-dhcp-nat-roas", quelle: "PC2", ziel: "47.11.8.15", zustand: ZIEL, erwartet: "erfolg", beleg: "Verify (alle VLANs)" },
   { nr: 70, lab: "vlan-vtp-dhcp-campus", quelle: "PC Rot (an SW1)", ziel: "PC Rot (an SW3)", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6 (gleiches VLAN über zwei Trunk-Hops)" },
   { nr: 71, lab: "vlan-vtp-dhcp-campus", quelle: "PC Rot (an SW1)", ziel: "PC Blau (an SW1)", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6 (Inter-VLAN über R1)" },
   { nr: 72, lab: "vlan-vtp-dhcp-campus", quelle: "PC Rot (an SW1)", ziel: "PC Grün (an SW2)", zustand: ZIEL, erwartet: "erfolg", beleg: "Schritt 6 (Trunk-Hops und Inter-VLAN)" },
@@ -201,11 +202,19 @@ export function runOracleRow(row: OracleRow): OracleOutcome {
   const base = buildNetworkTopologyFromLab(lab, data, "target").topology;
   const topology = applyState(base, row.zustand);
   const arpCache: Record<string, Record<string, string>> = {};
+  const natTranslations: NatTable = {};
 
   const ping = (quelle: string, ziel: string, quelleIp?: string) => {
     const src = findDevice(topology, quelle);
     if (!src) throw new Error(`Quelle ${quelle} nicht gefunden`);
-    const options = { topology, sourceDeviceId: src.id, ...resolveTarget(topology, ziel), arpCache, ...(quelleIp ? { sourceIp: quelleIp } : {}) } as SimulationOptions;
+    const options = {
+      topology,
+      sourceDeviceId: src.id,
+      ...resolveTarget(topology, ziel),
+      arpCache,
+      natTranslations,
+      ...(quelleIp ? { sourceIp: quelleIp } : {}),
+    } as SimulationOptions;
     return simulatePing(options);
   };
 

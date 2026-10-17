@@ -11,6 +11,13 @@ import { computeTunnelState, isTunnelInterface } from "../gre-tunnel";
 import { hasNatConfig } from "../nat-outputs";
 import { evaluateAcl } from "./acl-evaluator";
 import { assignSimulatedLeases, type SimulatedLease } from "./dhcp-simulation";
+import {
+  findDynamicGlobal,
+  isNatPoolAddress,
+  lookupOutsideToInside,
+  translateInsideToOutside,
+  type NatTable,
+} from "./nat-simulation";
 import type {
   SimulatedPacket,
   HopStep,
@@ -124,14 +131,15 @@ function resolveHsrpTarget(
 
 /**
  * Gerät, das im L2-Segment auf eine IP antwortet (ARP): eigene Interface-/SVI-Adresse,
- * aktive HSRP-VIP oder eine Static-NAT-Adresse (Inside Global), die der NAT-Router auf der Outside-Seite beantwortet.
+ * aktive HSRP-VIP oder eine NAT-Adresse (Inside Global: statisch oder aus einem Pool), die der NAT-Router auf der
+ * Outside-Seite beantwortet.
  */
 export function findL2OwnerOf(topology: NetworkTopology, ip: string): TopologyDevice | undefined {
   const own = findDeviceByIp(topology, ip);
   if (own) return own.device;
   const hsrp = resolveHsrpTarget(topology, ip);
   if (hsrp) return hsrp.activeDevice;
-  return topology.devices.find((d) => d.config?.nat?.statics?.some((st) => st.global === ip));
+  return topology.devices.find((d) => d.config?.nat?.statics?.some((st) => st.global === ip) || isNatPoolAddress(d, ip));
 }
 
 /**
@@ -141,7 +149,13 @@ export function findL2OwnerOf(topology: NetworkTopology, ip: string): TopologyDe
 function resolveNatTarget(
   topology: NetworkTopology,
   ip: string,
+  natTable: NatTable = {},
 ): { targetDevice: TopologyDevice; targetIface: TopologyInterface } | null {
+  const dynamic = findDynamicGlobal(natTable, ip);
+  if (dynamic) {
+    const insideTarget = findDeviceByIp(topology, dynamic.entry.insideLocal);
+    if (insideTarget) return { targetDevice: insideTarget.device, targetIface: insideTarget.iface };
+  }
   for (const d of topology.devices) {
     const statics = d.config?.nat?.statics;
     if (!statics) continue;
@@ -437,6 +451,7 @@ function tracePath(
   arpCache: Record<string, Record<string, string>>,
   stpData: Map<string, StpBridgeInfo>,
   isReturnPath: boolean = false,
+  natTable: NatTable = {},
 ): {
   hops: HopStep[];
   success: boolean;
@@ -622,6 +637,27 @@ function tracePath(
               natTranslation: natInfo,
               status: "ok",
             });
+          } else {
+            const entry = lookupOutsideToInside(currentDev, packet, natTable);
+            if (entry) {
+              const beforePacket = { ...packet };
+              packet.dstIp = entry.insideLocal;
+              packet.icmpId = entry.localPort;
+              natInfo = { direction: "outside-to-inside", beforeIp: beforePacket.dstIp, afterIp: packet.dstIp };
+              const how = entry.kind === "pat" ? `PAT, ICMP-ID ${entry.globalPort} → ${entry.localPort}` : "dynamisch";
+              hops.push({
+                stepNumber: hops.length + 1,
+                deviceId: currentDev.id,
+                deviceName: currentDev.name,
+                inInterface: currentInIf.name,
+                action: "nat-outside-to-inside",
+                reason: `NAT Outside-to-Inside: Ziel-IP ${beforePacket.dstIp} → ${packet.dstIp} (${how}, Eintrag der Translation-Tabelle).`,
+                packet: beforePacket,
+                packetOut: { ...packet },
+                natTranslation: natInfo,
+                status: "ok",
+              });
+            }
           }
         }
 
@@ -800,6 +836,43 @@ function tracePath(
               natTranslation: natInfo,
               status: "ok",
             });
+          } else {
+            const res = translateInsideToOutside(currentDev, packet, natTable);
+            if (res.status === "exhausted") {
+              hops.push({
+                stepNumber: hops.length + 1,
+                deviceId: currentDev.id,
+                deviceName: currentDev.name,
+                inInterface: currentInIf.name,
+                outInterface: outIface.name,
+                action: "drop",
+                reason: `NAT-Pool ${res.pool} auf ${currentDev.name} erschöpft: keine freie Inside-Global-Adresse für ${packet.srcIp}; das Paket wird verworfen.`,
+                packet: { ...packet },
+                status: "dropped",
+                dropReason: "nat-pool-exhausted",
+              });
+              return { hops, success: false, dropReason: "nat-pool-exhausted", explanation: `NAT-Pool ${res.pool} erschöpft`, arpResolvedThisRun, routerArpLoss, finalPacket: packet };
+            }
+            if (res.status === "translated") {
+              const { entry } = res;
+              const beforePacket = { ...packet };
+              packet.srcIp = entry.insideGlobal;
+              packet.icmpId = entry.globalPort;
+              const how = entry.kind === "pat" ? `PAT, ICMP-ID ${entry.localPort} → ${entry.globalPort}` : "dynamisch aus dem Pool";
+              hops.push({
+                stepNumber: hops.length + 1,
+                deviceId: currentDev.id,
+                deviceName: currentDev.name,
+                inInterface: currentInIf.name,
+                outInterface: outIface.name,
+                action: "nat-inside-to-outside",
+                reason: `NAT Inside-to-Outside: Quell-IP ${beforePacket.srcIp} → ${packet.srcIp} (${how}, ip nat inside source ${entry.rule}; ${res.created ? "neuer Eintrag" : "bestehender Eintrag"} in der Translation-Tabelle).`,
+                packet: beforePacket,
+                packetOut: { ...packet },
+                natTranslation: { direction: "inside-to-outside", beforeIp: beforePacket.srcIp, afterIp: packet.srcIp },
+                status: "ok",
+              });
+            }
           }
         }
 
@@ -1108,7 +1181,8 @@ export function simulateDhcpLeases(topology: NetworkTopology): { topology: Netwo
  */
 export function simulatePing(options: SimulationOptions): SimulationResult {
   const { topology, leases } = simulateDhcpLeases(options.topology);
-  const result = simulatePingOn({ ...options, topology });
+  const natTranslations: NatTable = options.natTranslations ?? {};
+  const result = { ...simulatePingOn({ ...options, topology, natTranslations }), natTranslations };
   if (leases.length === 0) return result;
   const leaseNote = (deviceId: string) => {
     const l = leases.find((x) => x.deviceId === deviceId);
@@ -1125,6 +1199,7 @@ export function simulatePing(options: SimulationOptions): SimulationResult {
 function simulatePingOn(options: SimulationOptions): SimulationResult {
   const { topology, sourceDeviceId, targetDeviceId, targetIp } = options;
   const arpCache = options.arpCache ?? {};
+  const natTable: NatTable = options.natTranslations ?? {};
 
   const sourceDevice = topology.devices.find((d) => d.id === sourceDeviceId);
   if (!sourceDevice) {
@@ -1166,7 +1241,7 @@ function simulatePingOn(options: SimulationOptions): SimulationResult {
         targetDev = match.device;
         targetIfc = match.iface;
       } else {
-        const natTarget = resolveNatTarget(topology, targetIp);
+        const natTarget = resolveNatTarget(topology, targetIp, natTable);
         if (natTarget) {
           targetDev = natTarget.targetDevice;
           targetIfc = natTarget.targetIface;
@@ -1238,6 +1313,7 @@ function simulatePingOn(options: SimulationOptions): SimulationResult {
     dstIp: resolvedTargetIp,
     protocol: options.protocol ?? "icmp",
     icmpType: "echo",
+    icmpId: 1,
     dstPort: options.port,
     ttl: options.ttl ?? 128,
     srcMac: getSymbolicMac(sourceDevice, sourceIface),
@@ -1255,6 +1331,7 @@ function simulatePingOn(options: SimulationOptions): SimulationResult {
     arpCache,
     stpData,
     false,
+    natTable,
   );
 
   if (!forwardTrace.success) {
@@ -1280,6 +1357,7 @@ function simulatePingOn(options: SimulationOptions): SimulationResult {
     dstIp: forwardTrace.finalPacket.srcIp,
     protocol: options.protocol ?? "icmp",
     icmpType: "echo-reply",
+    icmpId: forwardTrace.finalPacket.icmpId,
     ttl: 128,
     srcMac: getSymbolicMac(targetDev, targetIfc),
     dstMac: "FFFF.FFFF.FFFF",
@@ -1296,6 +1374,7 @@ function simulatePingOn(options: SimulationOptions): SimulationResult {
     arpCache,
     stpData,
     true,
+    natTable,
   );
 
   const allHops = [...forwardTrace.hops, ...returnTrace.hops];

@@ -8,6 +8,7 @@ import {
 import type {
   SimulationResult,
 } from "@/lib/topology/simulation/types";
+import { formatNatTranslations, type NatTable } from "@/lib/topology/simulation/nat-simulation";
 import {
   Play,
   Pause,
@@ -46,6 +47,8 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
   // Simulations-Ergebnis & ARP-Cache
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [arpCache, setArpCache] = useState<Record<string, Record<string, string>>>({});
+  // Translation-Tabelle (dynamisches NAT/PAT): Simulationszustand über mehrere Pings
+  const [natTranslations, setNatTranslations] = useState<NatTable>({});
 
   // Playback State
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -120,10 +123,12 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
       targetIp: targetMode === "ip" ? targetCustomIp.trim() : undefined,
       sourceIp: sourceIp || undefined,
       arpCache,
+      natTranslations,
     });
 
     setSimulationResult(res);
     setArpCache(res.arpCache);
+    setNatTranslations(res.natTranslations ?? {});
 
     if (res.allHops.length > 0) {
       selectHop(0, res);
@@ -144,6 +149,12 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
       });
     }
   };
+
+  // Translation-Tabelle leeren (entspricht clear ip nat translation *)
+  const handleClearNat = () => {
+    setNatTranslations({});
+  };
+  const natDevices = topology.devices.filter((d) => (natTranslations[d.id] ?? []).length > 0);
 
   // Timer für Auto-Play
   const totalHops = simulationResult?.allHops.length ?? 0;
@@ -435,6 +446,29 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
                 </div>
               </div>
             </div>
+
+            {natDevices.length > 0 && (
+              <section aria-label="NAT-Translation-Tabelle (Simulationszustand)" className="rounded-lg border border-border bg-card p-3 text-xs">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-semibold text-foreground">NAT-Translation-Tabelle (Simulationszustand)</p>
+                  <button
+                    type="button"
+                    onClick={handleClearNat}
+                    className="rounded border border-border px-2 py-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    clear ip nat translation *
+                  </button>
+                </div>
+                {natDevices.map((d) => (
+                  <div key={d.id} className="mb-2 last:mb-0">
+                    <p className="text-muted-foreground">{d.config?.hostname ?? d.name}# show ip nat translations</p>
+                    <pre className="overflow-x-auto font-mono text-[11px] text-foreground" data-testid="nat-translations">
+                      {formatNatTranslations(natTranslations[d.id])}
+                    </pre>
+                  </div>
+                ))}
+              </section>
+            )}
 
             {/* Hop-Inspector Tabelle */}
             <div className="max-h-[30vh] overflow-y-auto rounded-lg border border-border bg-card">

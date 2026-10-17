@@ -59,3 +59,27 @@ describe("SimulationDock: simulierte DHCP-Vergabe", () => {
     expect(note.textContent).toMatch(/PC0 192\.168\.1\.11\/24/);
   });
 });
+
+describe("SimulationDock: NAT-Translation-Tabelle", () => {
+  beforeEach(() => {
+    cleanup();
+    window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+  });
+
+  it("zeigt die Tabelle nach einem PAT-Ping, reicht sie an den nächsten Ping weiter und leert sie per clear", () => {
+    const nat = buildNetworkTopologyFromLab(LABS.find((l) => l.id === "nat-pat")!, CURATED_TOPOLOGIES["nat-pat"], "target").topology;
+    const pc0 = nat.devices.find((d) => d.name === "PC0")!;
+    render(<SimulationDock topology={nat} isOpen onClose={vi.fn()} activeHopIndex={null} onSelectHop={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText("Quelle:"), { target: { value: pc0.id } });
+    fireEvent.click(screen.getByText("IP"));
+    fireEvent.change(screen.getByLabelText("Ziel-IP eingeben"), { target: { value: "47.11.8.15" } });
+    fireEvent.click(screen.getByText("Ping senden"));
+    expect(screen.getByTestId("nat-translations").textContent).toMatch(/icmp \S+:1\s+192\.168\.1\.10:1\s+47\.11\.8\.15:1\s+47\.11\.8\.15:1/);
+
+    fireEvent.click(screen.getByText("Ping senden"));
+    expect(Object.values(lastCall().natTranslations ?? {}).flat()).toHaveLength(1);
+
+    fireEvent.click(screen.getByText("clear ip nat translation *"));
+    expect(screen.queryByTestId("nat-translations")).toBeNull();
+  });
+});
