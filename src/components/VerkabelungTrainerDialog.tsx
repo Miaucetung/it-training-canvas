@@ -6,6 +6,7 @@
 import { X } from "@phosphor-icons/react";
 import { useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark?: boolean;
@@ -321,7 +322,7 @@ function KategorieTabelle() {
       <p className="text-xs text-muted-foreground">
         Klicke eine Kategorie für Details. Alle Werte gelten für Twisted-Pair-Kupfer (U/UTP, F/UTP oder S/FTP).
       </p>
-      <div className="overflow-x-auto">
+      <div tabIndex={0} role="region" aria-label="Kategorien-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className={"bg-muted"}>
@@ -399,11 +400,12 @@ export function VerkabelungTrainerDialog({ onClose }: Props) {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b flex-shrink-0 border-border">
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
+          <TabBarList aria-label="Verkabelungs-Themen" className="flex border-b flex-shrink-0 border-border">
             {tabs.map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
                   tab === t.id
                     ? "border-accent-primary text-accent-primary-fg"
@@ -411,16 +413,17 @@ export function VerkabelungTrainerDialog({ onClose }: Props) {
                 }`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "pin"       && <PinTrainer />}
-            {tab === "wizard"    && <CableWizard />}
-            {tab === "kategorie" && <KategorieTabelle />}
+            <TabBarPanel value="pin"><PinTrainer /></TabBarPanel>
+            <TabBarPanel value="wizard"><CableWizard /></TabBarPanel>
+            <TabBarPanel value="kategorie"><KategorieTabelle /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>

@@ -6,6 +6,7 @@ import {
   octetTable,
 } from "@/lib/subnet-reference";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark?: boolean;
@@ -31,8 +32,8 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
 
   function TabBtn({ id, label }: { id: Tab; label: string }) {
     return (
-      <button
-        onClick={() => setTab(id)}
+      <TabBarTab
+        value={id}
         className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
           tab === id
             ? "bg-accent-primary/20 text-accent-primary-fg"
@@ -40,7 +41,7 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
         }`}
       >
         {label}
-      </button>
+      </TabBarTab>
     );
   }
 
@@ -67,16 +68,17 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
             </button>
           </div>
 
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
           {/* Tabs */}
-          <div className={`flex shrink-0 gap-1.5 border-b px-5 py-2.5 ${border}`}>
+          <TabBarList aria-label="Tabellenansichten" className={`flex shrink-0 gap-1.5 border-b px-5 py-2.5 ${border}`}>
             <TabBtn id="cidr" label="CIDR /0–/32" />
             <TabBtn id="block" label="Blockgrößen 1–256" />
             <TabBtn id="octet" label="Oktett 0–255 (Binär)" />
-          </div>
+          </TabBarList>
 
           {/* Content */}
           <div tabIndex={0} role="region" aria-label="Tabelleninhalt" className="overflow-auto p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            {tab === "cidr" && (
+            <TabBarPanel value="cidr">
               <table className="w-full text-xs">
                 <thead>
                   <tr className={headRow}>
@@ -103,9 +105,9 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
                   ))}
                 </tbody>
               </table>
-            )}
+            </TabBarPanel>
 
-            {tab === "block" && (
+            <TabBarPanel value="block">
               <>
                 <p className={`mb-3 text-xs ${muted}`}>
                   „Magic Numbers" im letzten Oktett: Blockgröße = Anzahl Adressen pro Subnetz.
@@ -138,9 +140,9 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
                   </tbody>
                 </table>
               </>
-            )}
+            </TabBarPanel>
 
-            {tab === "octet" && (
+            <TabBarPanel value="octet">
               <>
                 <p className={`mb-3 text-xs ${muted}`}>
                   Dezimal ↔ 8-Bit-Binär für jedes Oktett. Hervorgehoben =
@@ -160,8 +162,9 @@ export function IPv4SubnetTableDialog({ onClose }: Props) {
                   ))}
                 </div>
               </>
-            )}
+            </TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>

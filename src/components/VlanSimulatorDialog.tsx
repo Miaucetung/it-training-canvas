@@ -6,6 +6,7 @@
 import { X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark: boolean;
@@ -119,7 +120,7 @@ function FrameVivisektor() {
             } bg-card shadow-sm`}
           >
             <span className="text-[10px] font-semibold text-foreground">{f.label}</span>
-            <span className="text-[9px] mt-0.5 text-muted-foreground">{f.bytes}B</span>
+            <span className={`text-[9px] mt-0.5 ${selected === f.id ? "text-foreground" : "text-muted-foreground"}`}>{f.bytes}B</span>
           </button>
         ))}
       </div>
@@ -951,7 +952,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       </div>
 
       {showConfig && (
-        <pre className="text-[10px] rounded-xl p-3 font-mono overflow-x-auto bg-muted border border-border text-muted-foreground">
+        <pre tabIndex={0} role="region" aria-label="Konfiguration" className="text-[10px] rounded-xl p-3 font-mono overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-muted border border-border text-muted-foreground">
           {showConfig === "switch"
             ? generateSwitchConfig(ports)
             : generateRouterConfig(router, trunkToRouterPort?.num ?? null)}
@@ -1094,8 +1095,9 @@ function TrunkAnimation() {
           Leeren
         </button>
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-muted-foreground">Geschwindigkeit:</span>
+          <label htmlFor="vlan-trunk-speed" className="text-xs text-muted-foreground">Geschwindigkeit:</label>
           <input
+            id="vlan-trunk-speed"
             type="range" min={0.5} max={4} step={0.5} value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
             className="w-20"
@@ -1198,7 +1200,7 @@ function PacketWalkSimulator() {
   return (
     <div className="space-y-5">
       {/* Network topology diagram */}
-      <div className="overflow-x-auto">
+      <div tabIndex={0} role="region" aria-label="Packet-Walk-Diagramm" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-center gap-1 min-w-[480px]">
           {nodes.map((loc, i) => (
             <>
@@ -1247,6 +1249,8 @@ function PacketWalkSimulator() {
           <button
             key={i}
             onClick={() => setStep(i)}
+            aria-label={`Schritt ${i + 1} von ${WALK_STEPS.length}`}
+            aria-current={i === step ? "step" : undefined}
             className={`w-2 h-2 rounded-full transition-all ${
               i === step
                 ? "w-5 bg-accent-solid"
@@ -1377,11 +1381,12 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b flex-shrink-0 border-border">
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
+          <TabBarList aria-label="VLAN-Themen" className="flex border-b flex-shrink-0 border-border">
             {tabs.map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
                   tab === t.id
                     ? "border-accent-primary text-accent-primary-fg"
@@ -1389,17 +1394,18 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
                 }`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "frame"       && <FrameVivisektor />}
-            {tab === "topology"    && <TopologySimulator dark={dark} />}
-            {tab === "trunk"       && <TrunkAnimation />}
-            {tab === "packet-walk" && <PacketWalkSimulator />}
+            <TabBarPanel value="frame"><FrameVivisektor /></TabBarPanel>
+            <TabBarPanel value="topology"><TopologySimulator dark={dark} /></TabBarPanel>
+            <TabBarPanel value="trunk"><TrunkAnimation /></TabBarPanel>
+            <TabBarPanel value="packet-walk"><PacketWalkSimulator /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>

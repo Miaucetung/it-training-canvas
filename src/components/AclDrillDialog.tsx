@@ -489,7 +489,7 @@ export function AclDrillDialog({ open, onClose }: Props) {
                   ) : (
                     <div className="flex items-center gap-2">
                       {(mode === "build" || mode === "advanced") && (
-                        <span className="font-mono text-xs text-terminal-muted shrink-0">R1(config)#</span>
+                        <span className="font-mono text-xs text-muted-foreground shrink-0">R1(config)#</span>
                       )}
                       <input
                         autoFocus

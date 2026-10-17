@@ -1,3 +1,4 @@
+import { Children } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -101,7 +102,7 @@ function makeMarkdownComponents(dark: boolean): Components {
       <th
         className={`px-2 py-1 text-left font-semibold border ${dark ? "border-slate-600 text-slate-200" : "border-slate-200 text-slate-700"}`}
       >
-        {children}
+        {Children.toArray(children).length > 0 ? children : <span className="sr-only">Merkmal</span>}
       </th>
     ),
     td: ({ children }) => (

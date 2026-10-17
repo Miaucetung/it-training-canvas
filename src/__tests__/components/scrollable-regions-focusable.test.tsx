@@ -28,3 +28,12 @@ describe("Scrollbare Bereiche sind per Tastatur erreichbar", () => {
     expect(screen.getByRole("region", { name: "Blockgrößen-Tabelle" }).getAttribute("tabindex")).toBe("0");
   });
 });
+
+describe("Markdown: leere Tabellenkopfzellen", () => {
+  it("leere th bekommt unsichtbaren Text", () => {
+    cleanup();
+    const md = "| | A |\n|---|---|\n| x | 1 |\n";
+    const { container } = render(<ConceptMarkdown text={md} dark />);
+    for (const th of container.querySelectorAll("th")) expect((th.textContent ?? "").trim()).not.toBe("");
+  });
+});

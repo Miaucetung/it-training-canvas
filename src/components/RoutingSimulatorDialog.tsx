@@ -16,6 +16,7 @@
 import { ArrowRight, Pause, Play, SkipForward, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark?: boolean;
@@ -351,8 +352,10 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
             </button>
           </div>
 
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
           {/* Tab-Bar */}
-          <div
+          <TabBarList
+            aria-label="Routing-Themen"
             className="sticky top-[73px] z-10 flex flex-wrap gap-1 px-6 py-2 border-b bg-card/95 border-border"
           >
             {(
@@ -364,9 +367,9 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
                 { id: "spf", label: "5 · OSPF SPF / Cost" },
               ] as { id: Tab; label: string }[]
             ).map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   tab === t.id
                     ? "bg-accent-solid text-on-accent-solid"
@@ -374,18 +377,19 @@ export function RoutingSimulatorDialog({ onClose }: Props) {
                 }`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Content */}
           <div className="p-6">
-            {tab === "journey" && <JourneyTab />}
-            {tab === "traceroute" && <TracerouteTab />}
-            {tab === "table" && <TableTab />}
-            {tab === "neighbor" && <NeighborTab />}
-            {tab === "spf" && <SpfTab />}
+            <TabBarPanel value="journey"><JourneyTab /></TabBarPanel>
+            <TabBarPanel value="traceroute"><TracerouteTab /></TabBarPanel>
+            <TabBarPanel value="table"><TableTab /></TabBarPanel>
+            <TabBarPanel value="neighbor"><NeighborTab /></TabBarPanel>
+            <TabBarPanel value="spf"><SpfTab /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>
@@ -559,7 +563,7 @@ function JourneyTab() {
       {hop.routeHit && (
         <div className={`rounded-lg border p-4 ${cardBg}`}>
           <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Routing-Tabellen-Treffer (Longest Prefix Match)</div>
-          <div className="font-mono text-xs overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Routing-Tabellen-Treffer" className="font-mono text-xs overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <div className="px-2 py-1 rounded bg-status-warning-bg text-status-warning-fg">
               <span className="text-muted-foreground">Code</span> <strong>O</strong>
               {"   "}
@@ -1318,7 +1322,7 @@ function SpfTab() {
       {/* Praxis-Hinweis */}
       <div className={`rounded-lg border p-4 ${cardBg}`}>
         <h4 className="font-semibold text-sm mb-2">Praxis-Tipp: Cost manuell setzen</h4>
-        <pre className="text-xs font-mono overflow-x-auto p-2 rounded bg-muted">
+        <pre tabIndex={0} role="region" aria-label="Konfigurationsbeispiel" className="text-xs font-mono overflow-x-auto p-2 rounded bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 {`R1(config)# interface Gi0/1
 R1(config-if)# ip ospf cost 5         ! überschreibt die berechnete Cost
 

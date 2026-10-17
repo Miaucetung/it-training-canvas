@@ -33,7 +33,7 @@ describe("STP-Simulator: Tabellen", () => {
   it("Reiter „STP vs RSTP“: Tabelle scrollbar per Tastatur, Tabellenkopf ohne leere Zelle", () => {
     cleanup();
     render(<StpSimulatorDialog dark onClose={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /STP vs RSTP/ }));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /STP vs RSTP/ }));
     const region = screen.getByRole("region", { name: "Tabelle Direktvergleich" });
     expect(region.getAttribute("tabindex")).toBe("0");
     for (const th of region.querySelectorAll("th")) expect((th.textContent ?? "").trim()).not.toBe("");
@@ -42,7 +42,39 @@ describe("STP-Simulator: Tabellen", () => {
   it("Reiter „Port-Zustände“: Tabelle scrollbar per Tastatur", () => {
     cleanup();
     render(<StpSimulatorDialog dark={false} onClose={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: /Port-Zustände/ }));
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Port-Zustände/ }));
     expect(screen.getByRole("region", { name: "Tabelle Zustände" }).getAttribute("tabindex")).toBe("0");
+  });
+});
+
+import { VlanSimulatorDialog } from "@/components/VlanSimulatorDialog";
+import { IPv6CalculatorDialog } from "@/components/IPv6CalculatorDialog";
+
+describe("Weitere critical-Fälle aus dem Reiter-Sweep", () => {
+  it("VLAN „Trunk-Animation“: Geschwindigkeits-Slider hat einen Namen", () => {
+    cleanup();
+    render(<VlanSimulatorDialog dark onClose={vi.fn()} />);
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Trunk-Animation/ }));
+    expect(screen.getByRole("slider", { name: "Geschwindigkeit:" })).toBeTruthy();
+  });
+
+  it("VLAN „Packet-Walk“: Schritt-Punkte heißen „Schritt n von N“, aktueller Schritt mit aria-current", () => {
+    cleanup();
+    render(<VlanSimulatorDialog dark onClose={vi.fn()} />);
+    fireEvent.mouseDown(screen.getByRole("tab", { name: /Packet-Walk/ }));
+    const dots = screen.getAllByRole("button", { name: /^Schritt \d+ von \d+$/ });
+    expect(dots.length).toBeGreaterThan(1);
+    expect(dots[0].getAttribute("aria-current")).toBe("step");
+    expect(dots[1].getAttribute("aria-current")).toBeNull();
+    fireEvent.click(dots[2]);
+    expect(screen.getAllByRole("button", { name: /^Schritt \d+ von \d+$/ })[2].getAttribute("aria-current")).toBe("step");
+  });
+
+  it("IPv6 „Segmentierung“: Präfix- und CIDR-Feld haben Namen", () => {
+    cleanup();
+    render(<IPv6CalculatorDialog open onClose={vi.fn()} />);
+    fireEvent.mouseDown(screen.getByRole("tab", { name: "Segmentierung" }));
+    expect(screen.getByLabelText("Ausgangspräfix (mit /CIDR)")).toBeTruthy();
+    expect(screen.getByLabelText("Neues CIDR (1–128)")).toBeTruthy();
   });
 });

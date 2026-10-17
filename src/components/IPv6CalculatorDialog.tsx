@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -963,7 +964,7 @@ function XorExplainer({
               Schritt 2 - Bit-Tabelle (links = Bit 7 = MSB = grosster Wert 128,
               rechts = Bit 0 = LSB = Wert 1)
             </p>
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Bit-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <table className="w-full text-center text-xs font-mono border-collapse">
                 <thead>
                   <tr>
@@ -1543,11 +1544,13 @@ function SegmentationTab() {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label
+            htmlFor="ipv6-seg-prefix"
             className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Ausgangspräfix (mit /CIDR)
           </label>
           <input
+            id="ipv6-seg-prefix"
             value={prefix}
             onChange={(e) => setPrefix(e.target.value)}
             placeholder="z.B. 2001:DB8::/48"
@@ -1556,11 +1559,13 @@ function SegmentationTab() {
         </div>
         <div>
           <label
+            htmlFor="ipv6-seg-cidr"
             className="block text-xs font-medium mb-1 text-muted-foreground"
           >
             Neues CIDR (1–128)
           </label>
           <input
+            id="ipv6-seg-cidr"
             type="number"
             min={1}
             max={128}
@@ -2061,7 +2066,7 @@ function BinaryTab() {
         {groups ? (
           <div className="space-y-3">
             {/* Group overview */}
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Gruppenübersicht" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <table className="w-full border-collapse text-center" style={{minWidth:"560px"}}>
                 <thead>
                   <tr>
@@ -2237,28 +2242,30 @@ export function IPv6CalculatorDialog({
           </div>
 
           {/* Tab Bar */}
-          <div
+          <TabBar value={tab} onValueChange={(v) => setTab(v as IPv6Tab)} className="contents">
+          <TabBarList aria-label="IPv6-Themen"
             className="flex border-b flex-shrink-0 border-border"
           >
             {tabs.map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${tab === t.id ? `${t.activeClass} border-b-2` : `border-transparent text-muted-foreground hover:text-foreground`}`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Tab content */}
           <div className="flex-1 overflow-y-auto">
-            {tab === "analyse" && <AnalyseTab />}
-            {tab === "eui64" && <EUI64Tab />}
-            {tab === "segmentation" && <SegmentationTab />}
-            {tab === "drill" && <DrillTab />}
-            {tab === "binaer" && <BinaryTab />}
+            <TabBarPanel value="analyse"><AnalyseTab /></TabBarPanel>
+            <TabBarPanel value="eui64"><EUI64Tab /></TabBarPanel>
+            <TabBarPanel value="segmentation"><SegmentationTab /></TabBarPanel>
+            <TabBarPanel value="drill"><DrillTab /></TabBarPanel>
+            <TabBarPanel value="binaer"><BinaryTab /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>

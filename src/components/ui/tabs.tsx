@@ -63,4 +63,46 @@ function TabsContent({
   )
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+/**
+ * Unstyled Varianten für Reiter-Leisten mit eigener Gestaltung (Werkzeug-Dialoge).
+ * Gleiche Radix-Semantik (role="tablist"/"tab"/"tabpanel", aria-selected, aria-controls,
+ * Pfeiltasten, Home/End, Roving-Tabindex), aber ohne vorgegebene Klassen.
+ */
+function TabBar(props: ComponentProps<typeof TabsPrimitive.Root>) {
+  return <TabsPrimitive.Root data-slot="tab-bar" {...props} />
+}
+
+function TabBarList(props: ComponentProps<typeof TabsPrimitive.List>) {
+  return <TabsPrimitive.List data-slot="tab-bar-list" {...props} />
+}
+
+function TabBarTab({
+  className,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return (
+    <TabsPrimitive.Trigger
+      data-slot="tab-bar-tab"
+      className={cn(
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TabBarPanel({
+  className,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.Content>) {
+  return (
+    <TabsPrimitive.Content
+      data-slot="tab-bar-panel"
+      className={cn("outline-none focus-visible:ring-2 focus-visible:ring-ring", className)}
+      {...props}
+    />
+  )
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent, TabBar, TabBarList, TabBarTab, TabBarPanel }
