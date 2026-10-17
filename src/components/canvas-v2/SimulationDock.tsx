@@ -215,6 +215,13 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
           <span className="text-xs font-bold tracking-wide uppercase text-foreground">
             Canvas Simulation (Phase 1: Ping)
           </span>
+          <span
+            className="rounded border border-border px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+            title="Noch nicht simuliert: RIP, IPv6-Ping, IPsec, DHCP-Relay (ip helper-address)"
+            data-testid="simulation-preview-note"
+          >
+            Vorschau · noch nicht simuliert: RIP, IPv6-Ping, IPsec, DHCP-Relay
+          </span>
 
           {/* Quelle Auswahl */}
           <div className="flex items-center gap-1.5 text-xs">

@@ -44,6 +44,17 @@ describe("SimulationDock: Quell-IP (ping … source …)", () => {
   });
 });
 
+describe("SimulationDock: Vorschau-Hinweis", () => {
+  it("nennt die bekannten Grenzen der Simulation", () => {
+    cleanup();
+    window.matchMedia = vi.fn().mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    render(<SimulationDock topology={topology} isOpen onClose={vi.fn()} activeHopIndex={null} onSelectHop={vi.fn()} />);
+    const note = screen.getByTestId("simulation-preview-note").textContent ?? "";
+    expect(note).toMatch(/^Vorschau/);
+    for (const g of ["RIP", "IPv6-Ping", "IPsec", "DHCP-Relay"]) expect(note).toContain(g);
+  });
+});
+
 describe("SimulationDock: simulierte DHCP-Vergabe", () => {
   beforeEach(() => {
     cleanup();
