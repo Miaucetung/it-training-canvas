@@ -6,6 +6,7 @@
 import { X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark: boolean;
@@ -1380,11 +1381,12 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b flex-shrink-0 border-border">
+          <TabBar value={tab} onValueChange={(v) => setTab(v as Tab)} className="contents">
+          <TabBarList aria-label="VLAN-Themen" className="flex border-b flex-shrink-0 border-border">
             {tabs.map((t) => (
-              <button
+              <TabBarTab
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                value={t.id}
                 className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
                   tab === t.id
                     ? "border-accent-primary text-accent-primary-fg"
@@ -1392,17 +1394,18 @@ export function VlanSimulatorDialog({ dark, onClose }: Props) {
                 }`}
               >
                 {t.label}
-              </button>
+              </TabBarTab>
             ))}
-          </div>
+          </TabBarList>
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-5">
-            {tab === "frame"       && <FrameVivisektor />}
+            <TabBarPanel value="frame"><FrameVivisektor /></TabBarPanel>
             {tab === "topology"    && <TopologySimulator dark={dark} />}
-            {tab === "trunk"       && <TrunkAnimation />}
-            {tab === "packet-walk" && <PacketWalkSimulator />}
+            <TabBarPanel value="trunk"><TrunkAnimation /></TabBarPanel>
+            <TabBarPanel value="packet-walk"><PacketWalkSimulator /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>
