@@ -169,7 +169,7 @@ export function CliGlossaryDialog({ dark, onClose }: Props) {
           </div>
 
           {/* Liste */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div tabIndex={0} role="region" aria-label="Glossar-Inhalt" className="flex-1 overflow-y-auto px-6 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {filtered.length === 0 ? (
               <div className="text-center py-12 opacity-60 text-sm">
                 Keine Befehle gefunden.
