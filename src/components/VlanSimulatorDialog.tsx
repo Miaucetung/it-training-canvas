@@ -119,7 +119,7 @@ function FrameVivisektor() {
             } bg-card shadow-sm`}
           >
             <span className="text-[10px] font-semibold text-foreground">{f.label}</span>
-            <span className="text-[9px] mt-0.5 text-muted-foreground">{f.bytes}B</span>
+            <span className={`text-[9px] mt-0.5 ${selected === f.id ? "text-foreground" : "text-muted-foreground"}`}>{f.bytes}B</span>
           </button>
         ))}
       </div>
@@ -951,7 +951,7 @@ function TopologySimulator({ dark }: { dark: boolean }) {
       </div>
 
       {showConfig && (
-        <pre className="text-[10px] rounded-xl p-3 font-mono overflow-x-auto bg-muted border border-border text-muted-foreground">
+        <pre tabIndex={0} role="region" aria-label="Konfiguration" className="text-[10px] rounded-xl p-3 font-mono overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-muted border border-border text-muted-foreground">
           {showConfig === "switch"
             ? generateSwitchConfig(ports)
             : generateRouterConfig(router, trunkToRouterPort?.num ?? null)}
@@ -1199,7 +1199,7 @@ function PacketWalkSimulator() {
   return (
     <div className="space-y-5">
       {/* Network topology diagram */}
-      <div className="overflow-x-auto">
+      <div tabIndex={0} role="region" aria-label="Packet-Walk-Diagramm" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-center gap-1 min-w-[480px]">
           {nodes.map((loc, i) => (
             <>
