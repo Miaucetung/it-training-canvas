@@ -559,7 +559,7 @@ function JourneyTab() {
       {hop.routeHit && (
         <div className={`rounded-lg border p-4 ${cardBg}`}>
           <div className="text-xs font-semibold uppercase mb-2 text-muted-foreground">Routing-Tabellen-Treffer (Longest Prefix Match)</div>
-          <div className="font-mono text-xs overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Routing-Tabellen-Treffer" className="font-mono text-xs overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <div className="px-2 py-1 rounded bg-status-warning-bg text-status-warning-fg">
               <span className="text-muted-foreground">Code</span> <strong>O</strong>
               {"   "}
@@ -1318,7 +1318,7 @@ function SpfTab() {
       {/* Praxis-Hinweis */}
       <div className={`rounded-lg border p-4 ${cardBg}`}>
         <h4 className="font-semibold text-sm mb-2">Praxis-Tipp: Cost manuell setzen</h4>
-        <pre className="text-xs font-mono overflow-x-auto p-2 rounded bg-muted">
+        <pre tabIndex={0} role="region" aria-label="Konfigurationsbeispiel" className="text-xs font-mono overflow-x-auto p-2 rounded bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 {`R1(config)# interface Gi0/1
 R1(config-if)# ip ospf cost 5         ! überschreibt die berechnete Cost
 
