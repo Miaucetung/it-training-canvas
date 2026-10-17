@@ -1,4 +1,5 @@
 import type { NetworkTopology, TopologyDevice, TopologyInterface } from "@/types/topology";
+import { checkEtherChannelMemberConsistency, evaluateEtherChannelModes } from "./topology-validation";
 
 export const DEFAULT_STP_PRIORITY = 32768;
 const SYS_ID_EXT_VLAN1 = 1;
@@ -70,6 +71,92 @@ function isUsableIface(iface: TopologyInterface): boolean {
   return iface.status === "up" && !iface.isShutdown;
 }
 
+/** Ein ausgehandelter Port-Channel auf einem Switch: logisches Interface PoN mit seinen gebündelten Member-Ports. */
+export interface PortChannelBundle {
+  device: TopologyDevice;
+  channelId: number;
+  /** Logisches Interface PoN (übernimmt Modus/VLAN-Einstellungen des ersten Members) */
+  iface: TopologyInterface;
+  members: TopologyInterface[];
+  peerDevice: TopologyDevice;
+  peerChannelId: number;
+}
+
+/**
+ * STP-Pfadkosten eines Port-Channels (Short Method) aus der gebündelten Bandbreite.
+ * Belegt: 2× FastEthernet = 12, 2× GigabitEthernet = 3 (Cisco-Dokumentation); andere Bündelgrößen nach derselben Tabelle angenähert.
+ */
+export function portChannelCost(members: TopologyInterface[]): number {
+  const n = members.length;
+  const single = stpPortCost(members[0]?.name ?? "");
+  if (n <= 1) return single;
+  if (single === 19) return n === 2 ? 12 : n === 3 ? 9 : 8; // FastEthernet
+  if (single === 4) return n <= 3 ? 3 : 2; // GigabitEthernet
+  if (single === 100) return n === 2 ? 50 : 33; // Ethernet (10 Mbit/s)
+  return Math.max(1, Math.floor(single / 2));
+}
+
+/** Port-Nummer eines Port-Channels in `show spanning-tree` (Annahme wie Catalyst 2960: Po1 = 128.65). */
+export function portChannelPortNumber(channelId: number): number {
+  return 64 + channelId;
+}
+
+/**
+ * Ausgehandelte Port-Channels zwischen Switches: Member-Links, deren beide Seiten eine channel-group mit
+ * kompatiblen Modi haben (evaluateEtherChannelModes) und konsistent konfiguriert sind (checkEtherChannelMemberConsistency).
+ * Ergebnis je Gerät; inkonsistente Member (suspended) bleiben einzelne Ports.
+ */
+export function computePortChannels(topology: NetworkTopology): Map<string, PortChannelBundle[]> {
+  const byId = new Map(topology.devices.map((d) => [d.id, d]));
+  const groups = new Map<
+    string,
+    { a: TopologyDevice; aId: number; b: TopologyDevice; bId: number; aMembers: TopologyInterface[]; bMembers: TopologyInterface[] }
+  >();
+  for (const link of topology.links) {
+    if (link.status === "down" || link.status === "admin-down") continue;
+    const a = byId.get(link.sourceDeviceId);
+    const b = byId.get(link.targetDeviceId);
+    if (!a || !b || !isSwitch(a) || !isSwitch(b)) continue;
+    const ai = a.interfaces.find((i) => i.id === link.sourceInterfaceId);
+    const bi = b.interfaces.find((i) => i.id === link.targetInterfaceId);
+    if (!ai?.channelGroup || !bi?.channelGroup || !isUsableIface(ai) || !isUsableIface(bi)) continue;
+    if (!evaluateEtherChannelModes(ai.channelGroup.mode, bi.channelGroup.mode).channelOperational) continue;
+    const suspendedA = checkEtherChannelMemberConsistency(a, ai.channelGroup.id).inconsistentPorts.some((p) => p.iface.id === ai.id);
+    const suspendedB = checkEtherChannelMemberConsistency(b, bi.channelGroup.id).inconsistentPorts.some((p) => p.iface.id === bi.id);
+    if (suspendedA || suspendedB) continue;
+    const key = `${a.id}|${ai.channelGroup.id}|${b.id}|${bi.channelGroup.id}`;
+    const g = groups.get(key) ?? { a, aId: ai.channelGroup.id, b, bId: bi.channelGroup.id, aMembers: [], bMembers: [] };
+    g.aMembers.push(ai);
+    g.bMembers.push(bi);
+    groups.set(key, g);
+  }
+  const result = new Map<string, PortChannelBundle[]>();
+  const logical = (device: TopologyDevice, id: number, members: TopologyInterface[]): TopologyInterface => {
+    const lead = members[0];
+    return {
+      id: `${device.id}--Po${id}`,
+      name: `Po${id}`,
+      status: "up",
+      ...(lead.mode !== undefined ? { mode: lead.mode } : {}),
+      ...(lead.vlan !== undefined ? { vlan: lead.vlan } : {}),
+      ...(lead.nativeVlan !== undefined ? { nativeVlan: lead.nativeVlan } : {}),
+      ...(lead.allowedVlans !== undefined ? { allowedVlans: lead.allowedVlans } : {}),
+      ...(lead.dtp !== undefined ? { dtp: lead.dtp } : {}),
+      ...(lead.nonegotiate !== undefined ? { nonegotiate: lead.nonegotiate } : {}),
+    };
+  };
+  for (const g of groups.values()) {
+    const add = (device: TopologyDevice, id: number, members: TopologyInterface[], peer: TopologyDevice, peerId: number) => {
+      const list = result.get(device.id) ?? [];
+      list.push({ device, channelId: id, iface: logical(device, id, members), members, peerDevice: peer, peerChannelId: peerId });
+      result.set(device.id, list);
+    };
+    add(g.a, g.aId, g.aMembers, g.b, g.bId);
+    add(g.b, g.bId, g.bMembers, g.a, g.aId);
+  }
+  return result;
+}
+
 interface Edge {
   a: TopologyDevice;
   aIface: TopologyInterface;
@@ -102,7 +189,22 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
   const byId = new Map(switches.map((d) => [d.id, d]));
   const bid = (d: TopologyDevice) => ({ priority: bridgePriority(d), mac: bridgeMac(d, index.get(d.id) ?? 0) });
 
+  // Port-Channels: die gebündelten Member-Links zählen als EIN logischer Link (PoN)
+  const bundles = computePortChannels(topology);
+  const memberOf = new Map<string, PortChannelBundle>(); // Member-Interface-ID → Bündel
+  const costOverride = new Map<string, number>(); // Po-Interface-ID → Kosten
+  const portOverride = new Map<string, number>(); // Po-Interface-ID → Port-Nummer
+  for (const list of bundles.values()) {
+    for (const b of list) {
+      for (const m of b.members) memberOf.set(m.id, b);
+      costOverride.set(b.iface.id, portChannelCost(b.members));
+      portOverride.set(b.iface.id, portChannelPortNumber(b.channelId));
+    }
+  }
+  const portCost = (iface: TopologyInterface) => costOverride.get(iface.id) ?? stpPortCost(iface.name);
+
   const edges: Edge[] = [];
+  const bundledEdges = new Set<string>();
   for (const link of topology.links) {
     const a = byId.get(link.sourceDeviceId);
     const b = byId.get(link.targetDeviceId);
@@ -111,6 +213,16 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
     const aIface = a.interfaces.find((i) => i.id === link.sourceInterfaceId);
     const bIface = b.interfaces.find((i) => i.id === link.targetInterfaceId);
     if (!aIface || !bIface || !isUsableIface(aIface) || !isUsableIface(bIface)) continue;
+    const aBundle = memberOf.get(aIface.id);
+    const bBundle = memberOf.get(bIface.id);
+    if (aBundle && bBundle) {
+      const key = `${aBundle.iface.id}|${bBundle.iface.id}`;
+      if (!bundledEdges.has(key)) {
+        bundledEdges.add(key);
+        edges.push({ a, aIface: aBundle.iface, b, bIface: bBundle.iface });
+      }
+      continue;
+    }
     edges.push({ a, aIface, b, bIface });
   }
 
@@ -148,7 +260,7 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
         [e.a, e.b, e.bIface],
         [e.b, e.a, e.aIface],
       ] as const) {
-        const c = cost.get(from.id)! + stpPortCost(toIface.name);
+        const c = cost.get(from.id)! + portCost(toIface);
         if (c < cost.get(to.id)!) {
           cost.set(to.id, c);
           changed = true;
@@ -158,7 +270,7 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
   }
 
   const portNo = (d: TopologyDevice, iface: TopologyInterface) =>
-    stpPortNumber(iface, d.interfaces.indexOf(iface));
+    portOverride.get(iface.id) ?? stpPortNumber(iface, d.interfaces.indexOf(iface));
 
   // Root-Port je Nicht-Root-Bridge
   const rootPortIface = new Map<string, TopologyInterface>();
@@ -170,7 +282,7 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
       if (!mine) continue;
       const peer = e.a.id === sw.id ? e.b : e.a;
       const peerIface = e.a.id === sw.id ? e.bIface : e.aIface;
-      if (cost.get(peer.id)! + stpPortCost(mine.name) !== cost.get(sw.id)) continue;
+      if (cost.get(peer.id)! + portCost(mine) !== cost.get(sw.id)) continue;
       const peerBid = bid(peer);
       const key = [peerBid.priority, macToNumber(peerBid.mac), portNo(peer, peerIface), portNo(sw, mine)];
       const better = !best || lexLess(key, best.key);
@@ -201,7 +313,9 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
       if (l.sourceDeviceId === sw.id) ids.add(l.sourceInterfaceId);
       if (l.targetDeviceId === sw.id) ids.add(l.targetInterfaceId);
     }
-    return sw.interfaces.filter((i) => ids.has(i.id) && isUsableIface(i));
+    // Member eines Port-Channels erscheinen nicht einzeln, sondern als PoN
+    const physical = sw.interfaces.filter((i) => ids.has(i.id) && isUsableIface(i) && !memberOf.has(i.id));
+    return [...physical, ...(bundles.get(sw.id) ?? []).map((b) => b.iface)];
   };
 
   const result = new Map<string, StpBridgeInfo>();
@@ -222,7 +336,7 @@ export function computeStp(topology: NetworkTopology): Map<string, StpBridgeInfo
         iface,
         role,
         state: role === "Altn" ? "BLK" : "FWD",
-        cost: stpPortCost(iface.name),
+        cost: portCost(iface),
         portNumber: portNo(sw, iface),
       };
     });
@@ -244,7 +358,8 @@ function longIfaceName(name: string): string {
   return name
     .replace(/^Gi(?=\d)/i, "GigabitEthernet")
     .replace(/^Fa(?=\d)/i, "FastEthernet")
-    .replace(/^Te(?=\d)/i, "TenGigabitEthernet");
+    .replace(/^Te(?=\d)/i, "TenGigabitEthernet")
+    .replace(/^Po(?=\d)/i, "Port-channel");
 }
 
 const padRight = (s: string, n: number) => s.padEnd(n, " ");

@@ -100,6 +100,10 @@ export interface TopologyInterface {
   dtp?: "desirable" | "auto";
   /** `switchport nonegotiate`: der Port sendet keine DTP-Frames */
   nonegotiate?: boolean;
+  /** Name oder Nummer der Eingangs-ACL (`ip access-group <acl> in`) */
+  inboundAcl?: string;
+  /** Name oder Nummer der Ausgangs-ACL (`ip access-group <acl> out`) */
+  outboundAcl?: string;
 }
 
 export interface DeviceDhcpPool {
@@ -527,6 +531,8 @@ export const topologyInterfaceSchema = z.object({
   isShutdown: z.boolean().optional(),
   ospf: interfaceOspfSchema.optional(),
   assumed: z.boolean().optional(),
+  inboundAcl: z.string().optional(),
+  outboundAcl: z.string().optional(),
 });
 
 export const deviceSviSchema = z.object({

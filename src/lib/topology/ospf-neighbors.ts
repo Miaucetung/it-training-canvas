@@ -132,14 +132,14 @@ export function findLinkEnd(topology: NetworkTopology, link: TopologyLink, devic
 }
 
 /** VLAN der ungetaggten Frames an einem Switch-Port; null, wenn nicht bestimmbar (z. B. routed). */
-function untaggedVlan(iface: TopologyInterface): number | null {
+export function untaggedVlan(iface: TopologyInterface): number | null {
   if (iface.mode === "trunk") return iface.nativeVlan ?? 1;
   if (iface.mode === "routed") return null;
   return iface.vlan ?? 1; // access oder unkonfiguriert (IOS-Default: VLAN 1)
 }
 
 /** Transportiert der Port das VLAN? */
-function portCarriesVlan(iface: TopologyInterface, vlan: number): boolean {
+export function portCarriesVlan(iface: TopologyInterface, vlan: number): boolean {
   if (iface.mode === "routed") return false;
   if (iface.mode === "trunk") return iface.allowedVlans === undefined || iface.allowedVlans.includes(vlan) || (iface.nativeVlan ?? 1) === vlan;
   return (iface.vlan ?? 1) === vlan;

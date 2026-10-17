@@ -1,0 +1,109 @@
+import type { NetworkTopology } from "@/types/topology";
+import type { SimulatedLease } from "./dhcp-simulation";
+import type { NatTable } from "./nat-simulation";
+
+export type SimulationProtocol = "icmp" | "ip" | "tcp" | "udp";
+
+export interface SimulatedPacket {
+  id: string;
+  type: "icmp-echo" | "icmp-echo-reply";
+  srcIp: string;
+  dstIp: string;
+  protocol: SimulationProtocol;
+  icmpType?: "echo" | "echo-reply";
+  srcPort?: number;
+  dstPort?: number;
+  /** ICMP-Identifier; dient bei PAT als Port */
+  icmpId?: number;
+  ttl: number;
+  srcMac: string;
+  dstMac: string;
+}
+
+export type DropReasonCode =
+  | "no-gateway"
+  | "wrong-subnet"
+  | "no-route"
+  | "acl-deny"
+  | "vlan-mismatch"
+  | "stp-blocked"
+  | "interface-down"
+  | "ttl-expired"
+  | "arp-timeout"
+  | "unreachable"
+  | "invalid-source"
+  | "nat-pool-exhausted";
+
+export type HopAction =
+  | "originate"
+  | "arp-resolve"
+  | "switch"
+  | "route"
+  | "nat-inside-to-outside"
+  | "nat-outside-to-inside"
+  | "deliver"
+  | "drop";
+
+export interface HopStep {
+  stepNumber: number;
+  deviceId: string;
+  deviceName: string;
+  inInterface?: string;
+  outInterface?: string;
+  /** ID des Links, über den das Paket diesen Hop verlässt (für die Pfad-Hervorhebung) */
+  linkId?: string;
+  action: HopAction;
+  reason: string;
+  packet: SimulatedPacket;
+  packetOut?: SimulatedPacket;
+  natTranslation?: {
+    direction: "inside-to-outside" | "outside-to-inside";
+    beforeIp: string;
+    afterIp: string;
+  };
+  status: "ok" | "dropped";
+  dropReason?: DropReasonCode;
+}
+
+export interface SimulationResult {
+  success: boolean;
+  /** DHCP-Leases, die nur für diese Simulation vergeben wurden (die Topologie selbst bleibt unverändert) */
+  simulatedLeases?: SimulatedLease[];
+  status:
+    | "success"
+    | "timeout"
+    | "unreachable"
+    | "ttl-expired"
+    | "acl-denied"
+    | "stp-blocked"
+    | "no-route"
+    | "no-gateway"
+    | "interface-down"
+    | "invalid-source";
+  iosSummary: string; // e.g. ".!!!!", "!!!!!", "U.U.U", "....."
+  explanation: string;
+  forwardHops: HopStep[];
+  returnHops: HopStep[];
+  allHops: HopStep[];
+  arpResolvedThisRun: boolean;
+  routerArpLoss?: boolean;
+  arpCache: Record<string, Record<string, string>>;
+  /** Translation-Tabelle (dynamisches NAT/PAT) nach diesem Ping; Teil des Simulationszustands */
+  natTranslations?: NatTable;
+}
+
+export interface SimulationOptions {
+  topology: NetworkTopology;
+  sourceDeviceId: string;
+  sourceInterfaceId?: string;
+  /** Quelladresse wie bei `ping <ziel> source <ip>`; muss einem aktiven Interface der Quelle gehören */
+  sourceIp?: string;
+  targetDeviceId?: string;
+  targetIp?: string;
+  protocol?: SimulationProtocol;
+  port?: number;
+  ttl?: number;
+  arpCache?: Record<string, Record<string, string>>;
+  /** Translation-Tabelle aus vorherigen Pings (wird fortgeschrieben) */
+  natTranslations?: NatTable;
+}

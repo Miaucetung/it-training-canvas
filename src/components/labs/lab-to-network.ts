@@ -104,6 +104,8 @@ interface IfaceCfg {
   tunnelDestination?: string;
   tunnelMode?: string;
   cryptoMap?: string;
+  inboundAcl?: string;
+  outboundAcl?: string;
 }
 
 export interface ParsedDeviceConfig {
@@ -251,6 +253,7 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
   let ctxEigrp = false;
   type CryptoCtx = { kind: "policy"; ref: DeviceIsakmpPolicy } | { kind: "tset"; ref: DeviceTransformSet } | { kind: "map"; ref: DeviceCryptoMapEntry };
   let ctxCrypto: CryptoCtx | null = null;
+  let ctxAcl: { name: string; type: "standard" | "extended" } | null = null;
   const cryptoCfg = (): DeviceCryptoConfig => (cfg.crypto ??= { policies: [], keys: [], transformSets: [], maps: [] });
   const ifaceOf = (n: string): IfaceCfg => {
     const k = normalizeInterfaceName(n);
@@ -277,13 +280,22 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             const subs = ctxCrypto.kind === "policy" ? /^(encryption|encr|hash|authentication|group|lifetime)\b/i : ctxCrypto.kind === "tset" ? /^mode\b/i : /^(set|match)\b/i;
             if (!subs.test(line)) ctxCrypto = null;
           }
+          if (ctxAcl && !/^(permit|deny|remark)\b/i.test(line)) ctxAcl = null;
           if (PROMPT_FREE_SKIP.test(line)) {
             if (/^exit$|^end$/i.test(line)) {
               ctxIfaces = [];
               ctxVlan = null;
               ctxOspf = false;
+              ctxAcl = null;
             }
             continue;
+          }
+
+          if (ctxAcl) {
+            if (/^(permit|deny|remark)\b/i.test(line)) {
+              (cfg.accessLists[ctxAcl.name] ??= []).push(line.replace(/\s+/g, " "));
+              continue;
+            }
           }
 
           // DHCP-Pool (Router/L3-Switch) und VTP
@@ -354,6 +366,18 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
             ctxIfaces = [];
             ctxVlan = null;
             ctxOspf = false;
+            continue;
+          }
+          if ((dh = /^ip access-list\s+(standard|extended)\s+(\S+)/i.exec(line))) {
+            const aclName = dh[2];
+            ctxAcl = { type: dh[1].toLowerCase() as "standard" | "extended", name: aclName };
+            cfg.accessLists[aclName] ??= [];
+            ctxIfaces = [];
+            ctxVlan = null;
+            ctxOspf = false;
+            ctxEigrp = false;
+            ctxPool = null;
+            ctxCrypto = null;
             continue;
           }
           if ((dh = /^access-list\s+(\d+)\s+(permit|deny)\s+(.+)$/i.exec(line))) {
@@ -715,6 +739,12 @@ export function parseLabDeviceConfig(lab: Pick<LabScenario, "steps">, deviceName
               else if ((m = /^ip ospf network\s+(broadcast|point-to-point)/i.exec(line))) i.ospfNetworkType = m[1].toLowerCase() as "broadcast" | "point-to-point";
               else if ((m = /^ip ospf priority\s+(\d+)/i.exec(line))) i.ospfPriority = Number(m[1]);
               else if ((m = /^ip ospf cost\s+(\d+)/i.exec(line))) i.ospfCost = Number(m[1]);
+              else if ((m = /^ip access-group\s+(\S+)\s+(in|out)/i.exec(line))) {
+                const aclName = m[1];
+                const dir = m[2].toLowerCase();
+                if (dir === "in") i.inboundAcl = aclName;
+                else if (dir === "out") i.outboundAcl = aclName;
+              }
             }
           }
         }
@@ -818,6 +848,8 @@ export function buildNetworkTopologyFromLab(
           it.status = "admin-down";
           it.isShutdown = true;
         }
+        if (c.inboundAcl) it.inboundAcl = c.inboundAcl;
+        if (c.outboundAcl) it.outboundAcl = c.outboundAcl;
       }
       // Port-Channels: Member erben die Port-channel-Konfiguration
       const poGroups = new Map<number, { mode: ChannelGroupMode; members: string[] }>();

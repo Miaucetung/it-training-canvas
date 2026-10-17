@@ -55,6 +55,8 @@ import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
+import { SimulationDock } from "./SimulationDock";
+import { simulateDhcpLeases } from "@/lib/topology/simulation/packet-simulator";
 import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
@@ -64,6 +66,7 @@ import {
   Gear,
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
+  Play,
   ShieldCheck,
   Table,
   Terminal,
@@ -192,6 +195,12 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [storageDialogTab, setStorageDialogTab] = useState<StorageTab>("templates");
   const [showScreenReaderView, setShowScreenReaderView] = useState<boolean>(false);
 
+  // Netzwerksimulation (Phase 1: Ping & Hop-Trace)
+  const [isSimulationOpen, setIsSimulationOpen] = useState<boolean>(false);
+  const [activeSimulationHopIndex, setActiveSimulationHopIndex] = useState<number | null>(null);
+  const [activeSimulationDeviceId, setActiveSimulationDeviceId] = useState<string | null>(null);
+  const [activeSimulationLinkId, setActiveSimulationLinkId] = useState<string | null>(null);
+
   useEffect(() => {
     if (externalStorageTab) {
       setStorageDialogTab(externalStorageTab);
@@ -204,6 +213,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
 
   // Live-Diagnose der Topologie
   const diagnostics = useMemo(() => validateTopology(activeTopology), [activeTopology]);
+  const simulatedLeases = useMemo(() => simulateDhcpLeases(activeTopology).leases, [activeTopology]);
 
   // Debounced Autosave (1500ms Drosselung nach Änderungen)
   useEffect(() => {
@@ -1480,6 +1490,21 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             <Table size={15} weight="bold" className="text-sky-400" />
             <span className="hidden lg:inline text-[11px]">Tabelle</span>
           </button>
+
+          {/* Netzwerksimulation Button */}
+          <button
+            onClick={() => setIsSimulationOpen((v) => !v)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              isSimulationOpen
+                ? "bg-primary text-primary-foreground border-primary"
+                : "border-border text-foreground hover:bg-accent"
+            }`}
+            title="Netzwerksimulation: Ping, ARP & Hop-Trace"
+            aria-label="Netzwerksimulation öffnen oder schließen"
+          >
+            <Play size={15} weight="bold" />
+            <span className="hidden md:inline">Simulation</span>
+          </button>
         </div>
 
         {/* Rechte Seite: Zoom & Feature-Flag */}
@@ -1703,6 +1728,8 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           onAnnotationDoubleClick={handleAnnotationDoubleClick}
           onHandlePointerDown={handleHandlePointerDown}
           drawingAnnotationPreview={drawingAnnotationPreview}
+          activeSimulationDeviceId={activeSimulationDeviceId}
+          activeSimulationLinkId={activeSimulationLinkId}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
@@ -1890,6 +1917,14 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
                       </div>
                       {iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>{iface.ip}</div>}
                       {iface.dhcp && !iface.ip && <div className={isDark ? "text-slate-300" : "text-slate-800 font-semibold"}>DHCP ({iface.dhcp.network})</div>}
+                      {iface.dhcp && !iface.ip && (() => {
+                        const lease = simulatedLeases.find((l) => l.deviceId === selectedDevice.id && l.ifaceName === iface.name);
+                        return lease ? (
+                          <div className="text-[10px] font-medium text-muted-foreground" data-testid="simulated-lease">
+                            {lease.ip} – simulierte Vergabe (Pool {lease.poolName} auf {lease.serverName})
+                          </div>
+                        ) : null;
+                      })()}
                       {iface.ipv6 && <div className={isDark ? "text-slate-300 break-all" : "text-slate-800 font-semibold break-all"}>{iface.ipv6}</div>}
                       {iface.description && (
                         <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600 font-medium"}`}>{iface.description}</div>
@@ -2057,6 +2092,24 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           onClose={() => setShowScreenReaderView(false)}
         />
       )}
+
+      {/* ── NETZWERKSIMULATION DOCK (PHASE 1: PING & HOP-INSPECTOR) ── */}
+      <SimulationDock
+        topology={activeTopology}
+        isOpen={isSimulationOpen}
+        onClose={() => {
+          setIsSimulationOpen(false);
+          setActiveSimulationHopIndex(null);
+          setActiveSimulationDeviceId(null);
+          setActiveSimulationLinkId(null);
+        }}
+        activeHopIndex={activeSimulationHopIndex}
+        onSelectHop={(hopIndex, deviceId, linkId) => {
+          setActiveSimulationHopIndex(hopIndex);
+          setActiveSimulationDeviceId(deviceId ?? null);
+          setActiveSimulationLinkId(linkId ?? null);
+        }}
+      />
     </div>
   );
 };
