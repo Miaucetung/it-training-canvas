@@ -963,7 +963,7 @@ function XorExplainer({
               Schritt 2 - Bit-Tabelle (links = Bit 7 = MSB = grosster Wert 128,
               rechts = Bit 0 = LSB = Wert 1)
             </p>
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Bit-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <table className="w-full text-center text-xs font-mono border-collapse">
                 <thead>
                   <tr>
@@ -2065,7 +2065,7 @@ function BinaryTab() {
         {groups ? (
           <div className="space-y-3">
             {/* Group overview */}
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Gruppenübersicht" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <table className="w-full border-collapse text-center" style={{minWidth:"560px"}}>
                 <thead>
                   <tr>
