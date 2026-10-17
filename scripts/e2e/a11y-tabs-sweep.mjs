@@ -37,8 +37,11 @@ const VIEWS = [
       await page.evaluate(() => window.__auditApp.openDialog("labs"));
       await page.waitForTimeout(600);
       const target = page.getByText("OSPF — Single Area 0").first();
-      if (!(await target.isVisible())) { await page.getByRole("button", { name: /Lab-Katalog/ }).first().click(); await page.waitForTimeout(300); }
-      await target.click();
+      if (!(await target.isVisible())) {
+        const katalog = page.getByRole("button", { name: /Lab-Katalog/ }).first();
+        if (await katalog.isVisible()) { await katalog.click(); await page.waitForTimeout(300); }
+      }
+      if (await target.isVisible()) await target.click();
       await page.waitForTimeout(800);
     },
   },
@@ -49,13 +52,13 @@ const VIEWS = [
 const only = process.env.ONLY;
 
 // Kandidaten für Reiter/Modi: sichtbare Schaltflächen im oberen Dialogbereich (Beschriftung und Index in der Liste)
-const candidates = (page) =>
-  page.evaluate(() => {
+const candidates = (page, withModes) =>
+  page.evaluate((withModes) => {
     const dlg = document.querySelector('[role="dialog"]');
     if (!dlg) return [];
     const visible = (b) => { const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !b.disabled; };
     let els = [...dlg.querySelectorAll('[role="tab"]')].filter(visible);
-    if (els.length === 0) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
+    if (els.length === 0 && withModes) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
     const seen = new Set();
     const out = [];
     for (const b of els) {
@@ -65,16 +68,16 @@ const candidates = (page) =>
       out.push({ label, idx: els.indexOf(b) });
     }
     return out;
-  });
-const clickCandidate = (page, idx) =>
-  page.evaluate((i) => {
+  }, withModes);
+const clickCandidate = (page, idx, withModes) =>
+  page.evaluate(([i, withModes]) => {
     const dlg = document.querySelector('[role="dialog"]');
     const visible = (b) => { const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !b.disabled; };
     let els = [...dlg.querySelectorAll('[role="tab"]')].filter(visible);
-    if (els.length === 0) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
+    if (els.length === 0 && withModes) els = [...dlg.querySelectorAll("button[aria-pressed]")].filter(visible);
     els[i].dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
     els[i].click();
-  }, idx);
+  }, [idx, withModes]);
 
 const runAxe = (page) =>
   page.evaluate(async () => {
@@ -105,7 +108,7 @@ for (const width of widths) {
         await view.open(page);
         await page.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation:none!important}" });
         await page.evaluate(axeSource);
-        const rawLabels = (await candidates(page)).map((c) => c); if (process.env.DEBUG) console.log("Kandidaten:", JSON.stringify(rawLabels), await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length)); const labels = rawLabels;
+        const rawLabels = (await candidates(page, view.name.startsWith("Werkzeug"))).map((c) => c); if (process.env.DEBUG) console.log("Kandidaten:", JSON.stringify(rawLabels), await page.evaluate(() => document.querySelectorAll('[role="dialog"]').length)); const labels = rawLabels;
         // Standardzustand und jeder Reiter einzeln
         const states = [{ state: "Standard", label: null }, ...labels.map((c) => ({ state: `Reiter „${c.label.slice(0, 40)}“`, label: c.label, idx: c.idx }))];
         for (const s of states) {
@@ -114,7 +117,7 @@ for (const width of widths) {
             if (s.label) {
               await view.open(page);
               await page.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation:none!important}" });
-              await clickCandidate(page, s.idx);
+              await clickCandidate(page, s.idx, view.name.startsWith("Werkzeug"));
               await page.waitForTimeout(350);
             }
             entry.violations = await runAxe(page);
