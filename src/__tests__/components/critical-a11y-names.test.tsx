@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { StpSimulatorDialog } from "@/components/StpSimulatorDialog";
 import { OsiSimulatorDialog } from "@/components/OsiSimulatorDialog";
 import { DragDropTrainerDialog } from "@/components/DragDropTrainerDialog";
@@ -26,5 +26,23 @@ describe("Zugängliche Namen: Formularelemente und Icon-Buttons", () => {
   it("Drag-and-Drop-Trainer: Zurück, Reset und Weiter haben Namen (auch wenn der Text ausgeblendet ist)", () => {
     render(<DragDropTrainerDialog dark onClose={vi.fn()} />);
     for (const name of ["Zurück", "Reset", "Weiter"]) expect(screen.getByRole("button", { name })).toBeTruthy();
+  });
+});
+
+describe("STP-Simulator: Tabellen", () => {
+  it("Reiter „STP vs RSTP“: Tabelle scrollbar per Tastatur, Tabellenkopf ohne leere Zelle", () => {
+    cleanup();
+    render(<StpSimulatorDialog dark onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /STP vs RSTP/ }));
+    const region = screen.getByRole("region", { name: "Tabelle Direktvergleich" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    for (const th of region.querySelectorAll("th")) expect((th.textContent ?? "").trim()).not.toBe("");
+  });
+
+  it("Reiter „Port-Zustände“: Tabelle scrollbar per Tastatur", () => {
+    cleanup();
+    render(<StpSimulatorDialog dark={false} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Port-Zustände/ }));
+    expect(screen.getByRole("region", { name: "Tabelle Zustände" }).getAttribute("tabindex")).toBe("0");
   });
 });

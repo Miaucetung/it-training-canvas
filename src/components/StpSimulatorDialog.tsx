@@ -600,7 +600,7 @@ function PortStatesTab({ dark }: { dark: boolean }) {
         }`}
       >
         <div className="text-sm font-semibold mb-3">Was passiert in welchem Zustand?</div>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Tabelle Zustände" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-xs">
             <thead>
               <tr className={`text-left ${dark ? "text-slate-400" : "text-slate-600"}`}>
@@ -758,11 +758,13 @@ function ConvergenceTab({ dark }: { dark: boolean }) {
         }`}
       >
         <div className="text-sm font-semibold mb-3">Direktvergleich</div>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Tabelle Direktvergleich" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-xs">
             <thead>
               <tr className={`text-left ${dark ? "text-slate-400" : "text-slate-600"}`}>
-                <th className="py-2 pr-3"></th>
+                <th className="py-2 pr-3">
+                  <span className="sr-only">Merkmal</span>
+                </th>
                 <th className="py-2 px-3">STP (802.1D)</th>
                 <th className="py-2 px-3">RSTP (802.1w)</th>
               </tr>
