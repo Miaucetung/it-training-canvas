@@ -4,6 +4,20 @@ Grundlage: [INHALTLICHE-PRUEFUNG.md](INHALTLICHE-PRUEFUNG.md). **Bisher ist nich
 
 Buchstaben beziehen sich auf die App-Reihenfolge der Optionen (A = erste Option). „Optionen bereinigt“ bedeutet: Optionstexte auf den Wortlaut der PDF zurücksetzen und überzählige Optionen entfernen. Gilt für beide Pools (`ccnaQuestions` und `ccnaQuestionsClassified`, Q-ID in Großbuchstaben), wo die Frage dort vorkommt.
 
+## Verweis: die 7 echten Lösungsabweichungen aus INHALTLICHE-PRUEFUNG.md (Abschnitt 1)
+
+Jede hat eine eigene Zeile unten. Dazu kommt A5 (q1014), das ein echter Einlesefehler ist, aber keine der 7 Lösungsabweichungen.
+
+| Frage | Kennung | Abschnitt |
+|---|---|---|
+| q0219 | A1 | A |
+| q0501 | A2 | A |
+| q0658 | A3 | A |
+| q0769 | A4 | A |
+| q1151 | A6 | A |
+| q0593 | D1 | D |
+| q1227 | D2 | D |
+
 ## A. Eingeschleuste Folgefragen entfernen (10 Fragen, Vorbelegung: fremde Optionen und Lösungsteile entfernen)
 
 | Nr. | Frage | Kurzbeschreibung | Aktuelle Lösung | Vorgeschlagene Lösung | Sicherheit | Entscheidung |
