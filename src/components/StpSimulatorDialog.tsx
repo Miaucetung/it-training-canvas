@@ -204,7 +204,9 @@ function ElectionTab({ dark }: { dark: boolean }) {
   };
 
   const roleColor = (role: PortRole["role"]) =>
-    role === "root" ? "#3b82f6" : role === "designated" ? "#10b981" : "#ef4444";
+    role === "root" ? "var(--accent-solid)" : role === "designated" ? "var(--status-success-solid)" : "var(--status-error-solid)";
+  const roleOnColor = (role: PortRole["role"]) =>
+    role === "root" ? "var(--on-accent-solid)" : role === "designated" ? "var(--on-status-success-solid)" : "var(--on-status-error-solid)";
   const roleLabel = (role: PortRole["role"]) =>
     role === "root" ? "RP" : role === "designated" ? "DP" : "BLK";
 
@@ -229,10 +231,10 @@ function ElectionTab({ dark }: { dark: boolean }) {
               (p) => p.linkId === l.id && p.switchId === l.b,
             );
             const stroke = broken
-              ? "#6b7280"
+              ? "var(--muted-foreground)"
               : roleA?.role === "blocked" || roleB?.role === "blocked"
-                ? "#ef4444"
-                : "#10b981";
+                ? "var(--status-error-solid)"
+                : "var(--status-success-solid)";
             const midX = (sa.x + sb.x) / 2;
             const midY = (sa.y + sb.y) / 2;
             return (
@@ -261,7 +263,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       y={sa.y + (sb.y - sa.y) * 0.18 + 3}
                       textAnchor="middle"
                       fontSize={9}
-                      fill="white"
+                      fill={roleOnColor(roleA.role)}
                       fontWeight={700}
                       fontFamily="'IBM Plex Mono', monospace"
                     >
@@ -283,7 +285,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       y={sb.y + (sa.y - sb.y) * 0.18 + 3}
                       textAnchor="middle"
                       fontSize={9}
-                      fill="white"
+                      fill={roleOnColor(roleB.role)}
                       fontWeight={700}
                       fontFamily="'IBM Plex Mono', monospace"
                     >
@@ -302,8 +304,8 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     width={56}
                     height={20}
                     rx={4}
-                    fill={dark ? "#1e293b" : "#ffffff"}
-                    stroke={broken ? "#6b7280" : "#94a3b8"}
+                    fill="var(--card)"
+                    stroke={broken ? "var(--muted-foreground)" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)"}
                     strokeWidth={1}
                   />
                   <text
@@ -311,7 +313,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     y={midY + 4}
                     textAnchor="middle"
                     fontSize={10}
-                    fill={broken ? "#9ca3af" : dark ? "#e2e8f0" : "#334155"}
+                    fill={broken ? "var(--muted-foreground)" : "var(--foreground)"}
                     fontFamily="'IBM Plex Mono', monospace"
                   >
                     {broken ? "✕ down" : `cost ${l.cost}`}
@@ -331,8 +333,8 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   width={100}
                   height={60}
                   rx={8}
-                  fill={dark ? "#0f172a" : "#ffffff"}
-                  stroke={isRoot ? "#facc15" : dark ? "#60a5fa" : "#2563eb"}
+                  fill="var(--card)"
+                  stroke={isRoot ? "var(--status-warning-solid)" : "var(--accent-primary)"}
                   strokeWidth={isRoot ? 4 : 2}
                 />
                 {isRoot && (
@@ -340,11 +342,11 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     x={sw.x}
                     y={sw.y - 36}
                     textAnchor="middle"
-                    fontSize={14}
-                    fill="#facc15"
+                    fontSize={12}
+                    fill="var(--status-warning-fg)"
                     fontWeight={700}
                   >
-                    👑 ROOT
+                    Root Bridge
                   </text>
                 )}
                 <text
@@ -353,7 +355,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize={15}
                   fontWeight={700}
-                  fill={dark ? "#f1f5f9" : "#0f172a"}
+                  fill="var(--foreground)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   {sw.name}
@@ -363,7 +365,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   y={sw.y + 8}
                   textAnchor="middle"
                   fontSize={10}
-                  fill={dark ? "#94a3b8" : "#475569"}
+                  fill="var(--text-secondary)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   prio {sw.priority}
@@ -373,7 +375,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   y={sw.y + 22}
                   textAnchor="middle"
                   fontSize={9}
-                  fill={dark ? "#64748b" : "#64748b"}
+                  fill="var(--muted-foreground)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   MAC ..{sw.mac} · cost→{result.costToRoot[sw.id]}
@@ -383,14 +385,14 @@ function ElectionTab({ dark }: { dark: boolean }) {
           })}
           {/* Legende */}
           <g>
-            <rect x={10} y={390} width={580} height={24} rx={4} fill={dark ? "#1e293b" : "#f1f5f9"} />
-            <circle cx={28} cy={402} r={6} fill="#3b82f6" />
-            <text x={40} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Root Port (RP)</text>
-            <circle cx={148} cy={402} r={6} fill="#10b981" />
-            <text x={160} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Designated Port (DP)</text>
-            <circle cx={310} cy={402} r={6} fill="#ef4444" />
-            <text x={322} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Blocked / Alternate</text>
-            <text x={460} y={406} fontSize={10} fill={dark ? "#94a3b8" : "#64748b"} fontStyle="italic">
+            <rect x={10} y={390} width={580} height={24} rx={4} fill="var(--muted)" />
+            <circle cx={28} cy={402} r={6} fill="var(--accent-solid)" />
+            <text x={40} y={406} fontSize={11} fill="var(--foreground)">Root Port (RP)</text>
+            <circle cx={148} cy={402} r={6} fill="var(--status-success-solid)" />
+            <text x={160} y={406} fontSize={11} fill="var(--foreground)">Designated Port (DP)</text>
+            <circle cx={310} cy={402} r={6} fill="var(--status-error-solid)" />
+            <text x={322} y={406} fontSize={11} fill="var(--foreground)">Blocked / Alternate</text>
+            <text x={460} y={406} fontSize={10} fill="var(--muted-foreground)" fontStyle="italic">
               Klick auf Cost-Label = Link aus
             </text>
           </g>
@@ -426,7 +428,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   ))}
                 </select>
                 {sw.id === result.rootId && (
-                  <span className="text-yellow-500 text-sm">👑</span>
+                  <span className="text-status-warning-fg text-xs font-semibold">Root Bridge</span>
                 )}
               </div>
             ))}
@@ -465,11 +467,11 @@ function ElectionTab({ dark }: { dark: boolean }) {
 // ════════════════════════════════════════════════════════════
 type StpState = "disabled" | "blocking" | "listening" | "learning" | "forwarding";
 
-const STP_SEQUENCE: { state: StpState; durationS: number; color: string; description: string }[] = [
-  { state: "blocking", durationS: 20, color: "#ef4444", description: "Hört nur BPDUs, blockt alles andere. Max-Age = 20 s." },
-  { state: "listening", durationS: 15, color: "#f59e0b", description: "Sendet/empfängt BPDUs, lernt aber keine MACs. Forward-Delay = 15 s." },
-  { state: "learning", durationS: 15, color: "#eab308", description: "Lernt MAC-Adressen, leitet aber noch keine Daten weiter." },
-  { state: "forwarding", durationS: Infinity, color: "#10b981", description: "Vollbetrieb — leitet Frames weiter & lernt MACs." },
+const STP_SEQUENCE: { state: StpState; durationS: number; color: string; fg: string; bg: string; description: string }[] = [
+  { state: "blocking", durationS: 20, color: "var(--status-error-solid)", fg: "var(--status-error-fg)", bg: "var(--status-error-bg)", description: "Hört nur BPDUs, blockt alles andere. Max-Age = 20 s." },
+  { state: "listening", durationS: 15, color: "var(--status-blocking-solid)", fg: "var(--status-blocking-fg)", bg: "var(--status-blocking-bg)", description: "Sendet/empfängt BPDUs, lernt aber keine MACs. Forward-Delay = 15 s." },
+  { state: "learning", durationS: 15, color: "var(--status-warning-solid)", fg: "var(--status-warning-fg)", bg: "var(--status-warning-bg)", description: "Lernt MAC-Adressen, leitet aber noch keine Daten weiter." },
+  { state: "forwarding", durationS: Infinity, color: "var(--status-success-solid)", fg: "var(--status-success-fg)", bg: "var(--status-success-bg)", description: "Vollbetrieb — leitet Frames weiter & lernt MACs." },
 ];
 
 function PortStatesTab({ dark }: { dark: boolean }) {
@@ -535,7 +537,6 @@ function PortStatesTab({ dark }: { dark: boolean }) {
         <div className="flex gap-2 mb-5">
           {STP_SEQUENCE.map((s, i) => {
             const isActive = i === stepIdx;
-            const isPast = i < stepIdx;
             const width = s.durationS === Infinity ? 200 : s.durationS * 12;
             return (
               <div
@@ -543,22 +544,21 @@ function PortStatesTab({ dark }: { dark: boolean }) {
                 style={{ width, minWidth: 80 }}
                 className={`relative rounded-lg p-3 transition-all ${
                   isActive ? "ring-2 scale-105" : ""
-                } ${isPast ? "opacity-50" : ""}`}
+                }`}
                 aria-label={`Phase ${s.state}`}
               >
                 <div
                   className="absolute inset-0 rounded-lg"
                   style={{
-                    background: s.color,
-                    opacity: isActive ? 0.3 : 0.15,
+                    background: s.bg,
                     border: `2px solid ${isActive ? s.color : "transparent"}`,
                   }}
                 />
                 <div className="relative">
-                  <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: s.color }}>
+                  <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: s.fg }}>
                     {s.state}
                   </div>
-                  <div className="text-xs opacity-70 mt-1">
+                  <div className="text-xs text-muted-foreground mt-1">
                     {s.durationS === Infinity ? "∞" : `${s.durationS} s`}
                   </div>
                   {isActive && s.durationS !== Infinity && (
@@ -586,10 +586,10 @@ function PortStatesTab({ dark }: { dark: boolean }) {
             background: dark ? "rgba(30,41,59,0.6)" : "rgba(241,245,249,0.8)",
           }}
         >
-          <div className="text-sm font-semibold mb-1" style={{ color: STP_SEQUENCE[stepIdx].color }}>
+          <div className="text-sm font-semibold mb-1" style={{ color: STP_SEQUENCE[stepIdx].fg }}>
             {STP_SEQUENCE[stepIdx].state.toUpperCase()}
           </div>
-          <p className="text-sm opacity-90">{STP_SEQUENCE[stepIdx].description}</p>
+          <p className="text-sm">{STP_SEQUENCE[stepIdx].description}</p>
         </div>
       </div>
 
@@ -600,7 +600,7 @@ function PortStatesTab({ dark }: { dark: boolean }) {
         }`}
       >
         <div className="text-sm font-semibold mb-3">Was passiert in welchem Zustand?</div>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Tabelle Zustände" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-xs">
             <thead>
               <tr className={`text-left ${dark ? "text-slate-400" : "text-slate-600"}`}>
@@ -758,11 +758,13 @@ function ConvergenceTab({ dark }: { dark: boolean }) {
         }`}
       >
         <div className="text-sm font-semibold mb-3">Direktvergleich</div>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label="Tabelle Direktvergleich" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <table className="w-full text-xs">
             <thead>
               <tr className={`text-left ${dark ? "text-slate-400" : "text-slate-600"}`}>
-                <th className="py-2 pr-3"></th>
+                <th className="py-2 pr-3">
+                  <span className="sr-only">Merkmal</span>
+                </th>
                 <th className="py-2 px-3">STP (802.1D)</th>
                 <th className="py-2 px-3">RSTP (802.1w)</th>
               </tr>
@@ -793,7 +795,7 @@ function ConvergenceTab({ dark }: { dark: boolean }) {
 // ════════════════════════════════════════════════════════════
 // Tab 4: PortFast & BPDU Guard
 // ════════════════════════════════════════════════════════════
-function GuardsTab({ dark }: { dark: boolean }) {
+function GuardsTab() {
   const [portFast, setPortFast] = useState(true);
   const [bpduGuard, setBpduGuard] = useState(true);
   const [connected, setConnected] = useState<"pc" | "switch">("pc");
@@ -804,13 +806,13 @@ function GuardsTab({ dark }: { dark: boolean }) {
       if (portFast) {
         return {
           status: "ok",
-          title: "✅ Sofort online",
+          title: "Sofort online",
           desc: "PortFast überspringt Listening/Learning → User sieht ab Boot sofort Netzwerk. Kein Loop möglich, weil PCs keine BPDUs senden.",
         };
       }
       return {
         status: "warn",
-        title: "⏳ 30 s Wartezeit",
+        title: "30 s Wartezeit",
         desc: "Ohne PortFast: 15 s Listening + 15 s Learning → DHCP-Timeout möglich. Windows zeigt 'Netzwerkkabel nicht verbunden'.",
       };
     } else {
@@ -818,42 +820,38 @@ function GuardsTab({ dark }: { dark: boolean }) {
       if (portFast && bpduGuard) {
         return {
           status: "blocked",
-          title: "🛡 Port err-disabled (gut!)",
+          title: "Port err-disabled (gut!)",
           desc: "BPDU Guard erkennt: 'Hier kommen BPDUs an, obwohl Edge-Port konfiguriert!' → Port wird sofort gesperrt. Manuell mit 'shutdown / no shutdown' resettable.",
         };
       }
       if (portFast && !bpduGuard) {
         return {
           status: "danger",
-          title: "💥 SOFORTIGER LOOP",
+          title: "SOFORTIGER LOOP",
           desc: "PortFast erlaubt Forwarding sofort. Der zweite Switch bringt eine weitere Brücke ins L2-Netz → Spanning Tree muss neu konvergieren, aber bis dahin: Broadcast-Sturm!",
         };
       }
       return {
         status: "warn",
-        title: "⚠ Funktioniert, aber riskant",
+        title: "Funktioniert, aber riskant",
         desc: "Ohne PortFast läuft Standard-STP-Sequenz → kein sofortiger Loop, aber 30+ s Downtime. BPDU Guard wäre trotzdem sinnvoll als Frühwarnung.",
       };
     }
   };
 
   const result = getResult();
-  const statusColor =
-    result.status === "ok"
-      ? "#10b981"
-      : result.status === "blocked"
-        ? "#3b82f6"
-        : result.status === "warn"
-          ? "#f59e0b"
-          : "#ef4444";
+  const statusTone = {
+    ok: { fg: "var(--status-success-fg)", border: "var(--status-success-border)", bg: "var(--status-success-bg)" },
+    blocked: { fg: "var(--accent-primary-fg)", border: "var(--accent-primary)", bg: "color-mix(in srgb, var(--accent-primary) 10%, transparent)" },
+    warn: { fg: "var(--status-warning-fg)", border: "var(--status-warning-border)", bg: "var(--status-warning-bg)" },
+    danger: { fg: "var(--status-error-fg)", border: "var(--status-error-border)", bg: "var(--status-error-bg)" },
+  }[result.status as "ok" | "blocked" | "warn" | "danger"];
 
   return (
     <div className="grid lg:grid-cols-2 gap-5">
       {/* Konfiguration */}
       <div
-        className={`rounded-xl border p-5 space-y-4 ${
-          dark ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-slate-50"
-        }`}
+        className="rounded-xl border p-5 space-y-4 border-border bg-muted/40"
       >
         <div className="text-sm font-semibold">Port-Konfiguration</div>
 
@@ -866,7 +864,7 @@ function GuardsTab({ dark }: { dark: boolean }) {
           />
           <div>
             <div className="text-sm font-semibold">PortFast aktiv</div>
-            <div className="text-xs opacity-70">spanning-tree portfast</div>
+            <div className="text-xs text-muted-foreground">spanning-tree portfast</div>
           </div>
         </label>
 
@@ -879,47 +877,39 @@ function GuardsTab({ dark }: { dark: boolean }) {
           />
           <div>
             <div className="text-sm font-semibold">BPDU Guard aktiv</div>
-            <div className="text-xs opacity-70">spanning-tree bpduguard enable</div>
+            <div className="text-xs text-muted-foreground">spanning-tree bpduguard enable</div>
           </div>
         </label>
 
-        <div className="pt-3 border-t border-slate-600/30">
+        <div className="pt-3 border-t border-border">
           <div className="text-sm font-semibold mb-2">Was hängt am Port?</div>
           <div className="flex gap-2">
             <button
               onClick={() => setConnected("pc")}
               className={`flex-1 px-3 py-2 rounded-lg text-sm border ${
                 connected === "pc"
-                  ? dark
-                    ? "bg-cyan-500/30 border-cyan-500/50 text-cyan-100"
-                    : "bg-cyan-100 border-cyan-300 text-cyan-900"
-                  : dark
-                    ? "border-slate-600 hover:bg-slate-700"
-                    : "border-slate-300 hover:bg-slate-100"
+                  ? "bg-accent-primary/10 border-accent-primary/50 text-accent-primary-fg"
+                  : "border-border hover:bg-muted"
               }`}
             >
-              💻 PC / Drucker
+              PC / Drucker
             </button>
             <button
               onClick={() => setConnected("switch")}
               className={`flex-1 px-3 py-2 rounded-lg text-sm border ${
                 connected === "switch"
-                  ? dark
-                    ? "bg-red-500/30 border-red-500/50 text-red-100"
-                    : "bg-red-100 border-red-300 text-red-900"
-                  : dark
-                    ? "border-slate-600 hover:bg-slate-700"
-                    : "border-slate-300 hover:bg-slate-100"
+                  ? "bg-status-error-bg border-status-error-border/50 text-status-error-fg"
+                  : "border-border hover:bg-muted"
               }`}
             >
-              🔀 Fremder Switch
+              Fremder Switch
             </button>
           </div>
         </div>
 
         {/* CLI */}
-        <div className={`rounded-lg p-3 font-mono text-xs ${dark ? "bg-slate-900" : "bg-slate-800 text-green-400"}`}>
-          <div className="opacity-60 mb-1">! Resultierende Konfiguration</div>
+        <div className={`rounded-lg p-3 font-mono text-xs bg-terminal-bg text-terminal-fg`}>
+          <div className="text-terminal-muted mb-1">! Resultierende Konfiguration</div>
           <div>SW(config)# interface Gi0/1</div>
           <div>SW(config-if)# switchport mode access</div>
           {portFast && <div>SW(config-if)# spanning-tree portfast</div>}
@@ -929,25 +919,23 @@ function GuardsTab({ dark }: { dark: boolean }) {
 
       {/* Ergebnis */}
       <div
-        className={`rounded-xl border-2 p-5 space-y-3`}
+        className="rounded-xl border-2 p-5 space-y-3"
         style={{
-          borderColor: statusColor,
-          background: dark ? `${statusColor}15` : `${statusColor}10`,
+          borderColor: statusTone.border,
+          background: statusTone.bg,
         }}
       >
-        <div className="text-sm uppercase tracking-wide opacity-70">Ergebnis</div>
-        <div className="text-2xl font-bold" style={{ color: statusColor }}>
+        <div className="text-sm uppercase tracking-wide text-muted-foreground">Ergebnis</div>
+        <div className="text-2xl font-bold" style={{ color: statusTone.fg }}>
           {result.title}
         </div>
         <p className="text-sm leading-relaxed">{result.desc}</p>
 
         <div
-          className={`mt-4 rounded-lg p-3 text-xs space-y-2 ${
-            dark ? "bg-slate-900/50" : "bg-white"
-          }`}
+          className="mt-4 rounded-lg p-3 text-xs space-y-2 bg-card/50"
         >
           <div className="font-semibold mb-1">Best Practice (global aktivieren)</div>
-          <pre className={`${dark ? "text-green-400" : "text-green-700"} font-mono text-xs leading-relaxed`}>
+          <pre className="text-status-success-fg font-mono text-xs leading-relaxed">
 {`SW(config)# spanning-tree portfast default
 SW(config)# spanning-tree portfast bpduguard default
 SW(config)# spanning-tree mode rapid-pvst`}
@@ -1050,7 +1038,7 @@ export function StpSimulatorDialog({ dark, onClose }: Props) {
             {tab === "election" && <ElectionTab dark={dark} />}
             {tab === "states" && <PortStatesTab dark={dark} />}
             {tab === "convergence" && <ConvergenceTab dark={dark} />}
-            {tab === "guards" && <GuardsTab dark={dark} />}
+            {tab === "guards" && <GuardsTab />}
           </div>
         </div>
       </div>
