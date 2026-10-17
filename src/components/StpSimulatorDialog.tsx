@@ -204,7 +204,9 @@ function ElectionTab({ dark }: { dark: boolean }) {
   };
 
   const roleColor = (role: PortRole["role"]) =>
-    role === "root" ? "#3b82f6" : role === "designated" ? "#10b981" : "#ef4444";
+    role === "root" ? "var(--accent-solid)" : role === "designated" ? "var(--status-success-solid)" : "var(--status-error-solid)";
+  const roleOnColor = (role: PortRole["role"]) =>
+    role === "root" ? "var(--on-accent-solid)" : role === "designated" ? "var(--on-status-success-solid)" : "var(--on-status-error-solid)";
   const roleLabel = (role: PortRole["role"]) =>
     role === "root" ? "RP" : role === "designated" ? "DP" : "BLK";
 
@@ -229,10 +231,10 @@ function ElectionTab({ dark }: { dark: boolean }) {
               (p) => p.linkId === l.id && p.switchId === l.b,
             );
             const stroke = broken
-              ? "#6b7280"
+              ? "var(--muted-foreground)"
               : roleA?.role === "blocked" || roleB?.role === "blocked"
-                ? "#ef4444"
-                : "#10b981";
+                ? "var(--status-error-solid)"
+                : "var(--status-success-solid)";
             const midX = (sa.x + sb.x) / 2;
             const midY = (sa.y + sb.y) / 2;
             return (
@@ -261,7 +263,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       y={sa.y + (sb.y - sa.y) * 0.18 + 3}
                       textAnchor="middle"
                       fontSize={9}
-                      fill="white"
+                      fill={roleOnColor(roleA.role)}
                       fontWeight={700}
                       fontFamily="'IBM Plex Mono', monospace"
                     >
@@ -283,7 +285,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                       y={sb.y + (sa.y - sb.y) * 0.18 + 3}
                       textAnchor="middle"
                       fontSize={9}
-                      fill="white"
+                      fill={roleOnColor(roleB.role)}
                       fontWeight={700}
                       fontFamily="'IBM Plex Mono', monospace"
                     >
@@ -302,8 +304,8 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     width={56}
                     height={20}
                     rx={4}
-                    fill={dark ? "#1e293b" : "#ffffff"}
-                    stroke={broken ? "#6b7280" : "#94a3b8"}
+                    fill="var(--card)"
+                    stroke={broken ? "var(--muted-foreground)" : "color-mix(in srgb, var(--muted-foreground) 60%, transparent)"}
                     strokeWidth={1}
                   />
                   <text
@@ -311,7 +313,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     y={midY + 4}
                     textAnchor="middle"
                     fontSize={10}
-                    fill={broken ? "#9ca3af" : dark ? "#e2e8f0" : "#334155"}
+                    fill={broken ? "var(--muted-foreground)" : "var(--foreground)"}
                     fontFamily="'IBM Plex Mono', monospace"
                   >
                     {broken ? "✕ down" : `cost ${l.cost}`}
@@ -331,8 +333,8 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   width={100}
                   height={60}
                   rx={8}
-                  fill={dark ? "#0f172a" : "#ffffff"}
-                  stroke={isRoot ? "#facc15" : dark ? "#60a5fa" : "#2563eb"}
+                  fill="var(--card)"
+                  stroke={isRoot ? "var(--status-warning-solid)" : "var(--accent-primary)"}
                   strokeWidth={isRoot ? 4 : 2}
                 />
                 {isRoot && (
@@ -340,11 +342,11 @@ function ElectionTab({ dark }: { dark: boolean }) {
                     x={sw.x}
                     y={sw.y - 36}
                     textAnchor="middle"
-                    fontSize={14}
-                    fill="#facc15"
+                    fontSize={12}
+                    fill="var(--status-warning-fg)"
                     fontWeight={700}
                   >
-                    👑 ROOT
+                    Root Bridge
                   </text>
                 )}
                 <text
@@ -353,7 +355,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   textAnchor="middle"
                   fontSize={15}
                   fontWeight={700}
-                  fill={dark ? "#f1f5f9" : "#0f172a"}
+                  fill="var(--foreground)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   {sw.name}
@@ -363,7 +365,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   y={sw.y + 8}
                   textAnchor="middle"
                   fontSize={10}
-                  fill={dark ? "#94a3b8" : "#475569"}
+                  fill="var(--text-secondary)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   prio {sw.priority}
@@ -373,7 +375,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   y={sw.y + 22}
                   textAnchor="middle"
                   fontSize={9}
-                  fill={dark ? "#64748b" : "#64748b"}
+                  fill="var(--muted-foreground)"
                   fontFamily="'IBM Plex Mono', monospace"
                 >
                   MAC ..{sw.mac} · cost→{result.costToRoot[sw.id]}
@@ -383,14 +385,14 @@ function ElectionTab({ dark }: { dark: boolean }) {
           })}
           {/* Legende */}
           <g>
-            <rect x={10} y={390} width={580} height={24} rx={4} fill={dark ? "#1e293b" : "#f1f5f9"} />
-            <circle cx={28} cy={402} r={6} fill="#3b82f6" />
-            <text x={40} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Root Port (RP)</text>
-            <circle cx={148} cy={402} r={6} fill="#10b981" />
-            <text x={160} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Designated Port (DP)</text>
-            <circle cx={310} cy={402} r={6} fill="#ef4444" />
-            <text x={322} y={406} fontSize={11} fill={dark ? "#e2e8f0" : "#334155"}>Blocked / Alternate</text>
-            <text x={460} y={406} fontSize={10} fill={dark ? "#94a3b8" : "#64748b"} fontStyle="italic">
+            <rect x={10} y={390} width={580} height={24} rx={4} fill="var(--muted)" />
+            <circle cx={28} cy={402} r={6} fill="var(--accent-solid)" />
+            <text x={40} y={406} fontSize={11} fill="var(--foreground)">Root Port (RP)</text>
+            <circle cx={148} cy={402} r={6} fill="var(--status-success-solid)" />
+            <text x={160} y={406} fontSize={11} fill="var(--foreground)">Designated Port (DP)</text>
+            <circle cx={310} cy={402} r={6} fill="var(--status-error-solid)" />
+            <text x={322} y={406} fontSize={11} fill="var(--foreground)">Blocked / Alternate</text>
+            <text x={460} y={406} fontSize={10} fill="var(--muted-foreground)" fontStyle="italic">
               Klick auf Cost-Label = Link aus
             </text>
           </g>
@@ -426,7 +428,7 @@ function ElectionTab({ dark }: { dark: boolean }) {
                   ))}
                 </select>
                 {sw.id === result.rootId && (
-                  <span className="text-yellow-500 text-sm">👑</span>
+                  <span className="text-status-warning-fg text-xs font-semibold">Root Bridge</span>
                 )}
               </div>
             ))}

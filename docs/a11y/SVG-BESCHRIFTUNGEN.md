@@ -1,5 +1,7 @@
 # Kontrast von SVG-Beschriftungen auf Füllungen (Nicht-Canvas)
 
+**Stand nach `fix/svg-label-contrast`: 12.634 Beschriftungen, 0 unter 4,5:1.** Die Tabellen unten zeigen den Ausgangsstand vor der Behebung. Der Labs-Dialog (immer dunkel) wird nur im dunklen Thema geprüft.
+
 Skript: `scripts/e2e/svg-label-contrast.mjs` (nur lesend; `EXHIBITS=1` ergänzt alle Prüfungsfragen mit Grafik). Je `<text>` werden die berechnete Füllfarbe, die darunterliegenden SVG-Formen (von unten nach oben mit Deckkraft überlagert) und der HTML-Hintergrund zusammengerechnet; Ziel 4,5:1. 1440 px, hell und dunkel.
 
 Geprüft: Dashboard, alle 16 Werkzeuge inkl. Reiter, Labs-Dialog (OSPF-Lab), Prüfungsfrage mit Grafik q0109 sowie **alle 363 Prüfungsfragen mit Exhibit** (11.422 Beschriftungen, niedrigster Wert 5,17:1, keine Stelle unter 4,5:1). Gesamt 12.704 Beschriftungen, 86 unter 4,5:1; alle in Routing-Simulator und STP-Simulator (plus ein Messartefakt im Labs-Dialog, s. u.). axe erkennt diese Fälle nicht, weil es Formfüllungen in SVG nicht als Hintergrund auswertet.
