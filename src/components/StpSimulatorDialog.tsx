@@ -12,6 +12,7 @@
 import { ArrowsClockwise, Lightning, Pause, Play, Shield, X } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { TabBar, TabBarList, TabBarPanel, TabBarTab } from "@/components/ui/tabs";
 
 interface Props {
   dark: boolean;
@@ -1005,8 +1006,10 @@ export function StpSimulatorDialog({ dark, onClose }: Props) {
             </button>
           </div>
 
+          <TabBar value={tab} onValueChange={(v) => setTab(v as TabId)} className="contents">
           {/* Tabs */}
-          <div
+          <TabBarList
+            aria-label="STP-Themen"
             className={`sticky top-[73px] z-10 flex gap-1 px-6 pt-3 border-b ${
               dark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
             }`}
@@ -1015,9 +1018,9 @@ export function StpSimulatorDialog({ dark, onClose }: Props) {
               const Icon = t.icon;
               const active = tab === t.id;
               return (
-                <button
+                <TabBarTab
                   key={t.id}
-                  onClick={() => setTab(t.id)}
+                  value={t.id}
                   className={`flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
                     active
                       ? dark
@@ -1028,18 +1031,19 @@ export function StpSimulatorDialog({ dark, onClose }: Props) {
                 >
                   <Icon size={14} weight={active ? "fill" : "regular"} />
                   {t.label}
-                </button>
+                </TabBarTab>
               );
             })}
-          </div>
+          </TabBarList>
 
           {/* Tab Content */}
           <div className="p-6">
-            {tab === "election" && <ElectionTab dark={dark} />}
-            {tab === "states" && <PortStatesTab dark={dark} />}
-            {tab === "convergence" && <ConvergenceTab dark={dark} />}
-            {tab === "guards" && <GuardsTab />}
+            <TabBarPanel value="election"><ElectionTab dark={dark} /></TabBarPanel>
+            <TabBarPanel value="states"><PortStatesTab dark={dark} /></TabBarPanel>
+            <TabBarPanel value="convergence"><ConvergenceTab dark={dark} /></TabBarPanel>
+            <TabBarPanel value="guards"><GuardsTab /></TabBarPanel>
           </div>
+          </TabBar>
         </div>
       </div>
     </ModalPortal>
