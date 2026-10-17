@@ -25,7 +25,7 @@ if (!browserPath) {
   process.exit(1);
 }
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:5001";
 const root = process.cwd();
 const axeSource = fs.readFileSync(path.join(root, "node_modules", "axe-core", "axe.min.js"), "utf8");
 const screenshotsDir = path.join(root, ".local", "screenshots");
@@ -34,6 +34,7 @@ if (!fs.existsSync(screenshotsDir)) {
 }
 
 async function navigateToCanvas(page) {
+  // Onboarding überspringen falls offen
   await page.evaluate(() => {
     const skipBtn = Array.from(document.querySelectorAll("button")).find(
       (b) => b.textContent && b.textContent.includes("Überspringen")
@@ -42,24 +43,19 @@ async function navigateToCanvas(page) {
   });
   await page.waitForTimeout(300);
 
-  await page.evaluate(() => {
-    const flipBtn =
-      document.querySelector('button[aria-label*="Canvas"]') ||
-      document.querySelector('button[title*="Canvas"]') ||
-      Array.from(document.querySelectorAll("button")).find(
-        (b) => b.textContent && b.textContent.includes("Canvas")
-      );
-    if (flipBtn) flipBtn.click();
-  });
-  await page.waitForTimeout(600);
+  // Flip-Button zum Canvas
+  const flipBtn = page.locator('button[aria-label="Zum Canvas wechseln"]');
+  if (await flipBtn.isVisible()) {
+    await flipBtn.click();
+    await page.waitForTimeout(600);
+  }
 
-  await page.evaluate(() => {
-    const v2Btn = Array.from(document.querySelectorAll("button")).find(
-      (b) => b.textContent && b.textContent.trim() === "v2 (SVG Next)" && !b.disabled
-    );
-    if (v2Btn) v2Btn.click();
-  });
-  await page.waitForTimeout(600);
+  // Falls v1 aktiv, zu v2 umschalten (nur klicken wenn nicht bereits disabled/aktiv)
+  const v2Btn = page.locator('button:has-text("v2 (SVG Next)"):not([disabled])');
+  if (await v2Btn.isVisible()) {
+    await v2Btn.click();
+    await page.waitForTimeout(600);
+  }
 }
 
 async function run() {
