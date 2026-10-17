@@ -321,7 +321,7 @@ function KategorieTabelle() {
       <p className="text-xs text-muted-foreground">
         Klicke eine Kategorie für Details. Alle Werte gelten für Twisted-Pair-Kupfer (U/UTP, F/UTP oder S/FTP).
       </p>
-      <div className="overflow-x-auto">
+      <div tabIndex={0} role="region" aria-label="Kategorien-Tabelle" className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className={"bg-muted"}>
