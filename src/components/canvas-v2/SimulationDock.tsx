@@ -37,6 +37,8 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
 }) => {
   // Quelle & Ziel
   const [sourceId, setSourceId] = useState<string>("");
+  // Quell-IP wie bei `ping … source …`; leer = automatisch (Ausgangsinterface bzw. Host-Interface)
+  const [sourceIp, setSourceIp] = useState<string>("");
   const [targetMode, setTargetMode] = useState<"device" | "ip">("device");
   const [targetId, setTargetId] = useState<string>("");
   const [targetCustomIp, setTargetCustomIp] = useState<string>("");
@@ -86,6 +88,15 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
     );
   }, [topology]);
 
+  // Quell-IP-Auswahl nur für Router und L3-Switches
+  const sourceDevice = topology.devices.find((d) => d.id === sourceId);
+  const sourceIpOptions = useMemo(() => {
+    if (!sourceDevice || (sourceDevice.type !== "router" && sourceDevice.type !== "switch-l3")) return [];
+    return sourceDevice.interfaces
+      .filter((i) => !!i.ip)
+      .map((i) => ({ name: i.name, ip: i.ip!.split("/")[0] }));
+  }, [sourceDevice]);
+
   // Standard-Quelle & Ziel vorauswählen
   useEffect(() => {
     if (candidateDevices.length > 0 && !sourceId) {
@@ -107,6 +118,7 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
       sourceDeviceId: sourceId,
       targetDeviceId: targetMode === "device" ? targetId : undefined,
       targetIp: targetMode === "ip" ? targetCustomIp.trim() : undefined,
+      sourceIp: sourceIp || undefined,
       arpCache,
     });
 
@@ -201,7 +213,10 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
             <select
               id="sim-source-select"
               value={sourceId}
-              onChange={(e) => setSourceId(e.target.value)}
+              onChange={(e) => {
+                setSourceId(e.target.value);
+                setSourceIp("");
+              }}
               className="rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >
               {candidateDevices.map((d) => (
@@ -211,6 +226,28 @@ export const SimulationDock: React.FC<SimulationDockProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Quell-IP (ping … source …) */}
+          {sourceIpOptions.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <label htmlFor="sim-source-ip-select" className="text-muted-foreground font-medium">
+                Quell-IP:
+              </label>
+              <select
+                id="sim-source-ip-select"
+                value={sourceIp}
+                onChange={(e) => setSourceIp(e.target.value)}
+                className="rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">automatisch (Ausgangsinterface)</option>
+                {sourceIpOptions.map((o) => (
+                  <option key={o.name} value={o.ip}>
+                    source {o.ip} ({o.name})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Ziel Auswahl (Gerät oder IP) */}
           <div className="flex items-center gap-1.5 text-xs">
