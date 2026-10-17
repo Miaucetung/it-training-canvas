@@ -102,6 +102,7 @@ interface SvgTopologyRendererProps {
   prefersReducedMotion?: boolean;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
+  onLinkContextMenu?: (link: TopologyLink, e: React.MouseEvent) => void;
   onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
   onDeviceContextMenu?: (device: TopologyDevice, e: React.MouseEvent) => void;
   onDeviceMoveByKey?: (device: TopologyDevice, dx: number, dy: number) => void;
@@ -135,6 +136,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   prefersReducedMotion = false,
   onDeviceClick,
   onLinkClick,
+  onLinkContextMenu,
   onDevicePointerDown,
   onDeviceContextMenu,
   onAnnotationClick,
@@ -485,6 +487,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                 theme={theme}
                 selected={selectedLinkId === link.id || isSimLink}
                 onLinkClick={onLinkClick}
+                onLinkContextMenu={onLinkContextMenu}
               />
               {isSimLink && (
                 <g className="simulation-packet-animation pointer-events-none">

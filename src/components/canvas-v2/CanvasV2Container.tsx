@@ -56,6 +56,9 @@ import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
 import { SimulationDock } from "./SimulationDock";
+import { LinkContextMenu } from "./LinkContextMenu";
+import { FailoverPanel } from "./FailoverPanel";
+import { analyzeFailover, applyFailoverAction, type ConvergenceMode, type FailoverAction, type FailoverAnalysis } from "@/lib/topology/failover";
 import { simulateDhcpLeases } from "@/lib/topology/simulation/packet-simulator";
 import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
@@ -180,6 +183,10 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     x: number;
     y: number;
   } | null>(null);
+  const [linkMenuState, setLinkMenuState] = useState<{ link: TopologyLink; x: number; y: number } | null>(null);
+  // Ausfall-Analyse (Phase 2): letzte Aktion mit Vorher/Nachher und Konvergenzmodus
+  const [failoverAnalysis, setFailoverAnalysis] = useState<FailoverAnalysis | null>(null);
+  const [convergenceMode, setConvergenceMode] = useState<ConvergenceMode>("sofort");
 
   // View-Optionen
   const [viewDensity, setViewDensity] = useState<"simple" | "detail">("detail");
@@ -510,6 +517,23 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       setContextMenuState({ device, x: e.clientX, y: e.clientY });
       setDraggingDeviceId(null);
     }, 500);
+  };
+
+  // Verbindung trennen/wiederherstellen, shutdown/no shutdown: neu berechnen, Vorher/Nachher anzeigen (mit Undo)
+  const runFailover = (actions: FailoverAction[], after?: NetworkTopology) => {
+    const analysis = analyzeFailover(activeTopology, actions, after);
+    setTopology(analysis.after, true);
+    setFailoverAnalysis(analysis);
+    if (selectedLink) setSelectedLink(analysis.after.links.find((l) => l.id === selectedLink.id) ?? null);
+    if (selectedDevice) setSelectedDevice(analysis.after.devices.find((d) => d.id === selectedDevice.id) ?? null);
+    toast.info(`${analysis.title} (Rückgängig mit Strg+Z)`);
+  };
+
+  const handleLinkContextMenu = (link: TopologyLink, e: React.MouseEvent) => {
+    setSelectedLink(link);
+    setSelectedDevice(null);
+    setSelectedAnnotation(null);
+    setLinkMenuState({ link, x: e.clientX, y: e.clientY });
   };
 
   const handleDeviceContextMenu = (device: TopologyDevice, e: React.MouseEvent) => {
@@ -1083,6 +1107,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
       Boolean(target?.closest("input, textarea, select, [contenteditable='true'], dialog, [role='dialog']")) ||
       connectDialogState !== null ||
       contextMenuState !== null ||
+      linkMenuState !== null ||
       editingAnnotation !== null;
 
     // Wenn Fokus in einem Formularfeld oder Dialog liegt: Keinerlei Tastatur-Canvas-Aktionen!
@@ -1128,6 +1153,17 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
     if (e.key === "Enter" && selectedDevice) {
       e.preventDefault();
       setIsConfigDialogOpen(true);
+      return;
+    }
+
+    // Kontextmenü einer Verbindung per Tastatur (Menütaste oder Shift+F10): trennen, shutdown …
+    if ((e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) && selectedLink && !selectedDevice) {
+      e.preventDefault();
+      const src = activeTopology.devices.find((d) => d.id === selectedLink.sourceDeviceId);
+      const tgt = activeTopology.devices.find((d) => d.id === selectedLink.targetDeviceId);
+      const mx = src && tgt ? (src.x + tgt.x) / 2 + 40 : 0;
+      const my = src && tgt ? (src.y + tgt.y) / 2 + 30 : 0;
+      setLinkMenuState({ link: selectedLink, x: mx * scale + translateX, y: my * scale + translateY });
       return;
     }
 
@@ -1716,6 +1752,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             setSelectedDevice(null);
             setSelectedAnnotation(null);
           }}
+          onLinkContextMenu={handleLinkContextMenu}
           onAnnotationClick={(ann) => {
             setSelectedAnnotation(ann);
             setSelectedDevice(null);
@@ -2035,6 +2072,34 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
         />
       )}
 
+      {/* ── KONTEXTMENÜ EINER VERBINDUNG (Ausfall: trennen, shutdown) ── */}
+      {linkMenuState && (
+        <LinkContextMenu
+          link={activeTopology.links.find((l) => l.id === linkMenuState.link.id) ?? linkMenuState.link}
+          topology={activeTopology}
+          x={linkMenuState.x}
+          y={linkMenuState.y}
+          onAction={(action) => runFailover([action])}
+          onDelete={() => {
+            setTopology((prev) => deleteLinkFromTopology(prev, linkMenuState.link.id), true);
+            setSelectedLink(null);
+            toast.info("Verbindung gelöscht (Rückgängig mit Strg+Z)");
+          }}
+          onClose={() => setLinkMenuState(null)}
+        />
+      )}
+
+      {/* ── AUSFALL-ANALYSE (Vorher/Nachher, Konvergenz) ── */}
+      {failoverAnalysis && (
+        <FailoverPanel
+          analysis={failoverAnalysis}
+          mode={convergenceMode}
+          onModeChange={setConvergenceMode}
+          onClose={() => setFailoverAnalysis(null)}
+          prefersReducedMotion={typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches}
+        />
+      )}
+
       {/* ── GERÄTE-KONFIGURATIONSDIALOG (Schritt 2d-3) ── */}
       {isConfigDialogOpen && selectedDevice && (
         <DeviceConfigDialog
@@ -2044,11 +2109,24 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           isOpen={isConfigDialogOpen}
           onClose={() => setIsConfigDialogOpen(false)}
           onSave={(updatedDev) => {
-            setTopology((prev) => ({
-              ...prev,
-              devices: prev.devices.map((d) => (d.id === updatedDev.id ? updatedDev : d)),
-            }), true);
-            setSelectedDevice(updatedDev);
+            // shutdown/no shutdown im Dialog: wie eine Ausfall-Aktion neu berechnen (Gegenseite, STP, Routen, HSRP)
+            const oldDev = activeTopology.devices.find((d) => d.id === updatedDev.id);
+            const actions: FailoverAction[] = updatedDev.interfaces
+              .filter((i) => {
+                const old = oldDev?.interfaces.find((o) => o.id === i.id);
+                return !!old && !!old.isShutdown !== !!i.isShutdown;
+              })
+              .map((i) => ({ kind: i.isShutdown ? "shutdown" : "no-shutdown", deviceId: updatedDev.id, ifaceId: i.id }));
+            const replaced: NetworkTopology = {
+              ...activeTopology,
+              devices: activeTopology.devices.map((d) => (d.id === updatedDev.id ? updatedDev : d)),
+            };
+            if (actions.length > 0) {
+              runFailover(actions, actions.reduce(applyFailoverAction, replaced));
+            } else {
+              setTopology(replaced, true);
+              setSelectedDevice(updatedDev);
+            }
             toast.success(`${updatedDev.name} Konfiguration gespeichert`);
           }}
         />

@@ -8,6 +8,7 @@ interface LinkRendererProps {
   theme?: "dark" | "light";
   selected?: boolean;
   onLinkClick?: (link: TopologyLink) => void;
+  onLinkContextMenu?: (link: TopologyLink, e: React.MouseEvent) => void;
 }
 
 export function getLinkAriaLabel(
@@ -51,6 +52,7 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
   theme = "dark",
   selected = false,
   onLinkClick,
+  onLinkContextMenu,
 }) => {
   // Koordinaten der Geräte-Zentren
   const x1 = sourceDevice.x + (sourceDevice.width || 80) / 2;
@@ -293,6 +295,12 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({
       role="button"
       aria-label={getLinkAriaLabel(link, sourceDevice, targetDevice)}
       onClick={() => onLinkClick?.(link)}
+      onContextMenu={(e) => {
+        if (!onLinkContextMenu) return;
+        e.preventDefault();
+        e.stopPropagation();
+        onLinkContextMenu(link, e);
+      }}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
