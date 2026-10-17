@@ -55,6 +55,7 @@ import { DeviceContextMenu } from "./DeviceContextMenu";
 import { DeviceConfigDialog } from "./DeviceConfigDialog";
 import { StorageTab, TopologyStorageDialog } from "./TopologyStorageDialog";
 import { TopologyScreenReaderView } from "./TopologyScreenReaderView";
+import { SimulationDock } from "./SimulationDock";
 import { downloadBlob, saveNamedTopology } from "@/lib/topology/storage-manager";
 import { validateTopology } from "@/lib/topology/topology-validation";
 import { toast } from "sonner";
@@ -64,6 +65,7 @@ import {
   Gear,
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
+  Play,
   ShieldCheck,
   Table,
   Terminal,
@@ -191,6 +193,11 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState<boolean>(false);
   const [storageDialogTab, setStorageDialogTab] = useState<StorageTab>("templates");
   const [showScreenReaderView, setShowScreenReaderView] = useState<boolean>(false);
+
+  // Netzwerksimulation (Phase 1: Ping & Hop-Trace)
+  const [isSimulationOpen, setIsSimulationOpen] = useState<boolean>(false);
+  const [activeSimulationHopIndex, setActiveSimulationHopIndex] = useState<number | null>(null);
+  const [activeSimulationDeviceId, setActiveSimulationDeviceId] = useState<string | null>(null);
 
   useEffect(() => {
     if (externalStorageTab) {
@@ -1480,6 +1487,21 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
             <Table size={15} weight="bold" className="text-sky-400" />
             <span className="hidden lg:inline text-[11px]">Tabelle</span>
           </button>
+
+          {/* Netzwerksimulation Button */}
+          <button
+            onClick={() => setIsSimulationOpen((v) => !v)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              isSimulationOpen
+                ? "bg-primary text-primary-foreground border-primary"
+                : "border-border text-foreground hover:bg-accent"
+            }`}
+            title="Netzwerksimulation: Ping, ARP & Hop-Trace"
+            aria-label="Netzwerksimulation öffnen oder schließen"
+          >
+            <Play size={15} weight="bold" />
+            <span className="hidden md:inline">Simulation</span>
+          </button>
         </div>
 
         {/* Rechte Seite: Zoom & Feature-Flag */}
@@ -1703,6 +1725,7 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           onAnnotationDoubleClick={handleAnnotationDoubleClick}
           onHandlePointerDown={handleHandlePointerDown}
           drawingAnnotationPreview={drawingAnnotationPreview}
+          activeSimulationDeviceId={activeSimulationDeviceId}
           scale={scale}
           translateX={translateX}
           translateY={translateY}
@@ -2057,6 +2080,22 @@ export const CanvasV2Container: React.FC<CanvasV2ContainerProps> = ({
           onClose={() => setShowScreenReaderView(false)}
         />
       )}
+
+      {/* ── NETZWERKSIMULATION DOCK (PHASE 1: PING & HOP-INSPECTOR) ── */}
+      <SimulationDock
+        topology={activeTopology}
+        isOpen={isSimulationOpen}
+        onClose={() => {
+          setIsSimulationOpen(false);
+          setActiveSimulationHopIndex(null);
+          setActiveSimulationDeviceId(null);
+        }}
+        activeHopIndex={activeSimulationHopIndex}
+        onSelectHop={(hopIndex, deviceId) => {
+          setActiveSimulationHopIndex(hopIndex);
+          setActiveSimulationDeviceId(deviceId ?? null);
+        }}
+      />
     </div>
   );
 };

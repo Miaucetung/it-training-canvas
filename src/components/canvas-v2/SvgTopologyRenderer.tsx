@@ -96,6 +96,7 @@ interface SvgTopologyRendererProps {
   selectedDeviceId?: string | null;
   selectedLinkId?: string | null;
   selectedAnnotationId?: string | null;
+  activeSimulationDeviceId?: string | null;
   onDeviceClick?: (device: TopologyDevice) => void;
   onLinkClick?: (link: TopologyLink) => void;
   onDevicePointerDown?: (device: TopologyDevice, e: React.PointerEvent) => void;
@@ -126,6 +127,7 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
   selectedDeviceId = null,
   selectedLinkId = null,
   selectedAnnotationId = null,
+  activeSimulationDeviceId = null,
   onDeviceClick,
   onLinkClick,
   onDevicePointerDown,
@@ -519,6 +521,23 @@ export const SvgTopologyRenderer: React.FC<SvgTopologyRendererProps> = ({
                   stroke="#FACC15"
                   strokeWidth="2.5"
                   strokeDasharray="4 3"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
+
+              {/* Simulations-Halo bei aktivem Hop */}
+              {activeSimulationDeviceId === device.id && (
+                <rect
+                  x="-6"
+                  y="-6"
+                  width={w + 12}
+                  height={viewDensity === "detail" ? h + 44 : h + 20}
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  className="text-primary animate-pulse"
+                  strokeWidth="3"
+                  strokeDasharray="4 2"
                   vectorEffect="non-scaling-stroke"
                 />
               )}
